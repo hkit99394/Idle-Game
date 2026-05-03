@@ -1,4 +1,8 @@
 import {
+  applyStageClearRewards,
+  createInitialPlayerProgress,
+  getNextMasteryThreshold,
+  purchaseUpgrade,
   simulateBattle
 } from "../core";
 import type { StaticGameData } from "../core";
@@ -63,4 +67,50 @@ const scenarios = [
   runScenario("Boss: Black Iron Guard", "black_iron_guard")
 ];
 
-console.log(JSON.stringify(scenarios, null, 2));
+let progress = createInitialPlayerProgress(staticData);
+const rewardResults = [];
+
+for (const stageId of ["bamboo_road_1", "bamboo_road_2", "bamboo_road_3"]) {
+  const rewardResult = applyStageClearRewards(staticData, {
+    progress,
+    stageId
+  });
+
+  rewardResults.push(rewardResult);
+
+  if (rewardResult.ok) {
+    progress = rewardResult.progress;
+  }
+}
+
+const upgradePurchase = purchaseUpgrade(staticData.upgrades, {
+  progress,
+  upgradeId: "hero_outer_training",
+  heroId: "iron_fist_disciple"
+});
+
+if (upgradePurchase.ok) {
+  progress = upgradePurchase.progress;
+}
+
+const nextMastery = getNextMasteryThreshold(
+  progress.maps.bamboo_road.combatExperience,
+  staticData.mastery.thresholds
+);
+
+console.log(
+  JSON.stringify(
+    {
+      scenarios,
+      progressionSample: {
+        resources: progress.resources,
+        bambooRoad: progress.maps.bamboo_road,
+        rewardResults,
+        upgradePurchase,
+        nextMastery
+      }
+    },
+    null,
+    2
+  )
+);
