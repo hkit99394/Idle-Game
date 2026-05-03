@@ -120,7 +120,7 @@ Acceptance:
 
 ### 1.5 Stage Unlock And Current Stage State
 
-Status: In progress
+Status: Completed
 
 Task:
 

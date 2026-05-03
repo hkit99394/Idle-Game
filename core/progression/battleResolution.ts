@@ -148,7 +148,7 @@ export function resolveStageBattle(
     };
   }
 
-  if (!isStageUnlocked(input.progress, stage)) {
+  if (!isStageUnlocked(data, input.progress, stage)) {
     return {
       ok: false,
       reason: "locked_stage",
@@ -212,7 +212,12 @@ export function resolveStageBattle(
     stageCleared: true,
     progress: {
       ...rewardsResult.progress,
-      currentStageId: getNextCurrentStageId(stage, input.progress.currentStageId)
+      currentStageId: getNextCurrentStageId(
+        data,
+        stage,
+        input.progress.currentStageId,
+        rewardsResult.progress
+      )
     },
     battle,
     rewards: rewardsResult.rewards,
