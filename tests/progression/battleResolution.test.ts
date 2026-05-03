@@ -23,6 +23,7 @@ describe("stage battle resolution", () => {
 
     expect(result.battle.winner).toBe("player");
     expect(result.stageCleared).toBe(true);
+    expect(result.suggestedFarmStageId).toBeNull();
     expect(result.rewards).toEqual({
       silver: 10,
       cultivation: 5,
@@ -73,10 +74,48 @@ describe("stage battle resolution", () => {
     expect(result.battle.winner).toBe("enemy");
     expect(result.stageCleared).toBe(false);
     expect(result.rewards).toBeNull();
+    expect(result.suggestedFarmStageId).toBe("bamboo_road_9");
     expect(result.progress).toBe(progress);
     expect(result.progress.resources.silver).toBe(0);
     expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(9);
     expect(result.progress.currentStageId).toBe("bamboo_road_10");
+  });
+
+  it("returns no farm suggestion when the player has not cleared a farmable stage", () => {
+    const data: StaticGameData = {
+      ...staticData,
+      stages: staticData.stages.map((stage) =>
+        stage.id === "bamboo_road_1"
+          ? {
+              ...stage,
+              enemyTeam: {
+                combatantIds: ["black_iron_guard"]
+              }
+            }
+          : stage
+      )
+    };
+    const progress = createInitialPlayerProgress(data);
+
+    const result = resolveStageBattle(data, {
+      progress,
+      stageId: "bamboo_road_1",
+      maxDurationSeconds: 180
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.battle.winner).toBe("enemy");
+    expect(result.stageCleared).toBe(false);
+    expect(result.rewards).toBeNull();
+    expect(result.suggestedFarmStageId).toBeNull();
+    expect(result.progress).toBe(progress);
+    expect(result.progress.resources.silver).toBe(0);
+    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(0);
+    expect(result.progress.currentStageId).toBe("bamboo_road_1");
   });
 
   it("returns a missing enemy error before simulating bad stage data", () => {

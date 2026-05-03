@@ -9,6 +9,7 @@ import {
 } from "./masterySummary";
 import {
   getNextCurrentStageId,
+  getRecommendedOfflineFarmStage,
   getStageById,
   isStageUnlocked
 } from "./stages";
@@ -190,7 +191,9 @@ export function resolveStageBattle(
       rewards: null,
       masteryRanksBefore: [],
       masteryRanksAfter: [],
-      newlyReachedMasteryRanks: []
+      newlyReachedMasteryRanks: [],
+      suggestedFarmStageId:
+        getRecommendedOfflineFarmStage(data, input.progress)?.id ?? null
     };
   }
 
@@ -223,6 +226,7 @@ export function resolveStageBattle(
     rewards: rewardsResult.rewards,
     masteryRanksBefore: rewardsResult.masteryRanksBefore,
     masteryRanksAfter: rewardsResult.masteryRanksAfter,
-    newlyReachedMasteryRanks: rewardsResult.newlyReachedMasteryRanks
+    newlyReachedMasteryRanks: rewardsResult.newlyReachedMasteryRanks,
+    suggestedFarmStageId: null
   };
 }

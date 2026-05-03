@@ -105,3 +105,10 @@ export function getUnlockedOfflineFarmStages(
     isOfflineFarmStageUnlocked(data, progress, stage.id)
   );
 }
+
+export function getRecommendedOfflineFarmStage(
+  data: Pick<StaticGameData, "stages">,
+  progress: PlayerProgress
+): StageDefinition | null {
+  return getUnlockedOfflineFarmStages(data, progress).at(-1) ?? null;
+}

@@ -122,6 +122,7 @@ export type ResolveStageBattleResult =
       masteryRanksBefore: string[];
       masteryRanksAfter: string[];
       newlyReachedMasteryRanks: string[];
+      suggestedFarmStageId: string | null;
     }
   | {
       ok: false;

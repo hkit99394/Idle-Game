@@ -137,7 +137,7 @@ Acceptance:
 
 ### 1.6 Defeat Handling
 
-Status: Not started
+Status: Completed
 
 Task:
 

@@ -3,6 +3,7 @@ import {
   createInitialPlayerProgress,
   getCurrentStage,
   getNextCurrentStageId,
+  getRecommendedOfflineFarmStage,
   getStageById,
   getUnlockedOfflineFarmStages,
   hasClearedStage,
@@ -159,12 +160,18 @@ describe("stage progression helpers", () => {
     expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_2")).toBe(
       true
     );
+    expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
+      "bamboo_road_2"
+    );
     expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_3")).toBe(
       false
     );
 
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
 
+    expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
+      "bamboo_road_9"
+    );
     expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_10")).toBe(
       false
     );
