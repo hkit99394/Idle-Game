@@ -1,0 +1,4 @@
+Region,Stage,EnemyType,EnemyOuterHp,EnemyInnerQi,EnemyOuterAttack,EnemyInnerAttack,EnemyOuterDefense,EnemyInnerDefense,PlayerOuterDps,PlayerInnerDps,EstimatedEffectiveDps,TargetFightTime,EstimatedFightTime,SilverReward,CultivationReward,CombatExperienceReward,UpgradeCost,SecondsToNextUpgrade,ExpectedBreaksPerFight,PlayerSurvivalTime,Notes
+Bamboo Road,1,Normal,120,60,8,2,5,3,10,4,11.4,10,10.5,10,5,5,25,2.5,0.6,90,First tutorial enemy
+Bamboo Road,5,Normal,210,105,13,3,8,5,18,8,20.8,10,10.1,18,9,8,70,3.9,0.8,85,Player should feel steady progress
+Bamboo Road,10,Boss,2500,420,36,8,18,12,28,16,33.6,75,74.4,120,60,100,260,14.4,2.0,75,Early boss checks both Outer and Inner upgrades
