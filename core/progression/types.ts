@@ -81,7 +81,7 @@ export type ApplyStageClearResult =
     }
   | {
       ok: false;
-      reason: "missing_stage";
+      reason: "missing_stage" | "locked_stage";
       progress: PlayerProgress;
     };
 

@@ -1,25 +1,33 @@
-import type { StageDefinition, StaticGameData } from "../data";
+import type { StaticGameData } from "../data";
 import { cloneProgress } from "./progress";
 import {
   getMapRewardMultiplier,
   getReachedMasteryRanks
 } from "./mastery";
+import {
+  getStageById,
+  isStageUnlocked
+} from "./stages";
 import type { ApplyStageClearInput, ApplyStageClearResult } from "./types";
-
-function getStage(data: StaticGameData, stageId: string): StageDefinition | null {
-  return data.stages.find((stage) => stage.id === stageId) ?? null;
-}
 
 export function applyStageClearRewards(
   data: StaticGameData,
   input: ApplyStageClearInput
 ): ApplyStageClearResult {
-  const stage = getStage(data, input.stageId);
+  const stage = getStageById(data, input.stageId);
 
   if (!stage) {
     return {
       ok: false,
       reason: "missing_stage",
+      progress: input.progress
+    };
+  }
+
+  if (!isStageUnlocked(data, input.progress, stage)) {
+    return {
+      ok: false,
+      reason: "locked_stage",
       progress: input.progress
     };
   }

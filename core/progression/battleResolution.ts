@@ -39,11 +39,17 @@ function getSectUpgradeDefinitions(data: StaticGameData) {
   return data.upgrades.filter((upgrade) => upgrade.scope === "sect");
 }
 
+type PlayerCombatantStatsContext = {
+  heroUpgradeDefinitions: ReturnType<typeof getHeroUpgradeDefinitions>;
+  sectUpgradeDefinitions: ReturnType<typeof getSectUpgradeDefinitions>;
+  mapAttackMultiplier: number;
+};
+
 function createPlayerCombatantStats(
   data: StaticGameData,
   progress: PlayerProgress,
-  stageId: string,
-  heroId: string
+  heroId: string,
+  context: PlayerCombatantStatsContext
 ): BaseStats {
   const hero = data.heroes.find((candidate) => candidate.id === heroId);
 
@@ -51,17 +57,13 @@ function createPlayerCombatantStats(
     throw new Error(`Missing hero definition ${heroId}`);
   }
 
-  const masterySummary = getActiveMasterySummaryForStage(data, progress, stageId);
-
   return deriveHeroStatsFromProgress({
     baseStats: hero.baseStats,
     heroProgress: progress.heroes[hero.id],
     sectProgress: progress.sect,
-    heroUpgradeDefinitions: getHeroUpgradeDefinitions(data),
-    sectUpgradeDefinitions: getSectUpgradeDefinitions(data),
-    mapAttackMultiplier: masterySummary.ok
-      ? masterySummary.summary.mapAttackMultiplier
-      : 0
+    heroUpgradeDefinitions: context.heroUpgradeDefinitions,
+    sectUpgradeDefinitions: context.sectUpgradeDefinitions,
+    mapAttackMultiplier: context.mapAttackMultiplier
   });
 }
 
@@ -83,13 +85,20 @@ export function buildPlayerTeamForStage(
   const damageMultipliersByFamily = masterySummary.ok
     ? masterySummary.summary.damageMultipliersByFamily
     : {};
+  const statsContext: PlayerCombatantStatsContext = {
+    heroUpgradeDefinitions: getHeroUpgradeDefinitions(data),
+    sectUpgradeDefinitions: getSectUpgradeDefinitions(data),
+    mapAttackMultiplier: masterySummary.ok
+      ? masterySummary.summary.mapAttackMultiplier
+      : 0
+  };
 
   const team: TeamInstance = {
     id: "player",
     combatants: MVP_PLAYER_HERO_IDS.map((heroId) => ({
       kind: "hero",
       definitionId: heroId,
-      statsOverride: createPlayerCombatantStats(data, progress, stage.id, heroId),
+      statsOverride: createPlayerCombatantStats(data, progress, heroId, statsContext),
       damageMultipliersByFamily
     }))
   };
@@ -113,8 +122,10 @@ export function buildEnemyTeamForStage(
     };
   }
 
+  const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
+
   for (const enemyId of stage.enemyTeam.combatantIds) {
-    if (!data.enemies.some((enemy) => enemy.id === enemyId)) {
+    if (!enemyIds.has(enemyId)) {
       return {
         ok: false,
         reason: "missing_enemy",

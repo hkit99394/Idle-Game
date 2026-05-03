@@ -55,6 +55,28 @@ describe("stage battle resolution", () => {
     expect(progress.maps.bamboo_road.highestClearedStageIndex).toBe(0);
   });
 
+  it("does not move current stage backward when replaying an older cleared stage", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 3;
+    progress.currentStageId = "bamboo_road_4";
+
+    const result = resolveStageBattle(staticData, {
+      progress,
+      stageId: "bamboo_road_1",
+      maxDurationSeconds: 60
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.battle.winner).toBe("player");
+    expect(result.stageCleared).toBe(true);
+    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(3);
+    expect(result.progress.currentStageId).toBe("bamboo_road_4");
+  });
+
   it("does not grant rewards or unlock next stage on defeat", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 9;

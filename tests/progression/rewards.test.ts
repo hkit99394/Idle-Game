@@ -77,4 +77,23 @@ describe("stage clear rewards", () => {
 
     expect(result.ok).toBe(false);
   });
+
+  it("rejects locked stages without changing progress", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const result = applyStageClearRewards(staticData, {
+      progress,
+      stageId: "bamboo_road_3"
+    });
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      return;
+    }
+
+    expect(result.reason).toBe("locked_stage");
+    expect(result.progress).toBe(progress);
+    expect(progress.resources.silver).toBe(0);
+    expect(progress.maps.bamboo_road.combatExperience).toBe(0);
+    expect(progress.maps.bamboo_road.highestClearedStageIndex).toBe(0);
+  });
 });

@@ -176,4 +176,33 @@ describe("stage progression helpers", () => {
       false
     );
   });
+
+  it("recommends the highest farmable stage by progression order", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+
+    const unsortedData: StaticGameData = {
+      ...staticData,
+      stages: [
+        ...staticData.stages.slice().reverse()
+      ]
+    };
+
+    expect(
+      getUnlockedOfflineFarmStages(unsortedData, progress).map((stage) => stage.id)
+    ).toEqual([
+      "bamboo_road_1",
+      "bamboo_road_2",
+      "bamboo_road_3",
+      "bamboo_road_4",
+      "bamboo_road_5",
+      "bamboo_road_6",
+      "bamboo_road_7",
+      "bamboo_road_8",
+      "bamboo_road_9"
+    ]);
+    expect(getRecommendedOfflineFarmStage(unsortedData, progress)?.id).toBe(
+      "bamboo_road_9"
+    );
+  });
 });

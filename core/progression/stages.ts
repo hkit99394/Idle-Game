@@ -68,6 +68,10 @@ export function getNextCurrentStageId(
   currentStageId: string,
   progressAfterClear: PlayerProgress
 ): string {
+  if (stage.id !== currentStageId) {
+    return currentStageId;
+  }
+
   if (stage.nextStageId) {
     return stage.nextStageId;
   }
@@ -98,16 +102,32 @@ export function isOfflineFarmStageUnlocked(
 }
 
 export function getUnlockedOfflineFarmStages(
-  data: Pick<StaticGameData, "stages">,
+  data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress
 ): StageDefinition[] {
-  return data.stages.filter((stage) =>
+  const seenStageIds = new Set<string>();
+  const stagesInProgressionOrder = data.regions.flatMap((region) =>
+    region.stageIds.flatMap((stageId) => {
+      const stage = getStageById(data, stageId);
+
+      if (!stage) {
+        return [];
+      }
+
+      seenStageIds.add(stage.id);
+
+      return [stage];
+    })
+  );
+  const unlistedStages = data.stages.filter((stage) => !seenStageIds.has(stage.id));
+
+  return [...stagesInProgressionOrder, ...unlistedStages].filter((stage) =>
     isOfflineFarmStageUnlocked(data, progress, stage.id)
   );
 }
 
 export function getRecommendedOfflineFarmStage(
-  data: Pick<StaticGameData, "stages">,
+  data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress
 ): StageDefinition | null {
   return getUnlockedOfflineFarmStages(data, progress).at(-1) ?? null;
