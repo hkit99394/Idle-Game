@@ -161,7 +161,7 @@ Goal: make Bamboo Road progression feel reasonable for a first prototype.
 
 ### 2.1 Stage Scaling Pass
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -215,7 +215,7 @@ Acceptance:
 
 ### 2.4 Balance Report Tool
 
-Status: Not started
+Status: Completed
 
 Task:
 

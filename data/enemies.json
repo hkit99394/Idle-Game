@@ -29,8 +29,8 @@
     "type": "elite",
     "style": "palm",
     "baseStats": {
-      "maxOuterHp": 260,
-      "maxInnerQi": 160,
+      "maxOuterHp": 560,
+      "maxInnerQi": 260,
       "outerAttack": 11,
       "innerAttack": 11,
       "outerDefense": 8,
@@ -52,7 +52,7 @@
     "type": "boss",
     "style": "saber",
     "baseStats": {
-      "maxOuterHp": 2500,
+      "maxOuterHp": 1050,
       "maxInnerQi": 420,
       "outerAttack": 36,
       "innerAttack": 8,

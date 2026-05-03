@@ -1,11 +1,14 @@
 import {
+  cloneProgress,
   createInitialPlayerProgress,
   getNextMasteryThreshold,
-  purchaseUpgrade,
-  resolveStageBattle,
-  simulateBattle
+  resolveStageBattle
 } from "../core";
-import type { StaticGameData } from "../core";
+import type {
+  ResolveStageBattleResult,
+  StaticGameData,
+  StageDefinition
+} from "../core";
 import enemies from "../data/enemies.json" with { type: "json" };
 import formations from "../data/formations.json" with { type: "json" };
 import heroes from "../data/heroes.json" with { type: "json" };
@@ -26,102 +29,181 @@ const staticData: StaticGameData = {
   formations: formations as StaticGameData["formations"]
 };
 
-const playerTeam = {
-  id: "player" as const,
-  combatants: [
-    { kind: "hero" as const, definitionId: "iron_fist_disciple" },
-    { kind: "hero" as const, definitionId: "azure_palm_monk" },
-    { kind: "hero" as const, definitionId: "white_crane_swordsman" },
-    { kind: "hero" as const, definitionId: "mountain_staff_guardian" }
-  ]
+const BAMBOO_ROAD_STAGE_IDS = [
+  "bamboo_road_1",
+  "bamboo_road_2",
+  "bamboo_road_3",
+  "bamboo_road_4",
+  "bamboo_road_5",
+  "bamboo_road_6",
+  "bamboo_road_7",
+  "bamboo_road_8",
+  "bamboo_road_9",
+  "bamboo_road_10"
+];
+
+const TRAINED_BOSS_UPGRADES = {
+  heroOuterTraining: 6,
+  heroInnerTraining: 4,
+  sectOuterTraining: 4,
+  sectInnerTraining: 3
 };
 
-function runScenario(label: string, enemyDefinitionId: string) {
-  const result = simulateBattle(staticData, {
-    playerTeam,
-    enemyTeam: {
-      id: "enemy",
-      combatants: [{ kind: "enemy", definitionId: enemyDefinitionId }]
-    },
-    maxDurationSeconds: 180
+function getStage(stageId: string): StageDefinition {
+  const stage = staticData.stages.find((candidate) => candidate.id === stageId);
+
+  if (!stage) {
+    throw new Error(`Missing stage ${stageId}`);
+  }
+
+  return stage;
+}
+
+function getStageEnemies(stage: StageDefinition) {
+  return stage.enemyTeam.combatantIds.map((enemyId) => {
+    const enemy = staticData.enemies.find((candidate) => candidate.id === enemyId);
+
+    if (!enemy) {
+      throw new Error(`Missing enemy ${enemyId}`);
+    }
+
+    return enemy;
   });
+}
+
+function getTargetSeconds(stage: StageDefinition): [number, number] | null {
+  if (stage.isBoss) {
+    return null;
+  }
+
+  const enemyTypes = getStageEnemies(stage).map((enemy) => enemy.type);
+
+  return enemyTypes.includes("elite") ? [20, 40] : [5, 15];
+}
+
+function summarizeBattle(stage: StageDefinition, result: ResolveStageBattleResult) {
+  const enemiesForStage = getStageEnemies(stage);
+  const targetSeconds = getTargetSeconds(stage);
+
+  if (!result.ok) {
+    return {
+      ok: false,
+      stageId: stage.id,
+      name: stage.name,
+      enemyIds: stage.enemyTeam.combatantIds,
+      enemyTypes: enemiesForStage.map((enemy) => enemy.type),
+      reason: result.reason
+    };
+  }
+
+  const durationSeconds = Number(result.battle.durationSeconds.toFixed(2));
+  const targetMet = targetSeconds
+    ? result.battle.winner === "player" &&
+      durationSeconds >= targetSeconds[0] &&
+      durationSeconds <= targetSeconds[1]
+    : null;
 
   return {
-    label,
-    winner: result.winner,
-    durationSeconds: result.durationSeconds,
-    metrics: result.metrics,
-    eventCount: result.events.length,
-    qiBreakEvents: result.events.filter((event) => event.type === "qi_break").length,
-    finalEnemyTeam: result.finalEnemyTeam.map((enemy) => ({
-      name: enemy.name,
-      outerHp: enemy.outerHp,
-      innerQi: enemy.innerQi,
-      isQiBroken: enemy.isQiBroken
-    }))
+    ok: true,
+    stageId: stage.id,
+    name: stage.name,
+    index: stage.index,
+    enemyIds: stage.enemyTeam.combatantIds,
+    enemyTypes: enemiesForStage.map((enemy) => enemy.type),
+    targetSeconds,
+    targetMet,
+    winner: result.battle.winner,
+    stageCleared: result.stageCleared,
+    durationSeconds,
+    qiBreaks: result.battle.events.filter((event) => event.type === "qi_break").length,
+    metrics: {
+      playerOuterDamage: Number(result.battle.metrics.playerOuterDamage.toFixed(2)),
+      playerInnerDamage: Number(result.battle.metrics.playerInnerDamage.toFixed(2)),
+      playerEffectiveDps: Number(result.battle.metrics.playerEffectiveDps.toFixed(2)),
+      enemyEffectiveDps: Number(result.battle.metrics.enemyEffectiveDps.toFixed(2))
+    },
+    rewards: result.rewards,
+    currentStageId: result.progress.currentStageId,
+    highestClearedStageIndex:
+      result.progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0,
+    suggestedFarmStageId: result.suggestedFarmStageId
   };
 }
 
-const scenarios = [
-  runScenario("Normal enemy: Bamboo Road Bandit", "bamboo_bandit"),
-  runScenario("Boss: Black Iron Guard", "black_iron_guard")
-];
+function applyTrainingForBoss(progress: ReturnType<typeof cloneProgress>) {
+  const trainedProgress = cloneProgress(progress);
 
-let progress = createInitialPlayerProgress(staticData);
-const rewardResults = [];
-
-for (const stageId of ["bamboo_road_1", "bamboo_road_2", "bamboo_road_3"]) {
-  const rewardResult = resolveStageBattle(staticData, {
-    progress,
-    stageId,
-    maxDurationSeconds: 60
-  });
-
-  if (rewardResult.ok) {
-    progress = rewardResult.progress;
+  for (const hero of staticData.heroes) {
+    trainedProgress.heroes[hero.id].upgrades.hero_outer_training =
+      TRAINED_BOSS_UPGRADES.heroOuterTraining;
+    trainedProgress.heroes[hero.id].upgrades.hero_inner_training =
+      TRAINED_BOSS_UPGRADES.heroInnerTraining;
   }
 
-  rewardResults.push(
-    rewardResult.ok
-      ? {
-          ok: true,
-          stageId,
-          stageCleared: rewardResult.stageCleared,
-          winner: rewardResult.battle.winner,
-          rewards: rewardResult.rewards,
-          currentStageId: rewardResult.progress.currentStageId,
-          highestClearedStageIndex:
-            rewardResult.progress.maps.bamboo_road.highestClearedStageIndex
-        }
-      : rewardResult
-  );
+  trainedProgress.sect.upgrades.sect_outer_training =
+    TRAINED_BOSS_UPGRADES.sectOuterTraining;
+  trainedProgress.sect.upgrades.sect_inner_training =
+    TRAINED_BOSS_UPGRADES.sectInnerTraining;
+
+  return trainedProgress;
 }
 
-const upgradePurchase = purchaseUpgrade(staticData.upgrades, {
-  progress,
-  upgradeId: "hero_outer_training",
-  heroId: "iron_fist_disciple"
+let progress = createInitialPlayerProgress(staticData);
+const stageResults = [];
+let progressBeforeBoss = cloneProgress(progress);
+
+for (const stageId of BAMBOO_ROAD_STAGE_IDS) {
+  const stage = getStage(stageId);
+
+  if (stage.isBoss) {
+    progressBeforeBoss = cloneProgress(progress);
+  }
+
+  const result = resolveStageBattle(staticData, {
+    progress,
+    stageId,
+    maxDurationSeconds: 180
+  });
+
+  stageResults.push(summarizeBattle(stage, result));
+
+  if (result.ok && result.stageCleared) {
+    progress = result.progress;
+  }
+}
+
+const bossStage = getStage("bamboo_road_10");
+const baselineBoss = resolveStageBattle(staticData, {
+  progress: progressBeforeBoss,
+  stageId: bossStage.id,
+  maxDurationSeconds: 180
 });
-
-if (upgradePurchase.ok) {
-  progress = upgradePurchase.progress;
-}
-
+const trainedBossProgress = applyTrainingForBoss(progressBeforeBoss);
+const trainedBoss = resolveStageBattle(staticData, {
+  progress: trainedBossProgress,
+  stageId: bossStage.id,
+  maxDurationSeconds: 180
+});
 const nextMastery = getNextMasteryThreshold(
-  progress.maps.bamboo_road.combatExperience,
+  progressBeforeBoss.maps.bamboo_road.combatExperience,
   staticData.mastery.thresholds
 );
 
 console.log(
   JSON.stringify(
     {
-      scenarios,
-      progressionSample: {
-        resources: progress.resources,
-        bambooRoad: progress.maps.bamboo_road,
-        rewardResults,
-        upgradePurchase,
-        nextMastery
+      bambooRoadBalance: {
+        stageResults,
+        bossGate: {
+          baseline: summarizeBattle(bossStage, baselineBoss),
+          trained: summarizeBattle(bossStage, trainedBoss),
+          training: TRAINED_BOSS_UPGRADES
+        },
+        progressBeforeBoss: {
+          resources: progressBeforeBoss.resources,
+          bambooRoad: progressBeforeBoss.maps.bamboo_road,
+          nextMastery
+        }
       }
     },
     null,
