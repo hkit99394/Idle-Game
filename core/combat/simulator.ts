@@ -77,7 +77,7 @@ function createCombatantState(
   constants: CombatFormulaConstants
 ): CombatantState {
   const definition = getDefinition(lookup, instance);
-  const stats = deriveStats(definition.baseStats);
+  const stats = deriveStats(instance.statsOverride ?? definition.baseStats);
   const instanceId = instance.instanceId ?? `${team}_${definition.id}_${index + 1}`;
 
   return {

@@ -27,6 +27,7 @@ describe("stage clear rewards", () => {
     expect(result.progress.resources.cultivation).toBe(5);
     expect(result.progress.maps.bamboo_road.combatExperience).toBe(5);
     expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
+    expect(result.progress.currentStageId).toBe("bamboo_road_1");
   });
 
   it("reports newly reached mastery ranks", () => {

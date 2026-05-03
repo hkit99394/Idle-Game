@@ -47,7 +47,7 @@ Goal: connect battle simulation, victory handling, rewards, upgrades, and progre
 
 ### 1.1 Battle Resolution API
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -74,7 +74,7 @@ Acceptance:
 
 ### 1.2 Progress-Based Hero Team Builder
 
-Status: Not started
+Status: In progress
 
 Task:
 
@@ -106,7 +106,7 @@ Acceptance:
 
 ### 1.4 Stage Enemy Team Builder
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -120,7 +120,7 @@ Acceptance:
 
 ### 1.5 Stage Unlock And Current Stage State
 
-Status: Not started
+Status: In progress
 
 Task:
 

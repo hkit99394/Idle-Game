@@ -1,4 +1,5 @@
 import type { BaseStats } from "../combat";
+import type { BattleResult, TeamInstance } from "../combat";
 
 export type ResourceState = {
   silver: number;
@@ -24,6 +25,7 @@ export type PlayerProgress = {
   heroes: Record<string, HeroProgress>;
   sect: SectProgress;
   maps: Record<string, MapProgress>;
+  currentStageId: string;
 };
 
 export type PurchaseUpgradeInput = {
@@ -81,4 +83,49 @@ export type ApplyStageClearResult =
       ok: false;
       reason: "missing_stage";
       progress: PlayerProgress;
+    };
+
+export type BuildPlayerTeamResult =
+  | {
+      ok: true;
+      team: TeamInstance;
+    }
+  | {
+      ok: false;
+      reason: "missing_stage";
+    };
+
+export type BuildEnemyTeamResult =
+  | {
+      ok: true;
+      team: TeamInstance;
+    }
+  | {
+      ok: false;
+      reason: "missing_stage" | "missing_enemy";
+      missingId?: string;
+    };
+
+export type ResolveStageBattleInput = {
+  progress: PlayerProgress;
+  stageId: string;
+  maxDurationSeconds?: number;
+};
+
+export type ResolveStageBattleResult =
+  | {
+      ok: true;
+      stageCleared: boolean;
+      progress: PlayerProgress;
+      battle: BattleResult;
+      rewards: (ResourceState & { combatExperience: number }) | null;
+      masteryRanksBefore: string[];
+      masteryRanksAfter: string[];
+      newlyReachedMasteryRanks: string[];
+    }
+  | {
+      ok: false;
+      reason: "missing_stage" | "locked_stage" | "missing_enemy";
+      progress: PlayerProgress;
+      missingId?: string;
     };

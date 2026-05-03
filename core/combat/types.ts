@@ -65,6 +65,7 @@ export type CombatantInstanceDefinition = {
   kind: CombatantKind;
   instanceId?: string;
   level?: number;
+  statsOverride?: DerivedStats;
 };
 
 export type TeamInstance = {

@@ -1,8 +1,8 @@
 import {
-  applyStageClearRewards,
   createInitialPlayerProgress,
   getNextMasteryThreshold,
   purchaseUpgrade,
+  resolveStageBattle,
   simulateBattle
 } from "../core";
 import type { StaticGameData } from "../core";
@@ -71,16 +71,30 @@ let progress = createInitialPlayerProgress(staticData);
 const rewardResults = [];
 
 for (const stageId of ["bamboo_road_1", "bamboo_road_2", "bamboo_road_3"]) {
-  const rewardResult = applyStageClearRewards(staticData, {
+  const rewardResult = resolveStageBattle(staticData, {
     progress,
-    stageId
+    stageId,
+    maxDurationSeconds: 60
   });
-
-  rewardResults.push(rewardResult);
 
   if (rewardResult.ok) {
     progress = rewardResult.progress;
   }
+
+  rewardResults.push(
+    rewardResult.ok
+      ? {
+          ok: true,
+          stageId,
+          stageCleared: rewardResult.stageCleared,
+          winner: rewardResult.battle.winner,
+          rewards: rewardResult.rewards,
+          currentStageId: rewardResult.progress.currentStageId,
+          highestClearedStageIndex:
+            rewardResult.progress.maps.bamboo_road.highestClearedStageIndex
+        }
+      : rewardResult
+  );
 }
 
 const upgradePurchase = purchaseUpgrade(staticData.upgrades, {

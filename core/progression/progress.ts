@@ -13,8 +13,12 @@ export function createInitialHeroProgress(): HeroProgress {
 }
 
 export function createInitialPlayerProgress(
-  data: Pick<StaticGameData, "heroes" | "regions">
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">
 ): PlayerProgress {
+  const firstRegion = data.regions[0];
+  const firstStageId =
+    firstRegion?.stageIds[0] ?? data.stages[0]?.id ?? "";
+
   return {
     resources: {
       silver: 0,
@@ -34,7 +38,8 @@ export function createInitialPlayerProgress(
           highestClearedStageIndex: 0
         }
       ])
-    )
+    ),
+    currentStageId: firstStageId
   };
 }
 
@@ -61,6 +66,7 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
           highestClearedStageIndex: map.highestClearedStageIndex
         }
       ])
-    )
+    ),
+    currentStageId: progress.currentStageId
   };
 }
