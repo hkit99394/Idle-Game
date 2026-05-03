@@ -29,8 +29,8 @@
     "type": "elite",
     "style": "palm",
     "baseStats": {
-      "maxOuterHp": 560,
-      "maxInnerQi": 260,
+      "maxOuterHp": 660,
+      "maxInnerQi": 150,
       "outerAttack": 11,
       "innerAttack": 11,
       "outerDefense": 8,

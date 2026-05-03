@@ -181,7 +181,7 @@ Acceptance:
 
 ### 2.2 Qi Break Visibility Tuning
 
-Status: Not started
+Status: Completed
 
 Task:
 
