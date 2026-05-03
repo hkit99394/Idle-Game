@@ -1,0 +1,19 @@
+[
+  {
+    "id": "bamboo_road",
+    "name": "Bamboo Road",
+    "stageIds": [
+      "bamboo_road_1",
+      "bamboo_road_2",
+      "bamboo_road_3",
+      "bamboo_road_4",
+      "bamboo_road_5",
+      "bamboo_road_6",
+      "bamboo_road_7",
+      "bamboo_road_8",
+      "bamboo_road_9",
+      "bamboo_road_10"
+    ],
+    "unlockCondition": { "type": "always" }
+  }
+]

@@ -1,0 +1,112 @@
+:root {
+  color: #15120e;
+  background: #f4f0e7;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(244, 240, 231, 0.92), rgba(235, 230, 218, 0.96)),
+    #f4f0e7;
+}
+
+.battle-surface {
+  box-sizing: border-box;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.resource-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  color: #4d4639;
+  font-size: 0.95rem;
+}
+
+.battle-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 20px;
+}
+
+.team-panel,
+.enemy-panel {
+  min-height: 320px;
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.combatant-card {
+  display: grid;
+  gap: 10px;
+  max-width: 360px;
+  padding: 14px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.combatant-card.enemy {
+  background: #f7efe7;
+}
+
+.bar {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #d8d1c3;
+}
+
+.bar span {
+  display: block;
+  width: 72%;
+  height: 100%;
+}
+
+.bar.outer {
+  height: 14px;
+}
+
+.bar.outer span {
+  background: #b33a2f;
+}
+
+.bar.inner {
+  height: 8px;
+}
+
+.bar.inner span {
+  width: 58%;
+  background: #2d6f88;
+}
+
+@media (max-width: 720px) {
+  .battle-surface {
+    padding: 16px;
+  }
+
+  .battle-grid {
+    grid-template-columns: 1fr;
+  }
+}

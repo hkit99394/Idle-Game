@@ -1,0 +1,34 @@
+{
+  "thresholds": [
+    {
+      "experience": 100,
+      "rank": "familiar",
+      "bonuses": [
+        {
+          "type": "map_outer_and_inner_attack_multiplier",
+          "value": 0.01
+        }
+      ]
+    },
+    {
+      "experience": 500,
+      "rank": "trained",
+      "bonuses": [
+        {
+          "type": "map_reward_multiplier",
+          "value": 0.02
+        }
+      ]
+    },
+    {
+      "experience": 3000,
+      "rank": "mastered",
+      "bonuses": [
+        {
+          "type": "enemy_family_damage_multiplier",
+          "value": 0.03
+        }
+      ]
+    }
+  ]
+}

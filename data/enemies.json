@@ -1,0 +1,71 @@
+[
+  {
+    "id": "bamboo_bandit",
+    "name": "Bamboo Road Bandit",
+    "family": "bandit",
+    "type": "normal",
+    "style": "blade",
+    "baseStats": {
+      "maxOuterHp": 120,
+      "maxInnerQi": 60,
+      "outerAttack": 8,
+      "innerAttack": 2,
+      "outerDefense": 5,
+      "innerDefense": 3,
+      "speed": 0,
+      "critChance": 0.03,
+      "critDamage": 1.4,
+      "breakPower": 0,
+      "breakResist": 0,
+      "innerRecoveryRate": 0.004
+    },
+    "skillIds": ["bandit_cut"],
+    "traitIds": []
+  },
+  {
+    "id": "mist_palm_thug",
+    "name": "Mist Palm Thug",
+    "family": "bandit",
+    "type": "elite",
+    "style": "palm",
+    "baseStats": {
+      "maxOuterHp": 260,
+      "maxInnerQi": 160,
+      "outerAttack": 11,
+      "innerAttack": 11,
+      "outerDefense": 8,
+      "innerDefense": 10,
+      "speed": 8,
+      "critChance": 0.03,
+      "critDamage": 1.4,
+      "breakPower": 0.01,
+      "breakResist": 0.01,
+      "innerRecoveryRate": 0.005
+    },
+    "skillIds": ["meridian_shock"],
+    "traitIds": []
+  },
+  {
+    "id": "black_iron_guard",
+    "name": "Black Iron Guard",
+    "family": "iron_fort",
+    "type": "boss",
+    "style": "saber",
+    "baseStats": {
+      "maxOuterHp": 2500,
+      "maxInnerQi": 420,
+      "outerAttack": 36,
+      "innerAttack": 8,
+      "outerDefense": 18,
+      "innerDefense": 12,
+      "speed": 0,
+      "critChance": 0.04,
+      "critDamage": 1.5,
+      "breakPower": 0,
+      "breakResist": 0.02,
+      "innerRecoveryRate": 0.004
+    },
+    "skillIds": ["guarding_saber"],
+    "traitIds": ["boss"]
+  }
+]

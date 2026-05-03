@@ -1,0 +1,38 @@
+[
+  {
+    "id": "hero_outer_training",
+    "name": "Hero Outer Training",
+    "scope": "hero",
+    "stat": "outerAttack",
+    "baseCost": 25,
+    "costGrowth": 1.16,
+    "effectPerLevel": 0.1
+  },
+  {
+    "id": "hero_inner_training",
+    "name": "Hero Inner Training",
+    "scope": "hero",
+    "stat": "innerAttack",
+    "baseCost": 25,
+    "costGrowth": 1.16,
+    "effectPerLevel": 0.1
+  },
+  {
+    "id": "sect_outer_training",
+    "name": "Sect Outer Training",
+    "scope": "sect",
+    "stat": "outerAttack",
+    "baseCost": 100,
+    "costGrowth": 1.18,
+    "effectPerLevel": 0.05
+  },
+  {
+    "id": "sect_inner_training",
+    "name": "Sect Inner Training",
+    "scope": "sect",
+    "stat": "innerAttack",
+    "baseCost": 100,
+    "costGrowth": 1.18,
+    "effectPerLevel": 0.05
+  }
+]
