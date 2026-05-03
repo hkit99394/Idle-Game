@@ -5,9 +5,8 @@ import {
   applyStageClearRewards
 } from "./rewards";
 import {
-  getEnemyFamilyDamageMultiplier,
-  getMapAttackMultiplier
-} from "./mastery";
+  getActiveMasterySummaryForStage
+} from "./masterySummary";
 import {
   getNextCurrentStageId,
   getStageById,
@@ -45,16 +44,13 @@ function createPlayerCombatantStats(
   stageId: string,
   heroId: string
 ): BaseStats {
-  const stage = getStageById(data, stageId);
   const hero = data.heroes.find((candidate) => candidate.id === heroId);
 
   if (!hero) {
     throw new Error(`Missing hero definition ${heroId}`);
   }
 
-  const combatExperience = stage
-    ? progress.maps[stage.regionId]?.combatExperience ?? 0
-    : 0;
+  const masterySummary = getActiveMasterySummaryForStage(data, progress, stageId);
 
   return deriveHeroStatsFromProgress({
     baseStats: hero.baseStats,
@@ -62,53 +58,10 @@ function createPlayerCombatantStats(
     sectProgress: progress.sect,
     heroUpgradeDefinitions: getHeroUpgradeDefinitions(data),
     sectUpgradeDefinitions: getSectUpgradeDefinitions(data),
-    mapAttackMultiplier: getMapAttackMultiplier(
-      combatExperience,
-      data.mastery.thresholds
-    )
+    mapAttackMultiplier: masterySummary.ok
+      ? masterySummary.summary.mapAttackMultiplier
+      : 0
   });
-}
-
-function getStageEnemyFamilies(data: StaticGameData, stageId: string): string[] {
-  const stage = getStageById(data, stageId);
-
-  if (!stage) {
-    return [];
-  }
-
-  return [
-    ...new Set(
-      stage.enemyTeam.combatantIds
-        .map((enemyId) => data.enemies.find((enemy) => enemy.id === enemyId)?.family)
-        .filter((family): family is string => Boolean(family))
-    )
-  ];
-}
-
-function getDamageMultipliersByFamily(
-  data: StaticGameData,
-  progress: PlayerProgress,
-  stageId: string
-): Record<string, number> {
-  const stage = getStageById(data, stageId);
-
-  if (!stage) {
-    return {};
-  }
-
-  const combatExperience = progress.maps[stage.regionId]?.combatExperience ?? 0;
-  const damageMultiplier = getEnemyFamilyDamageMultiplier(
-    combatExperience,
-    data.mastery.thresholds
-  );
-
-  if (damageMultiplier <= 0) {
-    return {};
-  }
-
-  return Object.fromEntries(
-    getStageEnemyFamilies(data, stageId).map((family) => [family, damageMultiplier])
-  );
 }
 
 export function buildPlayerTeamForStage(
@@ -125,13 +78,18 @@ export function buildPlayerTeamForStage(
     };
   }
 
+  const masterySummary = getActiveMasterySummaryForStage(data, progress, stage.id);
+  const damageMultipliersByFamily = masterySummary.ok
+    ? masterySummary.summary.damageMultipliersByFamily
+    : {};
+
   const team: TeamInstance = {
     id: "player",
     combatants: MVP_PLAYER_HERO_IDS.map((heroId) => ({
       kind: "hero",
       definitionId: heroId,
       statsOverride: createPlayerCombatantStats(data, progress, stage.id, heroId),
-      damageMultipliersByFamily: getDamageMultipliersByFamily(data, progress, stage.id)
+      damageMultipliersByFamily
     }))
   };
 

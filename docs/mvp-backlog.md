@@ -91,7 +91,7 @@ Acceptance:
 
 ### 1.3 Mastery Bonus Combat Integration
 
-Status: Not started
+Status: Completed
 
 Task:
 

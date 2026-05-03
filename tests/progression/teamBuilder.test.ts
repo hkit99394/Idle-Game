@@ -110,5 +110,45 @@ describe("progress-based player team builder", () => {
     expect(masteredBattle.metrics.playerOuterDamage).toBeGreaterThan(
       baseBattle.metrics.playerOuterDamage
     );
+    expect(masteredBattle.metrics.playerInnerDamage).toBeGreaterThan(
+      baseBattle.metrics.playerInnerDamage
+    );
+  });
+
+  it("map attack mastery changes simulator damage output", () => {
+    const baseProgress = createInitialPlayerProgress(staticData);
+    const masteredProgress = createInitialPlayerProgress(staticData);
+    masteredProgress.maps.bamboo_road.combatExperience = 100;
+
+    const baseTeam = buildPlayerTeamForStage(staticData, baseProgress, "bamboo_road_1");
+    const masteredTeam = buildPlayerTeamForStage(staticData, masteredProgress, "bamboo_road_1");
+
+    expect(baseTeam.ok).toBe(true);
+    expect(masteredTeam.ok).toBe(true);
+    if (!baseTeam.ok || !masteredTeam.ok) {
+      return;
+    }
+
+    const enemyTeam = {
+      id: "enemy" as const,
+      combatants: [{ kind: "enemy" as const, definitionId: "bamboo_bandit" }]
+    };
+    const baseBattle = simulateBattle(staticData, {
+      playerTeam: baseTeam.team,
+      enemyTeam,
+      maxDurationSeconds: 2
+    });
+    const masteredBattle = simulateBattle(staticData, {
+      playerTeam: masteredTeam.team,
+      enemyTeam,
+      maxDurationSeconds: 2
+    });
+
+    expect(masteredBattle.metrics.playerOuterDamage).toBeGreaterThan(
+      baseBattle.metrics.playerOuterDamage
+    );
+    expect(masteredBattle.metrics.playerInnerDamage).toBeGreaterThan(
+      baseBattle.metrics.playerInnerDamage
+    );
   });
 });
