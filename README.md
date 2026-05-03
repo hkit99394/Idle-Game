@@ -23,4 +23,4 @@ Useful scripts:
 - `npm run dev`: start the Vite web prototype.
 - `npm test`: run formula and data validation tests.
 - `npm run typecheck`: run TypeScript checks.
-- `npm run simulate`: run the first formula simulation script.
+- `npm run simulate`: run the first team-vs-team combat simulation script.
