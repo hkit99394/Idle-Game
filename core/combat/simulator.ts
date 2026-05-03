@@ -79,11 +79,13 @@ function createCombatantState(
   const definition = getDefinition(lookup, instance);
   const stats = deriveStats(instance.statsOverride ?? definition.baseStats);
   const instanceId = instance.instanceId ?? `${team}_${definition.id}_${index + 1}`;
+  const family = instance.kind === "enemy" ? (definition as EnemyDefinition).family : undefined;
 
   return {
     instanceId,
     definitionId: definition.id,
     kind: instance.kind,
+    family,
     name: definition.name,
     team,
     outerHp: stats.maxOuterHp,
@@ -91,6 +93,7 @@ function createCombatantState(
     maxOuterHp: stats.maxOuterHp,
     maxInnerQi: stats.maxInnerQi,
     stats,
+    damageMultipliersByFamily: instance.damageMultipliersByFamily ?? {},
     skillIds: definition.skillIds,
     nextActionAt: calculateAttackInterval(stats.speed, constants),
     skillCooldowns: Object.fromEntries(definition.skillIds.map((skillId) => [skillId, 0])),
@@ -329,7 +332,7 @@ function executeAction(
       targetIsQiBroken: target.isQiBroken
     },
     constants
-  );
+  ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0));
   const innerDamage = calculateInnerDamage(
     {
       attacker: attacker.stats,
@@ -338,7 +341,7 @@ function executeAction(
       targetIsQiBroken: target.isQiBroken
     },
     constants
-  );
+  ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0));
 
   target.outerHp = Math.max(0, target.outerHp - outerDamage);
   target.innerQi = Math.max(0, target.innerQi - innerDamage);

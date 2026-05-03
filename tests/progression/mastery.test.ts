@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  getEnemyFamilyDamageMultiplier,
   getMapAttackMultiplier,
   getMapRewardMultiplier,
   getNextMasteryThreshold,
@@ -34,5 +35,6 @@ describe("map mastery", () => {
     ]);
     expect(getMapAttackMultiplier(100, masteryData.thresholds)).toBeCloseTo(0.01);
     expect(getMapRewardMultiplier(500, masteryData.thresholds)).toBeCloseTo(0.02);
+    expect(getEnemyFamilyDamageMultiplier(3000, masteryData.thresholds)).toBeCloseTo(0.03);
   });
 });

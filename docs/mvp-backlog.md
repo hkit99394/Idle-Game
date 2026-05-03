@@ -74,7 +74,7 @@ Acceptance:
 
 ### 1.2 Progress-Based Hero Team Builder
 
-Status: In progress
+Status: Completed
 
 Task:
 

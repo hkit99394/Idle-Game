@@ -66,6 +66,7 @@ export type CombatantInstanceDefinition = {
   instanceId?: string;
   level?: number;
   statsOverride?: DerivedStats;
+  damageMultipliersByFamily?: Record<string, number>;
 };
 
 export type TeamInstance = {
@@ -77,6 +78,7 @@ export type CombatantState = {
   instanceId: string;
   definitionId: string;
   kind: CombatantKind;
+  family?: string;
   name: string;
   team: TeamId;
   outerHp: number;
@@ -84,6 +86,7 @@ export type CombatantState = {
   maxOuterHp: number;
   maxInnerQi: number;
   stats: DerivedStats;
+  damageMultipliersByFamily: Record<string, number>;
   skillIds: string[];
   nextActionAt: number;
   skillCooldowns: Record<string, number>;

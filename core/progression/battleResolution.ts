@@ -5,6 +5,7 @@ import {
   applyStageClearRewards
 } from "./rewards";
 import {
+  getEnemyFamilyDamageMultiplier,
   getMapAttackMultiplier
 } from "./mastery";
 import {
@@ -22,6 +23,13 @@ import type {
   ResolveStageBattleInput,
   ResolveStageBattleResult
 } from "./types";
+
+export const MVP_PLAYER_HERO_IDS = [
+  "iron_fist_disciple",
+  "azure_palm_monk",
+  "white_crane_swordsman",
+  "mountain_staff_guardian"
+] as const;
 
 function getHeroUpgradeDefinitions(data: StaticGameData) {
   return data.upgrades.filter((upgrade) => upgrade.scope === "hero");
@@ -61,6 +69,48 @@ function createPlayerCombatantStats(
   });
 }
 
+function getStageEnemyFamilies(data: StaticGameData, stageId: string): string[] {
+  const stage = getStageById(data, stageId);
+
+  if (!stage) {
+    return [];
+  }
+
+  return [
+    ...new Set(
+      stage.enemyTeam.combatantIds
+        .map((enemyId) => data.enemies.find((enemy) => enemy.id === enemyId)?.family)
+        .filter((family): family is string => Boolean(family))
+    )
+  ];
+}
+
+function getDamageMultipliersByFamily(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  stageId: string
+): Record<string, number> {
+  const stage = getStageById(data, stageId);
+
+  if (!stage) {
+    return {};
+  }
+
+  const combatExperience = progress.maps[stage.regionId]?.combatExperience ?? 0;
+  const damageMultiplier = getEnemyFamilyDamageMultiplier(
+    combatExperience,
+    data.mastery.thresholds
+  );
+
+  if (damageMultiplier <= 0) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    getStageEnemyFamilies(data, stageId).map((family) => [family, damageMultiplier])
+  );
+}
+
 export function buildPlayerTeamForStage(
   data: StaticGameData,
   progress: PlayerProgress,
@@ -77,10 +127,11 @@ export function buildPlayerTeamForStage(
 
   const team: TeamInstance = {
     id: "player",
-    combatants: data.heroes.map((hero) => ({
+    combatants: MVP_PLAYER_HERO_IDS.map((heroId) => ({
       kind: "hero",
-      definitionId: hero.id,
-      statsOverride: createPlayerCombatantStats(data, progress, stage.id, hero.id)
+      definitionId: heroId,
+      statsOverride: createPlayerCombatantStats(data, progress, stage.id, heroId),
+      damageMultipliersByFamily: getDamageMultipliersByFamily(data, progress, stage.id)
     }))
   };
 
