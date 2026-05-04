@@ -20,6 +20,12 @@ describe("progress-based player team builder", () => {
     expect(result.team.combatants.map((combatant) => combatant.definitionId)).toEqual([
       ...MVP_PLAYER_HERO_IDS
     ]);
+    expect(result.team.combatants.map((combatant) => combatant.formationSlot)).toEqual([
+      "front",
+      "middle",
+      "back",
+      "front"
+    ]);
   });
 
   it("applies hero upgrades, sect upgrades, and map attack mastery", () => {

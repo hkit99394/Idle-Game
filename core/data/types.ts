@@ -1,4 +1,9 @@
-import type { BaseStats, MvpStyle, TargetRule } from "../combat";
+import type {
+  BaseStats,
+  FormationSlot,
+  MvpStyle,
+  TargetRule
+} from "../combat";
 
 export type UnlockCondition =
   | { type: "always" }
@@ -45,6 +50,7 @@ export type EnemyDefinition = {
 
 export type TeamDefinition = {
   combatantIds: string[];
+  formation?: Partial<Record<FormationSlot, number[]>>;
 };
 
 export type StageRewards = {
@@ -93,7 +99,7 @@ export type MasteryDefinition = {
 export type FormationDefinition = {
   id: string;
   name: string;
-  slots: string[];
+  slots: FormationSlot[];
 };
 
 export type UpgradeDefinition = {

@@ -1,5 +1,6 @@
-import type { BaseStats, TeamInstance } from "../combat";
+import type { BaseStats, FormationSlot, TeamInstance } from "../combat";
 import { simulateBattle } from "../combat";
+import { getDefaultFormationSlot, FORMATION_SLOTS } from "../combat";
 import type { StaticGameData } from "../data";
 import {
   applyStageClearRewards
@@ -36,6 +37,13 @@ export const MVP_PLAYER_HERO_IDS = [
   "mountain_staff_guardian"
 ] as const;
 
+const MVP_PLAYER_FORMATION_SLOTS = {
+  iron_fist_disciple: "front",
+  azure_palm_monk: "middle",
+  white_crane_swordsman: "back",
+  mountain_staff_guardian: "front"
+} as const satisfies Record<(typeof MVP_PLAYER_HERO_IDS)[number], FormationSlot>;
+
 function getHeroUpgradeDefinitions(data: StaticGameData) {
   return data.upgrades.filter((upgrade) => upgrade.scope === "hero");
 }
@@ -62,6 +70,23 @@ function getEffectiveHeroProgress(
     level: Math.max(heroProgress?.level ?? 1, playerLevel),
     upgrades: heroProgress?.upgrades ?? {}
   };
+}
+
+function getEnemyFormationSlot(
+  stage: NonNullable<ReturnType<typeof getStageById>>,
+  combatantIndex: number
+): FormationSlot {
+  const formation = stage.enemyTeam.formation;
+
+  if (formation) {
+    for (const slot of FORMATION_SLOTS) {
+      if (formation[slot]?.includes(combatantIndex)) {
+        return slot;
+      }
+    }
+  }
+
+  return getDefaultFormationSlot(combatantIndex);
 }
 
 function createPlayerCombatantStats(
@@ -126,6 +151,7 @@ export function buildPlayerTeamForStage(
       return {
         kind: "hero",
         definitionId: heroId,
+        formationSlot: MVP_PLAYER_FORMATION_SLOTS[heroId],
         level: heroProgress.level,
         statsOverride: createPlayerCombatantStats(
           data,
@@ -173,7 +199,7 @@ export function buildEnemyTeamForStage(
     ok: true,
     team: {
       id: "enemy",
-      combatants: stage.enemyTeam.combatantIds.map((enemyId) => {
+      combatants: stage.enemyTeam.combatantIds.map((enemyId, combatantIndex) => {
         const enemy = enemiesById.get(enemyId);
 
         if (!enemy) {
@@ -183,6 +209,7 @@ export function buildEnemyTeamForStage(
         return {
           kind: "enemy",
           definitionId: enemyId,
+          formationSlot: getEnemyFormationSlot(stage, combatantIndex),
           level: enemy.level,
           statsOverride: scaleStatsForLevel(enemy.baseStats, enemy.level)
         };

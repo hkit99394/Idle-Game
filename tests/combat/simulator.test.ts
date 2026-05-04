@@ -43,13 +43,22 @@ describe("combat simulator", () => {
         id: "enemy",
         combatants: [
           { kind: "enemy", definitionId: "bamboo_bandit" },
-          { kind: "enemy", definitionId: "bamboo_bandit", instanceId: "enemy_second_bandit" }
+          {
+            kind: "enemy",
+            definitionId: "bamboo_bandit",
+            formationSlot: "back",
+            instanceId: "enemy_second_bandit"
+          }
         ]
       },
       maxDurationSeconds: 60
     });
 
     expect(result.finalEnemyTeam).toHaveLength(2);
+    expect(result.finalEnemyTeam.map((enemy) => enemy.formationSlot)).toEqual([
+      "front",
+      "back"
+    ]);
     expect(
       result.events.some(
         (event) => "targetId" in event && event.targetId === "enemy_second_bandit"

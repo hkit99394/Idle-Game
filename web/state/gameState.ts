@@ -6,6 +6,7 @@ import {
   calculateUpgradeCost,
   createInitialPlayerProgress,
   deriveStats,
+  getDefaultFormationSlot,
   getActiveMasterySummaryForStage,
   getStageById,
   getUpgradeLevel,
@@ -23,6 +24,7 @@ import type {
   CombatantInstanceDefinition,
   CombatantState,
   DerivedStats,
+  FormationSlot,
   MasteryBonus,
   TeamId,
   PlayerProgress,
@@ -97,6 +99,7 @@ export type BattleCombatantView = {
   name: string;
   style: string;
   role: string;
+  formationSlot: FormationSlot;
   level: number;
   outerHp: number;
   innerQi: number;
@@ -522,6 +525,7 @@ function createCombatantView(
     name: string;
     style: string;
     role: string;
+    formationSlot: FormationSlot;
     level: number;
     stats: DerivedStats;
   },
@@ -537,6 +541,7 @@ function createCombatantView(
     name: input.name,
     style: input.style,
     role: input.role,
+    formationSlot: finalState?.formationSlot ?? input.formationSlot,
     level: Math.max(finalState?.level ?? input.level, input.level),
     outerHp: finalState?.outerHp ?? input.stats.maxOuterHp,
     innerQi: finalState?.innerQi ?? input.stats.maxInnerQi,
@@ -1153,6 +1158,7 @@ function buildPlayerCombatantViews(
 
     const stats = deriveStats(instance.statsOverride ?? hero.baseStats);
     const level = instance.level ?? progress.heroes[hero.id]?.level ?? 1;
+    const formationSlot = instance.formationSlot ?? getDefaultFormationSlot(index);
     const instanceId = getPreviewInstanceId(
       teamResult.team.id,
       instance,
@@ -1169,6 +1175,7 @@ function buildPlayerCombatantViews(
         name: hero.name,
         style: hero.style,
         role: hero.role,
+        formationSlot,
         level,
         stats
       },
@@ -1198,6 +1205,7 @@ function buildEnemyCombatantViews(
     }
 
     const level = instance.level ?? enemy.level;
+    const formationSlot = instance.formationSlot ?? getDefaultFormationSlot(index);
     const stats = deriveStats(
       instance.statsOverride ?? scaleStatsForLevel(enemy.baseStats, level)
     );
@@ -1217,6 +1225,7 @@ function buildEnemyCombatantViews(
         name: enemy.name,
         style: enemy.style,
         role: enemy.type,
+        formationSlot,
         level,
         stats
       },

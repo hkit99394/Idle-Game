@@ -134,7 +134,7 @@ Stage 1.1 should complete Epic 7 first. Epics 8-12 are sequenced follow-up epics
 
 ### 7.1 Formation Data Model
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -148,9 +148,15 @@ Acceptance:
 - Existing MVP teams can be converted into a default formation.
 - Data validation catches duplicate combatant placement and invalid slots.
 
+Notes:
+
+- Core now uses `front`, `middle`, and `back` formation slots.
+- Stage enemy teams can place duplicate enemy ids by combatant index.
+- Validation covers invalid slots, duplicate placement, and invalid indexes.
+
 ### 7.2 Combatant Position In Battle
 
-Status: Not started
+Status: In progress
 
 Task:
 
@@ -162,6 +168,12 @@ Acceptance:
 - `CombatantState` exposes the resolved slot.
 - Battle logs and summaries can reference position when useful.
 - Existing battles without explicit formation still run through default positions.
+
+Notes:
+
+- Simulator combatant state now carries resolved formation slot.
+- Web combatant cards display the resolved slot.
+- Battle log and summary wording still need a later pass.
 
 ### 7.3 Targeting Rules
 
@@ -213,7 +225,7 @@ Acceptance:
 
 ### 7.6 Enemy Formations
 
-Status: Not started
+Status: In progress
 
 Task:
 
@@ -225,6 +237,11 @@ Acceptance:
 - Bamboo Road enemies receive simple default formations.
 - Enemy formation affects target selection.
 - Missing or invalid enemy placement fails validation.
+
+Notes:
+
+- Bamboo Road stage data now declares enemy formation slots.
+- Targeting is not formation-aware yet; that remains in task 7.3.
 
 ### 7.7 Battle Summary Improvements
 

@@ -1,3 +1,5 @@
+import type { FormationSlot } from "./formations";
+
 export type TeamId = "player" | "enemy";
 
 export type MvpStyle = "fist" | "palm" | "sword" | "staff";
@@ -64,6 +66,7 @@ export type CombatantInstanceDefinition = {
   definitionId: string;
   kind: CombatantKind;
   instanceId?: string;
+  formationSlot?: FormationSlot;
   level?: number;
   statsOverride?: DerivedStats;
   damageMultipliersByFamily?: Record<string, number>;
@@ -79,6 +82,7 @@ export type CombatantState = {
   definitionId: string;
   kind: CombatantKind;
   level: number;
+  formationSlot: FormationSlot;
   family?: string;
   name: string;
   team: TeamId;

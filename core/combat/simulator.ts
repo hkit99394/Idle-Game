@@ -26,6 +26,7 @@ import {
   deriveStats,
   scaleStatsForLevel
 } from "./formulas";
+import { getDefaultFormationSlot } from "./formations";
 import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
 
 const BASIC_SKILL_ID = "basic_strike";
@@ -94,6 +95,7 @@ function createCombatantState(
     definitionId: definition.id,
     kind: instance.kind,
     level,
+    formationSlot: instance.formationSlot ?? getDefaultFormationSlot(index),
     family,
     name: definition.name,
     team,

@@ -170,6 +170,10 @@ function formatSignedPercent(value: number): string {
   }).format(value);
 }
 
+function formatFormationSlot(slot: string): string {
+  return `${slot.charAt(0).toUpperCase()}${slot.slice(1)}`;
+}
+
 type CombatantCardProps = {
   combatant: BattleCombatantView;
 };
@@ -189,6 +193,7 @@ function CombatantCard({ combatant }: CombatantCardProps) {
           <span>{combatant.role}</span>
         </div>
         <div className="combatant-tags">
+          <span className="slot-tag">{formatFormationSlot(combatant.formationSlot)}</span>
           <span className="level-tag">Lv {formatNumber(combatant.level)}</span>
           <span className="cp-tag">CP {formatNumber(combatant.combatPower)}</span>
           <span className="style-tag">{combatant.style}</span>

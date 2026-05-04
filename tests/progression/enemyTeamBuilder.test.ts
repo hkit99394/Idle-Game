@@ -26,15 +26,37 @@ describe("stage enemy team builder", () => {
       expect.objectContaining({
         kind: "enemy",
         definitionId: "bamboo_bandit",
+        formationSlot: "front",
         level: 1
       }),
       expect.objectContaining({
         kind: "enemy",
         definitionId: "bamboo_bandit",
+        formationSlot: "middle",
         level: 1
       })
     ]);
     expect(result.team.combatants[0].statsOverride).toBeDefined();
+  });
+
+  it("maps stage formation indexes to enemy combatant slots", () => {
+    const result = buildEnemyTeamForStage(staticData, "bamboo_road_5");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.team.combatants).toEqual([
+      expect.objectContaining({
+        definitionId: "mist_palm_thug",
+        formationSlot: "middle"
+      }),
+      expect.objectContaining({
+        definitionId: "bamboo_bandit",
+        formationSlot: "front"
+      })
+    ]);
   });
 
   it("supports multiple enemy ids in stage order", () => {
@@ -63,11 +85,13 @@ describe("stage enemy team builder", () => {
       expect.objectContaining({
         kind: "enemy",
         definitionId: "bamboo_bandit",
+        formationSlot: "front",
         level: 1
       }),
       expect.objectContaining({
         kind: "enemy",
         definitionId: "mist_palm_thug",
+        formationSlot: "middle",
         level: 1
       })
     ]);

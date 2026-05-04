@@ -725,7 +725,8 @@ h2 {
 
 .style-tag,
 .cp-tag,
-.level-tag {
+.level-tag,
+.slot-tag {
   flex: 0 0 auto;
   max-width: 100%;
   min-height: 24px;
@@ -755,6 +756,14 @@ h2 {
   border: 1px solid #5b8662;
   background: #e2efdf;
   color: #254f2c;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.slot-tag {
+  border: 1px solid #2e5f63;
+  background: #e3f0f4;
+  color: #1f5559;
   font-size: 0.78rem;
   font-weight: 900;
 }

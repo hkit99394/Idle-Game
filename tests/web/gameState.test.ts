@@ -82,6 +82,7 @@ describe("web game state", () => {
       innerQi: 90,
       maxOuterHp: 180,
       maxInnerQi: 90,
+      formationSlot: "front",
       level: 1,
       combatPower: 504
     });
@@ -92,6 +93,7 @@ describe("web game state", () => {
       innerQi: 60,
       maxOuterHp: 120,
       maxInnerQi: 60,
+      formationSlot: "front",
       level: 1,
       combatPower: 259
     });
@@ -99,6 +101,7 @@ describe("web game state", () => {
       name: "Bamboo Road Bandit",
       outerHp: 120,
       maxOuterHp: 120,
+      formationSlot: "middle",
       level: 1,
       combatPower: 259
     });

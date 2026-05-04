@@ -1,11 +1,16 @@
 import type {
   EnemyDefinition,
+  FormationDefinition,
   HeroDefinition,
   RegionDefinition,
   SkillDefinition,
   StageDefinition,
   StaticGameData
 } from "./types";
+import {
+  FORMATION_SLOTS,
+  isFormationSlot
+} from "../combat";
 
 type EntityWithId = { id: string };
 
@@ -124,6 +129,28 @@ function validateSkill(skill: SkillDefinition): string[] {
   return errors;
 }
 
+function validateFormation(formation: FormationDefinition): string[] {
+  const errors: string[] = [];
+  const seenSlots = new Set<string>();
+
+  for (const slot of formation.slots) {
+    if (!isFormationSlot(slot)) {
+      errors.push(
+        `Formation ${formation.id} slot ${String(slot)} must be one of ${FORMATION_SLOTS.join(", ")}`
+      );
+      continue;
+    }
+
+    if (seenSlots.has(slot)) {
+      errors.push(`Formation ${formation.id} slot ${slot} is duplicated`);
+    }
+
+    seenSlots.add(slot);
+  }
+
+  return errors;
+}
+
 function validateStage(stage: StageDefinition): string[] {
   const errors: string[] = [];
 
@@ -133,6 +160,46 @@ function validateStage(stage: StageDefinition): string[] {
 
   if (stage.rewards.silver < 0 || stage.rewards.cultivation < 0 || stage.rewards.combatExperience < 0) {
     errors.push(`Stage ${stage.id} rewards must be non-negative`);
+  }
+
+  const placedCombatantIndexes = new Set<number>();
+
+  for (const [slot, combatantIndexes] of Object.entries(
+    stage.enemyTeam.formation ?? {}
+  )) {
+    if (!isFormationSlot(slot)) {
+      errors.push(
+        `Stage ${stage.id} enemyTeam formation slot ${slot} must be one of ${FORMATION_SLOTS.join(", ")}`
+      );
+      continue;
+    }
+
+    if (!Array.isArray(combatantIndexes)) {
+      errors.push(`Stage ${stage.id} enemyTeam formation slot ${slot} must be an array`);
+      continue;
+    }
+
+    for (const combatantIndex of combatantIndexes) {
+      if (
+        typeof combatantIndex !== "number" ||
+        !Number.isInteger(combatantIndex) ||
+        combatantIndex < 0 ||
+        combatantIndex >= stage.enemyTeam.combatantIds.length
+      ) {
+        errors.push(
+          `Stage ${stage.id} enemyTeam formation slot ${slot} has invalid combatant index ${String(combatantIndex)}`
+        );
+        continue;
+      }
+
+      if (placedCombatantIndexes.has(combatantIndex)) {
+        errors.push(
+          `Stage ${stage.id} enemyTeam formation places combatant index ${combatantIndex} more than once`
+        );
+      }
+
+      placedCombatantIndexes.add(combatantIndex);
+    }
   }
 
   return errors;
@@ -179,6 +246,10 @@ export function validateStaticGameData(data: StaticGameData): string[] {
 
   for (const stage of data.stages) {
     errors.push(...validateStage(stage));
+  }
+
+  for (const formation of data.formations) {
+    errors.push(...validateFormation(formation));
   }
 
   const thresholds = data.mastery.thresholds;
