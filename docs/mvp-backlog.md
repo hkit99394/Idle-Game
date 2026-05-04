@@ -195,7 +195,7 @@ Acceptance:
 
 ### 2.3 Upgrade Economy Pass
 
-Status: Not started
+Status: Completed
 
 Task:
 

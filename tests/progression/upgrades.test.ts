@@ -18,8 +18,8 @@ describe("upgrades", () => {
       return;
     }
 
-    expect(calculateUpgradeCost(upgrade, 0)).toBe(25);
-    expect(calculateUpgradeCost(upgrade, 1)).toBe(28);
+    expect(calculateUpgradeCost(upgrade, 0)).toBe(12);
+    expect(calculateUpgradeCost(upgrade, 1)).toBe(13);
   });
 
   it("purchases hero and sect upgrades with silver", () => {
@@ -37,8 +37,8 @@ describe("upgrades", () => {
       return;
     }
 
-    expect(heroPurchase.cost).toBe(25);
-    expect(heroPurchase.progress.resources.silver).toBe(175);
+    expect(heroPurchase.cost).toBe(12);
+    expect(heroPurchase.progress.resources.silver).toBe(188);
     expect(
       heroPurchase.progress.heroes.iron_fist_disciple.upgrades.hero_outer_training
     ).toBe(1);
@@ -53,8 +53,8 @@ describe("upgrades", () => {
       return;
     }
 
-    expect(sectPurchase.cost).toBe(100);
-    expect(sectPurchase.progress.resources.silver).toBe(75);
+    expect(sectPurchase.cost).toBe(48);
+    expect(sectPurchase.progress.resources.silver).toBe(140);
     expect(sectPurchase.progress.sect.upgrades.sect_inner_training).toBe(1);
   });
 
@@ -70,7 +70,44 @@ describe("upgrades", () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toBe("not_enough_silver");
-      expect(result.cost).toBe(25);
+      expect(result.cost).toBe(12);
+    }
+  });
+
+  it("keeps early upgrade pacing within the first three clears", () => {
+    const upgrade = staticData.upgrades.find(
+      (candidate) => candidate.id === "hero_outer_training"
+    );
+
+    expect(upgrade).toBeDefined();
+    if (!upgrade) {
+      return;
+    }
+
+    const firstUpgradeCost = calculateUpgradeCost(upgrade, 0);
+    const silverAfterThreeClears = staticData.stages
+      .filter((stage) => stage.regionId === "bamboo_road" && !stage.isBoss)
+      .slice(0, 3)
+      .reduce((silver, stage) => silver + stage.rewards.silver, 0);
+
+    expect(silverAfterThreeClears).toBeGreaterThanOrEqual(firstUpgradeCost);
+  });
+
+  it("does not let mastery experience or cultivation pay silver upgrade costs", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.cultivation = 999;
+    progress.maps.bamboo_road.combatExperience = 3000;
+
+    const result = purchaseUpgrade(staticData.upgrades, {
+      progress,
+      upgradeId: "hero_outer_training",
+      heroId: "iron_fist_disciple"
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe("not_enough_silver");
+      expect(result.cost).toBe(12);
     }
   });
 

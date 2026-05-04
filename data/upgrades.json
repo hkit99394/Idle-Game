@@ -4,8 +4,8 @@
     "name": "Hero Outer Training",
     "scope": "hero",
     "stat": "outerAttack",
-    "baseCost": 25,
-    "costGrowth": 1.16,
+    "baseCost": 12,
+    "costGrowth": 1.12,
     "effectPerLevel": 0.1
   },
   {
@@ -13,8 +13,8 @@
     "name": "Hero Inner Training",
     "scope": "hero",
     "stat": "innerAttack",
-    "baseCost": 25,
-    "costGrowth": 1.16,
+    "baseCost": 12,
+    "costGrowth": 1.12,
     "effectPerLevel": 0.1
   },
   {
@@ -22,8 +22,8 @@
     "name": "Sect Outer Training",
     "scope": "sect",
     "stat": "outerAttack",
-    "baseCost": 100,
-    "costGrowth": 1.18,
+    "baseCost": 48,
+    "costGrowth": 1.14,
     "effectPerLevel": 0.05
   },
   {
@@ -31,8 +31,8 @@
     "name": "Sect Inner Training",
     "scope": "sect",
     "stat": "innerAttack",
-    "baseCost": 100,
-    "costGrowth": 1.18,
+    "baseCost": 48,
+    "costGrowth": 1.14,
     "effectPerLevel": 0.05
   }
 ]

@@ -18,7 +18,7 @@
     "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 12, "cultivation": 6, "combatExperience": 5 },
+    "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 5 },
     "nextStageId": "bamboo_road_3"
   },
   {
@@ -29,7 +29,7 @@
     "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 6 },
+    "rewards": { "silver": 18, "cultivation": 9, "combatExperience": 6 },
     "nextStageId": "bamboo_road_4"
   },
   {
@@ -40,7 +40,7 @@
     "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 16, "cultivation": 8, "combatExperience": 6 },
+    "rewards": { "silver": 22, "cultivation": 11, "combatExperience": 6 },
     "nextStageId": "bamboo_road_5"
   },
   {
@@ -51,7 +51,7 @@
     "enemyTeam": { "combatantIds": ["mist_palm_thug"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 20, "cultivation": 10, "combatExperience": 20 },
+    "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
     "nextStageId": "bamboo_road_6"
   },
   {
@@ -62,7 +62,7 @@
     "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 23, "cultivation": 11, "combatExperience": 8 },
+    "rewards": { "silver": 30, "cultivation": 15, "combatExperience": 8 },
     "nextStageId": "bamboo_road_7"
   },
   {
@@ -73,7 +73,7 @@
     "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 26, "cultivation": 13, "combatExperience": 8 },
+    "rewards": { "silver": 36, "cultivation": 18, "combatExperience": 8 },
     "nextStageId": "bamboo_road_8"
   },
   {
@@ -84,7 +84,7 @@
     "enemyTeam": { "combatantIds": ["mist_palm_thug"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
+    "rewards": { "silver": 44, "cultivation": 22, "combatExperience": 20 },
     "nextStageId": "bamboo_road_9"
   },
   {
@@ -95,7 +95,7 @@
     "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 38, "cultivation": 19, "combatExperience": 10 },
+    "rewards": { "silver": 52, "cultivation": 26, "combatExperience": 10 },
     "nextStageId": "bamboo_road_10"
   },
   {
@@ -106,7 +106,7 @@
     "enemyTeam": { "combatantIds": ["black_iron_guard"] },
     "isBoss": true,
     "canFarmOffline": false,
-    "rewards": { "silver": 120, "cultivation": 60, "combatExperience": 100 },
+    "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 100 },
     "nextStageId": null
   }
 ]
