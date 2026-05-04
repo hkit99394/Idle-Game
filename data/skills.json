@@ -1,0 +1,77 @@
+[
+  {
+    "id": "basic_strike",
+    "name": "Basic Strike",
+    "cooldownSeconds": 0,
+    "outerMultiplier": 1,
+    "innerMultiplier": 0.15,
+    "targetRule": "first_living",
+    "effects": []
+  },
+  {
+    "id": "iron_fist_combo",
+    "name": "Iron Fist Combo",
+    "cooldownSeconds": 4,
+    "outerMultiplier": 1.65,
+    "innerMultiplier": 0.1,
+    "targetRule": "first_living",
+    "effects": []
+  },
+  {
+    "id": "meridian_shock",
+    "name": "Meridian Shock",
+    "cooldownSeconds": 5,
+    "outerMultiplier": 0.25,
+    "innerMultiplier": 1.65,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "inner_defense_down",
+        "value": 0.1,
+        "durationSeconds": 6
+      }
+    ]
+  },
+  {
+    "id": "white_crane_slash",
+    "name": "White Crane Slash",
+    "cooldownSeconds": 4.5,
+    "outerMultiplier": 1.2,
+    "innerMultiplier": 0.35,
+    "targetRule": "first_living",
+    "effects": []
+  },
+  {
+    "id": "sweeping_staff",
+    "name": "Sweeping Staff",
+    "cooldownSeconds": 6,
+    "outerMultiplier": 0.9,
+    "innerMultiplier": 0.45,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "speed_down",
+        "value": 0.1,
+        "durationSeconds": 5
+      }
+    ]
+  },
+  {
+    "id": "bandit_cut",
+    "name": "Bandit Cut",
+    "cooldownSeconds": 4,
+    "outerMultiplier": 1.1,
+    "innerMultiplier": 0.05,
+    "targetRule": "first_living",
+    "effects": []
+  },
+  {
+    "id": "guarding_saber",
+    "name": "Guarding Saber",
+    "cooldownSeconds": 5,
+    "outerMultiplier": 1.25,
+    "innerMultiplier": 0.1,
+    "targetRule": "first_living",
+    "effects": []
+  }
+]

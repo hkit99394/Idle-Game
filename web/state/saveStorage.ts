@@ -1,0 +1,408 @@
+import {
+  applyOfflineRewards,
+  createInitialPlayerProgress,
+  createSaveData,
+  parseSaveData,
+  setOfflineFarmStageTarget
+} from "../../core";
+import type {
+  ApplyOfflineRewardsResult,
+  SaveData,
+  StaticGameData
+} from "../../core";
+import type { WebGameState } from "./gameState";
+
+export const WEB_SAVE_STORAGE_KEY = "path-of-jianghu.save.v1";
+export const WEB_SAVE_AUTOSAVE_INTERVAL_MS = 15_000;
+
+export type WebSaveStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+
+export type LoadSaveDataFromStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+    }
+  | {
+      ok: false;
+      reason: "missing_save" | "invalid_json" | "invalid_save" | "storage_error";
+      errors: string[];
+    };
+
+export type LoadSaveDataWithOfflineRewardsResult =
+  | {
+      ok: true;
+      save: SaveData;
+      offlineRewards: ApplyOfflineRewardsResult | null;
+    }
+  | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
+
+export type SaveStateToStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+    }
+  | {
+      ok: false;
+      reason: "storage_error";
+      errors: string[];
+    };
+
+export type ExportSaveDataFromStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+      json: string;
+    }
+  | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
+
+export type ImportSaveDataToStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+    }
+  | {
+      ok: false;
+      reason: "empty_import" | "invalid_json" | "invalid_save" | "storage_error";
+      errors: string[];
+    };
+
+export type ResetSaveDataInStorageResult = SaveStateToStorageResult;
+
+export type TimeTravelOfflineSaveInStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+      traveledSeconds: number;
+    }
+  | {
+      ok: false;
+      reason:
+        | "invalid_duration"
+        | "missing_save"
+        | "invalid_json"
+        | "invalid_save"
+        | "storage_error";
+      errors: string[];
+    };
+
+export function getBrowserSaveStorage(): WebSaveStorage | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage;
+}
+
+export function loadSaveDataFromStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  key = WEB_SAVE_STORAGE_KEY
+): LoadSaveDataFromStorageResult {
+  let rawSave: string | null;
+
+  try {
+    rawSave = storage.getItem(key);
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [error instanceof Error ? error.message : "Unable to read save"]
+    };
+  }
+
+  if (!rawSave) {
+    return {
+      ok: false,
+      reason: "missing_save",
+      errors: []
+    };
+  }
+
+  let parsedSave: unknown;
+
+  try {
+    parsedSave = JSON.parse(rawSave);
+  } catch {
+    return {
+      ok: false,
+      reason: "invalid_json",
+      errors: ["Stored save is not valid JSON"]
+    };
+  }
+
+  const parseResult = parseSaveData(data, parsedSave);
+
+  if (!parseResult.ok) {
+    return {
+      ok: false,
+      reason: "invalid_save",
+      errors: parseResult.errors
+    };
+  }
+
+  return {
+    ok: true,
+    save: parseResult.save
+  };
+}
+
+export function loadSaveDataWithOfflineRewardsFromStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "mastery">,
+  storage: WebSaveStorage,
+  nowMs = Date.now(),
+  key = WEB_SAVE_STORAGE_KEY
+): LoadSaveDataWithOfflineRewardsResult {
+  const loadResult = loadSaveDataFromStorage(data, storage, key);
+
+  if (!loadResult.ok) {
+    return loadResult;
+  }
+
+  const rewardTimeMs = Math.max(nowMs, loadResult.save.updatedAtMs);
+  const selectedOfflineFarmStageId = setOfflineFarmStageTarget(
+    data,
+    loadResult.save.progress,
+    loadResult.save.selectedOfflineFarmStageId
+  );
+  const farmTargetChanged =
+    selectedOfflineFarmStageId !== loadResult.save.selectedOfflineFarmStageId;
+  const offlineRewards = applyOfflineRewards({
+    data,
+    progress: loadResult.save.progress,
+    selectedOfflineFarmStageId,
+    lastSavedAtMs: loadResult.save.updatedAtMs,
+    currentTimeMs: rewardTimeMs
+  });
+  const hasRewards = offlineRewards.ok && offlineRewards.rewards.clears > 0;
+
+  if (!hasRewards && !farmTargetChanged) {
+    return {
+      ok: true,
+      save: loadResult.save,
+      offlineRewards
+    };
+  }
+
+  const save = createSaveData({
+    progress: hasRewards ? offlineRewards.progress : loadResult.save.progress,
+    selectedOfflineFarmStageId,
+    nowMs: hasRewards ? rewardTimeMs : loadResult.save.updatedAtMs,
+    lastOfflineRewardAtMs: hasRewards
+      ? rewardTimeMs
+      : loadResult.save.lastOfflineRewardAtMs,
+    previousSave: loadResult.save
+  });
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch {
+    return {
+      ok: true,
+      save: loadResult.save,
+      offlineRewards: null
+    };
+  }
+
+  return {
+    ok: true,
+    save,
+    offlineRewards
+  };
+}
+
+export function saveWebGameStateToStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  state: Pick<WebGameState, "progress" | "selectedOfflineFarmStageId">,
+  storage: WebSaveStorage,
+  nowMs = Date.now(),
+  key = WEB_SAVE_STORAGE_KEY
+): SaveStateToStorageResult {
+  const previousSaveResult = loadSaveDataFromStorage(data, storage, key);
+  const save = createSaveData({
+    progress: state.progress,
+    selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+    nowMs,
+    previousSave: previousSaveResult.ok ? previousSaveResult.save : null
+  });
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [error instanceof Error ? error.message : "Unable to write save"]
+    };
+  }
+
+  return {
+    ok: true,
+    save
+  };
+}
+
+export function exportSaveDataFromStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  key = WEB_SAVE_STORAGE_KEY
+): ExportSaveDataFromStorageResult {
+  const loadResult = loadSaveDataFromStorage(data, storage, key);
+
+  if (!loadResult.ok) {
+    return loadResult;
+  }
+
+  return {
+    ok: true,
+    save: loadResult.save,
+    json: JSON.stringify(loadResult.save, null, 2)
+  };
+}
+
+export function importSaveDataToStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  rawSaveText: string,
+  key = WEB_SAVE_STORAGE_KEY
+): ImportSaveDataToStorageResult {
+  const trimmedSaveText = rawSaveText.trim();
+
+  if (!trimmedSaveText) {
+    return {
+      ok: false,
+      reason: "empty_import",
+      errors: ["Import text is empty"]
+    };
+  }
+
+  let parsedSave: unknown;
+
+  try {
+    parsedSave = JSON.parse(trimmedSaveText);
+  } catch {
+    return {
+      ok: false,
+      reason: "invalid_json",
+      errors: ["Imported save is not valid JSON"]
+    };
+  }
+
+  const parseResult = parseSaveData(data, parsedSave);
+
+  if (!parseResult.ok) {
+    return {
+      ok: false,
+      reason: "invalid_save",
+      errors: parseResult.errors
+    };
+  }
+
+  const save: SaveData = {
+    ...parseResult.save,
+    selectedOfflineFarmStageId: setOfflineFarmStageTarget(
+      data,
+      parseResult.save.progress,
+      parseResult.save.selectedOfflineFarmStageId
+    )
+  };
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [error instanceof Error ? error.message : "Unable to import save"]
+    };
+  }
+
+  return {
+    ok: true,
+    save
+  };
+}
+
+export function resetSaveDataInStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  nowMs = Date.now(),
+  key = WEB_SAVE_STORAGE_KEY
+): ResetSaveDataInStorageResult {
+  const progress = createInitialPlayerProgress(data);
+  const save = createSaveData({
+    progress,
+    selectedOfflineFarmStageId: setOfflineFarmStageTarget(data, progress, null),
+    nowMs
+  });
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [error instanceof Error ? error.message : "Unable to reset save"]
+    };
+  }
+
+  return {
+    ok: true,
+    save
+  };
+}
+
+export function timeTravelOfflineSaveInStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  offlineSeconds: number,
+  nowMs = Date.now(),
+  key = WEB_SAVE_STORAGE_KEY
+): TimeTravelOfflineSaveInStorageResult {
+  const traveledSeconds = Math.floor(offlineSeconds);
+
+  if (!Number.isFinite(offlineSeconds) || traveledSeconds <= 0) {
+    return {
+      ok: false,
+      reason: "invalid_duration",
+      errors: ["Offline time travel duration must be greater than zero"]
+    };
+  }
+
+  const loadResult = loadSaveDataFromStorage(data, storage, key);
+
+  if (!loadResult.ok) {
+    return loadResult;
+  }
+
+  const traveledMs = traveledSeconds * 1000;
+  const simulatedUpdatedAtMs = Math.max(0, nowMs - traveledMs);
+  const save: SaveData = {
+    ...loadResult.save,
+    createdAtMs: Math.min(loadResult.save.createdAtMs, simulatedUpdatedAtMs),
+    updatedAtMs: simulatedUpdatedAtMs,
+    lastOfflineRewardAtMs: Math.min(
+      loadResult.save.lastOfflineRewardAtMs,
+      simulatedUpdatedAtMs
+    )
+  };
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [
+        error instanceof Error
+          ? error.message
+          : "Unable to time travel offline save"
+      ]
+    };
+  }
+
+  return {
+    ok: true,
+    save,
+    traveledSeconds
+  };
+}

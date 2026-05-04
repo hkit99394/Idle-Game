@@ -1,0 +1,7 @@
+[
+  {
+    "id": "mvp_line",
+    "name": "MVP Line",
+    "slots": ["front_1", "front_2", "back_1", "back_2"]
+  }
+]

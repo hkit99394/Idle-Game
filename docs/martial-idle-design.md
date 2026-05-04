@@ -247,6 +247,16 @@ Suggested values:
 LevelGrowth = 1.06 to 1.10
 ```
 
+MVP implementation:
+
+```text
+XPToNextLevel = 100 * CurrentLevel
+TotalXPRequiredForLevel = 100 * (Level - 1) * Level / 2
+LevelGrowth = 1.06
+```
+
+Enemy definitions also carry level data and use the same basic stat scaling.
+
 ### 8.2 Martial Realm
 
 Realm is a milestone tier above normal level.
