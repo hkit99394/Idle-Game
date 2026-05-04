@@ -530,6 +530,87 @@ Acceptance:
 - Player can reset to a new game after confirmation.
 - Diagnostics show storage status, save key, version, timestamps, stage state, farm target, save size, and autosave interval.
 
+### 6.2 Offline Farming Time Travel
+
+Status: Completed
+
+Task:
+
+- Add a diagnostics button that simulates time away for the selected offline farm target.
+
+Acceptance:
+
+- Button is unavailable until storage is available and a farm target is selected.
+- Simulated time uses the normal offline reward load path.
+- Simulated time advances the offline reward checkpoint after rewards are granted.
+- Time travel behavior is covered by storage-level tests.
+
+### 6.3 Combat Power Display
+
+Status: Completed
+
+Task:
+
+- Add a readable CP stat for combatants and team summaries.
+
+Acceptance:
+
+- CP is derived from core combat stats without changing battle resolution.
+- Combatant cards show individual CP.
+- Team panels show total CP.
+- CP formula and web view output are covered by tests.
+
+### 6.4 Enemy Team Encounters
+
+Status: Completed
+
+Task:
+
+- Convert Bamboo Road encounters from one-enemy assumptions to enemy team encounters.
+
+Acceptance:
+
+- Stage data can define multiple enemy combatants per encounter.
+- Web header summarizes the full enemy team instead of only the first enemy.
+- Enemy panel is labeled as a team.
+- Stage team building and web state tests cover multi-enemy encounters.
+- Balance report still confirms MVP stage timing and boss gate expectations.
+
+### 6.5 Continuous Map Fighting
+
+Status: Completed
+
+Task:
+
+- Replace manual battle and farming controls with continuous fighting on the selected stage.
+
+Acceptance:
+
+- The web app automatically resolves battles while open.
+- The top-level Start Battle and Auto buttons are removed.
+- Stage cards select where the player stays and fights.
+- Cleared battles unlock progress without moving the selected stage.
+- Stage cards no longer expose separate Battle or Farm buttons.
+- Selecting a cleared non-boss stage updates the automatic offline target.
+
+### 6.6 Combat XP Levels
+
+Status: Completed
+
+Task:
+
+- Convert accumulated Combat Experience into visible combat levels for heroes and enemies.
+
+Acceptance:
+
+- Player level is derived from total accumulated Combat Experience.
+- XP required to level up increases by level.
+- Hero levels sync after stage clears and offline rewards.
+- Hero level scaling applies before upgrade and mastery multipliers.
+- Enemy definitions include level data and enemy stats scale from that level.
+- Combat cards show level beside CP and weapon style.
+- Level formulas, rewards, offline rewards, team builders, save validation, and web view output are covered by tests.
+
 ## Recommended Build Order
 
 1. Core battle resolution API.

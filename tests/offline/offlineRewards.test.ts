@@ -75,6 +75,33 @@ describe("offline rewards", () => {
     expect(result.progress.currentStageId).toBe("bamboo_road_3");
   });
 
+  it("updates hero levels after offline combat experience is granted", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+
+    const result = applyOfflineRewards({
+      data: staticData,
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      lastSavedAtMs: 0,
+      currentTimeMs: 200_000,
+      config: {
+        offlineCapSeconds: 1_000,
+        estimatedClearTimeSeconds: 10,
+        minimumClearTimeSeconds: 5,
+        offlineEfficiency: 1
+      }
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.rewards.combatExperience).toBe(100);
+    expect(result.progress.heroes.iron_fist_disciple.level).toBe(2);
+  });
+
   it("refuses missing, locked, boss, and non-farmable targets", () => {
     const lockedProgress = createInitialPlayerProgress(staticData);
     const missingResult = applyOfflineRewards({

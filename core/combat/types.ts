@@ -78,6 +78,7 @@ export type CombatantState = {
   instanceId: string;
   definitionId: string;
   kind: CombatantKind;
+  level: number;
   family?: string;
   name: string;
   team: TeamId;

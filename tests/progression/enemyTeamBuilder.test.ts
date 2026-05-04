@@ -21,15 +21,20 @@ describe("stage enemy team builder", () => {
       return;
     }
 
-    expect(result.team).toEqual({
-      id: "enemy",
-      combatants: [
-        {
-          kind: "enemy",
-          definitionId: "bamboo_bandit"
-        }
-      ]
-    });
+    expect(result.team.id).toBe("enemy");
+    expect(result.team.combatants).toEqual([
+      expect.objectContaining({
+        kind: "enemy",
+        definitionId: "bamboo_bandit",
+        level: 1
+      }),
+      expect.objectContaining({
+        kind: "enemy",
+        definitionId: "bamboo_bandit",
+        level: 1
+      })
+    ]);
+    expect(result.team.combatants[0].statsOverride).toBeDefined();
   });
 
   it("supports multiple enemy ids in stage order", () => {
@@ -55,14 +60,16 @@ describe("stage enemy team builder", () => {
     }
 
     expect(result.team.combatants).toEqual([
-      {
+      expect.objectContaining({
         kind: "enemy",
-        definitionId: "bamboo_bandit"
-      },
-      {
+        definitionId: "bamboo_bandit",
+        level: 1
+      }),
+      expect.objectContaining({
         kind: "enemy",
-        definitionId: "mist_palm_thug"
-      }
+        definitionId: "mist_palm_thug",
+        level: 1
+      })
     ]);
   });
 

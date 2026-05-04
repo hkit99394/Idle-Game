@@ -1,5 +1,6 @@
 import type { BaseStats } from "../combat";
 import type { UpgradeDefinition } from "../data";
+import { scaleStatsForLevel } from "./levels";
 import { cloneProgress } from "./progress";
 import type {
   DerivedHeroStatsInput,
@@ -89,7 +90,10 @@ function applyUpgradeMultiplier(
 }
 
 export function deriveHeroStatsFromProgress(input: DerivedHeroStatsInput): BaseStats {
-  const stats: BaseStats = { ...input.baseStats };
+  const stats = scaleStatsForLevel(
+    input.baseStats,
+    input.heroProgress?.level ?? 1
+  );
 
   for (const upgrade of input.heroUpgradeDefinitions) {
     const level = input.heroProgress?.upgrades[upgrade.id] ?? 0;

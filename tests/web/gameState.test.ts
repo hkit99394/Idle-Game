@@ -19,7 +19,7 @@ describe("web game state", () => {
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
     expect(viewModel.offlineSummary).toBeNull();
-    expect(viewModel.enemy?.id).toBe("bamboo_bandit");
+    expect(viewModel.enemyTeamLabel).toBe("Bamboo Road Bandit x2");
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();
     expect(viewModel.masteryPanel).toMatchObject({
@@ -81,19 +81,30 @@ describe("web game state", () => {
       outerHp: 180,
       innerQi: 90,
       maxOuterHp: 180,
-      maxInnerQi: 90
+      maxInnerQi: 90,
+      level: 1,
+      combatPower: 504
     });
-    expect(viewModel.enemyCombatants).toHaveLength(1);
+    expect(viewModel.enemyCombatants).toHaveLength(2);
     expect(viewModel.enemyCombatants[0]).toMatchObject({
       name: "Bamboo Road Bandit",
       outerHp: 120,
       innerQi: 60,
       maxOuterHp: 120,
-      maxInnerQi: 60
+      maxInnerQi: 60,
+      level: 1,
+      combatPower: 259
+    });
+    expect(viewModel.enemyCombatants[1]).toMatchObject({
+      name: "Bamboo Road Bandit",
+      outerHp: 120,
+      maxOuterHp: 120,
+      level: 1,
+      combatPower: 259
     });
   });
 
-  it("updates progress and selected stage after battle", () => {
+  it("updates progress while staying on the selected stage after battle", () => {
     const state = createInitialWebGameState(staticData);
     const nextState = resolveSelectedStageBattle(staticData, state);
 
@@ -101,18 +112,20 @@ describe("web game state", () => {
     expect(nextState.progress.resources.silver).toBe(10);
     expect(nextState.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
     expect(nextState.progress.currentStageId).toBe("bamboo_road_2");
-    expect(nextState.selectedStageId).toBe("bamboo_road_2");
+    expect(nextState.selectedStageId).toBe("bamboo_road_1");
     expect(nextState.selectedOfflineFarmStageId).toBe("bamboo_road_1");
     expect(nextState.lastBattleStageId).toBe("bamboo_road_1");
 
     const viewModel = getWebGameViewModel(staticData, nextState);
 
     expect(viewModel.lastBattleStage?.id).toBe("bamboo_road_1");
-    expect(viewModel.selectedStage?.id).toBe("bamboo_road_2");
+    expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
+    expect(viewModel.enemyTeamLabel).toBe("Bamboo Road Bandit x2");
     expect(viewModel.enemyCombatants[0]).toMatchObject({
       name: "Bamboo Road Bandit",
-      outerHp: 120,
-      maxOuterHp: 120
+      outerHp: 0,
+      maxOuterHp: 120,
+      isDefeated: true
     });
     expect(viewModel.battleSummary?.title).toContain("Victory at Bamboo Road 1");
     expect(viewModel.battleEvents.some((event) => event.category === "attack"))
@@ -135,9 +148,31 @@ describe("web game state", () => {
     });
     expect(nextStage).toMatchObject({
       isUnlocked: true,
-      isSelectedStage: true,
+      isSelectedStage: false,
       canSelectStage: true
     });
+  });
+
+  it("shows newly earned combat levels after battle rewards", () => {
+    const state = createInitialWebGameState(staticData);
+    const readyToLevelState = {
+      ...state,
+      progress: {
+        ...state.progress,
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 95,
+            highestClearedStageIndex: 0
+          }
+        }
+      }
+    };
+    const nextState = resolveSelectedStageBattle(staticData, readyToLevelState);
+    const viewModel = getWebGameViewModel(staticData, nextState);
+
+    expect(nextState.progress.heroes.iron_fist_disciple.level).toBe(2);
+    expect(viewModel.playerCombatants[0].level).toBe(2);
   });
 
   it("prevents selecting locked stages in web state", () => {
@@ -153,6 +188,31 @@ describe("web game state", () => {
 
     expect(nextState.selectedStageId).toBe("bamboo_road_1");
     expect(missingStageState.selectedStageId).toBe("bamboo_road_1");
+  });
+
+  it("uses selected cleared stages as the automatic offline target", () => {
+    const state = createInitialWebGameState(staticData);
+    const progressedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        currentStageId: "bamboo_road_4",
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 0,
+            highestClearedStageIndex: 3
+          }
+        }
+      }
+    });
+    const selectedState = webGameStateReducer(staticData, progressedState, {
+      type: "select_stage",
+      stageId: "bamboo_road_3"
+    });
+
+    expect(selectedState.selectedStageId).toBe("bamboo_road_3");
+    expect(selectedState.selectedOfflineFarmStageId).toBe("bamboo_road_3");
   });
 
   it("allows cleared non-boss farm stages and rejects boss farming", () => {
@@ -233,7 +293,13 @@ describe("web game state", () => {
 
     expect(familiarMastery).toMatchObject({
       combatExperience: 120,
-      reachedRanks: ["familiar"],
+      reachedRanks: [
+        {
+          label: "Familiar",
+          rank: "familiar",
+          tone: "familiar"
+        }
+      ],
       nextThreshold: {
         experience: 500,
         rank: "trained",
@@ -246,7 +312,18 @@ describe("web game state", () => {
     ]);
     expect(trainedMastery).toMatchObject({
       combatExperience: 600,
-      reachedRanks: ["familiar", "trained"],
+      reachedRanks: [
+        {
+          label: "Familiar",
+          rank: "familiar",
+          tone: "familiar"
+        },
+        {
+          label: "Trained",
+          rank: "trained",
+          tone: "trained"
+        }
+      ],
       nextThreshold: {
         experience: 3000,
         rank: "mastered",
@@ -368,6 +445,7 @@ describe("web game state", () => {
     );
 
     expect(ironFist?.outerAttack).toBeCloseTo(19.8);
+    expect(ironFist?.combatPower).toBe(523);
     expect(nextUpgrade).toMatchObject({
       level: 1,
       cost: 13,

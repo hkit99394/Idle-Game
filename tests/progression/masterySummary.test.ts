@@ -114,7 +114,8 @@ describe("active mastery summary", () => {
 
     expect(getStageEnemyFamilies(staticData, "bamboo_road_1")).toEqual(["bandit"]);
     expect(getStageEnemyFamilies(staticData, "bamboo_road_10")).toEqual([
-      "iron_fort"
+      "iron_fort",
+      "bandit"
     ]);
     expect(normalResult.ok).toBe(true);
     expect(bossResult.ok).toBe(true);
@@ -133,6 +134,7 @@ describe("active mastery summary", () => {
       bandit: 0.03
     });
     expect(bossResult.summary.damageMultipliersByFamily).toEqual({
+      bandit: 0.03,
       iron_fort: 0.03
     });
     expect(normalResult.summary.activeBonuses).toContainEqual({

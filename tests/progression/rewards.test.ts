@@ -47,6 +47,7 @@ describe("stage clear rewards", () => {
     expect(result.masteryRanksBefore).toEqual([]);
     expect(result.masteryRanksAfter).toEqual(["familiar"]);
     expect(result.newlyReachedMasteryRanks).toEqual(["familiar"]);
+    expect(result.progress.heroes.iron_fist_disciple.level).toBe(2);
   });
 
   it("applies map reward mastery bonus to silver and cultivation", () => {

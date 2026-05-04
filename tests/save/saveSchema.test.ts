@@ -116,4 +116,19 @@ describe("save schema", () => {
       "progress.currentStageId must be unlocked by saved progress"
     );
   });
+
+  it("rejects saved hero levels below one", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+
+    save.progress.heroes.iron_fist_disciple.level = 0;
+
+    expect(validateSaveData(staticData, save)).toContain(
+      "progress.heroes.iron_fist_disciple.level must be an integer >= 1"
+    );
+  });
 });

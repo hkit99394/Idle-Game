@@ -117,7 +117,12 @@ function validateHeroProgress(
     return false;
   }
 
-  validateNumber(value.level, `${path}.level`, errors);
+  if (
+    validateNumber(value.level, `${path}.level`, errors) &&
+    (!Number.isInteger(value.level) || value.level < 1)
+  ) {
+    errors.push(`${path}.level must be an integer >= 1`);
+  }
   validateNumberMap(value.upgrades, `${path}.upgrades`, errors);
 
   return true;

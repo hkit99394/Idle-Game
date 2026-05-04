@@ -14,11 +14,16 @@ import {
   isStageUnlocked
 } from "./stages";
 import {
+  calculatePlayerLevel,
+  scaleStatsForLevel
+} from "./levels";
+import {
   deriveHeroStatsFromProgress
 } from "./upgrades";
 import type {
   BuildEnemyTeamResult,
   BuildPlayerTeamResult,
+  HeroProgress,
   PlayerProgress,
   ResolveStageBattleInput,
   ResolveStageBattleResult
@@ -43,7 +48,21 @@ type PlayerCombatantStatsContext = {
   heroUpgradeDefinitions: ReturnType<typeof getHeroUpgradeDefinitions>;
   sectUpgradeDefinitions: ReturnType<typeof getSectUpgradeDefinitions>;
   mapAttackMultiplier: number;
+  playerLevel: number;
 };
+
+function getEffectiveHeroProgress(
+  progress: PlayerProgress,
+  heroId: string,
+  playerLevel: number
+): HeroProgress {
+  const heroProgress = progress.heroes[heroId];
+
+  return {
+    level: Math.max(heroProgress?.level ?? 1, playerLevel),
+    upgrades: heroProgress?.upgrades ?? {}
+  };
+}
 
 function createPlayerCombatantStats(
   data: StaticGameData,
@@ -59,7 +78,11 @@ function createPlayerCombatantStats(
 
   return deriveHeroStatsFromProgress({
     baseStats: hero.baseStats,
-    heroProgress: progress.heroes[hero.id],
+    heroProgress: getEffectiveHeroProgress(
+      progress,
+      hero.id,
+      context.playerLevel
+    ),
     sectProgress: progress.sect,
     heroUpgradeDefinitions: context.heroUpgradeDefinitions,
     sectUpgradeDefinitions: context.sectUpgradeDefinitions,
@@ -85,22 +108,34 @@ export function buildPlayerTeamForStage(
   const damageMultipliersByFamily = masterySummary.ok
     ? masterySummary.summary.damageMultipliersByFamily
     : {};
+  const playerLevel = calculatePlayerLevel(progress);
   const statsContext: PlayerCombatantStatsContext = {
     heroUpgradeDefinitions: getHeroUpgradeDefinitions(data),
     sectUpgradeDefinitions: getSectUpgradeDefinitions(data),
     mapAttackMultiplier: masterySummary.ok
       ? masterySummary.summary.mapAttackMultiplier
-      : 0
+      : 0,
+    playerLevel
   };
 
   const team: TeamInstance = {
     id: "player",
-    combatants: MVP_PLAYER_HERO_IDS.map((heroId) => ({
-      kind: "hero",
-      definitionId: heroId,
-      statsOverride: createPlayerCombatantStats(data, progress, heroId, statsContext),
-      damageMultipliersByFamily
-    }))
+    combatants: MVP_PLAYER_HERO_IDS.map((heroId) => {
+      const heroProgress = getEffectiveHeroProgress(progress, heroId, playerLevel);
+
+      return {
+        kind: "hero",
+        definitionId: heroId,
+        level: heroProgress.level,
+        statsOverride: createPlayerCombatantStats(
+          data,
+          progress,
+          heroId,
+          statsContext
+        ),
+        damageMultipliersByFamily
+      };
+    })
   };
 
   return {
@@ -122,10 +157,10 @@ export function buildEnemyTeamForStage(
     };
   }
 
-  const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
+  const enemiesById = new Map(data.enemies.map((enemy) => [enemy.id, enemy]));
 
   for (const enemyId of stage.enemyTeam.combatantIds) {
-    if (!enemyIds.has(enemyId)) {
+    if (!enemiesById.has(enemyId)) {
       return {
         ok: false,
         reason: "missing_enemy",
@@ -138,10 +173,20 @@ export function buildEnemyTeamForStage(
     ok: true,
     team: {
       id: "enemy",
-      combatants: stage.enemyTeam.combatantIds.map((enemyId) => ({
-        kind: "enemy",
-        definitionId: enemyId
-      }))
+      combatants: stage.enemyTeam.combatantIds.map((enemyId) => {
+        const enemy = enemiesById.get(enemyId);
+
+        if (!enemy) {
+          throw new Error(`Missing enemy definition ${enemyId}`);
+        }
+
+        return {
+          kind: "enemy",
+          definitionId: enemyId,
+          level: enemy.level,
+          statsOverride: scaleStatsForLevel(enemy.baseStats, enemy.level)
+        };
+      })
     }
   };
 }

@@ -68,6 +68,23 @@ export type ImportSaveDataToStorageResult =
 
 export type ResetSaveDataInStorageResult = SaveStateToStorageResult;
 
+export type TimeTravelOfflineSaveInStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+      traveledSeconds: number;
+    }
+  | {
+      ok: false;
+      reason:
+        | "invalid_duration"
+        | "missing_save"
+        | "invalid_json"
+        | "invalid_save"
+        | "storage_error";
+      errors: string[];
+    };
+
 export function getBrowserSaveStorage(): WebSaveStorage | null {
   if (typeof window === "undefined") {
     return null;
@@ -331,5 +348,61 @@ export function resetSaveDataInStorage(
   return {
     ok: true,
     save
+  };
+}
+
+export function timeTravelOfflineSaveInStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  offlineSeconds: number,
+  nowMs = Date.now(),
+  key = WEB_SAVE_STORAGE_KEY
+): TimeTravelOfflineSaveInStorageResult {
+  const traveledSeconds = Math.floor(offlineSeconds);
+
+  if (!Number.isFinite(offlineSeconds) || traveledSeconds <= 0) {
+    return {
+      ok: false,
+      reason: "invalid_duration",
+      errors: ["Offline time travel duration must be greater than zero"]
+    };
+  }
+
+  const loadResult = loadSaveDataFromStorage(data, storage, key);
+
+  if (!loadResult.ok) {
+    return loadResult;
+  }
+
+  const traveledMs = traveledSeconds * 1000;
+  const simulatedUpdatedAtMs = Math.max(0, nowMs - traveledMs);
+  const save: SaveData = {
+    ...loadResult.save,
+    createdAtMs: Math.min(loadResult.save.createdAtMs, simulatedUpdatedAtMs),
+    updatedAtMs: simulatedUpdatedAtMs,
+    lastOfflineRewardAtMs: Math.min(
+      loadResult.save.lastOfflineRewardAtMs,
+      simulatedUpdatedAtMs
+    )
+  };
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [
+        error instanceof Error
+          ? error.message
+          : "Unable to time travel offline save"
+      ]
+    };
+  }
+
+  return {
+    ok: true,
+    save,
+    traveledSeconds
   };
 }

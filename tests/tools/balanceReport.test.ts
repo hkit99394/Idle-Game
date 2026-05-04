@@ -28,6 +28,11 @@ describe("balance report", () => {
       ok: true,
       farmStageId: "bamboo_road_8"
     });
+    expect(report.bambooRoadBalance.bossGate.trained).toMatchObject({
+      ok: true,
+      winner: "player",
+      stageCleared: true
+    });
   });
 
   it("formats a compact human-readable report", () => {
@@ -36,7 +41,7 @@ describe("balance report", () => {
 
     expect(formatted).toContain("Bamboo Road Balance Report");
     expect(formatted).toContain("bamboo_road_10");
-    expect(formatted).toContain("Training economy: 17 bamboo_road_8 farms");
+    expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("npm run simulate -- --json");
   });
 

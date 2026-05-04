@@ -144,4 +144,33 @@ describe("upgrades", () => {
     );
     expect(stats.innerAttack).toBeCloseTo(hero.baseStats.innerAttack * 1.05 * 1.01);
   });
+
+  it("applies hero level scaling before upgrade multipliers", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.heroes.iron_fist_disciple.level = 2;
+    progress.heroes.iron_fist_disciple.upgrades.hero_outer_training = 1;
+    const hero = staticData.heroes.find(
+      (candidate) => candidate.id === "iron_fist_disciple"
+    );
+
+    expect(hero).toBeDefined();
+    if (!hero) {
+      return;
+    }
+
+    const stats = deriveHeroStatsFromProgress({
+      baseStats: hero.baseStats,
+      heroProgress: progress.heroes.iron_fist_disciple,
+      sectProgress: progress.sect,
+      heroUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "hero"
+      ),
+      sectUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "sect"
+      )
+    });
+
+    expect(stats.outerAttack).toBeCloseTo(hero.baseStats.outerAttack * 1.06 * 1.1);
+    expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.06);
+  });
 });

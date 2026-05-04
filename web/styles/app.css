@@ -320,34 +320,28 @@ textarea {
   overflow-wrap: anywhere;
 }
 
-.action-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-  align-items: center;
-  margin-bottom: 20px;
+.mastery-chips .rank-chip.unfamiliar {
+  border-color: #aaa08e;
+  background: #eee8dc;
   color: #4d4639;
 }
 
-.action-row button {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid #8c6f4b;
-  border-radius: 6px;
-  background: #2e5f63;
-  color: #fffaf0;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
+.mastery-chips .rank-chip.familiar {
+  border-color: #6f7f4f;
+  background: #edf1df;
+  color: #283315;
 }
 
-.action-row button:hover {
-  background: #254f53;
+.mastery-chips .rank-chip.trained {
+  border-color: #2e5f63;
+  background: #e3f0f4;
+  color: #1f5559;
 }
 
-.action-row button.active {
-  border-color: #a64236;
-  background: #7b2f2b;
+.mastery-chips .rank-chip.mastered {
+  border-color: #8c6f4b;
+  background: #f3eadc;
+  color: #4f3a22;
 }
 
 .stage-selector {
@@ -390,11 +384,29 @@ textarea {
   border: 1px solid #d6cdbc;
   border-radius: 8px;
   background: #fffaf0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.stage-card:hover,
+.stage-card:focus-visible {
+  border-color: #8c6f4b;
+  box-shadow: inset 0 0 0 1px #8c6f4b;
+  outline: none;
 }
 
 .stage-card.locked {
   background: #ece6da;
   color: #6d6354;
+  cursor: not-allowed;
+}
+
+.stage-card.locked:hover,
+.stage-card.locked:focus-visible {
+  border-color: #d6cdbc;
+  box-shadow: none;
 }
 
 .stage-card.selected-stage {
@@ -402,16 +414,11 @@ textarea {
   box-shadow: inset 0 0 0 1px #2e5f63;
 }
 
-.stage-card.selected-farm {
-  background: #edf1df;
-}
-
 .stage-card.boss {
   border-color: #a64236;
 }
 
-.stage-card-heading,
-.stage-actions {
+.stage-card-heading {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -468,35 +475,6 @@ textarea {
   gap: 4px;
   color: #4d4639;
   font-size: 0.82rem;
-}
-
-.stage-actions {
-  align-items: center;
-}
-
-.stage-actions button {
-  flex: 1 1 88px;
-  min-width: 0;
-  min-height: 44px;
-  border: 1px solid #2e5f63;
-  border-radius: 6px;
-  background: #2e5f63;
-  color: #fffaf0;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-  overflow-wrap: anywhere;
-}
-
-.stage-actions button:disabled {
-  border-color: #b9afa0;
-  background: #d8d1c3;
-  color: #6d6354;
-  cursor: not-allowed;
-}
-
-.stage-actions button:not(:disabled):hover {
-  background: #254f53;
 }
 
 .upgrade-panel {
@@ -649,6 +627,31 @@ textarea {
   min-height: 320px;
 }
 
+.team-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.team-heading h2 {
+  margin: 0;
+}
+
+.team-heading span {
+  min-height: 24px;
+  padding: 0 9px;
+  border: 1px solid #8c6f4b;
+  border-radius: 999px;
+  background: #f3eadc;
+  color: #4f3a22;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 24px;
+}
+
 h2 {
   margin: 0 0 12px;
   font-size: 1.05rem;
@@ -696,8 +699,8 @@ h2 {
   min-width: 0;
 }
 
-.combatant-heading strong,
-.combatant-heading span:not(.style-tag) {
+.combatant-heading > div:first-child strong,
+.combatant-heading > div:first-child span {
   display: block;
 }
 
@@ -705,20 +708,55 @@ h2 {
   overflow-wrap: anywhere;
 }
 
-.combatant-heading span:not(.style-tag) {
+.combatant-heading > div:first-child span {
   margin-top: 2px;
   color: #6d6354;
   font-size: 0.86rem;
 }
 
-.style-tag {
+.combatant-tags {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.style-tag,
+.cp-tag,
+.level-tag {
   flex: 0 0 auto;
   max-width: 100%;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.style-tag {
   background: #e7ead7;
   color: #34451f;
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: capitalize;
+}
+
+.cp-tag {
+  border: 1px solid #8c6f4b;
+  background: #f3eadc;
+  color: #4f3a22;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.level-tag {
+  border: 1px solid #5b8662;
+  background: #e2efdf;
+  color: #254f2c;
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .stat-bar {
@@ -1193,15 +1231,11 @@ h2 {
   }
 
   .offline-summary-heading button,
-  .action-row button,
-  .stage-actions button,
   .upgrade-card button,
   .save-actions button {
     width: 100%;
   }
 
-  .action-row,
-  .stage-actions,
   .save-actions {
     align-items: stretch;
   }

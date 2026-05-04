@@ -1,4 +1,5 @@
 import type { StaticGameData } from "../data";
+import { syncHeroLevelsWithCombatExperience } from "./levels";
 import { cloneProgress } from "./progress";
 import {
   getMapRewardMultiplier,
@@ -60,6 +61,7 @@ export function applyStageClearRewards(
     )
   };
   nextProgress.maps[stage.regionId] = updatedMapProgress;
+  syncHeroLevelsWithCombatExperience(nextProgress);
 
   const masteryRanksAfter = getReachedMasteryRanks(
     updatedMapProgress.combatExperience,

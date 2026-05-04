@@ -212,11 +212,12 @@ function purchaseTrainingPlan(
   };
 }
 
-function farmUntilTrainingAffordable(
+function farmUntilTrainingClearsBoss(
   data: StaticGameData,
   progress: PlayerProgress,
   plan: TrainingPlanEntry[],
   farmStageId: string,
+  bossStageId: string,
   maxClears: number
 ) {
   let farmProgress = cloneProgress(progress);
@@ -225,15 +226,23 @@ function farmUntilTrainingAffordable(
     const purchase = purchaseTrainingPlan(data, farmProgress, plan);
 
     if (purchase.ok) {
-      return {
-        ok: true as const,
-        farmStageId,
-        farmClears,
-        trainingCost: purchase.totalCost,
-        resourcesBeforeTraining: farmProgress.resources,
-        resourcesAfterTraining: purchase.progress.resources,
-        progress: purchase.progress
-      };
+      const bossResult = resolveStageBattle(data, {
+        progress: purchase.progress,
+        stageId: bossStageId,
+        maxDurationSeconds: 180
+      });
+
+      if (bossResult.ok && bossResult.stageCleared) {
+        return {
+          ok: true as const,
+          farmStageId,
+          farmClears,
+          trainingCost: purchase.totalCost,
+          resourcesBeforeTraining: farmProgress.resources,
+          resourcesAfterTraining: purchase.progress.resources,
+          progress: purchase.progress
+        };
+      }
     }
 
     const result = resolveStageBattle(data, {
@@ -259,7 +268,7 @@ function farmUntilTrainingAffordable(
     ok: false as const,
     farmStageId,
     farmClears: maxClears,
-    reason: "max_farm_clears_reached",
+    reason: "boss_not_cleared_after_max_farms",
     resourcesBeforeTraining: farmProgress.resources
   };
 }
@@ -360,11 +369,12 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
   }
 
   const farmStageId = recommendedFarmStage.id;
-  const trainingEconomy = farmUntilTrainingAffordable(
+  const trainingEconomy = farmUntilTrainingClearsBoss(
     data,
     progressBeforeBoss,
     trainedBossPlan,
     farmStageId,
+    bossStage.id,
     60
   );
   const trainingEconomyReport = trainingEconomy.ok

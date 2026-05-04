@@ -35,7 +35,14 @@ function battleAndSave(
   state: WebGameState,
   nowMs: number
 ): WebGameState {
-  const nextState = resolveSelectedStageBattle(staticData, state);
+  const battleState = resolveSelectedStageBattle(staticData, state);
+  const nextState =
+    battleState.lastBattle?.ok && battleState.lastBattle.stageCleared
+      ? webGameStateReducer(staticData, battleState, {
+          type: "select_stage",
+          stageId: battleState.progress.currentStageId
+        })
+      : battleState;
 
   saveState(storage, nextState, nowMs);
 

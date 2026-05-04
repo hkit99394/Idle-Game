@@ -37,6 +37,7 @@ export type EnemyDefinition = {
   family: string;
   type: "normal" | "elite" | "boss";
   style: string;
+  level: number;
   baseStats: BaseStats;
   skillIds: string[];
   traitIds: string[];

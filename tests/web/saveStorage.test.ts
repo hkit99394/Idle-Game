@@ -13,9 +13,11 @@ import {
 import {
   exportSaveDataFromStorage,
   importSaveDataToStorage,
+  loadSaveDataWithOfflineRewardsFromStorage,
   loadSaveDataFromStorage,
   resetSaveDataInStorage,
   saveWebGameStateToStorage,
+  timeTravelOfflineSaveInStorage,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS,
   WEB_SAVE_STORAGE_KEY
 } from "../../web/state/saveStorage";
@@ -155,6 +157,61 @@ describe("web save storage", () => {
     expect(currentSave.save.progress.currentStageId).toBe("bamboo_road_1");
     expect(currentSave.save.selectedOfflineFarmStageId).toBeNull();
     expect(currentSave.save.updatedAtMs).toBe(2000);
+  });
+
+  it("time travels the stored save for offline farm testing", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 100_000
+    });
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const timeTravelResult = timeTravelOfflineSaveInStorage(
+      staticData,
+      storage,
+      30,
+      100_000
+    );
+    const backdatedSave = loadSaveDataFromStorage(staticData, storage);
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      100_000
+    );
+    const rewardedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(timeTravelResult.ok).toBe(true);
+    expect(backdatedSave.ok).toBe(true);
+    expect(loadResult.ok).toBe(true);
+    expect(rewardedSave.ok).toBe(true);
+    if (
+      !timeTravelResult.ok ||
+      !backdatedSave.ok ||
+      !loadResult.ok ||
+      !rewardedSave.ok
+    ) {
+      return;
+    }
+
+    expect(timeTravelResult.traveledSeconds).toBe(30);
+    expect(backdatedSave.save.createdAtMs).toBe(70_000);
+    expect(backdatedSave.save.updatedAtMs).toBe(70_000);
+    expect(backdatedSave.save.lastOfflineRewardAtMs).toBe(70_000);
+    expect(loadResult.offlineRewards?.ok).toBe(true);
+    expect(loadResult.offlineRewards?.rewards).toMatchObject({
+      offlineSeconds: 30,
+      clears: 3,
+      silver: 18,
+      cultivation: 9,
+      combatExperience: 9
+    });
+    expect(rewardedSave.save.updatedAtMs).toBe(100_000);
+    expect(rewardedSave.save.lastOfflineRewardAtMs).toBe(100_000);
   });
 
   it("applies offline rewards once on load and advances reward timestamps", () => {

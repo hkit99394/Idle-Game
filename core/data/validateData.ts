@@ -73,6 +73,21 @@ function validateEnemySkillRefs(
   );
 }
 
+function validateEnemy(enemy: EnemyDefinition): string[] {
+  const errors = validateStats(enemy.id, enemy.baseStats);
+
+  if (
+    typeof enemy.level !== "number" ||
+    !Number.isFinite(enemy.level) ||
+    !Number.isInteger(enemy.level) ||
+    enemy.level < 1
+  ) {
+    errors.push(`Enemy ${enemy.id} level must be an integer >= 1`);
+  }
+
+  return errors;
+}
+
 function validateStageEnemyRefs(
   stages: StageDefinition[],
   enemyIds: Set<string>
@@ -155,7 +170,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const enemy of data.enemies) {
-    errors.push(...validateStats(enemy.id, enemy.baseStats));
+    errors.push(...validateEnemy(enemy));
   }
 
   for (const skill of data.skills) {

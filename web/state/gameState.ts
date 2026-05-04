@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import {
   buildEnemyTeamForStage,
   buildPlayerTeamForStage,
+  calculateCombatPower,
   calculateUpgradeCost,
   createInitialPlayerProgress,
   deriveStats,
@@ -13,6 +14,7 @@ import {
   isStageUnlocked,
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
+  scaleStatsForLevel,
   setOfflineFarmStageTarget
 } from "../../core";
 import type {
@@ -39,6 +41,7 @@ import {
   loadSaveDataWithOfflineRewardsFromStorage,
   resetSaveDataInStorage,
   saveWebGameStateToStorage,
+  timeTravelOfflineSaveInStorage,
   WEB_SAVE_STORAGE_KEY,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS
 } from "./saveStorage";
@@ -94,6 +97,7 @@ export type BattleCombatantView = {
   name: string;
   style: string;
   role: string;
+  level: number;
   outerHp: number;
   innerQi: number;
   maxOuterHp: number;
@@ -101,6 +105,7 @@ export type BattleCombatantView = {
   outerAttack: number;
   innerAttack: number;
   speed: number;
+  combatPower: number;
   isQiBroken: boolean;
   isDefeated: boolean;
 };
@@ -178,11 +183,19 @@ export type MasteryBonusView = {
   label: string;
 };
 
+export type MasteryRankTone = "unfamiliar" | "familiar" | "trained" | "mastered";
+
+export type MasteryRankView = {
+  rank: string;
+  label: string;
+  tone: MasteryRankTone;
+};
+
 export type MasteryPanelView = {
   regionId: string;
   regionName: string;
   combatExperience: number;
-  reachedRanks: string[];
+  reachedRanks: MasteryRankView[];
   nextThreshold: {
     experience: number;
     rank: string;
@@ -241,6 +254,8 @@ export type SaveToolResult =
       message: string;
       errors: string[];
     };
+
+export const OFFLINE_TIME_TRAVEL_SECONDS = 60 * 60;
 
 function getDefaultFarmStageId(
   data: StaticGameData,
@@ -354,15 +369,23 @@ export function webGameStateReducer(
   action: WebGameAction
 ): WebGameState {
   switch (action.type) {
-    case "select_stage":
+    case "select_stage": {
+      const selectedStageId = normalizeSelectedStageId(
+        data,
+        state.progress,
+        action.stageId
+      );
+
       return {
         ...state,
-        selectedStageId: normalizeSelectedStageId(
+        selectedStageId,
+        selectedOfflineFarmStageId: normalizeFarmStageId(
           data,
           state.progress,
-          action.stageId
+          selectedStageId
         )
       };
+    }
 
     case "select_offline_farm_stage":
       return {
@@ -378,10 +401,7 @@ export function webGameStateReducer(
       const nextProgress = action.result.ok
         ? action.result.progress
         : state.progress;
-      const selectedStageId =
-        action.result.ok && action.result.stageCleared
-          ? nextProgress.currentStageId
-          : state.selectedStageId;
+      const selectedStageId = state.selectedStageId;
 
       return {
         ...state,
@@ -394,7 +414,7 @@ export function webGameStateReducer(
         selectedOfflineFarmStageId: normalizeFarmStageId(
           data,
           nextProgress,
-          state.selectedOfflineFarmStageId
+          selectedStageId
         ),
         lastBattle: action.result,
         lastBattleStageId: action.stageId,
@@ -502,10 +522,13 @@ function createCombatantView(
     name: string;
     style: string;
     role: string;
+    level: number;
     stats: DerivedStats;
   },
   finalState?: CombatantState
 ): BattleCombatantView {
+  const stats = finalState?.stats ?? input.stats;
+
   return {
     instanceId: input.instanceId,
     definitionId: input.definitionId,
@@ -514,13 +537,15 @@ function createCombatantView(
     name: input.name,
     style: input.style,
     role: input.role,
+    level: Math.max(finalState?.level ?? input.level, input.level),
     outerHp: finalState?.outerHp ?? input.stats.maxOuterHp,
     innerQi: finalState?.innerQi ?? input.stats.maxInnerQi,
     maxOuterHp: finalState?.maxOuterHp ?? input.stats.maxOuterHp,
     maxInnerQi: finalState?.maxInnerQi ?? input.stats.maxInnerQi,
-    outerAttack: finalState?.stats.outerAttack ?? input.stats.outerAttack,
-    innerAttack: finalState?.stats.innerAttack ?? input.stats.innerAttack,
-    speed: finalState?.stats.speed ?? input.stats.speed,
+    outerAttack: stats.outerAttack,
+    innerAttack: stats.innerAttack,
+    speed: stats.speed,
+    combatPower: calculateCombatPower(stats),
     isQiBroken: finalState?.isQiBroken ?? false,
     isDefeated: finalState?.defeatedAt != null
   };
@@ -899,6 +924,43 @@ function formatMasteryBonus(bonus: MasteryBonus): string {
   }
 }
 
+function getMasteryRankTone(rank: string): MasteryRankTone {
+  switch (rank) {
+    case "familiar":
+      return "familiar";
+    case "trained":
+      return "trained";
+    case "mastered":
+      return "mastered";
+    default:
+      return "unfamiliar";
+  }
+}
+
+function formatMasteryRankLabel(rank: string): string {
+  const words = rank
+    .replace(/[-_]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) {
+    return "Unfamiliar";
+  }
+
+  return words
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`)
+    .join(" ");
+}
+
+function buildMasteryRankView(rank: string): MasteryRankView {
+  return {
+    rank,
+    label: formatMasteryRankLabel(rank),
+    tone: getMasteryRankTone(rank)
+  };
+}
+
 function buildMasteryPanel(
   data: StaticGameData,
   summary: ActiveMasterySummary | null
@@ -929,7 +991,7 @@ function buildMasteryPanel(
     regionId: summary.regionId,
     regionName: region?.name ?? summary.regionId,
     combatExperience: summary.combatExperience,
-    reachedRanks: summary.reachedRanks,
+    reachedRanks: summary.reachedRanks.map(buildMasteryRankView),
     nextThreshold,
     activeBonuses: summary.activeBonuses.map((bonus, index) => ({
       key: `${bonus.type}-${bonus.value}-${index}`,
@@ -968,6 +1030,8 @@ function getSaveToolErrorMessage(reason: string): string {
       return "Save JSON is invalid";
     case "invalid_save":
       return "Save data is invalid";
+    case "invalid_duration":
+      return "Offline time travel duration is invalid";
     case "missing_save":
       return "No save found";
     case "storage_error":
@@ -1088,6 +1152,7 @@ function buildPlayerCombatantViews(
     }
 
     const stats = deriveStats(instance.statsOverride ?? hero.baseStats);
+    const level = instance.level ?? progress.heroes[hero.id]?.level ?? 1;
     const instanceId = getPreviewInstanceId(
       teamResult.team.id,
       instance,
@@ -1104,6 +1169,7 @@ function buildPlayerCombatantViews(
         name: hero.name,
         style: hero.style,
         role: hero.role,
+        level,
         stats
       },
       getFinalCombatantById(finalCombatants, instanceId)
@@ -1131,7 +1197,10 @@ function buildEnemyCombatantViews(
       return [];
     }
 
-    const stats = deriveStats(enemy.baseStats);
+    const level = instance.level ?? enemy.level;
+    const stats = deriveStats(
+      instance.statsOverride ?? scaleStatsForLevel(enemy.baseStats, level)
+    );
     const instanceId = getPreviewInstanceId(
       teamResult.team.id,
       instance,
@@ -1148,6 +1217,7 @@ function buildEnemyCombatantViews(
         name: enemy.name,
         style: enemy.style,
         role: enemy.type,
+        level,
         stats
       },
       getFinalCombatantById(finalCombatants, instanceId)
@@ -1155,13 +1225,37 @@ function buildEnemyCombatantViews(
   });
 }
 
+function buildEnemyTeamLabel(
+  data: StaticGameData,
+  stage: ReturnType<typeof getStageById> | null
+): string {
+  if (!stage || stage.enemyTeam.combatantIds.length === 0) {
+    return "Unknown Enemy Team";
+  }
+
+  const enemyNames = new Map(
+    data.enemies.map((enemy) => [enemy.id, enemy.name])
+  );
+  const nameCounts = new Map<string, number>();
+
+  for (const enemyId of stage.enemyTeam.combatantIds) {
+    const enemyName = enemyNames.get(enemyId) ?? enemyId;
+    nameCounts.set(enemyName, (nameCounts.get(enemyName) ?? 0) + 1);
+  }
+
+  return [...nameCounts.entries()]
+    .map(([enemyName, count]) =>
+      count > 1 ? `${enemyName} x${count}` : enemyName
+    )
+    .join(" / ");
+}
+
 export function getWebGameViewModel(
   data: StaticGameData,
   state: WebGameState
 ) {
   const selectedStage = getStageById(data, state.selectedStageId);
-  const enemyId = selectedStage?.enemyTeam.combatantIds[0];
-  const enemy = data.enemies.find((candidate) => candidate.id === enemyId) ?? null;
+  const enemyTeamLabel = buildEnemyTeamLabel(data, selectedStage);
   const selectedOfflineFarmStage = state.selectedOfflineFarmStageId
     ? getStageById(data, state.selectedOfflineFarmStageId)
     : null;
@@ -1207,7 +1301,7 @@ export function getWebGameViewModel(
     enemyCombatants: selectedStage
       ? buildEnemyCombatantViews(data, selectedStage.id, finalEnemyTeam)
       : [],
-    enemy,
+    enemyTeamLabel,
     masterySummary: activeMasterySummary,
     masteryPanel: buildMasteryPanel(data, activeMasterySummary),
     offlineSummary: buildOfflineRewardSummaryView(data, state.offlineSummary),
@@ -1420,6 +1514,85 @@ export function useWebGameState(data: StaticGameData) {
     };
   }, [data]);
 
+  const timeTravelOfflineFarm = useCallback(
+    (
+      offlineSeconds = OFFLINE_TIME_TRAVEL_SECONDS
+    ): SaveToolResult => {
+      const storage = getBrowserSaveStorage();
+
+      if (!state.selectedOfflineFarmStageId) {
+        return {
+          ok: false,
+          message: "Select an offline farm stage first",
+          errors: []
+        };
+      }
+
+      if (!storage) {
+        return {
+          ok: false,
+          message: "Browser save storage is unavailable",
+          errors: ["Browser save storage is unavailable"]
+        };
+      }
+
+      const nowMs = Date.now();
+      const saveResult = saveWebGameStateToStorage(data, state, storage, nowMs);
+
+      if (!saveResult.ok) {
+        return {
+          ok: false,
+          message: getSaveToolErrorMessage(saveResult.reason),
+          errors: saveResult.errors
+        };
+      }
+
+      const travelResult = timeTravelOfflineSaveInStorage(
+        data,
+        storage,
+        offlineSeconds,
+        nowMs
+      );
+
+      if (!travelResult.ok) {
+        return {
+          ok: false,
+          message: getSaveToolErrorMessage(travelResult.reason),
+          errors: travelResult.errors
+        };
+      }
+
+      const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+        data,
+        storage,
+        nowMs
+      );
+
+      if (!loadResult.ok) {
+        return {
+          ok: false,
+          message: getSaveToolErrorMessage(loadResult.reason),
+          errors: loadResult.errors
+        };
+      }
+
+      const offlineSummary = createOfflineRewardSummary(loadResult.offlineRewards);
+
+      dispatch({
+        type: "replace_state",
+        state: createWebGameStateFromSave(data, loadResult.save, offlineSummary)
+      });
+
+      return {
+        ok: true,
+        message: offlineSummary
+          ? "Offline time travel rewards applied"
+          : "Offline time travel applied with no rewards"
+      };
+    },
+    [data, state]
+  );
+
   return {
     state,
     viewModel,
@@ -1432,6 +1605,7 @@ export function useWebGameState(data: StaticGameData) {
     dismissOfflineSummary,
     exportSave,
     importSave,
-    resetNewGame
+    resetNewGame,
+    timeTravelOfflineFarm
   };
 }

@@ -23,7 +23,8 @@ import {
   calculateQiBreakBurst,
   calculateQiBreakRecovery,
   defaultCombatFormulaConstants,
-  deriveStats
+  deriveStats,
+  scaleStatsForLevel
 } from "./formulas";
 import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
 
@@ -77,7 +78,14 @@ function createCombatantState(
   constants: CombatFormulaConstants
 ): CombatantState {
   const definition = getDefinition(lookup, instance);
-  const stats = deriveStats(instance.statsOverride ?? definition.baseStats);
+  const definitionLevel =
+    instance.kind === "enemy"
+      ? (definition as EnemyDefinition).level
+      : 1;
+  const level = instance.level ?? definitionLevel ?? 1;
+  const stats = deriveStats(
+    instance.statsOverride ?? scaleStatsForLevel(definition.baseStats, level)
+  );
   const instanceId = instance.instanceId ?? `${team}_${definition.id}_${index + 1}`;
   const family = instance.kind === "enemy" ? (definition as EnemyDefinition).family : undefined;
 
@@ -85,6 +93,7 @@ function createCombatantState(
     instanceId,
     definitionId: definition.id,
     kind: instance.kind,
+    level,
     family,
     name: definition.name,
     team,

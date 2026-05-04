@@ -1,5 +1,5 @@
 import { Component, useEffect, useState } from "react";
-import type { ChangeEvent, ReactNode } from "react";
+import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
 import "./styles/app.css";
 import type { ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
@@ -15,7 +15,10 @@ import type {
   StageOptionView,
   UpgradeView
 } from "./state/gameState";
-import { useWebGameState } from "./state/gameState";
+import {
+  OFFLINE_TIME_TRAVEL_SECONDS,
+  useWebGameState
+} from "./state/gameState";
 
 const AUTO_RUN_INTERVAL_MS = 1200;
 
@@ -185,7 +188,11 @@ function CombatantCard({ combatant }: CombatantCardProps) {
           <strong>{combatant.name}</strong>
           <span>{combatant.role}</span>
         </div>
-        <span className="style-tag">{combatant.style}</span>
+        <div className="combatant-tags">
+          <span className="level-tag">Lv {formatNumber(combatant.level)}</span>
+          <span className="cp-tag">CP {formatNumber(combatant.combatPower)}</span>
+          <span className="style-tag">{combatant.style}</span>
+        </div>
       </div>
       <StatBar
         className="outer"
@@ -223,9 +230,17 @@ type TeamPanelProps = {
 };
 
 function TeamPanel({ combatants, title }: TeamPanelProps) {
+  const totalCombatPower = combatants.reduce(
+    (total, combatant) => total + combatant.combatPower,
+    0
+  );
+
   return (
     <section className="team-panel" aria-label={title}>
-      <h2>{title}</h2>
+      <div className="team-heading">
+        <h2>{title}</h2>
+        <span>CP {formatNumber(totalCombatPower)}</span>
+      </div>
       {combatants.length > 0 ? (
         <div className="combatant-list">
           {combatants.map((combatant) => (
@@ -291,9 +306,11 @@ function MasteryPanel({ mastery }: MasteryPanelProps) {
           <div className="mastery-chips">
             {mastery.reachedRanks.length > 0
               ? mastery.reachedRanks.map((rank) => (
-                  <span key={rank}>{rank}</span>
+                  <span key={rank.rank} className={`rank-chip ${rank.tone}`}>
+                    {rank.label}
+                  </span>
                 ))
-              : <span>Unfamiliar</span>}
+              : <span className="rank-chip unfamiliar">Unfamiliar</span>}
           </div>
         </div>
         <div>
@@ -410,16 +427,29 @@ function OfflineSummaryPanel({
 }
 
 type StageSelectorPanelProps = {
-  onSelectFarmStage: (stageId: string | null) => void;
   onSelectStage: (stageId: string) => void;
   stages: StageOptionView[];
 };
 
 function StageSelectorPanel({
-  onSelectFarmStage,
   onSelectStage,
   stages
 }: StageSelectorPanelProps) {
+  function handleStageKeyDown(
+    event: KeyboardEvent<HTMLElement>,
+    stage: StageOptionView
+  ) {
+    if (
+      !stage.canSelectStage ||
+      (event.key !== "Enter" && event.key !== " ")
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    onSelectStage(stage.id);
+  }
+
   return (
     <section className="stage-selector" aria-label="Bamboo Road stages">
       <div className="stage-selector-heading">
@@ -434,42 +464,45 @@ function StageSelectorPanel({
           stages.map((stage) => (
             <article
               key={stage.id}
+              aria-disabled={!stage.canSelectStage}
+              aria-pressed={stage.isSelectedStage}
               className={[
                 "stage-card",
                 stage.isUnlocked ? "" : "locked",
                 stage.isCleared ? "cleared" : "",
                 stage.isBoss ? "boss" : "",
-                stage.isSelectedStage ? "selected-stage" : "",
-                stage.isSelectedOfflineFarmStage ? "selected-farm" : ""
+                stage.isSelectedStage ? "selected-stage" : ""
               ].join(" ")}
+              onClick={() => {
+                if (stage.canSelectStage) {
+                  onSelectStage(stage.id);
+                }
+              }}
+              onKeyDown={(event) => handleStageKeyDown(event, stage)}
+              role="button"
+              tabIndex={stage.canSelectStage ? 0 : -1}
             >
               <div className="stage-card-heading">
                 <div>
                   <strong>{stage.name}</strong>
                   <span>Stage {stage.index}</span>
                 </div>
-                <span>{stage.isBoss ? "Boss" : stage.isCleared ? "Cleared" : stage.isUnlocked ? "Open" : "Locked"}</span>
+                <span>
+                  {stage.isSelectedStage
+                    ? "Current"
+                    : stage.isBoss
+                      ? "Boss"
+                      : stage.isCleared
+                        ? "Cleared"
+                        : stage.isUnlocked
+                          ? "Open"
+                          : "Locked"}
+                </span>
               </div>
               <div className="stage-rewards">
                 <span>{formatNumber(stage.rewards.silver)} silver</span>
                 <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
                 <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
-              </div>
-              <div className="stage-actions">
-                <button
-                  type="button"
-                  disabled={!stage.canSelectStage}
-                  onClick={() => onSelectStage(stage.id)}
-                >
-                  {stage.isSelectedStage ? "Current" : "Battle"}
-                </button>
-                <button
-                  type="button"
-                  disabled={!stage.canSelectOfflineFarm}
-                  onClick={() => onSelectFarmStage(stage.id)}
-                >
-                  {stage.isSelectedOfflineFarmStage ? "Farming" : "Farm"}
-                </button>
               </div>
             </article>
           ))
@@ -556,6 +589,7 @@ type SaveToolsPanelProps = {
   onImport: () => void;
   onImportTextChange: (value: string) => void;
   onReset: () => void;
+  onTimeTravelOfflineFarm: () => void;
   status: string;
 };
 
@@ -567,6 +601,7 @@ function SaveToolsPanel({
   onImport,
   onImportTextChange,
   onReset,
+  onTimeTravelOfflineFarm,
   status
 }: SaveToolsPanelProps) {
   function handleImportTextChange(event: ChangeEvent<HTMLTextAreaElement>) {
@@ -623,6 +658,16 @@ function SaveToolsPanel({
           onClick={onImport}
         >
           Import Save
+        </button>
+        <button
+          type="button"
+          disabled={
+            !diagnostics.storageAvailable ||
+            !diagnostics.selectedOfflineFarmStageId
+          }
+          onClick={onTimeTravelOfflineFarm}
+        >
+          Simulate {formatDuration(OFFLINE_TIME_TRAVEL_SECONDS)} Away
         </button>
         <button
           type="button"
@@ -696,7 +741,6 @@ class AppErrorBoundary extends Component<
 }
 
 function GameApp() {
-  const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const [exportText, setExportText] = useState("");
   const [importText, setImportText] = useState("");
   const [saveToolStatus, setSaveToolStatus] = useState("");
@@ -708,14 +752,14 @@ function GameApp() {
     purchaseUpgrade,
     resetNewGame,
     saveDiagnostics,
-    selectOfflineFarmStage,
     selectStage,
+    timeTravelOfflineFarm,
     viewModel
   } = useWebGameState(staticData);
   const {
     battleEvents,
     battleSummary,
-    enemy,
+    enemyTeamLabel,
     enemyCombatants,
     lastBattle,
     lastBattleStage,
@@ -741,26 +785,12 @@ function GameApp() {
   const stageType = selectedStage?.isBoss ? "Boss" : "Road";
 
   useEffect(() => {
-    if (!autoRunEnabled) {
-      return;
-    }
-
     const timer = window.setInterval(() => {
       battleSelectedStage();
     }, AUTO_RUN_INTERVAL_MS);
 
     return () => window.clearInterval(timer);
-  }, [autoRunEnabled, battleSelectedStage]);
-
-  function toggleAutoRun() {
-    const nextAutoRunEnabled = !autoRunEnabled;
-
-    setAutoRunEnabled(nextAutoRunEnabled);
-
-    if (nextAutoRunEnabled) {
-      battleSelectedStage();
-    }
-  }
+  }, [battleSelectedStage]);
 
   function handleExportSave() {
     const result = exportSave();
@@ -784,7 +814,6 @@ function GameApp() {
     if (result.ok) {
       setImportText("");
       setExportText("");
-      setAutoRunEnabled(false);
     }
   }
 
@@ -806,7 +835,17 @@ function GameApp() {
     );
     setExportText("");
     setImportText("");
-    setAutoRunEnabled(false);
+  }
+
+  function handleTimeTravelOfflineFarm() {
+    const result = timeTravelOfflineFarm();
+
+    setSaveToolStatus(
+      result.ok || result.errors.length === 0
+        ? result.message
+        : `${result.message}: ${result.errors.join("; ")}`
+    );
+    setExportText("");
   }
 
   return (
@@ -820,7 +859,7 @@ function GameApp() {
           <div className="stage-meta">
             <span>{stageType}</span>
             <span>Stage {selectedStage?.index ?? "-"}</span>
-            <span>{enemy?.name ?? "Unknown Enemy"}</span>
+            <span>{enemyTeamLabel}</span>
           </div>
           <div
             className={`battle-result ${battleResultClass}`}
@@ -839,21 +878,7 @@ function GameApp() {
           summary={offlineSummary}
         />
         <MasteryPanel mastery={masteryPanel} />
-        <div className="action-row">
-          <button type="button" onClick={battleSelectedStage}>
-            Start Battle
-          </button>
-          <button
-            type="button"
-            className={autoRunEnabled ? "active" : ""}
-            aria-pressed={autoRunEnabled}
-            onClick={toggleAutoRun}
-          >
-            {autoRunEnabled ? "Auto On" : "Auto Off"}
-          </button>
-        </div>
         <StageSelectorPanel
-          onSelectFarmStage={selectOfflineFarmStage}
           onSelectStage={selectStage}
           stages={stageOptions}
         />
@@ -865,7 +890,7 @@ function GameApp() {
         />
         <div className="battle-grid">
           <TeamPanel title="Disciples" combatants={playerCombatants} />
-          <TeamPanel title="Enemy" combatants={enemyCombatants} />
+          <TeamPanel title="Enemy Team" combatants={enemyCombatants} />
         </div>
         <BattleLog events={battleEvents} summary={battleSummary} />
         <SaveToolsPanel
@@ -876,6 +901,7 @@ function GameApp() {
           onImport={handleImportSave}
           onImportTextChange={setImportText}
           onReset={handleResetNewGame}
+          onTimeTravelOfflineFarm={handleTimeTravelOfflineFarm}
           status={saveToolStatus}
         />
       </section>

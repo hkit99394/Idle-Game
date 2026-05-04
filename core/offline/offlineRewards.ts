@@ -3,6 +3,7 @@ import {
   cloneProgress,
   getMapRewardMultiplier,
   getStageById,
+  syncHeroLevelsWithCombatExperience,
   validateOfflineFarmStageTarget
 } from "../progression";
 import type { PlayerProgress } from "../progression";
@@ -162,6 +163,7 @@ export function applyOfflineRewards(
     ...nextMapProgress,
     combatExperience: nextMapProgress.combatExperience + rewards.combatExperience
   };
+  syncHeroLevelsWithCombatExperience(nextProgress);
 
   return {
     ok: true,

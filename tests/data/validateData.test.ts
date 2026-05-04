@@ -20,4 +20,17 @@ describe("static game data validation", () => {
       "Boss stage bamboo_road_10 cannot be marked for offline farming"
     );
   });
+
+  it("rejects enemies without valid level data", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      enemies: staticData.enemies.map((enemy) =>
+        enemy.id === "bamboo_bandit" ? { ...enemy, level: 0 } : enemy
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Enemy bamboo_bandit level must be an integer >= 1"
+    );
+  });
 });

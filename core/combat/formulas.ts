@@ -1,10 +1,22 @@
 import type {
+  BaseStats,
   CombatFormulaConstants,
   DamageInput,
   DerivedStats,
   InnerRecoveryInput,
   QiBreakBurstInput
 } from "./types";
+
+export const LEVEL_STAT_GROWTH = 1.06;
+
+const LEVEL_SCALING_STATS = [
+  "maxOuterHp",
+  "maxInnerQi",
+  "outerAttack",
+  "innerAttack",
+  "outerDefense",
+  "innerDefense"
+] as const satisfies Array<keyof BaseStats>;
 
 export const defaultCombatFormulaConstants: CombatFormulaConstants = {
   baseAttackInterval: 2.0,
@@ -38,6 +50,47 @@ export function calculateExpectedCritMultiplier(
   critDamage: number
 ): number {
   return 1 + critChance * (critDamage - 1);
+}
+
+export function calculateCombatPower(stats: DerivedStats): number {
+  const outerDurability = stats.maxOuterHp * (1 + stats.outerDefense / 100);
+  const innerDurability = stats.maxInnerQi * (1 + stats.innerDefense / 100) * 0.5;
+  const expectedDamage =
+    (stats.outerAttack + stats.innerAttack * 0.8) *
+    calculateExpectedCritMultiplier(stats.critChance, stats.critDamage);
+  const speedMultiplier = 1 + Math.max(0, stats.speed) / 100;
+  const offense = expectedDamage * speedMultiplier * 10;
+  const qiControl =
+    (Math.max(0, stats.breakPower) + Math.max(0, stats.breakResist)) * 500;
+  const innerRecovery = stats.maxInnerQi * Math.max(0, stats.innerRecoveryRate) * 20;
+
+  return Math.max(
+    1,
+    Math.round(
+      outerDurability +
+        innerDurability +
+        offense +
+        qiControl +
+        innerRecovery
+    )
+  );
+}
+
+export function scaleStatsForLevel(
+  baseStats: BaseStats,
+  level: number
+): BaseStats {
+  const scaledStats: BaseStats = { ...baseStats };
+  const safeLevel = Number.isFinite(level)
+    ? Math.max(1, Math.floor(level))
+    : 1;
+  const multiplier = LEVEL_STAT_GROWTH ** (safeLevel - 1);
+
+  for (const stat of LEVEL_SCALING_STATS) {
+    scaledStats[stat] *= multiplier;
+  }
+
+  return scaledStats;
 }
 
 export function calculateOuterDamage(

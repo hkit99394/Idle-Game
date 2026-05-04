@@ -49,11 +49,12 @@ describe("progress-based player team builder", () => {
       return;
     }
 
+    expect(ironFist.level).toBe(2);
     expect(ironFist.statsOverride.outerAttack).toBeCloseTo(
-      baseIronFist.baseStats.outerAttack * 1.2 * 1.05 * 1.01
+      baseIronFist.baseStats.outerAttack * 1.06 * 1.2 * 1.05 * 1.01
     );
     expect(ironFist.statsOverride.innerAttack).toBeCloseTo(
-      baseIronFist.baseStats.innerAttack * 1.05 * 1.01
+      baseIronFist.baseStats.innerAttack * 1.06 * 1.05 * 1.01
     );
   });
 
@@ -74,6 +75,7 @@ describe("progress-based player team builder", () => {
       bandit: 0.03
     });
     expect(bossResult.team.combatants[0].damageMultipliersByFamily).toEqual({
+      bandit: 0.03,
       iron_fort: 0.03
     });
   });

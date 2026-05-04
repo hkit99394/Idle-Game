@@ -5,6 +5,7 @@
     "family": "bandit",
     "type": "normal",
     "style": "blade",
+    "level": 1,
     "baseStats": {
       "maxOuterHp": 120,
       "maxInnerQi": 60,
@@ -28,6 +29,7 @@
     "family": "bandit",
     "type": "elite",
     "style": "palm",
+    "level": 1,
     "baseStats": {
       "maxOuterHp": 660,
       "maxInnerQi": 150,
@@ -51,6 +53,7 @@
     "family": "iron_fort",
     "type": "boss",
     "style": "saber",
+    "level": 1,
     "baseStats": {
       "maxOuterHp": 1050,
       "maxInnerQi": 420,
