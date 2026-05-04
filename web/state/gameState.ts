@@ -2,12 +2,16 @@ import { useCallback, useMemo, useReducer } from "react";
 import {
   buildEnemyTeamForStage,
   buildPlayerTeamForStage,
+  calculateUpgradeCost,
   createInitialPlayerProgress,
   deriveStats,
   getActiveMasterySummaryForStage,
   getRecommendedOfflineFarmStage,
   getStageById,
+  getUpgradeLevel,
+  hasClearedStage,
   isOfflineFarmStageUnlocked,
+  isStageUnlocked,
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle
 } from "../../core";
@@ -98,6 +102,38 @@ export type BattleSummaryView = {
   details: string[];
 };
 
+export type UpgradeView = {
+  key: string;
+  upgradeId: string;
+  name: string;
+  scope: "hero" | "sect";
+  heroId?: string;
+  targetName: string;
+  stat: string;
+  level: number;
+  cost: number;
+  affordable: boolean;
+  effectPercent: number;
+};
+
+export type StageOptionView = {
+  id: string;
+  name: string;
+  index: number;
+  isBoss: boolean;
+  isUnlocked: boolean;
+  isCleared: boolean;
+  isSelectedStage: boolean;
+  isSelectedOfflineFarmStage: boolean;
+  canSelectStage: boolean;
+  canSelectOfflineFarm: boolean;
+  rewards: {
+    silver: number;
+    cultivation: number;
+    combatExperience: number;
+  };
+};
+
 function getDefaultFarmStageId(
   data: StaticGameData,
   progress: PlayerProgress
@@ -125,7 +161,11 @@ function normalizeSelectedStageId(
   progress: PlayerProgress,
   selectedStageId: string
 ): string {
-  return getStageById(data, selectedStageId)?.id ?? progress.currentStageId;
+  const selectedStage = getStageById(data, selectedStageId);
+
+  return selectedStage && isStageUnlocked(data, progress, selectedStage)
+    ? selectedStage.id
+    : progress.currentStageId;
 }
 
 export function createInitialWebGameState(data: StaticGameData): WebGameState {
@@ -515,6 +555,96 @@ function buildBattleSummary(
   };
 }
 
+function formatStatName(stat: string): string {
+  return stat.replace(/[A-Z]/g, (match) => ` ${match}`).replace(/^./, (match) =>
+    match.toUpperCase()
+  );
+}
+
+function buildUpgradeViews(
+  data: StaticGameData,
+  progress: PlayerProgress
+): UpgradeView[] {
+  return data.upgrades.flatMap<UpgradeView>((upgrade) => {
+    if (upgrade.scope === "sect") {
+      const level = getUpgradeLevel(progress, upgrade);
+      const cost = calculateUpgradeCost(upgrade, level);
+
+      return [{
+        key: `sect:${upgrade.id}`,
+        upgradeId: upgrade.id,
+        name: upgrade.name,
+        scope: upgrade.scope,
+        targetName: "Sect",
+        stat: formatStatName(upgrade.stat),
+        level,
+        cost,
+        affordable: progress.resources.silver >= cost,
+        effectPercent: upgrade.effectPerLevel
+      }];
+    }
+
+    return data.heroes.map((hero) => {
+      const level = getUpgradeLevel(progress, upgrade, hero.id);
+      const cost = calculateUpgradeCost(upgrade, level);
+
+      return {
+        key: `${hero.id}:${upgrade.id}`,
+        upgradeId: upgrade.id,
+        name: upgrade.name,
+        scope: upgrade.scope,
+        heroId: hero.id,
+        targetName: hero.name,
+        stat: formatStatName(upgrade.stat),
+        level,
+        cost,
+        affordable: progress.resources.silver >= cost,
+        effectPercent: upgrade.effectPerLevel
+      };
+    });
+  });
+}
+
+function buildStageOptions(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  selectedStageId: string,
+  selectedOfflineFarmStageId: string | null
+): StageOptionView[] {
+  const bambooRoad = data.regions.find((region) => region.id === "bamboo_road");
+  const stageIds = bambooRoad?.stageIds ?? data.stages.map((stage) => stage.id);
+
+  return stageIds.flatMap((stageId) => {
+    const stage = getStageById(data, stageId);
+
+    if (!stage) {
+      return [];
+    }
+
+    const isUnlocked = isStageUnlocked(data, progress, stage);
+    const isCleared = hasClearedStage(progress, stage);
+    const canSelectOfflineFarm = isOfflineFarmStageUnlocked(
+      data,
+      progress,
+      stage.id
+    );
+
+    return {
+      id: stage.id,
+      name: stage.name,
+      index: stage.index,
+      isBoss: stage.isBoss,
+      isUnlocked,
+      isCleared,
+      isSelectedStage: stage.id === selectedStageId,
+      isSelectedOfflineFarmStage: stage.id === selectedOfflineFarmStageId,
+      canSelectStage: isUnlocked,
+      canSelectOfflineFarm,
+      rewards: stage.rewards
+    };
+  });
+}
+
 function buildPlayerCombatantViews(
   data: StaticGameData,
   progress: PlayerProgress,
@@ -637,6 +767,13 @@ export function getWebGameViewModel(
     progress: state.progress,
     selectedStage,
     selectedOfflineFarmStage,
+    stageOptions: buildStageOptions(
+      data,
+      state.progress,
+      state.selectedStageId,
+      state.selectedOfflineFarmStageId
+    ),
+    upgrades: buildUpgradeViews(data, state.progress),
     playerCombatants: selectedStage
       ? buildPlayerCombatantViews(
           data,
@@ -691,6 +828,20 @@ export function useWebGameState(data: StaticGameData) {
     [data, state.progress]
   );
 
+  const selectStage = useCallback((stageId: string) => {
+    dispatch({
+      type: "select_stage",
+      stageId
+    });
+  }, []);
+
+  const selectOfflineFarmStage = useCallback((stageId: string | null) => {
+    dispatch({
+      type: "select_offline_farm_stage",
+      stageId
+    });
+  }, []);
+
   const viewModel = useMemo(
     () => getWebGameViewModel(data, state),
     [data, state]
@@ -701,6 +852,8 @@ export function useWebGameState(data: StaticGameData) {
     viewModel,
     dispatch,
     battleSelectedStage,
-    purchaseUpgrade
+    purchaseUpgrade,
+    selectStage,
+    selectOfflineFarmStage
   };
 }

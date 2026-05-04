@@ -289,7 +289,7 @@ Acceptance:
 
 ### 3.4 Upgrade Panel
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -305,7 +305,7 @@ Acceptance:
 
 ### 3.5 Stage And Farming Selector
 
-Status: Not started
+Status: Completed
 
 Task:
 

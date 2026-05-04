@@ -5,7 +5,10 @@ import { staticData } from "./gameData";
 import type {
   BattleCombatantView,
   BattleEventView,
-  BattleSummaryView
+  BattleSummaryView,
+  PurchaseGameUpgradeInput,
+  StageOptionView,
+  UpgradeView
 } from "./state/gameState";
 import { useWebGameState } from "./state/gameState";
 
@@ -206,11 +209,137 @@ function BattleLog({ events, summary }: BattleLogProps) {
   );
 }
 
+type StageSelectorPanelProps = {
+  onSelectFarmStage: (stageId: string | null) => void;
+  onSelectStage: (stageId: string) => void;
+  stages: StageOptionView[];
+};
+
+function StageSelectorPanel({
+  onSelectFarmStage,
+  onSelectStage,
+  stages
+}: StageSelectorPanelProps) {
+  return (
+    <section className="stage-selector" aria-label="Bamboo Road stages">
+      <div className="stage-selector-heading">
+        <div>
+          <span className="label">Route</span>
+          <h2>Bamboo Road</h2>
+        </div>
+        <span>{stages.filter((stage) => stage.isCleared).length} cleared</span>
+      </div>
+      <div className="stage-list">
+        {stages.map((stage) => (
+          <article
+            key={stage.id}
+            className={[
+              "stage-card",
+              stage.isUnlocked ? "" : "locked",
+              stage.isCleared ? "cleared" : "",
+              stage.isBoss ? "boss" : "",
+              stage.isSelectedStage ? "selected-stage" : "",
+              stage.isSelectedOfflineFarmStage ? "selected-farm" : ""
+            ].join(" ")}
+          >
+            <div className="stage-card-heading">
+              <div>
+                <strong>{stage.name}</strong>
+                <span>Stage {stage.index}</span>
+              </div>
+              <span>{stage.isBoss ? "Boss" : stage.isCleared ? "Cleared" : stage.isUnlocked ? "Open" : "Locked"}</span>
+            </div>
+            <div className="stage-rewards">
+              <span>{formatNumber(stage.rewards.silver)} silver</span>
+              <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
+              <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
+            </div>
+            <div className="stage-actions">
+              <button
+                type="button"
+                disabled={!stage.canSelectStage}
+                onClick={() => onSelectStage(stage.id)}
+              >
+                {stage.isSelectedStage ? "Current" : "Battle"}
+              </button>
+              <button
+                type="button"
+                disabled={!stage.canSelectOfflineFarm}
+                onClick={() => onSelectFarmStage(stage.id)}
+              >
+                {stage.isSelectedOfflineFarmStage ? "Farming" : "Farm"}
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+type UpgradePanelProps = {
+  onPurchase: (input: PurchaseGameUpgradeInput) => void;
+  silver: number;
+  status: string;
+  upgrades: UpgradeView[];
+};
+
+function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProps) {
+  return (
+    <section className="upgrade-panel" aria-label="Training upgrades">
+      <div className="upgrade-panel-heading">
+        <div>
+          <span className="label">Training</span>
+          <h2>Upgrades</h2>
+        </div>
+        <div className="upgrade-silver">Silver {formatNumber(silver)}</div>
+      </div>
+      <div className="upgrade-grid">
+        {upgrades.map((upgrade) => (
+          <article
+            key={upgrade.key}
+            className={`upgrade-card ${upgrade.affordable ? "" : "unaffordable"}`}
+          >
+            <div className="upgrade-heading">
+              <div>
+                <strong>{upgrade.name}</strong>
+                <span>{upgrade.targetName}</span>
+              </div>
+              <span>{upgrade.scope}</span>
+            </div>
+            <div className="upgrade-stats">
+              <span>Level {upgrade.level}</span>
+              <span>Cost {formatNumber(upgrade.cost)}</span>
+              <span>{upgrade.stat}</span>
+              <span>{formatPercent(upgrade.effectPercent)} per level</span>
+            </div>
+            <button
+              type="button"
+              disabled={!upgrade.affordable}
+              onClick={() =>
+                onPurchase({
+                  upgradeId: upgrade.upgradeId,
+                  heroId: upgrade.heroId
+                })
+              }
+            >
+              {upgrade.affordable ? "Train" : "Need Silver"}
+            </button>
+          </article>
+        ))}
+      </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
+    </section>
+  );
+}
+
 export function App() {
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const {
     battleSelectedStage,
     purchaseUpgrade,
+    selectOfflineFarmStage,
+    selectStage,
     viewModel
   } = useWebGameState(staticData);
   const {
@@ -225,7 +354,9 @@ export function App() {
     playerCombatants,
     progress,
     selectedOfflineFarmStage,
-    selectedStage
+    selectedStage,
+    stageOptions,
+    upgrades
   } = viewModel;
   const activeBonuses = summary?.activeBonuses ?? [];
   const resultStageName =
@@ -330,19 +461,18 @@ export function App() {
           >
             {autoRunEnabled ? "Auto On" : "Auto Off"}
           </button>
-          <button
-            type="button"
-            onClick={() =>
-              purchaseUpgrade({
-                upgradeId: "hero_outer_training",
-                heroId: "iron_fist_disciple"
-              })
-            }
-          >
-            Train Fist
-          </button>
-          {purchaseStatus ? <span>{purchaseStatus}</span> : null}
         </div>
+        <StageSelectorPanel
+          onSelectFarmStage={selectOfflineFarmStage}
+          onSelectStage={selectStage}
+          stages={stageOptions}
+        />
+        <UpgradePanel
+          onPurchase={purchaseUpgrade}
+          silver={progress.resources.silver}
+          status={purchaseStatus}
+          upgrades={upgrades}
+        />
         <div className="battle-grid">
           <TeamPanel title="Disciples" combatants={playerCombatants} />
           <TeamPanel title="Enemy" combatants={enemyCombatants} />

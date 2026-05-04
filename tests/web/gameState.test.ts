@@ -20,6 +20,44 @@ describe("web game state", () => {
     expect(viewModel.enemy?.id).toBe("bamboo_bandit");
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();
+    expect(viewModel.stageOptions).toHaveLength(10);
+    expect(viewModel.stageOptions[0]).toMatchObject({
+      id: "bamboo_road_1",
+      isUnlocked: true,
+      isCleared: false,
+      isSelectedStage: true,
+      canSelectStage: true,
+      canSelectOfflineFarm: false
+    });
+    expect(viewModel.stageOptions[1]).toMatchObject({
+      id: "bamboo_road_2",
+      isUnlocked: false,
+      canSelectStage: false,
+      canSelectOfflineFarm: false
+    });
+    expect(viewModel.upgrades).toHaveLength(10);
+    expect(
+      viewModel.upgrades.find(
+        (upgrade) =>
+          upgrade.upgradeId === "hero_outer_training" &&
+          upgrade.heroId === "iron_fist_disciple"
+      )
+    ).toMatchObject({
+      level: 0,
+      cost: 12,
+      affordable: false,
+      stat: "Outer Attack"
+    });
+    expect(
+      viewModel.upgrades.find(
+        (upgrade) => upgrade.upgradeId === "sect_outer_training"
+      )
+    ).toMatchObject({
+      level: 0,
+      cost: 48,
+      affordable: false,
+      targetName: "Sect"
+    });
     expect(viewModel.playerCombatants).toHaveLength(4);
     expect(viewModel.playerCombatants[0]).toMatchObject({
       name: "Iron Fist Disciple",
@@ -65,6 +103,73 @@ describe("web game state", () => {
     expect(viewModel.battleEvents.some((event) => event.category === "defeat"))
       .toBe(true);
     expect(viewModel.battleEvents[0].detail).toContain("Outer damage");
+
+    const clearedStage = viewModel.stageOptions.find(
+      (stage) => stage.id === "bamboo_road_1"
+    );
+    const nextStage = viewModel.stageOptions.find(
+      (stage) => stage.id === "bamboo_road_2"
+    );
+
+    expect(clearedStage).toMatchObject({
+      isCleared: true,
+      isSelectedOfflineFarmStage: true,
+      canSelectOfflineFarm: true
+    });
+    expect(nextStage).toMatchObject({
+      isUnlocked: true,
+      isSelectedStage: true,
+      canSelectStage: true
+    });
+  });
+
+  it("prevents selecting locked stages in web state", () => {
+    const state = createInitialWebGameState(staticData);
+    const nextState = webGameStateReducer(staticData, state, {
+      type: "select_stage",
+      stageId: "bamboo_road_5"
+    });
+
+    expect(nextState.selectedStageId).toBe("bamboo_road_1");
+  });
+
+  it("allows cleared non-boss farm stages and rejects boss farming", () => {
+    const state = createInitialWebGameState(staticData);
+    const clearedProgress = {
+      ...state.progress,
+      currentStageId: "bamboo_road_10",
+      maps: {
+        ...state.progress.maps,
+        bamboo_road: {
+          combatExperience: 0,
+          highestClearedStageIndex: 10
+        }
+      }
+    };
+    const progressedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: clearedProgress
+    });
+    const farmStageState = webGameStateReducer(staticData, progressedState, {
+      type: "select_offline_farm_stage",
+      stageId: "bamboo_road_3"
+    });
+    const bossFarmState = webGameStateReducer(staticData, farmStageState, {
+      type: "select_offline_farm_stage",
+      stageId: "bamboo_road_10"
+    });
+    const viewModel = getWebGameViewModel(staticData, bossFarmState);
+    const bossOption = viewModel.stageOptions.find(
+      (stage) => stage.id === "bamboo_road_10"
+    );
+
+    expect(farmStageState.selectedOfflineFarmStageId).toBe("bamboo_road_3");
+    expect(bossFarmState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+    expect(bossOption).toMatchObject({
+      isBoss: true,
+      isCleared: true,
+      canSelectOfflineFarm: false
+    });
   });
 
   it("builds readable battle playback rows for Qi Break events", () => {
@@ -116,6 +221,18 @@ describe("web game state", () => {
         cultivation: 0
       }
     };
+    const affordableViewModel = getWebGameViewModel(staticData, {
+      ...state,
+      progress
+    });
+    const affordableUpgrade = affordableViewModel.upgrades.find(
+      (upgrade) =>
+        upgrade.upgradeId === "hero_outer_training" &&
+        upgrade.heroId === "iron_fist_disciple"
+    );
+
+    expect(affordableUpgrade?.affordable).toBe(true);
+
     const nextState = purchaseGameUpgrade(
       staticData,
       {
@@ -133,6 +250,23 @@ describe("web game state", () => {
     expect(
       nextState.progress.heroes.iron_fist_disciple.upgrades.hero_outer_training
     ).toBe(1);
+
+    const viewModel = getWebGameViewModel(staticData, nextState);
+    const ironFist = viewModel.playerCombatants.find(
+      (combatant) => combatant.definitionId === "iron_fist_disciple"
+    );
+    const nextUpgrade = viewModel.upgrades.find(
+      (upgrade) =>
+        upgrade.upgradeId === "hero_outer_training" &&
+        upgrade.heroId === "iron_fist_disciple"
+    );
+
+    expect(ironFist?.outerAttack).toBeCloseTo(19.8);
+    expect(nextUpgrade).toMatchObject({
+      level: 1,
+      cost: 13,
+      affordable: false
+    });
   });
 
   it("normalizes selected offline farm stage to the best unlocked farm", () => {
