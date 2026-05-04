@@ -1,7 +1,15 @@
+import { useEffect, useState } from "react";
 import "./styles/app.css";
-import type { MasteryBonus } from "../core";
+import type { MasteryBonus, ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
+import type {
+  BattleCombatantView,
+  BattleEventView,
+  BattleSummaryView
+} from "./state/gameState";
 import { useWebGameState } from "./state/gameState";
+
+const AUTO_RUN_INTERVAL_MS = 1200;
 
 function formatPercent(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -22,36 +30,263 @@ function formatBonus(bonus: MasteryBonus): string {
   }
 }
 
+function formatNumber(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0
+  }).format(Math.max(0, value));
+}
+
+function getBarPercent(current: number, max: number): number {
+  if (max <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, (current / max) * 100));
+}
+
+function getBattleResultText(
+  lastBattle: ResolveStageBattleResult | null,
+  stageName: string
+): string {
+  if (!lastBattle) {
+    return "Ready";
+  }
+
+  if (!lastBattle.ok) {
+    switch (lastBattle.reason) {
+      case "locked_stage":
+        return `${stageName} is locked`;
+      case "missing_enemy":
+        return "Enemy data missing";
+      case "missing_stage":
+        return "Stage data missing";
+    }
+  }
+
+  if (lastBattle.stageCleared) {
+    return `Victory - ${stageName} cleared`;
+  }
+
+  return lastBattle.battle.winner === "timeout"
+    ? `Stalemate - ${stageName} held`
+    : `Defeat - ${stageName} held`;
+}
+
+type BarProps = {
+  className: "outer" | "inner";
+  label: string;
+  current: number;
+  max: number;
+};
+
+function StatBar({ className, current, label, max }: BarProps) {
+  const width = `${getBarPercent(current, max)}%`;
+  const meterValue = Math.round(Math.max(0, Math.min(current, max)));
+
+  return (
+    <div className="stat-bar">
+      <div className="bar-label">
+        <span>{label}</span>
+        <strong>
+          {formatNumber(current)} / {formatNumber(max)}
+        </strong>
+      </div>
+      <div
+        className={`bar ${className}`}
+        role="meter"
+        aria-label={`${label} ${formatNumber(current)} of ${formatNumber(max)}`}
+        aria-valuemin={0}
+        aria-valuemax={Math.round(max)}
+        aria-valuenow={meterValue}
+      >
+        <span style={{ width }} />
+      </div>
+    </div>
+  );
+}
+
+type CombatantCardProps = {
+  combatant: BattleCombatantView;
+};
+
+function CombatantCard({ combatant }: CombatantCardProps) {
+  return (
+    <article
+      className={`combatant-card ${combatant.kind} ${
+        combatant.isDefeated ? "defeated" : ""
+      }`}
+    >
+      <div className="combatant-heading">
+        <div>
+          <strong>{combatant.name}</strong>
+          <span>{combatant.role}</span>
+        </div>
+        <span className="style-tag">{combatant.style}</span>
+      </div>
+      <StatBar
+        className="outer"
+        label="Outer HP"
+        current={combatant.outerHp}
+        max={combatant.maxOuterHp}
+      />
+      <StatBar
+        className="inner"
+        label="Inner Qi"
+        current={combatant.innerQi}
+        max={combatant.maxInnerQi}
+      />
+      <div className="combatant-stats">
+        <span>Outer {formatNumber(combatant.outerAttack)}</span>
+        <span>Inner {formatNumber(combatant.innerAttack)}</span>
+        <span>Speed {formatNumber(combatant.speed)}</span>
+      </div>
+      {combatant.isQiBroken || combatant.isDefeated ? (
+        <div className="combatant-status">
+          {combatant.isDefeated ? "Defeated" : "Qi Broken"}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+type TeamPanelProps = {
+  title: string;
+  combatants: BattleCombatantView[];
+};
+
+function TeamPanel({ combatants, title }: TeamPanelProps) {
+  return (
+    <section className="team-panel" aria-label={title}>
+      <h2>{title}</h2>
+      <div className="combatant-list">
+        {combatants.map((combatant) => (
+          <CombatantCard key={combatant.instanceId} combatant={combatant} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+type BattleLogProps = {
+  events: BattleEventView[];
+  summary: BattleSummaryView | null;
+};
+
+function BattleLog({ events, summary }: BattleLogProps) {
+  return (
+    <section className="battle-log" aria-label="Battle event playback">
+      <div className="battle-log-heading">
+        <h2>Battle Record</h2>
+        {events.length > 0 ? <span>{events.length} events</span> : null}
+      </div>
+      {summary ? (
+        <div className="battle-summary">
+          <strong>{summary.title}</strong>
+          {summary.details.map((detail) => (
+            <span key={detail}>{detail}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="empty-log">No battle yet</p>
+      )}
+      {events.length > 0 ? (
+        <ol className="event-list">
+          {events.map((event) => (
+            <li key={event.id} className={`event-row ${event.category}`}>
+              <span className="event-time">{event.timeLabel}</span>
+              <div>
+                <strong>{event.headline}</strong>
+                <span>{event.detail}</span>
+              </div>
+            </li>
+          ))}
+        </ol>
+      ) : null}
+    </section>
+  );
+}
+
 export function App() {
+  const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const {
     battleSelectedStage,
     purchaseUpgrade,
     viewModel
   } = useWebGameState(staticData);
   const {
+    battleEvents,
+    battleSummary,
     enemy,
+    enemyCombatants,
     lastBattle,
+    lastBattleStage,
     lastPurchase,
     masterySummary: summary,
+    playerCombatants,
     progress,
     selectedOfflineFarmStage,
     selectedStage
   } = viewModel;
   const activeBonuses = summary?.activeBonuses ?? [];
-  const battleStatus =
-    lastBattle?.ok
-      ? `${lastBattle.battle.winner} ${lastBattle.stageCleared ? "cleared" : "held"}`
-      : "Ready";
+  const resultStageName =
+    lastBattleStage?.name ?? selectedStage?.name ?? "Unknown Stage";
+  const battleStatus = getBattleResultText(lastBattle, resultStageName);
   const purchaseStatus =
     lastPurchase?.ok
       ? `Training level ${lastPurchase.newLevel}`
       : lastPurchase
         ? "Need silver"
         : "";
+  const stageType = selectedStage?.isBoss ? "Boss" : "Road";
+
+  useEffect(() => {
+    if (!autoRunEnabled) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      battleSelectedStage();
+    }, AUTO_RUN_INTERVAL_MS);
+
+    return () => window.clearInterval(timer);
+  }, [autoRunEnabled, battleSelectedStage]);
+
+  function toggleAutoRun() {
+    const nextAutoRunEnabled = !autoRunEnabled;
+
+    setAutoRunEnabled(nextAutoRunEnabled);
+
+    if (nextAutoRunEnabled) {
+      battleSelectedStage();
+    }
+  }
 
   return (
     <main className="app-shell">
       <section className="battle-surface">
+        <header className="stage-header">
+          <div>
+            <span className="label">Current Stage</span>
+            <h1>{selectedStage?.name ?? "Unknown Stage"}</h1>
+          </div>
+          <div className="stage-meta">
+            <span>{stageType}</span>
+            <span>Stage {selectedStage?.index ?? "-"}</span>
+            <span>{enemy?.name ?? "Unknown Enemy"}</span>
+          </div>
+          <div
+            className={`battle-result ${
+              lastBattle?.ok && lastBattle.stageCleared
+                ? "victory"
+                : lastBattle
+                  ? "defeat"
+                  : ""
+            }`}
+            aria-live="polite"
+          >
+            {battleStatus}
+          </div>
+        </header>
         <div className="resource-row">
           <span>Silver {progress.resources.silver}</span>
           <span>Cultivation {progress.resources.cultivation}</span>
@@ -85,7 +320,15 @@ export function App() {
         </section>
         <div className="action-row">
           <button type="button" onClick={battleSelectedStage}>
-            Battle
+            Start Battle
+          </button>
+          <button
+            type="button"
+            className={autoRunEnabled ? "active" : ""}
+            aria-pressed={autoRunEnabled}
+            onClick={toggleAutoRun}
+          >
+            {autoRunEnabled ? "Auto On" : "Auto Off"}
           </button>
           <button
             type="button"
@@ -98,27 +341,13 @@ export function App() {
           >
             Train Fist
           </button>
-          <span>{battleStatus}</span>
           {purchaseStatus ? <span>{purchaseStatus}</span> : null}
         </div>
         <div className="battle-grid">
-          <div className="team-panel">
-            <h2>Disciples</h2>
-            <div className="combatant-card">
-              <strong>Iron Fist Disciple</strong>
-              <div className="bar outer"><span /></div>
-              <div className="bar inner"><span /></div>
-            </div>
-          </div>
-          <div className="enemy-panel">
-            <h2>{enemy?.name ?? "Unknown Enemy"}</h2>
-            <div className="combatant-card enemy">
-              <strong>Outer HP / Inner Qi</strong>
-              <div className="bar outer"><span /></div>
-              <div className="bar inner"><span /></div>
-            </div>
-          </div>
+          <TeamPanel title="Disciples" combatants={playerCombatants} />
+          <TeamPanel title="Enemy" combatants={enemyCombatants} />
         </div>
+        <BattleLog events={battleEvents} summary={battleSummary} />
       </section>
     </main>
   );

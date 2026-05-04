@@ -248,7 +248,7 @@ Acceptance:
 
 ### 3.2 Battle Screen
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -265,7 +265,7 @@ Acceptance:
 
 ### 3.3 Battle Event Playback
 
-Status: Not started
+Status: Completed
 
 Task:
 
