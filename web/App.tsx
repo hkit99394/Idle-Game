@@ -1,39 +1,7 @@
 import "./styles/app.css";
-import type { MasteryBonus, StaticGameData } from "../core";
-import {
-  createInitialPlayerProgress,
-  getActiveMasterySummaryForStage
-} from "../core";
-import enemies from "../data/enemies.json" with { type: "json" };
-import formations from "../data/formations.json" with { type: "json" };
-import heroes from "../data/heroes.json" with { type: "json" };
-import mastery from "../data/mastery.json" with { type: "json" };
-import regions from "../data/regions.json" with { type: "json" };
-import skills from "../data/skills.json" with { type: "json" };
-import stages from "../data/stages.json" with { type: "json" };
-import upgrades from "../data/upgrades.json" with { type: "json" };
-
-const staticData: StaticGameData = {
-  heroes: heroes as StaticGameData["heroes"],
-  skills: skills as StaticGameData["skills"],
-  enemies: enemies as StaticGameData["enemies"],
-  regions: regions as StaticGameData["regions"],
-  stages: stages as StaticGameData["stages"],
-  upgrades: upgrades as StaticGameData["upgrades"],
-  mastery: mastery as StaticGameData["mastery"],
-  formations: formations as StaticGameData["formations"]
-};
-
-const progress = createInitialPlayerProgress(staticData);
-const currentStageId = progress.currentStageId;
-const currentStage = staticData.stages.find((stage) => stage.id === currentStageId);
-const enemyId = currentStage?.enemyTeam.combatantIds[0];
-const enemy = staticData.enemies.find((candidate) => candidate.id === enemyId);
-const masterySummary = getActiveMasterySummaryForStage(
-  staticData,
-  progress,
-  currentStageId
-);
+import type { MasteryBonus } from "../core";
+import { staticData } from "./gameData";
+import { useWebGameState } from "./state/gameState";
 
 function formatPercent(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -55,8 +23,31 @@ function formatBonus(bonus: MasteryBonus): string {
 }
 
 export function App() {
-  const summary = masterySummary.ok ? masterySummary.summary : null;
+  const {
+    battleSelectedStage,
+    purchaseUpgrade,
+    viewModel
+  } = useWebGameState(staticData);
+  const {
+    enemy,
+    lastBattle,
+    lastPurchase,
+    masterySummary: summary,
+    progress,
+    selectedOfflineFarmStage,
+    selectedStage
+  } = viewModel;
   const activeBonuses = summary?.activeBonuses ?? [];
+  const battleStatus =
+    lastBattle?.ok
+      ? `${lastBattle.battle.winner} ${lastBattle.stageCleared ? "cleared" : "held"}`
+      : "Ready";
+  const purchaseStatus =
+    lastPurchase?.ok
+      ? `Training level ${lastPurchase.newLevel}`
+      : lastPurchase
+        ? "Need silver"
+        : "";
 
   return (
     <main className="app-shell">
@@ -69,11 +60,15 @@ export function App() {
         <section className="mastery-row" aria-label="Map mastery">
           <div>
             <span className="label">Map</span>
-            <strong>{currentStage?.name ?? "Unknown Stage"}</strong>
+            <strong>{selectedStage?.name ?? "Unknown Stage"}</strong>
           </div>
           <div>
             <span className="label">Rank</span>
             <strong>{summary?.reachedRanks.at(-1) ?? "unfamiliar"}</strong>
+          </div>
+          <div>
+            <span className="label">Farm</span>
+            <strong>{selectedOfflineFarmStage?.name ?? "None"}</strong>
           </div>
           <div className="mastery-bonuses">
             <span className="label">Active Bonuses</span>
@@ -88,6 +83,24 @@ export function App() {
             </div>
           </div>
         </section>
+        <div className="action-row">
+          <button type="button" onClick={battleSelectedStage}>
+            Battle
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              purchaseUpgrade({
+                upgradeId: "hero_outer_training",
+                heroId: "iron_fist_disciple"
+              })
+            }
+          >
+            Train Fist
+          </button>
+          <span>{battleStatus}</span>
+          {purchaseStatus ? <span>{purchaseStatus}</span> : null}
+        </div>
         <div className="battle-grid">
           <div className="team-panel">
             <h2>Disciples</h2>

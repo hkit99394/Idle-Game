@@ -233,7 +233,7 @@ Goal: make the game playable in the browser.
 
 ### 3.1 App State Container
 
-Status: Not started
+Status: Completed
 
 Task:
 
