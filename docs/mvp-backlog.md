@@ -339,7 +339,7 @@ Goal: make progress persist and make idle return rewards work.
 
 ### 4.1 Save Schema
 
-Status: Not started
+Status: Completed
 
 Task:
 
