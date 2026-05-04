@@ -1,4 +1,4 @@
 Region,Stage,EnemyType,EnemyOuterHp,EnemyInnerQi,EnemyOuterAttack,EnemyInnerAttack,EnemyOuterDefense,EnemyInnerDefense,PlayerOuterDps,PlayerInnerDps,EstimatedEffectiveDps,TargetFightTime,EstimatedFightTime,SilverReward,CultivationReward,CombatExperienceReward,UpgradeCost,SecondsToNextUpgrade,ExpectedBreaksPerFight,PlayerSurvivalTime,Notes
 Bamboo Road,1,Normal,120,60,8,2,5,3,129.28,46.26,23.94,5-15,5.4,10,5,5,12,2 clears,0,42,First upgrade arrives after roughly two early clears
 Bamboo Road,5,Elite,660,150,11,11,8,10,566.01,166.75,33.25,20-40,20,32,16,20,48,4 clears,1,42,Elite showcases Qi Break and stronger mid-road rewards
-Bamboo Road,10,Boss,1050,420,36,8,18,12,1056.01,304.82,29.33,Boss gate,36 trained,140,70,100,1003,15 stage 9 farms,0,42 baseline,First boss loses baseline and wins after trained economy path
+Bamboo Road,10,Boss,1050,420,36,8,18,12,1056.01,304.82,29.33,Boss gate,36 trained,140,70,100,1003,17 stage 8 farms,0,42 baseline,First boss loses baseline and wins after trained economy path

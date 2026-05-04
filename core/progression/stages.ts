@@ -126,9 +126,37 @@ export function getUnlockedOfflineFarmStages(
   );
 }
 
+export const OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY = [
+  "combatExperience",
+  "silver",
+  "cultivation"
+] as const satisfies ReadonlyArray<keyof StageDefinition["rewards"]>;
+
+export function isBetterOfflineFarmStage(
+  candidate: StageDefinition,
+  currentBest: StageDefinition
+): boolean {
+  for (const rewardType of OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY) {
+    const difference =
+      candidate.rewards[rewardType] - currentBest.rewards[rewardType];
+
+    if (difference !== 0) {
+      return difference > 0;
+    }
+  }
+
+  return true;
+}
+
 export function getRecommendedOfflineFarmStage(
   data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress
 ): StageDefinition | null {
-  return getUnlockedOfflineFarmStages(data, progress).at(-1) ?? null;
+  return getUnlockedOfflineFarmStages(data, progress).reduce<StageDefinition | null>(
+    (bestStage, stage) =>
+      !bestStage || isBetterOfflineFarmStage(stage, bestStage)
+        ? stage
+        : bestStage,
+    null
+  );
 }

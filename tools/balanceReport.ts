@@ -1,0 +1,559 @@
+import {
+  calculateUpgradeCost,
+  cloneProgress,
+  createInitialPlayerProgress,
+  getRecommendedOfflineFarmStage,
+  getUpgradeLevel,
+  getNextMasteryThreshold,
+  purchaseUpgrade,
+  resolveStageBattle
+} from "../core";
+import type {
+  PlayerProgress,
+  ResolveStageBattleResult,
+  StaticGameData,
+  StageDefinition
+} from "../core";
+
+export const BAMBOO_ROAD_REGION_ID = "bamboo_road";
+
+export const TRAINED_BOSS_UPGRADES = {
+  heroOuterTraining: 6,
+  heroInnerTraining: 4,
+  sectOuterTraining: 4,
+  sectInnerTraining: 3
+};
+
+type TrainingPlanEntry = {
+  upgradeId: string;
+  targetLevel: number;
+  heroId?: string;
+};
+
+function createTrainedBossPlan(data: StaticGameData): TrainingPlanEntry[] {
+  return [
+    ...data.heroes.flatMap((hero) => [
+      {
+        upgradeId: "hero_outer_training",
+        targetLevel: TRAINED_BOSS_UPGRADES.heroOuterTraining,
+        heroId: hero.id
+      },
+      {
+        upgradeId: "hero_inner_training",
+        targetLevel: TRAINED_BOSS_UPGRADES.heroInnerTraining,
+        heroId: hero.id
+      }
+    ]),
+    {
+      upgradeId: "sect_outer_training",
+      targetLevel: TRAINED_BOSS_UPGRADES.sectOuterTraining
+    },
+    {
+      upgradeId: "sect_inner_training",
+      targetLevel: TRAINED_BOSS_UPGRADES.sectInnerTraining
+    }
+  ];
+}
+
+function getStage(data: StaticGameData, stageId: string): StageDefinition {
+  const stage = data.stages.find((candidate) => candidate.id === stageId);
+
+  if (!stage) {
+    throw new Error(`Missing stage ${stageId}`);
+  }
+
+  return stage;
+}
+
+function getRegionStageIds(data: StaticGameData, regionId: string): string[] {
+  const region = data.regions.find((candidate) => candidate.id === regionId);
+
+  if (!region) {
+    throw new Error(`Missing region ${regionId}`);
+  }
+
+  for (const stageId of region.stageIds) {
+    getStage(data, stageId);
+  }
+
+  return [...region.stageIds];
+}
+
+function getRegionBossStage(
+  data: StaticGameData,
+  stageIds: string[]
+): StageDefinition {
+  const bossStage = stageIds
+    .map((stageId) => getStage(data, stageId))
+    .find((stage) => stage.isBoss);
+
+  if (!bossStage) {
+    throw new Error(`Missing boss stage in region ${BAMBOO_ROAD_REGION_ID}`);
+  }
+
+  return bossStage;
+}
+
+function getStageEnemies(data: StaticGameData, stage: StageDefinition) {
+  return stage.enemyTeam.combatantIds.map((enemyId) => {
+    const enemy = data.enemies.find((candidate) => candidate.id === enemyId);
+
+    if (!enemy) {
+      throw new Error(`Missing enemy ${enemyId}`);
+    }
+
+    return enemy;
+  });
+}
+
+function getTargetSeconds(
+  data: StaticGameData,
+  stage: StageDefinition
+): [number, number] | null {
+  if (stage.isBoss) {
+    return null;
+  }
+
+  const enemyTypes = getStageEnemies(data, stage).map((enemy) => enemy.type);
+
+  return enemyTypes.includes("elite") ? [20, 40] : [5, 15];
+}
+
+function getUpgrade(data: StaticGameData, upgradeId: string) {
+  const upgrade = data.upgrades.find((candidate) => candidate.id === upgradeId);
+
+  if (!upgrade) {
+    throw new Error(`Missing upgrade ${upgradeId}`);
+  }
+
+  return upgrade;
+}
+
+function getClearsRequiredForSilver(
+  data: StaticGameData,
+  stageIds: string[],
+  cost: number
+): number | null {
+  let silver = 0;
+
+  for (let index = 0; index < stageIds.length; index += 1) {
+    const stage = getStage(data, stageIds[index]);
+    if (stage.isBoss) {
+      return null;
+    }
+
+    silver += stage.rewards.silver;
+
+    if (silver >= cost) {
+      return index + 1;
+    }
+  }
+
+  return null;
+}
+
+function getTrainingPlanCost(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  plan: TrainingPlanEntry[]
+): number {
+  return plan.reduce((total, entry) => {
+    const upgrade = getUpgrade(data, entry.upgradeId);
+    let entryCost = 0;
+    const currentLevel = getUpgradeLevel(progress, upgrade, entry.heroId);
+
+    for (let level = currentLevel; level < entry.targetLevel; level += 1) {
+      entryCost += calculateUpgradeCost(upgrade, level);
+    }
+
+    return total + entryCost;
+  }, 0);
+}
+
+function purchaseTrainingPlan(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  plan: TrainingPlanEntry[]
+) {
+  let nextProgress = cloneProgress(progress);
+  let totalCost = 0;
+
+  for (const entry of plan) {
+    const upgrade = getUpgrade(data, entry.upgradeId);
+    let currentLevel = getUpgradeLevel(nextProgress, upgrade, entry.heroId);
+
+    while (currentLevel < entry.targetLevel) {
+      const result = purchaseUpgrade(data.upgrades, {
+        progress: nextProgress,
+        upgradeId: entry.upgradeId,
+        heroId: entry.heroId
+      });
+
+      if (!result.ok) {
+        return {
+          ok: false as const,
+          reason: result.reason,
+          cost: result.cost,
+          progress: nextProgress,
+          totalCost
+        };
+      }
+
+      totalCost += result.cost;
+      nextProgress = result.progress;
+      currentLevel = result.newLevel;
+    }
+  }
+
+  return {
+    ok: true as const,
+    progress: nextProgress,
+    totalCost
+  };
+}
+
+function farmUntilTrainingAffordable(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  plan: TrainingPlanEntry[],
+  farmStageId: string,
+  maxClears: number
+) {
+  let farmProgress = cloneProgress(progress);
+
+  for (let farmClears = 0; farmClears <= maxClears; farmClears += 1) {
+    const purchase = purchaseTrainingPlan(data, farmProgress, plan);
+
+    if (purchase.ok) {
+      return {
+        ok: true as const,
+        farmStageId,
+        farmClears,
+        trainingCost: purchase.totalCost,
+        resourcesBeforeTraining: farmProgress.resources,
+        resourcesAfterTraining: purchase.progress.resources,
+        progress: purchase.progress
+      };
+    }
+
+    const result = resolveStageBattle(data, {
+      progress: farmProgress,
+      stageId: farmStageId,
+      maxDurationSeconds: 180
+    });
+
+    if (!result.ok || !result.stageCleared) {
+      return {
+        ok: false as const,
+        farmStageId,
+        farmClears,
+        reason: result.ok ? "farm_stage_not_cleared" : result.reason,
+        resourcesBeforeTraining: farmProgress.resources
+      };
+    }
+
+    farmProgress = result.progress;
+  }
+
+  return {
+    ok: false as const,
+    farmStageId,
+    farmClears: maxClears,
+    reason: "max_farm_clears_reached",
+    resourcesBeforeTraining: farmProgress.resources
+  };
+}
+
+function summarizeBattle(
+  data: StaticGameData,
+  stage: StageDefinition,
+  result: ResolveStageBattleResult
+) {
+  const enemiesForStage = getStageEnemies(data, stage);
+  const targetSeconds = getTargetSeconds(data, stage);
+
+  if (!result.ok) {
+    return {
+      ok: false,
+      stageId: stage.id,
+      name: stage.name,
+      enemyIds: stage.enemyTeam.combatantIds,
+      enemyTypes: enemiesForStage.map((enemy) => enemy.type),
+      reason: result.reason
+    };
+  }
+
+  const durationSeconds = Number(result.battle.durationSeconds.toFixed(2));
+  const targetMet = targetSeconds
+    ? result.battle.winner === "player" &&
+      durationSeconds >= targetSeconds[0] &&
+      durationSeconds <= targetSeconds[1]
+    : null;
+
+  return {
+    ok: true,
+    stageId: stage.id,
+    name: stage.name,
+    index: stage.index,
+    enemyIds: stage.enemyTeam.combatantIds,
+    enemyTypes: enemiesForStage.map((enemy) => enemy.type),
+    targetSeconds,
+    targetMet,
+    winner: result.battle.winner,
+    stageCleared: result.stageCleared,
+    durationSeconds,
+    qiBreaks: result.battle.events.filter((event) => event.type === "qi_break").length,
+    metrics: {
+      playerOuterDamage: Number(result.battle.metrics.playerOuterDamage.toFixed(2)),
+      playerInnerDamage: Number(result.battle.metrics.playerInnerDamage.toFixed(2)),
+      playerEffectiveDps: Number(result.battle.metrics.playerEffectiveDps.toFixed(2)),
+      enemyEffectiveDps: Number(result.battle.metrics.enemyEffectiveDps.toFixed(2))
+    },
+    rewards: result.rewards,
+    currentStageId: result.progress.currentStageId,
+    highestClearedStageIndex:
+      result.progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0,
+    suggestedFarmStageId: result.suggestedFarmStageId
+  };
+}
+
+export function buildBambooRoadBalanceReport(data: StaticGameData) {
+  const bambooRoadStageIds = getRegionStageIds(data, BAMBOO_ROAD_REGION_ID);
+  const trainedBossPlan = createTrainedBossPlan(data);
+  let progress = createInitialPlayerProgress(data);
+  const stageResults: Array<ReturnType<typeof summarizeBattle>> = [];
+  let progressBeforeBoss = cloneProgress(progress);
+
+  for (const stageId of bambooRoadStageIds) {
+    const stage = getStage(data, stageId);
+
+    if (stage.isBoss) {
+      progressBeforeBoss = cloneProgress(progress);
+    }
+
+    const result = resolveStageBattle(data, {
+      progress,
+      stageId,
+      maxDurationSeconds: 180
+    });
+
+    stageResults.push(summarizeBattle(data, stage, result));
+
+    if (result.ok && result.stageCleared) {
+      progress = result.progress;
+    }
+  }
+
+  const bossStage = getRegionBossStage(data, bambooRoadStageIds);
+  const baselineBoss = resolveStageBattle(data, {
+    progress: progressBeforeBoss,
+    stageId: bossStage.id,
+    maxDurationSeconds: 180
+  });
+  const recommendedFarmStage = getRecommendedOfflineFarmStage(
+    data,
+    progressBeforeBoss
+  );
+
+  if (!recommendedFarmStage) {
+    throw new Error("No cleared Bamboo Road stage is available for farm simulation");
+  }
+
+  const farmStageId = recommendedFarmStage.id;
+  const trainingEconomy = farmUntilTrainingAffordable(
+    data,
+    progressBeforeBoss,
+    trainedBossPlan,
+    farmStageId,
+    60
+  );
+  const trainingEconomyReport = trainingEconomy.ok
+    ? {
+        ok: true as const,
+        farmStageId: trainingEconomy.farmStageId,
+        farmClears: trainingEconomy.farmClears,
+        trainingCost: trainingEconomy.trainingCost,
+        resourcesBeforeTraining: trainingEconomy.resourcesBeforeTraining,
+        resourcesAfterTraining: trainingEconomy.resourcesAfterTraining
+      }
+    : trainingEconomy;
+  const trainedBossProgress = trainingEconomy.ok
+    ? trainingEconomy.progress
+    : progressBeforeBoss;
+  const trainedBoss = resolveStageBattle(data, {
+    progress: trainedBossProgress,
+    stageId: bossStage.id,
+    maxDurationSeconds: 180
+  });
+  const bambooRoadProgressBeforeBoss = progressBeforeBoss.maps[
+    BAMBOO_ROAD_REGION_ID
+  ] ?? {
+    combatExperience: 0,
+    highestClearedStageIndex: 0
+  };
+  const nextMastery = getNextMasteryThreshold(
+    bambooRoadProgressBeforeBoss.combatExperience,
+    data.mastery.thresholds
+  );
+  const firstHeroUpgrade = getUpgrade(data, "hero_outer_training");
+  const firstSectUpgrade = getUpgrade(data, "sect_outer_training");
+  const firstHeroUpgradeCost = calculateUpgradeCost(firstHeroUpgrade, 0);
+  const firstSectUpgradeCost = calculateUpgradeCost(firstSectUpgrade, 0);
+  const farmStage = getStage(data, farmStageId);
+  const firstMasteryFarmClears = nextMastery
+    ? Math.ceil(
+        Math.max(
+          0,
+          nextMastery.experience -
+            bambooRoadProgressBeforeBoss.combatExperience
+        ) / farmStage.rewards.combatExperience
+      )
+    : 0;
+
+  return {
+    bambooRoadBalance: {
+      stageResults,
+      bossGate: {
+        baseline: summarizeBattle(data, bossStage, baselineBoss),
+        trained: summarizeBattle(data, bossStage, trainedBoss),
+        training: TRAINED_BOSS_UPGRADES,
+        economy: {
+          planCost: getTrainingPlanCost(
+            data,
+            progressBeforeBoss,
+            trainedBossPlan
+          ),
+          trainingEconomy: trainingEconomyReport
+        }
+      },
+      upgradeEconomy: {
+        firstHeroUpgrade: {
+          cost: firstHeroUpgradeCost,
+          clearsRequired: getClearsRequiredForSilver(
+            data,
+            bambooRoadStageIds,
+            firstHeroUpgradeCost
+          )
+        },
+        firstSectUpgrade: {
+          cost: firstSectUpgradeCost,
+          clearsRequired: getClearsRequiredForSilver(
+            data,
+            bambooRoadStageIds,
+            firstSectUpgradeCost
+          )
+        },
+        firstMastery: nextMastery
+          ? {
+              threshold: nextMastery.experience,
+              farmStageId,
+              farmClearsRequired: firstMasteryFarmClears
+            }
+          : null
+      },
+      progressBeforeBoss: {
+        resources: progressBeforeBoss.resources,
+        bambooRoad: bambooRoadProgressBeforeBoss,
+        nextMastery
+      }
+    }
+  };
+}
+
+export type BambooRoadBalanceReport = ReturnType<
+  typeof buildBambooRoadBalanceReport
+>;
+
+type StageSummary =
+  BambooRoadBalanceReport["bambooRoadBalance"]["stageResults"][number];
+
+function formatReward(rewards: StageSummary["rewards"]): string {
+  if (!rewards) {
+    return "-";
+  }
+
+  return `${rewards.silver} silver / ${rewards.cultivation} cult / ${rewards.combatExperience} xp`;
+}
+
+function formatTarget(stage: StageSummary): string {
+  if (!stage.ok || !stage.targetSeconds) {
+    return "-";
+  }
+
+  return `${stage.targetSeconds[0]}-${stage.targetSeconds[1]}s ${stage.targetMet ? "ok" : "miss"}`;
+}
+
+function formatStageRow(stage: StageSummary): string {
+  if (!stage.ok) {
+    const reason = stage.reason ?? "unknown";
+
+    return [
+      stage.stageId.padEnd(14),
+      stage.enemyIds.join("+").padEnd(16),
+      reason.padEnd(13),
+      "-".padStart(6),
+      "-".padStart(5),
+      "-".padEnd(28),
+      "-".padEnd(10)
+    ].join("  ");
+  }
+
+  return [
+    stage.stageId.padEnd(14),
+    stage.enemyIds.join("+").padEnd(16),
+    `${stage.winner}${stage.stageCleared ? " clear" : " hold"}`.padEnd(13),
+    `${stage.durationSeconds}s`.padStart(6),
+    String(stage.qiBreaks).padStart(5),
+    formatReward(stage.rewards).padEnd(28),
+    formatTarget(stage).padEnd(10)
+  ].join("  ");
+}
+
+function formatBossLine(stage: StageSummary): string {
+  if (!stage.ok) {
+    return `${stage.stageId}: ${stage.reason ?? "unknown"}`;
+  }
+
+  return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks`;
+}
+
+export function formatBalanceReport(report: BambooRoadBalanceReport): string {
+  const balance = report.bambooRoadBalance;
+  const header = [
+    "stage".padEnd(14),
+    "enemy".padEnd(16),
+    "result".padEnd(13),
+    "time".padStart(6),
+    "break".padStart(5),
+    "rewards".padEnd(28),
+    "target".padEnd(10)
+  ].join("  ");
+  const divider = "-".repeat(header.length);
+  const firstMastery = balance.upgradeEconomy.firstMastery;
+  const trainingEconomy = balance.bossGate.economy.trainingEconomy;
+  const trainingLine = trainingEconomy.ok
+    ? `${trainingEconomy.farmClears} ${trainingEconomy.farmStageId} farms, ${trainingEconomy.trainingCost} silver`
+    : `not affordable: ${trainingEconomy.reason}`;
+
+  return [
+    "Bamboo Road Balance Report",
+    "",
+    header,
+    divider,
+    ...balance.stageResults.map(formatStageRow),
+    "",
+    "Upgrade Economy",
+    `- First hero upgrade: ${balance.upgradeEconomy.firstHeroUpgrade.cost} silver, ${balance.upgradeEconomy.firstHeroUpgrade.clearsRequired} clears`,
+    `- First sect upgrade: ${balance.upgradeEconomy.firstSectUpgrade.cost} silver, ${balance.upgradeEconomy.firstSectUpgrade.clearsRequired} clears`,
+    firstMastery
+      ? `- First mastery: ${firstMastery.threshold} Combat XP after ${firstMastery.farmClearsRequired} ${firstMastery.farmStageId} farms`
+      : "- First mastery: all thresholds reached",
+    "",
+    "Boss Gate",
+    `- Baseline: ${formatBossLine(balance.bossGate.baseline)}`,
+    `- Trained: ${formatBossLine(balance.bossGate.trained)}`,
+    `- Training economy: ${trainingLine}`,
+    "",
+    "Run `npm run simulate -- --json` for full metrics."
+  ].join("\n");
+}

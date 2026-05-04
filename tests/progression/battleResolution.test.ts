@@ -96,7 +96,7 @@ describe("stage battle resolution", () => {
     expect(result.battle.winner).toBe("enemy");
     expect(result.stageCleared).toBe(false);
     expect(result.rewards).toBeNull();
-    expect(result.suggestedFarmStageId).toBe("bamboo_road_9");
+    expect(result.suggestedFarmStageId).toBe("bamboo_road_8");
     expect(result.progress).toBe(progress);
     expect(result.progress.resources.silver).toBe(0);
     expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(9);

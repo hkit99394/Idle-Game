@@ -7,6 +7,7 @@ import {
   getStageById,
   getUnlockedOfflineFarmStages,
   hasClearedStage,
+  OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY,
   isOfflineFarmStageUnlocked,
   isRegionUnlocked,
   isStageUnlocked,
@@ -170,14 +171,14 @@ describe("stage progression helpers", () => {
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
 
     expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
-      "bamboo_road_9"
+      "bamboo_road_8"
     );
     expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_10")).toBe(
       false
     );
   });
 
-  it("recommends the highest farmable stage by progression order", () => {
+  it("keeps unlocked farm stages in progression order for selectors", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 9;
 
@@ -201,8 +202,19 @@ describe("stage progression helpers", () => {
       "bamboo_road_8",
       "bamboo_road_9"
     ]);
-    expect(getRecommendedOfflineFarmStage(unsortedData, progress)?.id).toBe(
-      "bamboo_road_9"
+  });
+
+  it("recommends the best farm rewards instead of the latest cleared stage", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+
+    expect(OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY).toEqual([
+      "combatExperience",
+      "silver",
+      "cultivation"
+    ]);
+    expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
+      "bamboo_road_8"
     );
   });
 });
