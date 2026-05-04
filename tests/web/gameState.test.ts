@@ -288,8 +288,23 @@ describe("web game state", () => {
 
     expect(attackEvent?.headline).toContain("attacks");
     expect(attackEvent?.detail).toContain("Outer damage");
+    expect(attackEvent?.badges.map((badge) => badge.tone)).toEqual([
+      "skill",
+      "outer",
+      "inner"
+    ]);
+    expect(attackEvent?.badges.some((badge) => badge.label.includes("Outer HP")))
+      .toBe(true);
     expect(qiBreakEvent?.headline).toContain("Qi Break");
     expect(qiBreakEvent?.detail).toContain("Inner Qi");
+    expect(qiBreakEvent?.badges).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: "Qi Break",
+          tone: "danger"
+        })
+      ])
+    );
     expect(viewModel.battleSummary?.details.join(" ")).toContain("Qi Breaks");
   });
 

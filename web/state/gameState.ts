@@ -103,6 +103,19 @@ export type BattleEventCategory =
   | "backlash"
   | "defeat";
 
+export type BattleEventBadgeTone =
+  | "skill"
+  | "outer"
+  | "inner"
+  | "qi"
+  | "danger"
+  | "neutral";
+
+export type BattleEventBadgeView = {
+  label: string;
+  tone: BattleEventBadgeTone;
+};
+
 export type BattleEventView = {
   id: string;
   category: BattleEventCategory;
@@ -110,6 +123,7 @@ export type BattleEventView = {
   timeLabel: string;
   headline: string;
   detail: string;
+  badges: BattleEventBadgeView[];
 };
 
 export type BattleSummaryView = {
@@ -525,16 +539,31 @@ function buildBattleEventDetail(
   data: StaticGameData,
   event: BattleEvent,
   names: Map<string, string>
-): Pick<BattleEventView, "category" | "headline" | "detail"> {
+): Pick<BattleEventView, "category" | "headline" | "detail" | "badges"> {
   switch (event.type) {
     case "attack": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
+      const skillName = getSkillName(data, event.skillId);
 
       return {
         category: "attack",
         headline: `${source} attacks ${target}`,
-        detail: formatAttackDetail(data, event)
+        detail: formatAttackDetail(data, event),
+        badges: [
+          {
+            label: skillName,
+            tone: "skill"
+          },
+          {
+            label: `${formatBattleNumber(event.outerDamage)} Outer HP`,
+            tone: "outer"
+          },
+          {
+            label: `${formatBattleNumber(event.innerDamage)} Inner Qi`,
+            tone: "inner"
+          }
+        ]
       };
     }
 
@@ -549,7 +578,21 @@ function buildBattleEventDetail(
           `${source} drops Inner Qi to zero, bursts ` +
           `${formatBattleNumber(event.burstDamage)} Outer damage ` +
           `(${formatBattlePercent(event.burstPercent)}), recovers at ` +
-          `${formatBattleSeconds(event.endsAt)}`
+          `${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Qi Break",
+            tone: "danger"
+          },
+          {
+            label: `${formatBattleNumber(event.burstDamage)} burst`,
+            tone: "outer"
+          },
+          {
+            label: `${formatBattleSeconds(event.endsAt)} recovery`,
+            tone: "qi"
+          }
+        ]
       };
     }
 
@@ -559,7 +602,13 @@ function buildBattleEventDetail(
       return {
         category: "qi_recover",
         headline: `${target} restores Inner Qi`,
-        detail: `Inner Qi returns to ${formatBattleNumber(event.innerQi)}`
+        detail: `Inner Qi returns to ${formatBattleNumber(event.innerQi)}`,
+        badges: [
+          {
+            label: `${formatBattleNumber(event.innerQi)} Inner Qi`,
+            tone: "inner"
+          }
+        ]
       };
     }
 
@@ -569,7 +618,17 @@ function buildBattleEventDetail(
       return {
         category: "backlash",
         headline: `${source} suffers backlash`,
-        detail: `${formatBattleNumber(event.damage)} Outer damage while Qi Broken`
+        detail: `${formatBattleNumber(event.damage)} Outer damage while Qi Broken`,
+        badges: [
+          {
+            label: `${formatBattleNumber(event.damage)} backlash`,
+            tone: "danger"
+          },
+          {
+            label: "Qi Broken",
+            tone: "qi"
+          }
+        ]
       };
     }
 
@@ -580,7 +639,17 @@ function buildBattleEventDetail(
       return {
         category: "defeat",
         headline: `${target} is defeated`,
-        detail: `A ${defeatedSide} combatant falls`
+        detail: `A ${defeatedSide} combatant falls`,
+        badges: [
+          {
+            label: "Defeated",
+            tone: "danger"
+          },
+          {
+            label: defeatedSide,
+            tone: "neutral"
+          }
+        ]
       };
     }
   }

@@ -3,6 +3,7 @@ import "./styles/app.css";
 import type { ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
 import type {
+  BattleEventBadgeView,
   BattleCombatantView,
   BattleEventView,
   BattleSummaryView,
@@ -79,6 +80,22 @@ function getBattleResultText(
     : `Defeat - ${stageName} held`;
 }
 
+function getBattleResultClass(lastBattle: ResolveStageBattleResult | null): string {
+  if (!lastBattle) {
+    return "";
+  }
+
+  if (!lastBattle.ok) {
+    return "blocked";
+  }
+
+  if (lastBattle.stageCleared) {
+    return "victory";
+  }
+
+  return lastBattle.battle.winner === "timeout" ? "stalemate" : "defeat";
+}
+
 type BarProps = {
   className: "outer" | "inner";
   label: string;
@@ -91,7 +108,7 @@ function StatBar({ className, current, label, max }: BarProps) {
   const meterValue = Math.round(Math.max(0, Math.min(current, max)));
 
   return (
-    <div className="stat-bar">
+    <div className={`stat-bar ${className}-stat`}>
       <div className="bar-label">
         <span>{label}</span>
         <strong>
@@ -129,6 +146,8 @@ function CombatantCard({ combatant }: CombatantCardProps) {
     <article
       className={`combatant-card ${combatant.kind} ${
         combatant.isDefeated ? "defeated" : ""
+      } ${
+        combatant.isQiBroken ? "qi-broken" : ""
       }`}
     >
       <div className="combatant-heading">
@@ -151,12 +170,16 @@ function CombatantCard({ combatant }: CombatantCardProps) {
         max={combatant.maxInnerQi}
       />
       <div className="combatant-stats">
-        <span>Outer {formatNumber(combatant.outerAttack)}</span>
-        <span>Inner {formatNumber(combatant.innerAttack)}</span>
+        <span>Outer Attack {formatNumber(combatant.outerAttack)}</span>
+        <span>Inner Attack {formatNumber(combatant.innerAttack)}</span>
         <span>Speed {formatNumber(combatant.speed)}</span>
       </div>
       {combatant.isQiBroken || combatant.isDefeated ? (
-        <div className="combatant-status">
+        <div
+          className={`combatant-status ${
+            combatant.isDefeated ? "defeated-status" : "qi-broken-status"
+          }`}
+        >
           {combatant.isDefeated ? "Defeated" : "Qi Broken"}
         </div>
       ) : null}
@@ -284,12 +307,33 @@ function BattleLog({ events, summary }: BattleLogProps) {
               <div>
                 <strong>{event.headline}</strong>
                 <span>{event.detail}</span>
+                <EventBadges badges={event.badges} />
               </div>
             </li>
           ))}
         </ol>
       ) : null}
     </section>
+  );
+}
+
+type EventBadgesProps = {
+  badges: BattleEventBadgeView[];
+};
+
+function EventBadges({ badges }: EventBadgesProps) {
+  if (badges.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="event-badges">
+      {badges.map((badge, index) => (
+        <span key={`${badge.label}-${index}`} className={badge.tone}>
+          {badge.label}
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -484,6 +528,7 @@ export function App() {
   const resultStageName =
     lastBattleStage?.name ?? selectedStage?.name ?? "Unknown Stage";
   const battleStatus = getBattleResultText(lastBattle, resultStageName);
+  const battleResultClass = getBattleResultClass(lastBattle);
   const purchaseStatus =
     lastPurchase?.ok
       ? `Training level ${lastPurchase.newLevel}`
@@ -528,13 +573,7 @@ export function App() {
             <span>{enemy?.name ?? "Unknown Enemy"}</span>
           </div>
           <div
-            className={`battle-result ${
-              lastBattle?.ok && lastBattle.stageCleared
-                ? "victory"
-                : lastBattle
-                  ? "defeat"
-                  : ""
-            }`}
+            className={`battle-result ${battleResultClass}`}
             aria-live="polite"
           >
             {battleStatus}

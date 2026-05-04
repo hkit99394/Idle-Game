@@ -453,7 +453,7 @@ Acceptance:
 
 ### 5.2 Combat Readability
 
-Status: Not started
+Status: Completed
 
 Task:
 
