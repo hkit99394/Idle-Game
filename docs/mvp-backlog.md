@@ -353,7 +353,7 @@ Acceptance:
 
 ### 4.2 Local Storage Save/Load
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -368,7 +368,7 @@ Acceptance:
 
 ### 4.3 Offline Reward Application
 
-Status: Not started
+Status: Completed
 
 Task:
 

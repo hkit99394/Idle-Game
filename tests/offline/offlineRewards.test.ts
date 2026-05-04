@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { calculateOfflineRewards } from "../../core";
+import {
+  applyOfflineRewards,
+  calculateOfflineRewards,
+  createInitialPlayerProgress
+} from "../../core";
+import { staticData } from "../helpers/staticData";
 
 describe("offline rewards", () => {
   it("calculates capped offline rewards with efficiency", () => {
@@ -36,5 +41,71 @@ describe("offline rewards", () => {
     });
 
     expect(result.clears).toBe(2);
+  });
+
+  it("applies rewards from a selected cleared non-boss farm stage", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.currentStageId = "bamboo_road_3";
+
+    const result = applyOfflineRewards({
+      data: staticData,
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      lastSavedAtMs: 1000,
+      currentTimeMs: 31_000,
+      config: {
+        offlineCapSeconds: 100,
+        estimatedClearTimeSeconds: 10,
+        minimumClearTimeSeconds: 5,
+        offlineEfficiency: 0.5
+      }
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.rewards.clears).toBe(3);
+    expect(result.progress.resources.silver).toBeCloseTo(15);
+    expect(result.progress.resources.cultivation).toBeCloseTo(7.5);
+    expect(result.progress.maps.bamboo_road.combatExperience).toBeCloseTo(7.5);
+    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(2);
+    expect(result.progress.currentStageId).toBe("bamboo_road_3");
+  });
+
+  it("refuses locked and boss farm targets", () => {
+    const lockedProgress = createInitialPlayerProgress(staticData);
+    const lockedResult = applyOfflineRewards({
+      data: staticData,
+      progress: lockedProgress,
+      selectedOfflineFarmStageId: "bamboo_road_2",
+      lastSavedAtMs: 0,
+      currentTimeMs: 30_000
+    });
+    const bossProgress = createInitialPlayerProgress(staticData);
+    bossProgress.maps.bamboo_road.highestClearedStageIndex = 10;
+    bossProgress.currentStageId = "bamboo_road_10";
+    const bossResult = applyOfflineRewards({
+      data: staticData,
+      progress: bossProgress,
+      selectedOfflineFarmStageId: "bamboo_road_10",
+      lastSavedAtMs: 0,
+      currentTimeMs: 30_000
+    });
+
+    expect(lockedResult.ok).toBe(false);
+    if (lockedResult.ok) {
+      throw new Error("Locked farm target should be refused");
+    }
+    expect(lockedResult.reason).toBe("invalid_farm_stage");
+    expect(lockedResult.progress.resources.silver).toBe(0);
+    expect(bossResult.ok).toBe(false);
+    if (bossResult.ok) {
+      throw new Error("Boss farm target should be refused");
+    }
+    expect(bossResult.reason).toBe("invalid_farm_stage");
+    expect(bossResult.progress.resources.silver).toBe(0);
   });
 });

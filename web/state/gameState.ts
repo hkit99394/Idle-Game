@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import {
   buildEnemyTeamForStage,
   buildPlayerTeamForStage,
@@ -27,8 +27,16 @@ import type {
   PurchaseUpgradeInput,
   PurchaseUpgradeResult,
   ResolveStageBattleResult,
+  SaveData,
   StaticGameData
 } from "../../core";
+import {
+  getBrowserSaveStorage,
+  loadSaveDataWithOfflineRewardsFromStorage,
+  saveWebGameStateToStorage,
+  WEB_SAVE_AUTOSAVE_INTERVAL_MS
+} from "./saveStorage";
+import type { WebSaveStorage } from "./saveStorage";
 
 export type WebGameState = {
   progress: PlayerProgress;
@@ -200,6 +208,48 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     lastBattleStageId: null,
     lastPurchase: null
   };
+}
+
+export function createWebGameStateFromSave(
+  data: StaticGameData,
+  save: SaveData
+): WebGameState {
+  return {
+    progress: save.progress,
+    selectedStageId: normalizeSelectedStageId(
+      data,
+      save.progress,
+      save.progress.currentStageId
+    ),
+    selectedOfflineFarmStageId: normalizeFarmStageId(
+      data,
+      save.progress,
+      save.selectedOfflineFarmStageId
+    ),
+    lastBattle: null,
+    lastBattleStageId: null,
+    lastPurchase: null
+  };
+}
+
+export function createInitialWebGameStateFromStorage(
+  data: StaticGameData,
+  storage: WebSaveStorage | null = getBrowserSaveStorage(),
+  nowMs = Date.now()
+): WebGameState {
+  if (!storage) {
+    return createInitialWebGameState(data);
+  }
+
+  const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+    data,
+    storage,
+    nowMs
+  );
+
+  return loadResult.ok
+    ? createWebGameStateFromSave(data, loadResult.save)
+    : createInitialWebGameState(data);
 }
 
 export function webGameStateReducer(
@@ -885,11 +935,53 @@ export function useWebGameState(data: StaticGameData) {
     (currentState: WebGameState, action: WebGameAction) =>
       webGameStateReducer(data, currentState, action),
     data,
-    createInitialWebGameState
+    createInitialWebGameStateFromStorage
+  );
+  const stateRef = useRef(state);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  const persistState = useCallback(
+    (stateToSave: WebGameState) => {
+      const storage = getBrowserSaveStorage();
+
+      if (!storage) {
+        return;
+      }
+
+      saveWebGameStateToStorage(data, stateToSave, storage);
+    },
+    [data]
   );
 
+  const dispatchAndPersist = useCallback(
+    (action: WebGameAction) => {
+      const nextState = webGameStateReducer(data, state, action);
+
+      dispatch(action);
+      persistState(nextState);
+    },
+    [data, persistState, state]
+  );
+
+  useEffect(() => {
+    const storage = getBrowserSaveStorage();
+
+    if (!storage) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      saveWebGameStateToStorage(data, stateRef.current, storage);
+    }, WEB_SAVE_AUTOSAVE_INTERVAL_MS);
+
+    return () => window.clearInterval(timer);
+  }, [data]);
+
   const battleSelectedStage = useCallback(() => {
-    dispatch({
+    dispatchAndPersist({
       type: "battle_resolved",
       stageId: state.selectedStageId,
       result: resolveStageBattle(data, {
@@ -898,11 +990,11 @@ export function useWebGameState(data: StaticGameData) {
         maxDurationSeconds: 180
       })
     });
-  }, [data, state.progress, state.selectedStageId]);
+  }, [data, dispatchAndPersist, state.progress, state.selectedStageId]);
 
   const purchaseUpgrade = useCallback(
     (input: PurchaseGameUpgradeInput) => {
-      dispatch({
+      dispatchAndPersist({
         type: "purchase_resolved",
         result: purchaseCoreUpgrade(data.upgrades, {
           progress: state.progress,
@@ -910,22 +1002,22 @@ export function useWebGameState(data: StaticGameData) {
         })
       });
     },
-    [data, state.progress]
+    [data, dispatchAndPersist, state.progress]
   );
 
   const selectStage = useCallback((stageId: string) => {
-    dispatch({
+    dispatchAndPersist({
       type: "select_stage",
       stageId
     });
-  }, []);
+  }, [dispatchAndPersist]);
 
   const selectOfflineFarmStage = useCallback((stageId: string | null) => {
-    dispatch({
+    dispatchAndPersist({
       type: "select_offline_farm_stage",
       stageId
     });
-  }, []);
+  }, [dispatchAndPersist]);
 
   const viewModel = useMemo(
     () => getWebGameViewModel(data, state),

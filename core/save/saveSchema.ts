@@ -27,6 +27,7 @@ export type CreateSaveDataInput = {
   progress: PlayerProgress;
   selectedOfflineFarmStageId: string | null;
   nowMs: number;
+  lastOfflineRewardAtMs?: number;
   previousSave?: Pick<SaveData, "createdAtMs" | "lastOfflineRewardAtMs"> | null;
 };
 
@@ -271,7 +272,9 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
     createdAtMs: input.previousSave?.createdAtMs ?? input.nowMs,
     updatedAtMs: input.nowMs,
     lastOfflineRewardAtMs:
-      input.previousSave?.lastOfflineRewardAtMs ?? input.nowMs
+      input.lastOfflineRewardAtMs ??
+      input.previousSave?.lastOfflineRewardAtMs ??
+      input.nowMs
   };
 }
 
