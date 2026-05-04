@@ -33,6 +33,13 @@ describe("balance report", () => {
       winner: "player",
       stageCleared: true
     });
+    expect(report.bambooRoadBalance.stageResults[0]).toMatchObject({
+      enemyFormationSlots: ["front", "middle"]
+    });
+    expect(report.bambooRoadBalance.formationScenarios).toEqual({
+      firstLivingFrontlineTargetId: "front_bandit",
+      highestCpBacklineTargetId: "back_threat"
+    });
   });
 
   it("formats a compact human-readable report", () => {
@@ -42,6 +49,7 @@ describe("balance report", () => {
     expect(formatted).toContain("Bamboo Road Balance Report");
     expect(formatted).toContain("bamboo_road_10");
     expect(formatted).toContain("Training economy:");
+    expect(formatted).toContain("Formation Targeting");
     expect(formatted).toContain("npm run simulate -- --json");
   });
 

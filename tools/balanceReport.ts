@@ -6,7 +6,8 @@ import {
   getUpgradeLevel,
   getNextMasteryThreshold,
   purchaseUpgrade,
-  resolveStageBattle
+  resolveStageBattle,
+  simulateBattle
 } from "../core";
 import type {
   PlayerProgress,
@@ -287,6 +288,7 @@ function summarizeBattle(
       stageId: stage.id,
       name: stage.name,
       enemyIds: stage.enemyTeam.combatantIds,
+      enemyFormationSlots: [],
       enemyTypes: enemiesForStage.map((enemy) => enemy.type),
       reason: result.reason
     };
@@ -305,6 +307,9 @@ function summarizeBattle(
     name: stage.name,
     index: stage.index,
     enemyIds: stage.enemyTeam.combatantIds,
+    enemyFormationSlots: result.battle.finalEnemyTeam.map(
+      (combatant) => combatant.formationSlot
+    ),
     enemyTypes: enemiesForStage.map((enemy) => enemy.type),
     targetSeconds,
     targetMet,
@@ -323,6 +328,93 @@ function summarizeBattle(
     highestClearedStageIndex:
       result.progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0,
     suggestedFarmStageId: result.suggestedFarmStageId
+  };
+}
+
+function getFirstPlayerAttackTargetId(
+  result: ReturnType<typeof simulateBattle>
+): string | null {
+  const firstPlayerAttack = result.events.find(
+    (event) => event.type === "attack" && event.sourceId.startsWith("player_")
+  );
+
+  return firstPlayerAttack?.type === "attack" ? firstPlayerAttack.targetId : null;
+}
+
+function buildFormationScenarioReport(data: StaticGameData) {
+  const bandit = data.enemies.find((enemy) => enemy.id === "bamboo_bandit");
+
+  if (!bandit) {
+    throw new Error("Missing enemy bamboo_bandit");
+  }
+
+  const frontLineScenario = simulateBattle(data, {
+    playerTeam: {
+      id: "player",
+      combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+    },
+    enemyTeam: {
+      id: "enemy",
+      combatants: [
+        {
+          kind: "enemy",
+          definitionId: "bamboo_bandit",
+          instanceId: "back_bandit",
+          formationSlot: "back"
+        },
+        {
+          kind: "enemy",
+          definitionId: "bamboo_bandit",
+          instanceId: "front_bandit",
+          formationSlot: "front"
+        }
+      ]
+    },
+    maxDurationSeconds: 5
+  });
+  const highestCpData: StaticGameData = {
+    ...data,
+    skills: data.skills.map((skill) =>
+      skill.id === "iron_fist_combo"
+        ? {
+            ...skill,
+            targetRule: "highest_cp" as const
+          }
+        : skill
+    )
+  };
+  const highestCpScenario = simulateBattle(highestCpData, {
+    playerTeam: {
+      id: "player",
+      combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+    },
+    enemyTeam: {
+      id: "enemy",
+      combatants: [
+        {
+          kind: "enemy",
+          definitionId: "bamboo_bandit",
+          instanceId: "front_guard",
+          formationSlot: "front"
+        },
+        {
+          kind: "enemy",
+          definitionId: "bamboo_bandit",
+          instanceId: "back_threat",
+          formationSlot: "back",
+          statsOverride: {
+            ...bandit.baseStats,
+            outerAttack: bandit.baseStats.outerAttack * 8
+          }
+        }
+      ]
+    },
+    maxDurationSeconds: 5
+  });
+
+  return {
+    firstLivingFrontlineTargetId: getFirstPlayerAttackTargetId(frontLineScenario),
+    highestCpBacklineTargetId: getFirstPlayerAttackTargetId(highestCpScenario)
   };
 }
 
@@ -465,7 +557,8 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
         resources: progressBeforeBoss.resources,
         bambooRoad: bambooRoadProgressBeforeBoss,
         nextMastery
-      }
+      },
+      formationScenarios: buildFormationScenarioReport(data)
     }
   };
 }
@@ -494,6 +587,8 @@ function formatTarget(stage: StageSummary): string {
 }
 
 function formatStageRow(stage: StageSummary): string {
+  const formation = stage.ok ? stage.enemyFormationSlots.join("+") : "-";
+
   if (!stage.ok) {
     const reason = stage.reason ?? "unknown";
 
@@ -503,6 +598,7 @@ function formatStageRow(stage: StageSummary): string {
       reason.padEnd(13),
       "-".padStart(6),
       "-".padStart(5),
+      formation.padEnd(14),
       "-".padEnd(28),
       "-".padEnd(10)
     ].join("  ");
@@ -514,6 +610,7 @@ function formatStageRow(stage: StageSummary): string {
     `${stage.winner}${stage.stageCleared ? " clear" : " hold"}`.padEnd(13),
     `${stage.durationSeconds}s`.padStart(6),
     String(stage.qiBreaks).padStart(5),
+    formation.padEnd(14),
     formatReward(stage.rewards).padEnd(28),
     formatTarget(stage).padEnd(10)
   ].join("  ");
@@ -535,6 +632,7 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     "result".padEnd(13),
     "time".padStart(6),
     "break".padStart(5),
+    "formation".padEnd(14),
     "rewards".padEnd(28),
     "target".padEnd(10)
   ].join("  ");
@@ -551,6 +649,10 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     header,
     divider,
     ...balance.stageResults.map(formatStageRow),
+    "",
+    "Formation Targeting",
+    `- first_living frontline target: ${balance.formationScenarios.firstLivingFrontlineTargetId}`,
+    `- highest_cp backline target: ${balance.formationScenarios.highestCpBacklineTargetId}`,
     "",
     "Upgrade Economy",
     `- First hero upgrade: ${balance.upgradeEconomy.firstHeroUpgrade.cost} silver, ${balance.upgradeEconomy.firstHeroUpgrade.clearsRequired} clears`,

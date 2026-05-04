@@ -1,4 +1,5 @@
 import type { StaticGameData } from "../data";
+import { isFormationSlot } from "../combat";
 import {
   cloneProgress,
   getStageById,
@@ -191,6 +192,36 @@ function validateMaps(
   return true;
 }
 
+function validatePlayerFormation(
+  data: Pick<StaticGameData, "heroes">,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["formation"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.formation", errors)) {
+    return false;
+  }
+
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+
+  for (const [heroId, slot] of Object.entries(value)) {
+    if (!heroIds.has(heroId)) {
+      errors.push(`progress.formation.${heroId} must reference an existing hero`);
+    }
+
+    if (!isFormationSlot(slot)) {
+      errors.push(
+        `progress.formation.${heroId} must be front, middle, or back`
+      );
+    }
+  }
+
+  return true;
+}
+
 function validateCurrentStage(
   data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress,
@@ -223,6 +254,7 @@ function validateProgress(
   validateHeroes(data, value.heroes, errors);
   validateSect(value.sect, errors);
   validateMaps(data, value.maps, errors);
+  validatePlayerFormation(data, value.formation, errors);
 
   if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {
     errors.push("progress.currentStageId must be a non-empty string");

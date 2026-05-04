@@ -4,6 +4,7 @@
     "name": "Iron Fist Disciple",
     "style": "fist",
     "role": "Outer bruiser",
+    "combatRole": "striker",
     "baseStats": {
       "maxOuterHp": 180,
       "maxInnerQi": 90,
@@ -27,6 +28,7 @@
     "name": "Azure Palm Monk",
     "style": "palm",
     "role": "Inner breaker",
+    "combatRole": "breaker",
     "baseStats": {
       "maxOuterHp": 120,
       "maxInnerQi": 160,
@@ -50,6 +52,7 @@
     "name": "White Crane Swordsman",
     "style": "sword",
     "role": "Hybrid duelist",
+    "combatRole": "striker",
     "baseStats": {
       "maxOuterHp": 140,
       "maxInnerQi": 120,
@@ -73,6 +76,7 @@
     "name": "Mountain Staff Guardian",
     "style": "staff",
     "role": "Defensive support",
+    "combatRole": "tank",
     "baseStats": {
       "maxOuterHp": 220,
       "maxInnerQi": 110,

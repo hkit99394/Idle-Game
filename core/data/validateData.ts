@@ -8,8 +8,12 @@ import type {
   StaticGameData
 } from "./types";
 import {
+  COMBAT_ROLES,
   FORMATION_SLOTS,
-  isFormationSlot
+  TARGET_RULES,
+  isCombatRole,
+  isFormationSlot,
+  isTargetRule
 } from "../combat";
 
 type EntityWithId = { id: string };
@@ -93,6 +97,12 @@ function validateEnemy(enemy: EnemyDefinition): string[] {
   return errors;
 }
 
+function validateCombatRole(ownerLabel: string, role: unknown): string[] {
+  return isCombatRole(role)
+    ? []
+    : [`${ownerLabel} combatRole must be one of ${COMBAT_ROLES.join(", ")}`];
+}
+
 function validateStageEnemyRefs(
   stages: StageDefinition[],
   enemyIds: Set<string>
@@ -124,6 +134,12 @@ function validateSkill(skill: SkillDefinition): string[] {
 
   if (skill.outerMultiplier < 0 || skill.innerMultiplier < 0) {
     errors.push(`Skill ${skill.id} damage multipliers must be non-negative`);
+  }
+
+  if (!isTargetRule(skill.targetRule)) {
+    errors.push(
+      `Skill ${skill.id} targetRule must be one of ${TARGET_RULES.join(", ")}`
+    );
   }
 
   return errors;
@@ -234,10 +250,12 @@ export function validateStaticGameData(data: StaticGameData): string[] {
 
   for (const hero of data.heroes) {
     errors.push(...validateStats(hero.id, hero.baseStats));
+    errors.push(...validateCombatRole(`Hero ${hero.id}`, hero.combatRole));
   }
 
   for (const enemy of data.enemies) {
     errors.push(...validateEnemy(enemy));
+    errors.push(...validateCombatRole(`Enemy ${enemy.id}`, enemy.combatRole));
   }
 
   for (const skill of data.skills) {

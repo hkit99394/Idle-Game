@@ -3,6 +3,7 @@ import {
   buildPlayerTeamForStage,
   createInitialPlayerProgress,
   MVP_PLAYER_HERO_IDS,
+  setPlayerFormationSlot,
   simulateBattle
 } from "../../core";
 import { staticData } from "../helpers/staticData";
@@ -62,6 +63,39 @@ describe("progress-based player team builder", () => {
     expect(ironFist.statsOverride.innerAttack).toBeCloseTo(
       baseIronFist.baseStats.innerAttack * 1.06 * 1.05 * 1.01
     );
+  });
+
+  it("applies saved player formation slots to battle setup", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const formationResult = setPlayerFormationSlot(
+      staticData,
+      progress,
+      "azure_palm_monk",
+      "front"
+    );
+
+    expect(formationResult.ok).toBe(true);
+    if (!formationResult.ok) {
+      return;
+    }
+
+    const teamResult = buildPlayerTeamForStage(
+      staticData,
+      formationResult.progress,
+      "bamboo_road_1"
+    );
+
+    expect(teamResult.ok).toBe(true);
+    if (!teamResult.ok) {
+      return;
+    }
+
+    expect(
+      teamResult.team.combatants.find(
+        (combatant) => combatant.definitionId === "azure_palm_monk"
+      )?.formationSlot
+    ).toBe("front");
+    expect(formationResult.progress.formation?.azure_palm_monk).toBe("front");
   });
 
   it("adds enemy-family mastery damage multipliers for the current stage enemy family", () => {

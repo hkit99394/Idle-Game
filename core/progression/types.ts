@@ -1,4 +1,4 @@
-import type { BaseStats } from "../combat";
+import type { BaseStats, FormationSlot } from "../combat";
 import type { BattleResult, TeamInstance } from "../combat";
 
 export type ResourceState = {
@@ -25,6 +25,7 @@ export type PlayerProgress = {
   heroes: Record<string, HeroProgress>;
   sect: SectProgress;
   maps: Record<string, MapProgress>;
+  formation?: Record<string, FormationSlot>;
   currentStageId: string;
 };
 

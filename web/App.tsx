@@ -1,7 +1,8 @@
 import { Component, useEffect, useState } from "react";
 import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
 import "./styles/app.css";
-import type { ResolveStageBattleResult } from "../core";
+import { FORMATION_SLOTS } from "../core";
+import type { FormationSlot, ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
 import type {
   BattleEventBadgeView,
@@ -10,6 +11,7 @@ import type {
   BattleSummaryView,
   MasteryPanelView,
   OfflineRewardSummaryView,
+  PlayerFormationHeroView,
   PurchaseGameUpgradeInput,
   SaveDiagnosticsView,
   StageOptionView,
@@ -174,6 +176,12 @@ function formatFormationSlot(slot: string): string {
   return `${slot.charAt(0).toUpperCase()}${slot.slice(1)}`;
 }
 
+function formatCombatRole(role: string): string {
+  return role
+    .replace(/[-_]+/g, " ")
+    .replace(/^./, (match) => match.toUpperCase());
+}
+
 type CombatantCardProps = {
   combatant: BattleCombatantView;
 };
@@ -194,6 +202,7 @@ function CombatantCard({ combatant }: CombatantCardProps) {
         </div>
         <div className="combatant-tags">
           <span className="slot-tag">{formatFormationSlot(combatant.formationSlot)}</span>
+          <span className="role-tag">{formatCombatRole(combatant.combatRole)}</span>
           <span className="level-tag">Lv {formatNumber(combatant.level)}</span>
           <span className="cp-tag">CP {formatNumber(combatant.combatPower)}</span>
           <span className="style-tag">{combatant.style}</span>
@@ -226,6 +235,70 @@ function CombatantCard({ combatant }: CombatantCardProps) {
         </div>
       ) : null}
     </article>
+  );
+}
+
+type FormationPanelProps = {
+  heroes: PlayerFormationHeroView[];
+  onSetFormation: (heroId: string, slot: FormationSlot) => void;
+};
+
+function FormationPanel({ heroes, onSetFormation }: FormationPanelProps) {
+  return (
+    <section className="formation-panel" aria-label="Player formation">
+      <div className="formation-panel-heading">
+        <div>
+          <span className="label">Formation</span>
+          <h2>Disciples</h2>
+        </div>
+        <span>{heroes.length} heroes</span>
+      </div>
+      <div className="formation-slots">
+        {FORMATION_SLOTS.map((slot) => {
+          const heroesInSlot = heroes.filter(
+            (hero) => hero.formationSlot === slot
+          );
+
+          return (
+            <div key={slot} className="formation-slot">
+              <strong>{formatFormationSlot(slot)}</strong>
+              {heroesInSlot.length > 0 ? (
+                heroesInSlot.map((hero) => (
+                  <span key={hero.heroId}>{hero.name}</span>
+                ))
+              ) : (
+                <span>Empty</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="formation-controls">
+        {heroes.map((hero) => (
+          <article key={hero.heroId} className="formation-hero">
+            <div>
+              <strong>{hero.name}</strong>
+              <span>
+                {hero.role} · {formatCombatRole(hero.combatRole)}
+              </span>
+            </div>
+            <div className="formation-buttons" role="group" aria-label={`${hero.name} position`}>
+              {FORMATION_SLOTS.map((slot) => (
+                <button
+                  key={slot}
+                  type="button"
+                  className={hero.formationSlot === slot ? "selected" : ""}
+                  aria-pressed={hero.formationSlot === slot}
+                  onClick={() => onSetFormation(hero.heroId, slot)}
+                >
+                  {formatFormationSlot(slot)}
+                </button>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -758,6 +831,7 @@ function GameApp() {
     resetNewGame,
     saveDiagnostics,
     selectStage,
+    setHeroFormation,
     timeTravelOfflineFarm,
     viewModel
   } = useWebGameState(staticData);
@@ -772,6 +846,7 @@ function GameApp() {
     masteryPanel,
     offlineSummary,
     playerCombatants,
+    playerFormation,
     progress,
     selectedStage,
     stageOptions,
@@ -886,6 +961,10 @@ function GameApp() {
         <StageSelectorPanel
           onSelectStage={selectStage}
           stages={stageOptions}
+        />
+        <FormationPanel
+          heroes={playerFormation}
+          onSetFormation={setHeroFormation}
         />
         <UpgradePanel
           onPurchase={purchaseUpgrade}

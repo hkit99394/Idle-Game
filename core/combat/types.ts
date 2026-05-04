@@ -1,10 +1,15 @@
 import type { FormationSlot } from "./formations";
+import type { CombatRole } from "./roles";
 
 export type TeamId = "player" | "enemy";
 
 export type MvpStyle = "fist" | "palm" | "sword" | "staff";
 
-export type TargetRule = "first_living";
+export type TargetRule =
+  | "first_living"
+  | "weakest_hp"
+  | "highest_cp"
+  | "inner_broken";
 
 export type BaseStats = {
   maxOuterHp: number;
@@ -83,6 +88,7 @@ export type CombatantState = {
   kind: CombatantKind;
   level: number;
   formationSlot: FormationSlot;
+  combatRole: CombatRole;
   family?: string;
   name: string;
   team: TeamId;
@@ -154,6 +160,24 @@ export type BattleMetrics = {
   enemyEffectiveDps: number;
 };
 
+export type BattleContribution = {
+  instanceId: string;
+  definitionId: string;
+  kind: CombatantKind;
+  team: TeamId;
+  name: string;
+  formationSlot: FormationSlot;
+  combatRole: CombatRole;
+  outerDamageDealt: number;
+  innerDamageDealt: number;
+  qiBreakBurstDamageDealt: number;
+  qiBreaksTriggered: number;
+  outerDamageTaken: number;
+  innerDamageTaken: number;
+  backlashDamageTaken: number;
+  survived: boolean;
+};
+
 export type SimulateBattleInput = {
   playerTeam: TeamInstance;
   enemyTeam: TeamInstance;
@@ -169,4 +193,5 @@ export type BattleResult = {
   finalPlayerTeam: CombatantState[];
   finalEnemyTeam: CombatantState[];
   metrics: BattleMetrics;
+  contributions: BattleContribution[];
 };

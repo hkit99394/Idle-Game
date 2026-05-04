@@ -59,6 +59,10 @@ describe("combat simulator", () => {
       "front",
       "back"
     ]);
+    expect(result.finalEnemyTeam.map((enemy) => enemy.combatRole)).toEqual([
+      "striker",
+      "striker"
+    ]);
     expect(
       result.events.some(
         (event) => "targetId" in event && event.targetId === "enemy_second_bandit"
@@ -105,6 +109,13 @@ describe("combat simulator", () => {
     expect(recoverEvents.length).toBeGreaterThan(0);
     expect(result.metrics.qiBreaksTriggeredByPlayer).toBeGreaterThan(0);
     expect(result.metrics.playerQiBreakBurstDamage).toBeGreaterThan(0);
+    expect(
+      result.contributions.some(
+        (contribution) =>
+          contribution.name === "Azure Palm Monk" &&
+          contribution.qiBreaksTriggered > 0
+      )
+    ).toBe(true);
   });
 
   it("returns timeout when neither side wins before max duration", () => {

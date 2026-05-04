@@ -16,13 +16,16 @@ import {
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
   scaleStatsForLevel,
+  setPlayerFormationSlot,
   setOfflineFarmStageTarget
 } from "../../core";
 import type {
   ActiveMasterySummary,
   BattleEvent,
+  BattleContribution,
   CombatantInstanceDefinition,
   CombatantState,
+  CombatRole,
   DerivedStats,
   FormationSlot,
   MasteryBonus,
@@ -69,6 +72,11 @@ export type WebGameAction =
       stageId: string | null;
     }
   | {
+      type: "set_hero_formation_slot";
+      heroId: string;
+      slot: FormationSlot;
+    }
+  | {
       type: "battle_resolved";
       stageId: string;
       result: ResolveStageBattleResult;
@@ -99,6 +107,7 @@ export type BattleCombatantView = {
   name: string;
   style: string;
   role: string;
+  combatRole: CombatRole;
   formationSlot: FormationSlot;
   level: number;
   outerHp: number;
@@ -206,6 +215,15 @@ export type MasteryPanelView = {
   } | null;
   activeBonuses: MasteryBonusView[];
   progressPercent: number;
+};
+
+export type PlayerFormationHeroView = {
+  heroId: string;
+  name: string;
+  style: string;
+  role: string;
+  combatRole: CombatRole;
+  formationSlot: FormationSlot;
 };
 
 export type OfflineRewardSummary = {
@@ -400,6 +418,27 @@ export function webGameStateReducer(
         )
       };
 
+    case "set_hero_formation_slot": {
+      const result = setPlayerFormationSlot(
+        data,
+        state.progress,
+        action.heroId,
+        action.slot
+      );
+
+      if (!result.ok) {
+        return state;
+      }
+
+      return {
+        ...state,
+        progress: result.progress,
+        lastBattle: null,
+        lastBattleStageId: null,
+        lastPurchase: null
+      };
+    }
+
     case "battle_resolved": {
       const nextProgress = action.result.ok
         ? action.result.progress
@@ -525,6 +564,7 @@ function createCombatantView(
     name: string;
     style: string;
     role: string;
+    combatRole: CombatRole;
     formationSlot: FormationSlot;
     level: number;
     stats: DerivedStats;
@@ -541,6 +581,7 @@ function createCombatantView(
     name: input.name,
     style: input.style,
     role: input.role,
+    combatRole: input.combatRole,
     formationSlot: finalState?.formationSlot ?? input.formationSlot,
     level: Math.max(finalState?.level ?? input.level, input.level),
     outerHp: finalState?.outerHp ?? input.stats.maxOuterHp,
@@ -590,7 +631,7 @@ function buildCombatantNameLookup(
   return new Map(
     [...battle.finalPlayerTeam, ...battle.finalEnemyTeam].map((combatant) => [
       combatant.instanceId,
-      combatant.name
+      `${combatant.name} (${formatSlotLabel(combatant.formationSlot)})`
     ])
   );
 }
@@ -767,6 +808,106 @@ function formatWinner(winner: TeamId | "timeout"): string {
   }
 }
 
+function formatSlotLabel(slot: FormationSlot): string {
+  return `${slot.charAt(0).toUpperCase()}${slot.slice(1)}`;
+}
+
+function formatRoleLabel(role: string): string {
+  return role
+    .replace(/[-_]+/g, " ")
+    .replace(/^./, (match) => match.toUpperCase());
+}
+
+function getContributionDamage(contribution: BattleContribution): number {
+  return (
+    contribution.outerDamageDealt +
+    contribution.innerDamageDealt +
+    contribution.qiBreakBurstDamageDealt
+  );
+}
+
+function formatContributionName(contribution: BattleContribution): string {
+  return `${contribution.name} (${formatSlotLabel(
+    contribution.formationSlot
+  )} ${formatRoleLabel(contribution.combatRole)})`;
+}
+
+function getTopContribution(
+  contributions: BattleContribution[],
+  getScore: (contribution: BattleContribution) => number
+): BattleContribution | null {
+  let topContribution: BattleContribution | null = null;
+  let topScore = 0;
+
+  for (const contribution of contributions) {
+    const score = getScore(contribution);
+
+    if (score > topScore) {
+      topContribution = contribution;
+      topScore = score;
+    }
+  }
+
+  return topContribution;
+}
+
+function buildContributionSummaryDetails(
+  battle: Extract<ResolveStageBattleResult, { ok: true }>["battle"]
+): string[] {
+  const topDamageDealer = getTopContribution(
+    battle.contributions,
+    getContributionDamage
+  );
+  const topBreaker = getTopContribution(
+    battle.contributions,
+    (contribution) =>
+      contribution.qiBreaksTriggered * 1000 +
+      contribution.qiBreakBurstDamageDealt
+  );
+  const carryPool =
+    battle.winner === "timeout"
+      ? battle.contributions
+      : battle.contributions.filter(
+          (contribution) => contribution.team === battle.winner
+        );
+  const carry = getTopContribution(
+    carryPool,
+    (contribution) =>
+      getContributionDamage(contribution) +
+      contribution.qiBreaksTriggered * 100 +
+      (contribution.survived ? 50 : 0)
+  );
+  const details: string[] = [];
+
+  if (topDamageDealer) {
+    details.push(
+      `Top damage: ${formatContributionName(topDamageDealer)} dealt ${formatBattleNumber(
+        getContributionDamage(topDamageDealer)
+      )} total damage.`
+    );
+  }
+
+  if (topBreaker && topBreaker.qiBreaksTriggered > 0) {
+    details.push(
+      `Qi breaker: ${formatContributionName(topBreaker)} triggered ${
+        topBreaker.qiBreaksTriggered
+      } break${topBreaker.qiBreaksTriggered === 1 ? "" : "s"}.`
+    );
+  } else {
+    details.push("Qi breaker: none.");
+  }
+
+  if (carry) {
+    details.push(
+      `Carry: ${formatContributionName(carry)} ${
+        carry.survived ? "survived" : "fell"
+      } with ${formatBattleNumber(getContributionDamage(carry))} damage.`
+    );
+  }
+
+  return details;
+}
+
 function buildBattleSummary(
   lastBattle: ResolveStageBattleResult | null,
   stageName: string | null
@@ -811,6 +952,7 @@ function buildBattleSummary(
         battle.metrics.enemyQiBreakBurstDamage
       )} Qi Break burst damage.`,
       `Qi Breaks: ${battle.metrics.qiBreaksTriggeredByPlayer} by disciples, ${battle.metrics.qiBreaksTriggeredByEnemy} by enemy.`,
+      ...buildContributionSummaryDetails(battle),
       rewardText
     ]
   };
@@ -1175,6 +1317,7 @@ function buildPlayerCombatantViews(
         name: hero.name,
         style: hero.style,
         role: hero.role,
+        combatRole: hero.combatRole,
         formationSlot,
         level,
         stats
@@ -1182,6 +1325,19 @@ function buildPlayerCombatantViews(
       getFinalCombatantById(finalCombatants, instanceId)
     );
   });
+}
+
+function buildPlayerFormationViews(
+  playerCombatants: BattleCombatantView[]
+): PlayerFormationHeroView[] {
+  return playerCombatants.map((combatant) => ({
+    heroId: combatant.definitionId,
+    name: combatant.name,
+    style: combatant.style,
+    role: combatant.role,
+    combatRole: combatant.combatRole,
+    formationSlot: combatant.formationSlot
+  }));
 }
 
 function buildEnemyCombatantViews(
@@ -1225,6 +1381,7 @@ function buildEnemyCombatantViews(
         name: enemy.name,
         style: enemy.style,
         role: enemy.type,
+        combatRole: enemy.combatRole,
         formationSlot,
         level,
         stats
@@ -1287,6 +1444,17 @@ export function getWebGameViewModel(
   const finalEnemyTeam = showFinalCombatants
     ? successfulLastBattle.battle.finalEnemyTeam
     : undefined;
+  const playerCombatants = selectedStage
+    ? buildPlayerCombatantViews(
+        data,
+        state.progress,
+        selectedStage.id,
+        finalPlayerTeam
+      )
+    : [];
+  const enemyCombatants = selectedStage
+    ? buildEnemyCombatantViews(data, selectedStage.id, finalEnemyTeam)
+    : [];
 
   return {
     progress: state.progress,
@@ -1299,17 +1467,9 @@ export function getWebGameViewModel(
       state.selectedOfflineFarmStageId
     ),
     upgrades: buildUpgradeViews(data, state.progress),
-    playerCombatants: selectedStage
-      ? buildPlayerCombatantViews(
-          data,
-          state.progress,
-          selectedStage.id,
-          finalPlayerTeam
-        )
-      : [],
-    enemyCombatants: selectedStage
-      ? buildEnemyCombatantViews(data, selectedStage.id, finalEnemyTeam)
-      : [],
+    playerFormation: buildPlayerFormationViews(playerCombatants),
+    playerCombatants,
+    enemyCombatants,
     enemyTeamLabel,
     masterySummary: activeMasterySummary,
     masteryPanel: buildMasteryPanel(data, activeMasterySummary),
@@ -1408,6 +1568,14 @@ export function useWebGameState(data: StaticGameData) {
     dispatchAndPersist({
       type: "select_offline_farm_stage",
       stageId
+    });
+  }, [dispatchAndPersist]);
+
+  const setHeroFormation = useCallback((heroId: string, slot: FormationSlot) => {
+    dispatchAndPersist({
+      type: "set_hero_formation_slot",
+      heroId,
+      slot
     });
   }, [dispatchAndPersist]);
 
@@ -1611,6 +1779,7 @@ export function useWebGameState(data: StaticGameData) {
     purchaseUpgrade,
     selectStage,
     selectOfflineFarmStage,
+    setHeroFormation,
     dismissOfflineSummary,
     exportSave,
     importSave,

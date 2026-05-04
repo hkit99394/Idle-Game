@@ -4,6 +4,7 @@ import type {
   StaticGameData
 } from "../data";
 import type { HeroProgress, PlayerProgress } from "./types";
+import { createDefaultPlayerFormation } from "./playerFormationDefaults";
 
 export function createInitialHeroProgress(): HeroProgress {
   return {
@@ -39,6 +40,7 @@ export function createInitialPlayerProgress(
         }
       ])
     ),
+    formation: createDefaultPlayerFormation(data.heroes.map((hero) => hero.id)),
     currentStageId: firstStageId
   };
 }
@@ -67,6 +69,7 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
         }
       ])
     ),
+    formation: progress.formation ? { ...progress.formation } : undefined,
     currentStageId: progress.currentStageId
   };
 }

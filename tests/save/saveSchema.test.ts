@@ -131,4 +131,35 @@ describe("save schema", () => {
       "progress.heroes.iron_fist_disciple.level must be an integer >= 1"
     );
   });
+
+  it("accepts old saves without formation and rejects invalid formation slots", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        formation: undefined
+      }
+    };
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        formation: {
+          ...save.progress.formation,
+          iron_fist_disciple: "left"
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(validateSaveData(staticData, badSave)).toContain(
+      "progress.formation.iron_fist_disciple must be front, middle, or back"
+    );
+  });
 });

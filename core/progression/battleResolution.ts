@@ -18,6 +18,7 @@ import {
   calculatePlayerLevel,
   scaleStatsForLevel
 } from "./levels";
+import { getPlayerFormationSlot } from "./playerFormation";
 import {
   deriveHeroStatsFromProgress
 } from "./upgrades";
@@ -36,13 +37,6 @@ export const MVP_PLAYER_HERO_IDS = [
   "white_crane_swordsman",
   "mountain_staff_guardian"
 ] as const;
-
-const MVP_PLAYER_FORMATION_SLOTS = {
-  iron_fist_disciple: "front",
-  azure_palm_monk: "middle",
-  white_crane_swordsman: "back",
-  mountain_staff_guardian: "front"
-} as const satisfies Record<(typeof MVP_PLAYER_HERO_IDS)[number], FormationSlot>;
 
 function getHeroUpgradeDefinitions(data: StaticGameData) {
   return data.upgrades.filter((upgrade) => upgrade.scope === "hero");
@@ -145,13 +139,13 @@ export function buildPlayerTeamForStage(
 
   const team: TeamInstance = {
     id: "player",
-    combatants: MVP_PLAYER_HERO_IDS.map((heroId) => {
+    combatants: MVP_PLAYER_HERO_IDS.map((heroId, heroIndex) => {
       const heroProgress = getEffectiveHeroProgress(progress, heroId, playerLevel);
 
       return {
         kind: "hero",
         definitionId: heroId,
-        formationSlot: MVP_PLAYER_FORMATION_SLOTS[heroId],
+        formationSlot: getPlayerFormationSlot(progress, heroId, heroIndex),
         level: heroProgress.level,
         statsOverride: createPlayerCombatantStats(
           data,

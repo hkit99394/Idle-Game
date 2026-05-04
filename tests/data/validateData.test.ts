@@ -34,6 +34,35 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid combat roles and targeting rules", () => {
+    const invalidData = {
+      ...staticData,
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "iron_fist_disciple"
+          ? { ...hero, combatRole: "duelist" }
+          : hero
+      ),
+      enemies: staticData.enemies.map((enemy) =>
+        enemy.id === "bamboo_bandit"
+          ? { ...enemy, combatRole: "ambusher" }
+          : enemy
+      ),
+      skills: staticData.skills.map((skill) =>
+        skill.id === "iron_fist_combo"
+          ? { ...skill, targetRule: "nearest" }
+          : skill
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Hero iron_fist_disciple combatRole must be one of tank, breaker, striker, support",
+        "Enemy bamboo_bandit combatRole must be one of tank, breaker, striker, support",
+        "Skill iron_fist_combo targetRule must be one of first_living, weakest_hp, highest_cp, inner_broken"
+      ])
+    );
+  });
+
   it("rejects invalid enemy formation slots", () => {
     const invalidData = {
       ...staticData,

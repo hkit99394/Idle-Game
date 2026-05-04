@@ -14,7 +14,7 @@ Stage 1.1 starting point:
 - Enemy stages can contain multiple enemies.
 - Combatants have CP and levels.
 - Offline farming and save utilities are available.
-- The active next epic is formation and targeting.
+- Epic 7 formation and targeting is complete; the next planned epic is martial arts growth.
 
 ## Recommended Roadmap
 
@@ -102,7 +102,7 @@ Backlog:
 - Balance report for every region.
 - Optional backend later for accounts and cloud save.
 
-## Suggested Next Epic
+## Completed Epic
 
 ### Epic 7: Formation And Targeting
 
@@ -121,14 +121,14 @@ Goal:
 
 | Epic | Status | Roadmap lane | Goal |
 | --- | --- | --- | --- |
-| Epic 7: Formation And Targeting | Not started | Combat Depth / Formation System | Make team position and target choice matter |
+| Epic 7: Formation And Targeting | Completed | Combat Depth / Formation System | Make team position and target choice matter |
 | Epic 8: Martial Arts Growth | Not started | Hero And Martial Arts Growth | Split growth into Outer Art, Inner Art, style mastery, and skill upgrades |
 | Epic 9: Region Content Expansion | Not started | Content Expansion | Add the next map identity after Bamboo Road |
 | Epic 10: Loot And Equipment | Not started | Loot And Equipment | Add simple equipment progression after formation behavior is stable |
 | Epic 11: Offline And Idle Depth | Not started | Offline And Idle Depth | Make farming choices previewable and intentional |
 | Epic 12: Technical Foundation | Not started | Technical Foundation | Prepare saves, core engine boundaries, and balance tools for larger content |
 
-Stage 1.1 should complete Epic 7 first. Epics 8-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions if Epic 7 takes the whole stage.
+Stage 1.1 completed Epic 7 first. Epics 8-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
 
 ## Epic 7 Tasks
 
@@ -156,7 +156,7 @@ Notes:
 
 ### 7.2 Combatant Position In Battle
 
-Status: In progress
+Status: Completed
 
 Task:
 
@@ -173,11 +173,12 @@ Notes:
 
 - Simulator combatant state now carries resolved formation slot.
 - Web combatant cards display the resolved slot.
-- Battle log and summary wording still need a later pass.
+- Battle log rows now include formation slot labels when naming combatants.
+- Battle summaries include contribution callouts with position and role labels.
 
 ### 7.3 Targeting Rules
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -192,9 +193,15 @@ Acceptance:
 - `inner_broken` targets a Qi Broken enemy when one exists, then falls back safely.
 - Targeting behavior is covered by unit tests.
 
+Notes:
+
+- Core targeting supports `first_living`, `weakest_hp`, `highest_cp`, and `inner_broken`.
+- `first_living` now follows front, middle, then back priority instead of raw array order.
+- Focused targeting tests cover every supported rule.
+
 ### 7.4 Role Identity
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -207,9 +214,15 @@ Acceptance:
 - MVP heroes keep their current identity while gaining explicit roles.
 - Roles can influence default targeting or UI labels without changing balance by accident.
 
+Notes:
+
+- Heroes and enemies now carry explicit `combatRole` data.
+- Supported roles are validated as tank, breaker, striker, and support.
+- The web combatant cards show combat role tags while keeping the existing flavor role text.
+
 ### 7.5 Player Formation UI
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -223,9 +236,15 @@ Acceptance:
 - The selected formation affects battle setup.
 - The UI remains usable on mobile.
 
+Notes:
+
+- Save progress now stores optional hero formation slots with default formation fallbacks.
+- The web UI includes a player formation panel with front, middle, and back controls.
+- Formation changes persist immediately and affect the next battle setup.
+
 ### 7.6 Enemy Formations
 
-Status: In progress
+Status: Completed
 
 Task:
 
@@ -241,11 +260,11 @@ Acceptance:
 Notes:
 
 - Bamboo Road stage data now declares enemy formation slots.
-- Targeting is not formation-aware yet; that remains in task 7.3.
+- Targeting is now formation-aware through task 7.3.
 
 ### 7.7 Battle Summary Improvements
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -259,9 +278,14 @@ Acceptance:
 - Summary works for both player and enemy teams.
 - The web UI shows the summary without cluttering the battle log.
 
+Notes:
+
+- Battle results now include per-combatant contribution records.
+- Web summaries call out top damage, Qi breaker, and carry contribution.
+
 ### 7.8 Simulator And Balance Report Updates
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -274,9 +298,15 @@ Acceptance:
 - At least one scenario proves non-front targeting rules.
 - Bamboo Road timing remains within intended MVP ranges or records explicit retune tasks.
 
+Notes:
+
+- Balance report stage rows include enemy formation slots.
+- Balance report includes frontline and non-front targeting scenarios.
+- Bamboo Road timing remains inside the existing target ranges.
+
 ### 7.9 Formation Test Coverage
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -288,6 +318,10 @@ Acceptance:
 - Targeting tests cover every supported targeting rule.
 - Battle resolution tests prove formation survives from stage/team setup into simulation.
 - Web state tests cover saving and applying player formation.
+
+Notes:
+
+- Coverage now spans data validation, target selection, team builders, save schema, simulator contributions, web state, and balance report scenarios.
 
 ## Epic 8: Martial Arts Growth
 

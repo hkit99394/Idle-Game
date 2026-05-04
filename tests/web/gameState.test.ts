@@ -76,6 +76,12 @@ describe("web game state", () => {
       targetName: "Sect"
     });
     expect(viewModel.playerCombatants).toHaveLength(4);
+    expect(viewModel.playerFormation.map((hero) => hero.formationSlot)).toEqual([
+      "front",
+      "middle",
+      "back",
+      "front"
+    ]);
     expect(viewModel.playerCombatants[0]).toMatchObject({
       name: "Iron Fist Disciple",
       outerHp: 180,
@@ -83,6 +89,7 @@ describe("web game state", () => {
       maxOuterHp: 180,
       maxInnerQi: 90,
       formationSlot: "front",
+      combatRole: "striker",
       level: 1,
       combatPower: 504
     });
@@ -94,6 +101,7 @@ describe("web game state", () => {
       maxOuterHp: 120,
       maxInnerQi: 60,
       formationSlot: "front",
+      combatRole: "striker",
       level: 1,
       combatPower: 259
     });
@@ -105,6 +113,28 @@ describe("web game state", () => {
       level: 1,
       combatPower: 259
     });
+  });
+
+  it("updates and applies player formation from web state", () => {
+    const state = createInitialWebGameState(staticData);
+    const nextState = webGameStateReducer(staticData, state, {
+      type: "set_hero_formation_slot",
+      heroId: "white_crane_swordsman",
+      slot: "front"
+    });
+    const viewModel = getWebGameViewModel(staticData, nextState);
+
+    expect(nextState.progress.formation?.white_crane_swordsman).toBe("front");
+    expect(
+      viewModel.playerFormation.find(
+        (hero) => hero.heroId === "white_crane_swordsman"
+      )?.formationSlot
+    ).toBe("front");
+    expect(
+      viewModel.playerCombatants.find(
+        (combatant) => combatant.definitionId === "white_crane_swordsman"
+      )?.formationSlot
+    ).toBe("front");
   });
 
   it("updates progress while staying on the selected stage after battle", () => {

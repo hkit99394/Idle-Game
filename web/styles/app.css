@@ -484,6 +484,126 @@ textarea {
   border-bottom: 1px solid #d6cdbc;
 }
 
+.formation-panel {
+  margin-bottom: 22px;
+  padding: 16px 0;
+  border-top: 1px solid #d6cdbc;
+  border-bottom: 1px solid #d6cdbc;
+}
+
+.formation-panel-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.formation-panel-heading h2 {
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.formation-panel-heading > span {
+  color: #4d4639;
+  font-weight: 800;
+}
+
+.formation-slots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.formation-slot {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.formation-slot strong,
+.formation-slot span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.formation-slot strong {
+  color: #1f5559;
+}
+
+.formation-slot span {
+  color: #4d4639;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.formation-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 12px;
+}
+
+.formation-hero {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.formation-hero strong,
+.formation-hero span {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.formation-hero span {
+  margin-top: 2px;
+  color: #6d6354;
+  font-size: 0.82rem;
+}
+
+.formation-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.formation-buttons button {
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 6px;
+  background: #f4efe5;
+  color: #4d4639;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.formation-buttons button:hover,
+.formation-buttons button:focus-visible {
+  border-color: #2e5f63;
+  outline: none;
+}
+
+.formation-buttons button.selected {
+  border-color: #2e5f63;
+  background: #2e5f63;
+  color: #fffaf0;
+}
+
 .upgrade-panel-heading {
   display: flex;
   flex-wrap: wrap;
@@ -726,7 +846,8 @@ h2 {
 .style-tag,
 .cp-tag,
 .level-tag,
-.slot-tag {
+.slot-tag,
+.role-tag {
   flex: 0 0 auto;
   max-width: 100%;
   min-height: 24px;
@@ -764,6 +885,14 @@ h2 {
   border: 1px solid #2e5f63;
   background: #e3f0f4;
   color: #1f5559;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.role-tag {
+  border: 1px solid #6f7f4f;
+  background: #edf1df;
+  color: #283315;
   font-size: 0.78rem;
   font-weight: 900;
 }
@@ -1199,6 +1328,10 @@ h2 {
     grid-template-columns: 1fr;
   }
 
+  .formation-slots {
+    grid-template-columns: 1fr;
+  }
+
   .save-text-grid {
     grid-template-columns: 1fr;
   }
@@ -1255,6 +1388,7 @@ h2 {
 
   .stage-card,
   .upgrade-card,
+  .formation-hero,
   .combatant-card {
     padding: 12px;
   }

@@ -5,6 +5,7 @@
     "family": "bandit",
     "type": "normal",
     "style": "blade",
+    "combatRole": "striker",
     "level": 1,
     "baseStats": {
       "maxOuterHp": 120,
@@ -29,6 +30,7 @@
     "family": "bandit",
     "type": "elite",
     "style": "palm",
+    "combatRole": "breaker",
     "level": 1,
     "baseStats": {
       "maxOuterHp": 660,
@@ -53,6 +55,7 @@
     "family": "iron_fort",
     "type": "boss",
     "style": "saber",
+    "combatRole": "tank",
     "level": 1,
     "baseStats": {
       "maxOuterHp": 1050,

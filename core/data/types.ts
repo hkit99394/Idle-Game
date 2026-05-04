@@ -1,5 +1,6 @@
 import type {
   BaseStats,
+  CombatRole,
   FormationSlot,
   MvpStyle,
   TargetRule
@@ -20,6 +21,7 @@ export type HeroDefinition = {
   name: string;
   style: MvpStyle;
   role: string;
+  combatRole: CombatRole;
   baseStats: BaseStats;
   skillIds: string[];
   passiveIds: string[];
@@ -42,6 +44,7 @@ export type EnemyDefinition = {
   family: string;
   type: "normal" | "elite" | "boss";
   style: string;
+  combatRole: CombatRole;
   level: number;
   baseStats: BaseStats;
   skillIds: string[];
