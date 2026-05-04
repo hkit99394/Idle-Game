@@ -24,6 +24,7 @@ import type {
   MasteryBonus,
   TeamId,
   PlayerProgress,
+  ApplyOfflineRewardsResult,
   PurchaseUpgradeInput,
   PurchaseUpgradeResult,
   ResolveStageBattleResult,
@@ -42,6 +43,7 @@ export type WebGameState = {
   progress: PlayerProgress;
   selectedStageId: string;
   selectedOfflineFarmStageId: string | null;
+  offlineSummary: OfflineRewardSummary | null;
   lastBattle: ResolveStageBattleResult | null;
   lastBattleStageId: string | null;
   lastPurchase: PurchaseUpgradeResult | null;
@@ -68,6 +70,9 @@ export type WebGameAction =
   | {
       type: "replace_progress";
       progress: PlayerProgress;
+    }
+  | {
+      type: "dismiss_offline_summary";
     };
 
 export type PurchaseGameUpgradeInput = Omit<PurchaseUpgradeInput, "progress">;
@@ -163,6 +168,20 @@ export type MasteryPanelView = {
   progressPercent: number;
 };
 
+export type OfflineRewardSummary = {
+  stageId: string;
+  offlineSeconds: number;
+  clears: number;
+  silver: number;
+  cultivation: number;
+  combatExperience: number;
+};
+
+export type OfflineRewardSummaryView = OfflineRewardSummary & {
+  stageName: string;
+  regionName: string;
+};
+
 function getDefaultFarmStageId(
   data: StaticGameData,
   progress: PlayerProgress
@@ -190,6 +209,23 @@ function normalizeSelectedStageId(
     : progress.currentStageId;
 }
 
+function createOfflineRewardSummary(
+  offlineRewards: ApplyOfflineRewardsResult | null
+): OfflineRewardSummary | null {
+  if (!offlineRewards?.ok || offlineRewards.rewards.clears <= 0) {
+    return null;
+  }
+
+  return {
+    stageId: offlineRewards.stageId,
+    offlineSeconds: offlineRewards.rewards.offlineSeconds,
+    clears: offlineRewards.rewards.clears,
+    silver: offlineRewards.rewards.silver,
+    cultivation: offlineRewards.rewards.cultivation,
+    combatExperience: offlineRewards.rewards.combatExperience
+  };
+}
+
 export function createInitialWebGameState(data: StaticGameData): WebGameState {
   const progress = createInitialPlayerProgress(data);
 
@@ -197,6 +233,7 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     progress,
     selectedStageId: progress.currentStageId,
     selectedOfflineFarmStageId: getDefaultFarmStageId(data, progress),
+    offlineSummary: null,
     lastBattle: null,
     lastBattleStageId: null,
     lastPurchase: null
@@ -205,7 +242,8 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
 
 export function createWebGameStateFromSave(
   data: StaticGameData,
-  save: SaveData
+  save: SaveData,
+  offlineSummary: OfflineRewardSummary | null = null
 ): WebGameState {
   return {
     progress: save.progress,
@@ -219,6 +257,7 @@ export function createWebGameStateFromSave(
       save.progress,
       save.selectedOfflineFarmStageId
     ),
+    offlineSummary,
     lastBattle: null,
     lastBattleStageId: null,
     lastPurchase: null
@@ -241,7 +280,11 @@ export function createInitialWebGameStateFromStorage(
   );
 
   return loadResult.ok
-    ? createWebGameStateFromSave(data, loadResult.save)
+    ? createWebGameStateFromSave(
+        data,
+        loadResult.save,
+        createOfflineRewardSummary(loadResult.offlineRewards)
+      )
     : createInitialWebGameState(data);
 }
 
@@ -335,6 +378,12 @@ export function webGameStateReducer(
         lastBattle: null,
         lastBattleStageId: null,
         lastPurchase: null
+      };
+
+    case "dismiss_offline_summary":
+      return {
+        ...state,
+        offlineSummary: null
       };
   }
 }
@@ -771,6 +820,24 @@ function buildMasteryPanel(
   };
 }
 
+function buildOfflineRewardSummaryView(
+  data: StaticGameData,
+  summary: OfflineRewardSummary | null
+): OfflineRewardSummaryView | null {
+  if (!summary) {
+    return null;
+  }
+
+  const stage = getStageById(data, summary.stageId);
+  const region = data.regions.find((candidate) => candidate.id === stage?.regionId);
+
+  return {
+    ...summary,
+    stageName: stage?.name ?? summary.stageId,
+    regionName: region?.name ?? stage?.regionId ?? "Unknown map"
+  };
+}
+
 function buildPlayerCombatantViews(
   data: StaticGameData,
   progress: PlayerProgress,
@@ -915,6 +982,7 @@ export function getWebGameViewModel(
     enemy,
     masterySummary: activeMasterySummary,
     masteryPanel: buildMasteryPanel(data, activeMasterySummary),
+    offlineSummary: buildOfflineRewardSummaryView(data, state.offlineSummary),
     lastBattle: state.lastBattle,
     lastBattleStage,
     battleEvents: buildBattleEventViews(data, state.lastBattle),
@@ -1012,6 +1080,12 @@ export function useWebGameState(data: StaticGameData) {
     });
   }, [dispatchAndPersist]);
 
+  const dismissOfflineSummary = useCallback(() => {
+    dispatch({
+      type: "dismiss_offline_summary"
+    });
+  }, []);
+
   const viewModel = useMemo(
     () => getWebGameViewModel(data, state),
     [data, state]
@@ -1024,6 +1098,7 @@ export function useWebGameState(data: StaticGameData) {
     battleSelectedStage,
     purchaseUpgrade,
     selectStage,
-    selectOfflineFarmStage
+    selectOfflineFarmStage,
+    dismissOfflineSummary
   };
 }

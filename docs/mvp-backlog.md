@@ -419,7 +419,7 @@ Acceptance:
 
 ### 4.6 Offline Summary UI
 
-Status: Not started
+Status: Completed
 
 Task:
 

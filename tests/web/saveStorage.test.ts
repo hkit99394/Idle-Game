@@ -5,8 +5,10 @@ import {
 } from "../../core";
 import {
   createInitialWebGameStateFromStorage,
+  getWebGameViewModel,
   purchaseGameUpgrade,
-  resolveSelectedStageBattle
+  resolveSelectedStageBattle,
+  webGameStateReducer
 } from "../../web/state/gameState";
 import {
   loadSaveDataFromStorage,
@@ -87,17 +89,40 @@ describe("web save storage", () => {
     ).toBeCloseTo(9);
     expect(firstLoadState.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
     expect(firstLoadState.progress.currentStageId).toBe("bamboo_road_2");
+    expect(firstLoadState.offlineSummary).toMatchObject({
+      stageId: "bamboo_road_1",
+      offlineSeconds: 30,
+      clears: 3,
+      silver: 18,
+      cultivation: 9,
+      combatExperience: 9
+    });
     expect(savedAfterFirstLoad.ok).toBe(true);
     if (!savedAfterFirstLoad.ok) {
       return;
     }
     expect(savedAfterFirstLoad.save.updatedAtMs).toBe(31_000);
     expect(savedAfterFirstLoad.save.lastOfflineRewardAtMs).toBe(31_000);
+    expect(
+      getWebGameViewModel(staticData, firstLoadState).offlineSummary
+    ).toMatchObject({
+      stageName: "Bamboo Road 1",
+      regionName: "Bamboo Road",
+      silver: 18,
+      cultivation: 9,
+      combatExperience: 9
+    });
+    expect(
+      webGameStateReducer(staticData, firstLoadState, {
+        type: "dismiss_offline_summary"
+      }).offlineSummary
+    ).toBeNull();
     expect(secondLoadState.progress.resources.silver).toBeCloseTo(18);
     expect(secondLoadState.progress.resources.cultivation).toBeCloseTo(9);
     expect(
       secondLoadState.progress.maps.bamboo_road.combatExperience
     ).toBeCloseTo(9);
+    expect(secondLoadState.offlineSummary).toBeNull();
   });
 
   it("falls back safely from invalid saved offline farm targets", () => {

@@ -16,7 +16,9 @@ describe("web game state", () => {
     expect(state.progress.currentStageId).toBe("bamboo_road_1");
     expect(state.selectedStageId).toBe("bamboo_road_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
+    expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
+    expect(viewModel.offlineSummary).toBeNull();
     expect(viewModel.enemy?.id).toBe("bamboo_bandit");
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();

@@ -7,6 +7,7 @@ import type {
   BattleEventView,
   BattleSummaryView,
   MasteryPanelView,
+  OfflineRewardSummaryView,
   PurchaseGameUpgradeInput,
   StageOptionView,
   UpgradeView
@@ -19,6 +20,27 @@ function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0
   }).format(Math.max(0, value));
+}
+
+function formatDuration(seconds: number): string {
+  const safeSeconds = Math.floor(Math.max(0, seconds));
+  const totalMinutes = Math.floor(safeSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  if (hours > 0) {
+    return `${hours}h`;
+  }
+
+  if (minutes > 0) {
+    return `${minutes}m`;
+  }
+
+  return `${Math.max(1, safeSeconds)}s`;
 }
 
 function getBarPercent(current: number, max: number): number {
@@ -271,6 +293,44 @@ function BattleLog({ events, summary }: BattleLogProps) {
   );
 }
 
+type OfflineSummaryPanelProps = {
+  onDismiss: () => void;
+  summary: OfflineRewardSummaryView | null;
+};
+
+function OfflineSummaryPanel({
+  onDismiss,
+  summary
+}: OfflineSummaryPanelProps) {
+  if (!summary) {
+    return null;
+  }
+
+  return (
+    <section className="offline-summary" aria-label="Offline rewards">
+      <div className="offline-summary-heading">
+        <div>
+          <span className="label">While Away</span>
+          <h2>{formatDuration(summary.offlineSeconds)} of farm training</h2>
+        </div>
+        <button type="button" onClick={onDismiss}>
+          Dismiss
+        </button>
+      </div>
+      <div className="offline-summary-meta">
+        <span>{summary.regionName}</span>
+        <span>{summary.stageName}</span>
+        <span>{formatNumber(summary.clears)} clears</span>
+      </div>
+      <div className="offline-summary-rewards">
+        <strong>{formatNumber(summary.silver)} silver</strong>
+        <strong>{formatNumber(summary.cultivation)} cultivation</strong>
+        <strong>{formatNumber(summary.combatExperience)} Combat XP</strong>
+      </div>
+    </section>
+  );
+}
+
 type StageSelectorPanelProps = {
   onSelectFarmStage: (stageId: string | null) => void;
   onSelectStage: (stageId: string) => void;
@@ -399,6 +459,7 @@ export function App() {
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const {
     battleSelectedStage,
+    dismissOfflineSummary,
     purchaseUpgrade,
     selectOfflineFarmStage,
     selectStage,
@@ -413,6 +474,7 @@ export function App() {
     lastBattleStage,
     lastPurchase,
     masteryPanel,
+    offlineSummary,
     playerCombatants,
     progress,
     selectedStage,
@@ -483,6 +545,10 @@ export function App() {
           <span>Cultivation {progress.resources.cultivation}</span>
           <span>Combat Exp {masteryPanel?.combatExperience ?? 0}</span>
         </div>
+        <OfflineSummaryPanel
+          onDismiss={dismissOfflineSummary}
+          summary={offlineSummary}
+        />
         <MasteryPanel mastery={masteryPanel} />
         <div className="action-row">
           <button type="button" onClick={battleSelectedStage}>
