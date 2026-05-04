@@ -3,7 +3,7 @@ import {
   cloneProgress,
   getMapRewardMultiplier,
   getStageById,
-  isOfflineFarmStageUnlocked
+  validateOfflineFarmStageTarget
 } from "../progression";
 import type { PlayerProgress } from "../progression";
 
@@ -104,7 +104,13 @@ export function applyOfflineRewards(
     };
   }
 
-  if (!isOfflineFarmStageUnlocked(input.data, input.progress, selectedStageId)) {
+  const validation = validateOfflineFarmStageTarget(
+    input.data,
+    input.progress,
+    selectedStageId
+  );
+
+  if (!validation.ok) {
     return {
       ok: false,
       reason: "invalid_farm_stage",

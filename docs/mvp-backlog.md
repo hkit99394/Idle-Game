@@ -387,7 +387,7 @@ Acceptance:
 
 ### 4.4 Offline Farm Target Validation
 
-Status: Not started
+Status: Completed
 
 Task:
 

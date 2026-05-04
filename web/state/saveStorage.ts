@@ -1,7 +1,8 @@
 import {
   applyOfflineRewards,
   createSaveData,
-  parseSaveData
+  parseSaveData,
+  setOfflineFarmStageTarget
 } from "../../core";
 import type {
   ApplyOfflineRewardsResult,
@@ -119,15 +120,23 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
   }
 
   const rewardTimeMs = Math.max(nowMs, loadResult.save.updatedAtMs);
+  const selectedOfflineFarmStageId = setOfflineFarmStageTarget(
+    data,
+    loadResult.save.progress,
+    loadResult.save.selectedOfflineFarmStageId
+  );
+  const farmTargetChanged =
+    selectedOfflineFarmStageId !== loadResult.save.selectedOfflineFarmStageId;
   const offlineRewards = applyOfflineRewards({
     data,
     progress: loadResult.save.progress,
-    selectedOfflineFarmStageId: loadResult.save.selectedOfflineFarmStageId,
+    selectedOfflineFarmStageId,
     lastSavedAtMs: loadResult.save.updatedAtMs,
     currentTimeMs: rewardTimeMs
   });
+  const hasRewards = offlineRewards.ok && offlineRewards.rewards.clears > 0;
 
-  if (!offlineRewards.ok || offlineRewards.rewards.clears === 0) {
+  if (!hasRewards && !farmTargetChanged) {
     return {
       ok: true,
       save: loadResult.save,
@@ -136,10 +145,12 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
   }
 
   const save = createSaveData({
-    progress: offlineRewards.progress,
-    selectedOfflineFarmStageId: loadResult.save.selectedOfflineFarmStageId,
-    nowMs: rewardTimeMs,
-    lastOfflineRewardAtMs: rewardTimeMs,
+    progress: hasRewards ? offlineRewards.progress : loadResult.save.progress,
+    selectedOfflineFarmStageId,
+    nowMs: hasRewards ? rewardTimeMs : loadResult.save.updatedAtMs,
+    lastOfflineRewardAtMs: hasRewards
+      ? rewardTimeMs
+      : loadResult.save.lastOfflineRewardAtMs,
     previousSave: loadResult.save
   });
 

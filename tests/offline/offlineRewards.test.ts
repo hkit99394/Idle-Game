@@ -75,8 +75,15 @@ describe("offline rewards", () => {
     expect(result.progress.currentStageId).toBe("bamboo_road_3");
   });
 
-  it("refuses locked and boss farm targets", () => {
+  it("refuses missing, locked, boss, and non-farmable targets", () => {
     const lockedProgress = createInitialPlayerProgress(staticData);
+    const missingResult = applyOfflineRewards({
+      data: staticData,
+      progress: lockedProgress,
+      selectedOfflineFarmStageId: "missing_stage",
+      lastSavedAtMs: 0,
+      currentTimeMs: 30_000
+    });
     const lockedResult = applyOfflineRewards({
       data: staticData,
       progress: lockedProgress,
@@ -94,7 +101,33 @@ describe("offline rewards", () => {
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
+    const notFarmableData = {
+      ...staticData,
+      stages: staticData.stages.map((stage) =>
+        stage.id === "bamboo_road_1"
+          ? {
+              ...stage,
+              canFarmOffline: false
+            }
+          : stage
+      )
+    };
+    const notFarmableProgress = createInitialPlayerProgress(staticData);
+    notFarmableProgress.maps.bamboo_road.highestClearedStageIndex = 1;
+    const notFarmableResult = applyOfflineRewards({
+      data: notFarmableData,
+      progress: notFarmableProgress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      lastSavedAtMs: 0,
+      currentTimeMs: 30_000
+    });
 
+    expect(missingResult.ok).toBe(false);
+    if (missingResult.ok) {
+      throw new Error("Missing farm target should be refused");
+    }
+    expect(missingResult.reason).toBe("invalid_farm_stage");
+    expect(missingResult.progress.resources.silver).toBe(0);
     expect(lockedResult.ok).toBe(false);
     if (lockedResult.ok) {
       throw new Error("Locked farm target should be refused");
@@ -107,5 +140,11 @@ describe("offline rewards", () => {
     }
     expect(bossResult.reason).toBe("invalid_farm_stage");
     expect(bossResult.progress.resources.silver).toBe(0);
+    expect(notFarmableResult.ok).toBe(false);
+    if (notFarmableResult.ok) {
+      throw new Error("Non-farmable target should be refused");
+    }
+    expect(notFarmableResult.reason).toBe("invalid_farm_stage");
+    expect(notFarmableResult.progress.resources.silver).toBe(0);
   });
 });

@@ -6,14 +6,14 @@ import {
   createInitialPlayerProgress,
   deriveStats,
   getActiveMasterySummaryForStage,
-  getRecommendedOfflineFarmStage,
   getStageById,
   getUpgradeLevel,
   hasClearedStage,
   isOfflineFarmStageUnlocked,
   isStageUnlocked,
   purchaseUpgrade as purchaseCoreUpgrade,
-  resolveStageBattle
+  resolveStageBattle,
+  setOfflineFarmStageTarget
 } from "../../core";
 import type {
   ActiveMasterySummary,
@@ -167,7 +167,7 @@ function getDefaultFarmStageId(
   data: StaticGameData,
   progress: PlayerProgress
 ): string | null {
-  return getRecommendedOfflineFarmStage(data, progress)?.id ?? null;
+  return setOfflineFarmStageTarget(data, progress, null);
 }
 
 function normalizeFarmStageId(
@@ -175,14 +175,7 @@ function normalizeFarmStageId(
   progress: PlayerProgress,
   selectedStageId: string | null
 ): string | null {
-  if (
-    selectedStageId &&
-    isOfflineFarmStageUnlocked(data, progress, selectedStageId)
-  ) {
-    return selectedStageId;
-  }
-
-  return getDefaultFarmStageId(data, progress);
+  return setOfflineFarmStageTarget(data, progress, selectedStageId);
 }
 
 function normalizeSelectedStageId(

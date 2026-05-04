@@ -100,6 +100,66 @@ describe("web save storage", () => {
     ).toBeCloseTo(9);
   });
 
+  it("falls back safely from invalid saved offline farm targets", () => {
+    const cases = [
+      {
+        name: "missing",
+        selectedOfflineFarmStageId: "missing_stage",
+        highestClearedStageIndex: 9,
+        currentStageId: "bamboo_road_10",
+        expectedFarmStageId: "bamboo_road_8"
+      },
+      {
+        name: "locked",
+        selectedOfflineFarmStageId: "bamboo_road_3",
+        highestClearedStageIndex: 1,
+        currentStageId: "bamboo_road_2",
+        expectedFarmStageId: "bamboo_road_1"
+      },
+      {
+        name: "boss",
+        selectedOfflineFarmStageId: "bamboo_road_10",
+        highestClearedStageIndex: 10,
+        currentStageId: "bamboo_road_10",
+        expectedFarmStageId: "bamboo_road_8"
+      }
+    ];
+
+    for (const testCase of cases) {
+      const storage = new MemoryStorage();
+      const progress = createInitialPlayerProgress(staticData);
+      progress.maps.bamboo_road.highestClearedStageIndex =
+        testCase.highestClearedStageIndex;
+      progress.currentStageId = testCase.currentStageId;
+      const save = createSaveData({
+        progress,
+        selectedOfflineFarmStageId: testCase.selectedOfflineFarmStageId,
+        nowMs: 1000
+      });
+
+      storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+      const state = createInitialWebGameStateFromStorage(
+        staticData,
+        storage,
+        1000
+      );
+      const normalizedSave = loadSaveDataFromStorage(staticData, storage);
+
+      expect(state.selectedOfflineFarmStageId, testCase.name).toBe(
+        testCase.expectedFarmStageId
+      );
+      expect(normalizedSave.ok, testCase.name).toBe(true);
+      if (!normalizedSave.ok) {
+        return;
+      }
+      expect(
+        normalizedSave.save.selectedOfflineFarmStageId,
+        testCase.name
+      ).toBe(testCase.expectedFarmStageId);
+    }
+  });
+
   it("falls back safely when stored save data is invalid", () => {
     const storage = new MemoryStorage();
     storage.setItem(WEB_SAVE_STORAGE_KEY, "{not json");
