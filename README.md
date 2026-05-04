@@ -7,7 +7,8 @@ Start with the main design draft:
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Planning Questions Before Analysis Stage](docs/planning-questions.md)
 - [Analysis Stage](docs/analysis-stage.md)
-- [MVP Backlog](docs/mvp-backlog.md)
+- [Stage 1.1 Backlog](docs/stage-1.1-backlog.md)
+- [Archived MVP Backlog](docs/archive/mvp-backlog.md)
 - [Balance Template CSV](docs/balance-template.csv)
 
 ## Development
