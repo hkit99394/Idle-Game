@@ -21,47 +21,16 @@ import { staticData } from "../helpers/staticData";
 function createTwoRegionData(): StaticGameData {
   return {
     ...staticData,
-    regions: [
-      ...staticData.regions,
-      {
-        id: "mist_valley",
-        name: "Mist Valley",
-        stageIds: ["mist_valley_1"],
-        unlockCondition: {
-          type: "stage_cleared",
-          stageId: "bamboo_road_10"
-        }
-      }
-    ],
-    stages: [
-      ...staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_10"
-          ? {
-              ...stage,
-              enemyTeam: {
-                combatantIds: ["bamboo_bandit"]
-              }
+    stages: staticData.stages.map((stage) =>
+      stage.id === "bamboo_road_10"
+        ? {
+            ...stage,
+            enemyTeam: {
+              combatantIds: ["bamboo_bandit"]
             }
-          : stage
-      ),
-      {
-        id: "mist_valley_1",
-        regionId: "mist_valley",
-        index: 1,
-        name: "Mist Valley 1",
-        enemyTeam: {
-          combatantIds: ["mist_palm_thug"]
-        },
-        isBoss: false,
-        canFarmOffline: true,
-        rewards: {
-          silver: 30,
-          cultivation: 15,
-          combatExperience: 12
-        },
-        nextStageId: null
-      }
-    ]
+          }
+        : stage
+    )
   };
 }
 
@@ -134,8 +103,9 @@ describe("stage progression helpers", () => {
   it("keeps current stage unchanged after a final boss with no next region", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.currentStageId = "bamboo_road_10";
-    const stage = getStageById(staticData, "bamboo_road_10");
+    progress.maps.mist_valley.highestClearedStageIndex = 6;
+    progress.currentStageId = "mist_valley_6";
+    const stage = getStageById(staticData, "mist_valley_6");
 
     expect(stage).toBeDefined();
     if (!stage) {
@@ -143,7 +113,7 @@ describe("stage progression helpers", () => {
     }
 
     expect(getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)).toBe(
-      "bamboo_road_10"
+      "mist_valley_6"
     );
   });
 
@@ -177,6 +147,36 @@ describe("stage progression helpers", () => {
     );
     expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_10")).toBe(
       false
+    );
+  });
+
+  it("unlocks and recommends farm stages across multiple regions", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 3;
+
+    expect(isRegionUnlocked(staticData, progress, "mist_valley")).toBe(true);
+    expect(isOfflineFarmStageUnlocked(staticData, progress, "mist_valley_3")).toBe(
+      true
+    );
+    expect(
+      getUnlockedOfflineFarmStages(staticData, progress).map((stage) => stage.id)
+    ).toEqual([
+      "bamboo_road_1",
+      "bamboo_road_2",
+      "bamboo_road_3",
+      "bamboo_road_4",
+      "bamboo_road_5",
+      "bamboo_road_6",
+      "bamboo_road_7",
+      "bamboo_road_8",
+      "bamboo_road_9",
+      "mist_valley_1",
+      "mist_valley_2",
+      "mist_valley_3"
+    ]);
+    expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
+      "mist_valley_3"
     );
   });
 

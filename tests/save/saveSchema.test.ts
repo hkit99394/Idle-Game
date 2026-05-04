@@ -201,4 +201,25 @@ describe("save schema", () => {
       ])
     );
   });
+
+  it("accepts old saves created before newer regions existed", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        maps: {
+          bamboo_road: save.progress.maps.bamboo_road
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(parseSaveData(staticData, oldSave).ok).toBe(true);
+  });
 });

@@ -19,6 +19,7 @@ describe("web game state", () => {
     expect(state.selectedOfflineFarmStageId).toBeNull();
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
+    expect(viewModel.selectedStageRegionName).toBe("Bamboo Road");
     expect(viewModel.offlineSummary).toBeNull();
     expect(viewModel.enemyTeamLabel).toBe("Bamboo Road Bandit x2");
     expect(viewModel.battleEvents).toEqual([]);
@@ -36,9 +37,10 @@ describe("web game state", () => {
       activeBonuses: [],
       progressPercent: 0
     });
-    expect(viewModel.stageOptions).toHaveLength(10);
+    expect(viewModel.stageOptions).toHaveLength(16);
     expect(viewModel.stageOptions[0]).toMatchObject({
       id: "bamboo_road_1",
+      regionName: "Bamboo Road",
       isUnlocked: true,
       isCleared: false,
       isSelectedStage: true,
@@ -47,6 +49,13 @@ describe("web game state", () => {
     });
     expect(viewModel.stageOptions[1]).toMatchObject({
       id: "bamboo_road_2",
+      isUnlocked: false,
+      canSelectStage: false,
+      canSelectOfflineFarm: false
+    });
+    expect(viewModel.stageOptions[10]).toMatchObject({
+      id: "mist_valley_1",
+      regionName: "Mist Valley",
       isUnlocked: false,
       canSelectStage: false,
       canSelectOfflineFarm: false
@@ -235,6 +244,47 @@ describe("web game state", () => {
 
     expect(nextState.selectedStageId).toBe("bamboo_road_1");
     expect(missingStageState.selectedStageId).toBe("bamboo_road_1");
+  });
+
+  it("shows unlocked Mist Valley stages and selected-region mastery", () => {
+    const state = createInitialWebGameState(staticData);
+    const progressedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        currentStageId: "mist_valley_1",
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 188,
+            highestClearedStageIndex: 10
+          },
+          mist_valley: {
+            combatExperience: 52,
+            highestClearedStageIndex: 2
+          }
+        }
+      }
+    });
+    const selectedState = webGameStateReducer(staticData, progressedState, {
+      type: "select_stage",
+      stageId: "mist_valley_2"
+    });
+    const viewModel = getWebGameViewModel(staticData, selectedState);
+
+    expect(selectedState.selectedStageId).toBe("mist_valley_2");
+    expect(viewModel.selectedStageRegionName).toBe("Mist Valley");
+    expect(viewModel.masteryPanel).toMatchObject({
+      regionId: "mist_valley",
+      regionName: "Mist Valley",
+      combatExperience: 52
+    });
+    expect(
+      viewModel.stageOptions.find((stage) => stage.id === "mist_valley_3")
+    ).toMatchObject({
+      isUnlocked: true,
+      canSelectStage: true
+    });
   });
 
   it("uses selected cleared stages as the automatic offline target", () => {

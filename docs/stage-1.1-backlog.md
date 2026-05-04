@@ -15,7 +15,9 @@ Stage 1.1 starting point:
 - Combatants have CP and levels.
 - Offline farming and save utilities are available.
 - Epic 7 formation and targeting is complete.
-- Epic 8 martial arts growth is complete; the next planned epic is region content expansion.
+- Epic 8 martial arts growth is complete.
+- Epic 9 region content expansion is complete; Mist Valley is the first post-tutorial region.
+- The next planned epic is loot and equipment.
 
 ## Recommended Roadmap
 
@@ -103,7 +105,7 @@ Backlog:
 - Balance report for every region.
 - Optional backend later for accounts and cloud save.
 
-## Completed Epic
+## Completed Epics
 
 ### Epic 7: Formation And Targeting
 
@@ -124,12 +126,12 @@ Goal:
 | --- | --- | --- | --- |
 | Epic 7: Formation And Targeting | Completed | Combat Depth / Formation System | Make team position and target choice matter |
 | Epic 8: Martial Arts Growth | Completed | Hero And Martial Arts Growth | Split growth into Outer Art, Inner Art, style mastery, and skill upgrades |
-| Epic 9: Region Content Expansion | Not started | Content Expansion | Add the next map identity after Bamboo Road |
+| Epic 9: Region Content Expansion | Completed | Content Expansion | Add Mist Valley after Bamboo Road and make multi-region systems work |
 | Epic 10: Loot And Equipment | Not started | Loot And Equipment | Add simple equipment progression after formation behavior is stable |
 | Epic 11: Offline And Idle Depth | Not started | Offline And Idle Depth | Make farming choices previewable and intentional |
 | Epic 12: Technical Foundation | Not started | Technical Foundation | Prepare saves, core engine boundaries, and balance tools for larger content |
 
-Stage 1.1 completed Epics 7 and 8 first. Epics 9-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
+Stage 1.1 completed Epics 7-9 first. Epics 10-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
 
 ## Epic 7 Tasks
 
@@ -421,11 +423,18 @@ Goal:
 
 ### 9.1 Region Plan And Enemy Families
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Define the next region set and enemy family themes.
+
+Implementation:
+
+- Mist Valley is implemented as the first post-Bamboo Road region.
+- Black Iron Fort remains planned as the armor and defense region.
+- Lotus Monastery remains planned as the healing and recovery region.
+- Demon Cult Outpost remains planned as the burst and debuff region.
 
 Acceptance:
 
@@ -435,13 +444,30 @@ Acceptance:
 - Demon Cult Outpost focuses on burst and debuffs.
 - Each region has a short balance identity and expected counterplay.
 
+Region identity:
+
+| Region | Balance identity | Expected counterplay |
+| --- | --- | --- |
+| Mist Valley | Palm and Hidden Weapon enemies pressure Inner Qi, use weakest HP / highest CP / inner-broken targeting, and force Qi Break awareness | Train Inner Art, keep frontliners durable, use Staff protection, and farm early Mist stages for map mastery |
+| Black Iron Fort | High armor, Blade guards, and defensive formations slow Outer HP damage | Build Outer Art, use Qi Breaks, and bring Palm/Sword pressure to bypass pure defense |
+| Lotus Monastery | Recovery, sustain, and support enemies stretch fights | Burst healers first, improve target selection, and add anti-recovery effects later |
+| Demon Cult Outpost | Burst damage, debuffs, and high-risk enemy skills punish weak backlines | Strengthen formation, protect carries, and use control/breaker roles to stop burst chains |
+
 ### 9.2 Mist Valley Prototype
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Add Mist Valley as the first post-Bamboo Road region.
+
+Implementation:
+
+- Added the Mist Valley region with six stages.
+- Added Mist Valley Acolyte, Veilstep Needler, Fog Staff Ward, Mist Palm Adept, and Mist Valley Elder.
+- Added Mist Palm Jab, Needle Flurry, Fog Staff Guard, Cloud Meridian Press, and Valley Heart Seal.
+- Mist Valley unlocks after clearing Bamboo Road 10.
+- The balance report now includes a Mist Valley section.
 
 Acceptance:
 
@@ -452,11 +478,19 @@ Acceptance:
 
 ### 9.3 Multi-Region Progression
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Make progression, farming, mastery, and battle reports work across multiple regions.
+
+Implementation:
+
+- Stage selection now lists stages from every region in region order.
+- Current stage progression can move from Bamboo Road into Mist Valley.
+- Offline farming validation and recommendations work across cleared farmable stages in multiple regions.
+- Mastery panels use the selected stage's region.
+- Save validation accepts older saves that do not yet contain newly added region progress.
 
 Acceptance:
 
@@ -658,6 +692,8 @@ Stage 1.1 core scope is complete when:
 - Web UI supports viewing and editing player formation.
 - Enemy stages can define formations.
 - Battle summary shows contribution highlights.
+- A post-tutorial region exists after Bamboo Road.
+- Region progression, farming, mastery, saves, and balance reports work across multiple regions.
 - Tests, typecheck, build, and simulate pass.
 
 Stage 1.1 roadmap planning is complete when:

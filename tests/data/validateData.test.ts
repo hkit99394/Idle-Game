@@ -115,6 +115,38 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid multi-region stage references", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "mist_valley"
+          ? {
+              ...region,
+              stageIds: [...region.stageIds, "bamboo_road_1", "missing_stage"]
+            }
+          : region
+      ),
+      stages: staticData.stages.map((stage) =>
+        stage.id === "mist_valley_1"
+          ? {
+              ...stage,
+              regionId: "missing_region",
+              nextStageId: "missing_next_stage"
+            }
+          : stage
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Stage mist_valley_1 references missing region missing_region",
+        "Stage mist_valley_1 references missing next stage missing_next_stage",
+        "Region mist_valley references missing stage missing_stage",
+        "Region mist_valley includes stage bamboo_road_1 from region bamboo_road"
+      ])
+    );
+  });
+
   it("rejects duplicate enemy formation combatant placement", () => {
     const invalidData: StaticGameData = {
       ...staticData,

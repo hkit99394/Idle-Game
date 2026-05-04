@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { StaticGameData } from "../../core";
 import {
   BAMBOO_ROAD_REGION_ID,
+  MIST_VALLEY_REGION_ID,
   buildBambooRoadBalanceReport,
   formatBalanceReport
 } from "../../tools/balanceReport";
@@ -42,11 +43,40 @@ describe("balance report", () => {
     });
   });
 
+  it("includes Mist Valley results from the region stage order", () => {
+    const report = buildBambooRoadBalanceReport(staticData);
+    const mistValley = staticData.regions.find(
+      (region) => region.id === MIST_VALLEY_REGION_ID
+    );
+
+    expect(mistValley).toBeDefined();
+    if (!mistValley) {
+      return;
+    }
+
+    expect(report.mistValleyBalance.regionName).toBe("Mist Valley");
+    expect(
+      report.mistValleyBalance.stageResults.map((stage) => stage.stageId)
+    ).toEqual(mistValley.stageIds);
+    expect(report.mistValleyBalance.stageResults[0]).toMatchObject({
+      ok: true,
+      winner: "player",
+      stageCleared: true,
+      enemyTypes: ["normal", "normal"],
+      enemyFormationSlots: ["front", "middle"]
+    });
+    expect(report.mistValleyBalance.stageResults.at(-1)).toMatchObject({
+      stageId: "mist_valley_6"
+    });
+  });
+
   it("formats a compact human-readable report", () => {
     const report = buildBambooRoadBalanceReport(staticData);
     const formatted = formatBalanceReport(report);
 
     expect(formatted).toContain("Bamboo Road Balance Report");
+    expect(formatted).toContain("Mist Valley Balance Report");
+    expect(formatted).toContain("mist_valley_6");
     expect(formatted).toContain("bamboo_road_10");
     expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("Formation Targeting");

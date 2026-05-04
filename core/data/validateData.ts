@@ -140,6 +140,28 @@ function validateStageEnemyRefs(
   );
 }
 
+function validateStageRegionRefs(
+  stages: StageDefinition[],
+  regionIds: Set<string>
+): string[] {
+  return stages.flatMap((stage) =>
+    regionIds.has(stage.regionId)
+      ? []
+      : [`Stage ${stage.id} references missing region ${stage.regionId}`]
+  );
+}
+
+function validateStageNextRefs(
+  stages: StageDefinition[],
+  stageIds: Set<string>
+): string[] {
+  return stages.flatMap((stage) =>
+    stage.nextStageId === null || stageIds.has(stage.nextStageId)
+      ? []
+      : [`Stage ${stage.id} references missing next stage ${stage.nextStageId}`]
+  );
+}
+
 function validateRegionStageRefs(
   regions: RegionDefinition[],
   stageIds: Set<string>
@@ -148,6 +170,25 @@ function validateRegionStageRefs(
     region.stageIds
       .filter((stageId) => !stageIds.has(stageId))
       .map((stageId) => `Region ${region.id} references missing stage ${stageId}`)
+  );
+}
+
+function validateRegionStageOwnership(
+  regions: RegionDefinition[],
+  stages: StageDefinition[]
+): string[] {
+  const stagesById = new Map(stages.map((stage) => [stage.id, stage]));
+
+  return regions.flatMap((region) =>
+    region.stageIds.flatMap((stageId) => {
+      const stage = stagesById.get(stageId);
+
+      return stage && stage.regionId !== region.id
+        ? [
+            `Region ${region.id} includes stage ${stageId} from region ${stage.regionId}`
+          ]
+        : [];
+    })
   );
 }
 
@@ -433,6 +474,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
   const stageIds = new Set(data.stages.map((stage) => stage.id));
   const styleIds = new Set(data.styles.map((style) => style.id));
+  const regionIds = new Set(data.regions.map((region) => region.id));
   const validationIds = {
     heroIds,
     stageIds,
@@ -444,7 +486,10 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   errors.push(...validateEnemySkillRefs(data.enemies, skillIds));
   errors.push(...validateEnemyStyleRefs(data.enemies, styleIds));
   errors.push(...validateStageEnemyRefs(data.stages, enemyIds));
+  errors.push(...validateStageRegionRefs(data.stages, regionIds));
+  errors.push(...validateStageNextRefs(data.stages, stageIds));
   errors.push(...validateRegionStageRefs(data.regions, stageIds));
+  errors.push(...validateRegionStageOwnership(data.regions, data.stages));
   for (const region of data.regions) {
     errors.push(
       ...validateUnlockCondition(

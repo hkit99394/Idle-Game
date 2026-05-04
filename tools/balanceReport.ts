@@ -17,6 +17,7 @@ import type {
 } from "../core";
 
 export const BAMBOO_ROAD_REGION_ID = "bamboo_road";
+export const MIST_VALLEY_REGION_ID = "mist_valley";
 
 export const TRAINED_BOSS_UPGRADES = {
   heroOuterTraining: 6,
@@ -82,6 +83,7 @@ function getRegionStageIds(data: StaticGameData, regionId: string): string[] {
 
 function getRegionBossStage(
   data: StaticGameData,
+  regionId: string,
   stageIds: string[]
 ): StageDefinition {
   const bossStage = stageIds
@@ -89,7 +91,7 @@ function getRegionBossStage(
     .find((stage) => stage.isBoss);
 
   if (!bossStage) {
-    throw new Error(`Missing boss stage in region ${BAMBOO_ROAD_REGION_ID}`);
+    throw new Error(`Missing boss stage in region ${regionId}`);
   }
 
   return bossStage;
@@ -116,6 +118,10 @@ function getTargetSeconds(
   }
 
   const enemyTypes = getStageEnemies(data, stage).map((enemy) => enemy.type);
+
+  if (stage.regionId === MIST_VALLEY_REGION_ID) {
+    return enemyTypes.includes("elite") ? [10, 25] : [5, 18];
+  }
 
   return enemyTypes.includes("elite") ? [20, 40] : [5, 15];
 }
@@ -418,14 +424,17 @@ function buildFormationScenarioReport(data: StaticGameData) {
   };
 }
 
-export function buildBambooRoadBalanceReport(data: StaticGameData) {
-  const bambooRoadStageIds = getRegionStageIds(data, BAMBOO_ROAD_REGION_ID);
-  const trainedBossPlan = createTrainedBossPlan(data);
-  let progress = createInitialPlayerProgress(data);
+function buildRegionStageProgressionReport(
+  data: StaticGameData,
+  regionId: string,
+  startingProgress: PlayerProgress
+) {
+  const stageIds = getRegionStageIds(data, regionId);
+  let progress = cloneProgress(startingProgress);
   const stageResults: Array<ReturnType<typeof summarizeBattle>> = [];
   let progressBeforeBoss = cloneProgress(progress);
 
-  for (const stageId of bambooRoadStageIds) {
+  for (const stageId of stageIds) {
     const stage = getStage(data, stageId);
 
     if (stage.isBoss) {
@@ -445,7 +454,31 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
     }
   }
 
-  const bossStage = getRegionBossStage(data, bambooRoadStageIds);
+  return {
+    regionId,
+    regionName:
+      data.regions.find((region) => region.id === regionId)?.name ?? regionId,
+    stageResults,
+    progressBeforeBoss,
+    progressAfterRegion: progress
+  };
+}
+
+export function buildBambooRoadBalanceReport(data: StaticGameData) {
+  const bambooRoadStageIds = getRegionStageIds(data, BAMBOO_ROAD_REGION_ID);
+  const trainedBossPlan = createTrainedBossPlan(data);
+  const bambooRoadProgression = buildRegionStageProgressionReport(
+    data,
+    BAMBOO_ROAD_REGION_ID,
+    createInitialPlayerProgress(data)
+  );
+  const stageResults = bambooRoadProgression.stageResults;
+  const progressBeforeBoss = bambooRoadProgression.progressBeforeBoss;
+  const bossStage = getRegionBossStage(
+    data,
+    BAMBOO_ROAD_REGION_ID,
+    bambooRoadStageIds
+  );
   const baselineBoss = resolveStageBattle(data, {
     progress: progressBeforeBoss,
     stageId: bossStage.id,
@@ -487,6 +520,15 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
     stageId: bossStage.id,
     maxDurationSeconds: 180
   });
+  const progressAfterBambooRoad =
+    trainedBoss.ok && trainedBoss.stageCleared
+      ? trainedBoss.progress
+      : trainedBossProgress;
+  const mistValleyBalance = buildRegionStageProgressionReport(
+    data,
+    MIST_VALLEY_REGION_ID,
+    progressAfterBambooRoad
+  );
   const bambooRoadProgressBeforeBoss = progressBeforeBoss.maps[
     BAMBOO_ROAD_REGION_ID
   ] ?? {
@@ -559,7 +601,8 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
         nextMastery
       },
       formationScenarios: buildFormationScenarioReport(data)
-    }
+    },
+    mistValleyBalance
   };
 }
 
@@ -624,8 +667,10 @@ function formatBossLine(stage: StageSummary): string {
   return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks`;
 }
 
-export function formatBalanceReport(report: BambooRoadBalanceReport): string {
-  const balance = report.bambooRoadBalance;
+function formatRegionStageTable(
+  title: string,
+  stages: StageSummary[]
+): string[] {
   const header = [
     "stage".padEnd(14),
     "enemy".padEnd(16),
@@ -637,6 +682,18 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     "target".padEnd(10)
   ].join("  ");
   const divider = "-".repeat(header.length);
+
+  return [
+    title,
+    "",
+    header,
+    divider,
+    ...stages.map(formatStageRow)
+  ];
+}
+
+export function formatBalanceReport(report: BambooRoadBalanceReport): string {
+  const balance = report.bambooRoadBalance;
   const firstMastery = balance.upgradeEconomy.firstMastery;
   const trainingEconomy = balance.bossGate.economy.trainingEconomy;
   const trainingLine = trainingEconomy.ok
@@ -644,11 +701,14 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     : `not affordable: ${trainingEconomy.reason}`;
 
   return [
-    "Bamboo Road Balance Report",
+    "Stage 1.1 Balance Report",
     "",
-    header,
-    divider,
-    ...balance.stageResults.map(formatStageRow),
+    ...formatRegionStageTable("Bamboo Road Balance Report", balance.stageResults),
+    "",
+    ...formatRegionStageTable(
+      "Mist Valley Balance Report",
+      report.mistValleyBalance.stageResults
+    ),
     "",
     "Formation Targeting",
     `- first_living frontline target: ${balance.formationScenarios.firstLivingFrontlineTargetId}`,

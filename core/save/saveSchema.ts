@@ -186,6 +186,10 @@ function validateMaps(
   }
 
   for (const region of data.regions) {
+    if (value[region.id] === undefined) {
+      continue;
+    }
+
     validateMapProgress(value[region.id], `progress.maps.${region.id}`, errors);
   }
 

@@ -532,11 +532,11 @@ function StageSelectorPanel({
   }
 
   return (
-    <section className="stage-selector" aria-label="Bamboo Road stages">
+    <section className="stage-selector" aria-label="Stage routes">
       <div className="stage-selector-heading">
         <div>
           <span className="label">Route</span>
-          <h2>Bamboo Road</h2>
+          <h2>Map Routes</h2>
         </div>
         <span>{stages.filter((stage) => stage.isCleared).length} cleared</span>
       </div>
@@ -566,7 +566,7 @@ function StageSelectorPanel({
               <div className="stage-card-heading">
                 <div>
                   <strong>{stage.name}</strong>
-                  <span>Stage {stage.index}</span>
+                  <span>{stage.regionName} · Stage {stage.index}</span>
                 </div>
                 <span>
                   {stage.isSelectedStage
@@ -983,6 +983,7 @@ function GameApp() {
     playerFormation,
     progress,
     selectedStage,
+    selectedStageRegionName,
     skillUpgrades,
     stageOptions,
     styleMastery,
@@ -1079,6 +1080,7 @@ function GameApp() {
             <h1>{selectedStage?.name ?? "Unknown Stage"}</h1>
           </div>
           <div className="stage-meta">
+            <span>{selectedStageRegionName}</span>
             <span>{stageType}</span>
             <span>Stage {selectedStage?.index ?? "-"}</span>
             <span>{enemyTeamLabel}</span>

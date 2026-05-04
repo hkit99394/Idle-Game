@@ -206,6 +206,8 @@ export type SkillUpgradeView = {
 
 export type StageOptionView = {
   id: string;
+  regionId: string;
+  regionName: string;
   name: string;
   index: number;
   isBoss: boolean;
@@ -1174,16 +1176,35 @@ function buildStageOptions(
   selectedStageId: string,
   selectedOfflineFarmStageId: string | null
 ): StageOptionView[] {
-  const bambooRoad = data.regions.find((region) => region.id === "bamboo_road");
-  const stageIds = bambooRoad?.stageIds ?? data.stages.map((stage) => stage.id);
+  const seenStageIds = new Set<string>();
+  const orderedStages = data.regions.flatMap((region) =>
+    region.stageIds.flatMap((stageId) => {
+      const stage = getStageById(data, stageId);
 
-  return stageIds.flatMap((stageId) => {
-    const stage = getStageById(data, stageId);
+      if (!stage) {
+        return [];
+      }
 
-    if (!stage) {
-      return [];
-    }
+      seenStageIds.add(stage.id);
 
+      return [
+        {
+          stage,
+          regionName: region.name
+        }
+      ];
+    })
+  );
+  const unlistedStages = data.stages
+    .filter((stage) => !seenStageIds.has(stage.id))
+    .map((stage) => ({
+      stage,
+      regionName:
+        data.regions.find((region) => region.id === stage.regionId)?.name ??
+        stage.regionId
+    }));
+
+  return [...orderedStages, ...unlistedStages].map(({ stage, regionName }) => {
     const isUnlocked = isStageUnlocked(data, progress, stage);
     const isCleared = hasClearedStage(progress, stage);
     const canSelectOfflineFarm = isOfflineFarmStageUnlocked(
@@ -1194,6 +1215,8 @@ function buildStageOptions(
 
     return {
       id: stage.id,
+      regionId: stage.regionId,
+      regionName,
       name: stage.name,
       index: stage.index,
       isBoss: stage.isBoss,
@@ -1409,6 +1432,17 @@ function getSaveToolErrorMessage(reason: string): string {
   }
 }
 
+function getCurrentRegionHighestClearedStageIndex(
+  data: StaticGameData,
+  progress: PlayerProgress
+): number {
+  const currentStage = getStageById(data, progress.currentStageId);
+
+  return currentStage
+    ? progress.maps[currentStage.regionId]?.highestClearedStageIndex ?? 0
+    : 0;
+}
+
 function buildSaveDiagnostics(
   data: StaticGameData,
   state: WebGameState
@@ -1427,8 +1461,10 @@ function buildSaveDiagnostics(
       lastOfflineRewardAtMs: null,
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
-      highestClearedStageIndex:
-        state.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+        data,
+        state.progress
+      ),
       autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
       errors: ["Browser save storage is unavailable"]
     };
@@ -1450,8 +1486,10 @@ function buildSaveDiagnostics(
       lastOfflineRewardAtMs: null,
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
-      highestClearedStageIndex:
-        state.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+        data,
+        state.progress
+      ),
       autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
       errors: [error instanceof Error ? error.message : "Unable to read save"]
     };
@@ -1471,8 +1509,10 @@ function buildSaveDiagnostics(
       lastOfflineRewardAtMs: null,
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
-      highestClearedStageIndex:
-        state.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+        data,
+        state.progress
+      ),
       autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
       errors: loadResult.errors
     };
@@ -1491,8 +1531,10 @@ function buildSaveDiagnostics(
     lastOfflineRewardAtMs: save.lastOfflineRewardAtMs,
     currentStageId: save.progress.currentStageId,
     selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
-    highestClearedStageIndex:
-      save.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+    highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+      data,
+      save.progress
+    ),
     autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
     errors: []
   };
@@ -1642,6 +1684,9 @@ export function getWebGameViewModel(
   state: WebGameState
 ) {
   const selectedStage = getStageById(data, state.selectedStageId);
+  const selectedStageRegion = data.regions.find(
+    (region) => region.id === selectedStage?.regionId
+  );
   const enemyTeamLabel = buildEnemyTeamLabel(data, selectedStage);
   const selectedOfflineFarmStage = state.selectedOfflineFarmStageId
     ? getStageById(data, state.selectedOfflineFarmStageId)
@@ -1680,6 +1725,8 @@ export function getWebGameViewModel(
   return {
     progress: state.progress,
     selectedStage,
+    selectedStageRegionName:
+      selectedStageRegion?.name ?? selectedStage?.regionId ?? "Unknown map",
     selectedOfflineFarmStage,
     stageOptions: buildStageOptions(
       data,

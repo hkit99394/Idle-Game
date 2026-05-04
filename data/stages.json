@@ -138,5 +138,89 @@
     "canFarmOffline": false,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 100 },
     "nextStageId": null
+  },
+  {
+    "id": "mist_valley_1",
+    "regionId": "mist_valley",
+    "index": 1,
+    "name": "Mist Valley Gate",
+    "enemyTeam": {
+      "combatantIds": ["mist_valley_acolyte", "mist_valley_acolyte"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 66, "cultivation": 34, "combatExperience": 24 },
+    "nextStageId": "mist_valley_2"
+  },
+  {
+    "id": "mist_valley_2",
+    "regionId": "mist_valley",
+    "index": 2,
+    "name": "Reed Fog Ambush",
+    "enemyTeam": {
+      "combatantIds": ["mist_valley_acolyte", "veilstep_needler"],
+      "formation": { "front": [0], "middle": [], "back": [1] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 78, "cultivation": 40, "combatExperience": 26 },
+    "nextStageId": "mist_valley_3"
+  },
+  {
+    "id": "mist_valley_3",
+    "regionId": "mist_valley",
+    "index": 3,
+    "name": "Clouded Meridian Path",
+    "enemyTeam": {
+      "combatantIds": ["fog_staff_ward", "mist_valley_acolyte", "mist_valley_acolyte"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 92, "cultivation": 46, "combatExperience": 28 },
+    "nextStageId": "mist_valley_4"
+  },
+  {
+    "id": "mist_valley_4",
+    "regionId": "mist_valley",
+    "index": 4,
+    "name": "Needle Rain Crossing",
+    "enemyTeam": {
+      "combatantIds": ["mist_valley_acolyte", "veilstep_needler", "veilstep_needler"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 116, "cultivation": 58, "combatExperience": 34 },
+    "nextStageId": "mist_valley_5"
+  },
+  {
+    "id": "mist_valley_5",
+    "regionId": "mist_valley",
+    "index": 5,
+    "name": "Veil Palm Shrine",
+    "enemyTeam": {
+      "combatantIds": ["fog_staff_ward", "mist_palm_adept"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 40 },
+    "nextStageId": "mist_valley_6"
+  },
+  {
+    "id": "mist_valley_6",
+    "regionId": "mist_valley",
+    "index": 6,
+    "name": "Mist Valley Elder",
+    "enemyTeam": {
+      "combatantIds": ["fog_staff_ward", "mist_valley_elder", "veilstep_needler"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": true,
+    "canFarmOffline": false,
+    "rewards": { "silver": 340, "cultivation": 170, "combatExperience": 160 },
+    "nextStageId": null
   }
 ]
