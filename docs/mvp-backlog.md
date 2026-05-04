@@ -404,7 +404,7 @@ Acceptance:
 
 ### 4.5 Offline Reward Idempotency Test
 
-Status: Not started
+Status: Completed
 
 Task:
 
