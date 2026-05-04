@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import "./styles/app.css";
-import type { MasteryBonus, ResolveStageBattleResult } from "../core";
+import type { ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
 import type {
   BattleCombatantView,
   BattleEventView,
   BattleSummaryView,
+  MasteryPanelView,
   PurchaseGameUpgradeInput,
   StageOptionView,
   UpgradeView
@@ -13,25 +14,6 @@ import type {
 import { useWebGameState } from "./state/gameState";
 
 const AUTO_RUN_INTERVAL_MS = 1200;
-
-function formatPercent(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 1,
-    style: "percent",
-    signDisplay: "always"
-  }).format(value);
-}
-
-function formatBonus(bonus: MasteryBonus): string {
-  switch (bonus.type) {
-    case "map_outer_and_inner_attack_multiplier":
-      return `${formatPercent(bonus.value)} outer and inner attack`;
-    case "map_reward_multiplier":
-      return `${formatPercent(bonus.value)} stage rewards`;
-    case "enemy_family_damage_multiplier":
-      return `${formatPercent(bonus.value)} damage to enemy family`;
-  }
-}
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -108,6 +90,14 @@ function StatBar({ className, current, label, max }: BarProps) {
   );
 }
 
+function formatSignedPercent(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 1,
+    signDisplay: "always",
+    style: "percent"
+  }).format(value);
+}
+
 type CombatantCardProps = {
   combatant: BattleCombatantView;
 };
@@ -165,6 +155,78 @@ function TeamPanel({ combatants, title }: TeamPanelProps) {
         {combatants.map((combatant) => (
           <CombatantCard key={combatant.instanceId} combatant={combatant} />
         ))}
+      </div>
+    </section>
+  );
+}
+
+type MasteryPanelProps = {
+  mastery: MasteryPanelView | null;
+};
+
+function MasteryPanel({ mastery }: MasteryPanelProps) {
+  if (!mastery) {
+    return null;
+  }
+
+  const progressWidth = `${Math.round(mastery.progressPercent * 100)}%`;
+  const nextThresholdLabel = mastery.nextThreshold
+    ? `${formatNumber(mastery.nextThreshold.experience)} XP for ${mastery.nextThreshold.rank}`
+    : "All thresholds reached";
+
+  return (
+    <section className="mastery-panel" aria-label="Map mastery">
+      <div className="mastery-panel-heading">
+        <div>
+          <span className="label">Mastery</span>
+          <h2>{mastery.regionName}</h2>
+        </div>
+        <div className="mastery-xp">
+          {formatNumber(mastery.combatExperience)} Combat XP
+        </div>
+      </div>
+      <div className="mastery-progress">
+        <div className="bar-label">
+          <span>Next Threshold</span>
+          <strong>{nextThresholdLabel}</strong>
+        </div>
+        <div
+          className="mastery-meter"
+          role="meter"
+          aria-label={`${mastery.regionName} mastery progress`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(mastery.progressPercent * 100)}
+        >
+          <span style={{ width: progressWidth }} />
+        </div>
+        {mastery.nextThreshold ? (
+          <span className="mastery-next">
+            {formatNumber(mastery.nextThreshold.remainingExperience)} XP remaining
+          </span>
+        ) : null}
+      </div>
+      <div className="mastery-columns">
+        <div>
+          <span className="label">Reached Ranks</span>
+          <div className="mastery-chips">
+            {mastery.reachedRanks.length > 0
+              ? mastery.reachedRanks.map((rank) => (
+                  <span key={rank}>{rank}</span>
+                ))
+              : <span>Unfamiliar</span>}
+          </div>
+        </div>
+        <div>
+          <span className="label">Active Bonuses</span>
+          <div className="mastery-chips">
+            {mastery.activeBonuses.length > 0
+              ? mastery.activeBonuses.map((bonus) => (
+                  <span key={bonus.key}>{bonus.label}</span>
+                ))
+              : <span>{formatSignedPercent(0)} active bonuses</span>}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -311,7 +373,7 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
               <span>Level {upgrade.level}</span>
               <span>Cost {formatNumber(upgrade.cost)}</span>
               <span>{upgrade.stat}</span>
-              <span>{formatPercent(upgrade.effectPercent)} per level</span>
+              <span>{formatSignedPercent(upgrade.effectPercent)} per level</span>
             </div>
             <button
               type="button"
@@ -350,15 +412,13 @@ export function App() {
     lastBattle,
     lastBattleStage,
     lastPurchase,
-    masterySummary: summary,
+    masteryPanel,
     playerCombatants,
     progress,
-    selectedOfflineFarmStage,
     selectedStage,
     stageOptions,
     upgrades
   } = viewModel;
-  const activeBonuses = summary?.activeBonuses ?? [];
   const resultStageName =
     lastBattleStage?.name ?? selectedStage?.name ?? "Unknown Stage";
   const battleStatus = getBattleResultText(lastBattle, resultStageName);
@@ -421,34 +481,9 @@ export function App() {
         <div className="resource-row">
           <span>Silver {progress.resources.silver}</span>
           <span>Cultivation {progress.resources.cultivation}</span>
-          <span>Combat Exp {summary?.combatExperience ?? 0}</span>
+          <span>Combat Exp {masteryPanel?.combatExperience ?? 0}</span>
         </div>
-        <section className="mastery-row" aria-label="Map mastery">
-          <div>
-            <span className="label">Map</span>
-            <strong>{selectedStage?.name ?? "Unknown Stage"}</strong>
-          </div>
-          <div>
-            <span className="label">Rank</span>
-            <strong>{summary?.reachedRanks.at(-1) ?? "unfamiliar"}</strong>
-          </div>
-          <div>
-            <span className="label">Farm</span>
-            <strong>{selectedOfflineFarmStage?.name ?? "None"}</strong>
-          </div>
-          <div className="mastery-bonuses">
-            <span className="label">Active Bonuses</span>
-            <div>
-              {activeBonuses.length > 0
-                ? activeBonuses.map((bonus) => (
-                    <span key={`${bonus.type}-${bonus.value}`}>
-                      {formatBonus(bonus)}
-                    </span>
-                  ))
-                : <span>None</span>}
-            </div>
-          </div>
-        </section>
+        <MasteryPanel mastery={masteryPanel} />
         <div className="action-row">
           <button type="button" onClick={battleSelectedStage}>
             Start Battle

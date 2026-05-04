@@ -20,6 +20,19 @@ describe("web game state", () => {
     expect(viewModel.enemy?.id).toBe("bamboo_bandit");
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();
+    expect(viewModel.masteryPanel).toMatchObject({
+      regionId: "bamboo_road",
+      regionName: "Bamboo Road",
+      combatExperience: 0,
+      reachedRanks: [],
+      nextThreshold: {
+        experience: 100,
+        rank: "familiar",
+        remainingExperience: 100
+      },
+      activeBonuses: [],
+      progressPercent: 0
+    });
     expect(viewModel.stageOptions).toHaveLength(10);
     expect(viewModel.stageOptions[0]).toMatchObject({
       id: "bamboo_road_1",
@@ -170,6 +183,72 @@ describe("web game state", () => {
       isCleared: true,
       canSelectOfflineFarm: false
     });
+  });
+
+  it("builds mastery panel thresholds, ranks, and active bonuses", () => {
+    const state = createInitialWebGameState(staticData);
+    const familiarState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 120,
+            highestClearedStageIndex: 4
+          }
+        }
+      }
+    });
+    const trainedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 600,
+            highestClearedStageIndex: 8
+          }
+        }
+      }
+    });
+    const familiarMastery = getWebGameViewModel(
+      staticData,
+      familiarState
+    ).masteryPanel;
+    const trainedMastery = getWebGameViewModel(
+      staticData,
+      trainedState
+    ).masteryPanel;
+
+    expect(familiarMastery).toMatchObject({
+      combatExperience: 120,
+      reachedRanks: ["familiar"],
+      nextThreshold: {
+        experience: 500,
+        rank: "trained",
+        remainingExperience: 380
+      }
+    });
+    expect(familiarMastery?.progressPercent).toBeCloseTo(0.24);
+    expect(familiarMastery?.activeBonuses.map((bonus) => bonus.label)).toEqual([
+      "+1% Outer and Inner attack"
+    ]);
+    expect(trainedMastery).toMatchObject({
+      combatExperience: 600,
+      reachedRanks: ["familiar", "trained"],
+      nextThreshold: {
+        experience: 3000,
+        rank: "mastered",
+        remainingExperience: 2400
+      }
+    });
+    expect(trainedMastery?.progressPercent).toBeCloseTo(0.2);
+    expect(trainedMastery?.activeBonuses.map((bonus) => bonus.label)).toEqual([
+      "+1% Outer and Inner attack",
+      "+2% stage rewards"
+    ]);
   });
 
   it("builds readable battle playback rows for Qi Break events", () => {

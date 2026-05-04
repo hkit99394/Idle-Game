@@ -320,7 +320,7 @@ Acceptance:
 
 ### 3.6 Mastery Panel
 
-Status: Not started
+Status: Completed
 
 Task:
 

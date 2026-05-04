@@ -16,10 +16,12 @@ import {
   resolveStageBattle
 } from "../../core";
 import type {
+  ActiveMasterySummary,
   BattleEvent,
   CombatantInstanceDefinition,
   CombatantState,
   DerivedStats,
+  MasteryBonus,
   TeamId,
   PlayerProgress,
   PurchaseUpgradeInput,
@@ -132,6 +134,25 @@ export type StageOptionView = {
     cultivation: number;
     combatExperience: number;
   };
+};
+
+export type MasteryBonusView = {
+  key: string;
+  label: string;
+};
+
+export type MasteryPanelView = {
+  regionId: string;
+  regionName: string;
+  combatExperience: number;
+  reachedRanks: string[];
+  nextThreshold: {
+    experience: number;
+    rank: string;
+    remainingExperience: number;
+  } | null;
+  activeBonuses: MasteryBonusView[];
+  progressPercent: number;
 };
 
 function getDefaultFarmStageId(
@@ -645,6 +666,68 @@ function buildStageOptions(
   });
 }
 
+function formatMasteryPercent(value: number): string {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 1,
+    signDisplay: "always",
+    style: "percent"
+  }).format(value);
+}
+
+function formatMasteryBonus(bonus: MasteryBonus): string {
+  switch (bonus.type) {
+    case "map_outer_and_inner_attack_multiplier":
+      return `${formatMasteryPercent(bonus.value)} Outer and Inner attack`;
+    case "map_reward_multiplier":
+      return `${formatMasteryPercent(bonus.value)} stage rewards`;
+    case "enemy_family_damage_multiplier":
+      return `${formatMasteryPercent(bonus.value)} damage to enemy family`;
+  }
+}
+
+function buildMasteryPanel(
+  data: StaticGameData,
+  summary: ActiveMasterySummary | null
+): MasteryPanelView | null {
+  if (!summary) {
+    return null;
+  }
+
+  const region = data.regions.find(
+    (candidate) => candidate.id === summary.regionId
+  );
+  const nextThreshold = summary.nextThreshold
+    ? {
+        experience: summary.nextThreshold.experience,
+        rank: summary.nextThreshold.rank,
+        remainingExperience: Math.max(
+          0,
+          summary.nextThreshold.experience - summary.combatExperience
+        )
+      }
+    : null;
+  const progressTargetExperience =
+    nextThreshold?.experience ??
+    data.mastery.thresholds.at(-1)?.experience ??
+    summary.combatExperience;
+
+  return {
+    regionId: summary.regionId,
+    regionName: region?.name ?? summary.regionId,
+    combatExperience: summary.combatExperience,
+    reachedRanks: summary.reachedRanks,
+    nextThreshold,
+    activeBonuses: summary.activeBonuses.map((bonus, index) => ({
+      key: `${bonus.type}-${bonus.value}-${index}`,
+      label: formatMasteryBonus(bonus)
+    })),
+    progressPercent:
+      progressTargetExperience > 0
+        ? Math.min(summary.combatExperience / progressTargetExperience, 1)
+        : 0
+  };
+}
+
 function buildPlayerCombatantViews(
   data: StaticGameData,
   progress: PlayerProgress,
@@ -752,6 +835,7 @@ export function getWebGameViewModel(
     state.progress,
     state.selectedStageId
   );
+  const activeMasterySummary = masterySummary.ok ? masterySummary.summary : null;
   const successfulLastBattle = state.lastBattle?.ok ? state.lastBattle : null;
   const showFinalCombatants =
     successfulLastBattle !== null &&
@@ -786,7 +870,8 @@ export function getWebGameViewModel(
       ? buildEnemyCombatantViews(data, selectedStage.id, finalEnemyTeam)
       : [],
     enemy,
-    masterySummary: masterySummary.ok ? masterySummary.summary : null,
+    masterySummary: activeMasterySummary,
+    masteryPanel: buildMasteryPanel(data, activeMasterySummary),
     lastBattle: state.lastBattle,
     lastBattleStage,
     battleEvents: buildBattleEventViews(data, state.lastBattle),
