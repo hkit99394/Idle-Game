@@ -1,5 +1,6 @@
 import {
   applyOfflineRewards,
+  createInitialPlayerProgress,
   createSaveData,
   parseSaveData,
   setOfflineFarmStageTarget
@@ -45,6 +46,27 @@ export type SaveStateToStorageResult =
       reason: "storage_error";
       errors: string[];
     };
+
+export type ExportSaveDataFromStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+      json: string;
+    }
+  | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
+
+export type ImportSaveDataToStorageResult =
+  | {
+      ok: true;
+      save: SaveData;
+    }
+  | {
+      ok: false;
+      reason: "empty_import" | "invalid_json" | "invalid_save" | "storage_error";
+      errors: string[];
+    };
+
+export type ResetSaveDataInStorageResult = SaveStateToStorageResult;
 
 export function getBrowserSaveStorage(): WebSaveStorage | null {
   if (typeof window === "undefined") {
@@ -193,6 +215,116 @@ export function saveWebGameStateToStorage(
       ok: false,
       reason: "storage_error",
       errors: [error instanceof Error ? error.message : "Unable to write save"]
+    };
+  }
+
+  return {
+    ok: true,
+    save
+  };
+}
+
+export function exportSaveDataFromStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  key = WEB_SAVE_STORAGE_KEY
+): ExportSaveDataFromStorageResult {
+  const loadResult = loadSaveDataFromStorage(data, storage, key);
+
+  if (!loadResult.ok) {
+    return loadResult;
+  }
+
+  return {
+    ok: true,
+    save: loadResult.save,
+    json: JSON.stringify(loadResult.save, null, 2)
+  };
+}
+
+export function importSaveDataToStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  rawSaveText: string,
+  key = WEB_SAVE_STORAGE_KEY
+): ImportSaveDataToStorageResult {
+  const trimmedSaveText = rawSaveText.trim();
+
+  if (!trimmedSaveText) {
+    return {
+      ok: false,
+      reason: "empty_import",
+      errors: ["Import text is empty"]
+    };
+  }
+
+  let parsedSave: unknown;
+
+  try {
+    parsedSave = JSON.parse(trimmedSaveText);
+  } catch {
+    return {
+      ok: false,
+      reason: "invalid_json",
+      errors: ["Imported save is not valid JSON"]
+    };
+  }
+
+  const parseResult = parseSaveData(data, parsedSave);
+
+  if (!parseResult.ok) {
+    return {
+      ok: false,
+      reason: "invalid_save",
+      errors: parseResult.errors
+    };
+  }
+
+  const save: SaveData = {
+    ...parseResult.save,
+    selectedOfflineFarmStageId: setOfflineFarmStageTarget(
+      data,
+      parseResult.save.progress,
+      parseResult.save.selectedOfflineFarmStageId
+    )
+  };
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [error instanceof Error ? error.message : "Unable to import save"]
+    };
+  }
+
+  return {
+    ok: true,
+    save
+  };
+}
+
+export function resetSaveDataInStorage(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  storage: WebSaveStorage,
+  nowMs = Date.now(),
+  key = WEB_SAVE_STORAGE_KEY
+): ResetSaveDataInStorageResult {
+  const progress = createInitialPlayerProgress(data);
+  const save = createSaveData({
+    progress,
+    selectedOfflineFarmStageId: setOfflineFarmStageTarget(data, progress, null),
+    nowMs
+  });
+
+  try {
+    storage.setItem(key, JSON.stringify(save));
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [error instanceof Error ? error.message : "Unable to reset save"]
     };
   }
 

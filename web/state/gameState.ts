@@ -33,8 +33,13 @@ import type {
 } from "../../core";
 import {
   getBrowserSaveStorage,
+  exportSaveDataFromStorage,
+  importSaveDataToStorage,
+  loadSaveDataFromStorage,
   loadSaveDataWithOfflineRewardsFromStorage,
+  resetSaveDataInStorage,
   saveWebGameStateToStorage,
+  WEB_SAVE_STORAGE_KEY,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS
 } from "./saveStorage";
 import type { WebSaveStorage } from "./saveStorage";
@@ -70,6 +75,10 @@ export type WebGameAction =
   | {
       type: "replace_progress";
       progress: PlayerProgress;
+    }
+  | {
+      type: "replace_state";
+      state: WebGameState;
     }
   | {
       type: "dismiss_offline_summary";
@@ -196,6 +205,42 @@ export type OfflineRewardSummaryView = OfflineRewardSummary & {
   stageName: string;
   regionName: string;
 };
+
+export type SaveStatus =
+  | "ready"
+  | "missing_save"
+  | "invalid_json"
+  | "invalid_save"
+  | "storage_error"
+  | "storage_unavailable";
+
+export type SaveDiagnosticsView = {
+  storageAvailable: boolean;
+  storageKey: string;
+  status: SaveStatus;
+  saveVersion: number | null;
+  saveSizeCharacters: number;
+  createdAtMs: number | null;
+  updatedAtMs: number | null;
+  lastOfflineRewardAtMs: number | null;
+  currentStageId: string;
+  selectedOfflineFarmStageId: string | null;
+  highestClearedStageIndex: number;
+  autosaveIntervalMs: number;
+  errors: string[];
+};
+
+export type SaveToolResult =
+  | {
+      ok: true;
+      message: string;
+      json?: string;
+    }
+  | {
+      ok: false;
+      message: string;
+      errors: string[];
+    };
 
 function getDefaultFarmStageId(
   data: StaticGameData,
@@ -394,6 +439,9 @@ export function webGameStateReducer(
         lastBattleStageId: null,
         lastPurchase: null
       };
+
+    case "replace_state":
+      return action.state;
 
     case "dismiss_offline_summary":
       return {
@@ -912,6 +960,112 @@ function buildOfflineRewardSummaryView(
   };
 }
 
+function getSaveToolErrorMessage(reason: string): string {
+  switch (reason) {
+    case "empty_import":
+      return "Import text is empty";
+    case "invalid_json":
+      return "Save JSON is invalid";
+    case "invalid_save":
+      return "Save data is invalid";
+    case "missing_save":
+      return "No save found";
+    case "storage_error":
+      return "Save storage failed";
+    default:
+      return "Save tool failed";
+  }
+}
+
+function buildSaveDiagnostics(
+  data: StaticGameData,
+  state: WebGameState
+): SaveDiagnosticsView {
+  const storage = getBrowserSaveStorage();
+
+  if (!storage) {
+    return {
+      storageAvailable: false,
+      storageKey: WEB_SAVE_STORAGE_KEY,
+      status: "storage_unavailable",
+      saveVersion: null,
+      saveSizeCharacters: 0,
+      createdAtMs: null,
+      updatedAtMs: null,
+      lastOfflineRewardAtMs: null,
+      currentStageId: state.progress.currentStageId,
+      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      highestClearedStageIndex:
+        state.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+      autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
+      errors: ["Browser save storage is unavailable"]
+    };
+  }
+
+  let rawSave: string | null = null;
+
+  try {
+    rawSave = storage.getItem(WEB_SAVE_STORAGE_KEY);
+  } catch (error) {
+    return {
+      storageAvailable: true,
+      storageKey: WEB_SAVE_STORAGE_KEY,
+      status: "storage_error",
+      saveVersion: null,
+      saveSizeCharacters: 0,
+      createdAtMs: null,
+      updatedAtMs: null,
+      lastOfflineRewardAtMs: null,
+      currentStageId: state.progress.currentStageId,
+      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      highestClearedStageIndex:
+        state.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+      autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
+      errors: [error instanceof Error ? error.message : "Unable to read save"]
+    };
+  }
+
+  const loadResult = loadSaveDataFromStorage(data, storage);
+
+  if (!loadResult.ok) {
+    return {
+      storageAvailable: true,
+      storageKey: WEB_SAVE_STORAGE_KEY,
+      status: loadResult.reason,
+      saveVersion: null,
+      saveSizeCharacters: rawSave?.length ?? 0,
+      createdAtMs: null,
+      updatedAtMs: null,
+      lastOfflineRewardAtMs: null,
+      currentStageId: state.progress.currentStageId,
+      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      highestClearedStageIndex:
+        state.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+      autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
+      errors: loadResult.errors
+    };
+  }
+
+  const save = loadResult.save;
+
+  return {
+    storageAvailable: true,
+    storageKey: WEB_SAVE_STORAGE_KEY,
+    status: "ready",
+    saveVersion: save.version,
+    saveSizeCharacters: rawSave?.length ?? 0,
+    createdAtMs: save.createdAtMs,
+    updatedAtMs: save.updatedAtMs,
+    lastOfflineRewardAtMs: save.lastOfflineRewardAtMs,
+    currentStageId: save.progress.currentStageId,
+    selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
+    highestClearedStageIndex:
+      save.progress.maps.bamboo_road?.highestClearedStageIndex ?? 0,
+    autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
+    errors: []
+  };
+}
+
 function buildPlayerCombatantViews(
   data: StaticGameData,
   progress: PlayerProgress,
@@ -1164,15 +1318,120 @@ export function useWebGameState(data: StaticGameData) {
     () => getWebGameViewModel(data, state),
     [data, state]
   );
+  const saveDiagnostics = useMemo(
+    () => buildSaveDiagnostics(data, state),
+    [data, state]
+  );
+
+  const exportSave = useCallback((): SaveToolResult => {
+    const storage = getBrowserSaveStorage();
+
+    if (!storage) {
+      return {
+        ok: false,
+        message: "Browser save storage is unavailable",
+        errors: ["Browser save storage is unavailable"]
+      };
+    }
+
+    const result = exportSaveDataFromStorage(data, storage);
+
+    if (!result.ok) {
+      return {
+        ok: false,
+        message: getSaveToolErrorMessage(result.reason),
+        errors: result.errors
+      };
+    }
+
+    return {
+      ok: true,
+      message: "Save exported",
+      json: result.json
+    };
+  }, [data]);
+
+  const importSave = useCallback((rawSaveText: string): SaveToolResult => {
+    const storage = getBrowserSaveStorage();
+
+    if (!storage) {
+      return {
+        ok: false,
+        message: "Browser save storage is unavailable",
+        errors: ["Browser save storage is unavailable"]
+      };
+    }
+
+    const result = importSaveDataToStorage(data, storage, rawSaveText);
+
+    if (!result.ok) {
+      return {
+        ok: false,
+        message: getSaveToolErrorMessage(result.reason),
+        errors: result.errors
+      };
+    }
+
+    dispatch({
+      type: "replace_state",
+      state: createWebGameStateFromSave(data, result.save)
+    });
+
+    return {
+      ok: true,
+      message: "Save imported"
+    };
+  }, [data]);
+
+  const resetNewGame = useCallback((): SaveToolResult => {
+    const storage = getBrowserSaveStorage();
+
+    if (!storage) {
+      dispatch({
+        type: "replace_state",
+        state: createInitialWebGameState(data)
+      });
+
+      return {
+        ok: false,
+        message: "Browser save storage is unavailable",
+        errors: ["New game was reset for this session only"]
+      };
+    }
+
+    const result = resetSaveDataInStorage(data, storage);
+
+    if (!result.ok) {
+      return {
+        ok: false,
+        message: getSaveToolErrorMessage(result.reason),
+        errors: result.errors
+      };
+    }
+
+    dispatch({
+      type: "replace_state",
+      state: createWebGameStateFromSave(data, result.save)
+    });
+
+    return {
+      ok: true,
+      message: "New game save created"
+    };
+  }, [data]);
 
   return {
     state,
     viewModel,
+    saveDiagnostics,
     dispatch,
     battleSelectedStage,
     purchaseUpgrade,
     selectStage,
     selectOfflineFarmStage,
-    dismissOfflineSummary
+    dismissOfflineSummary,
+    exportSave,
+    importSave,
+    resetNewGame
   };
 }

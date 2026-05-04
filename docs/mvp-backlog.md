@@ -31,8 +31,7 @@ MVP completed:
 
 Next stage candidates:
 
-- Decide post-MVP scope: formations, mobile packaging, more regions, or monetization-free idle depth.
-- Add Epic 6 only after the next milestone is defined.
+- Continue post-MVP utility polish, then decide whether formations or a second region comes next.
 
 ## MVP Epics
 
@@ -43,6 +42,7 @@ Next stage candidates:
 | Web Prototype | Completed | Make the first playable browser UI |
 | Save And Offline | Completed | Preserve progress and award offline farming |
 | MVP Polish | Completed | Make combat readable and the loop understandable |
+| Post-MVP Save Utilities | In progress | Add debugging, import/export, and reset tooling |
 
 ## Epic 1: Core Engine Integration
 
@@ -509,6 +509,26 @@ Acceptance:
 - Reload page and keep progress.
 - Receive offline rewards.
 - Refresh again and confirm offline rewards are not duplicated.
+
+## Epic 6: Post-MVP Save Utilities
+
+Goal: make local testing and debugging safer after the first playable MVP.
+
+### 6.1 Export, Import, Reset, And Diagnostics
+
+Status: Completed
+
+Task:
+
+- Add save export/import, reset new game, and a save diagnostics panel.
+
+Acceptance:
+
+- Player can export the current save as JSON.
+- Player can paste and import a validated save JSON.
+- Invalid imports fail without replacing the current save.
+- Player can reset to a new game after confirmation.
+- Diagnostics show storage status, save key, version, timestamps, stage state, farm target, save size, and autosave interval.
 
 ## Recommended Build Order
 

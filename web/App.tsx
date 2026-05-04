@@ -1,5 +1,5 @@
 import { Component, useEffect, useState } from "react";
-import type { ReactNode } from "react";
+import type { ChangeEvent, ReactNode } from "react";
 import "./styles/app.css";
 import type { ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
@@ -11,6 +11,7 @@ import type {
   MasteryPanelView,
   OfflineRewardSummaryView,
   PurchaseGameUpgradeInput,
+  SaveDiagnosticsView,
   StageOptionView,
   UpgradeView
 } from "./state/gameState";
@@ -43,6 +44,34 @@ function formatDuration(seconds: number): string {
   }
 
   return `${Math.max(1, safeSeconds)}s`;
+}
+
+function formatTimestamp(value: number | null): string {
+  if (value === null) {
+    return "Not saved";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(value));
+}
+
+function formatSaveStatus(status: SaveDiagnosticsView["status"]): string {
+  switch (status) {
+    case "ready":
+      return "Ready";
+    case "missing_save":
+      return "Missing save";
+    case "invalid_json":
+      return "Invalid JSON";
+    case "invalid_save":
+      return "Invalid save";
+    case "storage_error":
+      return "Storage error";
+    case "storage_unavailable":
+      return "Storage unavailable";
+  }
 }
 
 function getBarPercent(current: number, max: number): number {
@@ -519,6 +548,105 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
   );
 }
 
+type SaveToolsPanelProps = {
+  diagnostics: SaveDiagnosticsView;
+  exportText: string;
+  importText: string;
+  onExport: () => void;
+  onImport: () => void;
+  onImportTextChange: (value: string) => void;
+  onReset: () => void;
+  status: string;
+};
+
+function SaveToolsPanel({
+  diagnostics,
+  exportText,
+  importText,
+  onExport,
+  onImport,
+  onImportTextChange,
+  onReset,
+  status
+}: SaveToolsPanelProps) {
+  function handleImportTextChange(event: ChangeEvent<HTMLTextAreaElement>) {
+    onImportTextChange(event.target.value);
+  }
+
+  return (
+    <section className="save-tools" aria-label="Save tools">
+      <div className="save-tools-heading">
+        <div>
+          <span className="label">Save</span>
+          <h2>Diagnostics</h2>
+        </div>
+        <span>{formatSaveStatus(diagnostics.status)}</span>
+      </div>
+      <div className="save-diagnostics-grid">
+        <span>Key</span>
+        <strong>{diagnostics.storageKey}</strong>
+        <span>Version</span>
+        <strong>{diagnostics.saveVersion ?? "-"}</strong>
+        <span>Updated</span>
+        <strong>{formatTimestamp(diagnostics.updatedAtMs)}</strong>
+        <span>Offline checkpoint</span>
+        <strong>{formatTimestamp(diagnostics.lastOfflineRewardAtMs)}</strong>
+        <span>Current stage</span>
+        <strong>{diagnostics.currentStageId}</strong>
+        <span>Farm stage</span>
+        <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
+        <span>Highest clear</span>
+        <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
+        <span>Save size</span>
+        <strong>{formatNumber(diagnostics.saveSizeCharacters)} chars</strong>
+        <span>Autosave</span>
+        <strong>{formatDuration(diagnostics.autosaveIntervalMs / 1000)}</strong>
+      </div>
+      {diagnostics.errors.length > 0 ? (
+        <div className="save-errors">
+          {diagnostics.errors.map((error) => (
+            <span key={error}>{error}</span>
+          ))}
+        </div>
+      ) : null}
+      <div className="save-actions">
+        <button
+          type="button"
+          disabled={!diagnostics.storageAvailable}
+          onClick={onExport}
+        >
+          Export Save
+        </button>
+        <button
+          type="button"
+          disabled={!diagnostics.storageAvailable || !importText.trim()}
+          onClick={onImport}
+        >
+          Import Save
+        </button>
+        <button
+          type="button"
+          className="danger"
+          onClick={onReset}
+        >
+          Reset New Game
+        </button>
+      </div>
+      <div className="save-text-grid">
+        <label>
+          <span>Export JSON</span>
+          <textarea readOnly value={exportText} />
+        </label>
+        <label>
+          <span>Import JSON</span>
+          <textarea value={importText} onChange={handleImportTextChange} />
+        </label>
+      </div>
+      {status ? <div className="save-status">{status}</div> : null}
+    </section>
+  );
+}
+
 type AppErrorBoundaryState = {
   hasError: boolean;
   message: string;
@@ -569,10 +697,17 @@ class AppErrorBoundary extends Component<
 
 function GameApp() {
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
+  const [exportText, setExportText] = useState("");
+  const [importText, setImportText] = useState("");
+  const [saveToolStatus, setSaveToolStatus] = useState("");
   const {
     battleSelectedStage,
     dismissOfflineSummary,
+    exportSave,
+    importSave,
     purchaseUpgrade,
+    resetNewGame,
+    saveDiagnostics,
     selectOfflineFarmStage,
     selectStage,
     viewModel
@@ -625,6 +760,53 @@ function GameApp() {
     if (nextAutoRunEnabled) {
       battleSelectedStage();
     }
+  }
+
+  function handleExportSave() {
+    const result = exportSave();
+
+    setSaveToolStatus(result.message);
+
+    if (result.ok && result.json) {
+      setExportText(result.json);
+    }
+  }
+
+  function handleImportSave() {
+    const result = importSave(importText);
+
+    setSaveToolStatus(
+      result.ok || result.errors.length === 0
+        ? result.message
+        : `${result.message}: ${result.errors.join("; ")}`
+    );
+
+    if (result.ok) {
+      setImportText("");
+      setExportText("");
+      setAutoRunEnabled(false);
+    }
+  }
+
+  function handleResetNewGame() {
+    const resetConfirmed = window.confirm(
+      "Reset local save and start a new game?"
+    );
+
+    if (!resetConfirmed) {
+      return;
+    }
+
+    const result = resetNewGame();
+
+    setSaveToolStatus(
+      result.ok || result.errors.length === 0
+        ? result.message
+        : `${result.message}: ${result.errors.join("; ")}`
+    );
+    setExportText("");
+    setImportText("");
+    setAutoRunEnabled(false);
   }
 
   return (
@@ -686,6 +868,16 @@ function GameApp() {
           <TeamPanel title="Enemy" combatants={enemyCombatants} />
         </div>
         <BattleLog events={battleEvents} summary={battleSummary} />
+        <SaveToolsPanel
+          diagnostics={saveDiagnostics}
+          exportText={exportText}
+          importText={importText}
+          onExport={handleExportSave}
+          onImport={handleImportSave}
+          onImportTextChange={setImportText}
+          onReset={handleResetNewGame}
+          status={saveToolStatus}
+        />
       </section>
     </main>
   );

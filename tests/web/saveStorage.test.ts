@@ -11,7 +11,10 @@ import {
   webGameStateReducer
 } from "../../web/state/gameState";
 import {
+  exportSaveDataFromStorage,
+  importSaveDataToStorage,
   loadSaveDataFromStorage,
+  resetSaveDataInStorage,
   saveWebGameStateToStorage,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS,
   WEB_SAVE_STORAGE_KEY
@@ -57,6 +60,101 @@ describe("web save storage", () => {
     expect(state.progress.currentStageId).toBe("bamboo_road_3");
     expect(state.selectedStageId).toBe("bamboo_road_3");
     expect(state.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+  });
+
+  it("exports and imports a validated save payload", () => {
+    const sourceStorage = new MemoryStorage();
+    const targetStorage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 321;
+    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.currentStageId = "bamboo_road_3";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_2",
+      nowMs: 1000
+    });
+
+    sourceStorage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const exportResult = exportSaveDataFromStorage(staticData, sourceStorage);
+
+    expect(exportResult.ok).toBe(true);
+    if (!exportResult.ok) {
+      return;
+    }
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      targetStorage,
+      exportResult.json
+    );
+    const importedSave = loadSaveDataFromStorage(staticData, targetStorage);
+
+    expect(importResult.ok).toBe(true);
+    expect(importedSave.ok).toBe(true);
+    if (!importResult.ok || !importedSave.ok) {
+      return;
+    }
+    expect(importedSave.save.progress.resources.silver).toBe(321);
+    expect(importedSave.save.progress.currentStageId).toBe("bamboo_road_3");
+    expect(importedSave.save.selectedOfflineFarmStageId).toBe("bamboo_road_2");
+  });
+
+  it("rejects invalid imports without replacing the current save", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 50;
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const importResult = importSaveDataToStorage(staticData, storage, "{bad");
+    const currentSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(importResult.ok).toBe(false);
+    if (importResult.ok) {
+      return;
+    }
+    expect(importResult.reason).toBe("invalid_json");
+    expect(currentSave.ok).toBe(true);
+    if (!currentSave.ok) {
+      return;
+    }
+    expect(currentSave.save.progress.resources.silver).toBe(50);
+  });
+
+  it("resets storage to a new game save", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 999;
+    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.currentStageId = "bamboo_road_3";
+    storage.setItem(
+      WEB_SAVE_STORAGE_KEY,
+      JSON.stringify(createSaveData({
+        progress,
+        selectedOfflineFarmStageId: "bamboo_road_1",
+        nowMs: 1000
+      }))
+    );
+
+    const resetResult = resetSaveDataInStorage(staticData, storage, 2000);
+    const currentSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(resetResult.ok).toBe(true);
+    expect(currentSave.ok).toBe(true);
+    if (!resetResult.ok || !currentSave.ok) {
+      return;
+    }
+    expect(currentSave.save.progress.resources.silver).toBe(0);
+    expect(currentSave.save.progress.currentStageId).toBe("bamboo_road_1");
+    expect(currentSave.save.selectedOfflineFarmStageId).toBeNull();
+    expect(currentSave.save.updatedAtMs).toBe(2000);
   });
 
   it("applies offline rewards once on load and advances reward timestamps", () => {
