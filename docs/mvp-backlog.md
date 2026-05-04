@@ -468,7 +468,7 @@ Acceptance:
 
 ### 5.3 Empty And Error States
 
-Status: Not started
+Status: Completed
 
 Task:
 

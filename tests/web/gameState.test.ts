@@ -61,6 +61,7 @@ describe("web game state", () => {
       level: 0,
       cost: 12,
       affordable: false,
+      missingSilver: 12,
       stat: "Outer Attack"
     });
     expect(
@@ -71,6 +72,7 @@ describe("web game state", () => {
       level: 0,
       cost: 48,
       affordable: false,
+      missingSilver: 48,
       targetName: "Sect"
     });
     expect(viewModel.playerCombatants).toHaveLength(4);
@@ -144,8 +146,13 @@ describe("web game state", () => {
       type: "select_stage",
       stageId: "bamboo_road_5"
     });
+    const missingStageState = webGameStateReducer(staticData, state, {
+      type: "select_stage",
+      stageId: "missing_stage"
+    });
 
     expect(nextState.selectedStageId).toBe("bamboo_road_1");
+    expect(missingStageState.selectedStageId).toBe("bamboo_road_1");
   });
 
   it("allows cleared non-boss farm stages and rejects boss farming", () => {
@@ -327,7 +334,10 @@ describe("web game state", () => {
         upgrade.heroId === "iron_fist_disciple"
     );
 
-    expect(affordableUpgrade?.affordable).toBe(true);
+    expect(affordableUpgrade).toMatchObject({
+      affordable: true,
+      missingSilver: 0
+    });
 
     const nextState = purchaseGameUpgrade(
       staticData,
@@ -361,7 +371,8 @@ describe("web game state", () => {
     expect(nextUpgrade).toMatchObject({
       level: 1,
       cost: 13,
-      affordable: false
+      affordable: false,
+      missingSilver: 5
     });
   });
 

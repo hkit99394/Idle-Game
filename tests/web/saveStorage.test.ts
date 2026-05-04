@@ -36,6 +36,23 @@ class MemoryStorage implements WebSaveStorage {
 }
 
 describe("web save storage", () => {
+  it("falls back to a new game when no save exists", () => {
+    const storage = new MemoryStorage();
+    const loadResult = loadSaveDataFromStorage(staticData, storage);
+    const state = createInitialWebGameStateFromStorage(staticData, storage, 1000);
+
+    expect(loadResult.ok).toBe(false);
+    if (loadResult.ok) {
+      return;
+    }
+
+    expect(loadResult.reason).toBe("missing_save");
+    expect(state.progress.currentStageId).toBe("bamboo_road_1");
+    expect(state.progress.resources.silver).toBe(0);
+    expect(state.selectedStageId).toBe("bamboo_road_1");
+    expect(state.selectedOfflineFarmStageId).toBeNull();
+  });
+
   it("loads saved progress and farm target into initial web state", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);

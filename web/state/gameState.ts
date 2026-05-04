@@ -142,6 +142,7 @@ export type UpgradeView = {
   level: number;
   cost: number;
   affordable: boolean;
+  missingSilver: number;
   effectPercent: number;
 };
 
@@ -751,6 +752,7 @@ function buildUpgradeViews(
     if (upgrade.scope === "sect") {
       const level = getUpgradeLevel(progress, upgrade);
       const cost = calculateUpgradeCost(upgrade, level);
+      const missingSilver = Math.max(0, cost - progress.resources.silver);
 
       return [{
         key: `sect:${upgrade.id}`,
@@ -761,7 +763,8 @@ function buildUpgradeViews(
         stat: formatStatName(upgrade.stat),
         level,
         cost,
-        affordable: progress.resources.silver >= cost,
+        affordable: missingSilver === 0,
+        missingSilver,
         effectPercent: upgrade.effectPerLevel
       }];
     }
@@ -769,6 +772,7 @@ function buildUpgradeViews(
     return data.heroes.map((hero) => {
       const level = getUpgradeLevel(progress, upgrade, hero.id);
       const cost = calculateUpgradeCost(upgrade, level);
+      const missingSilver = Math.max(0, cost - progress.resources.silver);
 
       return {
         key: `${hero.id}:${upgrade.id}`,
@@ -780,7 +784,8 @@ function buildUpgradeViews(
         stat: formatStatName(upgrade.stat),
         level,
         cost,
-        affordable: progress.resources.silver >= cost,
+        affordable: missingSilver === 0,
+        missingSilver,
         effectPercent: upgrade.effectPerLevel
       };
     });

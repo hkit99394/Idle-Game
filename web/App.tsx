@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { Component, useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import "./styles/app.css";
 import type { ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
@@ -196,11 +197,15 @@ function TeamPanel({ combatants, title }: TeamPanelProps) {
   return (
     <section className="team-panel" aria-label={title}>
       <h2>{title}</h2>
-      <div className="combatant-list">
-        {combatants.map((combatant) => (
-          <CombatantCard key={combatant.instanceId} combatant={combatant} />
-        ))}
-      </div>
+      {combatants.length > 0 ? (
+        <div className="combatant-list">
+          {combatants.map((combatant) => (
+            <CombatantCard key={combatant.instanceId} combatant={combatant} />
+          ))}
+        </div>
+      ) : (
+        <p className="empty-panel">No combatants available</p>
+      )}
     </section>
   );
 }
@@ -396,48 +401,52 @@ function StageSelectorPanel({
         <span>{stages.filter((stage) => stage.isCleared).length} cleared</span>
       </div>
       <div className="stage-list">
-        {stages.map((stage) => (
-          <article
-            key={stage.id}
-            className={[
-              "stage-card",
-              stage.isUnlocked ? "" : "locked",
-              stage.isCleared ? "cleared" : "",
-              stage.isBoss ? "boss" : "",
-              stage.isSelectedStage ? "selected-stage" : "",
-              stage.isSelectedOfflineFarmStage ? "selected-farm" : ""
-            ].join(" ")}
-          >
-            <div className="stage-card-heading">
-              <div>
-                <strong>{stage.name}</strong>
-                <span>Stage {stage.index}</span>
+        {stages.length > 0 ? (
+          stages.map((stage) => (
+            <article
+              key={stage.id}
+              className={[
+                "stage-card",
+                stage.isUnlocked ? "" : "locked",
+                stage.isCleared ? "cleared" : "",
+                stage.isBoss ? "boss" : "",
+                stage.isSelectedStage ? "selected-stage" : "",
+                stage.isSelectedOfflineFarmStage ? "selected-farm" : ""
+              ].join(" ")}
+            >
+              <div className="stage-card-heading">
+                <div>
+                  <strong>{stage.name}</strong>
+                  <span>Stage {stage.index}</span>
+                </div>
+                <span>{stage.isBoss ? "Boss" : stage.isCleared ? "Cleared" : stage.isUnlocked ? "Open" : "Locked"}</span>
               </div>
-              <span>{stage.isBoss ? "Boss" : stage.isCleared ? "Cleared" : stage.isUnlocked ? "Open" : "Locked"}</span>
-            </div>
-            <div className="stage-rewards">
-              <span>{formatNumber(stage.rewards.silver)} silver</span>
-              <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
-              <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
-            </div>
-            <div className="stage-actions">
-              <button
-                type="button"
-                disabled={!stage.canSelectStage}
-                onClick={() => onSelectStage(stage.id)}
-              >
-                {stage.isSelectedStage ? "Current" : "Battle"}
-              </button>
-              <button
-                type="button"
-                disabled={!stage.canSelectOfflineFarm}
-                onClick={() => onSelectFarmStage(stage.id)}
-              >
-                {stage.isSelectedOfflineFarmStage ? "Farming" : "Farm"}
-              </button>
-            </div>
-          </article>
-        ))}
+              <div className="stage-rewards">
+                <span>{formatNumber(stage.rewards.silver)} silver</span>
+                <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
+                <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
+              </div>
+              <div className="stage-actions">
+                <button
+                  type="button"
+                  disabled={!stage.canSelectStage}
+                  onClick={() => onSelectStage(stage.id)}
+                >
+                  {stage.isSelectedStage ? "Current" : "Battle"}
+                </button>
+                <button
+                  type="button"
+                  disabled={!stage.canSelectOfflineFarm}
+                  onClick={() => onSelectFarmStage(stage.id)}
+                >
+                  {stage.isSelectedOfflineFarmStage ? "Farming" : "Farm"}
+                </button>
+              </div>
+            </article>
+          ))
+        ) : (
+          <p className="empty-panel">No stages available</p>
+        )}
       </div>
     </section>
   );
@@ -461,45 +470,104 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
         <div className="upgrade-silver">Silver {formatNumber(silver)}</div>
       </div>
       <div className="upgrade-grid">
-        {upgrades.map((upgrade) => (
-          <article
-            key={upgrade.key}
-            className={`upgrade-card ${upgrade.affordable ? "" : "unaffordable"}`}
-          >
-            <div className="upgrade-heading">
-              <div>
-                <strong>{upgrade.name}</strong>
-                <span>{upgrade.targetName}</span>
-              </div>
-              <span>{upgrade.scope}</span>
-            </div>
-            <div className="upgrade-stats">
-              <span>Level {upgrade.level}</span>
-              <span>Cost {formatNumber(upgrade.cost)}</span>
-              <span>{upgrade.stat}</span>
-              <span>{formatSignedPercent(upgrade.effectPercent)} per level</span>
-            </div>
-            <button
-              type="button"
-              disabled={!upgrade.affordable}
-              onClick={() =>
-                onPurchase({
-                  upgradeId: upgrade.upgradeId,
-                  heroId: upgrade.heroId
-                })
-              }
+        {upgrades.length > 0 ? (
+          upgrades.map((upgrade) => (
+            <article
+              key={upgrade.key}
+              className={`upgrade-card ${upgrade.affordable ? "" : "unaffordable"}`}
             >
-              {upgrade.affordable ? "Train" : "Need Silver"}
-            </button>
-          </article>
-        ))}
+              <div className="upgrade-heading">
+                <div>
+                  <strong>{upgrade.name}</strong>
+                  <span>{upgrade.targetName}</span>
+                </div>
+                <span>{upgrade.scope}</span>
+              </div>
+              <div className="upgrade-stats">
+                <span>Level {upgrade.level}</span>
+                <span>Cost {formatNumber(upgrade.cost)}</span>
+                <span>{upgrade.stat}</span>
+                <span>{formatSignedPercent(upgrade.effectPercent)} per level</span>
+                {!upgrade.affordable ? (
+                  <span className="upgrade-shortfall">
+                    Need {formatNumber(upgrade.missingSilver)} more silver
+                  </span>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                disabled={!upgrade.affordable}
+                onClick={() =>
+                  onPurchase({
+                    upgradeId: upgrade.upgradeId,
+                    heroId: upgrade.heroId
+                  })
+                }
+              >
+                {upgrade.affordable
+                  ? "Train"
+                  : `Need ${formatNumber(upgrade.missingSilver)} silver`}
+              </button>
+            </article>
+          ))
+        ) : (
+          <p className="empty-panel">No upgrades available</p>
+        )}
       </div>
       {status ? <div className="upgrade-status">{status}</div> : null}
     </section>
   );
 }
 
-export function App() {
+type AppErrorBoundaryState = {
+  hasError: boolean;
+  message: string;
+};
+
+class AppErrorBoundary extends Component<
+  { children: ReactNode },
+  AppErrorBoundaryState
+> {
+  state: AppErrorBoundaryState = {
+    hasError: false,
+    message: ""
+  };
+
+  static getDerivedStateFromError(error: Error): AppErrorBoundaryState {
+    return {
+      hasError: true,
+      message: error.message
+    };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("Path of Jianghu app error", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <main className="app-shell">
+          <section className="app-error-state" role="alert">
+            <span className="label">Data Error</span>
+            <h1>Game data could not load</h1>
+            <p>
+              {this.state.message ||
+                "The app hit an unexpected data or rendering error."}
+            </p>
+            <button type="button" onClick={() => window.location.reload()}>
+              Reload
+            </button>
+          </section>
+        </main>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function GameApp() {
   const [autoRunEnabled, setAutoRunEnabled] = useState(false);
   const {
     battleSelectedStage,
@@ -620,5 +688,13 @@ export function App() {
         <BattleLog events={battleEvents} summary={battleSummary} />
       </section>
     </main>
+  );
+}
+
+export function App() {
+  return (
+    <AppErrorBoundary>
+      <GameApp />
+    </AppErrorBoundary>
   );
 }
