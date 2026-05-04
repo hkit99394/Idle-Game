@@ -12,9 +12,12 @@ import type {
   MasteryPanelView,
   OfflineRewardSummaryView,
   PlayerFormationHeroView,
+  PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
   SaveDiagnosticsView,
+  SkillUpgradeView,
   StageOptionView,
+  StyleMasteryView,
   UpgradeView
 } from "./state/gameState";
 import {
@@ -601,11 +604,11 @@ type UpgradePanelProps = {
 
 function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProps) {
   return (
-    <section className="upgrade-panel" aria-label="Training upgrades">
+    <section className="upgrade-panel" aria-label="Outer and Inner Art">
       <div className="upgrade-panel-heading">
         <div>
-          <span className="label">Training</span>
-          <h2>Upgrades</h2>
+          <span className="label">Arts</span>
+          <h2>Outer And Inner Art</h2>
         </div>
         <div className="upgrade-silver">Silver {formatNumber(silver)}</div>
       </div>
@@ -621,13 +624,14 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
                   <strong>{upgrade.name}</strong>
                   <span>{upgrade.targetName}</span>
                 </div>
-                <span>{upgrade.scope}</span>
+                <span>{upgrade.art} art</span>
               </div>
               <div className="upgrade-stats">
                 <span>Level {upgrade.level}</span>
                 <span>Cost {formatNumber(upgrade.cost)}</span>
-                <span>{upgrade.stat}</span>
-                <span>{formatSignedPercent(upgrade.effectPercent)} per level</span>
+                {upgrade.effects.map((effect) => (
+                  <span key={effect}>{effect}</span>
+                ))}
                 {!upgrade.affordable ? (
                   <span className="upgrade-shortfall">
                     Need {formatNumber(upgrade.missingSilver)} more silver
@@ -645,7 +649,7 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
                 }
               >
                 {upgrade.affordable
-                  ? "Train"
+                  ? "Train Art"
                   : `Need ${formatNumber(upgrade.missingSilver)} silver`}
               </button>
             </article>
@@ -653,6 +657,134 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
         ) : (
           <p className="empty-panel">No upgrades available</p>
         )}
+      </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
+    </section>
+  );
+}
+
+type StyleMasteryPanelProps = {
+  styles: StyleMasteryView[];
+};
+
+function StyleMasteryPanel({ styles }: StyleMasteryPanelProps) {
+  return (
+    <section className="style-mastery-panel" aria-label="Style mastery">
+      <div className="style-mastery-heading">
+        <div>
+          <span className="label">Mastery</span>
+          <h2>Martial Styles</h2>
+        </div>
+        <span>{styles.length} styles</span>
+      </div>
+      <div className="style-mastery-grid">
+        {styles.map((style) => {
+          const width = `${Math.round(style.progressPercent * 100)}%`;
+
+          return (
+            <article key={style.styleId} className="style-mastery-card">
+              <div className="style-mastery-card-heading">
+                <div>
+                  <strong>{style.name}</strong>
+                  <span>Level {formatNumber(style.level)}</span>
+                </div>
+                <span>{formatNumber(style.experience)} XP</span>
+              </div>
+              <div className="mastery-meter">
+                <span style={{ width }} />
+              </div>
+              <div className="style-bonus-list">
+                {style.bonuses.map((bonus) => (
+                  <span key={bonus}>{bonus}</span>
+                ))}
+              </div>
+              <div className="style-branch-list">
+                {style.branches.map((branch) => (
+                  <span
+                    key={branch.id}
+                    className={branch.isUnlocked ? "unlocked" : "locked"}
+                  >
+                    {branch.name} · {branch.isUnlocked ? "Unlocked" : branch.requirement}
+                  </span>
+                ))}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+type SkillUpgradePanelProps = {
+  cultivation: number;
+  onPurchase: (input: PurchaseGameSkillUpgradeInput) => void;
+  skillUpgrades: SkillUpgradeView[];
+  status: string;
+};
+
+function SkillUpgradePanel({
+  cultivation,
+  onPurchase,
+  skillUpgrades,
+  status
+}: SkillUpgradePanelProps) {
+  return (
+    <section className="skill-upgrade-panel" aria-label="Skill upgrades">
+      <div className="skill-upgrade-heading">
+        <div>
+          <span className="label">Techniques</span>
+          <h2>Skill Refinement</h2>
+        </div>
+        <div className="upgrade-silver">
+          Cultivation {formatNumber(cultivation)}
+        </div>
+      </div>
+      <div className="upgrade-grid">
+        {skillUpgrades.map((upgrade) => (
+          <article
+            key={upgrade.key}
+            className={`upgrade-card ${upgrade.affordable ? "" : "unaffordable"}`}
+          >
+            <div className="upgrade-heading">
+              <div>
+                <strong>{upgrade.name}</strong>
+                <span>{upgrade.skillName}</span>
+              </div>
+              <span>
+                {upgrade.level}/{upgrade.maxLevel}
+              </span>
+            </div>
+            <div className="upgrade-stats">
+              <span>Cost {formatNumber(upgrade.cost)}</span>
+              {upgrade.effects.map((effect) => (
+                <span key={effect}>{effect}</span>
+              ))}
+              {!upgrade.affordable ? (
+                <span className="upgrade-shortfall">
+                  {upgrade.level >= upgrade.maxLevel
+                    ? "Maximum refinement"
+                    : `Need ${formatNumber(upgrade.missingCultivation)} more cultivation`}
+                </span>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              disabled={!upgrade.affordable}
+              onClick={() =>
+                onPurchase({
+                  skillUpgradeId: upgrade.skillUpgradeId
+                })
+              }
+            >
+              {upgrade.affordable
+                ? "Refine"
+                : upgrade.level >= upgrade.maxLevel
+                  ? "Maxed"
+                  : `Need ${formatNumber(upgrade.missingCultivation)} cultivation`}
+            </button>
+          </article>
+        ))}
       </div>
       {status ? <div className="upgrade-status">{status}</div> : null}
     </section>
@@ -827,6 +959,7 @@ function GameApp() {
     dismissOfflineSummary,
     exportSave,
     importSave,
+    purchaseSkillUpgrade,
     purchaseUpgrade,
     resetNewGame,
     saveDiagnostics,
@@ -843,13 +976,16 @@ function GameApp() {
     lastBattle,
     lastBattleStage,
     lastPurchase,
+    lastSkillPurchase,
     masteryPanel,
     offlineSummary,
     playerCombatants,
     playerFormation,
     progress,
     selectedStage,
+    skillUpgrades,
     stageOptions,
+    styleMastery,
     upgrades
   } = viewModel;
   const resultStageName =
@@ -858,9 +994,15 @@ function GameApp() {
   const battleResultClass = getBattleResultClass(lastBattle);
   const purchaseStatus =
     lastPurchase?.ok
-      ? `Training level ${lastPurchase.newLevel}`
+      ? `Art level ${lastPurchase.newLevel}`
       : lastPurchase
         ? "Need silver"
+        : "";
+  const skillPurchaseStatus =
+    lastSkillPurchase?.ok
+      ? `Skill refinement ${lastSkillPurchase.newLevel}`
+      : lastSkillPurchase
+        ? "Need cultivation"
         : "";
   const stageType = selectedStage?.isBoss ? "Boss" : "Road";
 
@@ -966,11 +1108,18 @@ function GameApp() {
           heroes={playerFormation}
           onSetFormation={setHeroFormation}
         />
+        <StyleMasteryPanel styles={styleMastery} />
         <UpgradePanel
           onPurchase={purchaseUpgrade}
           silver={progress.resources.silver}
           status={purchaseStatus}
           upgrades={upgrades}
+        />
+        <SkillUpgradePanel
+          cultivation={progress.resources.cultivation}
+          onPurchase={purchaseSkillUpgrade}
+          skillUpgrades={skillUpgrades}
+          status={skillPurchaseStatus}
         />
         <div className="battle-grid">
           <TeamPanel title="Disciples" combatants={playerCombatants} />

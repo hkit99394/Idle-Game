@@ -9,6 +9,9 @@ import {
   getStageById,
   isStageUnlocked
 } from "./stages";
+import {
+  addStyleMasteryExperience
+} from "./styleMastery";
 import type { ApplyStageClearInput, ApplyStageClearResult } from "./types";
 
 export function applyStageClearRewards(
@@ -61,6 +64,11 @@ export function applyStageClearRewards(
     )
   };
   nextProgress.maps[stage.regionId] = updatedMapProgress;
+  addStyleMasteryExperience(
+    nextProgress,
+    data.heroes.map((hero) => hero.style),
+    combatExperience
+  );
   syncHeroLevelsWithCombatExperience(nextProgress);
 
   const masteryRanksAfter = getReachedMasteryRanks(

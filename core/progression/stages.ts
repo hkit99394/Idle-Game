@@ -39,9 +39,13 @@ export function isRegionUnlocked(
     return true;
   }
 
-  const requiredStage = getStageById(data, region.unlockCondition.stageId);
+  if (region.unlockCondition.type === "stage_cleared") {
+    const requiredStage = getStageById(data, region.unlockCondition.stageId);
 
-  return requiredStage ? hasClearedStage(progress, requiredStage) : false;
+    return requiredStage ? hasClearedStage(progress, requiredStage) : false;
+  }
+
+  return false;
 }
 
 export function isStageUnlocked(

@@ -14,7 +14,8 @@ Stage 1.1 starting point:
 - Enemy stages can contain multiple enemies.
 - Combatants have CP and levels.
 - Offline farming and save utilities are available.
-- Epic 7 formation and targeting is complete; the next planned epic is martial arts growth.
+- Epic 7 formation and targeting is complete.
+- Epic 8 martial arts growth is complete; the next planned epic is region content expansion.
 
 ## Recommended Roadmap
 
@@ -122,13 +123,13 @@ Goal:
 | Epic | Status | Roadmap lane | Goal |
 | --- | --- | --- | --- |
 | Epic 7: Formation And Targeting | Completed | Combat Depth / Formation System | Make team position and target choice matter |
-| Epic 8: Martial Arts Growth | Not started | Hero And Martial Arts Growth | Split growth into Outer Art, Inner Art, style mastery, and skill upgrades |
+| Epic 8: Martial Arts Growth | Completed | Hero And Martial Arts Growth | Split growth into Outer Art, Inner Art, style mastery, and skill upgrades |
 | Epic 9: Region Content Expansion | Not started | Content Expansion | Add the next map identity after Bamboo Road |
 | Epic 10: Loot And Equipment | Not started | Loot And Equipment | Add simple equipment progression after formation behavior is stable |
 | Epic 11: Offline And Idle Depth | Not started | Offline And Idle Depth | Make farming choices previewable and intentional |
 | Epic 12: Technical Foundation | Not started | Technical Foundation | Prepare saves, core engine boundaries, and balance tools for larger content |
 
-Stage 1.1 completed Epic 7 first. Epics 8-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
+Stage 1.1 completed Epics 7 and 8 first. Epics 9-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
 
 ## Epic 7 Tasks
 
@@ -331,7 +332,7 @@ Goal:
 
 ### 8.1 Outer Art And Inner Art Training
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -344,9 +345,15 @@ Acceptance:
 - Existing hero and sect upgrades map cleanly into the new terminology.
 - UI labels avoid mixing Outer Art and Inner Art with generic upgrade language.
 
+Notes:
+
+- Silver upgrades now use Outer Art and Inner Art terminology.
+- Outer Art affects Outer HP, Outer Attack, and Outer Defense.
+- Inner Art affects Inner Qi, Inner Attack, Inner Defense, and recovery.
+
 ### 8.2 Weapon And Style Mastery
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -359,9 +366,15 @@ Acceptance:
 - Style mastery can grant small typed bonuses without affecting unrelated styles.
 - Tests prove style mastery only applies to matching heroes or skills.
 
+Notes:
+
+- Style data now covers Fist, Palm, Leg, Sword, Blade, Staff, and Hidden Weapons.
+- Stage and offline Combat XP adds style mastery experience to the active MVP styles.
+- Style mastery bonuses are style-scoped and covered by tests.
+
 ### 8.3 Style Branch Unlocks
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -374,9 +387,14 @@ Acceptance:
 - Branch unlock requirements can reference level, mastery, or stage progress.
 - No existing hero loses its fixed early-game identity.
 
+Notes:
+
+- Style branch data supports stage, hero level, and style mastery unlock requirements.
+- Branches are hidden for MVP by default while keeping hero starting styles fixed.
+
 ### 8.4 Skill Upgrades
 
-Status: Not started
+Status: Completed
 
 Task:
 
@@ -388,6 +406,12 @@ Acceptance:
 - Skill upgrades can change outer and inner damage ratios.
 - Skill upgrades can later add effects without rewriting skill data.
 - Battle simulator tests prove upgraded skills change combat output.
+
+Notes:
+
+- Skill refinement data can tune cooldown, Outer ratio, Inner ratio, and future skill effects.
+- Skill refinement uses cultivation and persists in save data.
+- Simulator tests prove purchased refinement changes battle output.
 
 ## Epic 9: Region Content Expansion
 

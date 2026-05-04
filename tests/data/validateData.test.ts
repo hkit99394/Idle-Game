@@ -63,6 +63,35 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects missing style and skill upgrade references", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "iron_fist_disciple"
+          ? {
+              ...hero,
+              style: "missing_style"
+            }
+          : hero
+      ),
+      skillUpgrades: staticData.skillUpgrades.map((upgrade) =>
+        upgrade.id === "iron_fist_combo_refinement"
+          ? {
+              ...upgrade,
+              skillId: "missing_skill"
+            }
+          : upgrade
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Hero iron_fist_disciple references missing style missing_style",
+        "Skill upgrade iron_fist_combo_refinement references missing skill missing_skill"
+      ])
+    );
+  });
+
   it("rejects invalid enemy formation slots", () => {
     const invalidData = {
       ...staticData,

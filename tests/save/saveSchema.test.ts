@@ -162,4 +162,43 @@ describe("save schema", () => {
       "progress.formation.iron_fist_disciple must be front, middle, or back"
     );
   });
+
+  it("accepts old saves without martial growth fields and validates new fields", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        styleMastery: undefined,
+        skillUpgrades: undefined
+      }
+    };
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        styleMastery: {
+          missing_style: {
+            experience: 1
+          }
+        },
+        skillUpgrades: {
+          missing_skill_upgrade: 1
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(validateSaveData(staticData, badSave)).toEqual(
+      expect.arrayContaining([
+        "progress.styleMastery.missing_style must reference an existing style",
+        "progress.skillUpgrades.missing_skill_upgrade must reference an existing skill upgrade"
+      ])
+    );
+  });
 });

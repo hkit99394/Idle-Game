@@ -22,6 +22,7 @@ import { getPlayerFormationSlot } from "./playerFormation";
 import {
   deriveHeroStatsFromProgress
 } from "./upgrades";
+import { getSkillUpgradeLevelsForBattle } from "./skillUpgrades";
 import type {
   BuildEnemyTeamResult,
   BuildPlayerTeamResult,
@@ -105,6 +106,9 @@ function createPlayerCombatantStats(
     sectProgress: progress.sect,
     heroUpgradeDefinitions: context.heroUpgradeDefinitions,
     sectUpgradeDefinitions: context.sectUpgradeDefinitions,
+    style: hero.style,
+    styleDefinitions: data.styles,
+    styleMastery: progress.styleMastery,
     mapAttackMultiplier: context.mapAttackMultiplier
   });
 }
@@ -128,6 +132,10 @@ export function buildPlayerTeamForStage(
     ? masterySummary.summary.damageMultipliersByFamily
     : {};
   const playerLevel = calculatePlayerLevel(progress);
+  const skillUpgradeLevels = getSkillUpgradeLevelsForBattle(
+    data.skillUpgrades,
+    progress
+  );
   const statsContext: PlayerCombatantStatsContext = {
     heroUpgradeDefinitions: getHeroUpgradeDefinitions(data),
     sectUpgradeDefinitions: getSectUpgradeDefinitions(data),
@@ -153,6 +161,7 @@ export function buildPlayerTeamForStage(
           heroId,
           statsContext
         ),
+        skillUpgradeLevels,
         damageMultipliersByFamily
       };
     })

@@ -2,13 +2,15 @@ import type {
   BaseStats,
   CombatRole,
   FormationSlot,
-  MvpStyle,
+  MartialStyleId,
   TargetRule
 } from "../combat";
 
 export type UnlockCondition =
   | { type: "always" }
-  | { type: "stage_cleared"; stageId: string };
+  | { type: "stage_cleared"; stageId: string }
+  | { type: "hero_level"; heroId: string; level: number }
+  | { type: "style_mastery_level"; styleId: MartialStyleId; level: number };
 
 export type SkillEffect = {
   type: string;
@@ -19,7 +21,7 @@ export type SkillEffect = {
 export type HeroDefinition = {
   id: string;
   name: string;
-  style: MvpStyle;
+  style: MartialStyleId;
   role: string;
   combatRole: CombatRole;
   baseStats: BaseStats;
@@ -38,12 +40,42 @@ export type SkillDefinition = {
   effects: SkillEffect[];
 };
 
+export type SkillUpgradeEffect =
+  | {
+      type: "cooldown_seconds";
+      valuePerLevel: number;
+    }
+  | {
+      type: "outer_multiplier";
+      valuePerLevel: number;
+    }
+  | {
+      type: "inner_multiplier";
+      valuePerLevel: number;
+    }
+  | {
+      type: "add_skill_effect";
+      unlockLevel: number;
+      effect: SkillEffect;
+    };
+
+export type SkillUpgradeDefinition = {
+  id: string;
+  skillId: string;
+  name: string;
+  costResource: "cultivation";
+  baseCost: number;
+  costGrowth: number;
+  maxLevel: number;
+  effects: SkillUpgradeEffect[];
+};
+
 export type EnemyDefinition = {
   id: string;
   name: string;
   family: string;
   type: "normal" | "elite" | "boss";
-  style: string;
+  style: MartialStyleId;
   combatRole: CombatRole;
   level: number;
   baseStats: BaseStats;
@@ -105,17 +137,47 @@ export type FormationDefinition = {
   slots: FormationSlot[];
 };
 
+export type StyleMasteryBonus = {
+  stat: keyof BaseStats;
+  effectPerLevel: number;
+};
+
+export type StyleBranchDefinition = {
+  id: string;
+  name: string;
+  unlock: UnlockCondition;
+  hiddenInMvp: boolean;
+};
+
+export type MartialStyleDefinition = {
+  id: MartialStyleId;
+  name: string;
+  bonuses: StyleMasteryBonus[];
+  branches: StyleBranchDefinition[];
+};
+
+export type UpgradeEffect = {
+  stat: keyof Pick<
+    BaseStats,
+    | "maxOuterHp"
+    | "maxInnerQi"
+    | "outerAttack"
+    | "innerAttack"
+    | "outerDefense"
+    | "innerDefense"
+    | "innerRecoveryRate"
+  >;
+  effectPerLevel: number;
+};
+
 export type UpgradeDefinition = {
   id: string;
   name: string;
   scope: "hero" | "sect";
-  stat: keyof Pick<
-    BaseStats,
-    "maxOuterHp" | "maxInnerQi" | "outerAttack" | "innerAttack" | "outerDefense" | "innerDefense"
-  >;
+  art: "outer" | "inner";
+  effects: UpgradeEffect[];
   baseCost: number;
   costGrowth: number;
-  effectPerLevel: number;
 };
 
 export type StaticGameData = {
@@ -125,6 +187,8 @@ export type StaticGameData = {
   regions: RegionDefinition[];
   stages: StageDefinition[];
   upgrades: UpgradeDefinition[];
+  skillUpgrades: SkillUpgradeDefinition[];
   mastery: MasteryDefinition;
   formations: FormationDefinition[];
+  styles: MartialStyleDefinition[];
 };

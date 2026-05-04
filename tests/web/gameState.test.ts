@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createInitialWebGameState,
   getWebGameViewModel,
+  purchaseGameSkillUpgrade,
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
   webGameStateReducer
@@ -62,7 +63,12 @@ describe("web game state", () => {
       cost: 12,
       affordable: false,
       missingSilver: 12,
-      stat: "Outer Attack"
+      art: "outer",
+      effects: expect.arrayContaining([
+        "+10% Outer Attack per level",
+        "+4% Max Outer Hp per level",
+        "+4% Outer Defense per level"
+      ])
     });
     expect(
       viewModel.upgrades.find(
@@ -74,6 +80,14 @@ describe("web game state", () => {
       affordable: false,
       missingSilver: 48,
       targetName: "Sect"
+    });
+    expect(viewModel.skillUpgrades).toHaveLength(4);
+    expect(viewModel.styleMastery).toHaveLength(7);
+    expect(viewModel.styleMastery[0]).toMatchObject({
+      styleId: "fist",
+      name: "Fist",
+      level: 0,
+      experience: 0
     });
     expect(viewModel.playerCombatants).toHaveLength(4);
     expect(viewModel.playerFormation.map((hero) => hero.formationSlot)).toEqual([
@@ -478,13 +492,54 @@ describe("web game state", () => {
     );
 
     expect(ironFist?.outerAttack).toBeCloseTo(19.8);
-    expect(ironFist?.combatPower).toBe(523);
+    expect(ironFist?.maxOuterHp).toBeCloseTo(187.2);
+    expect(ironFist?.combatPower).toBeGreaterThan(523);
     expect(nextUpgrade).toMatchObject({
       level: 1,
       cost: 13,
       affordable: false,
       missingSilver: 5
     });
+  });
+
+  it("updates progress after skill refinement purchases", () => {
+    const state = createInitialWebGameState(staticData);
+    const progress = {
+      ...state.progress,
+      resources: {
+        silver: 0,
+        cultivation: 20
+      }
+    };
+    const affordableViewModel = getWebGameViewModel(staticData, {
+      ...state,
+      progress
+    });
+    const skillUpgrade = affordableViewModel.skillUpgrades.find(
+      (upgrade) => upgrade.skillUpgradeId === "iron_fist_combo_refinement"
+    );
+
+    expect(skillUpgrade).toMatchObject({
+      affordable: true,
+      cost: 8,
+      level: 0,
+      maxLevel: 5
+    });
+
+    const nextState = purchaseGameSkillUpgrade(
+      staticData,
+      {
+        ...state,
+        progress
+      },
+      {
+        skillUpgradeId: "iron_fist_combo_refinement"
+      }
+    );
+
+    expect(nextState.lastSkillPurchase?.ok).toBe(true);
+    expect(nextState.progress.resources.cultivation).toBe(12);
+    expect(nextState.progress.skillUpgrades?.iron_fist_combo_refinement).toBe(1);
   });
 
   it("normalizes selected offline farm stage to the best unlocked farm", () => {

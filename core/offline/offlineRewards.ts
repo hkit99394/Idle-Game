@@ -1,6 +1,7 @@
 import type { StaticGameData } from "../data";
 import {
   cloneProgress,
+  addStyleMasteryExperience,
   getMapRewardMultiplier,
   getStageById,
   syncHeroLevelsWithCombatExperience,
@@ -43,7 +44,7 @@ export type OfflineRewardResult = {
 };
 
 export type ApplyOfflineRewardsInput = {
-  data: Pick<StaticGameData, "stages" | "mastery">;
+  data: Pick<StaticGameData, "heroes" | "stages" | "mastery">;
   progress: PlayerProgress;
   selectedOfflineFarmStageId: string | null;
   lastSavedAtMs: number;
@@ -163,6 +164,11 @@ export function applyOfflineRewards(
     ...nextMapProgress,
     combatExperience: nextMapProgress.combatExperience + rewards.combatExperience
   };
+  addStyleMasteryExperience(
+    nextProgress,
+    input.data.heroes.map((hero) => hero.style),
+    rewards.combatExperience
+  );
   syncHeroLevelsWithCombatExperience(nextProgress);
 
   return {

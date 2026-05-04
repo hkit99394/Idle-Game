@@ -17,6 +17,13 @@ export const WEB_SAVE_AUTOSAVE_INTERVAL_MS = 15_000;
 
 export type WebSaveStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
+type SaveSchemaData = Pick<
+  StaticGameData,
+  "heroes" | "regions" | "stages" | "styles" | "skillUpgrades"
+>;
+
+type OfflineSaveData = SaveSchemaData & Pick<StaticGameData, "mastery">;
+
 export type LoadSaveDataFromStorageResult =
   | {
       ok: true;
@@ -94,7 +101,7 @@ export function getBrowserSaveStorage(): WebSaveStorage | null {
 }
 
 export function loadSaveDataFromStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   key = WEB_SAVE_STORAGE_KEY
 ): LoadSaveDataFromStorageResult {
@@ -147,7 +154,7 @@ export function loadSaveDataFromStorage(
 }
 
 export function loadSaveDataWithOfflineRewardsFromStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "mastery">,
+  data: OfflineSaveData,
   storage: WebSaveStorage,
   nowMs = Date.now(),
   key = WEB_SAVE_STORAGE_KEY
@@ -211,7 +218,7 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
 }
 
 export function saveWebGameStateToStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   state: Pick<WebGameState, "progress" | "selectedOfflineFarmStageId">,
   storage: WebSaveStorage,
   nowMs = Date.now(),
@@ -242,7 +249,7 @@ export function saveWebGameStateToStorage(
 }
 
 export function exportSaveDataFromStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   key = WEB_SAVE_STORAGE_KEY
 ): ExportSaveDataFromStorageResult {
@@ -260,7 +267,7 @@ export function exportSaveDataFromStorage(
 }
 
 export function importSaveDataToStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   rawSaveText: string,
   key = WEB_SAVE_STORAGE_KEY
@@ -323,7 +330,7 @@ export function importSaveDataToStorage(
 }
 
 export function resetSaveDataInStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   nowMs = Date.now(),
   key = WEB_SAVE_STORAGE_KEY
@@ -352,7 +359,7 @@ export function resetSaveDataInStorage(
 }
 
 export function timeTravelOfflineSaveInStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   offlineSeconds: number,
   nowMs = Date.now(),

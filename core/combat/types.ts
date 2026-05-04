@@ -1,9 +1,10 @@
 import type { FormationSlot } from "./formations";
 import type { CombatRole } from "./roles";
+import type { MartialStyleId } from "./styles";
 
 export type TeamId = "player" | "enemy";
 
-export type MvpStyle = "fist" | "palm" | "sword" | "staff";
+export type MvpStyle = MartialStyleId;
 
 export type TargetRule =
   | "first_living"
@@ -75,6 +76,7 @@ export type CombatantInstanceDefinition = {
   level?: number;
   statsOverride?: DerivedStats;
   damageMultipliersByFamily?: Record<string, number>;
+  skillUpgradeLevels?: Record<string, number>;
 };
 
 export type TeamInstance = {
@@ -98,6 +100,7 @@ export type CombatantState = {
   maxInnerQi: number;
   stats: DerivedStats;
   damageMultipliersByFamily: Record<string, number>;
+  skillUpgradeLevels: Record<string, number>;
   skillIds: string[];
   nextActionAt: number;
   skillCooldowns: Record<string, number>;

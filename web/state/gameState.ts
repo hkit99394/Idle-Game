@@ -3,21 +3,28 @@ import {
   buildEnemyTeamForStage,
   buildPlayerTeamForStage,
   calculateCombatPower,
+  calculateSkillUpgradeCost,
   calculateUpgradeCost,
   createInitialPlayerProgress,
   deriveStats,
   getDefaultFormationSlot,
   getActiveMasterySummaryForStage,
   getStageById,
+  getSkillUpgradeLevel,
+  getStyleMasteryExperience,
+  getStyleMasteryLevel,
   getUpgradeLevel,
   hasClearedStage,
   isOfflineFarmStageUnlocked,
   isStageUnlocked,
+  isStyleBranchUnlocked,
+  purchaseSkillUpgrade as purchaseCoreSkillUpgrade,
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
   scaleStatsForLevel,
   setPlayerFormationSlot,
-  setOfflineFarmStageTarget
+  setOfflineFarmStageTarget,
+  STYLE_MASTERY_EXPERIENCE_PER_LEVEL
 } from "../../core";
 import type {
   ActiveMasterySummary,
@@ -32,6 +39,8 @@ import type {
   TeamId,
   PlayerProgress,
   ApplyOfflineRewardsResult,
+  PurchaseSkillUpgradeInput,
+  PurchaseSkillUpgradeResult,
   PurchaseUpgradeInput,
   PurchaseUpgradeResult,
   ResolveStageBattleResult,
@@ -60,6 +69,7 @@ export type WebGameState = {
   lastBattle: ResolveStageBattleResult | null;
   lastBattleStageId: string | null;
   lastPurchase: PurchaseUpgradeResult | null;
+  lastSkillPurchase: PurchaseSkillUpgradeResult | null;
 };
 
 export type WebGameAction =
@@ -86,6 +96,10 @@ export type WebGameAction =
       result: PurchaseUpgradeResult;
     }
   | {
+      type: "skill_purchase_resolved";
+      result: PurchaseSkillUpgradeResult;
+    }
+  | {
       type: "replace_progress";
       progress: PlayerProgress;
     }
@@ -98,6 +112,10 @@ export type WebGameAction =
     };
 
 export type PurchaseGameUpgradeInput = Omit<PurchaseUpgradeInput, "progress">;
+export type PurchaseGameSkillUpgradeInput = Omit<
+  PurchaseSkillUpgradeInput,
+  "progress"
+>;
 
 export type BattleCombatantView = {
   instanceId: string;
@@ -162,14 +180,28 @@ export type UpgradeView = {
   upgradeId: string;
   name: string;
   scope: "hero" | "sect";
+  art: "outer" | "inner";
   heroId?: string;
   targetName: string;
-  stat: string;
+  effects: string[];
   level: number;
   cost: number;
   affordable: boolean;
   missingSilver: number;
-  effectPercent: number;
+};
+
+export type SkillUpgradeView = {
+  key: string;
+  skillUpgradeId: string;
+  skillId: string;
+  name: string;
+  skillName: string;
+  level: number;
+  maxLevel: number;
+  cost: number;
+  affordable: boolean;
+  missingCultivation: number;
+  effects: string[];
 };
 
 export type StageOptionView = {
@@ -224,6 +256,25 @@ export type PlayerFormationHeroView = {
   role: string;
   combatRole: CombatRole;
   formationSlot: FormationSlot;
+};
+
+export type StyleBranchView = {
+  id: string;
+  name: string;
+  isUnlocked: boolean;
+  hiddenInMvp: boolean;
+  requirement: string;
+};
+
+export type StyleMasteryView = {
+  styleId: string;
+  name: string;
+  level: number;
+  experience: number;
+  nextLevelExperience: number;
+  progressPercent: number;
+  bonuses: string[];
+  branches: StyleBranchView[];
 };
 
 export type OfflineRewardSummary = {
@@ -332,7 +383,8 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     offlineSummary: null,
     lastBattle: null,
     lastBattleStageId: null,
-    lastPurchase: null
+    lastPurchase: null,
+    lastSkillPurchase: null
   };
 }
 
@@ -356,7 +408,8 @@ export function createWebGameStateFromSave(
     offlineSummary,
     lastBattle: null,
     lastBattleStageId: null,
-    lastPurchase: null
+    lastPurchase: null,
+    lastSkillPurchase: null
   };
 }
 
@@ -435,7 +488,8 @@ export function webGameStateReducer(
         progress: result.progress,
         lastBattle: null,
         lastBattleStageId: null,
-        lastPurchase: null
+        lastPurchase: null,
+        lastSkillPurchase: null
       };
     }
 
@@ -460,7 +514,8 @@ export function webGameStateReducer(
         ),
         lastBattle: action.result,
         lastBattleStageId: action.stageId,
-        lastPurchase: null
+        lastPurchase: null,
+        lastSkillPurchase: null
       };
     }
 
@@ -478,6 +533,22 @@ export function webGameStateReducer(
           state.selectedOfflineFarmStageId
         ),
         lastPurchase: action.result,
+        lastSkillPurchase: null,
+        lastBattle: null,
+        lastBattleStageId: null
+      };
+    }
+
+    case "skill_purchase_resolved": {
+      const nextProgress = action.result.ok
+        ? action.result.progress
+        : state.progress;
+
+      return {
+        ...state,
+        progress: nextProgress,
+        lastSkillPurchase: action.result,
+        lastPurchase: null,
         lastBattle: null,
         lastBattleStageId: null
       };
@@ -499,7 +570,8 @@ export function webGameStateReducer(
         ),
         lastBattle: null,
         lastBattleStageId: null,
-        lastPurchase: null
+        lastPurchase: null,
+        lastSkillPurchase: null
       };
 
     case "replace_state":
@@ -542,6 +614,22 @@ export function purchaseGameUpgrade(
 
   return webGameStateReducer(data, state, {
     type: "purchase_resolved",
+    result
+  });
+}
+
+export function purchaseGameSkillUpgrade(
+  data: StaticGameData,
+  state: WebGameState,
+  input: PurchaseGameSkillUpgradeInput
+): WebGameState {
+  const result = purchaseCoreSkillUpgrade(data.skillUpgrades, {
+    progress: state.progress,
+    ...input
+  });
+
+  return webGameStateReducer(data, state, {
+    type: "skill_purchase_resolved",
     result
   });
 }
@@ -964,29 +1052,55 @@ function formatStatName(stat: string): string {
   );
 }
 
+function formatPerLevelEffect(stat: string, value: number): string {
+  return `${formatMasteryPercent(value)} ${formatStatName(stat)} per level`;
+}
+
 function buildUpgradeViews(
   data: StaticGameData,
   progress: PlayerProgress
 ): UpgradeView[] {
+  const buildUpgradeView = (
+    upgrade: StaticGameData["upgrades"][number],
+    level: number,
+    cost: number,
+    missingSilver: number,
+    key: string,
+    targetName: string,
+    heroId?: string
+  ): UpgradeView => ({
+    key,
+    upgradeId: upgrade.id,
+    name: upgrade.name,
+    scope: upgrade.scope,
+    art: upgrade.art,
+    heroId,
+    targetName,
+    effects: upgrade.effects.map((effect) =>
+      formatPerLevelEffect(effect.stat, effect.effectPerLevel)
+    ),
+    level,
+    cost,
+    affordable: missingSilver === 0,
+    missingSilver
+  });
+
   return data.upgrades.flatMap<UpgradeView>((upgrade) => {
     if (upgrade.scope === "sect") {
       const level = getUpgradeLevel(progress, upgrade);
       const cost = calculateUpgradeCost(upgrade, level);
       const missingSilver = Math.max(0, cost - progress.resources.silver);
 
-      return [{
-        key: `sect:${upgrade.id}`,
-        upgradeId: upgrade.id,
-        name: upgrade.name,
-        scope: upgrade.scope,
-        targetName: "Sect",
-        stat: formatStatName(upgrade.stat),
-        level,
-        cost,
-        affordable: missingSilver === 0,
-        missingSilver,
-        effectPercent: upgrade.effectPerLevel
-      }];
+      return [
+        buildUpgradeView(
+          upgrade,
+          level,
+          cost,
+          missingSilver,
+          `sect:${upgrade.id}`,
+          "Sect"
+        )
+      ];
     }
 
     return data.heroes.map((hero) => {
@@ -994,21 +1108,63 @@ function buildUpgradeViews(
       const cost = calculateUpgradeCost(upgrade, level);
       const missingSilver = Math.max(0, cost - progress.resources.silver);
 
-      return {
-        key: `${hero.id}:${upgrade.id}`,
-        upgradeId: upgrade.id,
-        name: upgrade.name,
-        scope: upgrade.scope,
-        heroId: hero.id,
-        targetName: hero.name,
-        stat: formatStatName(upgrade.stat),
+      return buildUpgradeView(
+        upgrade,
         level,
         cost,
-        affordable: missingSilver === 0,
         missingSilver,
-        effectPercent: upgrade.effectPerLevel
-      };
+        `${hero.id}:${upgrade.id}`,
+        hero.name,
+        hero.id
+      );
     });
+  });
+}
+
+function formatSkillUpgradeEffect(
+  effect: StaticGameData["skillUpgrades"][number]["effects"][number]
+): string {
+  switch (effect.type) {
+    case "cooldown_seconds":
+      return `${effect.valuePerLevel < 0 ? "" : "+"}${effect.valuePerLevel.toFixed(
+        2
+      )}s cooldown per level`;
+    case "outer_multiplier":
+      return `${formatMasteryPercent(effect.valuePerLevel)} Outer ratio per level`;
+    case "inner_multiplier":
+      return `${formatMasteryPercent(effect.valuePerLevel)} Inner ratio per level`;
+    case "add_skill_effect":
+      return `Adds ${effect.effect.type.replaceAll("_", " ")} at level ${effect.unlockLevel}`;
+  }
+}
+
+function buildSkillUpgradeViews(
+  data: StaticGameData,
+  progress: PlayerProgress
+): SkillUpgradeView[] {
+  return data.skillUpgrades.map((upgrade) => {
+    const skill = data.skills.find((candidate) => candidate.id === upgrade.skillId);
+    const level = getSkillUpgradeLevel(progress, upgrade.id);
+    const isMaxLevel = level >= upgrade.maxLevel;
+    const cost = isMaxLevel ? 0 : calculateSkillUpgradeCost(upgrade, level);
+    const missingCultivation = Math.max(
+      0,
+      cost - progress.resources.cultivation
+    );
+
+    return {
+      key: upgrade.id,
+      skillUpgradeId: upgrade.id,
+      skillId: upgrade.skillId,
+      name: upgrade.name,
+      skillName: skill?.name ?? upgrade.skillId,
+      level,
+      maxLevel: upgrade.maxLevel,
+      cost,
+      affordable: !isMaxLevel && missingCultivation === 0,
+      missingCultivation,
+      effects: upgrade.effects.map(formatSkillUpgradeEffect)
+    };
   });
 }
 
@@ -1149,6 +1305,71 @@ function buildMasteryPanel(
         ? Math.min(summary.combatExperience / progressTargetExperience, 1)
         : 0
   };
+}
+
+function formatStyleBranchRequirement(
+  data: StaticGameData,
+  branch: StaticGameData["styles"][number]["branches"][number]
+): string {
+  const unlock = branch.unlock;
+
+  switch (unlock.type) {
+    case "always":
+      return "Available";
+    case "stage_cleared":
+      return `Clear ${
+        getStageById(data, unlock.stageId)?.name ?? unlock.stageId
+      }`;
+    case "hero_level":
+      return `${
+        data.heroes.find((hero) => hero.id === unlock.heroId)?.name ??
+        unlock.heroId
+      } level ${unlock.level}`;
+    case "style_mastery_level":
+      return `${
+        data.styles.find((style) => style.id === unlock.styleId)?.name ??
+        unlock.styleId
+      } mastery ${unlock.level}`;
+  }
+}
+
+function buildStyleMasteryViews(
+  data: StaticGameData,
+  progress: PlayerProgress
+): StyleMasteryView[] {
+  return data.styles.map((style) => {
+    const experience = getStyleMasteryExperience(progress, style.id);
+    const level = getStyleMasteryLevel(progress, style.id);
+    const currentLevelExperience = level * STYLE_MASTERY_EXPERIENCE_PER_LEVEL;
+    const nextLevelExperience = (level + 1) * STYLE_MASTERY_EXPERIENCE_PER_LEVEL;
+    const progressPercent = Math.min(
+      Math.max(
+        (experience - currentLevelExperience) /
+          (nextLevelExperience - currentLevelExperience),
+        0
+      ),
+      1
+    );
+
+    return {
+      styleId: style.id,
+      name: style.name,
+      level,
+      experience,
+      nextLevelExperience,
+      progressPercent,
+      bonuses: style.bonuses.map((bonus) =>
+        formatPerLevelEffect(bonus.stat, bonus.effectPerLevel)
+      ),
+      branches: style.branches.map((branch) => ({
+        id: branch.id,
+        name: branch.name,
+        isUnlocked: isStyleBranchUnlocked(data, progress, branch),
+        hiddenInMvp: branch.hiddenInMvp,
+        requirement: formatStyleBranchRequirement(data, branch)
+      }))
+    };
+  });
 }
 
 function buildOfflineRewardSummaryView(
@@ -1467,6 +1688,8 @@ export function getWebGameViewModel(
       state.selectedOfflineFarmStageId
     ),
     upgrades: buildUpgradeViews(data, state.progress),
+    skillUpgrades: buildSkillUpgradeViews(data, state.progress),
+    styleMastery: buildStyleMasteryViews(data, state.progress),
     playerFormation: buildPlayerFormationViews(playerCombatants),
     playerCombatants,
     enemyCombatants,
@@ -1478,7 +1701,8 @@ export function getWebGameViewModel(
     lastBattleStage,
     battleEvents: buildBattleEventViews(data, state.lastBattle),
     battleSummary: buildBattleSummary(state.lastBattle, lastBattleStage?.name ?? null),
-    lastPurchase: state.lastPurchase
+    lastPurchase: state.lastPurchase,
+    lastSkillPurchase: state.lastSkillPurchase
   };
 }
 
@@ -1549,6 +1773,19 @@ export function useWebGameState(data: StaticGameData) {
       dispatchAndPersist({
         type: "purchase_resolved",
         result: purchaseCoreUpgrade(data.upgrades, {
+          progress: state.progress,
+          ...input
+        })
+      });
+    },
+    [data, dispatchAndPersist, state.progress]
+  );
+
+  const purchaseSkillUpgrade = useCallback(
+    (input: PurchaseGameSkillUpgradeInput) => {
+      dispatchAndPersist({
+        type: "skill_purchase_resolved",
+        result: purchaseCoreSkillUpgrade(data.skillUpgrades, {
           progress: state.progress,
           ...input
         })
@@ -1777,6 +2014,7 @@ export function useWebGameState(data: StaticGameData) {
     dispatch,
     battleSelectedStage,
     purchaseUpgrade,
+    purchaseSkillUpgrade,
     selectStage,
     selectOfflineFarmStage,
     setHeroFormation,

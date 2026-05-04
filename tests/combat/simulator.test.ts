@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { simulateBattle } from "../../core";
+import {
+  buildPlayerTeamForStage,
+  createInitialPlayerProgress,
+  simulateBattle
+} from "../../core";
 import type { StaticGameData } from "../../core";
 import { staticData } from "../helpers/staticData";
 
@@ -116,6 +120,65 @@ describe("combat simulator", () => {
           contribution.qiBreaksTriggered > 0
       )
     ).toBe(true);
+  });
+
+  it("applies purchased skill upgrades to combat output", () => {
+    const baseProgress = createInitialPlayerProgress(staticData);
+    const upgradedProgress = createInitialPlayerProgress(staticData);
+    upgradedProgress.skillUpgrades = {
+      iron_fist_combo_refinement: 3
+    };
+    const durableEnemyData: StaticGameData = {
+      ...staticData,
+      enemies: staticData.enemies.map((enemy) =>
+        enemy.id === "bamboo_bandit"
+          ? {
+              ...enemy,
+              baseStats: {
+                ...enemy.baseStats,
+                maxOuterHp: 3000,
+                outerAttack: 0,
+                innerAttack: 0
+              }
+            }
+          : enemy
+      )
+    };
+    const baseTeam = buildPlayerTeamForStage(
+      durableEnemyData,
+      baseProgress,
+      "bamboo_road_1"
+    );
+    const upgradedTeam = buildPlayerTeamForStage(
+      durableEnemyData,
+      upgradedProgress,
+      "bamboo_road_1"
+    );
+
+    expect(baseTeam.ok).toBe(true);
+    expect(upgradedTeam.ok).toBe(true);
+    if (!baseTeam.ok || !upgradedTeam.ok) {
+      return;
+    }
+
+    const enemyTeam = {
+      id: "enemy" as const,
+      combatants: [{ kind: "enemy" as const, definitionId: "bamboo_bandit" }]
+    };
+    const baseBattle = simulateBattle(durableEnemyData, {
+      playerTeam: baseTeam.team,
+      enemyTeam,
+      maxDurationSeconds: 8
+    });
+    const upgradedBattle = simulateBattle(durableEnemyData, {
+      playerTeam: upgradedTeam.team,
+      enemyTeam,
+      maxDurationSeconds: 8
+    });
+
+    expect(upgradedBattle.metrics.playerOuterDamage).toBeGreaterThan(
+      baseBattle.metrics.playerOuterDamage
+    );
   });
 
   it("returns timeout when neither side wins before max duration", () => {

@@ -1,0 +1,111 @@
+[
+  {
+    "id": "fist",
+    "name": "Fist",
+    "bonuses": [
+      { "stat": "outerAttack", "effectPerLevel": 0.01 }
+    ],
+    "branches": [
+      {
+        "id": "iron_body_fist",
+        "name": "Iron Body Fist",
+        "unlock": { "type": "hero_level", "heroId": "iron_fist_disciple", "level": 12 },
+        "hiddenInMvp": true
+      }
+    ]
+  },
+  {
+    "id": "palm",
+    "name": "Palm",
+    "bonuses": [
+      { "stat": "innerAttack", "effectPerLevel": 0.01 }
+    ],
+    "branches": [
+      {
+        "id": "cloud_meridian_palm",
+        "name": "Cloud Meridian Palm",
+        "unlock": { "type": "style_mastery_level", "styleId": "palm", "level": 5 },
+        "hiddenInMvp": true
+      }
+    ]
+  },
+  {
+    "id": "leg",
+    "name": "Leg",
+    "bonuses": [
+      { "stat": "speed", "effectPerLevel": 0.01 }
+    ],
+    "branches": [
+      {
+        "id": "wind_step_leg",
+        "name": "Wind Step Leg",
+        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "hiddenInMvp": true
+      }
+    ]
+  },
+  {
+    "id": "sword",
+    "name": "Sword",
+    "bonuses": [
+      { "stat": "outerAttack", "effectPerLevel": 0.006 },
+      { "stat": "innerAttack", "effectPerLevel": 0.006 }
+    ],
+    "branches": [
+      {
+        "id": "white_crane_sword",
+        "name": "White Crane Sword",
+        "unlock": { "type": "hero_level", "heroId": "white_crane_swordsman", "level": 12 },
+        "hiddenInMvp": true
+      }
+    ]
+  },
+  {
+    "id": "blade",
+    "name": "Blade",
+    "bonuses": [
+      { "stat": "outerAttack", "effectPerLevel": 0.008 },
+      { "stat": "outerDefense", "effectPerLevel": 0.004 }
+    ],
+    "branches": [
+      {
+        "id": "black_iron_blade",
+        "name": "Black Iron Blade",
+        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "hiddenInMvp": true
+      }
+    ]
+  },
+  {
+    "id": "staff",
+    "name": "Staff",
+    "bonuses": [
+      { "stat": "maxOuterHp", "effectPerLevel": 0.008 },
+      { "stat": "outerDefense", "effectPerLevel": 0.008 }
+    ],
+    "branches": [
+      {
+        "id": "mountain_guard_staff",
+        "name": "Mountain Guard Staff",
+        "unlock": { "type": "hero_level", "heroId": "mountain_staff_guardian", "level": 12 },
+        "hiddenInMvp": true
+      }
+    ]
+  },
+  {
+    "id": "hidden_weapons",
+    "name": "Hidden Weapons",
+    "bonuses": [
+      { "stat": "innerAttack", "effectPerLevel": 0.006 },
+      { "stat": "speed", "effectPerLevel": 0.006 }
+    ],
+    "branches": [
+      {
+        "id": "rain_needle_art",
+        "name": "Rain Needle Art",
+        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "hiddenInMvp": true
+      }
+    ]
+  }
+]

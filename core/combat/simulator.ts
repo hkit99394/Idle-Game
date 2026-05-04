@@ -12,6 +12,7 @@ import type {
 import type {
   EnemyDefinition,
   HeroDefinition,
+  SkillUpgradeDefinition,
   SkillDefinition,
   StaticGameData
 } from "../data/types";
@@ -36,13 +37,15 @@ type DefinitionLookup = {
   heroes: Map<string, HeroDefinition>;
   enemies: Map<string, EnemyDefinition>;
   skills: Map<string, SkillDefinition>;
+  skillUpgrades: SkillUpgradeDefinition[];
 };
 
 function createLookup(staticData: StaticGameData): DefinitionLookup {
   return {
     heroes: new Map(staticData.heroes.map((hero) => [hero.id, hero])),
     enemies: new Map(staticData.enemies.map((enemy) => [enemy.id, enemy])),
-    skills: new Map(staticData.skills.map((skill) => [skill.id, skill]))
+    skills: new Map(staticData.skills.map((skill) => [skill.id, skill])),
+    skillUpgrades: staticData.skillUpgrades
   };
 }
 
@@ -70,6 +73,59 @@ function getSkill(lookup: DefinitionLookup, skillId: string): SkillDefinition {
   }
 
   return skill;
+}
+
+function applySkillUpgradesToSkill(
+  skill: SkillDefinition,
+  skillUpgrades: SkillUpgradeDefinition[],
+  levels: Record<string, number>
+): SkillDefinition {
+  let cooldownSeconds = skill.cooldownSeconds;
+  let outerMultiplier = skill.outerMultiplier;
+  let innerMultiplier = skill.innerMultiplier;
+  const effects = [...skill.effects];
+
+  for (const upgrade of skillUpgrades) {
+    if (upgrade.skillId !== skill.id) {
+      continue;
+    }
+
+    const level = levels[upgrade.id] ?? 0;
+
+    if (level <= 0) {
+      continue;
+    }
+
+    for (const effect of upgrade.effects) {
+      switch (effect.type) {
+        case "cooldown_seconds":
+          cooldownSeconds += effect.valuePerLevel * level;
+          break;
+
+        case "outer_multiplier":
+          outerMultiplier += effect.valuePerLevel * level;
+          break;
+
+        case "inner_multiplier":
+          innerMultiplier += effect.valuePerLevel * level;
+          break;
+
+        case "add_skill_effect":
+          if (level >= effect.unlockLevel) {
+            effects.push(effect.effect);
+          }
+          break;
+      }
+    }
+  }
+
+  return {
+    ...skill,
+    cooldownSeconds: Math.max(0, cooldownSeconds),
+    outerMultiplier: Math.max(0, outerMultiplier),
+    innerMultiplier: Math.max(0, innerMultiplier),
+    effects
+  };
 }
 
 function createCombatantState(
@@ -107,6 +163,7 @@ function createCombatantState(
     maxInnerQi: stats.maxInnerQi,
     stats,
     damageMultipliersByFamily: instance.damageMultipliersByFamily ?? {},
+    skillUpgradeLevels: instance.skillUpgradeLevels ?? {},
     skillIds: definition.skillIds,
     nextActionAt: calculateAttackInterval(stats.speed, constants),
     skillCooldowns: Object.fromEntries(definition.skillIds.map((skillId) => [skillId, 0])),
@@ -186,10 +243,18 @@ function chooseSkill(
   );
 
   if (readySkillId) {
-    return getSkill(lookup, readySkillId);
+    return applySkillUpgradesToSkill(
+      getSkill(lookup, readySkillId),
+      lookup.skillUpgrades,
+      combatant.skillUpgradeLevels
+    );
   }
 
-  return getSkill(lookup, BASIC_SKILL_ID);
+  return applySkillUpgradesToSkill(
+    getSkill(lookup, BASIC_SKILL_ID),
+    lookup.skillUpgrades,
+    combatant.skillUpgradeLevels
+  );
 }
 
 function recordDamage(

@@ -477,7 +477,9 @@ textarea {
   font-size: 0.82rem;
 }
 
-.upgrade-panel {
+.upgrade-panel,
+.skill-upgrade-panel,
+.style-mastery-panel {
   margin-bottom: 22px;
   padding: 16px 0;
   border-top: 1px solid #d6cdbc;
@@ -604,7 +606,9 @@ textarea {
   color: #fffaf0;
 }
 
-.upgrade-panel-heading {
+.upgrade-panel-heading,
+.skill-upgrade-heading,
+.style-mastery-heading {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 18px;
@@ -613,16 +617,106 @@ textarea {
   margin-bottom: 12px;
 }
 
-.upgrade-panel-heading h2 {
+.upgrade-panel-heading h2,
+.skill-upgrade-heading h2,
+.style-mastery-heading h2 {
   overflow-wrap: anywhere;
   margin: 0;
 }
 
-.upgrade-silver {
+.upgrade-silver,
+.style-mastery-heading > span {
   max-width: 100%;
   color: #283315;
   font-weight: 800;
   overflow-wrap: anywhere;
+}
+
+.style-mastery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+
+.style-mastery-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.style-mastery-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.style-mastery-card-heading div,
+.style-mastery-card-heading strong,
+.style-mastery-card-heading span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.style-mastery-card-heading strong,
+.style-mastery-card-heading div span {
+  display: block;
+}
+
+.style-mastery-card-heading div span {
+  margin-top: 2px;
+  color: #6d6354;
+  font-size: 0.82rem;
+}
+
+.style-mastery-card-heading > span {
+  color: #283315;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.style-bonus-list,
+.style-branch-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.style-bonus-list span,
+.style-branch-list span {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #fffaf0;
+  color: #4d4639;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.style-bonus-list span {
+  border-color: #6f7f4f;
+  background: #edf1df;
+  color: #283315;
+}
+
+.style-branch-list .unlocked {
+  border-color: #2e5f63;
+  background: #e3f0f4;
+  color: #1f5559;
+}
+
+.style-branch-list .locked {
+  border-color: #b9afa0;
+  background: #ece6da;
+  color: #6d6354;
 }
 
 .upgrade-grid {
@@ -1360,6 +1454,8 @@ h2 {
   .offline-summary-meta span,
   .offline-summary-rewards strong,
   .mastery-chips span,
+  .style-bonus-list span,
+  .style-branch-list span,
   .event-badges span {
     width: 100%;
     border-radius: 6px;
@@ -1389,6 +1485,7 @@ h2 {
   .stage-card,
   .upgrade-card,
   .formation-hero,
+  .style-mastery-card,
   .combatant-card {
     padding: 12px;
   }

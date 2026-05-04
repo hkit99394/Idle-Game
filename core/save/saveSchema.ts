@@ -192,6 +192,71 @@ function validateMaps(
   return true;
 }
 
+function validateStyleMastery(
+  data: Pick<StaticGameData, "styles">,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["styleMastery"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.styleMastery", errors)) {
+    return false;
+  }
+
+  const styleIds = new Set<string>(data.styles.map((style) => style.id));
+
+  for (const [styleId, mastery] of Object.entries(value)) {
+    if (!styleIds.has(styleId)) {
+      errors.push(`progress.styleMastery.${styleId} must reference an existing style`);
+    }
+
+    if (!validateRecord(mastery, `progress.styleMastery.${styleId}`, errors)) {
+      continue;
+    }
+
+    validateNumber(
+      mastery.experience,
+      `progress.styleMastery.${styleId}.experience`,
+      errors
+    );
+  }
+
+  return true;
+}
+
+function validateSkillUpgrades(
+  data: Pick<StaticGameData, "skillUpgrades">,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["skillUpgrades"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.skillUpgrades", errors)) {
+    return false;
+  }
+
+  const skillUpgradeIds = new Set(data.skillUpgrades.map((upgrade) => upgrade.id));
+
+  for (const [upgradeId, level] of Object.entries(value)) {
+    if (!skillUpgradeIds.has(upgradeId)) {
+      errors.push(`progress.skillUpgrades.${upgradeId} must reference an existing skill upgrade`);
+    }
+
+    if (
+      validateNumber(level, `progress.skillUpgrades.${upgradeId}`, errors) &&
+      (!Number.isInteger(level) || level < 0)
+    ) {
+      errors.push(`progress.skillUpgrades.${upgradeId} must be an integer >= 0`);
+    }
+  }
+
+  return true;
+}
+
 function validatePlayerFormation(
   data: Pick<StaticGameData, "heroes">,
   value: unknown,
@@ -240,7 +305,7 @@ function validateCurrentStage(
 }
 
 function validateProgress(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades">,
   value: unknown,
   errors: string[]
 ): value is PlayerProgress {
@@ -255,6 +320,8 @@ function validateProgress(
   validateSect(value.sect, errors);
   validateMaps(data, value.maps, errors);
   validatePlayerFormation(data, value.formation, errors);
+  validateStyleMastery(data, value.styleMastery, errors);
+  validateSkillUpgrades(data, value.skillUpgrades, errors);
 
   if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {
     errors.push("progress.currentStageId must be a non-empty string");
@@ -316,7 +383,7 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
 }
 
 export function validateSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades">,
   raw: unknown
 ): string[] {
   const errors: string[] = [];
@@ -344,7 +411,7 @@ export function validateSaveData(
 }
 
 export function parseSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades">,
   raw: unknown
 ): ParseSaveDataResult {
   const errors = validateSaveData(data, raw);

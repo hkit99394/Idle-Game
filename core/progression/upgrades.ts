@@ -2,6 +2,7 @@ import type { BaseStats } from "../combat";
 import type { UpgradeDefinition } from "../data";
 import { scaleStatsForLevel } from "./levels";
 import { cloneProgress } from "./progress";
+import { applyStyleMasteryBonuses } from "./styleMastery";
 import type {
   DerivedHeroStatsInput,
   PlayerProgress,
@@ -80,13 +81,29 @@ export function purchaseUpgrade(
   };
 }
 
-function applyUpgradeMultiplier(
+export function formatUpgradeEffectStats(
+  effects: Pick<UpgradeDefinition, "effects">["effects"]
+): Array<keyof BaseStats> {
+  return effects.map((effect) => effect.stat);
+}
+
+function applyStatMultiplier(
   stats: BaseStats,
   stat: keyof BaseStats,
   effectPerLevel: number,
   level: number
 ): void {
   stats[stat] *= 1 + effectPerLevel * level;
+}
+
+function applyUpgradeEffects(
+  stats: BaseStats,
+  upgrade: Pick<UpgradeDefinition, "effects">,
+  level: number
+): void {
+  for (const effect of upgrade.effects) {
+    applyStatMultiplier(stats, effect.stat, effect.effectPerLevel, level);
+  }
 }
 
 export function deriveHeroStatsFromProgress(input: DerivedHeroStatsInput): BaseStats {
@@ -97,13 +114,20 @@ export function deriveHeroStatsFromProgress(input: DerivedHeroStatsInput): BaseS
 
   for (const upgrade of input.heroUpgradeDefinitions) {
     const level = input.heroProgress?.upgrades[upgrade.id] ?? 0;
-    applyUpgradeMultiplier(stats, upgrade.stat, upgrade.effectPerLevel, level);
+    applyUpgradeEffects(stats, upgrade, level);
   }
 
   for (const upgrade of input.sectUpgradeDefinitions) {
     const level = input.sectProgress?.upgrades[upgrade.id] ?? 0;
-    applyUpgradeMultiplier(stats, upgrade.stat, upgrade.effectPerLevel, level);
+    applyUpgradeEffects(stats, upgrade, level);
   }
+
+  applyStyleMasteryBonuses(
+    stats,
+    input.style,
+    input.styleDefinitions,
+    input.styleMastery
+  );
 
   const mapAttackMultiplier = input.mapAttackMultiplier ?? 0;
   if (mapAttackMultiplier > 0) {

@@ -47,6 +47,7 @@ function combatant(input: {
     maxInnerQi: stats.maxInnerQi,
     stats,
     damageMultipliersByFamily: {},
+    skillUpgradeLevels: {},
     skillIds: [],
     nextActionAt: 0,
     skillCooldowns: {},

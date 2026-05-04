@@ -1,38 +1,56 @@
 [
   {
     "id": "hero_outer_training",
-    "name": "Hero Outer Training",
+    "name": "Hero Outer Art",
     "scope": "hero",
-    "stat": "outerAttack",
+    "art": "outer",
+    "effects": [
+      { "stat": "maxOuterHp", "effectPerLevel": 0.04 },
+      { "stat": "outerAttack", "effectPerLevel": 0.1 },
+      { "stat": "outerDefense", "effectPerLevel": 0.04 }
+    ],
     "baseCost": 12,
-    "costGrowth": 1.12,
-    "effectPerLevel": 0.1
+    "costGrowth": 1.12
   },
   {
     "id": "hero_inner_training",
-    "name": "Hero Inner Training",
+    "name": "Hero Inner Art",
     "scope": "hero",
-    "stat": "innerAttack",
+    "art": "inner",
+    "effects": [
+      { "stat": "maxInnerQi", "effectPerLevel": 0.04 },
+      { "stat": "innerAttack", "effectPerLevel": 0.1 },
+      { "stat": "innerDefense", "effectPerLevel": 0.04 },
+      { "stat": "innerRecoveryRate", "effectPerLevel": 0.03 }
+    ],
     "baseCost": 12,
-    "costGrowth": 1.12,
-    "effectPerLevel": 0.1
+    "costGrowth": 1.12
   },
   {
     "id": "sect_outer_training",
-    "name": "Sect Outer Training",
+    "name": "Sect Outer Art",
     "scope": "sect",
-    "stat": "outerAttack",
+    "art": "outer",
+    "effects": [
+      { "stat": "maxOuterHp", "effectPerLevel": 0.02 },
+      { "stat": "outerAttack", "effectPerLevel": 0.05 },
+      { "stat": "outerDefense", "effectPerLevel": 0.02 }
+    ],
     "baseCost": 48,
-    "costGrowth": 1.14,
-    "effectPerLevel": 0.05
+    "costGrowth": 1.14
   },
   {
     "id": "sect_inner_training",
-    "name": "Sect Inner Training",
+    "name": "Sect Inner Art",
     "scope": "sect",
-    "stat": "innerAttack",
+    "art": "inner",
+    "effects": [
+      { "stat": "maxInnerQi", "effectPerLevel": 0.02 },
+      { "stat": "innerAttack", "effectPerLevel": 0.05 },
+      { "stat": "innerDefense", "effectPerLevel": 0.02 },
+      { "stat": "innerRecoveryRate", "effectPerLevel": 0.02 }
+    ],
     "baseCost": 48,
-    "costGrowth": 1.14,
-    "effectPerLevel": 0.05
+    "costGrowth": 1.14
   }
 ]

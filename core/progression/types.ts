@@ -1,5 +1,9 @@
 import type { BaseStats, FormationSlot } from "../combat";
 import type { BattleResult, TeamInstance } from "../combat";
+import type {
+  MartialStyleDefinition,
+  UpgradeDefinition
+} from "../data";
 
 export type ResourceState = {
   silver: number;
@@ -20,12 +24,18 @@ export type MapProgress = {
   highestClearedStageIndex: number;
 };
 
+export type StyleMasteryProgress = {
+  experience: number;
+};
+
 export type PlayerProgress = {
   resources: ResourceState;
   heroes: Record<string, HeroProgress>;
   sect: SectProgress;
   maps: Record<string, MapProgress>;
   formation?: Record<string, FormationSlot>;
+  styleMastery?: Record<string, StyleMasteryProgress>;
+  skillUpgrades?: Record<string, number>;
   currentStageId: string;
 };
 
@@ -49,20 +59,34 @@ export type PurchaseUpgradeResult =
       cost?: number;
     };
 
+export type PurchaseSkillUpgradeInput = {
+  progress: PlayerProgress;
+  skillUpgradeId: string;
+};
+
+export type PurchaseSkillUpgradeResult =
+  | {
+      ok: true;
+      progress: PlayerProgress;
+      cost: number;
+      newLevel: number;
+    }
+  | {
+      ok: false;
+      reason: "missing_skill_upgrade" | "not_enough_cultivation" | "max_level";
+      progress: PlayerProgress;
+      cost?: number;
+    };
+
 export type DerivedHeroStatsInput = {
   baseStats: BaseStats;
+  style?: string;
   heroProgress?: HeroProgress;
   sectProgress?: SectProgress;
-  heroUpgradeDefinitions: Array<{
-    id: string;
-    stat: keyof BaseStats;
-    effectPerLevel: number;
-  }>;
-  sectUpgradeDefinitions: Array<{
-    id: string;
-    stat: keyof BaseStats;
-    effectPerLevel: number;
-  }>;
+  heroUpgradeDefinitions: Pick<UpgradeDefinition, "id" | "effects">[];
+  sectUpgradeDefinitions: Pick<UpgradeDefinition, "id" | "effects">[];
+  styleDefinitions?: MartialStyleDefinition[];
+  styleMastery?: PlayerProgress["styleMastery"];
   mapAttackMultiplier?: number;
 };
 

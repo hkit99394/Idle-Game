@@ -54,7 +54,7 @@
     "name": "Black Iron Guard",
     "family": "iron_fort",
     "type": "boss",
-    "style": "saber",
+    "style": "blade",
     "combatRole": "tank",
     "level": 1,
     "baseStats": {

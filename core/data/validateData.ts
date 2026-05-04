@@ -2,7 +2,9 @@ import type {
   EnemyDefinition,
   FormationDefinition,
   HeroDefinition,
+  MartialStyleDefinition,
   RegionDefinition,
+  SkillUpgradeDefinition,
   SkillDefinition,
   StageDefinition,
   StaticGameData
@@ -10,9 +12,11 @@ import type {
 import {
   COMBAT_ROLES,
   FORMATION_SLOTS,
+  MARTIAL_STYLE_IDS,
   TARGET_RULES,
   isCombatRole,
   isFormationSlot,
+  isMartialStyleId,
   isTargetRule
 } from "../combat";
 
@@ -71,6 +75,17 @@ function validateHeroSkillRefs(
   );
 }
 
+function validateHeroStyleRefs(
+  heroes: HeroDefinition[],
+  styleIds: Set<string>
+): string[] {
+  return heroes.flatMap((hero) =>
+    styleIds.has(hero.style)
+      ? []
+      : [`Hero ${hero.id} references missing style ${hero.style}`]
+  );
+}
+
 function validateEnemySkillRefs(
   enemies: EnemyDefinition[],
   skillIds: Set<string>
@@ -79,6 +94,17 @@ function validateEnemySkillRefs(
     enemy.skillIds
       .filter((skillId) => !skillIds.has(skillId))
       .map((skillId) => `Enemy ${enemy.id} references missing skill ${skillId}`)
+  );
+}
+
+function validateEnemyStyleRefs(
+  enemies: EnemyDefinition[],
+  styleIds: Set<string>
+): string[] {
+  return enemies.flatMap((enemy) =>
+    styleIds.has(enemy.style)
+      ? []
+      : [`Enemy ${enemy.id} references missing style ${enemy.style}`]
   );
 }
 
@@ -140,6 +166,55 @@ function validateSkill(skill: SkillDefinition): string[] {
     errors.push(
       `Skill ${skill.id} targetRule must be one of ${TARGET_RULES.join(", ")}`
     );
+  }
+
+  return errors;
+}
+
+function validateSkillUpgrade(
+  skillUpgrade: SkillUpgradeDefinition,
+  skillIds: Set<string>
+): string[] {
+  const errors: string[] = [];
+
+  if (!skillIds.has(skillUpgrade.skillId)) {
+    errors.push(
+      `Skill upgrade ${skillUpgrade.id} references missing skill ${skillUpgrade.skillId}`
+    );
+  }
+
+  if (skillUpgrade.costResource !== "cultivation") {
+    errors.push(`Skill upgrade ${skillUpgrade.id} costResource must be cultivation`);
+  }
+
+  if (skillUpgrade.baseCost < 0 || skillUpgrade.costGrowth < 1) {
+    errors.push(
+      `Skill upgrade ${skillUpgrade.id} costs must be non-negative with growth >= 1`
+    );
+  }
+
+  if (!Number.isInteger(skillUpgrade.maxLevel) || skillUpgrade.maxLevel < 1) {
+    errors.push(`Skill upgrade ${skillUpgrade.id} maxLevel must be an integer >= 1`);
+  }
+
+  for (const effect of skillUpgrade.effects) {
+    if (effect.type === "add_skill_effect") {
+      if (!Number.isInteger(effect.unlockLevel) || effect.unlockLevel < 1) {
+        errors.push(
+          `Skill upgrade ${skillUpgrade.id} add_skill_effect unlockLevel must be an integer >= 1`
+        );
+      }
+      continue;
+    }
+
+    if (
+      typeof effect.valuePerLevel !== "number" ||
+      Number.isNaN(effect.valuePerLevel)
+    ) {
+      errors.push(
+        `Skill upgrade ${skillUpgrade.id} effect ${effect.type} valuePerLevel must be a number`
+      );
+    }
   }
 
   return errors;
@@ -221,6 +296,118 @@ function validateStage(stage: StageDefinition): string[] {
   return errors;
 }
 
+function validateUpgrade(upgrade: StaticGameData["upgrades"][number]): string[] {
+  const errors: string[] = [];
+
+  if (upgrade.art !== "outer" && upgrade.art !== "inner") {
+    errors.push(`Upgrade ${upgrade.id} art must be outer or inner`);
+  }
+
+  if (upgrade.baseCost < 0 || upgrade.costGrowth < 1) {
+    errors.push(`Upgrade ${upgrade.id} costs must be non-negative with growth >= 1`);
+  }
+
+  if (upgrade.effects.length === 0) {
+    errors.push(`Upgrade ${upgrade.id} must define at least one effect`);
+  }
+
+  for (const effect of upgrade.effects) {
+    if (
+      typeof effect.effectPerLevel !== "number" ||
+      Number.isNaN(effect.effectPerLevel)
+    ) {
+      errors.push(
+        `Upgrade ${upgrade.id} effect ${effect.stat} effectPerLevel must be a number`
+      );
+    }
+  }
+
+  return errors;
+}
+
+function validateUnlockCondition(
+  ownerLabel: string,
+  unlock: StaticGameData["regions"][number]["unlockCondition"],
+  ids: {
+    heroIds: Set<string>;
+    stageIds: Set<string>;
+    styleIds: Set<string>;
+  }
+): string[] {
+  const errors: string[] = [];
+
+  switch (unlock.type) {
+    case "always":
+      return errors;
+
+    case "stage_cleared":
+      if (!ids.stageIds.has(unlock.stageId)) {
+        errors.push(`${ownerLabel} references missing unlock stage ${unlock.stageId}`);
+      }
+      return errors;
+
+    case "hero_level":
+      if (!ids.heroIds.has(unlock.heroId)) {
+        errors.push(`${ownerLabel} references missing unlock hero ${unlock.heroId}`);
+      }
+      if (!Number.isInteger(unlock.level) || unlock.level < 1) {
+        errors.push(`${ownerLabel} hero_level unlock level must be an integer >= 1`);
+      }
+      return errors;
+
+    case "style_mastery_level":
+      if (!ids.styleIds.has(unlock.styleId)) {
+        errors.push(`${ownerLabel} references missing unlock style ${unlock.styleId}`);
+      }
+      if (!Number.isInteger(unlock.level) || unlock.level < 1) {
+        errors.push(
+          `${ownerLabel} style_mastery_level unlock level must be an integer >= 1`
+        );
+      }
+      return errors;
+  }
+}
+
+function validateMartialStyle(
+  style: MartialStyleDefinition,
+  ids: {
+    heroIds: Set<string>;
+    stageIds: Set<string>;
+    styleIds: Set<string>;
+  }
+): string[] {
+  const errors: string[] = [];
+
+  if (!isMartialStyleId(style.id)) {
+    errors.push(
+      `Style ${style.id} id must be one of ${MARTIAL_STYLE_IDS.join(", ")}`
+    );
+  }
+
+  for (const bonus of style.bonuses) {
+    if (
+      typeof bonus.effectPerLevel !== "number" ||
+      Number.isNaN(bonus.effectPerLevel)
+    ) {
+      errors.push(
+        `Style ${style.id} bonus ${bonus.stat} effectPerLevel must be a number`
+      );
+    }
+  }
+
+  for (const branch of style.branches) {
+    errors.push(
+      ...validateUnlockCondition(
+        `Style branch ${style.id}.${branch.id}`,
+        branch.unlock,
+        ids
+      )
+    );
+  }
+
+  return errors;
+}
+
 export function validateStaticGameData(data: StaticGameData): string[] {
   const errors: string[] = [];
   const entityGroups: Array<[string, EntityWithId[]]> = [
@@ -230,7 +417,9 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     ["region", data.regions],
     ["stage", data.stages],
     ["upgrade", data.upgrades],
-    ["formation", data.formations]
+    ["formation", data.formations],
+    ["style", data.styles],
+    ["skill upgrade", data.skillUpgrades]
   ];
 
   for (const [label, entities] of entityGroups) {
@@ -240,13 +429,31 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   const skillIds = new Set(data.skills.map((skill) => skill.id));
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
   const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
   const stageIds = new Set(data.stages.map((stage) => stage.id));
+  const styleIds = new Set(data.styles.map((style) => style.id));
+  const validationIds = {
+    heroIds,
+    stageIds,
+    styleIds
+  };
 
   errors.push(...validateHeroSkillRefs(data.heroes, skillIds));
+  errors.push(...validateHeroStyleRefs(data.heroes, styleIds));
   errors.push(...validateEnemySkillRefs(data.enemies, skillIds));
+  errors.push(...validateEnemyStyleRefs(data.enemies, styleIds));
   errors.push(...validateStageEnemyRefs(data.stages, enemyIds));
   errors.push(...validateRegionStageRefs(data.regions, stageIds));
+  for (const region of data.regions) {
+    errors.push(
+      ...validateUnlockCondition(
+        `Region ${region.id}`,
+        region.unlockCondition,
+        validationIds
+      )
+    );
+  }
 
   for (const hero of data.heroes) {
     errors.push(...validateStats(hero.id, hero.baseStats));
@@ -262,12 +469,24 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     errors.push(...validateSkill(skill));
   }
 
+  for (const skillUpgrade of data.skillUpgrades) {
+    errors.push(...validateSkillUpgrade(skillUpgrade, skillIds));
+  }
+
   for (const stage of data.stages) {
     errors.push(...validateStage(stage));
   }
 
+  for (const upgrade of data.upgrades) {
+    errors.push(...validateUpgrade(upgrade));
+  }
+
   for (const formation of data.formations) {
     errors.push(...validateFormation(formation));
+  }
+
+  for (const style of data.styles) {
+    errors.push(...validateMartialStyle(style, validationIds));
   }
 
   const thresholds = data.mastery.thresholds;
