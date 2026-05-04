@@ -6,7 +6,7 @@ The MVP target is a responsive web game where four fixed-style heroes auto-battl
 
 ## Current Status
 
-Completed:
+MVP completed:
 
 - Planning documents
 - Analysis document
@@ -20,26 +20,29 @@ Completed:
 - Hero and sect upgrade purchases
 - Combat Experience and map mastery helpers
 - Offline reward formula
-- Formula, simulator, progression, data, and offline tests
+- Core battle resolution and progression integration
+- Progress-based hero and enemy team builders
+- Bamboo Road balance pass and report tool
+- Versioned save/load with localStorage persistence
+- Offline farming, validation, summary, and idempotency guard
+- Playable web prototype with battle, upgrades, stage farming, and mastery UI
+- MVP polish for responsive layout, combat readability, empty/error states, and smoke coverage
+- Formula, simulator, progression, data, offline, web state, and MVP smoke tests
 
-Still needed:
+Next stage candidates:
 
-- Connect progression to battle results
-- Add save/load
-- Build playable web UI
-- Add offline farming flow
-- Tune early balance
-- Add basic UX polish
+- Decide post-MVP scope: formations, mobile packaging, more regions, or monetization-free idle depth.
+- Add Epic 6 only after the next milestone is defined.
 
 ## MVP Epics
 
 | Epic | Status | Goal |
 | --- | --- | --- |
-| Core Engine | In progress | Make battle, rewards, upgrades, mastery, and offline rules work together |
-| Data And Balance | In progress | Tune Bamboo Road stages and first boss |
-| Web Prototype | Not started | Make the first playable browser UI |
-| Save And Offline | Not started | Preserve progress and award offline farming |
-| MVP Polish | Not started | Make combat readable and the loop understandable |
+| Core Engine | Completed | Make battle, rewards, upgrades, mastery, and offline rules work together |
+| Data And Balance | Completed | Tune Bamboo Road stages and first boss |
+| Web Prototype | Completed | Make the first playable browser UI |
+| Save And Offline | Completed | Preserve progress and award offline farming |
+| MVP Polish | Completed | Make combat readable and the loop understandable |
 
 ## Epic 1: Core Engine Integration
 
@@ -483,11 +486,16 @@ Acceptance:
 
 ### 5.4 MVP Smoke Test
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Run through a short manual playtest.
+
+Smoke Result:
+
+- Passed browser smoke through new game, first stages, first upgrade, mastery progress, boss loss, farm selection, and reload persistence.
+- Offline reward and duplicate-refresh checks are covered by the repeatable MVP smoke test.
 
 Acceptance:
 

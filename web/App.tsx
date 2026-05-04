@@ -648,9 +648,9 @@ function GameApp() {
           </div>
         </header>
         <div className="resource-row">
-          <span>Silver {progress.resources.silver}</span>
-          <span>Cultivation {progress.resources.cultivation}</span>
-          <span>Combat Exp {masteryPanel?.combatExperience ?? 0}</span>
+          <span>Silver {formatNumber(progress.resources.silver)}</span>
+          <span>Cultivation {formatNumber(progress.resources.cultivation)}</span>
+          <span>Combat Exp {formatNumber(masteryPanel?.combatExperience ?? 0)}</span>
         </div>
         <OfflineSummaryPanel
           onDismiss={dismissOfflineSummary}

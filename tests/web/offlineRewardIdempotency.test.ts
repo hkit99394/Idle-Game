@@ -8,24 +8,8 @@ import {
   loadSaveDataWithOfflineRewardsFromStorage,
   WEB_SAVE_STORAGE_KEY
 } from "../../web/state/saveStorage";
-import type { WebSaveStorage } from "../../web/state/saveStorage";
+import { MemoryStorage } from "../helpers/memoryStorage";
 import { staticData } from "../helpers/staticData";
-
-class MemoryStorage implements WebSaveStorage {
-  private readonly items = new Map<string, string>();
-
-  getItem(key: string): string | null {
-    return this.items.get(key) ?? null;
-  }
-
-  setItem(key: string, value: string): void {
-    this.items.set(key, value);
-  }
-
-  removeItem(key: string): void {
-    this.items.delete(key);
-  }
-}
 
 describe("offline reward idempotency", () => {
   it("grants capped rewards once and updates timestamps before a second load", () => {
