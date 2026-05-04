@@ -438,7 +438,7 @@ Goal: make the first playable version readable and pleasant enough to test.
 
 ### 5.1 Responsive Layout
 
-Status: Not started
+Status: Completed
 
 Task:
 

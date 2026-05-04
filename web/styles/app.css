@@ -11,8 +11,24 @@
     sans-serif;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
+  overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 .app-shell {
@@ -40,6 +56,7 @@ body {
 }
 
 .stage-header h1 {
+  overflow-wrap: anywhere;
   margin: 0;
   font-size: 2rem;
   line-height: 1.05;
@@ -50,6 +67,7 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+  min-width: 0;
   color: #4d4639;
   font-size: 0.88rem;
 }
@@ -64,15 +82,18 @@ body {
   border: 1px solid #c7bbab;
   border-radius: 999px;
   background: #fffaf0;
+  overflow-wrap: anywhere;
 }
 
 .battle-result {
   grid-column: 1 / -1;
+  min-width: 0;
   padding: 12px 14px;
   border-left: 4px solid #6f7f4f;
   background: #edf1df;
   color: #283315;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .battle-result.victory {
@@ -115,11 +136,12 @@ body {
 }
 
 .offline-summary-heading h2 {
+  overflow-wrap: anywhere;
   margin: 0;
 }
 
 .offline-summary-heading button {
-  min-height: 34px;
+  min-height: 44px;
   padding: 0 12px;
   border: 1px solid #6f7f4f;
   border-radius: 6px;
@@ -151,6 +173,7 @@ body {
   color: #4d4639;
   font-size: 0.82rem;
   line-height: 24px;
+  overflow-wrap: anywhere;
 }
 
 .offline-summary-rewards strong {
@@ -186,12 +209,15 @@ body {
 }
 
 .mastery-panel-heading h2 {
+  overflow-wrap: anywhere;
   margin: 0;
 }
 
 .mastery-xp {
+  max-width: 100%;
   color: #283315;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .mastery-progress {
@@ -201,7 +227,7 @@ body {
 }
 
 .mastery-meter {
-  height: 12px;
+  height: 14px;
   overflow: hidden;
   border-radius: 999px;
   background: #d8d1c3;
@@ -233,6 +259,7 @@ body {
 }
 
 .mastery-chips span {
+  max-width: 100%;
   min-height: 24px;
   padding: 0 9px;
   border: 1px solid #c7bbab;
@@ -242,6 +269,7 @@ body {
   font-size: 0.82rem;
   font-weight: 800;
   line-height: 24px;
+  overflow-wrap: anywhere;
 }
 
 .action-row {
@@ -254,7 +282,7 @@ body {
 }
 
 .action-row button {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 14px;
   border: 1px solid #8c6f4b;
   border-radius: 6px;
@@ -291,6 +319,7 @@ body {
 }
 
 .stage-selector-heading h2 {
+  overflow-wrap: anywhere;
   margin: 0;
 }
 
@@ -301,7 +330,7 @@ body {
 
 .stage-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 12px;
 }
 
@@ -336,6 +365,7 @@ body {
 .stage-card-heading,
 .stage-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: start;
   justify-content: space-between;
@@ -362,6 +392,7 @@ body {
 
 .stage-card-heading > span {
   flex: 0 0 auto;
+  max-width: 100%;
   min-height: 22px;
   padding: 0 8px;
   border: 1px solid #c7bbab;
@@ -396,8 +427,9 @@ body {
 }
 
 .stage-actions button {
-  flex: 1 1 0;
-  min-height: 34px;
+  flex: 1 1 88px;
+  min-width: 0;
+  min-height: 44px;
   border: 1px solid #2e5f63;
   border-radius: 6px;
   background: #2e5f63;
@@ -405,6 +437,7 @@ body {
   font: inherit;
   font-weight: 800;
   cursor: pointer;
+  overflow-wrap: anywhere;
 }
 
 .stage-actions button:disabled {
@@ -435,17 +468,20 @@ body {
 }
 
 .upgrade-panel-heading h2 {
+  overflow-wrap: anywhere;
   margin: 0;
 }
 
 .upgrade-silver {
+  max-width: 100%;
   color: #283315;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .upgrade-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: 12px;
 }
 
@@ -465,6 +501,7 @@ body {
 
 .upgrade-heading {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   align-items: start;
   justify-content: space-between;
@@ -491,6 +528,7 @@ body {
 
 .upgrade-heading > span {
   flex: 0 0 auto;
+  max-width: 100%;
   min-height: 22px;
   padding: 0 8px;
   border: 1px solid #c7bbab;
@@ -517,7 +555,7 @@ body {
 }
 
 .upgrade-card button {
-  min-height: 34px;
+  min-height: 44px;
   border: 1px solid #2e5f63;
   border-radius: 6px;
   background: #2e5f63;
@@ -525,6 +563,7 @@ body {
   font: inherit;
   font-weight: 800;
   cursor: pointer;
+  overflow-wrap: anywhere;
 }
 
 .upgrade-card button:disabled {
@@ -587,6 +626,7 @@ h2 {
 
 .combatant-heading {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: start;
   justify-content: space-between;
@@ -614,6 +654,7 @@ h2 {
 
 .style-tag {
   flex: 0 0 auto;
+  max-width: 100%;
   background: #e7ead7;
   color: #34451f;
   font-size: 0.78rem;
@@ -633,8 +674,15 @@ h2 {
   gap: 6px 12px;
   align-items: center;
   justify-content: space-between;
+  min-width: 0;
   color: #4d4639;
   font-size: 0.8rem;
+}
+
+.bar-label span,
+.bar-label strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .bar-label strong {
@@ -655,7 +703,7 @@ h2 {
 }
 
 .bar.outer {
-  height: 14px;
+  height: 16px;
 }
 
 .bar.outer span {
@@ -663,7 +711,7 @@ h2 {
 }
 
 .bar.inner {
-  height: 8px;
+  height: 10px;
 }
 
 .bar.inner span {
@@ -717,6 +765,7 @@ h2 {
   border-bottom: 1px solid #e1d8c8;
   color: #4d4639;
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 .battle-summary strong {
@@ -799,6 +848,7 @@ h2 {
 
   .stage-header {
     grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .stage-meta {
@@ -827,5 +877,59 @@ h2 {
 
   .event-row {
     grid-template-columns: 44px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .battle-surface {
+    padding: 12px;
+  }
+
+  .stage-header {
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+  }
+
+  .stage-header h1 {
+    font-size: 1.38rem;
+  }
+
+  .stage-meta span,
+  .offline-summary-meta span,
+  .offline-summary-rewards strong,
+  .mastery-chips span {
+    width: 100%;
+    border-radius: 6px;
+  }
+
+  .resource-row,
+  .offline-summary-meta,
+  .offline-summary-rewards {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .offline-summary-heading button,
+  .action-row button,
+  .stage-actions button,
+  .upgrade-card button {
+    width: 100%;
+  }
+
+  .action-row,
+  .stage-actions {
+    align-items: stretch;
+  }
+
+  .stage-card,
+  .upgrade-card,
+  .combatant-card {
+    padding: 12px;
+  }
+
+  .event-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 }
