@@ -502,21 +502,26 @@ textarea {
   border-radius: 8px;
   background: #fffaf0;
   color: inherit;
+  cursor: pointer;
   font: inherit;
   text-align: left;
 }
 
-.stage-card:hover {
+.stage-card:hover,
+.stage-card:focus-visible {
   border-color: #8c6f4b;
+  outline: none;
   box-shadow: inset 0 0 0 1px #8c6f4b;
 }
 
 .stage-card.locked {
   background: #ece6da;
   color: #6d6354;
+  cursor: not-allowed;
 }
 
-.stage-card.locked:hover {
+.stage-card.locked:hover,
+.stage-card.locked:focus-visible {
   border-color: #d6cdbc;
   box-shadow: none;
 }
@@ -607,33 +612,6 @@ textarea {
   font-size: 0.74rem;
   font-weight: 800;
   line-height: 22px;
-}
-
-.stage-action-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.stage-action-buttons button {
-  min-height: 32px;
-  padding: 0 10px;
-  border: 1px solid #2e5f63;
-  border-radius: 6px;
-  background: #2e5f63;
-  color: #fffaf0;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.stage-action-buttons button:disabled {
-  border-color: #b9afa0;
-  background: #d8d1c3;
-  color: #6d6354;
-  cursor: not-allowed;
 }
 
 .upgrade-panel,

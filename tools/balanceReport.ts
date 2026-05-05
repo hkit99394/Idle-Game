@@ -582,14 +582,53 @@ type RegionBalanceReport = ReturnType<typeof buildRegionStageProgressionReport> 
   };
 };
 
+type SeededRegionBalanceReport = {
+  report: RegionBalanceReport;
+  progressAfterRegion: PlayerProgress;
+};
+
+function buildRegionBalancesInOrder(
+  data: StaticGameData,
+  regionIds: string[],
+  startingProgress: PlayerProgress,
+  seededReports: Map<string, SeededRegionBalanceReport>
+): RegionBalanceReport[] {
+  const regionBalances: RegionBalanceReport[] = [];
+  let nextRegionStartingProgress = cloneProgress(startingProgress);
+
+  for (const regionId of regionIds) {
+    const seededReport = seededReports.get(regionId);
+
+    if (seededReport) {
+      regionBalances.push({
+        ...seededReport.report,
+        progressAfterRegion: seededReport.progressAfterRegion
+      });
+      nextRegionStartingProgress = seededReport.progressAfterRegion;
+      continue;
+    }
+
+    const regionBalance = buildRegionStageProgressionReport(
+      data,
+      regionId,
+      nextRegionStartingProgress
+    );
+    regionBalances.push(regionBalance);
+    nextRegionStartingProgress = regionBalance.progressAfterRegion;
+  }
+
+  return regionBalances;
+}
+
 export function buildBambooRoadBalanceReport(data: StaticGameData) {
   const regionIds = getRegionIds(data);
   const bambooRoadStageIds = getRegionStageIds(data, BAMBOO_ROAD_REGION_ID);
   const trainedBossPlan = createTrainedBossPlan(data);
+  const initialProgress = createInitialPlayerProgress(data);
   const bambooRoadProgression = buildRegionStageProgressionReport(
     data,
     BAMBOO_ROAD_REGION_ID,
-    createInitialPlayerProgress(data)
+    initialProgress
   );
   const stageResults = bambooRoadProgression.stageResults;
   const progressBeforeBoss = bambooRoadProgression.progressBeforeBoss;
@@ -643,40 +682,28 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
     trainedBoss.ok && trainedBoss.stageCleared
       ? trainedBoss.progress
       : trainedBossProgress;
-  const mistValleyBalance = buildRegionStageProgressionReport(
+  const bambooRoadRegionReport: RegionBalanceReport = {
+    ...bambooRoadProgression,
+    bossGate: {
+      ...bambooRoadProgression.bossGate,
+      trained: summarizeBattle(data, bossStage, trainedBoss)
+    }
+  };
+  const seededRegionReports = new Map<string, SeededRegionBalanceReport>([
+    [
+      BAMBOO_ROAD_REGION_ID,
+      {
+        report: bambooRoadRegionReport,
+        progressAfterRegion: progressAfterBambooRoad
+      }
+    ]
+  ]);
+  const regionBalances = buildRegionBalancesInOrder(
     data,
-    MIST_VALLEY_REGION_ID,
-    progressAfterBambooRoad
+    regionIds,
+    initialProgress,
+    seededRegionReports
   );
-  const regionBalances: RegionBalanceReport[] = [];
-  let nextRegionStartingProgress = progressAfterBambooRoad;
-
-  for (const regionId of regionIds) {
-    if (regionId === BAMBOO_ROAD_REGION_ID) {
-      regionBalances.push({
-        ...bambooRoadProgression,
-        bossGate: {
-          ...bambooRoadProgression.bossGate,
-          trained: summarizeBattle(data, bossStage, trainedBoss)
-        }
-      });
-      continue;
-    }
-
-    if (regionId === MIST_VALLEY_REGION_ID) {
-      regionBalances.push(mistValleyBalance);
-      nextRegionStartingProgress = mistValleyBalance.progressAfterRegion;
-      continue;
-    }
-
-    const regionBalance = buildRegionStageProgressionReport(
-      data,
-      regionId,
-      nextRegionStartingProgress
-    );
-    regionBalances.push(regionBalance);
-    nextRegionStartingProgress = regionBalance.progressAfterRegion;
-  }
   const bambooRoadProgressBeforeBoss = progressBeforeBoss.maps[
     BAMBOO_ROAD_REGION_ID
   ] ?? {
@@ -752,8 +779,7 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
       farmRecommendation: bambooRoadProgression.farmRecommendation,
       masteryMilestone: bambooRoadProgression.masteryMilestone,
       formationScenarios: buildFormationScenarioReport(data)
-    },
-    mistValleyBalance
+    }
   };
 }
 

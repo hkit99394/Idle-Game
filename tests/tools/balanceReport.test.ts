@@ -61,28 +61,80 @@ describe("balance report", () => {
       return;
     }
 
-    expect(report.mistValleyBalance.regionName).toBe("Mist Valley");
+    const mistValleyBalance = report.regionBalances.find(
+      (region) => region.regionId === MIST_VALLEY_REGION_ID
+    );
+
+    expect(mistValleyBalance).toBeDefined();
+    if (!mistValleyBalance) {
+      return;
+    }
+
+    expect(mistValleyBalance.regionName).toBe("Mist Valley");
     expect(
-      report.mistValleyBalance.stageResults.map((stage) => stage.stageId)
+      mistValleyBalance.stageResults.map((stage) => stage.stageId)
     ).toEqual(mistValley.stageIds);
-    expect(report.mistValleyBalance.stageResults[0]).toMatchObject({
+    expect(mistValleyBalance.stageResults[0]).toMatchObject({
       ok: true,
       winner: "player",
       stageCleared: true,
       enemyTypes: ["normal", "normal"],
       enemyFormationSlots: ["front", "middle"]
     });
-    expect(report.mistValleyBalance.stageResults.at(-1)).toMatchObject({
+    expect(mistValleyBalance.stageResults.at(-1)).toMatchObject({
       stageId: "mist_valley_6"
     });
-    expect(report.mistValleyBalance.farmRecommendation).toMatchObject({
+    expect(mistValleyBalance.farmRecommendation).toMatchObject({
       stageId: "mist_valley_5"
     });
-    expect(report.mistValleyBalance.bossGate.baseline).toMatchObject({
+    expect(mistValleyBalance.bossGate.baseline).toMatchObject({
       stageId: "mist_valley_6",
       ok: true,
       winner: "player"
     });
+  });
+
+  it("does not require a hard-coded Mist Valley region to build later regions", () => {
+    const renamedRegionId = "renamed_valley";
+    const renamedData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === MIST_VALLEY_REGION_ID
+          ? {
+              ...region,
+              id: renamedRegionId,
+              name: "Renamed Valley"
+            }
+          : region
+      ),
+      stages: staticData.stages.map((stage) =>
+        stage.regionId === MIST_VALLEY_REGION_ID
+          ? {
+              ...stage,
+              regionId: renamedRegionId
+            }
+          : stage
+      )
+    };
+
+    const report = buildBambooRoadBalanceReport(renamedData);
+
+    expect(report.regionBalances.map((region) => region.regionId)).toEqual(
+      renamedData.regions.map((region) => region.id)
+    );
+    expect(report.regionBalances.at(-1)).toMatchObject({
+      regionId: renamedRegionId,
+      regionName: "Renamed Valley"
+    });
+    expect(report.regionBalances.at(-1)?.stageResults[0]).toMatchObject({
+      ok: true,
+      stageCleared: true
+    });
+    expect(
+      report.regionBalances.some(
+        (region) => region.regionId === MIST_VALLEY_REGION_ID
+      )
+    ).toBe(false);
   });
 
   it("runs every configured region in region order with summary metrics", () => {

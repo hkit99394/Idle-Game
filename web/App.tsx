@@ -1,5 +1,5 @@
 import { Component, useEffect, useState } from "react";
-import type { ChangeEvent, ReactNode } from "react";
+import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
 import "./styles/app.css";
 import { FORMATION_SLOTS } from "../core";
 import type { FormationSlot, ResolveStageBattleResult } from "../core";
@@ -583,16 +583,28 @@ function OfflineFarmPanel({
 }
 
 type StageSelectorPanelProps = {
-  onSelectOfflineFarmStage: (stageId: string | null) => void;
   onSelectStage: (stageId: string) => void;
   stages: StageOptionView[];
 };
 
 function StageSelectorPanel({
-  onSelectOfflineFarmStage,
   onSelectStage,
   stages
 }: StageSelectorPanelProps) {
+  const handleStageKeyDown = (
+    event: KeyboardEvent<HTMLElement>,
+    stage: StageOptionView
+  ) => {
+    if (!stage.canSelectStage) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelectStage(stage.id);
+    }
+  };
+
   return (
     <section className="stage-selector" aria-label="Stage routes">
       <div className="stage-selector-heading">
@@ -616,6 +628,14 @@ function StageSelectorPanel({
                 stage.isBoss ? "boss" : "",
                 stage.isSelectedStage ? "selected-stage" : ""
               ].join(" ")}
+              onClick={() => {
+                if (stage.canSelectStage) {
+                  onSelectStage(stage.id);
+                }
+              }}
+              onKeyDown={(event) => handleStageKeyDown(event, stage)}
+              role="button"
+              tabIndex={stage.canSelectStage ? 0 : -1}
             >
               <div className="stage-card-heading">
                 <div>
@@ -647,24 +667,6 @@ function StageSelectorPanel({
                       ? "Farmable"
                       : "Not farmable"}
                 </span>
-                <div className="stage-action-buttons">
-                  <button
-                    type="button"
-                    disabled={!stage.canSelectStage || stage.isSelectedStage}
-                    onClick={() => onSelectStage(stage.id)}
-                  >
-                    {stage.isSelectedStage ? "Current" : "Fight"}
-                  </button>
-                  {stage.canSelectOfflineFarm ? (
-                    <button
-                      type="button"
-                      disabled={stage.isSelectedOfflineFarmStage}
-                      onClick={() => onSelectOfflineFarmStage(stage.id)}
-                    >
-                      {stage.isSelectedOfflineFarmStage ? "Selected" : "Set Farm"}
-                    </button>
-                  ) : null}
-                </div>
               </div>
             </article>
           ))
@@ -1154,7 +1156,6 @@ function GameApp() {
     purchaseUpgrade,
     resetNewGame,
     saveDiagnostics,
-    selectOfflineFarmStage,
     selectStage,
     setOfflineFarmPreset,
     setHeroFormation,
@@ -1314,7 +1315,6 @@ function GameApp() {
         />
         <MasteryPanel mastery={masteryPanel} />
         <StageSelectorPanel
-          onSelectOfflineFarmStage={selectOfflineFarmStage}
           onSelectStage={selectStage}
           stages={stageOptions}
         />

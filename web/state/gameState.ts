@@ -2272,13 +2272,6 @@ export function useWebGameState(data: StaticGameData) {
     });
   }, [dispatchAndPersist]);
 
-  const selectOfflineFarmStage = useCallback((stageId: string | null) => {
-    dispatchAndPersist({
-      type: "select_offline_farm_stage",
-      stageId
-    });
-  }, [dispatchAndPersist]);
-
   const setOfflineFarmPreset = useCallback((preset: OfflineFarmPreset) => {
     dispatchAndPersist({
       type: "set_offline_farm_preset",
@@ -2495,7 +2488,6 @@ export function useWebGameState(data: StaticGameData) {
     purchaseSkillUpgrade,
     equipEquipment,
     selectStage,
-    selectOfflineFarmStage,
     setOfflineFarmPreset,
     setHeroFormation,
     dismissOfflineSummary,
