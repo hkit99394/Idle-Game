@@ -1,4 +1,6 @@
-# MVP Backlog
+# Archived MVP Backlog
+
+This completed backlog is archived for reference. The completed post-MVP Stage 1.1 backlog is [Stage 1.1 Backlog](stage-1.1-backlog.md).
 
 This backlog tracks the remaining work needed to reach the first playable MVP for **Path of Jianghu**.
 

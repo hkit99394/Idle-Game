@@ -15,5 +15,21 @@
       "bamboo_road_10"
     ],
     "unlockCondition": { "type": "always" }
+  },
+  {
+    "id": "mist_valley",
+    "name": "Mist Valley",
+    "stageIds": [
+      "mist_valley_1",
+      "mist_valley_2",
+      "mist_valley_3",
+      "mist_valley_4",
+      "mist_valley_5",
+      "mist_valley_6"
+    ],
+    "unlockCondition": {
+      "type": "stage_cleared",
+      "stageId": "bamboo_road_10"
+    }
   }
 ]

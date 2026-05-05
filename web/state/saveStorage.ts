@@ -3,6 +3,7 @@ import {
   createInitialPlayerProgress,
   createSaveData,
   parseSaveData,
+  normalizeOfflineFarmPreset,
   setOfflineFarmStageTarget
 } from "../../core";
 import type {
@@ -16,6 +17,13 @@ export const WEB_SAVE_STORAGE_KEY = "path-of-jianghu.save.v1";
 export const WEB_SAVE_AUTOSAVE_INTERVAL_MS = 15_000;
 
 export type WebSaveStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+
+type SaveSchemaData = Pick<
+  StaticGameData,
+  "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment"
+>;
+
+type OfflineSaveData = SaveSchemaData & Pick<StaticGameData, "mastery">;
 
 export type LoadSaveDataFromStorageResult =
   | {
@@ -94,7 +102,7 @@ export function getBrowserSaveStorage(): WebSaveStorage | null {
 }
 
 export function loadSaveDataFromStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   key = WEB_SAVE_STORAGE_KEY
 ): LoadSaveDataFromStorageResult {
@@ -147,7 +155,7 @@ export function loadSaveDataFromStorage(
 }
 
 export function loadSaveDataWithOfflineRewardsFromStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "mastery">,
+  data: OfflineSaveData,
   storage: WebSaveStorage,
   nowMs = Date.now(),
   key = WEB_SAVE_STORAGE_KEY
@@ -159,10 +167,14 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
   }
 
   const rewardTimeMs = Math.max(nowMs, loadResult.save.updatedAtMs);
+  const offlineFarmPreset = normalizeOfflineFarmPreset(
+    loadResult.save.offlineFarmPreset
+  );
   const selectedOfflineFarmStageId = setOfflineFarmStageTarget(
     data,
     loadResult.save.progress,
-    loadResult.save.selectedOfflineFarmStageId
+    loadResult.save.selectedOfflineFarmStageId,
+    offlineFarmPreset
   );
   const farmTargetChanged =
     selectedOfflineFarmStageId !== loadResult.save.selectedOfflineFarmStageId;
@@ -186,6 +198,7 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
   const save = createSaveData({
     progress: hasRewards ? offlineRewards.progress : loadResult.save.progress,
     selectedOfflineFarmStageId,
+    offlineFarmPreset,
     nowMs: hasRewards ? rewardTimeMs : loadResult.save.updatedAtMs,
     lastOfflineRewardAtMs: hasRewards
       ? rewardTimeMs
@@ -211,8 +224,11 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
 }
 
 export function saveWebGameStateToStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
-  state: Pick<WebGameState, "progress" | "selectedOfflineFarmStageId">,
+  data: SaveSchemaData,
+  state: Pick<
+    WebGameState,
+    "progress" | "selectedOfflineFarmStageId" | "offlineFarmPreset"
+  >,
   storage: WebSaveStorage,
   nowMs = Date.now(),
   key = WEB_SAVE_STORAGE_KEY
@@ -221,6 +237,7 @@ export function saveWebGameStateToStorage(
   const save = createSaveData({
     progress: state.progress,
     selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+    offlineFarmPreset: state.offlineFarmPreset,
     nowMs,
     previousSave: previousSaveResult.ok ? previousSaveResult.save : null
   });
@@ -242,7 +259,7 @@ export function saveWebGameStateToStorage(
 }
 
 export function exportSaveDataFromStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   key = WEB_SAVE_STORAGE_KEY
 ): ExportSaveDataFromStorageResult {
@@ -260,7 +277,7 @@ export function exportSaveDataFromStorage(
 }
 
 export function importSaveDataToStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   rawSaveText: string,
   key = WEB_SAVE_STORAGE_KEY
@@ -302,8 +319,10 @@ export function importSaveDataToStorage(
     selectedOfflineFarmStageId: setOfflineFarmStageTarget(
       data,
       parseResult.save.progress,
-      parseResult.save.selectedOfflineFarmStageId
-    )
+      parseResult.save.selectedOfflineFarmStageId,
+      parseResult.save.offlineFarmPreset
+    ),
+    offlineFarmPreset: normalizeOfflineFarmPreset(parseResult.save.offlineFarmPreset)
   };
 
   try {
@@ -323,7 +342,7 @@ export function importSaveDataToStorage(
 }
 
 export function resetSaveDataInStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   nowMs = Date.now(),
   key = WEB_SAVE_STORAGE_KEY
@@ -352,7 +371,7 @@ export function resetSaveDataInStorage(
 }
 
 export function timeTravelOfflineSaveInStorage(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveSchemaData,
   storage: WebSaveStorage,
   offlineSeconds: number,
   nowMs = Date.now(),

@@ -73,5 +73,74 @@
     "innerMultiplier": 0.1,
     "targetRule": "first_living",
     "effects": []
+  },
+  {
+    "id": "mist_palm_jab",
+    "name": "Mist Palm Jab",
+    "cooldownSeconds": 4.5,
+    "outerMultiplier": 0.25,
+    "innerMultiplier": 1.25,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "inner_defense_down",
+        "value": 0.06,
+        "durationSeconds": 5
+      }
+    ]
+  },
+  {
+    "id": "needle_flurry",
+    "name": "Needle Flurry",
+    "cooldownSeconds": 3.8,
+    "outerMultiplier": 0.7,
+    "innerMultiplier": 0.75,
+    "targetRule": "weakest_hp",
+    "effects": []
+  },
+  {
+    "id": "fog_staff_guard",
+    "name": "Fog Staff Guard",
+    "cooldownSeconds": 5.5,
+    "outerMultiplier": 0.8,
+    "innerMultiplier": 0.35,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "speed_down",
+        "value": 0.08,
+        "durationSeconds": 5
+      }
+    ]
+  },
+  {
+    "id": "cloud_meridian_press",
+    "name": "Cloud Meridian Press",
+    "cooldownSeconds": 5,
+    "outerMultiplier": 0.35,
+    "innerMultiplier": 1.8,
+    "targetRule": "inner_broken",
+    "effects": [
+      {
+        "type": "inner_defense_down",
+        "value": 0.12,
+        "durationSeconds": 6
+      }
+    ]
+  },
+  {
+    "id": "valley_heart_seal",
+    "name": "Valley Heart Seal",
+    "cooldownSeconds": 6,
+    "outerMultiplier": 0.45,
+    "innerMultiplier": 2,
+    "targetRule": "highest_cp",
+    "effects": [
+      {
+        "type": "inner_defense_down",
+        "value": 0.16,
+        "durationSeconds": 6
+      }
+    ]
   }
 ]

@@ -1,5 +1,6 @@
-import type { BaseStats, TeamInstance } from "../combat";
+import type { BaseStats, FormationSlot, TeamInstance } from "../combat";
 import { simulateBattle } from "../combat";
+import { getDefaultFormationSlot, FORMATION_SLOTS } from "../combat";
 import type { StaticGameData } from "../data";
 import {
   applyStageClearRewards
@@ -17,9 +18,11 @@ import {
   calculatePlayerLevel,
   scaleStatsForLevel
 } from "./levels";
+import { getPlayerFormationSlot } from "./playerFormation";
 import {
   deriveHeroStatsFromProgress
 } from "./upgrades";
+import { getSkillUpgradeLevelsForBattle } from "./skillUpgrades";
 import type {
   BuildEnemyTeamResult,
   BuildPlayerTeamResult,
@@ -64,6 +67,23 @@ function getEffectiveHeroProgress(
   };
 }
 
+function getEnemyFormationSlot(
+  stage: NonNullable<ReturnType<typeof getStageById>>,
+  combatantIndex: number
+): FormationSlot {
+  const formation = stage.enemyTeam.formation;
+
+  if (formation) {
+    for (const slot of FORMATION_SLOTS) {
+      if (formation[slot]?.includes(combatantIndex)) {
+        return slot;
+      }
+    }
+  }
+
+  return getDefaultFormationSlot(combatantIndex);
+}
+
 function createPlayerCombatantStats(
   data: StaticGameData,
   progress: PlayerProgress,
@@ -78,6 +98,7 @@ function createPlayerCombatantStats(
 
   return deriveHeroStatsFromProgress({
     baseStats: hero.baseStats,
+    heroId: hero.id,
     heroProgress: getEffectiveHeroProgress(
       progress,
       hero.id,
@@ -86,6 +107,11 @@ function createPlayerCombatantStats(
     sectProgress: progress.sect,
     heroUpgradeDefinitions: context.heroUpgradeDefinitions,
     sectUpgradeDefinitions: context.sectUpgradeDefinitions,
+    style: hero.style,
+    styleDefinitions: data.styles,
+    styleMastery: progress.styleMastery,
+    equipmentDefinitions: data.equipment,
+    equipment: progress.equipment,
     mapAttackMultiplier: context.mapAttackMultiplier
   });
 }
@@ -109,6 +135,10 @@ export function buildPlayerTeamForStage(
     ? masterySummary.summary.damageMultipliersByFamily
     : {};
   const playerLevel = calculatePlayerLevel(progress);
+  const skillUpgradeLevels = getSkillUpgradeLevelsForBattle(
+    data.skillUpgrades,
+    progress
+  );
   const statsContext: PlayerCombatantStatsContext = {
     heroUpgradeDefinitions: getHeroUpgradeDefinitions(data),
     sectUpgradeDefinitions: getSectUpgradeDefinitions(data),
@@ -120,12 +150,13 @@ export function buildPlayerTeamForStage(
 
   const team: TeamInstance = {
     id: "player",
-    combatants: MVP_PLAYER_HERO_IDS.map((heroId) => {
+    combatants: MVP_PLAYER_HERO_IDS.map((heroId, heroIndex) => {
       const heroProgress = getEffectiveHeroProgress(progress, heroId, playerLevel);
 
       return {
         kind: "hero",
         definitionId: heroId,
+        formationSlot: getPlayerFormationSlot(progress, heroId, heroIndex),
         level: heroProgress.level,
         statsOverride: createPlayerCombatantStats(
           data,
@@ -133,6 +164,7 @@ export function buildPlayerTeamForStage(
           heroId,
           statsContext
         ),
+        skillUpgradeLevels,
         damageMultipliersByFamily
       };
     })
@@ -173,7 +205,7 @@ export function buildEnemyTeamForStage(
     ok: true,
     team: {
       id: "enemy",
-      combatants: stage.enemyTeam.combatantIds.map((enemyId) => {
+      combatants: stage.enemyTeam.combatantIds.map((enemyId, combatantIndex) => {
         const enemy = enemiesById.get(enemyId);
 
         if (!enemy) {
@@ -183,6 +215,7 @@ export function buildEnemyTeamForStage(
         return {
           kind: "enemy",
           definitionId: enemyId,
+          formationSlot: getEnemyFormationSlot(stage, combatantIndex),
           level: enemy.level,
           statsOverride: scaleStatsForLevel(enemy.baseStats, enemy.level)
         };
@@ -249,7 +282,8 @@ export function resolveStageBattle(
       masteryRanksAfter: [],
       newlyReachedMasteryRanks: [],
       suggestedFarmStageId:
-        getRecommendedOfflineFarmStage(data, input.progress)?.id ?? null
+        getRecommendedOfflineFarmStage(data, input.progress)?.id ?? null,
+      equipmentRewards: []
     };
   }
 
@@ -283,6 +317,7 @@ export function resolveStageBattle(
     masteryRanksBefore: rewardsResult.masteryRanksBefore,
     masteryRanksAfter: rewardsResult.masteryRanksAfter,
     newlyReachedMasteryRanks: rewardsResult.newlyReachedMasteryRanks,
-    suggestedFarmStageId: null
+    suggestedFarmStageId: null,
+    equipmentRewards: rewardsResult.equipmentRewards
   };
 }

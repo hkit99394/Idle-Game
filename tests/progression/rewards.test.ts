@@ -26,6 +26,10 @@ describe("stage clear rewards", () => {
     expect(result.progress.resources.silver).toBe(10);
     expect(result.progress.resources.cultivation).toBe(5);
     expect(result.progress.maps.bamboo_road.combatExperience).toBe(5);
+    expect(result.progress.styleMastery?.fist.experience).toBe(5);
+    expect(result.progress.styleMastery?.palm.experience).toBe(5);
+    expect(result.progress.styleMastery?.sword.experience).toBe(5);
+    expect(result.progress.styleMastery?.staff.experience).toBe(5);
     expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
     expect(result.progress.currentStageId).toBe("bamboo_road_1");
   });

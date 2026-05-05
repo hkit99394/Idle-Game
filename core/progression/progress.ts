@@ -4,6 +4,7 @@ import type {
   StaticGameData
 } from "../data";
 import type { HeroProgress, PlayerProgress } from "./types";
+import { createDefaultPlayerFormation } from "./playerFormationDefaults";
 
 export function createInitialHeroProgress(): HeroProgress {
   return {
@@ -39,6 +40,13 @@ export function createInitialPlayerProgress(
         }
       ])
     ),
+    formation: createDefaultPlayerFormation(data.heroes.map((hero) => hero.id)),
+    styleMastery: {},
+    skillUpgrades: {},
+    equipment: {
+      inventory: {},
+      equipped: {}
+    },
     currentStageId: firstStageId
   };
 }
@@ -67,6 +75,29 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
         }
       ])
     ),
+    formation: progress.formation ? { ...progress.formation } : undefined,
+    styleMastery: progress.styleMastery
+      ? Object.fromEntries(
+          Object.entries(progress.styleMastery).map(([styleId, mastery]) => [
+            styleId,
+            { experience: mastery.experience }
+          ])
+        )
+      : undefined,
+    skillUpgrades: progress.skillUpgrades
+      ? { ...progress.skillUpgrades }
+      : undefined,
+    equipment: progress.equipment
+      ? {
+          inventory: { ...progress.equipment.inventory },
+          equipped: Object.fromEntries(
+            Object.entries(progress.equipment.equipped).map(([heroId, slots]) => [
+              heroId,
+              { ...slots }
+            ])
+          )
+        }
+      : undefined,
     currentStageId: progress.currentStageId
   };
 }

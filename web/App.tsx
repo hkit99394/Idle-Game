@@ -1,18 +1,29 @@
 import { Component, useEffect, useState } from "react";
 import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
 import "./styles/app.css";
-import type { ResolveStageBattleResult } from "../core";
+import { FORMATION_SLOTS } from "../core";
+import type { FormationSlot, ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
 import type {
   BattleEventBadgeView,
   BattleCombatantView,
   BattleEventView,
   BattleSummaryView,
+  EquipGameEquipmentInput,
+  EquipmentInventoryItemView,
+  HeroEquipmentView,
   MasteryPanelView,
+  OfflineFarmPresetView,
+  OfflineFarmRecommendationView,
+  OfflineRewardPreviewView,
   OfflineRewardSummaryView,
+  PlayerFormationHeroView,
+  PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
   SaveDiagnosticsView,
+  SkillUpgradeView,
   StageOptionView,
+  StyleMasteryView,
   UpgradeView
 } from "./state/gameState";
 import {
@@ -170,6 +181,16 @@ function formatSignedPercent(value: number): string {
   }).format(value);
 }
 
+function formatFormationSlot(slot: string): string {
+  return `${slot.charAt(0).toUpperCase()}${slot.slice(1)}`;
+}
+
+function formatCombatRole(role: string): string {
+  return role
+    .replace(/[-_]+/g, " ")
+    .replace(/^./, (match) => match.toUpperCase());
+}
+
 type CombatantCardProps = {
   combatant: BattleCombatantView;
 };
@@ -189,6 +210,8 @@ function CombatantCard({ combatant }: CombatantCardProps) {
           <span>{combatant.role}</span>
         </div>
         <div className="combatant-tags">
+          <span className="slot-tag">{formatFormationSlot(combatant.formationSlot)}</span>
+          <span className="role-tag">{formatCombatRole(combatant.combatRole)}</span>
           <span className="level-tag">Lv {formatNumber(combatant.level)}</span>
           <span className="cp-tag">CP {formatNumber(combatant.combatPower)}</span>
           <span className="style-tag">{combatant.style}</span>
@@ -221,6 +244,70 @@ function CombatantCard({ combatant }: CombatantCardProps) {
         </div>
       ) : null}
     </article>
+  );
+}
+
+type FormationPanelProps = {
+  heroes: PlayerFormationHeroView[];
+  onSetFormation: (heroId: string, slot: FormationSlot) => void;
+};
+
+function FormationPanel({ heroes, onSetFormation }: FormationPanelProps) {
+  return (
+    <section className="formation-panel" aria-label="Player formation">
+      <div className="formation-panel-heading">
+        <div>
+          <span className="label">Formation</span>
+          <h2>Disciples</h2>
+        </div>
+        <span>{heroes.length} heroes</span>
+      </div>
+      <div className="formation-slots">
+        {FORMATION_SLOTS.map((slot) => {
+          const heroesInSlot = heroes.filter(
+            (hero) => hero.formationSlot === slot
+          );
+
+          return (
+            <div key={slot} className="formation-slot">
+              <strong>{formatFormationSlot(slot)}</strong>
+              {heroesInSlot.length > 0 ? (
+                heroesInSlot.map((hero) => (
+                  <span key={hero.heroId}>{hero.name}</span>
+                ))
+              ) : (
+                <span>Empty</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="formation-controls">
+        {heroes.map((hero) => (
+          <article key={hero.heroId} className="formation-hero">
+            <div>
+              <strong>{hero.name}</strong>
+              <span>
+                {hero.role} · {formatCombatRole(hero.combatRole)}
+              </span>
+            </div>
+            <div className="formation-buttons" role="group" aria-label={`${hero.name} position`}>
+              {FORMATION_SLOTS.map((slot) => (
+                <button
+                  key={slot}
+                  type="button"
+                  className={hero.formationSlot === slot ? "selected" : ""}
+                  aria-pressed={hero.formationSlot === slot}
+                  onClick={() => onSetFormation(hero.heroId, slot)}
+                >
+                  {formatFormationSlot(slot)}
+                </button>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -426,6 +513,75 @@ function OfflineSummaryPanel({
   );
 }
 
+type OfflineFarmPanelProps = {
+  onSetPreset: (preset: OfflineFarmPresetView["id"]) => void;
+  presets: OfflineFarmPresetView[];
+  preview: OfflineRewardPreviewView;
+  recommendation: OfflineFarmRecommendationView;
+};
+
+function OfflineFarmPanel({
+  onSetPreset,
+  presets,
+  preview,
+  recommendation
+}: OfflineFarmPanelProps) {
+  return (
+    <section className="offline-farm-panel" aria-label="Offline farming">
+      <div className="offline-farm-heading">
+        <div>
+          <span className="label">Idle</span>
+          <h2>Offline Farming</h2>
+        </div>
+        <span>
+          {preview.ok
+            ? `${formatNumber(preview.clears)} clears / ${formatDuration(preview.previewSeconds)}`
+            : preview.reason}
+        </span>
+      </div>
+      <div className="offline-preset-row">
+        {presets.map((preset) => (
+          <button
+            key={preset.id}
+            type="button"
+            className={preset.isSelected ? "selected" : ""}
+            onClick={() => onSetPreset(preset.id)}
+            title={preset.description}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+      <div className="offline-farm-grid">
+        <article className="offline-farm-card">
+          <span className="label">Selected Farm</span>
+          <h3>{preview.stageName}</h3>
+          <p>{preview.regionName}</p>
+          <div className="offline-preview-rewards">
+            <span>{formatNumber(preview.silver)} silver</span>
+            <span>{formatNumber(preview.cultivation)} cultivation</span>
+            <span>{formatNumber(preview.combatExperience)} Combat XP</span>
+            <span>{formatNumber(preview.masteryExperienceGain)} mastery</span>
+          </div>
+        </article>
+        <article className="offline-farm-card">
+          <span className="label">Best {recommendation.presetLabel}</span>
+          <h3>{recommendation.stageName}</h3>
+          <p>{recommendation.regionName}</p>
+          <div className="offline-priority-list">
+            {recommendation.rewardPriority.map((priority) => (
+              <span key={priority}>{priority}</span>
+            ))}
+          </div>
+          <strong>
+            {recommendation.isSelected ? "Selected" : "Different from selected"}
+          </strong>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 type StageSelectorPanelProps = {
   onSelectStage: (stageId: string) => void;
   stages: StageOptionView[];
@@ -435,27 +591,26 @@ function StageSelectorPanel({
   onSelectStage,
   stages
 }: StageSelectorPanelProps) {
-  function handleStageKeyDown(
+  const handleStageKeyDown = (
     event: KeyboardEvent<HTMLElement>,
     stage: StageOptionView
-  ) {
-    if (
-      !stage.canSelectStage ||
-      (event.key !== "Enter" && event.key !== " ")
-    ) {
+  ) => {
+    if (!stage.canSelectStage) {
       return;
     }
 
-    event.preventDefault();
-    onSelectStage(stage.id);
-  }
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelectStage(stage.id);
+    }
+  };
 
   return (
-    <section className="stage-selector" aria-label="Bamboo Road stages">
+    <section className="stage-selector" aria-label="Stage routes">
       <div className="stage-selector-heading">
         <div>
           <span className="label">Route</span>
-          <h2>Bamboo Road</h2>
+          <h2>Map Routes</h2>
         </div>
         <span>{stages.filter((stage) => stage.isCleared).length} cleared</span>
       </div>
@@ -485,7 +640,7 @@ function StageSelectorPanel({
               <div className="stage-card-heading">
                 <div>
                   <strong>{stage.name}</strong>
-                  <span>Stage {stage.index}</span>
+                  <span>{stage.regionName} · Stage {stage.index}</span>
                 </div>
                 <span>
                   {stage.isSelectedStage
@@ -503,6 +658,15 @@ function StageSelectorPanel({
                 <span>{formatNumber(stage.rewards.silver)} silver</span>
                 <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
                 <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
+              </div>
+              <div className="stage-card-actions">
+                <span>
+                  {stage.isSelectedOfflineFarmStage
+                    ? "Farm target"
+                    : stage.canSelectOfflineFarm
+                      ? "Farmable"
+                      : "Not farmable"}
+                </span>
               </div>
             </article>
           ))
@@ -523,11 +687,11 @@ type UpgradePanelProps = {
 
 function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProps) {
   return (
-    <section className="upgrade-panel" aria-label="Training upgrades">
+    <section className="upgrade-panel" aria-label="Outer and Inner Art">
       <div className="upgrade-panel-heading">
         <div>
-          <span className="label">Training</span>
-          <h2>Upgrades</h2>
+          <span className="label">Arts</span>
+          <h2>Outer And Inner Art</h2>
         </div>
         <div className="upgrade-silver">Silver {formatNumber(silver)}</div>
       </div>
@@ -543,13 +707,14 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
                   <strong>{upgrade.name}</strong>
                   <span>{upgrade.targetName}</span>
                 </div>
-                <span>{upgrade.scope}</span>
+                <span>{upgrade.art} art</span>
               </div>
               <div className="upgrade-stats">
                 <span>Level {upgrade.level}</span>
                 <span>Cost {formatNumber(upgrade.cost)}</span>
-                <span>{upgrade.stat}</span>
-                <span>{formatSignedPercent(upgrade.effectPercent)} per level</span>
+                {upgrade.effects.map((effect) => (
+                  <span key={effect}>{effect}</span>
+                ))}
                 {!upgrade.affordable ? (
                   <span className="upgrade-shortfall">
                     Need {formatNumber(upgrade.missingSilver)} more silver
@@ -567,7 +732,7 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
                 }
               >
                 {upgrade.affordable
-                  ? "Train"
+                  ? "Train Art"
                   : `Need ${formatNumber(upgrade.missingSilver)} silver`}
               </button>
             </article>
@@ -575,6 +740,241 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
         ) : (
           <p className="empty-panel">No upgrades available</p>
         )}
+      </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
+    </section>
+  );
+}
+
+type StyleMasteryPanelProps = {
+  styles: StyleMasteryView[];
+};
+
+function StyleMasteryPanel({ styles }: StyleMasteryPanelProps) {
+  return (
+    <section className="style-mastery-panel" aria-label="Style mastery">
+      <div className="style-mastery-heading">
+        <div>
+          <span className="label">Mastery</span>
+          <h2>Martial Styles</h2>
+        </div>
+        <span>{styles.length} styles</span>
+      </div>
+      <div className="style-mastery-grid">
+        {styles.map((style) => {
+          const width = `${Math.round(style.progressPercent * 100)}%`;
+
+          return (
+            <article key={style.styleId} className="style-mastery-card">
+              <div className="style-mastery-card-heading">
+                <div>
+                  <strong>{style.name}</strong>
+                  <span>Level {formatNumber(style.level)}</span>
+                </div>
+                <span>{formatNumber(style.experience)} XP</span>
+              </div>
+              <div className="mastery-meter">
+                <span style={{ width }} />
+              </div>
+              <div className="style-bonus-list">
+                {style.bonuses.map((bonus) => (
+                  <span key={bonus}>{bonus}</span>
+                ))}
+              </div>
+              <div className="style-branch-list">
+                {style.branches.map((branch) => (
+                  <span
+                    key={branch.id}
+                    className={branch.isUnlocked ? "unlocked" : "locked"}
+                  >
+                    {branch.name} · {branch.isUnlocked ? "Unlocked" : branch.requirement}
+                  </span>
+                ))}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+type SkillUpgradePanelProps = {
+  cultivation: number;
+  onPurchase: (input: PurchaseGameSkillUpgradeInput) => void;
+  skillUpgrades: SkillUpgradeView[];
+  status: string;
+};
+
+function SkillUpgradePanel({
+  cultivation,
+  onPurchase,
+  skillUpgrades,
+  status
+}: SkillUpgradePanelProps) {
+  return (
+    <section className="skill-upgrade-panel" aria-label="Skill upgrades">
+      <div className="skill-upgrade-heading">
+        <div>
+          <span className="label">Techniques</span>
+          <h2>Skill Refinement</h2>
+        </div>
+        <div className="upgrade-silver">
+          Cultivation {formatNumber(cultivation)}
+        </div>
+      </div>
+      <div className="upgrade-grid">
+        {skillUpgrades.map((upgrade) => (
+          <article
+            key={upgrade.key}
+            className={`upgrade-card ${upgrade.affordable ? "" : "unaffordable"}`}
+          >
+            <div className="upgrade-heading">
+              <div>
+                <strong>{upgrade.name}</strong>
+                <span>{upgrade.skillName}</span>
+              </div>
+              <span>
+                {upgrade.level}/{upgrade.maxLevel}
+              </span>
+            </div>
+            <div className="upgrade-stats">
+              <span>Cost {formatNumber(upgrade.cost)}</span>
+              {upgrade.effects.map((effect) => (
+                <span key={effect}>{effect}</span>
+              ))}
+              {!upgrade.affordable ? (
+                <span className="upgrade-shortfall">
+                  {upgrade.level >= upgrade.maxLevel
+                    ? "Maximum refinement"
+                    : `Need ${formatNumber(upgrade.missingCultivation)} more cultivation`}
+                </span>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              disabled={!upgrade.affordable}
+              onClick={() =>
+                onPurchase({
+                  skillUpgradeId: upgrade.skillUpgradeId
+                })
+              }
+            >
+              {upgrade.affordable
+                ? "Refine"
+                : upgrade.level >= upgrade.maxLevel
+                  ? "Maxed"
+                  : `Need ${formatNumber(upgrade.missingCultivation)} cultivation`}
+            </button>
+          </article>
+        ))}
+      </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
+    </section>
+  );
+}
+
+type EquipmentPanelProps = {
+  heroes: HeroEquipmentView[];
+  inventory: EquipmentInventoryItemView[];
+  onEquip: (input: EquipGameEquipmentInput) => void;
+  status: string;
+};
+
+function EquipmentPanel({
+  heroes,
+  inventory,
+  onEquip,
+  status
+}: EquipmentPanelProps) {
+  const heroNames = new Map(heroes.map((hero) => [hero.heroId, hero.name]));
+
+  return (
+    <section className="equipment-panel" aria-label="Equipment">
+      <div className="equipment-heading">
+        <div>
+          <span className="label">Gear</span>
+          <h2>Equipment</h2>
+        </div>
+        <span>{inventory.reduce((total, item) => total + item.count, 0)} owned</span>
+      </div>
+      <div className="equipment-layout">
+        <div className="hero-equipment-list">
+          {heroes.map((hero) => (
+            <article key={hero.heroId} className="hero-equipment-card">
+              <div className="hero-equipment-heading">
+                <strong>{hero.name}</strong>
+                <span>{hero.style}</span>
+              </div>
+              <div className="equipment-slot-list">
+                {hero.slots.map((slot) => (
+                  <div key={slot.slot} className="equipment-slot-row">
+                    <span>{slot.label}</span>
+                    <strong
+                      className={slot.rarity ? `rarity-${slot.rarity}` : ""}
+                    >
+                      {slot.name ?? "Empty"}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="equipment-inventory-list">
+          {inventory.length > 0 ? (
+            inventory.map((item) => (
+              <article
+                key={item.equipmentId}
+                className={`equipment-item-card rarity-${item.rarity}`}
+              >
+                <div className="equipment-item-heading">
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>
+                      {item.slot} · {item.rarity}
+                    </span>
+                  </div>
+                  <span>
+                    {item.availableCount}/{item.count}
+                  </span>
+                </div>
+                <div className="equipment-effects">
+                  {item.effects.map((effect) => (
+                    <span key={effect}>{effect}</span>
+                  ))}
+                </div>
+                <div className="equipment-styles">
+                  {item.allowedStyles.map((style) => (
+                    <span key={style}>{style}</span>
+                  ))}
+                </div>
+                <div className="equipment-actions">
+                  {item.compatibleHeroIds.length > 0 ? (
+                    item.compatibleHeroIds.map((heroId) => (
+                      <button
+                        key={heroId}
+                        type="button"
+                        onClick={() =>
+                          onEquip({
+                            heroId,
+                            equipmentId: item.equipmentId
+                          })
+                        }
+                      >
+                        Equip {heroNames.get(heroId) ?? heroId}
+                      </button>
+                    ))
+                  ) : (
+                    <span>No compatible free copy</span>
+                  )}
+                </div>
+              </article>
+            ))
+          ) : (
+            <p className="empty-panel">No equipment found</p>
+          )}
+        </div>
       </div>
       {status ? <div className="upgrade-status">{status}</div> : null}
     </section>
@@ -630,6 +1030,8 @@ function SaveToolsPanel({
         <strong>{diagnostics.currentStageId}</strong>
         <span>Farm stage</span>
         <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
+        <span>Farm preset</span>
+        <strong>{diagnostics.offlineFarmPreset}</strong>
         <span>Highest clear</span>
         <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
         <span>Save size</span>
@@ -747,12 +1149,16 @@ function GameApp() {
   const {
     battleSelectedStage,
     dismissOfflineSummary,
+    equipEquipment,
     exportSave,
     importSave,
+    purchaseSkillUpgrade,
     purchaseUpgrade,
     resetNewGame,
     saveDiagnostics,
     selectStage,
+    setOfflineFarmPreset,
+    setHeroFormation,
     timeTravelOfflineFarm,
     viewModel
   } = useWebGameState(staticData);
@@ -761,15 +1167,26 @@ function GameApp() {
     battleSummary,
     enemyTeamLabel,
     enemyCombatants,
+    equipmentInventory,
+    heroEquipment,
     lastBattle,
+    lastEquipmentAction,
     lastBattleStage,
     lastPurchase,
+    lastSkillPurchase,
     masteryPanel,
+    offlineFarmPresets,
+    offlineFarmRecommendation,
+    offlineRewardPreview,
     offlineSummary,
     playerCombatants,
+    playerFormation,
     progress,
     selectedStage,
+    selectedStageRegionName,
+    skillUpgrades,
     stageOptions,
+    styleMastery,
     upgrades
   } = viewModel;
   const resultStageName =
@@ -778,9 +1195,21 @@ function GameApp() {
   const battleResultClass = getBattleResultClass(lastBattle);
   const purchaseStatus =
     lastPurchase?.ok
-      ? `Training level ${lastPurchase.newLevel}`
+      ? `Art level ${lastPurchase.newLevel}`
       : lastPurchase
         ? "Need silver"
+        : "";
+  const skillPurchaseStatus =
+    lastSkillPurchase?.ok
+      ? `Skill refinement ${lastSkillPurchase.newLevel}`
+      : lastSkillPurchase
+        ? "Need cultivation"
+        : "";
+  const equipmentStatus =
+    lastEquipmentAction?.ok
+      ? "Equipment changed"
+      : lastEquipmentAction
+        ? lastEquipmentAction.reason.replaceAll("_", " ")
         : "";
   const stageType = selectedStage?.isBoss ? "Boss" : "Road";
 
@@ -857,6 +1286,7 @@ function GameApp() {
             <h1>{selectedStage?.name ?? "Unknown Stage"}</h1>
           </div>
           <div className="stage-meta">
+            <span>{selectedStageRegionName}</span>
             <span>{stageType}</span>
             <span>Stage {selectedStage?.index ?? "-"}</span>
             <span>{enemyTeamLabel}</span>
@@ -877,16 +1307,39 @@ function GameApp() {
           onDismiss={dismissOfflineSummary}
           summary={offlineSummary}
         />
+        <OfflineFarmPanel
+          onSetPreset={setOfflineFarmPreset}
+          presets={offlineFarmPresets}
+          preview={offlineRewardPreview}
+          recommendation={offlineFarmRecommendation}
+        />
         <MasteryPanel mastery={masteryPanel} />
         <StageSelectorPanel
           onSelectStage={selectStage}
           stages={stageOptions}
         />
+        <FormationPanel
+          heroes={playerFormation}
+          onSetFormation={setHeroFormation}
+        />
+        <StyleMasteryPanel styles={styleMastery} />
         <UpgradePanel
           onPurchase={purchaseUpgrade}
           silver={progress.resources.silver}
           status={purchaseStatus}
           upgrades={upgrades}
+        />
+        <SkillUpgradePanel
+          cultivation={progress.resources.cultivation}
+          onPurchase={purchaseSkillUpgrade}
+          skillUpgrades={skillUpgrades}
+          status={skillPurchaseStatus}
+        />
+        <EquipmentPanel
+          heroes={heroEquipment}
+          inventory={equipmentInventory}
+          onEquip={equipEquipment}
+          status={equipmentStatus}
         />
         <div className="battle-grid">
           <TeamPanel title="Disciples" combatants={playerCombatants} />

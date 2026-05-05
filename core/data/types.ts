@@ -1,8 +1,16 @@
-import type { BaseStats, MvpStyle, TargetRule } from "../combat";
+import type {
+  BaseStats,
+  CombatRole,
+  FormationSlot,
+  MartialStyleId,
+  TargetRule
+} from "../combat";
 
 export type UnlockCondition =
   | { type: "always" }
-  | { type: "stage_cleared"; stageId: string };
+  | { type: "stage_cleared"; stageId: string }
+  | { type: "hero_level"; heroId: string; level: number }
+  | { type: "style_mastery_level"; styleId: MartialStyleId; level: number };
 
 export type SkillEffect = {
   type: string;
@@ -10,11 +18,31 @@ export type SkillEffect = {
   durationSeconds?: number;
 };
 
+export type EquipmentSlot = "weapon" | "armor" | "manual" | "medicine";
+
+export type EquipmentRarity = "common" | "uncommon" | "rare";
+
+export type EquipmentEffect = {
+  stat: keyof BaseStats;
+  mode: "flat" | "multiplier";
+  value: number;
+};
+
+export type EquipmentDefinition = {
+  id: string;
+  name: string;
+  slot: EquipmentSlot;
+  rarity: EquipmentRarity;
+  allowedStyles: MartialStyleId[];
+  effects: EquipmentEffect[];
+};
+
 export type HeroDefinition = {
   id: string;
   name: string;
-  style: MvpStyle;
+  style: MartialStyleId;
   role: string;
+  combatRole: CombatRole;
   baseStats: BaseStats;
   skillIds: string[];
   passiveIds: string[];
@@ -31,12 +59,43 @@ export type SkillDefinition = {
   effects: SkillEffect[];
 };
 
+export type SkillUpgradeEffect =
+  | {
+      type: "cooldown_seconds";
+      valuePerLevel: number;
+    }
+  | {
+      type: "outer_multiplier";
+      valuePerLevel: number;
+    }
+  | {
+      type: "inner_multiplier";
+      valuePerLevel: number;
+    }
+  | {
+      type: "add_skill_effect";
+      unlockLevel: number;
+      effect: SkillEffect;
+    };
+
+export type SkillUpgradeDefinition = {
+  id: string;
+  skillId: string;
+  name: string;
+  costResource: "cultivation";
+  baseCost: number;
+  costGrowth: number;
+  maxLevel: number;
+  effects: SkillUpgradeEffect[];
+};
+
 export type EnemyDefinition = {
   id: string;
   name: string;
   family: string;
   type: "normal" | "elite" | "boss";
-  style: string;
+  style: MartialStyleId;
+  combatRole: CombatRole;
   level: number;
   baseStats: BaseStats;
   skillIds: string[];
@@ -45,12 +104,18 @@ export type EnemyDefinition = {
 
 export type TeamDefinition = {
   combatantIds: string[];
+  formation?: Partial<Record<FormationSlot, number[]>>;
 };
 
 export type StageRewards = {
   silver: number;
   cultivation: number;
   combatExperience: number;
+};
+
+export type StageEquipmentDrop = {
+  equipmentId: string;
+  quantity: number;
 };
 
 export type StageDefinition = {
@@ -62,6 +127,7 @@ export type StageDefinition = {
   isBoss: boolean;
   canFarmOffline: boolean;
   rewards: StageRewards;
+  equipmentDrops?: StageEquipmentDrop[];
   nextStageId: string | null;
 };
 
@@ -93,29 +159,62 @@ export type MasteryDefinition = {
 export type FormationDefinition = {
   id: string;
   name: string;
-  slots: string[];
+  slots: FormationSlot[];
+};
+
+export type StyleMasteryBonus = {
+  stat: keyof BaseStats;
+  effectPerLevel: number;
+};
+
+export type StyleBranchDefinition = {
+  id: string;
+  name: string;
+  unlock: UnlockCondition;
+  hiddenInMvp: boolean;
+};
+
+export type MartialStyleDefinition = {
+  id: MartialStyleId;
+  name: string;
+  bonuses: StyleMasteryBonus[];
+  branches: StyleBranchDefinition[];
+};
+
+export type UpgradeEffect = {
+  stat: keyof Pick<
+    BaseStats,
+    | "maxOuterHp"
+    | "maxInnerQi"
+    | "outerAttack"
+    | "innerAttack"
+    | "outerDefense"
+    | "innerDefense"
+    | "innerRecoveryRate"
+  >;
+  effectPerLevel: number;
 };
 
 export type UpgradeDefinition = {
   id: string;
   name: string;
   scope: "hero" | "sect";
-  stat: keyof Pick<
-    BaseStats,
-    "maxOuterHp" | "maxInnerQi" | "outerAttack" | "innerAttack" | "outerDefense" | "innerDefense"
-  >;
+  art: "outer" | "inner";
+  effects: UpgradeEffect[];
   baseCost: number;
   costGrowth: number;
-  effectPerLevel: number;
 };
 
 export type StaticGameData = {
   heroes: HeroDefinition[];
   skills: SkillDefinition[];
   enemies: EnemyDefinition[];
+  equipment: EquipmentDefinition[];
   regions: RegionDefinition[];
   stages: StageDefinition[];
   upgrades: UpgradeDefinition[];
+  skillUpgrades: SkillUpgradeDefinition[];
   mastery: MasteryDefinition;
   formations: FormationDefinition[];
+  styles: MartialStyleDefinition[];
 };

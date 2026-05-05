@@ -1,4 +1,5 @@
 import type {
+  BattleContribution,
   BattleEvent,
   BattleMetrics,
   BattleResult,
@@ -11,6 +12,7 @@ import type {
 import type {
   EnemyDefinition,
   HeroDefinition,
+  SkillUpgradeDefinition,
   SkillDefinition,
   StaticGameData
 } from "../data/types";
@@ -26,6 +28,7 @@ import {
   deriveStats,
   scaleStatsForLevel
 } from "./formulas";
+import { getDefaultFormationSlot } from "./formations";
 import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
 
 const BASIC_SKILL_ID = "basic_strike";
@@ -34,13 +37,15 @@ type DefinitionLookup = {
   heroes: Map<string, HeroDefinition>;
   enemies: Map<string, EnemyDefinition>;
   skills: Map<string, SkillDefinition>;
+  skillUpgrades: SkillUpgradeDefinition[];
 };
 
 function createLookup(staticData: StaticGameData): DefinitionLookup {
   return {
     heroes: new Map(staticData.heroes.map((hero) => [hero.id, hero])),
     enemies: new Map(staticData.enemies.map((enemy) => [enemy.id, enemy])),
-    skills: new Map(staticData.skills.map((skill) => [skill.id, skill]))
+    skills: new Map(staticData.skills.map((skill) => [skill.id, skill])),
+    skillUpgrades: staticData.skillUpgrades
   };
 }
 
@@ -70,6 +75,59 @@ function getSkill(lookup: DefinitionLookup, skillId: string): SkillDefinition {
   return skill;
 }
 
+function applySkillUpgradesToSkill(
+  skill: SkillDefinition,
+  skillUpgrades: SkillUpgradeDefinition[],
+  levels: Record<string, number>
+): SkillDefinition {
+  let cooldownSeconds = skill.cooldownSeconds;
+  let outerMultiplier = skill.outerMultiplier;
+  let innerMultiplier = skill.innerMultiplier;
+  const effects = [...skill.effects];
+
+  for (const upgrade of skillUpgrades) {
+    if (upgrade.skillId !== skill.id) {
+      continue;
+    }
+
+    const level = levels[upgrade.id] ?? 0;
+
+    if (level <= 0) {
+      continue;
+    }
+
+    for (const effect of upgrade.effects) {
+      switch (effect.type) {
+        case "cooldown_seconds":
+          cooldownSeconds += effect.valuePerLevel * level;
+          break;
+
+        case "outer_multiplier":
+          outerMultiplier += effect.valuePerLevel * level;
+          break;
+
+        case "inner_multiplier":
+          innerMultiplier += effect.valuePerLevel * level;
+          break;
+
+        case "add_skill_effect":
+          if (level >= effect.unlockLevel) {
+            effects.push(effect.effect);
+          }
+          break;
+      }
+    }
+  }
+
+  return {
+    ...skill,
+    cooldownSeconds: Math.max(0, cooldownSeconds),
+    outerMultiplier: Math.max(0, outerMultiplier),
+    innerMultiplier: Math.max(0, innerMultiplier),
+    effects
+  };
+}
+
 function createCombatantState(
   lookup: DefinitionLookup,
   team: TeamId,
@@ -94,6 +152,8 @@ function createCombatantState(
     definitionId: definition.id,
     kind: instance.kind,
     level,
+    formationSlot: instance.formationSlot ?? getDefaultFormationSlot(index),
+    combatRole: definition.combatRole,
     family,
     name: definition.name,
     team,
@@ -103,6 +163,7 @@ function createCombatantState(
     maxInnerQi: stats.maxInnerQi,
     stats,
     damageMultipliersByFamily: instance.damageMultipliersByFamily ?? {},
+    skillUpgradeLevels: instance.skillUpgradeLevels ?? {},
     skillIds: definition.skillIds,
     nextActionAt: calculateAttackInterval(stats.speed, constants),
     skillCooldowns: Object.fromEntries(definition.skillIds.map((skillId) => [skillId, 0])),
@@ -130,6 +191,33 @@ function createInitialMetrics(): BattleMetrics {
   };
 }
 
+function createInitialContributions(
+  combatants: CombatantState[]
+): Map<string, BattleContribution> {
+  return new Map(
+    combatants.map((combatant) => [
+      combatant.instanceId,
+      {
+        instanceId: combatant.instanceId,
+        definitionId: combatant.definitionId,
+        kind: combatant.kind,
+        team: combatant.team,
+        name: combatant.name,
+        formationSlot: combatant.formationSlot,
+        combatRole: combatant.combatRole,
+        outerDamageDealt: 0,
+        innerDamageDealt: 0,
+        qiBreakBurstDamageDealt: 0,
+        qiBreaksTriggered: 0,
+        outerDamageTaken: 0,
+        innerDamageTaken: 0,
+        backlashDamageTaken: 0,
+        survived: true
+      }
+    ])
+  );
+}
+
 function createCombatants(
   lookup: DefinitionLookup,
   input: SimulateBattleInput,
@@ -155,50 +243,95 @@ function chooseSkill(
   );
 
   if (readySkillId) {
-    return getSkill(lookup, readySkillId);
+    return applySkillUpgradesToSkill(
+      getSkill(lookup, readySkillId),
+      lookup.skillUpgrades,
+      combatant.skillUpgradeLevels
+    );
   }
 
-  return getSkill(lookup, BASIC_SKILL_ID);
+  return applySkillUpgradesToSkill(
+    getSkill(lookup, BASIC_SKILL_ID),
+    lookup.skillUpgrades,
+    combatant.skillUpgradeLevels
+  );
 }
 
 function recordDamage(
   metrics: BattleMetrics,
-  sourceTeam: TeamId,
+  contributions: Map<string, BattleContribution>,
+  source: CombatantState,
+  target: CombatantState,
   outerDamage: number,
   innerDamage: number
 ): void {
-  if (sourceTeam === "player") {
+  if (source.team === "player") {
     metrics.playerOuterDamage += outerDamage;
     metrics.playerInnerDamage += innerDamage;
   } else {
     metrics.enemyOuterDamage += outerDamage;
     metrics.enemyInnerDamage += innerDamage;
   }
+
+  const sourceContribution = contributions.get(source.instanceId);
+  const targetContribution = contributions.get(target.instanceId);
+
+  if (sourceContribution) {
+    sourceContribution.outerDamageDealt += outerDamage;
+    sourceContribution.innerDamageDealt += innerDamage;
+  }
+
+  if (targetContribution) {
+    targetContribution.outerDamageTaken += outerDamage;
+    targetContribution.innerDamageTaken += innerDamage;
+  }
 }
 
 function recordQiBreak(
   metrics: BattleMetrics,
-  sourceTeam: TeamId,
+  contributions: Map<string, BattleContribution>,
+  source: CombatantState,
+  target: CombatantState,
   burstDamage: number
 ): void {
-  if (sourceTeam === "player") {
+  if (source.team === "player") {
     metrics.qiBreaksTriggeredByPlayer += 1;
     metrics.playerQiBreakBurstDamage += burstDamage;
   } else {
     metrics.qiBreaksTriggeredByEnemy += 1;
     metrics.enemyQiBreakBurstDamage += burstDamage;
   }
+
+  const sourceContribution = contributions.get(source.instanceId);
+  const targetContribution = contributions.get(target.instanceId);
+
+  if (sourceContribution) {
+    sourceContribution.qiBreaksTriggered += 1;
+    sourceContribution.qiBreakBurstDamageDealt += burstDamage;
+  }
+
+  if (targetContribution) {
+    targetContribution.outerDamageTaken += burstDamage;
+  }
 }
 
 function recordBacklash(
   metrics: BattleMetrics,
-  brokenAttackerTeam: TeamId,
+  contributions: Map<string, BattleContribution>,
+  brokenAttacker: CombatantState,
   damage: number
 ): void {
-  if (brokenAttackerTeam === "player") {
+  if (brokenAttacker.team === "player") {
     metrics.backlashDamageToPlayers += damage;
   } else {
     metrics.backlashDamageToEnemies += damage;
+  }
+
+  const contribution = contributions.get(brokenAttacker.instanceId);
+
+  if (contribution) {
+    contribution.outerDamageTaken += damage;
+    contribution.backlashDamageTaken += damage;
   }
 }
 
@@ -219,12 +352,46 @@ function markDefeated(
   }
 }
 
+function applyHealingEffects(
+  attacker: CombatantState,
+  skill: SkillDefinition,
+  time: number,
+  events: BattleEvent[]
+): void {
+  if (!isLiving(attacker)) {
+    return;
+  }
+
+  for (const effect of skill.effects) {
+    if (effect.type !== "outer_heal_percent" || effect.value <= 0) {
+      continue;
+    }
+
+    const missingOuterHp = attacker.maxOuterHp - attacker.outerHp;
+    const outerHealing = Math.min(missingOuterHp, attacker.maxOuterHp * effect.value);
+
+    if (outerHealing <= 0) {
+      continue;
+    }
+
+    attacker.outerHp += outerHealing;
+    events.push({
+      type: "heal",
+      time,
+      sourceId: attacker.instanceId,
+      targetId: attacker.instanceId,
+      outerHealing
+    });
+  }
+}
+
 function applyQiBreakIfNeeded(
   attacker: CombatantState,
   target: CombatantState,
   time: number,
   constants: CombatFormulaConstants,
   metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): void {
   if (target.innerQi > 0 || target.isQiBroken || !isLiving(target)) {
@@ -245,7 +412,7 @@ function applyQiBreakIfNeeded(
   );
 
   target.outerHp -= burst.damage;
-  recordQiBreak(metrics, attacker.team, burst.damage);
+  recordQiBreak(metrics, contributions, attacker, target, burst.damage);
   events.push({
     type: "qi_break",
     time,
@@ -320,6 +487,7 @@ function executeAction(
   time: number,
   constants: CombatFormulaConstants,
   metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): void {
   if (!isLiving(attacker) || time < attacker.nextActionAt) {
@@ -359,7 +527,7 @@ function executeAction(
     target.lastInnerDamageAt = time;
   }
 
-  recordDamage(metrics, attacker.team, outerDamage, innerDamage);
+  recordDamage(metrics, contributions, attacker, target, outerDamage, innerDamage);
   events.push({
     type: "attack",
     time,
@@ -370,13 +538,22 @@ function executeAction(
     innerDamage
   });
 
-  applyQiBreakIfNeeded(attacker, target, time, constants, metrics, events);
+  applyHealingEffects(attacker, skill, time, events);
+  applyQiBreakIfNeeded(
+    attacker,
+    target,
+    time,
+    constants,
+    metrics,
+    contributions,
+    events
+  );
   markDefeated(target, time, events);
 
   if (attacker.isQiBroken && isLiving(attacker)) {
     const backlashDamage = calculateQiBreakBacklashDamage(attacker.maxOuterHp, constants);
     attacker.outerHp -= backlashDamage;
-    recordBacklash(metrics, attacker.team, backlashDamage);
+    recordBacklash(metrics, contributions, attacker, backlashDamage);
     events.push({
       type: "backlash",
       time,
@@ -426,6 +603,21 @@ function finalizeMetrics(metrics: BattleMetrics, durationSeconds: number): Battl
   };
 }
 
+function finalizeContributions(
+  combatants: CombatantState[],
+  contributions: Map<string, BattleContribution>
+): BattleContribution[] {
+  for (const combatant of combatants) {
+    const contribution = contributions.get(combatant.instanceId);
+
+    if (contribution) {
+      contribution.survived = isLiving(combatant);
+    }
+  }
+
+  return [...contributions.values()];
+}
+
 export function simulateBattle(
   staticData: StaticGameData,
   input: SimulateBattleInput
@@ -437,6 +629,7 @@ export function simulateBattle(
   const combatants = createCombatants(lookup, input, constants);
   const events: BattleEvent[] = [];
   const metrics = createInitialMetrics();
+  const contributions = createInitialContributions(combatants);
   const totalSteps = Math.ceil(maxDurationSeconds / stepSeconds);
   let durationSeconds = maxDurationSeconds;
   let winner: BattleResult["winner"] = "timeout";
@@ -448,7 +641,16 @@ export function simulateBattle(
     recoverInnerQi(combatants, time, stepSeconds, constants);
 
     for (const combatant of combatants) {
-      executeAction(lookup, combatants, combatant, time, constants, metrics, events);
+      executeAction(
+        lookup,
+        combatants,
+        combatant,
+        time,
+        constants,
+        metrics,
+        contributions,
+        events
+      );
       const currentWinner = getWinner(combatants);
 
       if (currentWinner) {
@@ -469,6 +671,7 @@ export function simulateBattle(
     events,
     finalPlayerTeam: combatants.filter((combatant) => combatant.team === "player"),
     finalEnemyTeam: combatants.filter((combatant) => combatant.team === "enemy"),
-    metrics: finalizeMetrics(metrics, durationSeconds)
+    metrics: finalizeMetrics(metrics, durationSeconds),
+    contributions: finalizeContributions(combatants, contributions)
   };
 }

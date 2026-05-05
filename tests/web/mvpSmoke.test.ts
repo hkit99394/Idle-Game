@@ -123,11 +123,12 @@ describe("MVP smoke flow", () => {
     expect(state.selectedStageId).toBe("bamboo_road_10");
 
     state = webGameStateReducer(staticData, state, {
-      type: "select_offline_farm_stage",
+      type: "select_stage",
       stageId: "bamboo_road_1"
     });
     saveState(storage, state, (nowMs += 1_000));
 
+    expect(state.selectedStageId).toBe("bamboo_road_1");
     expect(state.selectedOfflineFarmStageId).toBe("bamboo_road_1");
 
     const reloadedState = createInitialWebGameStateFromStorage(

@@ -5,6 +5,7 @@
     "family": "bandit",
     "type": "normal",
     "style": "blade",
+    "combatRole": "striker",
     "level": 1,
     "baseStats": {
       "maxOuterHp": 120,
@@ -29,6 +30,7 @@
     "family": "bandit",
     "type": "elite",
     "style": "palm",
+    "combatRole": "breaker",
     "level": 1,
     "baseStats": {
       "maxOuterHp": 660,
@@ -52,7 +54,8 @@
     "name": "Black Iron Guard",
     "family": "iron_fort",
     "type": "boss",
-    "style": "saber",
+    "style": "blade",
+    "combatRole": "tank",
     "level": 1,
     "baseStats": {
       "maxOuterHp": 1050,
@@ -69,6 +72,131 @@
       "innerRecoveryRate": 0.004
     },
     "skillIds": ["guarding_saber"],
+    "traitIds": ["boss"]
+  },
+  {
+    "id": "mist_valley_acolyte",
+    "name": "Mist Valley Acolyte",
+    "family": "mist_valley",
+    "type": "normal",
+    "style": "palm",
+    "combatRole": "breaker",
+    "level": 2,
+    "baseStats": {
+      "maxOuterHp": 180,
+      "maxInnerQi": 160,
+      "outerAttack": 9,
+      "innerAttack": 16,
+      "outerDefense": 6,
+      "innerDefense": 12,
+      "speed": 12,
+      "critChance": 0.04,
+      "critDamage": 1.4,
+      "breakPower": 0.02,
+      "breakResist": 0.01,
+      "innerRecoveryRate": 0.006
+    },
+    "skillIds": ["mist_palm_jab"],
+    "traitIds": []
+  },
+  {
+    "id": "veilstep_needler",
+    "name": "Veilstep Needler",
+    "family": "mist_valley",
+    "type": "elite",
+    "style": "hidden_weapons",
+    "combatRole": "striker",
+    "level": 2,
+    "baseStats": {
+      "maxOuterHp": 320,
+      "maxInnerQi": 120,
+      "outerAttack": 14,
+      "innerAttack": 14,
+      "outerDefense": 7,
+      "innerDefense": 10,
+      "speed": 25,
+      "critChance": 0.08,
+      "critDamage": 1.55,
+      "breakPower": 0.01,
+      "breakResist": 0.01,
+      "innerRecoveryRate": 0.005
+    },
+    "skillIds": ["needle_flurry"],
+    "traitIds": []
+  },
+  {
+    "id": "fog_staff_ward",
+    "name": "Fog Staff Ward",
+    "family": "mist_valley",
+    "type": "normal",
+    "style": "staff",
+    "combatRole": "tank",
+    "level": 2,
+    "baseStats": {
+      "maxOuterHp": 360,
+      "maxInnerQi": 180,
+      "outerAttack": 8,
+      "innerAttack": 8,
+      "outerDefense": 14,
+      "innerDefense": 18,
+      "speed": 0,
+      "critChance": 0.03,
+      "critDamage": 1.4,
+      "breakPower": 0,
+      "breakResist": 0.04,
+      "innerRecoveryRate": 0.009
+    },
+    "skillIds": ["fog_staff_guard"],
+    "traitIds": []
+  },
+  {
+    "id": "mist_palm_adept",
+    "name": "Mist Palm Adept",
+    "family": "mist_valley",
+    "type": "elite",
+    "style": "palm",
+    "combatRole": "breaker",
+    "level": 3,
+    "baseStats": {
+      "maxOuterHp": 520,
+      "maxInnerQi": 260,
+      "outerAttack": 16,
+      "innerAttack": 28,
+      "outerDefense": 10,
+      "innerDefense": 18,
+      "speed": 18,
+      "critChance": 0.05,
+      "critDamage": 1.45,
+      "breakPower": 0.04,
+      "breakResist": 0.03,
+      "innerRecoveryRate": 0.007
+    },
+    "skillIds": ["cloud_meridian_press"],
+    "traitIds": []
+  },
+  {
+    "id": "mist_valley_elder",
+    "name": "Mist Valley Elder",
+    "family": "mist_valley",
+    "type": "boss",
+    "style": "palm",
+    "combatRole": "breaker",
+    "level": 3,
+    "baseStats": {
+      "maxOuterHp": 900,
+      "maxInnerQi": 420,
+      "outerAttack": 26,
+      "innerAttack": 45,
+      "outerDefense": 16,
+      "innerDefense": 25,
+      "speed": 12,
+      "critChance": 0.06,
+      "critDamage": 1.5,
+      "breakPower": 0.05,
+      "breakResist": 0.05,
+      "innerRecoveryRate": 0.008
+    },
+    "skillIds": ["valley_heart_seal"],
     "traitIds": ["boss"]
   }
 ]

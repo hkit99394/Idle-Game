@@ -1,8 +1,16 @@
+import type { FormationSlot } from "./formations";
+import type { CombatRole } from "./roles";
+import type { MartialStyleId } from "./styles";
+
 export type TeamId = "player" | "enemy";
 
-export type MvpStyle = "fist" | "palm" | "sword" | "staff";
+export type MvpStyle = MartialStyleId;
 
-export type TargetRule = "first_living";
+export type TargetRule =
+  | "first_living"
+  | "weakest_hp"
+  | "highest_cp"
+  | "inner_broken";
 
 export type BaseStats = {
   maxOuterHp: number;
@@ -64,9 +72,11 @@ export type CombatantInstanceDefinition = {
   definitionId: string;
   kind: CombatantKind;
   instanceId?: string;
+  formationSlot?: FormationSlot;
   level?: number;
   statsOverride?: DerivedStats;
   damageMultipliersByFamily?: Record<string, number>;
+  skillUpgradeLevels?: Record<string, number>;
 };
 
 export type TeamInstance = {
@@ -79,6 +89,8 @@ export type CombatantState = {
   definitionId: string;
   kind: CombatantKind;
   level: number;
+  formationSlot: FormationSlot;
+  combatRole: CombatRole;
   family?: string;
   name: string;
   team: TeamId;
@@ -88,6 +100,7 @@ export type CombatantState = {
   maxInnerQi: number;
   stats: DerivedStats;
   damageMultipliersByFamily: Record<string, number>;
+  skillUpgradeLevels: Record<string, number>;
   skillIds: string[];
   nextActionAt: number;
   skillCooldowns: Record<string, number>;
@@ -129,6 +142,13 @@ export type BattleEvent =
       damage: number;
     }
   | {
+      type: "heal";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      outerHealing: number;
+    }
+  | {
       type: "defeat";
       time: number;
       targetId: string;
@@ -150,6 +170,24 @@ export type BattleMetrics = {
   enemyEffectiveDps: number;
 };
 
+export type BattleContribution = {
+  instanceId: string;
+  definitionId: string;
+  kind: CombatantKind;
+  team: TeamId;
+  name: string;
+  formationSlot: FormationSlot;
+  combatRole: CombatRole;
+  outerDamageDealt: number;
+  innerDamageDealt: number;
+  qiBreakBurstDamageDealt: number;
+  qiBreaksTriggered: number;
+  outerDamageTaken: number;
+  innerDamageTaken: number;
+  backlashDamageTaken: number;
+  survived: boolean;
+};
+
 export type SimulateBattleInput = {
   playerTeam: TeamInstance;
   enemyTeam: TeamInstance;
@@ -165,4 +203,5 @@ export type BattleResult = {
   finalPlayerTeam: CombatantState[];
   finalEnemyTeam: CombatantState[];
   metrics: BattleMetrics;
+  contributions: BattleContribution[];
 };

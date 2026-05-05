@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   calculateUpgradeCost,
+  calculateSkillUpgradeCost,
   createInitialPlayerProgress,
   deriveHeroStatsFromProgress,
+  isStyleBranchUnlocked,
+  purchaseSkillUpgrade,
   purchaseUpgrade
 } from "../../core";
 import { staticData } from "../helpers/staticData";
@@ -143,6 +146,8 @@ describe("upgrades", () => {
       hero.baseStats.outerAttack * 1.2 * 1.05 * 1.01
     );
     expect(stats.innerAttack).toBeCloseTo(hero.baseStats.innerAttack * 1.05 * 1.01);
+    expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.08 * 1.02);
+    expect(stats.maxInnerQi).toBeCloseTo(hero.baseStats.maxInnerQi * 1.02);
   });
 
   it("applies hero level scaling before upgrade multipliers", () => {
@@ -171,6 +176,110 @@ describe("upgrades", () => {
     });
 
     expect(stats.outerAttack).toBeCloseTo(hero.baseStats.outerAttack * 1.06 * 1.1);
-    expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.06);
+    expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.06 * 1.04);
+  });
+
+  it("applies style mastery only to matching hero styles", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.styleMastery = {
+      fist: {
+        experience: 200
+      }
+    };
+    const ironFist = staticData.heroes.find(
+      (candidate) => candidate.id === "iron_fist_disciple"
+    );
+    const palmMonk = staticData.heroes.find(
+      (candidate) => candidate.id === "azure_palm_monk"
+    );
+
+    expect(ironFist).toBeDefined();
+    expect(palmMonk).toBeDefined();
+    if (!ironFist || !palmMonk) {
+      return;
+    }
+
+    const fistStats = deriveHeroStatsFromProgress({
+      baseStats: ironFist.baseStats,
+      style: ironFist.style,
+      heroProgress: progress.heroes.iron_fist_disciple,
+      sectProgress: progress.sect,
+      heroUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "hero"
+      ),
+      sectUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "sect"
+      ),
+      styleDefinitions: staticData.styles,
+      styleMastery: progress.styleMastery
+    });
+    const palmStats = deriveHeroStatsFromProgress({
+      baseStats: palmMonk.baseStats,
+      style: palmMonk.style,
+      heroProgress: progress.heroes.azure_palm_monk,
+      sectProgress: progress.sect,
+      heroUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "hero"
+      ),
+      sectUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "sect"
+      ),
+      styleDefinitions: staticData.styles,
+      styleMastery: progress.styleMastery
+    });
+
+    expect(fistStats.outerAttack).toBeCloseTo(ironFist.baseStats.outerAttack * 1.02);
+    expect(palmStats.innerAttack).toBeCloseTo(palmMonk.baseStats.innerAttack);
+  });
+
+  it("purchases skill upgrades with cultivation", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.cultivation = 20;
+    const upgrade = staticData.skillUpgrades.find(
+      (candidate) => candidate.id === "iron_fist_combo_refinement"
+    );
+
+    expect(upgrade).toBeDefined();
+    if (!upgrade) {
+      return;
+    }
+
+    expect(calculateSkillUpgradeCost(upgrade, 0)).toBe(8);
+
+    const result = purchaseSkillUpgrade(staticData.skillUpgrades, {
+      progress,
+      skillUpgradeId: upgrade.id
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.cost).toBe(8);
+    expect(result.progress.resources.cultivation).toBe(12);
+    expect(result.progress.skillUpgrades?.iron_fist_combo_refinement).toBe(1);
+  });
+
+  it("represents locked future style branches without changing MVP styles", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const fistStyle = staticData.styles.find((style) => style.id === "fist");
+
+    expect(fistStyle).toBeDefined();
+    if (!fistStyle) {
+      return;
+    }
+
+    const branch = fistStyle.branches[0];
+
+    expect(branch.hiddenInMvp).toBe(true);
+    expect(isStyleBranchUnlocked(staticData, progress, branch)).toBe(false);
+
+    progress.heroes.iron_fist_disciple.level = 12;
+
+    expect(isStyleBranchUnlocked(staticData, progress, branch)).toBe(true);
+    expect(
+      staticData.heroes.find((hero) => hero.id === "iron_fist_disciple")?.style
+    ).toBe("fist");
   });
 });

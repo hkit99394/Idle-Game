@@ -1,7 +1,13 @@
 import type { StaticGameData } from "../data";
+import { isFormationSlot } from "../combat";
 import {
+  createInitialPlayerProgress,
   cloneProgress,
+  EQUIPMENT_SLOTS,
   getStageById,
+  DEFAULT_OFFLINE_FARM_PRESET,
+  normalizeOfflineFarmPreset,
+  isOfflineFarmPreset,
   isStageUnlocked
 } from "../progression";
 import type {
@@ -9,15 +15,25 @@ import type {
   MapProgress,
   PlayerProgress,
   ResourceState,
-  SectProgress
+  EquipmentProgress,
+  SectProgress,
+  OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 1 as const;
+export const SAVE_DATA_VERSION = 2 as const;
+export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
+export const SUPPORTED_SAVE_DATA_VERSIONS = [
+  1,
+  SAVE_DATA_VERSION
+] as const;
+export type SupportedSaveDataVersion =
+  (typeof SUPPORTED_SAVE_DATA_VERSIONS)[number];
 
 export type SaveData = {
   version: typeof SAVE_DATA_VERSION;
   progress: PlayerProgress;
   selectedOfflineFarmStageId: string | null;
+  offlineFarmPreset: OfflineFarmPreset;
   createdAtMs: number;
   updatedAtMs: number;
   lastOfflineRewardAtMs: number;
@@ -26,9 +42,11 @@ export type SaveData = {
 export type CreateSaveDataInput = {
   progress: PlayerProgress;
   selectedOfflineFarmStageId: string | null;
+  offlineFarmPreset?: OfflineFarmPreset;
   nowMs: number;
   lastOfflineRewardAtMs?: number;
-  previousSave?: Pick<SaveData, "createdAtMs" | "lastOfflineRewardAtMs"> | null;
+  previousSave?: Pick<SaveData, "createdAtMs" | "lastOfflineRewardAtMs"> &
+    Partial<Pick<SaveData, "offlineFarmPreset">> | null;
 };
 
 export type ParseSaveDataResult =
@@ -42,10 +60,31 @@ export type ParseSaveDataResult =
       errors: string[];
     };
 
+export type SaveMigrationResult =
+  | {
+      ok: true;
+      save: unknown;
+      fromVersion: SupportedSaveDataVersion;
+      toVersion: typeof SAVE_DATA_VERSION;
+      migrated: boolean;
+    }
+  | {
+      ok: false;
+      errors: string[];
+    };
+
 type UnknownRecord = Record<string, unknown>;
 
 function isRecord(value: unknown): value is UnknownRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isSupportedSaveDataVersion(
+  value: unknown
+): value is SupportedSaveDataVersion {
+  return SUPPORTED_SAVE_DATA_VERSIONS.includes(
+    value as SupportedSaveDataVersion
+  );
 }
 
 function isFiniteNonNegativeNumber(value: unknown): value is number {
@@ -185,7 +224,286 @@ function validateMaps(
   }
 
   for (const region of data.regions) {
+    if (value[region.id] === undefined) {
+      continue;
+    }
+
     validateMapProgress(value[region.id], `progress.maps.${region.id}`, errors);
+  }
+
+  return true;
+}
+
+function validateStyleMastery(
+  data: Pick<StaticGameData, "styles">,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["styleMastery"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.styleMastery", errors)) {
+    return false;
+  }
+
+  const styleIds = new Set<string>(data.styles.map((style) => style.id));
+
+  for (const [styleId, mastery] of Object.entries(value)) {
+    if (!styleIds.has(styleId)) {
+      errors.push(`progress.styleMastery.${styleId} must reference an existing style`);
+    }
+
+    if (!validateRecord(mastery, `progress.styleMastery.${styleId}`, errors)) {
+      continue;
+    }
+
+    validateNumber(
+      mastery.experience,
+      `progress.styleMastery.${styleId}.experience`,
+      errors
+    );
+  }
+
+  return true;
+}
+
+function validateSkillUpgrades(
+  data: Pick<StaticGameData, "skillUpgrades">,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["skillUpgrades"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.skillUpgrades", errors)) {
+    return false;
+  }
+
+  const skillUpgradeIds = new Set(data.skillUpgrades.map((upgrade) => upgrade.id));
+
+  for (const [upgradeId, level] of Object.entries(value)) {
+    if (!skillUpgradeIds.has(upgradeId)) {
+      errors.push(`progress.skillUpgrades.${upgradeId} must reference an existing skill upgrade`);
+    }
+
+    if (
+      validateNumber(level, `progress.skillUpgrades.${upgradeId}`, errors) &&
+      (!Number.isInteger(level) || level < 0)
+    ) {
+      errors.push(`progress.skillUpgrades.${upgradeId} must be an integer >= 0`);
+    }
+  }
+
+  return true;
+}
+
+function validateEquipmentProgress(
+  data: Pick<StaticGameData, "equipment" | "heroes">,
+  value: unknown,
+  errors: string[]
+): value is EquipmentProgress | undefined {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.equipment", errors)) {
+    return false;
+  }
+
+  const equipmentIds = new Set(data.equipment.map((equipment) => equipment.id));
+  const equipmentById = new Map(data.equipment.map((equipment) => [equipment.id, equipment]));
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+  const heroById = new Map(data.heroes.map((hero) => [hero.id, hero]));
+
+  if (validateRecord(value.inventory, "progress.equipment.inventory", errors)) {
+    for (const [equipmentId, count] of Object.entries(value.inventory)) {
+      if (!equipmentIds.has(equipmentId)) {
+        errors.push(
+          `progress.equipment.inventory.${equipmentId} must reference an existing equipment item`
+        );
+      }
+
+      if (
+        validateNumber(count, `progress.equipment.inventory.${equipmentId}`, errors) &&
+        (!Number.isInteger(count) || count < 0)
+      ) {
+        errors.push(
+          `progress.equipment.inventory.${equipmentId} must be an integer >= 0`
+        );
+      }
+    }
+  }
+
+  if (validateRecord(value.equipped, "progress.equipment.equipped", errors)) {
+    for (const [heroId, slots] of Object.entries(value.equipped)) {
+      if (!heroIds.has(heroId)) {
+        errors.push(
+          `progress.equipment.equipped.${heroId} must reference an existing hero`
+        );
+      }
+
+      if (!validateRecord(slots, `progress.equipment.equipped.${heroId}`, errors)) {
+        continue;
+      }
+
+      for (const [slot, equipmentId] of Object.entries(slots)) {
+        const equipment = typeof equipmentId === "string"
+          ? equipmentById.get(equipmentId)
+          : undefined;
+        const hero = heroById.get(heroId);
+        const isValidSlot = EQUIPMENT_SLOTS.includes(
+          slot as (typeof EQUIPMENT_SLOTS)[number]
+        );
+
+        if (!isValidSlot) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} must be weapon, armor, manual, or medicine`
+          );
+        }
+
+        if (!equipment) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} must reference an existing equipment item`
+          );
+          continue;
+        }
+
+        if (isValidSlot && equipment.slot !== slot) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} must match equipment slot ${equipment.slot}`
+          );
+        }
+
+        if (hero && !equipment.allowedStyles.includes(hero.style)) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} is incompatible with hero style ${hero.style}`
+          );
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
+function normalizeHeroProgressForMigration(value: unknown): HeroProgress | unknown {
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  return {
+    ...value,
+    level: value.level === undefined ? 1 : value.level,
+    upgrades: value.upgrades === undefined ? {} : value.upgrades
+  };
+}
+
+function normalizeMapProgressForMigration(value: unknown): MapProgress | unknown {
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  return {
+    ...value,
+    combatExperience:
+      value.combatExperience === undefined ? 0 : value.combatExperience,
+    highestClearedStageIndex:
+      value.highestClearedStageIndex === undefined
+        ? 0
+        : value.highestClearedStageIndex
+  };
+}
+
+function normalizeEquipmentProgressForMigration(
+  value: unknown
+): EquipmentProgress | unknown {
+  if (value === undefined) {
+    return {
+      inventory: {},
+      equipped: {}
+    };
+  }
+
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  return {
+    ...value,
+    inventory: value.inventory === undefined ? {} : value.inventory,
+    equipped: value.equipped === undefined ? {} : value.equipped
+  };
+}
+
+function normalizeProgressForMigration(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  value: unknown
+): unknown {
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  const defaultProgress = createInitialPlayerProgress(data);
+  const existingHeroes = isRecord(value.heroes) ? value.heroes : {};
+  const existingMaps = isRecord(value.maps) ? value.maps : {};
+
+  return {
+    ...value,
+    resources: value.resources,
+    heroes: {
+      ...defaultProgress.heroes,
+      ...Object.fromEntries(
+        Object.entries(existingHeroes).map(([heroId, progress]) => [
+          heroId,
+          normalizeHeroProgressForMigration(progress)
+        ])
+      )
+    },
+    sect: value.sect,
+    maps: {
+      ...defaultProgress.maps,
+      ...Object.fromEntries(
+        Object.entries(existingMaps).map(([regionId, progress]) => [
+          regionId,
+          normalizeMapProgressForMigration(progress)
+        ])
+      )
+    },
+    formation: value.formation ?? defaultProgress.formation,
+    styleMastery: value.styleMastery ?? {},
+    skillUpgrades: value.skillUpgrades ?? {},
+    equipment: normalizeEquipmentProgressForMigration(value.equipment),
+    currentStageId: value.currentStageId
+  };
+}
+
+function validatePlayerFormation(
+  data: Pick<StaticGameData, "heroes">,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["formation"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.formation", errors)) {
+    return false;
+  }
+
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+
+  for (const [heroId, slot] of Object.entries(value)) {
+    if (!heroIds.has(heroId)) {
+      errors.push(`progress.formation.${heroId} must reference an existing hero`);
+    }
+
+    if (!isFormationSlot(slot)) {
+      errors.push(
+        `progress.formation.${heroId} must be front, middle, or back`
+      );
+    }
   }
 
   return true;
@@ -209,7 +527,7 @@ function validateCurrentStage(
 }
 
 function validateProgress(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
   value: unknown,
   errors: string[]
 ): value is PlayerProgress {
@@ -223,6 +541,10 @@ function validateProgress(
   validateHeroes(data, value.heroes, errors);
   validateSect(value.sect, errors);
   validateMaps(data, value.maps, errors);
+  validatePlayerFormation(data, value.formation, errors);
+  validateStyleMastery(data, value.styleMastery, errors);
+  validateSkillUpgrades(data, value.skillUpgrades, errors);
+  validateEquipmentProgress(data, value.equipment, errors);
 
   if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {
     errors.push("progress.currentStageId must be a non-empty string");
@@ -263,6 +585,7 @@ export function cloneSaveData(save: SaveData): SaveData {
     version: SAVE_DATA_VERSION,
     progress: cloneProgress(save.progress),
     selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
+    offlineFarmPreset: normalizeOfflineFarmPreset(save.offlineFarmPreset),
     createdAtMs: save.createdAtMs,
     updatedAtMs: save.updatedAtMs,
     lastOfflineRewardAtMs: save.lastOfflineRewardAtMs
@@ -274,6 +597,10 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
     version: SAVE_DATA_VERSION,
     progress: cloneProgress(input.progress),
     selectedOfflineFarmStageId: input.selectedOfflineFarmStageId,
+    offlineFarmPreset:
+      input.offlineFarmPreset ??
+      input.previousSave?.offlineFarmPreset ??
+      normalizeOfflineFarmPreset(undefined),
     createdAtMs: input.previousSave?.createdAtMs ?? input.nowMs,
     updatedAtMs: input.nowMs,
     lastOfflineRewardAtMs:
@@ -283,38 +610,96 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
   };
 }
 
-export function validateSaveData(
+export function migrateSaveData(
   data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  raw: unknown
+): SaveMigrationResult {
+  if (!isRecord(raw)) {
+    return {
+      ok: false,
+      errors: ["save must be an object"]
+    };
+  }
+
+  if (!isSupportedSaveDataVersion(raw.version)) {
+    return {
+      ok: false,
+      errors: [
+        `version must be a supported save version (${MIN_SUPPORTED_SAVE_DATA_VERSION}-${SAVE_DATA_VERSION})`
+      ]
+    };
+  }
+
+  const normalizedSave = {
+    ...raw,
+    version: SAVE_DATA_VERSION,
+    progress: normalizeProgressForMigration(data, raw.progress),
+    selectedOfflineFarmStageId:
+      raw.selectedOfflineFarmStageId === undefined
+        ? null
+        : raw.selectedOfflineFarmStageId,
+    offlineFarmPreset:
+      raw.offlineFarmPreset === undefined
+        ? DEFAULT_OFFLINE_FARM_PRESET
+        : raw.offlineFarmPreset
+  };
+
+  return {
+    ok: true,
+    save: normalizedSave,
+    fromVersion: raw.version,
+    toVersion: SAVE_DATA_VERSION,
+    migrated: raw.version !== SAVE_DATA_VERSION
+  };
+}
+
+export function validateSaveData(
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
   raw: unknown
 ): string[] {
   const errors: string[] = [];
+  const migration = migrateSaveData(data, raw);
 
-  if (!validateRecord(raw, "save", errors)) {
+  if (!migration.ok) {
+    errors.push(...migration.errors);
+
+    if (!isRecord(raw)) {
+      return errors;
+    }
+  }
+
+  const migratedRaw = migration.ok ? migration.save : raw;
+
+  if (!validateRecord(migratedRaw, "save", errors)) {
     return errors;
   }
 
-  if (raw.version !== SAVE_DATA_VERSION) {
-    errors.push(`version must be ${SAVE_DATA_VERSION}`);
-  }
-
-  validateProgress(data, raw.progress, errors);
+  validateProgress(data, migratedRaw.progress, errors);
 
   if (
-    raw.selectedOfflineFarmStageId !== null &&
-    typeof raw.selectedOfflineFarmStageId !== "string"
+    migratedRaw.selectedOfflineFarmStageId !== null &&
+    typeof migratedRaw.selectedOfflineFarmStageId !== "string"
   ) {
     errors.push("selectedOfflineFarmStageId must be a string or null");
   }
 
-  validateTimestamps(raw, errors);
+  if (
+    migratedRaw.offlineFarmPreset !== undefined &&
+    !isOfflineFarmPreset(migratedRaw.offlineFarmPreset)
+  ) {
+    errors.push("offlineFarmPreset must be a supported offline farm preset");
+  }
+
+  validateTimestamps(migratedRaw, errors);
 
   return errors;
 }
 
 export function parseSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
   raw: unknown
 ): ParseSaveDataResult {
+  const migration = migrateSaveData(data, raw);
   const errors = validateSaveData(data, raw);
 
   if (errors.length > 0) {
@@ -325,8 +710,16 @@ export function parseSaveData(
     };
   }
 
+  if (!migration.ok) {
+    return {
+      ok: false,
+      reason: "invalid_save",
+      errors: migration.errors
+    };
+  }
+
   return {
     ok: true,
-    save: cloneSaveData(raw as SaveData)
+    save: cloneSaveData(migration.save as SaveData)
   };
 }

@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   applyOfflineRewards,
   calculateOfflineRewards,
-  createInitialPlayerProgress
+  createInitialPlayerProgress,
+  previewOfflineRewards
 } from "../../core";
 import { staticData } from "../helpers/staticData";
 
@@ -100,6 +101,61 @@ describe("offline rewards", () => {
 
     expect(result.rewards.combatExperience).toBe(100);
     expect(result.progress.heroes.iron_fist_disciple.level).toBe(2);
+  });
+
+  it("previews rewards with the same formula without mutating progress", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+
+    const preview = previewOfflineRewards({
+      data: staticData,
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      previewSeconds: 30,
+      config: {
+        offlineCapSeconds: 100,
+        estimatedClearTimeSeconds: 10,
+        minimumClearTimeSeconds: 5,
+        offlineEfficiency: 0.5
+      }
+    });
+
+    expect(preview.ok).toBe(true);
+    if (!preview.ok) {
+      return;
+    }
+
+    expect(preview.rewards).toMatchObject({
+      offlineSeconds: 30,
+      clears: 3,
+      silver: 15,
+      cultivation: 7.5,
+      combatExperience: 7.5
+    });
+    expect(preview.masteryExperienceGain).toBe(7.5);
+    expect(progress.resources.silver).toBe(0);
+    expect(progress.maps.bamboo_road.combatExperience).toBe(0);
+  });
+
+  it("previews invalid farm targets safely", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const preview = previewOfflineRewards({
+      data: staticData,
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_10",
+      previewSeconds: 60
+    });
+
+    expect(preview).toMatchObject({
+      ok: false,
+      reason: "invalid_farm_stage",
+      rewards: {
+        clears: 0,
+        silver: 0,
+        cultivation: 0,
+        combatExperience: 0
+      }
+    });
   });
 
   it("refuses missing, locked, boss, and non-farmable targets", () => {
