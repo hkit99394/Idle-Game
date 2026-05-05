@@ -2,6 +2,7 @@ import type { StaticGameData } from "../data";
 import { isFormationSlot } from "../combat";
 import {
   cloneProgress,
+  EQUIPMENT_SLOTS,
   getStageById,
   isStageUnlocked
 } from "../progression";
@@ -12,6 +13,7 @@ import type {
   ResourceState,
   SectProgress
 } from "../progression";
+import type { EquipmentProgress } from "../progression";
 
 export const SAVE_DATA_VERSION = 1 as const;
 
@@ -261,6 +263,95 @@ function validateSkillUpgrades(
   return true;
 }
 
+function validateEquipmentProgress(
+  data: Pick<StaticGameData, "equipment" | "heroes">,
+  value: unknown,
+  errors: string[]
+): value is EquipmentProgress | undefined {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.equipment", errors)) {
+    return false;
+  }
+
+  const equipmentIds = new Set(data.equipment.map((equipment) => equipment.id));
+  const equipmentById = new Map(data.equipment.map((equipment) => [equipment.id, equipment]));
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+  const heroById = new Map(data.heroes.map((hero) => [hero.id, hero]));
+
+  if (validateRecord(value.inventory, "progress.equipment.inventory", errors)) {
+    for (const [equipmentId, count] of Object.entries(value.inventory)) {
+      if (!equipmentIds.has(equipmentId)) {
+        errors.push(
+          `progress.equipment.inventory.${equipmentId} must reference an existing equipment item`
+        );
+      }
+
+      if (
+        validateNumber(count, `progress.equipment.inventory.${equipmentId}`, errors) &&
+        (!Number.isInteger(count) || count < 0)
+      ) {
+        errors.push(
+          `progress.equipment.inventory.${equipmentId} must be an integer >= 0`
+        );
+      }
+    }
+  }
+
+  if (validateRecord(value.equipped, "progress.equipment.equipped", errors)) {
+    for (const [heroId, slots] of Object.entries(value.equipped)) {
+      if (!heroIds.has(heroId)) {
+        errors.push(
+          `progress.equipment.equipped.${heroId} must reference an existing hero`
+        );
+      }
+
+      if (!validateRecord(slots, `progress.equipment.equipped.${heroId}`, errors)) {
+        continue;
+      }
+
+      for (const [slot, equipmentId] of Object.entries(slots)) {
+        const equipment = typeof equipmentId === "string"
+          ? equipmentById.get(equipmentId)
+          : undefined;
+        const hero = heroById.get(heroId);
+        const isValidSlot = EQUIPMENT_SLOTS.includes(
+          slot as (typeof EQUIPMENT_SLOTS)[number]
+        );
+
+        if (!isValidSlot) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} must be weapon, armor, manual, or medicine`
+          );
+        }
+
+        if (!equipment) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} must reference an existing equipment item`
+          );
+          continue;
+        }
+
+        if (isValidSlot && equipment.slot !== slot) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} must match equipment slot ${equipment.slot}`
+          );
+        }
+
+        if (hero && !equipment.allowedStyles.includes(hero.style)) {
+          errors.push(
+            `progress.equipment.equipped.${heroId}.${slot} is incompatible with hero style ${hero.style}`
+          );
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 function validatePlayerFormation(
   data: Pick<StaticGameData, "heroes">,
   value: unknown,
@@ -309,7 +400,7 @@ function validateCurrentStage(
 }
 
 function validateProgress(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
   value: unknown,
   errors: string[]
 ): value is PlayerProgress {
@@ -326,6 +417,7 @@ function validateProgress(
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);
   validateSkillUpgrades(data, value.skillUpgrades, errors);
+  validateEquipmentProgress(data, value.equipment, errors);
 
   if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {
     errors.push("progress.currentStageId must be a non-empty string");
@@ -387,7 +479,7 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
 }
 
 export function validateSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
   raw: unknown
 ): string[] {
   const errors: string[] = [];
@@ -415,7 +507,7 @@ export function validateSaveData(
 }
 
 export function parseSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
   raw: unknown
 ): ParseSaveDataResult {
   const errors = validateSaveData(data, raw);

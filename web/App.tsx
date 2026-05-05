@@ -9,6 +9,9 @@ import type {
   BattleCombatantView,
   BattleEventView,
   BattleSummaryView,
+  EquipGameEquipmentInput,
+  EquipmentInventoryItemView,
+  HeroEquipmentView,
   MasteryPanelView,
   OfflineRewardSummaryView,
   PlayerFormationHeroView,
@@ -791,6 +794,113 @@ function SkillUpgradePanel({
   );
 }
 
+type EquipmentPanelProps = {
+  heroes: HeroEquipmentView[];
+  inventory: EquipmentInventoryItemView[];
+  onEquip: (input: EquipGameEquipmentInput) => void;
+  status: string;
+};
+
+function EquipmentPanel({
+  heroes,
+  inventory,
+  onEquip,
+  status
+}: EquipmentPanelProps) {
+  const heroNames = new Map(heroes.map((hero) => [hero.heroId, hero.name]));
+
+  return (
+    <section className="equipment-panel" aria-label="Equipment">
+      <div className="equipment-heading">
+        <div>
+          <span className="label">Gear</span>
+          <h2>Equipment</h2>
+        </div>
+        <span>{inventory.reduce((total, item) => total + item.count, 0)} owned</span>
+      </div>
+      <div className="equipment-layout">
+        <div className="hero-equipment-list">
+          {heroes.map((hero) => (
+            <article key={hero.heroId} className="hero-equipment-card">
+              <div className="hero-equipment-heading">
+                <strong>{hero.name}</strong>
+                <span>{hero.style}</span>
+              </div>
+              <div className="equipment-slot-list">
+                {hero.slots.map((slot) => (
+                  <div key={slot.slot} className="equipment-slot-row">
+                    <span>{slot.label}</span>
+                    <strong
+                      className={slot.rarity ? `rarity-${slot.rarity}` : ""}
+                    >
+                      {slot.name ?? "Empty"}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="equipment-inventory-list">
+          {inventory.length > 0 ? (
+            inventory.map((item) => (
+              <article
+                key={item.equipmentId}
+                className={`equipment-item-card rarity-${item.rarity}`}
+              >
+                <div className="equipment-item-heading">
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>
+                      {item.slot} · {item.rarity}
+                    </span>
+                  </div>
+                  <span>
+                    {item.availableCount}/{item.count}
+                  </span>
+                </div>
+                <div className="equipment-effects">
+                  {item.effects.map((effect) => (
+                    <span key={effect}>{effect}</span>
+                  ))}
+                </div>
+                <div className="equipment-styles">
+                  {item.allowedStyles.map((style) => (
+                    <span key={style}>{style}</span>
+                  ))}
+                </div>
+                <div className="equipment-actions">
+                  {item.compatibleHeroIds.length > 0 ? (
+                    item.compatibleHeroIds.map((heroId) => (
+                      <button
+                        key={heroId}
+                        type="button"
+                        onClick={() =>
+                          onEquip({
+                            heroId,
+                            equipmentId: item.equipmentId
+                          })
+                        }
+                      >
+                        Equip {heroNames.get(heroId) ?? heroId}
+                      </button>
+                    ))
+                  ) : (
+                    <span>No compatible free copy</span>
+                  )}
+                </div>
+              </article>
+            ))
+          ) : (
+            <p className="empty-panel">No equipment found</p>
+          )}
+        </div>
+      </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
+    </section>
+  );
+}
+
 type SaveToolsPanelProps = {
   diagnostics: SaveDiagnosticsView;
   exportText: string;
@@ -957,6 +1067,7 @@ function GameApp() {
   const {
     battleSelectedStage,
     dismissOfflineSummary,
+    equipEquipment,
     exportSave,
     importSave,
     purchaseSkillUpgrade,
@@ -973,7 +1084,10 @@ function GameApp() {
     battleSummary,
     enemyTeamLabel,
     enemyCombatants,
+    equipmentInventory,
+    heroEquipment,
     lastBattle,
+    lastEquipmentAction,
     lastBattleStage,
     lastPurchase,
     lastSkillPurchase,
@@ -1004,6 +1118,12 @@ function GameApp() {
       ? `Skill refinement ${lastSkillPurchase.newLevel}`
       : lastSkillPurchase
         ? "Need cultivation"
+        : "";
+  const equipmentStatus =
+    lastEquipmentAction?.ok
+      ? "Equipment changed"
+      : lastEquipmentAction
+        ? lastEquipmentAction.reason.replaceAll("_", " ")
         : "";
   const stageType = selectedStage?.isBoss ? "Boss" : "Road";
 
@@ -1122,6 +1242,12 @@ function GameApp() {
           onPurchase={purchaseSkillUpgrade}
           skillUpgrades={skillUpgrades}
           status={skillPurchaseStatus}
+        />
+        <EquipmentPanel
+          heroes={heroEquipment}
+          inventory={equipmentInventory}
+          onEquip={equipEquipment}
+          status={equipmentStatus}
         />
         <div className="battle-grid">
           <TeamPanel title="Disciples" combatants={playerCombatants} />

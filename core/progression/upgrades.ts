@@ -1,5 +1,6 @@
 import type { BaseStats } from "../combat";
 import type { UpgradeDefinition } from "../data";
+import { applyEquipmentBonuses } from "./equipment";
 import { scaleStatsForLevel } from "./levels";
 import { cloneProgress } from "./progress";
 import { applyStyleMasteryBonuses } from "./styleMastery";
@@ -127,6 +128,12 @@ export function deriveHeroStatsFromProgress(input: DerivedHeroStatsInput): BaseS
     input.style,
     input.styleDefinitions,
     input.styleMastery
+  );
+  applyEquipmentBonuses(
+    stats,
+    input.equipmentDefinitions,
+    input.equipment,
+    input.heroId
   );
 
   const mapAttackMultiplier = input.mapAttackMultiplier ?? 0;

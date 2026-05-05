@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createInitialWebGameState,
+  equipGameEquipment,
   getWebGameViewModel,
   purchaseGameSkillUpgrade,
   purchaseGameUpgrade,
@@ -91,6 +92,19 @@ describe("web game state", () => {
       targetName: "Sect"
     });
     expect(viewModel.skillUpgrades).toHaveLength(4);
+    expect(viewModel.equipmentInventory).toEqual([]);
+    expect(viewModel.heroEquipment[0]).toMatchObject({
+      heroId: "iron_fist_disciple",
+      slots: expect.arrayContaining([
+        {
+          slot: "weapon",
+          label: "Weapon",
+          equipmentId: null,
+          name: null,
+          rarity: null
+        }
+      ])
+    });
     expect(viewModel.styleMastery).toHaveLength(7);
     expect(viewModel.styleMastery[0]).toMatchObject({
       styleId: "fist",
@@ -590,6 +604,64 @@ describe("web game state", () => {
     expect(nextState.lastSkillPurchase?.ok).toBe(true);
     expect(nextState.progress.resources.cultivation).toBe(12);
     expect(nextState.progress.skillUpgrades?.iron_fist_combo_refinement).toBe(1);
+  });
+
+  it("shows equipment inventory and equips compatible gear", () => {
+    const state = createInitialWebGameState(staticData);
+    const lootState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        equipment: {
+          inventory: {
+            training_wraps: 1
+          },
+          equipped: {}
+        }
+      }
+    });
+    const viewModel = getWebGameViewModel(staticData, lootState);
+
+    expect(viewModel.equipmentInventory[0]).toMatchObject({
+      equipmentId: "training_wraps",
+      name: "Training Wraps",
+      slot: "weapon",
+      rarity: "common",
+      count: 1,
+      availableCount: 1,
+      compatibleHeroIds: ["iron_fist_disciple"]
+    });
+
+    const beforeCp = viewModel.playerCombatants.find(
+      (combatant) => combatant.definitionId === "iron_fist_disciple"
+    )?.combatPower;
+    const equippedState = equipGameEquipment(staticData, lootState, {
+      heroId: "iron_fist_disciple",
+      equipmentId: "training_wraps"
+    });
+
+    expect(equippedState.lastEquipmentAction?.ok).toBe(true);
+
+    const equippedViewModel = getWebGameViewModel(staticData, equippedState);
+    const afterCp = equippedViewModel.playerCombatants.find(
+      (combatant) => combatant.definitionId === "iron_fist_disciple"
+    )?.combatPower;
+
+    expect(equippedViewModel.heroEquipment[0].slots).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          slot: "weapon",
+          equipmentId: "training_wraps",
+          name: "Training Wraps",
+          rarity: "common"
+        })
+      ])
+    );
+    expect(equippedViewModel.equipmentInventory[0]).toMatchObject({
+      availableCount: 0,
+      compatibleHeroIds: ["iron_fist_disciple"]
+    });
+    expect(afterCp).toBeGreaterThan(beforeCp ?? 0);
   });
 
   it("normalizes selected offline farm stage to the best unlocked farm", () => {

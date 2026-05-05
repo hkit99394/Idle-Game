@@ -19,7 +19,7 @@ export type WebSaveStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">
 
 type SaveSchemaData = Pick<
   StaticGameData,
-  "heroes" | "regions" | "stages" | "styles" | "skillUpgrades"
+  "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment"
 >;
 
 type OfflineSaveData = SaveSchemaData & Pick<StaticGameData, "mastery">;

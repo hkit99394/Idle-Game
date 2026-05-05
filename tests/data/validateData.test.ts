@@ -147,6 +147,55 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid equipment definitions and drop references", () => {
+    const invalidData = {
+      ...staticData,
+      equipment: staticData.equipment.map((equipment) =>
+        equipment.id === "training_wraps"
+          ? {
+              ...equipment,
+              slot: "trinket",
+              rarity: "mythic",
+              allowedStyles: ["missing_style"],
+              effects: [
+                {
+                  stat: "luck",
+                  mode: "bonus",
+                  value: Number.NaN
+                }
+              ]
+            }
+          : equipment
+      ),
+      stages: staticData.stages.map((stage) =>
+        stage.id === "bamboo_road_1"
+          ? {
+              ...stage,
+              equipmentDrops: [
+                {
+                  equipmentId: "missing_equipment",
+                  quantity: 0
+                }
+              ]
+            }
+          : stage
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Equipment training_wraps slot must be one of weapon, armor, manual, medicine",
+        "Equipment training_wraps rarity must be one of common, uncommon, rare",
+        "Equipment training_wraps references missing style missing_style",
+        "Equipment training_wraps effect stat luck must be a valid base stat",
+        "Equipment training_wraps effect mode must be one of flat, multiplier",
+        "Equipment training_wraps effect value must be a number",
+        "Stage bamboo_road_1 references missing equipment missing_equipment",
+        "Stage bamboo_road_1 equipment drop quantity must be an integer >= 1"
+      ])
+    );
+  });
+
   it("rejects duplicate enemy formation combatant placement", () => {
     const invalidData: StaticGameData = {
       ...staticData,

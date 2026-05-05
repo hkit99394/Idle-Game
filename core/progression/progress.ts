@@ -43,6 +43,10 @@ export function createInitialPlayerProgress(
     formation: createDefaultPlayerFormation(data.heroes.map((hero) => hero.id)),
     styleMastery: {},
     skillUpgrades: {},
+    equipment: {
+      inventory: {},
+      equipped: {}
+    },
     currentStageId: firstStageId
   };
 }
@@ -82,6 +86,17 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
       : undefined,
     skillUpgrades: progress.skillUpgrades
       ? { ...progress.skillUpgrades }
+      : undefined,
+    equipment: progress.equipment
+      ? {
+          inventory: { ...progress.equipment.inventory },
+          equipped: Object.fromEntries(
+            Object.entries(progress.equipment.equipped).map(([heroId, slots]) => [
+              heroId,
+              { ...slots }
+            ])
+          )
+        }
       : undefined,
     currentStageId: progress.currentStageId
   };

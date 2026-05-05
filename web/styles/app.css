@@ -479,6 +479,7 @@ textarea {
 
 .upgrade-panel,
 .skill-upgrade-panel,
+.equipment-panel,
 .style-mastery-panel {
   margin-bottom: 22px;
   padding: 16px 0;
@@ -608,6 +609,7 @@ textarea {
 
 .upgrade-panel-heading,
 .skill-upgrade-heading,
+.equipment-heading,
 .style-mastery-heading {
   display: flex;
   flex-wrap: wrap;
@@ -619,12 +621,14 @@ textarea {
 
 .upgrade-panel-heading h2,
 .skill-upgrade-heading h2,
+.equipment-heading h2,
 .style-mastery-heading h2 {
   overflow-wrap: anywhere;
   margin: 0;
 }
 
 .upgrade-silver,
+.equipment-heading > span,
 .style-mastery-heading > span {
   max-width: 100%;
   color: #283315;
@@ -828,6 +832,160 @@ textarea {
   color: #4d4639;
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+.equipment-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+}
+
+.hero-equipment-list,
+.equipment-inventory-list {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.hero-equipment-card,
+.equipment-item-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.hero-equipment-heading,
+.equipment-item-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.hero-equipment-heading strong,
+.hero-equipment-heading span,
+.equipment-item-heading strong,
+.equipment-item-heading span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.hero-equipment-heading span,
+.equipment-item-heading div span {
+  display: block;
+  margin-top: 2px;
+  color: #6d6354;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.equipment-item-heading > span {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #f0ebe1;
+  color: #4d4639;
+  font-size: 0.74rem;
+  font-weight: 900;
+  line-height: 22px;
+}
+
+.equipment-slot-list,
+.equipment-effects,
+.equipment-styles,
+.equipment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.equipment-slot-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px;
+  width: 100%;
+  color: #4d4639;
+  font-size: 0.82rem;
+}
+
+.equipment-slot-row span,
+.equipment-slot-row strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.equipment-slot-row span {
+  color: #6d6354;
+  font-weight: 800;
+}
+
+.equipment-effects span,
+.equipment-styles span,
+.equipment-actions span {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #fffaf0;
+  color: #4d4639;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.equipment-effects span {
+  border-color: #6f7f4f;
+  background: #edf1df;
+  color: #283315;
+}
+
+.equipment-actions button {
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #2e5f63;
+  border-radius: 6px;
+  background: #2e5f63;
+  color: #fffaf0;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.equipment-actions button:hover,
+.equipment-actions button:focus-visible {
+  background: #254f53;
+  outline: none;
+}
+
+.rarity-common {
+  color: #4d4639;
+}
+
+.rarity-uncommon {
+  color: #1f5559;
+}
+
+.rarity-rare {
+  color: #7b4d16;
+}
+
+.equipment-item-card.rarity-uncommon {
+  border-color: #8bb7bd;
+}
+
+.equipment-item-card.rarity-rare {
+  border-color: #c89a52;
+  background: #fff7e9;
 }
 
 .battle-grid {
@@ -1423,6 +1581,10 @@ h2 {
   }
 
   .formation-slots {
+    grid-template-columns: 1fr;
+  }
+
+  .equipment-layout {
     grid-template-columns: 1fr;
   }
 

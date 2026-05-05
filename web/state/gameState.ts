@@ -7,8 +7,12 @@ import {
   calculateUpgradeCost,
   createInitialPlayerProgress,
   deriveStats,
+  equipHeroEquipment as equipCoreHeroEquipment,
+  EQUIPMENT_SLOTS,
   getDefaultFormationSlot,
+  getAvailableEquipmentCopyCount,
   getActiveMasterySummaryForStage,
+  getEquipmentInventoryCount,
   getStageById,
   getSkillUpgradeLevel,
   getStyleMasteryExperience,
@@ -35,6 +39,10 @@ import type {
   CombatRole,
   DerivedStats,
   FormationSlot,
+  EquipHeroEquipmentInput,
+  EquipHeroEquipmentResult,
+  EquipmentRarity,
+  EquipmentSlot,
   MasteryBonus,
   TeamId,
   PlayerProgress,
@@ -70,6 +78,7 @@ export type WebGameState = {
   lastBattleStageId: string | null;
   lastPurchase: PurchaseUpgradeResult | null;
   lastSkillPurchase: PurchaseSkillUpgradeResult | null;
+  lastEquipmentAction: EquipHeroEquipmentResult | null;
 };
 
 export type WebGameAction =
@@ -100,6 +109,10 @@ export type WebGameAction =
       result: PurchaseSkillUpgradeResult;
     }
   | {
+      type: "equipment_equip_resolved";
+      result: EquipHeroEquipmentResult;
+    }
+  | {
       type: "replace_progress";
       progress: PlayerProgress;
     }
@@ -116,6 +129,7 @@ export type PurchaseGameSkillUpgradeInput = Omit<
   PurchaseSkillUpgradeInput,
   "progress"
 >;
+export type EquipGameEquipmentInput = Omit<EquipHeroEquipmentInput, "progress">;
 
 export type BattleCombatantView = {
   instanceId: string;
@@ -202,6 +216,33 @@ export type SkillUpgradeView = {
   affordable: boolean;
   missingCultivation: number;
   effects: string[];
+};
+
+export type EquipmentInventoryItemView = {
+  equipmentId: string;
+  name: string;
+  slot: EquipmentSlot;
+  rarity: EquipmentRarity;
+  count: number;
+  availableCount: number;
+  allowedStyles: string[];
+  effects: string[];
+  compatibleHeroIds: string[];
+};
+
+export type HeroEquipmentSlotView = {
+  slot: EquipmentSlot;
+  label: string;
+  equipmentId: string | null;
+  name: string | null;
+  rarity: EquipmentRarity | null;
+};
+
+export type HeroEquipmentView = {
+  heroId: string;
+  name: string;
+  style: string;
+  slots: HeroEquipmentSlotView[];
 };
 
 export type StageOptionView = {
@@ -386,7 +427,8 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     lastBattle: null,
     lastBattleStageId: null,
     lastPurchase: null,
-    lastSkillPurchase: null
+    lastSkillPurchase: null,
+    lastEquipmentAction: null
   };
 }
 
@@ -411,7 +453,8 @@ export function createWebGameStateFromSave(
     lastBattle: null,
     lastBattleStageId: null,
     lastPurchase: null,
-    lastSkillPurchase: null
+    lastSkillPurchase: null,
+    lastEquipmentAction: null
   };
 }
 
@@ -491,7 +534,8 @@ export function webGameStateReducer(
         lastBattle: null,
         lastBattleStageId: null,
         lastPurchase: null,
-        lastSkillPurchase: null
+        lastSkillPurchase: null,
+        lastEquipmentAction: null
       };
     }
 
@@ -517,7 +561,8 @@ export function webGameStateReducer(
         lastBattle: action.result,
         lastBattleStageId: action.stageId,
         lastPurchase: null,
-        lastSkillPurchase: null
+        lastSkillPurchase: null,
+        lastEquipmentAction: null
       };
     }
 
@@ -536,6 +581,7 @@ export function webGameStateReducer(
         ),
         lastPurchase: action.result,
         lastSkillPurchase: null,
+        lastEquipmentAction: null,
         lastBattle: null,
         lastBattleStageId: null
       };
@@ -550,6 +596,23 @@ export function webGameStateReducer(
         ...state,
         progress: nextProgress,
         lastSkillPurchase: action.result,
+        lastPurchase: null,
+        lastEquipmentAction: null,
+        lastBattle: null,
+        lastBattleStageId: null
+      };
+    }
+
+    case "equipment_equip_resolved": {
+      const nextProgress = action.result.ok
+        ? action.result.progress
+        : state.progress;
+
+      return {
+        ...state,
+        progress: nextProgress,
+        lastEquipmentAction: action.result,
+        lastSkillPurchase: null,
         lastPurchase: null,
         lastBattle: null,
         lastBattleStageId: null
@@ -573,7 +636,8 @@ export function webGameStateReducer(
         lastBattle: null,
         lastBattleStageId: null,
         lastPurchase: null,
-        lastSkillPurchase: null
+        lastSkillPurchase: null,
+        lastEquipmentAction: null
       };
 
     case "replace_state":
@@ -632,6 +696,22 @@ export function purchaseGameSkillUpgrade(
 
   return webGameStateReducer(data, state, {
     type: "skill_purchase_resolved",
+    result
+  });
+}
+
+export function equipGameEquipment(
+  data: StaticGameData,
+  state: WebGameState,
+  input: EquipGameEquipmentInput
+): WebGameState {
+  const result = equipCoreHeroEquipment(data, {
+    progress: state.progress,
+    ...input
+  });
+
+  return webGameStateReducer(data, state, {
+    type: "equipment_equip_resolved",
     result
   });
 }
@@ -1056,6 +1136,102 @@ function formatStatName(stat: string): string {
 
 function formatPerLevelEffect(stat: string, value: number): string {
   return `${formatMasteryPercent(value)} ${formatStatName(stat)} per level`;
+}
+
+function formatEquipmentSlot(slot: EquipmentSlot): string {
+  return slot.charAt(0).toUpperCase() + slot.slice(1);
+}
+
+function formatEquipmentEffect(
+  effect: StaticGameData["equipment"][number]["effects"][number]
+): string {
+  if (effect.mode === "multiplier") {
+    return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
+  }
+
+  if (
+    effect.stat === "critChance" ||
+    effect.stat === "critDamage" ||
+    effect.stat === "breakPower" ||
+    effect.stat === "breakResist" ||
+    effect.stat === "innerRecoveryRate"
+  ) {
+    return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
+  }
+
+  return `${effect.value >= 0 ? "+" : ""}${effect.value} ${formatStatName(
+    effect.stat
+  )}`;
+}
+
+function buildEquipmentInventoryViews(
+  data: StaticGameData,
+  progress: PlayerProgress
+): EquipmentInventoryItemView[] {
+  const styleNames = new Map(data.styles.map((style) => [style.id, style.name]));
+
+  return data.equipment.flatMap((equipment) => {
+    const count = getEquipmentInventoryCount(progress, equipment.id);
+
+    if (count <= 0) {
+      return [];
+    }
+
+    return [
+      {
+        equipmentId: equipment.id,
+        name: equipment.name,
+        slot: equipment.slot,
+        rarity: equipment.rarity,
+        count,
+        availableCount: getAvailableEquipmentCopyCount(progress, equipment.id),
+        allowedStyles: equipment.allowedStyles.map(
+          (styleId) => styleNames.get(styleId) ?? styleId
+        ),
+        effects: equipment.effects.map(formatEquipmentEffect),
+        compatibleHeroIds: data.heroes
+          .filter(
+            (hero) =>
+              equipment.allowedStyles.includes(hero.style) &&
+              getAvailableEquipmentCopyCount(
+                progress,
+                equipment.id,
+                hero.id,
+                equipment.slot
+              ) > 0
+          )
+          .map((hero) => hero.id)
+      }
+    ];
+  });
+}
+
+function buildHeroEquipmentViews(
+  data: StaticGameData,
+  progress: PlayerProgress
+): HeroEquipmentView[] {
+  const equipped = progress.equipment?.equipped ?? {};
+  const equipmentById = new Map(
+    data.equipment.map((equipment) => [equipment.id, equipment])
+  );
+
+  return data.heroes.map((hero) => ({
+    heroId: hero.id,
+    name: hero.name,
+    style: hero.style,
+    slots: EQUIPMENT_SLOTS.map((slot) => {
+      const equipmentId = equipped[hero.id]?.[slot] ?? null;
+      const equipment = equipmentId ? equipmentById.get(equipmentId) : null;
+
+      return {
+        slot,
+        label: formatEquipmentSlot(slot),
+        equipmentId,
+        name: equipment?.name ?? null,
+        rarity: equipment?.rarity ?? null
+      };
+    })
+  }));
 }
 
 function buildUpgradeViews(
@@ -1734,6 +1910,8 @@ export function getWebGameViewModel(
       state.selectedStageId,
       state.selectedOfflineFarmStageId
     ),
+    equipmentInventory: buildEquipmentInventoryViews(data, state.progress),
+    heroEquipment: buildHeroEquipmentViews(data, state.progress),
     upgrades: buildUpgradeViews(data, state.progress),
     skillUpgrades: buildSkillUpgradeViews(data, state.progress),
     styleMastery: buildStyleMasteryViews(data, state.progress),
@@ -1749,7 +1927,8 @@ export function getWebGameViewModel(
     battleEvents: buildBattleEventViews(data, state.lastBattle),
     battleSummary: buildBattleSummary(state.lastBattle, lastBattleStage?.name ?? null),
     lastPurchase: state.lastPurchase,
-    lastSkillPurchase: state.lastSkillPurchase
+    lastSkillPurchase: state.lastSkillPurchase,
+    lastEquipmentAction: state.lastEquipmentAction
   };
 }
 
@@ -1833,6 +2012,19 @@ export function useWebGameState(data: StaticGameData) {
       dispatchAndPersist({
         type: "skill_purchase_resolved",
         result: purchaseCoreSkillUpgrade(data.skillUpgrades, {
+          progress: state.progress,
+          ...input
+        })
+      });
+    },
+    [data, dispatchAndPersist, state.progress]
+  );
+
+  const equipEquipment = useCallback(
+    (input: EquipGameEquipmentInput) => {
+      dispatchAndPersist({
+        type: "equipment_equip_resolved",
+        result: equipCoreHeroEquipment(data, {
           progress: state.progress,
           ...input
         })
@@ -2062,6 +2254,7 @@ export function useWebGameState(data: StaticGameData) {
     battleSelectedStage,
     purchaseUpgrade,
     purchaseSkillUpgrade,
+    equipEquipment,
     selectStage,
     selectOfflineFarmStage,
     setHeroFormation,

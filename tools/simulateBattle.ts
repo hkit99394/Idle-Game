@@ -1,5 +1,6 @@
 import type { StaticGameData } from "../core";
 import enemies from "../data/enemies.json" with { type: "json" };
+import equipment from "../data/equipment.json" with { type: "json" };
 import formations from "../data/formations.json" with { type: "json" };
 import heroes from "../data/heroes.json" with { type: "json" };
 import mastery from "../data/mastery.json" with { type: "json" };
@@ -18,6 +19,7 @@ const staticData: StaticGameData = {
   heroes: heroes as StaticGameData["heroes"],
   skills: skills as StaticGameData["skills"],
   enemies: enemies as StaticGameData["enemies"],
+  equipment: equipment as StaticGameData["equipment"],
   regions: regions as StaticGameData["regions"],
   stages: stages as StaticGameData["stages"],
   upgrades: upgrades as StaticGameData["upgrades"],

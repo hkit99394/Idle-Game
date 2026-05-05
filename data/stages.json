@@ -25,6 +25,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 5 },
+    "equipmentDrops": [{ "equipmentId": "training_wraps", "quantity": 1 }],
     "nextStageId": "bamboo_road_3"
   },
   {
@@ -67,6 +68,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
+    "equipmentDrops": [{ "equipmentId": "willow_palm_manual", "quantity": 1 }],
     "nextStageId": "bamboo_road_6"
   },
   {
@@ -109,6 +111,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 44, "cultivation": 22, "combatExperience": 20 },
+    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
     "nextStageId": "bamboo_road_9"
   },
   {
@@ -137,6 +140,7 @@
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 100 },
+    "equipmentDrops": [{ "equipmentId": "guardian_staff", "quantity": 1 }],
     "nextStageId": null
   },
   {
@@ -151,6 +155,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 66, "cultivation": 34, "combatExperience": 24 },
+    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
     "nextStageId": "mist_valley_2"
   },
   {
@@ -179,6 +184,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 92, "cultivation": 46, "combatExperience": 28 },
+    "equipmentDrops": [{ "equipmentId": "woven_travel_robe", "quantity": 1 }],
     "nextStageId": "mist_valley_4"
   },
   {
@@ -193,6 +199,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 116, "cultivation": 58, "combatExperience": 34 },
+    "equipmentDrops": [{ "equipmentId": "mist_needle_case", "quantity": 1 }],
     "nextStageId": "mist_valley_5"
   },
   {
@@ -207,6 +214,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 40 },
+    "equipmentDrops": [{ "equipmentId": "veil_palm_manual", "quantity": 1 }],
     "nextStageId": "mist_valley_6"
   },
   {
@@ -221,6 +229,7 @@
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 340, "cultivation": 170, "combatExperience": 160 },
+    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
     "nextStageId": null
   }
 ]

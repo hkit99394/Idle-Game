@@ -1,4 +1,5 @@
 import type { StaticGameData } from "../data";
+import { addEquipmentDropsToInventory } from "./equipment";
 import { syncHeroLevelsWithCombatExperience } from "./levels";
 import { cloneProgress } from "./progress";
 import {
@@ -55,6 +56,10 @@ export function applyStageClearRewards(
 
   nextProgress.resources.silver += silver;
   nextProgress.resources.cultivation += cultivation;
+  const equipmentRewards = addEquipmentDropsToInventory(
+    nextProgress,
+    stage.equipmentDrops
+  );
 
   const updatedMapProgress = {
     combatExperience: mapProgress.combatExperience + combatExperience,
@@ -89,6 +94,7 @@ export function applyStageClearRewards(
     },
     masteryRanksBefore,
     masteryRanksAfter,
-    newlyReachedMasteryRanks
+    newlyReachedMasteryRanks,
+    equipmentRewards
   };
 }

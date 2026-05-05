@@ -1,5 +1,6 @@
 import type {
   EnemyDefinition,
+  EquipmentDefinition,
   FormationDefinition,
   HeroDefinition,
   MartialStyleDefinition,
@@ -40,7 +41,7 @@ function validateStats(
   ownerId: string,
   stats: HeroDefinition["baseStats"] | EnemyDefinition["baseStats"]
 ): string[] {
-  const errors: string[] = [];
+const errors: string[] = [];
 
   for (const [stat, value] of Object.entries(stats)) {
     if (typeof value !== "number" || Number.isNaN(value)) {
@@ -140,6 +141,19 @@ function validateStageEnemyRefs(
   );
 }
 
+function validateStageEquipmentRefs(
+  stages: StageDefinition[],
+  equipmentIds: Set<string>
+): string[] {
+  return stages.flatMap((stage) =>
+    (stage.equipmentDrops ?? []).flatMap((drop) =>
+      equipmentIds.has(drop.equipmentId)
+        ? []
+        : [`Stage ${stage.id} references missing equipment ${drop.equipmentId}`]
+    )
+  );
+}
+
 function validateStageRegionRefs(
   stages: StageDefinition[],
   regionIds: Set<string>
@@ -207,6 +221,78 @@ function validateSkill(skill: SkillDefinition): string[] {
     errors.push(
       `Skill ${skill.id} targetRule must be one of ${TARGET_RULES.join(", ")}`
     );
+  }
+
+  return errors;
+}
+
+const EQUIPMENT_SLOTS = ["weapon", "armor", "manual", "medicine"] as const;
+const EQUIPMENT_RARITIES = ["common", "uncommon", "rare"] as const;
+const EQUIPMENT_EFFECT_MODES = ["flat", "multiplier"] as const;
+
+const BASE_STAT_KEYS = [
+  "maxOuterHp",
+  "maxInnerQi",
+  "outerAttack",
+  "innerAttack",
+  "outerDefense",
+  "innerDefense",
+  "speed",
+  "critChance",
+  "critDamage",
+  "breakPower",
+  "breakResist",
+  "innerRecoveryRate"
+] as const;
+
+function validateEquipment(
+  equipment: EquipmentDefinition,
+  styleIds: Set<string>
+): string[] {
+  const errors: string[] = [];
+
+  if (!EQUIPMENT_SLOTS.includes(equipment.slot)) {
+    errors.push(
+      `Equipment ${equipment.id} slot must be one of ${EQUIPMENT_SLOTS.join(", ")}`
+    );
+  }
+
+  if (!EQUIPMENT_RARITIES.includes(equipment.rarity)) {
+    errors.push(
+      `Equipment ${equipment.id} rarity must be one of ${EQUIPMENT_RARITIES.join(", ")}`
+    );
+  }
+
+  if (equipment.allowedStyles.length === 0) {
+    errors.push(`Equipment ${equipment.id} must allow at least one style`);
+  }
+
+  for (const styleId of equipment.allowedStyles) {
+    if (!styleIds.has(styleId)) {
+      errors.push(`Equipment ${equipment.id} references missing style ${styleId}`);
+    }
+  }
+
+  if (equipment.effects.length === 0) {
+    errors.push(`Equipment ${equipment.id} must define at least one effect`);
+  }
+
+  for (const effect of equipment.effects) {
+    if (!BASE_STAT_KEYS.includes(effect.stat)) {
+      errors.push(
+        `Equipment ${equipment.id} effect stat ${String(effect.stat)} must be a valid base stat`
+      );
+    }
+
+    if (!EQUIPMENT_EFFECT_MODES.includes(effect.mode)) {
+      errors.push(
+        `Equipment ${equipment.id} effect mode must be one of ${EQUIPMENT_EFFECT_MODES.join(", ")}`
+      );
+    }
+
+    if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+      errors.push(`Equipment ${equipment.id} effect value must be a number`);
+    }
   }
 
   return errors;
@@ -292,6 +378,12 @@ function validateStage(stage: StageDefinition): string[] {
 
   if (stage.rewards.silver < 0 || stage.rewards.cultivation < 0 || stage.rewards.combatExperience < 0) {
     errors.push(`Stage ${stage.id} rewards must be non-negative`);
+  }
+
+  for (const drop of stage.equipmentDrops ?? []) {
+    if (!Number.isInteger(drop.quantity) || drop.quantity < 1) {
+      errors.push(`Stage ${stage.id} equipment drop quantity must be an integer >= 1`);
+    }
   }
 
   const placedCombatantIndexes = new Set<number>();
@@ -455,6 +547,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     ["hero", data.heroes],
     ["skill", data.skills],
     ["enemy", data.enemies],
+    ["equipment", data.equipment],
     ["region", data.regions],
     ["stage", data.stages],
     ["upgrade", data.upgrades],
@@ -472,6 +565,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const skillIds = new Set(data.skills.map((skill) => skill.id));
   const heroIds = new Set(data.heroes.map((hero) => hero.id));
   const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
+  const equipmentIds = new Set(data.equipment.map((equipment) => equipment.id));
   const stageIds = new Set(data.stages.map((stage) => stage.id));
   const styleIds = new Set(data.styles.map((style) => style.id));
   const regionIds = new Set(data.regions.map((region) => region.id));
@@ -486,6 +580,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   errors.push(...validateEnemySkillRefs(data.enemies, skillIds));
   errors.push(...validateEnemyStyleRefs(data.enemies, styleIds));
   errors.push(...validateStageEnemyRefs(data.stages, enemyIds));
+  errors.push(...validateStageEquipmentRefs(data.stages, equipmentIds));
   errors.push(...validateStageRegionRefs(data.stages, regionIds));
   errors.push(...validateStageNextRefs(data.stages, stageIds));
   errors.push(...validateRegionStageRefs(data.regions, stageIds));
@@ -512,6 +607,10 @@ export function validateStaticGameData(data: StaticGameData): string[] {
 
   for (const skill of data.skills) {
     errors.push(...validateSkill(skill));
+  }
+
+  for (const equipment of data.equipment) {
+    errors.push(...validateEquipment(equipment, styleIds));
   }
 
   for (const skillUpgrade of data.skillUpgrades) {

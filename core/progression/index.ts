@@ -1,4 +1,5 @@
 export * from "./battleResolution";
+export * from "./equipment";
 export * from "./levels";
 export * from "./mastery";
 export * from "./masterySummary";

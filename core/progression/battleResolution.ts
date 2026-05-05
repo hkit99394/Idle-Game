@@ -98,6 +98,7 @@ function createPlayerCombatantStats(
 
   return deriveHeroStatsFromProgress({
     baseStats: hero.baseStats,
+    heroId: hero.id,
     heroProgress: getEffectiveHeroProgress(
       progress,
       hero.id,
@@ -109,6 +110,8 @@ function createPlayerCombatantStats(
     style: hero.style,
     styleDefinitions: data.styles,
     styleMastery: progress.styleMastery,
+    equipmentDefinitions: data.equipment,
+    equipment: progress.equipment,
     mapAttackMultiplier: context.mapAttackMultiplier
   });
 }
@@ -279,7 +282,8 @@ export function resolveStageBattle(
       masteryRanksAfter: [],
       newlyReachedMasteryRanks: [],
       suggestedFarmStageId:
-        getRecommendedOfflineFarmStage(data, input.progress)?.id ?? null
+        getRecommendedOfflineFarmStage(data, input.progress)?.id ?? null,
+      equipmentRewards: []
     };
   }
 
@@ -313,6 +317,7 @@ export function resolveStageBattle(
     masteryRanksBefore: rewardsResult.masteryRanksBefore,
     masteryRanksAfter: rewardsResult.masteryRanksAfter,
     newlyReachedMasteryRanks: rewardsResult.newlyReachedMasteryRanks,
-    suggestedFarmStageId: null
+    suggestedFarmStageId: null,
+    equipmentRewards: rewardsResult.equipmentRewards
   };
 }

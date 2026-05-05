@@ -18,6 +18,25 @@ export type SkillEffect = {
   durationSeconds?: number;
 };
 
+export type EquipmentSlot = "weapon" | "armor" | "manual" | "medicine";
+
+export type EquipmentRarity = "common" | "uncommon" | "rare";
+
+export type EquipmentEffect = {
+  stat: keyof BaseStats;
+  mode: "flat" | "multiplier";
+  value: number;
+};
+
+export type EquipmentDefinition = {
+  id: string;
+  name: string;
+  slot: EquipmentSlot;
+  rarity: EquipmentRarity;
+  allowedStyles: MartialStyleId[];
+  effects: EquipmentEffect[];
+};
+
 export type HeroDefinition = {
   id: string;
   name: string;
@@ -94,6 +113,11 @@ export type StageRewards = {
   combatExperience: number;
 };
 
+export type StageEquipmentDrop = {
+  equipmentId: string;
+  quantity: number;
+};
+
 export type StageDefinition = {
   id: string;
   regionId: string;
@@ -103,6 +127,7 @@ export type StageDefinition = {
   isBoss: boolean;
   canFarmOffline: boolean;
   rewards: StageRewards;
+  equipmentDrops?: StageEquipmentDrop[];
   nextStageId: string | null;
 };
 
@@ -184,6 +209,7 @@ export type StaticGameData = {
   heroes: HeroDefinition[];
   skills: SkillDefinition[];
   enemies: EnemyDefinition[];
+  equipment: EquipmentDefinition[];
   regions: RegionDefinition[];
   stages: StageDefinition[];
   upgrades: UpgradeDefinition[];

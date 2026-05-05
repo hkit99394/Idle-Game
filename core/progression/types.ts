@@ -1,6 +1,8 @@
 import type { BaseStats, FormationSlot } from "../combat";
 import type { BattleResult, TeamInstance } from "../combat";
 import type {
+  EquipmentDefinition,
+  EquipmentSlot,
   MartialStyleDefinition,
   UpgradeDefinition
 } from "../data";
@@ -28,6 +30,11 @@ export type StyleMasteryProgress = {
   experience: number;
 };
 
+export type EquipmentProgress = {
+  inventory: Record<string, number>;
+  equipped: Record<string, Partial<Record<EquipmentSlot, string>>>;
+};
+
 export type PlayerProgress = {
   resources: ResourceState;
   heroes: Record<string, HeroProgress>;
@@ -36,6 +43,7 @@ export type PlayerProgress = {
   formation?: Record<string, FormationSlot>;
   styleMastery?: Record<string, StyleMasteryProgress>;
   skillUpgrades?: Record<string, number>;
+  equipment?: EquipmentProgress;
   currentStageId: string;
 };
 
@@ -78,8 +86,34 @@ export type PurchaseSkillUpgradeResult =
       cost?: number;
     };
 
+export type EquipHeroEquipmentInput = {
+  progress: PlayerProgress;
+  heroId: string;
+  equipmentId: string;
+};
+
+export type EquipHeroEquipmentResult =
+  | {
+      ok: true;
+      progress: PlayerProgress;
+      heroId: string;
+      equipmentId: string;
+      slot: EquipmentSlot;
+    }
+  | {
+      ok: false;
+      reason:
+        | "missing_hero"
+        | "missing_equipment"
+        | "not_owned"
+        | "not_enough_copies"
+        | "incompatible_style";
+      progress: PlayerProgress;
+    };
+
 export type DerivedHeroStatsInput = {
   baseStats: BaseStats;
+  heroId?: string;
   style?: string;
   heroProgress?: HeroProgress;
   sectProgress?: SectProgress;
@@ -87,6 +121,8 @@ export type DerivedHeroStatsInput = {
   sectUpgradeDefinitions: Pick<UpgradeDefinition, "id" | "effects">[];
   styleDefinitions?: MartialStyleDefinition[];
   styleMastery?: PlayerProgress["styleMastery"];
+  equipmentDefinitions?: EquipmentDefinition[];
+  equipment?: PlayerProgress["equipment"];
   mapAttackMultiplier?: number;
 };
 
@@ -103,6 +139,7 @@ export type ApplyStageClearResult =
       masteryRanksBefore: string[];
       masteryRanksAfter: string[];
       newlyReachedMasteryRanks: string[];
+      equipmentRewards: Array<{ equipmentId: string; quantity: number }>;
     }
   | {
       ok: false;
@@ -148,6 +185,7 @@ export type ResolveStageBattleResult =
       masteryRanksAfter: string[];
       newlyReachedMasteryRanks: string[];
       suggestedFarmStageId: string | null;
+      equipmentRewards: Array<{ equipmentId: string; quantity: number }>;
     }
   | {
       ok: false;

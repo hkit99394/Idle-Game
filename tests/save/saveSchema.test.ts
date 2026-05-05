@@ -222,4 +222,52 @@ describe("save schema", () => {
     expect(validateSaveData(staticData, oldSave)).toEqual([]);
     expect(parseSaveData(staticData, oldSave).ok).toBe(true);
   });
+
+  it("accepts old saves without equipment and validates equipment progress", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        equipment: undefined
+      }
+    };
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        equipment: {
+          inventory: {
+            missing_equipment: 1,
+            training_wraps: 1.5
+          },
+          equipped: {
+            missing_hero: {
+              weapon: "training_wraps"
+            },
+            iron_fist_disciple: {
+              trinket: "training_wraps",
+              armor: "missing_equipment"
+            }
+          }
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(validateSaveData(staticData, badSave)).toEqual(
+      expect.arrayContaining([
+        "progress.equipment.inventory.missing_equipment must reference an existing equipment item",
+        "progress.equipment.inventory.training_wraps must be an integer >= 0",
+        "progress.equipment.equipped.missing_hero must reference an existing hero",
+        "progress.equipment.equipped.iron_fist_disciple.trinket must be weapon, armor, manual, or medicine",
+        "progress.equipment.equipped.iron_fist_disciple.armor must reference an existing equipment item"
+      ])
+    );
+  });
 });

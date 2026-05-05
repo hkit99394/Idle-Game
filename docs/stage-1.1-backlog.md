@@ -17,7 +17,8 @@ Stage 1.1 starting point:
 - Epic 7 formation and targeting is complete.
 - Epic 8 martial arts growth is complete.
 - Epic 9 region content expansion is complete; Mist Valley is the first post-tutorial region.
-- The next planned epic is loot and equipment.
+- Epic 10 loot and equipment is complete.
+- The next planned epic is offline and idle depth.
 
 ## Recommended Roadmap
 
@@ -127,11 +128,11 @@ Goal:
 | Epic 7: Formation And Targeting | Completed | Combat Depth / Formation System | Make team position and target choice matter |
 | Epic 8: Martial Arts Growth | Completed | Hero And Martial Arts Growth | Split growth into Outer Art, Inner Art, style mastery, and skill upgrades |
 | Epic 9: Region Content Expansion | Completed | Content Expansion | Add Mist Valley after Bamboo Road and make multi-region systems work |
-| Epic 10: Loot And Equipment | Not started | Loot And Equipment | Add simple equipment progression after formation behavior is stable |
+| Epic 10: Loot And Equipment | Completed | Loot And Equipment | Add deterministic drops, inventory, equipment stats, and equip flow |
 | Epic 11: Offline And Idle Depth | Not started | Offline And Idle Depth | Make farming choices previewable and intentional |
 | Epic 12: Technical Foundation | Not started | Technical Foundation | Prepare saves, core engine boundaries, and balance tools for larger content |
 
-Stage 1.1 completed Epics 7-9 first. Epics 10-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
+Stage 1.1 completed Epics 7-10 first. Epics 11-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
 
 ## Epic 7 Tasks
 
@@ -507,11 +508,18 @@ Goal:
 
 ### 10.1 Equipment Data Model
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Add equipment definitions for weapons, armor, manuals, and medicine.
+
+Implementation:
+
+- Added equipment definitions for weapons, armor, manuals, and medicine.
+- Equipment includes id, name, slot, rarity, allowed styles, and stat effects.
+- Equipment stat effects can be flat or multiplier based.
+- Data validation checks equipment slots, rarities, allowed styles, effect stats, effect modes, and stage drop references.
 
 Acceptance:
 
@@ -522,11 +530,18 @@ Acceptance:
 
 ### 10.2 Equipment Rewards And Inventory
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Add basic equipment drops and player inventory.
+
+Implementation:
+
+- Stages can define deterministic equipment drop pools.
+- Player progress now stores equipment inventory counts.
+- Duplicate drops stack as additional inventory counts.
+- Save/load accepts older saves without equipment data and validates new equipment progress.
 
 Acceptance:
 
@@ -537,11 +552,18 @@ Acceptance:
 
 ### 10.3 Equip Flow
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Allow heroes to equip compatible gear.
+
+Implementation:
+
+- Heroes can equip compatible gear by style and slot.
+- Equipped gear applies to derived hero stats and CP.
+- Incompatible gear and unavailable duplicate copies are rejected.
+- Web UI shows hero equipment slots, inventory, rarity colors, effects, and equip buttons.
 
 Acceptance:
 
@@ -694,6 +716,7 @@ Stage 1.1 core scope is complete when:
 - Battle summary shows contribution highlights.
 - A post-tutorial region exists after Bamboo Road.
 - Region progression, farming, mastery, saves, and balance reports work across multiple regions.
+- Equipment drops, inventory, equipping, rarity display, and CP stat effects are implemented.
 - Tests, typecheck, build, and simulate pass.
 
 Stage 1.1 roadmap planning is complete when:
