@@ -168,9 +168,13 @@ export type BattleCombatantView = {
 
 export type BattleEventCategory =
   | "attack"
+  | "armor_break"
   | "qi_break"
   | "qi_recover"
   | "backlash"
+  | "guard"
+  | "guard_absorb"
+  | "protect"
   | "heal"
   | "defeat";
 
@@ -894,11 +898,17 @@ function formatAttackDetail(
   data: StaticGameData,
   event: Extract<BattleEvent, { type: "attack" }>
 ): string {
-  return [
+  const detail = [
     getSkillName(data, event.skillId),
     `${formatBattleNumber(event.outerDamage)} Outer damage`,
     `${formatBattleNumber(event.innerDamage)} Inner Qi damage`
-  ].join(" · ");
+  ];
+
+  if (event.intendedTargetId && event.intendedTargetId !== event.targetId) {
+    detail.push("redirected by protection");
+  }
+
+  return detail.join(" · ");
 }
 
 function buildBattleEventDetail(
@@ -911,10 +921,16 @@ function buildBattleEventDetail(
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
       const skillName = getSkillName(data, event.skillId);
+      const intendedTarget =
+        event.intendedTargetId && event.intendedTargetId !== event.targetId
+          ? getName(names, event.intendedTargetId)
+          : null;
 
       return {
         category: "attack",
-        headline: `${source} attacks ${target}`,
+        headline: intendedTarget
+          ? `${source} attacks ${intendedTarget}`
+          : `${source} attacks ${target}`,
         detail: formatAttackDetail(data, event),
         badges: [
           {
@@ -928,6 +944,106 @@ function buildBattleEventDetail(
           {
             label: `${formatBattleNumber(event.innerDamage)} Inner Qi`,
             tone: "inner"
+          },
+          ...(intendedTarget
+            ? [
+                {
+                  label: `${target} intercepts`,
+                  tone: "neutral" as const
+                }
+              ]
+            : [])
+        ]
+      };
+    }
+
+    case "guard": {
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "guard",
+        headline: `${target} raises guard`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces incoming Outer damage by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Guard",
+            tone: "neutral"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} reduction`,
+            tone: "outer"
+          }
+        ]
+      };
+    }
+
+    case "guard_absorb": {
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "guard_absorb",
+        headline: `${target}'s guard absorbs the strike`,
+        detail:
+          `${getSkillName(data, event.skillId)} prevents ` +
+          `${formatBattleNumber(event.outerDamagePrevented)} Outer damage`,
+        badges: [
+          {
+            label: `${formatBattleNumber(event.outerDamagePrevented)} blocked`,
+            tone: "outer"
+          },
+          {
+            label: "Guard",
+            tone: "neutral"
+          }
+        ]
+      };
+    }
+
+    case "protect": {
+      const protector = getName(names, event.sourceId);
+      const protectedTarget = getName(names, event.protectedId);
+      const attacker = getName(names, event.attackerId);
+      const prevented = event.outerDamagePrevented + event.innerDamagePrevented;
+
+      return {
+        category: "protect",
+        headline: `${protector} protects ${protectedTarget}`,
+        detail:
+          `${getSkillName(data, event.skillId)} intercepts ${attacker} and prevents ` +
+          `${formatBattleNumber(prevented)} total damage`,
+        badges: [
+          {
+            label: "Protection",
+            tone: "neutral"
+          },
+          {
+            label: `${formatBattleNumber(prevented)} prevented`,
+            tone: "outer"
+          }
+        ]
+      };
+    }
+
+    case "armor_break": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "armor_break",
+        headline: `${source} breaks ${target}'s armor`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces guard and Outer Defense by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Armor Break",
+            tone: "danger"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} defense`,
+            tone: "outer"
           }
         ]
       };

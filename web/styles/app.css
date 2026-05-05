@@ -1465,6 +1465,18 @@ h2 {
   border-color: #7b2f2b;
 }
 
+.event-row.guard,
+.event-row.guard_absorb,
+.event-row.protect {
+  border-color: #6f5f3a;
+  background: #f5f0df;
+}
+
+.event-row.armor_break {
+  border-color: #a64236;
+  background: #f5e7e2;
+}
+
 .event-row.heal {
   border-color: #547536;
   background: #f4f8ec;

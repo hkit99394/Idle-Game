@@ -92,6 +92,37 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid skill effects", () => {
+    const invalidData = {
+      ...staticData,
+      skills: staticData.skills.map((skill) =>
+        skill.id === "iron_fist_combo"
+          ? {
+              ...skill,
+              effects: [
+                {
+                  type: "unknown_effect",
+                  value: Number.NaN
+                },
+                {
+                  type: "guard",
+                  value: 0.2
+                }
+              ]
+            }
+          : skill
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, speed_down, inner_defense_down, guard, protect, armor_break",
+        "Skill iron_fist_combo effect unknown_effect value must be a number",
+        "Skill iron_fist_combo effect guard durationSeconds must be a positive number"
+      ])
+    );
+  });
+
   it("rejects invalid enemy formation slots", () => {
     const invalidData = {
       ...staticData,

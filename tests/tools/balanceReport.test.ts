@@ -132,6 +132,20 @@ describe("balance report", () => {
     expect(blackIronBalance.farmRecommendation).toMatchObject({
       stageId: "black_iron_fort_6"
     });
+    expect(
+      blackIronBalance.stageResults.some((stage) => {
+        if (!stage.ok) {
+          return false;
+        }
+
+        const defensiveStage = stage as typeof stage & {
+          guardAbsorbs: number;
+          armorBreaks: number;
+        };
+
+        return defensiveStage.guardAbsorbs > 0 && defensiveStage.armorBreaks > 0;
+      })
+    ).toBe(true);
     expect(blackIronBalance.bossGate.baseline).toMatchObject({
       stageId: "black_iron_fort_7",
       ok: true,
@@ -218,6 +232,8 @@ describe("balance report", () => {
     expect(formatted).toContain("Region Farm Recommendations");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Boss Gates");
+    expect(formatted).toContain("defense");
+    expect(formatted).toContain("g0/p0/a");
     expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("Formation Targeting");
     expect(formatted).toContain("npm run simulate -- --json");

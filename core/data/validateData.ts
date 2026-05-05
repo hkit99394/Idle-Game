@@ -41,7 +41,7 @@ function validateStats(
   ownerId: string,
   stats: HeroDefinition["baseStats"] | EnemyDefinition["baseStats"]
 ): string[] {
-const errors: string[] = [];
+  const errors: string[] = [];
 
   for (const [stat, value] of Object.entries(stats)) {
     if (typeof value !== "number" || Number.isNaN(value)) {
@@ -223,12 +223,54 @@ function validateSkill(skill: SkillDefinition): string[] {
     );
   }
 
+  for (const effect of skill.effects) {
+    if (!SKILL_EFFECT_TYPES.includes(effect.type)) {
+      errors.push(
+        `Skill ${skill.id} effect ${String(effect.type)} must be one of ${SKILL_EFFECT_TYPES.join(", ")}`
+      );
+    }
+
+    if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+      errors.push(
+        `Skill ${skill.id} effect ${String(effect.type)} value must be a number`
+      );
+    }
+
+    if (
+      TIMED_SKILL_EFFECT_TYPES.includes(
+        effect.type as (typeof TIMED_SKILL_EFFECT_TYPES)[number]
+      ) &&
+      (typeof effect.durationSeconds !== "number" ||
+        effect.durationSeconds <= 0 ||
+        Number.isNaN(effect.durationSeconds))
+    ) {
+      errors.push(
+        `Skill ${skill.id} effect ${effect.type} durationSeconds must be a positive number`
+      );
+    }
+  }
+
   return errors;
 }
 
 const EQUIPMENT_SLOTS = ["weapon", "armor", "manual", "medicine"] as const;
 const EQUIPMENT_RARITIES = ["common", "uncommon", "rare"] as const;
 const EQUIPMENT_EFFECT_MODES = ["flat", "multiplier"] as const;
+const SKILL_EFFECT_TYPES = [
+  "outer_heal_percent",
+  "speed_down",
+  "inner_defense_down",
+  "guard",
+  "protect",
+  "armor_break"
+] as const;
+const TIMED_SKILL_EFFECT_TYPES = [
+  "speed_down",
+  "inner_defense_down",
+  "guard",
+  "protect",
+  "armor_break"
+] as const;
 
 const BASE_STAT_KEYS = [
   "maxOuterHp",

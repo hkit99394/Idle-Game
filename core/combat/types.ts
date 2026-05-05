@@ -68,6 +68,13 @@ export type InnerRecoveryInput = {
 
 export type CombatantKind = "hero" | "enemy";
 
+export type TimedCombatEffect = {
+  value: number;
+  sourceId: string;
+  skillId: string;
+  expiresAt: number;
+};
+
 export type CombatantInstanceDefinition = {
   definitionId: string;
   kind: CombatantKind;
@@ -107,6 +114,9 @@ export type CombatantState = {
   isQiBroken: boolean;
   qiBreakEndsAt: number | null;
   lastInnerDamageAt: number | null;
+  guard: TimedCombatEffect | null;
+  protection: TimedCombatEffect | null;
+  armorBreak: TimedCombatEffect | null;
   defeatedAt: number | null;
 };
 
@@ -119,6 +129,44 @@ export type BattleEvent =
       skillId: string;
       outerDamage: number;
       innerDamage: number;
+      intendedTargetId?: string;
+    }
+  | {
+      type: "guard";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      reduction: number;
+      endsAt: number;
+    }
+  | {
+      type: "guard_absorb";
+      time: number;
+      targetId: string;
+      skillId: string;
+      outerDamagePrevented: number;
+      reduction: number;
+    }
+  | {
+      type: "protect";
+      time: number;
+      sourceId: string;
+      protectedId: string;
+      attackerId: string;
+      skillId: string;
+      outerDamagePrevented: number;
+      innerDamagePrevented: number;
+      reduction: number;
+    }
+  | {
+      type: "armor_break";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      reduction: number;
+      endsAt: number;
     }
   | {
       type: "qi_break";
@@ -166,6 +214,12 @@ export type BattleMetrics = {
   qiBreaksTriggeredByEnemy: number;
   backlashDamageToEnemies: number;
   backlashDamageToPlayers: number;
+  guardDamagePreventedByPlayer: number;
+  guardDamagePreventedByEnemy: number;
+  protectionDamagePreventedByPlayer: number;
+  protectionDamagePreventedByEnemy: number;
+  armorBreaksTriggeredByPlayer: number;
+  armorBreaksTriggeredByEnemy: number;
   playerEffectiveDps: number;
   enemyEffectiveDps: number;
 };
@@ -185,6 +239,10 @@ export type BattleContribution = {
   outerDamageTaken: number;
   innerDamageTaken: number;
   backlashDamageTaken: number;
+  guardDamagePrevented: number;
+  protectionDamagePrevented: number;
+  protectionTriggers: number;
+  armorBreaksApplied: number;
   survived: boolean;
 };
 

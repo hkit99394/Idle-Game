@@ -34,7 +34,7 @@ Deliver the next meaningful layer of content and player choice:
 | Epic | Status | Lane | Goal |
 | --- | --- | --- | --- |
 | Epic 13: Black Iron Fort Region | Completed | Content Expansion | Add the next region with defensive enemy identity |
-| Epic 14: Defensive Combat Mechanics | Planned | Combat Depth | Add armor, guard, protection, and armor-break behavior |
+| Epic 14: Defensive Combat Mechanics | Completed | Combat Depth | Add armor, guard, protection, and armor-break behavior |
 | Epic 15: Style Branch Choices | Planned | Martial Arts Growth | Let heroes unlock and select early style branches |
 | Epic 16: Equipment Affixes And Sets | Planned | Loot And Equipment | Add deterministic item depth and clearer gear decisions |
 | Epic 17: Patrols And Training Grounds | Planned | Offline And Idle | Add simple hero assignment systems for offline progress |
@@ -108,13 +108,29 @@ Acceptance:
 
 ## Epic 14: Defensive Combat Mechanics
 
+Status: Completed
+
 Goal:
 
 - Make defensive enemies feel different from simply having larger HP numbers.
 
+Implementation:
+
+- Added timed `guard`, `protect`, and `armor_break` skill effects.
+- Guard reduces incoming Outer damage and emits guard/absorb battle events.
+- Protection redirects attacks to a living ally in an ahead formation slot and reduces redirected damage.
+- Armor Break temporarily reduces target Outer Defense and guard strength.
+- White Crane Slash now provides player armor-break counterplay.
+- Mountain Staff Guardian can protect allies with Sweeping Staff.
+- Black Iron Fort defensive enemies now use guard and protection-flavored skills.
+- Battle logs and the balance report show defensive events distinctly from Qi Breaks.
+- Scenario tests cover guard mitigation, front/middle/back protection behavior, living protector rules, and armor-break clear-time improvement.
+
 Tasks:
 
 ### 14.1 Armor Or Guard Stat Layer
+
+Status: Completed
 
 Add a lightweight defensive mechanic.
 
@@ -131,6 +147,8 @@ Acceptance:
 
 ### 14.2 Protection Skill Effect
 
+Status: Completed
+
 Allow tank/support units to protect allies.
 
 Acceptance:
@@ -141,6 +159,8 @@ Acceptance:
 - Tests cover protection with front, middle, and back targets.
 
 ### 14.3 Armor Break Or Defense Reduction
+
+Status: Completed
 
 Add counterplay to defensive enemies.
 
@@ -353,12 +373,10 @@ Acceptance:
 
 ## Recommended Delivery Order
 
-1. Epic 14: Defensive combat mechanics needed by Black Iron Fort.
-2. Epic 18 partial: scenario coverage and report metrics for defensive mechanics.
-3. Epic 15: style branch choices.
-4. Epic 16: equipment affixes and set bonuses.
-5. Epic 17: patrols and training grounds.
-6. Epic 18 final: migration, browser smoke, full verification.
+1. Epic 15: style branch choices.
+2. Epic 16: equipment affixes and set bonuses.
+3. Epic 17: patrols and training grounds.
+4. Epic 18 final: migration, browser smoke, full verification.
 
 ## Out Of Scope For Stage 1.2
 

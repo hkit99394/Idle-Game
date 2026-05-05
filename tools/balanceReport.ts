@@ -396,6 +396,15 @@ function summarizeBattle(
   }
 
   const durationSeconds = Number(result.battle.durationSeconds.toFixed(2));
+  const guardEvents = result.battle.events.filter(
+    (event) => event.type === "guard_absorb"
+  );
+  const protectEvents = result.battle.events.filter(
+    (event) => event.type === "protect"
+  );
+  const armorBreakEvents = result.battle.events.filter(
+    (event) => event.type === "armor_break"
+  );
   const targetMet = targetSeconds
     ? result.battle.winner === "player" &&
       durationSeconds >= targetSeconds[0] &&
@@ -418,6 +427,17 @@ function summarizeBattle(
     stageCleared: result.stageCleared,
     durationSeconds,
     qiBreaks: result.battle.events.filter((event) => event.type === "qi_break").length,
+    guardAbsorbs: guardEvents.length,
+    protections: protectEvents.length,
+    armorBreaks: armorBreakEvents.length,
+    defensiveDamagePrevented: Number(
+      (
+        result.battle.metrics.guardDamagePreventedByPlayer +
+        result.battle.metrics.guardDamagePreventedByEnemy +
+        result.battle.metrics.protectionDamagePreventedByPlayer +
+        result.battle.metrics.protectionDamagePreventedByEnemy
+      ).toFixed(2)
+    ),
     metrics: {
       playerOuterDamage: Number(result.battle.metrics.playerOuterDamage.toFixed(2)),
       playerInnerDamage: Number(result.battle.metrics.playerInnerDamage.toFixed(2)),
@@ -824,6 +844,7 @@ function formatStageRow(stage: StageSummary): string {
       reason.padEnd(13),
       "-".padStart(6),
       "-".padStart(5),
+      "-".padEnd(13),
       formation.padEnd(14),
       "-".padEnd(28),
       "-".padEnd(10)
@@ -836,6 +857,7 @@ function formatStageRow(stage: StageSummary): string {
     `${stage.winner}${stage.stageCleared ? " clear" : " hold"}`.padEnd(13),
     `${stage.durationSeconds}s`.padStart(6),
     String(stage.qiBreaks).padStart(5),
+    `g${stage.guardAbsorbs}/p${stage.protections}/a${stage.armorBreaks}`.padEnd(13),
     formation.padEnd(14),
     formatReward(stage.rewards).padEnd(28),
     formatTarget(stage).padEnd(10)
@@ -847,7 +869,7 @@ function formatBossLine(stage: StageSummary): string {
     return `${stage.stageId}: ${stage.reason ?? "unknown"}`;
   }
 
-  return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks`;
+  return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks, g${stage.guardAbsorbs}/p${stage.protections}/a${stage.armorBreaks}`;
 }
 
 function formatRegionFarmLine(region: RegionSummary): string {
@@ -894,6 +916,7 @@ function formatRegionStageTable(
     "result".padEnd(13),
     "time".padStart(6),
     "break".padStart(5),
+    "defense".padEnd(13),
     "formation".padEnd(14),
     "rewards".padEnd(28),
     "target".padEnd(10)
