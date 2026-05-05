@@ -21,6 +21,7 @@ import type {
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
   SaveDiagnosticsView,
+  SelectGameStyleBranchInput,
   SkillUpgradeView,
   StageOptionView,
   StyleMasteryView,
@@ -747,10 +748,16 @@ function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProp
 }
 
 type StyleMasteryPanelProps = {
+  onSelectBranch: (input: SelectGameStyleBranchInput) => void;
   styles: StyleMasteryView[];
+  status: string;
 };
 
-function StyleMasteryPanel({ styles }: StyleMasteryPanelProps) {
+function StyleMasteryPanel({
+  onSelectBranch,
+  status,
+  styles
+}: StyleMasteryPanelProps) {
   return (
     <section className="style-mastery-panel" aria-label="Style mastery">
       <div className="style-mastery-heading">
@@ -783,18 +790,41 @@ function StyleMasteryPanel({ styles }: StyleMasteryPanelProps) {
               </div>
               <div className="style-branch-list">
                 {style.branches.map((branch) => (
-                  <span
+                  <button
+                    type="button"
                     key={branch.id}
-                    className={branch.isUnlocked ? "unlocked" : "locked"}
+                    className={
+                      branch.isSelected
+                        ? "selected"
+                        : branch.isUnlocked
+                          ? "unlocked"
+                          : "locked"
+                    }
+                    disabled={!branch.canSelect}
+                    onClick={() =>
+                      onSelectBranch({
+                        styleId: style.styleId,
+                        branchId: branch.id
+                      })
+                    }
+                    title={branch.effects.join(", ")}
                   >
-                    {branch.name} · {branch.isUnlocked ? "Unlocked" : branch.requirement}
-                  </span>
+                    <strong>{branch.name}</strong>
+                    <span>
+                      {branch.isSelected
+                        ? "Selected"
+                        : branch.isUnlocked
+                          ? "Unlocked"
+                          : branch.requirement}
+                    </span>
+                  </button>
                 ))}
               </div>
             </article>
           );
         })}
       </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
     </section>
   );
 }
@@ -1156,6 +1186,7 @@ function GameApp() {
     purchaseUpgrade,
     resetNewGame,
     saveDiagnostics,
+    selectStyleBranch,
     selectStage,
     setOfflineFarmPreset,
     setHeroFormation,
@@ -1171,6 +1202,7 @@ function GameApp() {
     heroEquipment,
     lastBattle,
     lastEquipmentAction,
+    lastStyleBranchAction,
     lastBattleStage,
     lastPurchase,
     lastSkillPurchase,
@@ -1210,6 +1242,14 @@ function GameApp() {
       ? "Equipment changed"
       : lastEquipmentAction
         ? lastEquipmentAction.reason.replaceAll("_", " ")
+        : "";
+  const styleBranchStatus =
+    lastStyleBranchAction?.ok
+      ? lastStyleBranchAction.branchId
+        ? "Branch selected"
+        : "Branch cleared"
+      : lastStyleBranchAction
+        ? lastStyleBranchAction.reason.replaceAll("_", " ")
         : "";
   const stageType = selectedStage?.isBoss ? "Boss" : "Road";
 
@@ -1322,7 +1362,11 @@ function GameApp() {
           heroes={playerFormation}
           onSetFormation={setHeroFormation}
         />
-        <StyleMasteryPanel styles={styleMastery} />
+        <StyleMasteryPanel
+          onSelectBranch={selectStyleBranch}
+          status={styleBranchStatus}
+          styles={styleMastery}
+        />
         <UpgradePanel
           onPurchase={purchaseUpgrade}
           silver={progress.resources.silver}

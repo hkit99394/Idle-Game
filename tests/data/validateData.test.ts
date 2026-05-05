@@ -123,6 +123,39 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid style branch effects", () => {
+    const invalidData = {
+      ...staticData,
+      styles: staticData.styles.map((style) =>
+        style.id === "fist"
+          ? {
+              ...style,
+              branches: style.branches.map((branch) => ({
+                ...branch,
+                hiddenInMvp: "no",
+                effects: [
+                  {
+                    type: "unknown",
+                    stat: "luck",
+                    value: Number.NaN
+                  }
+                ]
+              }))
+            }
+          : style
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Style branch fist.iron_body_fist hiddenInMvp must be a boolean",
+        "Style branch fist.iron_body_fist effect type must be stat_multiplier",
+        "Style branch fist.iron_body_fist effect stat luck must be a valid base stat",
+        "Style branch fist.iron_body_fist effect value must be a number"
+      ])
+    );
+  });
+
   it("rejects invalid enemy formation slots", () => {
     const invalidData = {
       ...staticData,

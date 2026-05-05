@@ -8,7 +8,8 @@ import {
   DEFAULT_OFFLINE_FARM_PRESET,
   normalizeOfflineFarmPreset,
   isOfflineFarmPreset,
-  isStageUnlocked
+  isStageUnlocked,
+  STYLE_MASTERY_EXPERIENCE_PER_LEVEL
 } from "../progression";
 import type {
   HeroProgress,
@@ -20,10 +21,11 @@ import type {
   OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 2 as const;
+export const SAVE_DATA_VERSION = 3 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
+  2,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -268,6 +270,114 @@ function validateStyleMastery(
   return true;
 }
 
+function isUnlockConditionMetForSave(
+  data: Pick<StaticGameData, "heroes" | "stages" | "styles">,
+  progress: UnknownRecord,
+  unlock: StaticGameData["styles"][number]["branches"][number]["unlock"]
+): boolean {
+  switch (unlock.type) {
+    case "always":
+      return true;
+
+    case "stage_cleared": {
+      const stage = getStageById(data, unlock.stageId);
+      const maps = isRecord(progress.maps) ? progress.maps : {};
+      const mapProgress = stage ? maps[stage.regionId] : undefined;
+
+      return (
+        !!stage &&
+        isRecord(mapProgress) &&
+        typeof mapProgress.highestClearedStageIndex === "number" &&
+        mapProgress.highestClearedStageIndex >= stage.index
+      );
+    }
+
+    case "hero_level": {
+      const heroes = isRecord(progress.heroes) ? progress.heroes : {};
+      const heroProgress = heroes[unlock.heroId];
+
+      return (
+        isRecord(heroProgress) &&
+        typeof heroProgress.level === "number" &&
+        heroProgress.level >= unlock.level
+      );
+    }
+
+    case "style_mastery_level": {
+      const styleMastery = isRecord(progress.styleMastery)
+        ? progress.styleMastery
+        : {};
+      const mastery = styleMastery[unlock.styleId];
+      const experience =
+        isRecord(mastery) && typeof mastery.experience === "number"
+          ? mastery.experience
+          : 0;
+
+      return (
+        Math.floor(Math.max(0, experience) / STYLE_MASTERY_EXPERIENCE_PER_LEVEL) >=
+        unlock.level
+      );
+    }
+  }
+}
+
+function validateStyleBranches(
+  data: Pick<StaticGameData, "heroes" | "stages" | "styles">,
+  progress: UnknownRecord,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["styleBranches"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.styleBranches", errors)) {
+    return false;
+  }
+
+  const styleIds = new Set<string>(data.styles.map((style) => style.id));
+  const branchStyleById = new Map<string, string>();
+
+  for (const style of data.styles) {
+    for (const branch of style.branches) {
+      branchStyleById.set(branch.id, style.id);
+    }
+  }
+
+  for (const [styleId, branchId] of Object.entries(value)) {
+    const style = data.styles.find((candidate) => candidate.id === styleId);
+
+    if (!styleIds.has(styleId) || !style) {
+      errors.push(`progress.styleBranches.${styleId} must reference an existing style`);
+      continue;
+    }
+
+    if (typeof branchId !== "string") {
+      errors.push(`progress.styleBranches.${styleId} must be a branch id string`);
+      continue;
+    }
+
+    const branch = style.branches.find((candidate) => candidate.id === branchId);
+
+    if (!branch) {
+      const expectedStyleId = branchStyleById.get(branchId);
+
+      errors.push(
+        expectedStyleId
+          ? `progress.styleBranches.${styleId} must select a branch from style ${styleId}`
+          : `progress.styleBranches.${styleId} must reference an existing style branch`
+      );
+      continue;
+    }
+
+    if (!isUnlockConditionMetForSave(data, progress, branch.unlock)) {
+      errors.push(`progress.styleBranches.${styleId} must be unlocked by saved progress`);
+    }
+  }
+
+  return true;
+}
+
 function validateSkillUpgrades(
   data: Pick<StaticGameData, "skillUpgrades">,
   value: unknown,
@@ -473,6 +583,7 @@ function normalizeProgressForMigration(
     },
     formation: value.formation ?? defaultProgress.formation,
     styleMastery: value.styleMastery ?? {},
+    styleBranches: value.styleBranches ?? {},
     skillUpgrades: value.skillUpgrades ?? {},
     equipment: normalizeEquipmentProgressForMigration(value.equipment),
     currentStageId: value.currentStageId
@@ -543,6 +654,7 @@ function validateProgress(
   validateMaps(data, value.maps, errors);
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);
+  validateStyleBranches(data, value, value.styleBranches, errors);
   validateSkillUpgrades(data, value.skillUpgrades, errors);
   validateEquipmentProgress(data, value.equipment, errors);
 

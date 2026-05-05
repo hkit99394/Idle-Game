@@ -126,6 +126,7 @@ describe("save schema", () => {
       iron_fist_disciple: "front"
     });
     expect(result.save.progress.styleMastery).toEqual({});
+    expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.skillUpgrades).toEqual({});
     expect(result.save.progress.equipment).toEqual({
       inventory: {},
@@ -272,6 +273,7 @@ describe("save schema", () => {
       progress: {
         ...save.progress,
         styleMastery: undefined,
+        styleBranches: undefined,
         skillUpgrades: undefined
       }
     };
@@ -284,6 +286,11 @@ describe("save schema", () => {
             experience: 1
           }
         },
+        styleBranches: {
+          missing_style: "iron_body_fist",
+          fist: "iron_body_fist",
+          palm: "iron_body_fist"
+        },
         skillUpgrades: {
           missing_skill_upgrade: 1
         }
@@ -294,6 +301,9 @@ describe("save schema", () => {
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
         "progress.styleMastery.missing_style must reference an existing style",
+        "progress.styleBranches.missing_style must reference an existing style",
+        "progress.styleBranches.fist must be unlocked by saved progress",
+        "progress.styleBranches.palm must select a branch from style palm",
         "progress.skillUpgrades.missing_skill_upgrade must reference an existing skill upgrade"
       ])
     );

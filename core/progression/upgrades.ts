@@ -3,7 +3,10 @@ import type { UpgradeDefinition } from "../data";
 import { applyEquipmentBonuses } from "./equipment";
 import { scaleStatsForLevel } from "./levels";
 import { cloneProgress } from "./progress";
-import { applyStyleMasteryBonuses } from "./styleMastery";
+import {
+  applyStyleBranchEffects,
+  applyStyleMasteryBonuses
+} from "./styleMastery";
 import type {
   DerivedHeroStatsInput,
   PlayerProgress,
@@ -128,6 +131,12 @@ export function deriveHeroStatsFromProgress(input: DerivedHeroStatsInput): BaseS
     input.style,
     input.styleDefinitions,
     input.styleMastery
+  );
+  applyStyleBranchEffects(
+    stats,
+    input.style,
+    input.styleDefinitions,
+    input.styleBranches
   );
   applyEquipmentBonuses(
     stats,

@@ -42,6 +42,7 @@ export function createInitialPlayerProgress(
     ),
     formation: createDefaultPlayerFormation(data.heroes.map((hero) => hero.id)),
     styleMastery: {},
+    styleBranches: {},
     skillUpgrades: {},
     equipment: {
       inventory: {},
@@ -83,6 +84,9 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
             { experience: mastery.experience }
           ])
         )
+      : undefined,
+    styleBranches: progress.styleBranches
+      ? { ...progress.styleBranches }
       : undefined,
     skillUpgrades: progress.skillUpgrades
       ? { ...progress.skillUpgrades }

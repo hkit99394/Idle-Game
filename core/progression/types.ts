@@ -30,6 +30,8 @@ export type StyleMasteryProgress = {
   experience: number;
 };
 
+export type StyleBranchProgress = Record<string, string>;
+
 export type EquipmentProgress = {
   inventory: Record<string, number>;
   equipped: Record<string, Partial<Record<EquipmentSlot, string>>>;
@@ -42,6 +44,7 @@ export type PlayerProgress = {
   maps: Record<string, MapProgress>;
   formation?: Record<string, FormationSlot>;
   styleMastery?: Record<string, StyleMasteryProgress>;
+  styleBranches?: StyleBranchProgress;
   skillUpgrades?: Record<string, number>;
   equipment?: EquipmentProgress;
   currentStageId: string;
@@ -121,10 +124,34 @@ export type DerivedHeroStatsInput = {
   sectUpgradeDefinitions: Pick<UpgradeDefinition, "id" | "effects">[];
   styleDefinitions?: MartialStyleDefinition[];
   styleMastery?: PlayerProgress["styleMastery"];
+  styleBranches?: PlayerProgress["styleBranches"];
   equipmentDefinitions?: EquipmentDefinition[];
   equipment?: PlayerProgress["equipment"];
   mapAttackMultiplier?: number;
 };
+
+export type SelectStyleBranchInput = {
+  progress: PlayerProgress;
+  styleId: string;
+  branchId: string | null;
+};
+
+export type SelectStyleBranchResult =
+  | {
+      ok: true;
+      progress: PlayerProgress;
+      styleId: string;
+      branchId: string | null;
+    }
+  | {
+      ok: false;
+      reason:
+        | "missing_style"
+        | "missing_branch"
+        | "locked_branch"
+        | "branch_style_mismatch";
+      progress: PlayerProgress;
+    };
 
 export type ApplyStageClearInput = {
   progress: PlayerProgress;

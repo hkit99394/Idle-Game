@@ -578,6 +578,34 @@ function validateMartialStyle(
         ids
       )
     );
+
+    if (typeof branch.hiddenInMvp !== "boolean") {
+      errors.push(`Style branch ${style.id}.${branch.id} hiddenInMvp must be a boolean`);
+    }
+
+    if (branch.effects.length === 0) {
+      errors.push(`Style branch ${style.id}.${branch.id} must define at least one effect`);
+    }
+
+    for (const effect of branch.effects) {
+      if (effect.type !== "stat_multiplier") {
+        errors.push(
+          `Style branch ${style.id}.${branch.id} effect type must be stat_multiplier`
+        );
+      }
+
+      if (!BASE_STAT_KEYS.includes(effect.stat)) {
+        errors.push(
+          `Style branch ${style.id}.${branch.id} effect stat ${String(effect.stat)} must be a valid base stat`
+        );
+      }
+
+      if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+        errors.push(
+          `Style branch ${style.id}.${branch.id} effect value must be a number`
+        );
+      }
+    }
   }
 
   return errors;

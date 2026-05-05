@@ -175,11 +175,18 @@ export type StyleMasteryBonus = {
   effectPerLevel: number;
 };
 
+export type StyleBranchEffect = {
+  type: "stat_multiplier";
+  stat: keyof BaseStats;
+  value: number;
+};
+
 export type StyleBranchDefinition = {
   id: string;
   name: string;
   unlock: UnlockCondition;
   hiddenInMvp: boolean;
+  effects: StyleBranchEffect[];
 };
 
 export type MartialStyleDefinition = {

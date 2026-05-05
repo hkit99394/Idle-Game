@@ -6,6 +6,7 @@ import {
   purchaseGameSkillUpgrade,
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
+  selectGameStyleBranch,
   webGameStateReducer
 } from "../../web/state/gameState";
 import { staticData } from "../helpers/staticData";
@@ -142,7 +143,18 @@ describe("web game state", () => {
       styleId: "fist",
       name: "Fist",
       level: 0,
-      experience: 0
+      experience: 0,
+      branches: [
+        {
+          id: "iron_body_fist",
+          isUnlocked: false,
+          isSelected: false,
+          canSelect: false,
+          hiddenInMvp: false,
+          requirement: "Iron Fist Disciple level 3",
+          effects: ["+6% Max Outer Hp", "+5% Outer Defense"]
+        }
+      ]
     });
     expect(viewModel.playerCombatants).toHaveLength(4);
     expect(viewModel.playerFormation.map((hero) => hero.formationSlot)).toEqual([
@@ -182,6 +194,65 @@ describe("web game state", () => {
       level: 1,
       combatPower: 259
     });
+  });
+
+  it("selects unlocked style branches and applies them to hero previews", () => {
+    const state = createInitialWebGameState(staticData);
+    const lockedState = selectGameStyleBranch(staticData, state, {
+      styleId: "fist",
+      branchId: "iron_body_fist"
+    });
+
+    expect(lockedState.lastStyleBranchAction).toMatchObject({
+      ok: false,
+      reason: "locked_branch"
+    });
+    expect(lockedState.progress.styleBranches?.fist).toBeUndefined();
+
+    const leveledState = webGameStateReducer(
+      staticData,
+      state,
+      {
+        type: "replace_progress",
+        progress: {
+          ...state.progress,
+          heroes: {
+            ...state.progress.heroes,
+            iron_fist_disciple: {
+              ...state.progress.heroes.iron_fist_disciple,
+              level: 3
+            }
+          }
+        }
+      }
+    );
+    const selectedState = selectGameStyleBranch(staticData, leveledState, {
+      styleId: "fist",
+      branchId: "iron_body_fist"
+    });
+    const viewModel = getWebGameViewModel(staticData, selectedState);
+    const fistBranch = viewModel.styleMastery
+      .find((style) => style.styleId === "fist")
+      ?.branches.find((branch) => branch.id === "iron_body_fist");
+
+    expect(selectedState.lastStyleBranchAction).toMatchObject({
+      ok: true,
+      styleId: "fist",
+      branchId: "iron_body_fist"
+    });
+    expect(selectedState.progress.styleBranches?.fist).toBe("iron_body_fist");
+    expect(fistBranch).toMatchObject({
+      isUnlocked: true,
+      isSelected: true,
+      canSelect: false
+    });
+    expect(viewModel.playerCombatants[0]).toMatchObject({
+      definitionId: "iron_fist_disciple",
+      level: 3
+    });
+    expect(viewModel.playerCombatants[0].maxOuterHp).toBeCloseTo(
+      180 * 1.06 ** 2 * 1.06
+    );
   });
 
   it("updates and applies player formation from web state", () => {

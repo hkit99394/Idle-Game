@@ -9,8 +9,12 @@
       {
         "id": "iron_body_fist",
         "name": "Iron Body Fist",
-        "unlock": { "type": "hero_level", "heroId": "iron_fist_disciple", "level": 12 },
-        "hiddenInMvp": true
+        "unlock": { "type": "hero_level", "heroId": "iron_fist_disciple", "level": 3 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.06 },
+          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.05 }
+        ]
       }
     ]
   },
@@ -24,8 +28,12 @@
       {
         "id": "cloud_meridian_palm",
         "name": "Cloud Meridian Palm",
-        "unlock": { "type": "style_mastery_level", "styleId": "palm", "level": 5 },
-        "hiddenInMvp": true
+        "unlock": { "type": "style_mastery_level", "styleId": "palm", "level": 2 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.05 },
+          { "type": "stat_multiplier", "stat": "breakPower", "value": 0.08 }
+        ]
       }
     ]
   },
@@ -40,7 +48,10 @@
         "id": "wind_step_leg",
         "name": "Wind Step Leg",
         "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
-        "hiddenInMvp": true
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "speed", "value": 0.06 }
+        ]
       }
     ]
   },
@@ -55,8 +66,13 @@
       {
         "id": "white_crane_sword",
         "name": "White Crane Sword",
-        "unlock": { "type": "hero_level", "heroId": "white_crane_swordsman", "level": 12 },
-        "hiddenInMvp": true
+        "unlock": { "type": "hero_level", "heroId": "white_crane_swordsman", "level": 3 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.03 },
+          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.03 },
+          { "type": "stat_multiplier", "stat": "speed", "value": 0.03 }
+        ]
       }
     ]
   },
@@ -72,7 +88,11 @@
         "id": "black_iron_blade",
         "name": "Black Iron Blade",
         "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
-        "hiddenInMvp": true
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.04 }
+        ]
       }
     ]
   },
@@ -87,8 +107,12 @@
       {
         "id": "mountain_guard_staff",
         "name": "Mountain Guard Staff",
-        "unlock": { "type": "hero_level", "heroId": "mountain_staff_guardian", "level": 12 },
-        "hiddenInMvp": true
+        "unlock": { "type": "hero_level", "heroId": "mountain_staff_guardian", "level": 3 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.06 }
+        ]
       }
     ]
   },
@@ -104,7 +128,11 @@
         "id": "rain_needle_art",
         "name": "Rain Needle Art",
         "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
-        "hiddenInMvp": true
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "speed", "value": 0.04 }
+        ]
       }
     ]
   }

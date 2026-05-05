@@ -35,7 +35,7 @@ Deliver the next meaningful layer of content and player choice:
 | --- | --- | --- | --- |
 | Epic 13: Black Iron Fort Region | Completed | Content Expansion | Add the next region with defensive enemy identity |
 | Epic 14: Defensive Combat Mechanics | Completed | Combat Depth | Add armor, guard, protection, and armor-break behavior |
-| Epic 15: Style Branch Choices | Planned | Martial Arts Growth | Let heroes unlock and select early style branches |
+| Epic 15: Style Branch Choices | Completed | Martial Arts Growth | Let heroes unlock and select early style branches |
 | Epic 16: Equipment Affixes And Sets | Planned | Loot And Equipment | Add deterministic item depth and clearer gear decisions |
 | Epic 17: Patrols And Training Grounds | Planned | Offline And Idle | Add simple hero assignment systems for offline progress |
 | Epic 18: Stage 1.2 Technical Foundation | Planned | Technical Foundation | Add migrations, simulator coverage, and balance reports for new systems |
@@ -173,13 +173,28 @@ Acceptance:
 
 ## Epic 15: Style Branch Choices
 
+Status: Completed
+
 Goal:
 
 - Turn style branch data from future-proofing into an actual player decision.
 
+Implementation:
+
+- Added saved style branch selections by style track.
+- Bumped the save schema to version 3 and migrated older saves with an empty branch-selection default.
+- Added static branch effects with modest stat multipliers.
+- Added branch selection helpers that reject missing, mismatched, and locked branches.
+- Applied selected branch effects only to heroes using the matching style.
+- Updated branch unlocks so early hero-level, style-mastery, and stage-clear paths all exist.
+- Added a compact branch selection UI inside the Martial Styles panel.
+- Added tests for unlocks, selection, save validation, migration, UI state, and stat application.
+
 Tasks:
 
 ### 15.1 Branch Unlock Rules
+
+Status: Completed
 
 Enable early branches for selected heroes.
 
@@ -192,6 +207,8 @@ Acceptance:
 
 ### 15.2 Branch Selection Save State
 
+Status: Completed
+
 Persist selected style branches.
 
 Acceptance:
@@ -203,6 +220,8 @@ Acceptance:
 
 ### 15.3 Branch Effects
 
+Status: Completed
+
 Add small branch bonuses.
 
 Acceptance:
@@ -212,6 +231,8 @@ Acceptance:
 - Tests prove branch effects apply only when selected and eligible.
 
 ### 15.4 Branch UI
+
+Status: Completed
 
 Add a simple branch selection panel.
 
@@ -373,10 +394,9 @@ Acceptance:
 
 ## Recommended Delivery Order
 
-1. Epic 15: style branch choices.
-2. Epic 16: equipment affixes and set bonuses.
-3. Epic 17: patrols and training grounds.
-4. Epic 18 final: migration, browser smoke, full verification.
+1. Epic 16: equipment affixes and set bonuses.
+2. Epic 17: patrols and training grounds.
+3. Epic 18 final: migration, browser smoke, full verification.
 
 ## Out Of Scope For Stage 1.2
 

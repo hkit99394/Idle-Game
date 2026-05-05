@@ -32,6 +32,7 @@ import {
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
   scaleStatsForLevel,
+  selectStyleBranch as selectCoreStyleBranch,
   setPlayerFormationSlot,
   setOfflineFarmStageTarget,
   STYLE_MASTERY_EXPERIENCE_PER_LEVEL
@@ -60,6 +61,8 @@ import type {
   PurchaseUpgradeResult,
   ResolveStageBattleResult,
   SaveData,
+  SelectStyleBranchInput,
+  SelectStyleBranchResult,
   StaticGameData
 } from "../../core";
 import {
@@ -87,6 +90,7 @@ export type WebGameState = {
   lastPurchase: PurchaseUpgradeResult | null;
   lastSkillPurchase: PurchaseSkillUpgradeResult | null;
   lastEquipmentAction: EquipHeroEquipmentResult | null;
+  lastStyleBranchAction: SelectStyleBranchResult | null;
 };
 
 export type WebGameAction =
@@ -106,6 +110,10 @@ export type WebGameAction =
       type: "set_hero_formation_slot";
       heroId: string;
       slot: FormationSlot;
+    }
+  | {
+      type: "style_branch_select_resolved";
+      result: SelectStyleBranchResult;
     }
   | {
       type: "battle_resolved";
@@ -142,6 +150,10 @@ export type PurchaseGameSkillUpgradeInput = Omit<
   "progress"
 >;
 export type EquipGameEquipmentInput = Omit<EquipHeroEquipmentInput, "progress">;
+export type SelectGameStyleBranchInput = Omit<
+  SelectStyleBranchInput,
+  "progress"
+>;
 
 export type BattleCombatantView = {
   instanceId: string;
@@ -322,8 +334,11 @@ export type StyleBranchView = {
   id: string;
   name: string;
   isUnlocked: boolean;
+  isSelected: boolean;
+  canSelect: boolean;
   hiddenInMvp: boolean;
   requirement: string;
+  effects: string[];
 };
 
 export type StyleMasteryView = {
@@ -484,7 +499,8 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     lastBattleStageId: null,
     lastPurchase: null,
     lastSkillPurchase: null,
-    lastEquipmentAction: null
+    lastEquipmentAction: null,
+    lastStyleBranchAction: null
   };
 }
 
@@ -514,7 +530,8 @@ export function createWebGameStateFromSave(
     lastBattleStageId: null,
     lastPurchase: null,
     lastSkillPurchase: null,
-    lastEquipmentAction: null
+    lastEquipmentAction: null,
+    lastStyleBranchAction: null
   };
 }
 
@@ -612,7 +629,25 @@ export function webGameStateReducer(
         lastBattleStageId: null,
         lastPurchase: null,
         lastSkillPurchase: null,
-        lastEquipmentAction: null
+        lastEquipmentAction: null,
+        lastStyleBranchAction: null
+      };
+    }
+
+    case "style_branch_select_resolved": {
+      const nextProgress = action.result.ok
+        ? action.result.progress
+        : state.progress;
+
+      return {
+        ...state,
+        progress: nextProgress,
+        lastStyleBranchAction: action.result,
+        lastEquipmentAction: null,
+        lastSkillPurchase: null,
+        lastPurchase: null,
+        lastBattle: null,
+        lastBattleStageId: null
       };
     }
 
@@ -640,7 +675,8 @@ export function webGameStateReducer(
         lastBattleStageId: action.stageId,
         lastPurchase: null,
         lastSkillPurchase: null,
-        lastEquipmentAction: null
+        lastEquipmentAction: null,
+        lastStyleBranchAction: null
       };
     }
 
@@ -661,6 +697,7 @@ export function webGameStateReducer(
         lastPurchase: action.result,
         lastSkillPurchase: null,
         lastEquipmentAction: null,
+        lastStyleBranchAction: null,
         lastBattle: null,
         lastBattleStageId: null
       };
@@ -677,6 +714,7 @@ export function webGameStateReducer(
         lastSkillPurchase: action.result,
         lastPurchase: null,
         lastEquipmentAction: null,
+        lastStyleBranchAction: null,
         lastBattle: null,
         lastBattleStageId: null
       };
@@ -691,6 +729,7 @@ export function webGameStateReducer(
         ...state,
         progress: nextProgress,
         lastEquipmentAction: action.result,
+        lastStyleBranchAction: null,
         lastSkillPurchase: null,
         lastPurchase: null,
         lastBattle: null,
@@ -717,7 +756,8 @@ export function webGameStateReducer(
         lastBattleStageId: null,
         lastPurchase: null,
         lastSkillPurchase: null,
-        lastEquipmentAction: null
+        lastEquipmentAction: null,
+        lastStyleBranchAction: null
       };
 
     case "replace_state":
@@ -792,6 +832,22 @@ export function equipGameEquipment(
 
   return webGameStateReducer(data, state, {
     type: "equipment_equip_resolved",
+    result
+  });
+}
+
+export function selectGameStyleBranch(
+  data: StaticGameData,
+  state: WebGameState,
+  input: SelectGameStyleBranchInput
+): WebGameState {
+  const result = selectCoreStyleBranch(data, {
+    progress: state.progress,
+    ...input
+  });
+
+  return webGameStateReducer(data, state, {
+    type: "style_branch_select_resolved",
     result
   });
 }
@@ -1740,6 +1796,15 @@ function formatStyleBranchRequirement(
   }
 }
 
+function formatStyleBranchEffect(
+  effect: StaticGameData["styles"][number]["branches"][number]["effects"][number]
+): string {
+  switch (effect.type) {
+    case "stat_multiplier":
+      return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
+  }
+}
+
 function buildStyleMasteryViews(
   data: StaticGameData,
   progress: PlayerProgress
@@ -1768,13 +1833,21 @@ function buildStyleMasteryViews(
       bonuses: style.bonuses.map((bonus) =>
         formatPerLevelEffect(bonus.stat, bonus.effectPerLevel)
       ),
-      branches: style.branches.map((branch) => ({
-        id: branch.id,
-        name: branch.name,
-        isUnlocked: isStyleBranchUnlocked(data, progress, branch),
-        hiddenInMvp: branch.hiddenInMvp,
-        requirement: formatStyleBranchRequirement(data, branch)
-      }))
+      branches: style.branches.map((branch) => {
+        const isUnlocked = isStyleBranchUnlocked(data, progress, branch);
+        const isSelected = progress.styleBranches?.[style.id] === branch.id;
+
+        return {
+          id: branch.id,
+          name: branch.name,
+          isUnlocked,
+          isSelected,
+          canSelect: isUnlocked && !isSelected,
+          hiddenInMvp: branch.hiddenInMvp,
+          requirement: formatStyleBranchRequirement(data, branch),
+          effects: branch.effects.map(formatStyleBranchEffect)
+        };
+      })
     };
   });
 }
@@ -2276,7 +2349,8 @@ export function getWebGameViewModel(
     battleSummary: buildBattleSummary(state.lastBattle, lastBattleStage?.name ?? null),
     lastPurchase: state.lastPurchase,
     lastSkillPurchase: state.lastSkillPurchase,
-    lastEquipmentAction: state.lastEquipmentAction
+    lastEquipmentAction: state.lastEquipmentAction,
+    lastStyleBranchAction: state.lastStyleBranchAction
   };
 }
 
@@ -2402,6 +2476,19 @@ export function useWebGameState(data: StaticGameData) {
       slot
     });
   }, [dispatchAndPersist]);
+
+  const selectStyleBranch = useCallback(
+    (input: SelectGameStyleBranchInput) => {
+      dispatchAndPersist({
+        type: "style_branch_select_resolved",
+        result: selectCoreStyleBranch(data, {
+          progress: state.progress,
+          ...input
+        })
+      });
+    },
+    [data, dispatchAndPersist, state.progress]
+  );
 
   const dismissOfflineSummary = useCallback(() => {
     dispatch({
@@ -2606,6 +2693,7 @@ export function useWebGameState(data: StaticGameData) {
     selectStage,
     setOfflineFarmPreset,
     setHeroFormation,
+    selectStyleBranch,
     dismissOfflineSummary,
     exportSave,
     importSave,

@@ -829,13 +829,14 @@ textarea {
 }
 
 .style-bonus-list span,
-.style-branch-list span {
+.style-branch-list button {
   min-height: 22px;
   padding: 0 8px;
   border: 1px solid #c7bbab;
   border-radius: 999px;
   background: #fffaf0;
   color: #4d4639;
+  cursor: pointer;
   font-size: 0.78rem;
   font-weight: 800;
   line-height: 22px;
@@ -854,10 +855,26 @@ textarea {
   color: #1f5559;
 }
 
+.style-branch-list .selected {
+  border-color: #283315;
+  background: #dfe8c5;
+  color: #283315;
+}
+
 .style-branch-list .locked {
   border-color: #b9afa0;
   background: #ece6da;
   color: #6d6354;
+  cursor: not-allowed;
+}
+
+.style-branch-list button strong,
+.style-branch-list button span {
+  display: inline;
+}
+
+.style-branch-list button strong::after {
+  content: " · ";
 }
 
 .upgrade-grid {
@@ -1775,7 +1792,7 @@ h2 {
   .offline-summary-rewards strong,
   .mastery-chips span,
   .style-bonus-list span,
-  .style-branch-list span,
+  .style-branch-list button,
   .event-badges span {
     width: 100%;
     border-radius: 6px;

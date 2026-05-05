@@ -110,6 +110,7 @@ function createPlayerCombatantStats(
     style: hero.style,
     styleDefinitions: data.styles,
     styleMastery: progress.styleMastery,
+    styleBranches: progress.styleBranches,
     equipmentDefinitions: data.equipment,
     equipment: progress.equipment,
     mapAttackMultiplier: context.mapAttackMultiplier

@@ -6,7 +6,8 @@ import {
   deriveHeroStatsFromProgress,
   isStyleBranchUnlocked,
   purchaseSkillUpgrade,
-  purchaseUpgrade
+  purchaseUpgrade,
+  selectStyleBranch
 } from "../../core";
 import { staticData } from "../helpers/staticData";
 
@@ -261,25 +262,91 @@ describe("upgrades", () => {
     expect(result.progress.skillUpgrades?.iron_fist_combo_refinement).toBe(1);
   });
 
-  it("represents locked future style branches without changing MVP styles", () => {
+  it("selects unlocked style branches and applies effects only to matching styles", () => {
     const progress = createInitialPlayerProgress(staticData);
     const fistStyle = staticData.styles.find((style) => style.id === "fist");
+    const ironFist = staticData.heroes.find(
+      (hero) => hero.id === "iron_fist_disciple"
+    );
+    const palmMonk = staticData.heroes.find(
+      (hero) => hero.id === "azure_palm_monk"
+    );
 
     expect(fistStyle).toBeDefined();
-    if (!fistStyle) {
+    expect(ironFist).toBeDefined();
+    expect(palmMonk).toBeDefined();
+    if (!fistStyle || !ironFist || !palmMonk) {
       return;
     }
 
     const branch = fistStyle.branches[0];
 
-    expect(branch.hiddenInMvp).toBe(true);
+    expect(branch.hiddenInMvp).toBe(false);
     expect(isStyleBranchUnlocked(staticData, progress, branch)).toBe(false);
 
-    progress.heroes.iron_fist_disciple.level = 12;
+    const lockedResult = selectStyleBranch(staticData, {
+      progress,
+      styleId: "fist",
+      branchId: branch.id
+    });
+
+    expect(lockedResult).toMatchObject({
+      ok: false,
+      reason: "locked_branch"
+    });
+
+    progress.heroes.iron_fist_disciple.level = 3;
 
     expect(isStyleBranchUnlocked(staticData, progress, branch)).toBe(true);
-    expect(
-      staticData.heroes.find((hero) => hero.id === "iron_fist_disciple")?.style
-    ).toBe("fist");
+
+    const selectedResult = selectStyleBranch(staticData, {
+      progress,
+      styleId: "fist",
+      branchId: branch.id
+    });
+
+    expect(selectedResult.ok).toBe(true);
+    if (!selectedResult.ok) {
+      return;
+    }
+
+    expect(selectedResult.progress.styleBranches?.fist).toBe("iron_body_fist");
+
+    const fistStats = deriveHeroStatsFromProgress({
+      baseStats: ironFist.baseStats,
+      style: ironFist.style,
+      heroProgress: selectedResult.progress.heroes.iron_fist_disciple,
+      sectProgress: selectedResult.progress.sect,
+      heroUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "hero"
+      ),
+      sectUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "sect"
+      ),
+      styleDefinitions: staticData.styles,
+      styleBranches: selectedResult.progress.styleBranches
+    });
+    const palmStats = deriveHeroStatsFromProgress({
+      baseStats: palmMonk.baseStats,
+      style: palmMonk.style,
+      heroProgress: selectedResult.progress.heroes.azure_palm_monk,
+      sectProgress: selectedResult.progress.sect,
+      heroUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "hero"
+      ),
+      sectUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "sect"
+      ),
+      styleDefinitions: staticData.styles,
+      styleBranches: selectedResult.progress.styleBranches
+    });
+
+    expect(fistStats.maxOuterHp).toBeCloseTo(
+      ironFist.baseStats.maxOuterHp * 1.06 ** 2 * 1.06
+    );
+    expect(fistStats.outerDefense).toBeCloseTo(
+      ironFist.baseStats.outerDefense * 1.06 ** 2 * 1.05
+    );
+    expect(palmStats.maxOuterHp).toBeCloseTo(palmMonk.baseStats.maxOuterHp);
   });
 });
