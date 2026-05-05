@@ -18,10 +18,34 @@ describe("web game state", () => {
     expect(state.progress.currentStageId).toBe("bamboo_road_1");
     expect(state.selectedStageId).toBe("bamboo_road_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
+    expect(state.offlineFarmPreset).toBe("balanced");
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
     expect(viewModel.selectedStageRegionName).toBe("Bamboo Road");
     expect(viewModel.offlineSummary).toBeNull();
+    expect(viewModel.offlineFarmPreset).toBe("balanced");
+    expect(viewModel.offlineFarmPresets).toHaveLength(5);
+    expect(viewModel.offlineFarmPresets[0]).toMatchObject({
+      id: "balanced",
+      isSelected: true,
+      rewardPriority: ["Combat XP", "Silver", "Cultivation"]
+    });
+    expect(viewModel.offlineFarmRecommendation).toMatchObject({
+      stageId: null,
+      stageName: "No cleared farm stage",
+      presetLabel: "Balanced",
+      rewardPriority: ["Combat XP", "Silver", "Cultivation"]
+    });
+    expect(viewModel.offlineRewardPreview).toMatchObject({
+      ok: false,
+      reason: "Select a cleared farm stage",
+      stageName: "No farm target",
+      clears: 0,
+      silver: 0,
+      cultivation: 0,
+      combatExperience: 0,
+      masteryExperienceGain: 0
+    });
     expect(viewModel.enemyTeamLabel).toBe("Bamboo Road Bandit x2");
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();
@@ -198,6 +222,20 @@ describe("web game state", () => {
       isDefeated: true
     });
     expect(viewModel.battleSummary?.title).toContain("Victory at Bamboo Road 1");
+    expect(viewModel.offlineFarmRecommendation).toMatchObject({
+      stageId: "bamboo_road_1",
+      isSelected: true
+    });
+    expect(viewModel.offlineRewardPreview).toMatchObject({
+      ok: true,
+      stageName: "Bamboo Road 1",
+      previewSeconds: 3600,
+      clears: 360,
+      silver: 2160,
+      cultivation: 1080,
+      combatExperience: 1080,
+      masteryExperienceGain: 1080
+    });
     expect(viewModel.battleEvents.some((event) => event.category === "attack"))
       .toBe(true);
     expect(viewModel.battleEvents.some((event) => event.category === "defeat"))
@@ -682,5 +720,54 @@ describe("web game state", () => {
     });
 
     expect(nextState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+  });
+
+  it("switches offline farm recommendations by preset", () => {
+    const state = createInitialWebGameState(staticData);
+    const progressedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        currentStageId: "bamboo_road_10",
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 88,
+            highestClearedStageIndex: 9
+          }
+        }
+      }
+    });
+    const silverState = webGameStateReducer(staticData, progressedState, {
+      type: "set_offline_farm_preset",
+      preset: "silver"
+    });
+    const silverViewModel = getWebGameViewModel(staticData, silverState);
+    const masteryState = webGameStateReducer(staticData, silverState, {
+      type: "set_offline_farm_preset",
+      preset: "mastery"
+    });
+
+    expect(progressedState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+    expect(silverState.offlineFarmPreset).toBe("silver");
+    expect(silverState.selectedOfflineFarmStageId).toBe("bamboo_road_9");
+    expect(silverViewModel.offlineFarmPresets.find((preset) => preset.id === "silver")).toMatchObject({
+      isSelected: true,
+      rewardPriority: ["Silver", "Combat XP", "Cultivation"]
+    });
+    expect(silverViewModel.offlineFarmRecommendation).toMatchObject({
+      stageId: "bamboo_road_9",
+      presetLabel: "Silver",
+      isSelected: true
+    });
+    expect(silverViewModel.offlineRewardPreview).toMatchObject({
+      ok: true,
+      stageName: "Bamboo Road 9",
+      silver: 11232,
+      cultivation: 5616,
+      combatExperience: 2160
+    });
+    expect(masteryState.offlineFarmPreset).toBe("mastery");
+    expect(masteryState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
   });
 });

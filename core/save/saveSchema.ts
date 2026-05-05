@@ -4,6 +4,8 @@ import {
   cloneProgress,
   EQUIPMENT_SLOTS,
   getStageById,
+  normalizeOfflineFarmPreset,
+  isOfflineFarmPreset,
   isStageUnlocked
 } from "../progression";
 import type {
@@ -13,7 +15,7 @@ import type {
   ResourceState,
   SectProgress
 } from "../progression";
-import type { EquipmentProgress } from "../progression";
+import type { EquipmentProgress, OfflineFarmPreset } from "../progression";
 
 export const SAVE_DATA_VERSION = 1 as const;
 
@@ -21,6 +23,7 @@ export type SaveData = {
   version: typeof SAVE_DATA_VERSION;
   progress: PlayerProgress;
   selectedOfflineFarmStageId: string | null;
+  offlineFarmPreset: OfflineFarmPreset;
   createdAtMs: number;
   updatedAtMs: number;
   lastOfflineRewardAtMs: number;
@@ -29,9 +32,11 @@ export type SaveData = {
 export type CreateSaveDataInput = {
   progress: PlayerProgress;
   selectedOfflineFarmStageId: string | null;
+  offlineFarmPreset?: OfflineFarmPreset;
   nowMs: number;
   lastOfflineRewardAtMs?: number;
-  previousSave?: Pick<SaveData, "createdAtMs" | "lastOfflineRewardAtMs"> | null;
+  previousSave?: Pick<SaveData, "createdAtMs" | "lastOfflineRewardAtMs"> &
+    Partial<Pick<SaveData, "offlineFarmPreset">> | null;
 };
 
 export type ParseSaveDataResult =
@@ -458,6 +463,7 @@ export function cloneSaveData(save: SaveData): SaveData {
     version: SAVE_DATA_VERSION,
     progress: cloneProgress(save.progress),
     selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
+    offlineFarmPreset: normalizeOfflineFarmPreset(save.offlineFarmPreset),
     createdAtMs: save.createdAtMs,
     updatedAtMs: save.updatedAtMs,
     lastOfflineRewardAtMs: save.lastOfflineRewardAtMs
@@ -469,6 +475,10 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
     version: SAVE_DATA_VERSION,
     progress: cloneProgress(input.progress),
     selectedOfflineFarmStageId: input.selectedOfflineFarmStageId,
+    offlineFarmPreset:
+      input.offlineFarmPreset ??
+      input.previousSave?.offlineFarmPreset ??
+      normalizeOfflineFarmPreset(undefined),
     createdAtMs: input.previousSave?.createdAtMs ?? input.nowMs,
     updatedAtMs: input.nowMs,
     lastOfflineRewardAtMs:
@@ -499,6 +509,13 @@ export function validateSaveData(
     typeof raw.selectedOfflineFarmStageId !== "string"
   ) {
     errors.push("selectedOfflineFarmStageId must be a string or null");
+  }
+
+  if (
+    raw.offlineFarmPreset !== undefined &&
+    !isOfflineFarmPreset(raw.offlineFarmPreset)
+  ) {
+    errors.push("offlineFarmPreset must be a supported offline farm preset");
   }
 
   validateTimestamps(raw, errors);

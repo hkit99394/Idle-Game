@@ -52,6 +52,14 @@ export type ApplyOfflineRewardsInput = {
   config?: OfflineRewardConfig;
 };
 
+export type PreviewOfflineRewardsInput = {
+  data: Pick<StaticGameData, "stages" | "mastery">;
+  progress: PlayerProgress;
+  selectedOfflineFarmStageId: string | null;
+  previewSeconds: number;
+  config?: OfflineRewardConfig;
+};
+
 export type ApplyOfflineRewardsResult =
   | {
       ok: true;
@@ -63,6 +71,20 @@ export type ApplyOfflineRewardsResult =
       ok: false;
       reason: "missing_farm_stage" | "invalid_farm_stage";
       progress: PlayerProgress;
+      rewards: OfflineRewardResult;
+    };
+
+export type PreviewOfflineRewardsResult =
+  | {
+      ok: true;
+      stageId: string;
+      rewards: OfflineRewardResult;
+      masteryExperienceGain: number;
+      rewardMultiplier: number;
+    }
+  | {
+      ok: false;
+      reason: "missing_farm_stage" | "invalid_farm_stage";
       rewards: OfflineRewardResult;
     };
 
@@ -89,6 +111,86 @@ export function calculateOfflineRewards(input: OfflineRewardInput): OfflineRewar
     silver: input.silverPerClear * clears * efficiency,
     cultivation: input.cultivationPerClear * clears * efficiency,
     combatExperience: input.combatExperiencePerClear * clears * efficiency
+  };
+}
+
+function getOfflineRewardStageMultiplier(
+  data: Pick<StaticGameData, "mastery">,
+  progress: PlayerProgress,
+  stageRegionId: string
+): number {
+  const currentMapProgress = progress.maps[stageRegionId] ?? {
+    combatExperience: 0,
+    highestClearedStageIndex: 0
+  };
+
+  return 1 + getMapRewardMultiplier(
+    currentMapProgress.combatExperience,
+    data.mastery.thresholds
+  );
+}
+
+export function previewOfflineRewards(
+  input: PreviewOfflineRewardsInput
+): PreviewOfflineRewardsResult {
+  const selectedStageId = input.selectedOfflineFarmStageId;
+
+  if (!selectedStageId) {
+    return {
+      ok: false,
+      reason: "missing_farm_stage",
+      rewards: createEmptyOfflineRewards()
+    };
+  }
+
+  const validation = validateOfflineFarmStageTarget(
+    input.data,
+    input.progress,
+    selectedStageId
+  );
+
+  if (!validation.ok) {
+    return {
+      ok: false,
+      reason: "invalid_farm_stage",
+      rewards: createEmptyOfflineRewards()
+    };
+  }
+
+  const stage = getStageById(input.data, selectedStageId);
+
+  if (!stage) {
+    return {
+      ok: false,
+      reason: "invalid_farm_stage",
+      rewards: createEmptyOfflineRewards()
+    };
+  }
+
+  const config = input.config ?? DEFAULT_OFFLINE_REWARD_CONFIG;
+  const rewardMultiplier = getOfflineRewardStageMultiplier(
+    input.data,
+    input.progress,
+    stage.regionId
+  );
+  const rewards = calculateOfflineRewards({
+    lastSavedAtMs: 0,
+    currentTimeMs: Math.max(0, input.previewSeconds) * 1000,
+    offlineCapSeconds: config.offlineCapSeconds,
+    estimatedClearTimeSeconds: config.estimatedClearTimeSeconds,
+    minimumClearTimeSeconds: config.minimumClearTimeSeconds,
+    offlineEfficiency: config.offlineEfficiency,
+    silverPerClear: stage.rewards.silver * rewardMultiplier,
+    cultivationPerClear: stage.rewards.cultivation * rewardMultiplier,
+    combatExperiencePerClear: stage.rewards.combatExperience
+  });
+
+  return {
+    ok: true,
+    stageId: stage.id,
+    rewards,
+    masteryExperienceGain: rewards.combatExperience,
+    rewardMultiplier
   };
 }
 
@@ -133,13 +235,10 @@ export function applyOfflineRewards(
   }
 
   const config = input.config ?? DEFAULT_OFFLINE_REWARD_CONFIG;
-  const currentMapProgress = input.progress.maps[stage.regionId] ?? {
-    combatExperience: 0,
-    highestClearedStageIndex: 0
-  };
-  const rewardMultiplier = 1 + getMapRewardMultiplier(
-    currentMapProgress.combatExperience,
-    input.data.mastery.thresholds
+  const rewardMultiplier = getOfflineRewardStageMultiplier(
+    input.data,
+    input.progress,
+    stage.regionId
   );
   const rewards = calculateOfflineRewards({
     lastSavedAtMs: input.lastSavedAtMs,

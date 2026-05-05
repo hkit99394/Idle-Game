@@ -3,14 +3,17 @@ import {
   createInitialPlayerProgress,
   getCurrentStage,
   getNextCurrentStageId,
+  getOfflineFarmPresetPolicy,
   getRecommendedOfflineFarmStage,
   getStageById,
   getUnlockedOfflineFarmStages,
   hasClearedStage,
   OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY,
+  OFFLINE_FARM_PRESET_POLICIES,
   isOfflineFarmStageUnlocked,
   isRegionUnlocked,
   isStageUnlocked,
+  normalizeOfflineFarmPreset,
   resolveStageBattle,
   setOfflineFarmStageTarget,
   validateOfflineFarmStageTarget
@@ -220,6 +223,40 @@ describe("stage progression helpers", () => {
     );
   });
 
+  it("recommends farm stages by explicit preset policies", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+
+    expect(OFFLINE_FARM_PRESET_POLICIES.map((policy) => policy.id)).toEqual([
+      "balanced",
+      "silver",
+      "cultivation",
+      "combatExperience",
+      "mastery"
+    ]);
+    expect(getOfflineFarmPresetPolicy("silver").rewardPriority).toEqual([
+      "silver",
+      "combatExperience",
+      "cultivation"
+    ]);
+    expect(normalizeOfflineFarmPreset("not-a-preset")).toBe("balanced");
+    expect(getRecommendedOfflineFarmStage(staticData, progress, "balanced")?.id).toBe(
+      "bamboo_road_8"
+    );
+    expect(getRecommendedOfflineFarmStage(staticData, progress, "silver")?.id).toBe(
+      "bamboo_road_9"
+    );
+    expect(
+      getRecommendedOfflineFarmStage(staticData, progress, "cultivation")?.id
+    ).toBe("bamboo_road_9");
+    expect(
+      getRecommendedOfflineFarmStage(staticData, progress, "combatExperience")?.id
+    ).toBe("bamboo_road_8");
+    expect(getRecommendedOfflineFarmStage(staticData, progress, "mastery")?.id).toBe(
+      "bamboo_road_8"
+    );
+  });
+
   it("validates selected offline farm targets with explicit reasons", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 2;
@@ -286,5 +323,11 @@ describe("stage progression helpers", () => {
     expect(
       setOfflineFarmStageTarget(staticData, progress, "missing_stage")
     ).toBe("bamboo_road_2");
+
+    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+
+    expect(setOfflineFarmStageTarget(staticData, progress, null, "silver")).toBe(
+      "bamboo_road_9"
+    );
   });
 });

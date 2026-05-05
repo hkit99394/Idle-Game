@@ -6,6 +6,7 @@ import {
   calculateSkillUpgradeCost,
   calculateUpgradeCost,
   createInitialPlayerProgress,
+  DEFAULT_OFFLINE_FARM_PRESET,
   deriveStats,
   equipHeroEquipment as equipCoreHeroEquipment,
   EQUIPMENT_SLOTS,
@@ -13,6 +14,8 @@ import {
   getAvailableEquipmentCopyCount,
   getActiveMasterySummaryForStage,
   getEquipmentInventoryCount,
+  getOfflineFarmPresetPolicy,
+  getRecommendedOfflineFarmStage,
   getStageById,
   getSkillUpgradeLevel,
   getStyleMasteryExperience,
@@ -22,6 +25,9 @@ import {
   isOfflineFarmStageUnlocked,
   isStageUnlocked,
   isStyleBranchUnlocked,
+  normalizeOfflineFarmPreset,
+  OFFLINE_FARM_PRESET_POLICIES,
+  previewOfflineRewards,
   purchaseSkillUpgrade as purchaseCoreSkillUpgrade,
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
@@ -44,6 +50,7 @@ import type {
   EquipmentRarity,
   EquipmentSlot,
   MasteryBonus,
+  OfflineFarmPreset,
   TeamId,
   PlayerProgress,
   ApplyOfflineRewardsResult,
@@ -73,6 +80,7 @@ export type WebGameState = {
   progress: PlayerProgress;
   selectedStageId: string;
   selectedOfflineFarmStageId: string | null;
+  offlineFarmPreset: OfflineFarmPreset;
   offlineSummary: OfflineRewardSummary | null;
   lastBattle: ResolveStageBattleResult | null;
   lastBattleStageId: string | null;
@@ -89,6 +97,10 @@ export type WebGameAction =
   | {
       type: "select_offline_farm_stage";
       stageId: string | null;
+    }
+  | {
+      type: "set_offline_farm_preset";
+      preset: OfflineFarmPreset;
     }
   | {
       type: "set_hero_formation_slot";
@@ -334,6 +346,37 @@ export type OfflineRewardSummaryView = OfflineRewardSummary & {
   regionName: string;
 };
 
+export type OfflineFarmPresetView = {
+  id: OfflineFarmPreset;
+  label: string;
+  description: string;
+  rewardPriority: string[];
+  isSelected: boolean;
+};
+
+export type OfflineFarmRecommendationView = {
+  stageId: string | null;
+  stageName: string;
+  regionName: string;
+  presetLabel: string;
+  description: string;
+  rewardPriority: string[];
+  isSelected: boolean;
+};
+
+export type OfflineRewardPreviewView = {
+  ok: boolean;
+  reason: string | null;
+  stageName: string;
+  regionName: string;
+  previewSeconds: number;
+  clears: number;
+  silver: number;
+  cultivation: number;
+  combatExperience: number;
+  masteryExperienceGain: number;
+};
+
 export type SaveStatus =
   | "ready"
   | "missing_save"
@@ -353,6 +396,7 @@ export type SaveDiagnosticsView = {
   lastOfflineRewardAtMs: number | null;
   currentStageId: string;
   selectedOfflineFarmStageId: string | null;
+  offlineFarmPreset: OfflineFarmPreset;
   highestClearedStageIndex: number;
   autosaveIntervalMs: number;
   errors: string[];
@@ -374,17 +418,19 @@ export const OFFLINE_TIME_TRAVEL_SECONDS = 60 * 60;
 
 function getDefaultFarmStageId(
   data: StaticGameData,
-  progress: PlayerProgress
+  progress: PlayerProgress,
+  preset: OfflineFarmPreset = DEFAULT_OFFLINE_FARM_PRESET
 ): string | null {
-  return setOfflineFarmStageTarget(data, progress, null);
+  return setOfflineFarmStageTarget(data, progress, null, preset);
 }
 
 function normalizeFarmStageId(
   data: StaticGameData,
   progress: PlayerProgress,
-  selectedStageId: string | null
+  selectedStageId: string | null,
+  preset: OfflineFarmPreset
 ): string | null {
-  return setOfflineFarmStageTarget(data, progress, selectedStageId);
+  return setOfflineFarmStageTarget(data, progress, selectedStageId, preset);
 }
 
 function normalizeSelectedStageId(
@@ -422,7 +468,12 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
   return {
     progress,
     selectedStageId: progress.currentStageId,
-    selectedOfflineFarmStageId: getDefaultFarmStageId(data, progress),
+    selectedOfflineFarmStageId: getDefaultFarmStageId(
+      data,
+      progress,
+      DEFAULT_OFFLINE_FARM_PRESET
+    ),
+    offlineFarmPreset: DEFAULT_OFFLINE_FARM_PRESET,
     offlineSummary: null,
     lastBattle: null,
     lastBattleStageId: null,
@@ -437,6 +488,8 @@ export function createWebGameStateFromSave(
   save: SaveData,
   offlineSummary: OfflineRewardSummary | null = null
 ): WebGameState {
+  const offlineFarmPreset = normalizeOfflineFarmPreset(save.offlineFarmPreset);
+
   return {
     progress: save.progress,
     selectedStageId: normalizeSelectedStageId(
@@ -447,8 +500,10 @@ export function createWebGameStateFromSave(
     selectedOfflineFarmStageId: normalizeFarmStageId(
       data,
       save.progress,
-      save.selectedOfflineFarmStageId
+      save.selectedOfflineFarmStageId,
+      offlineFarmPreset
     ),
+    offlineFarmPreset,
     offlineSummary,
     lastBattle: null,
     lastBattleStageId: null,
@@ -501,7 +556,8 @@ export function webGameStateReducer(
         selectedOfflineFarmStageId: normalizeFarmStageId(
           data,
           state.progress,
-          selectedStageId
+          selectedStageId,
+          state.offlineFarmPreset
         )
       };
     }
@@ -512,9 +568,25 @@ export function webGameStateReducer(
         selectedOfflineFarmStageId: normalizeFarmStageId(
           data,
           state.progress,
-          action.stageId
+          action.stageId,
+          state.offlineFarmPreset
         )
       };
+
+    case "set_offline_farm_preset": {
+      const preset = normalizeOfflineFarmPreset(action.preset);
+
+      return {
+        ...state,
+        offlineFarmPreset: preset,
+        selectedOfflineFarmStageId: normalizeFarmStageId(
+          data,
+          state.progress,
+          null,
+          preset
+        )
+      };
+    }
 
     case "set_hero_formation_slot": {
       const result = setPlayerFormationSlot(
@@ -556,7 +628,8 @@ export function webGameStateReducer(
         selectedOfflineFarmStageId: normalizeFarmStageId(
           data,
           nextProgress,
-          selectedStageId
+          selectedStageId,
+          state.offlineFarmPreset
         ),
         lastBattle: action.result,
         lastBattleStageId: action.stageId,
@@ -577,7 +650,8 @@ export function webGameStateReducer(
         selectedOfflineFarmStageId: normalizeFarmStageId(
           data,
           nextProgress,
-          state.selectedOfflineFarmStageId
+          state.selectedOfflineFarmStageId,
+          state.offlineFarmPreset
         ),
         lastPurchase: action.result,
         lastSkillPurchase: null,
@@ -631,7 +705,8 @@ export function webGameStateReducer(
         selectedOfflineFarmStageId: normalizeFarmStageId(
           data,
           action.progress,
-          state.selectedOfflineFarmStageId
+          state.selectedOfflineFarmStageId,
+          state.offlineFarmPreset
         ),
         lastBattle: null,
         lastBattleStageId: null,
@@ -1589,6 +1664,129 @@ function buildOfflineRewardSummaryView(
   };
 }
 
+function getRegionNameForStage(
+  data: StaticGameData,
+  stage: ReturnType<typeof getStageById> | null
+): string {
+  return (
+    data.regions.find((candidate) => candidate.id === stage?.regionId)?.name ??
+    stage?.regionId ??
+    "Unknown map"
+  );
+}
+
+function formatOfflineFarmPriority(priority: string): string {
+  switch (priority) {
+    case "combatExperience":
+      return "Combat XP";
+    case "mastery":
+      return "Mastery";
+    default:
+      return formatStatName(priority);
+  }
+}
+
+function buildOfflineFarmPresetViews(
+  selectedPreset: OfflineFarmPreset
+): OfflineFarmPresetView[] {
+  return OFFLINE_FARM_PRESET_POLICIES.map((policy) => ({
+    id: policy.id,
+    label: policy.label,
+    description: policy.description,
+    rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
+    isSelected: policy.id === selectedPreset
+  }));
+}
+
+function buildOfflineFarmRecommendationView(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  selectedOfflineFarmStageId: string | null,
+  preset: OfflineFarmPreset
+): OfflineFarmRecommendationView {
+  const policy = getOfflineFarmPresetPolicy(preset);
+  const recommendedStage = getRecommendedOfflineFarmStage(data, progress, preset);
+
+  if (!recommendedStage) {
+    return {
+      stageId: null,
+      stageName: "No cleared farm stage",
+      regionName: "No map",
+      presetLabel: policy.label,
+      description: policy.description,
+      rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
+      isSelected: false
+    };
+  }
+
+  return {
+    stageId: recommendedStage.id,
+    stageName: recommendedStage.name,
+    regionName: getRegionNameForStage(data, recommendedStage),
+    presetLabel: policy.label,
+    description: policy.description,
+    rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
+    isSelected: recommendedStage.id === selectedOfflineFarmStageId
+  };
+}
+
+function formatOfflinePreviewReason(reason: string): string {
+  switch (reason) {
+    case "missing_farm_stage":
+      return "Select a cleared farm stage";
+    case "invalid_farm_stage":
+      return "Selected farm stage is unavailable";
+    default:
+      return "Offline preview unavailable";
+  }
+}
+
+function buildOfflineRewardPreviewView(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  selectedOfflineFarmStageId: string | null
+): OfflineRewardPreviewView {
+  const stage = selectedOfflineFarmStageId
+    ? getStageById(data, selectedOfflineFarmStageId)
+    : null;
+  const preview = previewOfflineRewards({
+    data,
+    progress,
+    selectedOfflineFarmStageId,
+    previewSeconds: OFFLINE_TIME_TRAVEL_SECONDS
+  });
+
+  if (!preview.ok) {
+    return {
+      ok: false,
+      reason: formatOfflinePreviewReason(preview.reason),
+      stageName: stage?.name ?? "No farm target",
+      regionName: getRegionNameForStage(data, stage),
+      previewSeconds: OFFLINE_TIME_TRAVEL_SECONDS,
+      clears: 0,
+      silver: 0,
+      cultivation: 0,
+      combatExperience: 0,
+      masteryExperienceGain: 0
+    };
+  }
+
+  const previewStage = getStageById(data, preview.stageId);
+
+  return {
+    ok: true,
+    reason: null,
+    stageName: previewStage?.name ?? preview.stageId,
+    regionName: getRegionNameForStage(data, previewStage),
+    previewSeconds: OFFLINE_TIME_TRAVEL_SECONDS,
+    clears: preview.rewards.clears,
+    silver: preview.rewards.silver,
+    cultivation: preview.rewards.cultivation,
+    combatExperience: preview.rewards.combatExperience,
+    masteryExperienceGain: preview.masteryExperienceGain
+  };
+}
+
 function getSaveToolErrorMessage(reason: string): string {
   switch (reason) {
     case "empty_import":
@@ -1637,6 +1835,7 @@ function buildSaveDiagnostics(
       lastOfflineRewardAtMs: null,
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      offlineFarmPreset: state.offlineFarmPreset,
       highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
         data,
         state.progress
@@ -1662,6 +1861,7 @@ function buildSaveDiagnostics(
       lastOfflineRewardAtMs: null,
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      offlineFarmPreset: state.offlineFarmPreset,
       highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
         data,
         state.progress
@@ -1685,6 +1885,7 @@ function buildSaveDiagnostics(
       lastOfflineRewardAtMs: null,
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      offlineFarmPreset: state.offlineFarmPreset,
       highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
         data,
         state.progress
@@ -1707,6 +1908,7 @@ function buildSaveDiagnostics(
     lastOfflineRewardAtMs: save.lastOfflineRewardAtMs,
     currentStageId: save.progress.currentStageId,
     selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
+    offlineFarmPreset: save.offlineFarmPreset,
     highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
       data,
       save.progress
@@ -1904,6 +2106,19 @@ export function getWebGameViewModel(
     selectedStageRegionName:
       selectedStageRegion?.name ?? selectedStage?.regionId ?? "Unknown map",
     selectedOfflineFarmStage,
+    offlineFarmPreset: state.offlineFarmPreset,
+    offlineFarmPresets: buildOfflineFarmPresetViews(state.offlineFarmPreset),
+    offlineFarmRecommendation: buildOfflineFarmRecommendationView(
+      data,
+      state.progress,
+      state.selectedOfflineFarmStageId,
+      state.offlineFarmPreset
+    ),
+    offlineRewardPreview: buildOfflineRewardPreviewView(
+      data,
+      state.progress,
+      state.selectedOfflineFarmStageId
+    ),
     stageOptions: buildStageOptions(
       data,
       state.progress,
@@ -2044,6 +2259,13 @@ export function useWebGameState(data: StaticGameData) {
     dispatchAndPersist({
       type: "select_offline_farm_stage",
       stageId
+    });
+  }, [dispatchAndPersist]);
+
+  const setOfflineFarmPreset = useCallback((preset: OfflineFarmPreset) => {
+    dispatchAndPersist({
+      type: "set_offline_farm_preset",
+      preset
     });
   }, [dispatchAndPersist]);
 
@@ -2257,6 +2479,7 @@ export function useWebGameState(data: StaticGameData) {
     equipEquipment,
     selectStage,
     selectOfflineFarmStage,
+    setOfflineFarmPreset,
     setHeroFormation,
     dismissOfflineSummary,
     exportSave,

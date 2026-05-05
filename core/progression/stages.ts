@@ -1,6 +1,84 @@
 import type { StageDefinition, StaticGameData } from "../data";
 import type { PlayerProgress } from "./types";
 
+export const OFFLINE_FARM_PRESETS = [
+  "balanced",
+  "silver",
+  "cultivation",
+  "combatExperience",
+  "mastery"
+] as const;
+
+export type OfflineFarmPreset = (typeof OFFLINE_FARM_PRESETS)[number];
+
+export const DEFAULT_OFFLINE_FARM_PRESET: OfflineFarmPreset = "balanced";
+
+export type OfflineFarmRewardPriority =
+  | keyof StageDefinition["rewards"]
+  | "mastery";
+
+export type OfflineFarmPresetPolicy = {
+  id: OfflineFarmPreset;
+  label: string;
+  description: string;
+  rewardPriority: readonly OfflineFarmRewardPriority[];
+};
+
+export const OFFLINE_FARM_PRESET_POLICIES = [
+  {
+    id: "balanced",
+    label: "Balanced",
+    description: "Prioritizes Combat XP, then silver, then cultivation.",
+    rewardPriority: ["combatExperience", "silver", "cultivation"]
+  },
+  {
+    id: "silver",
+    label: "Silver",
+    description: "Prioritizes silver income for Outer and Inner Art training.",
+    rewardPriority: ["silver", "combatExperience", "cultivation"]
+  },
+  {
+    id: "cultivation",
+    label: "Cultivation",
+    description: "Prioritizes cultivation for skill refinement.",
+    rewardPriority: ["cultivation", "combatExperience", "silver"]
+  },
+  {
+    id: "combatExperience",
+    label: "Combat XP",
+    description: "Prioritizes Combat XP for levels and map mastery.",
+    rewardPriority: ["combatExperience", "silver", "cultivation"]
+  },
+  {
+    id: "mastery",
+    label: "Mastery",
+    description: "Prioritizes mastery gain, then cultivation, then silver.",
+    rewardPriority: ["mastery", "cultivation", "silver"]
+  }
+] as const satisfies readonly OfflineFarmPresetPolicy[];
+
+export function isOfflineFarmPreset(value: unknown): value is OfflineFarmPreset {
+  return (
+    typeof value === "string" &&
+    OFFLINE_FARM_PRESETS.includes(value as OfflineFarmPreset)
+  );
+}
+
+export function normalizeOfflineFarmPreset(
+  value: unknown
+): OfflineFarmPreset {
+  return isOfflineFarmPreset(value) ? value : DEFAULT_OFFLINE_FARM_PRESET;
+}
+
+export function getOfflineFarmPresetPolicy(
+  preset: OfflineFarmPreset
+): OfflineFarmPresetPolicy {
+  return (
+    OFFLINE_FARM_PRESET_POLICIES.find((policy) => policy.id === preset) ??
+    OFFLINE_FARM_PRESET_POLICIES[0]
+  );
+}
+
 export function getStageById(
   data: Pick<StaticGameData, "stages">,
   stageId: string
@@ -184,13 +262,24 @@ export const OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY = [
   "cultivation"
 ] as const satisfies ReadonlyArray<keyof StageDefinition["rewards"]>;
 
+function getOfflineFarmStageRewardPriorityValue(
+  stage: StageDefinition,
+  priority: OfflineFarmRewardPriority
+): number {
+  return priority === "mastery"
+    ? stage.rewards.combatExperience
+    : stage.rewards[priority];
+}
+
 export function isBetterOfflineFarmStage(
   candidate: StageDefinition,
-  currentBest: StageDefinition
+  currentBest: StageDefinition,
+  preset: OfflineFarmPreset = DEFAULT_OFFLINE_FARM_PRESET
 ): boolean {
-  for (const rewardType of OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY) {
+  for (const rewardType of getOfflineFarmPresetPolicy(preset).rewardPriority) {
     const difference =
-      candidate.rewards[rewardType] - currentBest.rewards[rewardType];
+      getOfflineFarmStageRewardPriorityValue(candidate, rewardType) -
+      getOfflineFarmStageRewardPriorityValue(currentBest, rewardType);
 
     if (difference !== 0) {
       return difference > 0;
@@ -202,11 +291,12 @@ export function isBetterOfflineFarmStage(
 
 export function getRecommendedOfflineFarmStage(
   data: Pick<StaticGameData, "regions" | "stages">,
-  progress: PlayerProgress
+  progress: PlayerProgress,
+  preset: OfflineFarmPreset = DEFAULT_OFFLINE_FARM_PRESET
 ): StageDefinition | null {
   return getUnlockedOfflineFarmStages(data, progress).reduce<StageDefinition | null>(
     (bestStage, stage) =>
-      !bestStage || isBetterOfflineFarmStage(stage, bestStage)
+      !bestStage || isBetterOfflineFarmStage(stage, bestStage, preset)
         ? stage
         : bestStage,
     null
@@ -216,7 +306,8 @@ export function getRecommendedOfflineFarmStage(
 export function setOfflineFarmStageTarget(
   data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress,
-  requestedStageId: string | null
+  requestedStageId: string | null,
+  preset: OfflineFarmPreset = DEFAULT_OFFLINE_FARM_PRESET
 ): string | null {
   if (
     requestedStageId &&
@@ -225,5 +316,5 @@ export function setOfflineFarmStageTarget(
     return requestedStageId;
   }
 
-  return getRecommendedOfflineFarmStage(data, progress)?.id ?? null;
+  return getRecommendedOfflineFarmStage(data, progress, preset)?.id ?? null;
 }

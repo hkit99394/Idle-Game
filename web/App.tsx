@@ -1,5 +1,5 @@
 import { Component, useEffect, useState } from "react";
-import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
+import type { ChangeEvent, ReactNode } from "react";
 import "./styles/app.css";
 import { FORMATION_SLOTS } from "../core";
 import type { FormationSlot, ResolveStageBattleResult } from "../core";
@@ -13,6 +13,9 @@ import type {
   EquipmentInventoryItemView,
   HeroEquipmentView,
   MasteryPanelView,
+  OfflineFarmPresetView,
+  OfflineFarmRecommendationView,
+  OfflineRewardPreviewView,
   OfflineRewardSummaryView,
   PlayerFormationHeroView,
   PurchaseGameSkillUpgradeInput,
@@ -510,30 +513,86 @@ function OfflineSummaryPanel({
   );
 }
 
+type OfflineFarmPanelProps = {
+  onSetPreset: (preset: OfflineFarmPresetView["id"]) => void;
+  presets: OfflineFarmPresetView[];
+  preview: OfflineRewardPreviewView;
+  recommendation: OfflineFarmRecommendationView;
+};
+
+function OfflineFarmPanel({
+  onSetPreset,
+  presets,
+  preview,
+  recommendation
+}: OfflineFarmPanelProps) {
+  return (
+    <section className="offline-farm-panel" aria-label="Offline farming">
+      <div className="offline-farm-heading">
+        <div>
+          <span className="label">Idle</span>
+          <h2>Offline Farming</h2>
+        </div>
+        <span>
+          {preview.ok
+            ? `${formatNumber(preview.clears)} clears / ${formatDuration(preview.previewSeconds)}`
+            : preview.reason}
+        </span>
+      </div>
+      <div className="offline-preset-row">
+        {presets.map((preset) => (
+          <button
+            key={preset.id}
+            type="button"
+            className={preset.isSelected ? "selected" : ""}
+            onClick={() => onSetPreset(preset.id)}
+            title={preset.description}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+      <div className="offline-farm-grid">
+        <article className="offline-farm-card">
+          <span className="label">Selected Farm</span>
+          <h3>{preview.stageName}</h3>
+          <p>{preview.regionName}</p>
+          <div className="offline-preview-rewards">
+            <span>{formatNumber(preview.silver)} silver</span>
+            <span>{formatNumber(preview.cultivation)} cultivation</span>
+            <span>{formatNumber(preview.combatExperience)} Combat XP</span>
+            <span>{formatNumber(preview.masteryExperienceGain)} mastery</span>
+          </div>
+        </article>
+        <article className="offline-farm-card">
+          <span className="label">Best {recommendation.presetLabel}</span>
+          <h3>{recommendation.stageName}</h3>
+          <p>{recommendation.regionName}</p>
+          <div className="offline-priority-list">
+            {recommendation.rewardPriority.map((priority) => (
+              <span key={priority}>{priority}</span>
+            ))}
+          </div>
+          <strong>
+            {recommendation.isSelected ? "Selected" : "Different from selected"}
+          </strong>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 type StageSelectorPanelProps = {
+  onSelectOfflineFarmStage: (stageId: string | null) => void;
   onSelectStage: (stageId: string) => void;
   stages: StageOptionView[];
 };
 
 function StageSelectorPanel({
+  onSelectOfflineFarmStage,
   onSelectStage,
   stages
 }: StageSelectorPanelProps) {
-  function handleStageKeyDown(
-    event: KeyboardEvent<HTMLElement>,
-    stage: StageOptionView
-  ) {
-    if (
-      !stage.canSelectStage ||
-      (event.key !== "Enter" && event.key !== " ")
-    ) {
-      return;
-    }
-
-    event.preventDefault();
-    onSelectStage(stage.id);
-  }
-
   return (
     <section className="stage-selector" aria-label="Stage routes">
       <div className="stage-selector-heading">
@@ -557,14 +616,6 @@ function StageSelectorPanel({
                 stage.isBoss ? "boss" : "",
                 stage.isSelectedStage ? "selected-stage" : ""
               ].join(" ")}
-              onClick={() => {
-                if (stage.canSelectStage) {
-                  onSelectStage(stage.id);
-                }
-              }}
-              onKeyDown={(event) => handleStageKeyDown(event, stage)}
-              role="button"
-              tabIndex={stage.canSelectStage ? 0 : -1}
             >
               <div className="stage-card-heading">
                 <div>
@@ -587,6 +638,33 @@ function StageSelectorPanel({
                 <span>{formatNumber(stage.rewards.silver)} silver</span>
                 <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
                 <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
+              </div>
+              <div className="stage-card-actions">
+                <span>
+                  {stage.isSelectedOfflineFarmStage
+                    ? "Farm target"
+                    : stage.canSelectOfflineFarm
+                      ? "Farmable"
+                      : "Not farmable"}
+                </span>
+                <div className="stage-action-buttons">
+                  <button
+                    type="button"
+                    disabled={!stage.canSelectStage || stage.isSelectedStage}
+                    onClick={() => onSelectStage(stage.id)}
+                  >
+                    {stage.isSelectedStage ? "Current" : "Fight"}
+                  </button>
+                  {stage.canSelectOfflineFarm ? (
+                    <button
+                      type="button"
+                      disabled={stage.isSelectedOfflineFarmStage}
+                      onClick={() => onSelectOfflineFarmStage(stage.id)}
+                    >
+                      {stage.isSelectedOfflineFarmStage ? "Selected" : "Set Farm"}
+                    </button>
+                  ) : null}
+                </div>
               </div>
             </article>
           ))
@@ -950,6 +1028,8 @@ function SaveToolsPanel({
         <strong>{diagnostics.currentStageId}</strong>
         <span>Farm stage</span>
         <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
+        <span>Farm preset</span>
+        <strong>{diagnostics.offlineFarmPreset}</strong>
         <span>Highest clear</span>
         <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
         <span>Save size</span>
@@ -1074,7 +1154,9 @@ function GameApp() {
     purchaseUpgrade,
     resetNewGame,
     saveDiagnostics,
+    selectOfflineFarmStage,
     selectStage,
+    setOfflineFarmPreset,
     setHeroFormation,
     timeTravelOfflineFarm,
     viewModel
@@ -1092,6 +1174,9 @@ function GameApp() {
     lastPurchase,
     lastSkillPurchase,
     masteryPanel,
+    offlineFarmPresets,
+    offlineFarmRecommendation,
+    offlineRewardPreview,
     offlineSummary,
     playerCombatants,
     playerFormation,
@@ -1221,8 +1306,15 @@ function GameApp() {
           onDismiss={dismissOfflineSummary}
           summary={offlineSummary}
         />
+        <OfflineFarmPanel
+          onSetPreset={setOfflineFarmPreset}
+          presets={offlineFarmPresets}
+          preview={offlineRewardPreview}
+          recommendation={offlineFarmRecommendation}
+        />
         <MasteryPanel mastery={masteryPanel} />
         <StageSelectorPanel
+          onSelectOfflineFarmStage={selectOfflineFarmStage}
           onSelectStage={selectStage}
           stages={stageOptions}
         />

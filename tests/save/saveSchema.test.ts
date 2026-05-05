@@ -24,6 +24,7 @@ describe("save schema", () => {
     expect(save.progress.resources.silver).toBe(42);
     expect(save.progress.currentStageId).toBe("bamboo_road_1");
     expect(save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(save.offlineFarmPreset).toBe("balanced");
     expect(save.createdAtMs).toBe(1000);
     expect(save.updatedAtMs).toBe(1000);
     expect(save.lastOfflineRewardAtMs).toBe(1000);
@@ -41,13 +42,15 @@ describe("save schema", () => {
       nowMs: 5000,
       previousSave: {
         createdAtMs: 1000,
-        lastOfflineRewardAtMs: 3000
+        lastOfflineRewardAtMs: 3000,
+        offlineFarmPreset: "silver"
       }
     });
 
     expect(save.createdAtMs).toBe(1000);
     expect(save.updatedAtMs).toBe(5000);
     expect(save.lastOfflineRewardAtMs).toBe(3000);
+    expect(save.offlineFarmPreset).toBe("silver");
   });
 
   it("parses valid save data into a cloned save", () => {
@@ -70,11 +73,40 @@ describe("save schema", () => {
     expect(result.save).not.toBe(rawSave);
   });
 
+  it("accepts old saves without an offline farm preset and rejects invalid presets", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      offlineFarmPreset: undefined
+    };
+    const badSave = {
+      ...save,
+      offlineFarmPreset: "best"
+    };
+    const result = parseSaveData(staticData, oldSave);
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.offlineFarmPreset).toBe("balanced");
+    expect(validateSaveData(staticData, badSave)).toContain(
+      "offlineFarmPreset must be a supported offline farm preset"
+    );
+  });
+
   it("fails safely for malformed saves", () => {
     const result = parseSaveData(staticData, {
       version: SAVE_DATA_VERSION,
       progress: null,
       selectedOfflineFarmStageId: 5,
+      offlineFarmPreset: 5,
       createdAtMs: 2000,
       updatedAtMs: 1000,
       lastOfflineRewardAtMs: -1
@@ -89,6 +121,9 @@ describe("save schema", () => {
     expect(result.errors).toContain("progress must be an object");
     expect(result.errors).toContain(
       "selectedOfflineFarmStageId must be a string or null"
+    );
+    expect(result.errors).toContain(
+      "offlineFarmPreset must be a supported offline farm preset"
     );
     expect(result.errors).toContain(
       "updatedAtMs must be greater than or equal to createdAtMs"

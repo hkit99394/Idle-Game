@@ -18,7 +18,8 @@ Stage 1.1 starting point:
 - Epic 8 martial arts growth is complete.
 - Epic 9 region content expansion is complete; Mist Valley is the first post-tutorial region.
 - Epic 10 loot and equipment is complete.
-- The next planned epic is offline and idle depth.
+- Epic 11 offline and idle depth is complete.
+- The next planned epic is technical foundation.
 
 ## Recommended Roadmap
 
@@ -129,10 +130,10 @@ Goal:
 | Epic 8: Martial Arts Growth | Completed | Hero And Martial Arts Growth | Split growth into Outer Art, Inner Art, style mastery, and skill upgrades |
 | Epic 9: Region Content Expansion | Completed | Content Expansion | Add Mist Valley after Bamboo Road and make multi-region systems work |
 | Epic 10: Loot And Equipment | Completed | Loot And Equipment | Add deterministic drops, inventory, equipment stats, and equip flow |
-| Epic 11: Offline And Idle Depth | Not started | Offline And Idle Depth | Make farming choices previewable and intentional |
+| Epic 11: Offline And Idle Depth | Completed | Offline And Idle Depth | Make farming choices previewable and intentional |
 | Epic 12: Technical Foundation | Not started | Technical Foundation | Prepare saves, core engine boundaries, and balance tools for larger content |
 
-Stage 1.1 completed Epics 7-10 first. Epics 11-12 are sequenced follow-up epics so the roadmap has owners, but they can be split into later stage versions as needed.
+Stage 1.1 completed Epics 7-11 first. Epic 12 is the sequenced follow-up epic so the roadmap has an owner, but it can be split into a later stage version as needed.
 
 ## Epic 7 Tasks
 
@@ -580,11 +581,17 @@ Goal:
 
 ### 11.1 Offline Reward Preview
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Show estimated offline rewards before selecting or changing farm targets.
+
+Implementation:
+
+- Added a pure offline reward preview helper that validates the selected farm stage and uses the same clear-count, cap, efficiency, reward multiplier, and Combat XP formula as offline reward application.
+- Added a web offline farming panel showing one-hour preview rewards for silver, cultivation, Combat XP, and mastery gain.
+- Invalid, locked, boss, and missing farm targets return safe empty previews instead of granting rewards.
 
 Acceptance:
 
@@ -595,11 +602,17 @@ Acceptance:
 
 ### 11.2 Best Farm Recommendation
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Explain why a farm target is recommended.
+
+Implementation:
+
+- Added shared offline farm preset policies with explicit reward priority order.
+- Farm recommendation now reads the active policy instead of relying on a hidden comparator.
+- Web UI shows the recommended farm stage, map name, priority list, and whether the recommendation matches the selected farm target.
 
 Acceptance:
 
@@ -610,11 +623,18 @@ Acceptance:
 
 ### 11.3 Farm Presets
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Add preset farming intents.
+
+Implementation:
+
+- Added balanced, silver, cultivation, Combat XP, and mastery presets.
+- Presets map deterministically to shared priority policies.
+- Save data now persists the selected preset and defaults older saves to balanced.
+- Selecting a preset reselects the best unlocked farm target for that intent while offline reward application still validates the target.
 
 Acceptance:
 
@@ -625,11 +645,20 @@ Acceptance:
 
 ### 11.4 Patrols And Training Grounds Planning
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Draft the later assignment system for heroes.
+
+Implementation:
+
+- Patrols are planned as future hero assignments that send one or more heroes to a map or stage for offline silver, equipment drops, and map-specific mastery.
+- Training grounds are planned as future hero assignments focused on style mastery, skill upgrade materials, or level catch-up instead of normal stage rewards.
+- Future static data should add assignment definitions with id, name, unlock condition, duration bucket, allowed hero roles/styles, and reward profile.
+- Future save data should add an assignment state such as `{ assignments: Record<string, { assignmentId, heroIds, targetId, startedAtMs, durationSeconds }> }`.
+- Assignment reward calculation should reuse the existing offline reward cap/timestamp pattern so reloads cannot duplicate rewards.
+- Stage 1.1 intentionally does not implement hero assignments; it leaves the UI and save model free for Epic 12 save migrations first.
 
 Acceptance:
 

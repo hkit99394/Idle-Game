@@ -40,6 +40,7 @@ describe("web save storage", () => {
     expect(state.progress.resources.silver).toBe(0);
     expect(state.selectedStageId).toBe("bamboo_road_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
+    expect(state.offlineFarmPreset).toBe("balanced");
   });
 
   it("loads saved progress and farm target into initial web state", () => {
@@ -51,6 +52,7 @@ describe("web save storage", () => {
     const save = createSaveData({
       progress,
       selectedOfflineFarmStageId: "bamboo_road_1",
+      offlineFarmPreset: "silver",
       nowMs: 1000
     });
 
@@ -62,6 +64,7 @@ describe("web save storage", () => {
     expect(state.progress.currentStageId).toBe("bamboo_road_3");
     expect(state.selectedStageId).toBe("bamboo_road_3");
     expect(state.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(state.offlineFarmPreset).toBe("silver");
   });
 
   it("exports and imports a validated save payload", () => {
@@ -74,6 +77,7 @@ describe("web save storage", () => {
     const save = createSaveData({
       progress,
       selectedOfflineFarmStageId: "bamboo_road_2",
+      offlineFarmPreset: "cultivation",
       nowMs: 1000
     });
 
@@ -101,6 +105,7 @@ describe("web save storage", () => {
     expect(importedSave.save.progress.resources.silver).toBe(321);
     expect(importedSave.save.progress.currentStageId).toBe("bamboo_road_3");
     expect(importedSave.save.selectedOfflineFarmStageId).toBe("bamboo_road_2");
+    expect(importedSave.save.offlineFarmPreset).toBe("cultivation");
   });
 
   it("rejects invalid imports without replacing the current save", () => {
@@ -156,6 +161,7 @@ describe("web save storage", () => {
     expect(currentSave.save.progress.resources.silver).toBe(0);
     expect(currentSave.save.progress.currentStageId).toBe("bamboo_road_1");
     expect(currentSave.save.selectedOfflineFarmStageId).toBeNull();
+    expect(currentSave.save.offlineFarmPreset).toBe("balanced");
     expect(currentSave.save.updatedAtMs).toBe(2000);
   });
 
@@ -409,13 +415,42 @@ describe("web save storage", () => {
     }
 
     expect(battleSaveResult.save.progress.resources.silver).toBe(10);
+    expect(battleSaveResult.save.offlineFarmPreset).toBe("balanced");
     expect(battleSaveResult.save.createdAtMs).toBe(1000);
     expect(battleSaveResult.save.updatedAtMs).toBe(2000);
     expect(battleSaveResult.save.lastOfflineRewardAtMs).toBe(1000);
     expect(purchaseSaveResult.save.progress.resources.silver).toBe(8);
+    expect(purchaseSaveResult.save.offlineFarmPreset).toBe("balanced");
     expect(purchaseSaveResult.save.createdAtMs).toBe(1000);
     expect(purchaseSaveResult.save.updatedAtMs).toBe(3000);
     expect(purchaseSaveResult.save.lastOfflineRewardAtMs).toBe(1000);
+  });
+
+  it("persists offline farm presets through autosave", () => {
+    const storage = new MemoryStorage();
+    const state = webGameStateReducer(
+      staticData,
+      createInitialWebGameStateFromStorage(staticData, storage, 1000),
+      {
+        type: "set_offline_farm_preset",
+        preset: "silver"
+      }
+    );
+    const saveResult = saveWebGameStateToStorage(
+      staticData,
+      state,
+      storage,
+      2000
+    );
+    const loadResult = loadSaveDataFromStorage(staticData, storage);
+
+    expect(saveResult.ok).toBe(true);
+    expect(loadResult.ok).toBe(true);
+    if (!saveResult.ok || !loadResult.ok) {
+      return;
+    }
+    expect(saveResult.save.offlineFarmPreset).toBe("silver");
+    expect(loadResult.save.offlineFarmPreset).toBe("silver");
   });
 
   it("uses an autosave interval within the MVP range", () => {
