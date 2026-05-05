@@ -62,7 +62,7 @@ describe("web game state", () => {
       activeBonuses: [],
       progressPercent: 0
     });
-    expect(viewModel.stageOptions).toHaveLength(16);
+    expect(viewModel.stageOptions).toHaveLength(staticData.stages.length);
     expect(viewModel.stageOptions[0]).toMatchObject({
       id: "bamboo_road_1",
       regionName: "Bamboo Road",
@@ -81,6 +81,14 @@ describe("web game state", () => {
     expect(viewModel.stageOptions[10]).toMatchObject({
       id: "mist_valley_1",
       regionName: "Mist Valley",
+      isUnlocked: false,
+      canSelectStage: false,
+      canSelectOfflineFarm: false
+    });
+    expect(
+      viewModel.stageOptions.find((stage) => stage.id === "black_iron_fort_1")
+    ).toMatchObject({
+      regionName: "Black Iron Fort",
       isUnlocked: false,
       canSelectStage: false,
       canSelectOfflineFarm: false

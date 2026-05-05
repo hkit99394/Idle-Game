@@ -142,5 +142,83 @@
         "durationSeconds": 6
       }
     ]
+  },
+  {
+    "id": "shieldwall_chop",
+    "name": "Shieldwall Chop",
+    "cooldownSeconds": 5,
+    "outerMultiplier": 1.05,
+    "innerMultiplier": 0.08,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "speed_down",
+        "value": 0.06,
+        "durationSeconds": 5
+      }
+    ]
+  },
+  {
+    "id": "fortress_staff_lock",
+    "name": "Fortress Staff Lock",
+    "cooldownSeconds": 5.8,
+    "outerMultiplier": 0.85,
+    "innerMultiplier": 0.25,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "speed_down",
+        "value": 0.12,
+        "durationSeconds": 6
+      }
+    ]
+  },
+  {
+    "id": "black_iron_counter",
+    "name": "Black Iron Counter",
+    "cooldownSeconds": 5.2,
+    "outerMultiplier": 1.45,
+    "innerMultiplier": 0.12,
+    "targetRule": "highest_cp",
+    "effects": []
+  },
+  {
+    "id": "chain_hook_pressure",
+    "name": "Chain Hook Pressure",
+    "cooldownSeconds": 4.8,
+    "outerMultiplier": 1.05,
+    "innerMultiplier": 0.35,
+    "targetRule": "weakest_hp",
+    "effects": [
+      {
+        "type": "speed_down",
+        "value": 0.08,
+        "durationSeconds": 5
+      }
+    ]
+  },
+  {
+    "id": "iron_wall_command",
+    "name": "Iron Wall Command",
+    "cooldownSeconds": 6.5,
+    "outerMultiplier": 1.25,
+    "innerMultiplier": 0.18,
+    "targetRule": "first_living",
+    "effects": []
+  },
+  {
+    "id": "black_fort_edict",
+    "name": "Black Fort Edict",
+    "cooldownSeconds": 6,
+    "outerMultiplier": 1.65,
+    "innerMultiplier": 0.25,
+    "targetRule": "highest_cp",
+    "effects": [
+      {
+        "type": "speed_down",
+        "value": 0.1,
+        "durationSeconds": 6
+      }
+    ]
   }
 ]

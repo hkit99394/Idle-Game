@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { StaticGameData } from "../../core";
 import {
   BAMBOO_ROAD_REGION_ID,
+  BLACK_IRON_FORT_REGION_ID,
   MIST_VALLEY_REGION_ID,
   buildBambooRoadBalanceReport,
   formatBalanceReport
@@ -94,6 +95,50 @@ describe("balance report", () => {
     });
   });
 
+  it("includes Black Iron Fort as a defensive post-Mist region", () => {
+    const report = buildBambooRoadBalanceReport(staticData);
+    const blackIronFort = staticData.regions.find(
+      (region) => region.id === BLACK_IRON_FORT_REGION_ID
+    );
+
+    expect(blackIronFort).toBeDefined();
+    if (!blackIronFort) {
+      return;
+    }
+
+    const blackIronBalance = report.regionBalances.find(
+      (region) => region.regionId === BLACK_IRON_FORT_REGION_ID
+    );
+
+    expect(blackIronBalance).toBeDefined();
+    if (!blackIronBalance) {
+      return;
+    }
+
+    expect(blackIronBalance.regionName).toBe("Black Iron Fort");
+    expect(
+      blackIronBalance.stageResults.map((stage) => stage.stageId)
+    ).toEqual(blackIronFort.stageIds);
+    expect(blackIronBalance.stageResults[0]).toMatchObject({
+      ok: true,
+      winner: "player",
+      stageCleared: true,
+      enemyTypes: ["normal", "normal"],
+      enemyFormationSlots: ["middle", "front"]
+    });
+    expect(blackIronBalance.stageResults.at(-1)).toMatchObject({
+      stageId: "black_iron_fort_7"
+    });
+    expect(blackIronBalance.farmRecommendation).toMatchObject({
+      stageId: "black_iron_fort_6"
+    });
+    expect(blackIronBalance.bossGate.baseline).toMatchObject({
+      stageId: "black_iron_fort_7",
+      ok: true,
+      winner: "enemy"
+    });
+  });
+
   it("does not require a hard-coded Mist Valley region to build later regions", () => {
     const renamedRegionId = "renamed_valley";
     const renamedData: StaticGameData = {
@@ -122,11 +167,15 @@ describe("balance report", () => {
     expect(report.regionBalances.map((region) => region.regionId)).toEqual(
       renamedData.regions.map((region) => region.id)
     );
-    expect(report.regionBalances.at(-1)).toMatchObject({
+    const renamedRegionBalance = report.regionBalances.find(
+      (region) => region.regionId === renamedRegionId
+    );
+
+    expect(renamedRegionBalance).toMatchObject({
       regionId: renamedRegionId,
       regionName: "Renamed Valley"
     });
-    expect(report.regionBalances.at(-1)?.stageResults[0]).toMatchObject({
+    expect(renamedRegionBalance?.stageResults[0]).toMatchObject({
       ok: true,
       stageCleared: true
     });
@@ -162,6 +211,8 @@ describe("balance report", () => {
 
     expect(formatted).toContain("Bamboo Road Balance Report");
     expect(formatted).toContain("Mist Valley Balance Report");
+    expect(formatted).toContain("Black Iron Fort Balance Report");
+    expect(formatted).toContain("black_iron_fort_7");
     expect(formatted).toContain("mist_valley_6");
     expect(formatted).toContain("bamboo_road_10");
     expect(formatted).toContain("Region Farm Recommendations");

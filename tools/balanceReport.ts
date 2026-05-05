@@ -19,6 +19,7 @@ import type {
 
 export const BAMBOO_ROAD_REGION_ID = "bamboo_road";
 export const MIST_VALLEY_REGION_ID = "mist_valley";
+export const BLACK_IRON_FORT_REGION_ID = "black_iron_fort";
 
 export const TRAINED_BOSS_UPGRADES = {
   heroOuterTraining: 6,
@@ -134,6 +135,10 @@ function getTargetSeconds(
 
   if (stage.regionId === MIST_VALLEY_REGION_ID) {
     return enemyTypes.includes("elite") ? [10, 25] : [5, 18];
+  }
+
+  if (stage.regionId === BLACK_IRON_FORT_REGION_ID) {
+    return enemyTypes.includes("elite") ? [25, 65] : [12, 55];
   }
 
   return enemyTypes.includes("elite") ? [20, 40] : [5, 15];
@@ -913,7 +918,7 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     : `not affordable: ${trainingEconomy.reason}`;
 
   return [
-    "Stage 1.1 Balance Report",
+    "Path of Jianghu Balance Report",
     "",
     ...report.regionBalances.flatMap((region, index) => [
       ...(index > 0 ? [""] : []),
