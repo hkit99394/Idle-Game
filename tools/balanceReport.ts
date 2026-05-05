@@ -4,6 +4,7 @@ import {
   createInitialPlayerProgress,
   getRecommendedOfflineFarmStage,
   getUpgradeLevel,
+  isBetterOfflineFarmStage,
   getNextMasteryThreshold,
   purchaseUpgrade,
   resolveStageBattle,
@@ -79,6 +80,18 @@ function getRegionStageIds(data: StaticGameData, regionId: string): string[] {
   }
 
   return [...region.stageIds];
+}
+
+function getRegionIds(data: StaticGameData): string[] {
+  if (data.regions.length === 0) {
+    throw new Error("No regions configured for balance report");
+  }
+
+  for (const region of data.regions) {
+    getRegionStageIds(data, region.id);
+  }
+
+  return data.regions.map((region) => region.id);
 }
 
 function getRegionBossStage(
@@ -157,6 +170,83 @@ function getClearsRequiredForSilver(
   }
 
   return null;
+}
+
+function getRecommendedRegionFarmStage(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  regionId: string
+): StageDefinition | null {
+  return getRegionStageIds(data, regionId)
+    .map((stageId) => getStage(data, stageId))
+    .filter(
+      (stage) =>
+        !stage.isBoss &&
+        stage.canFarmOffline &&
+        (progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0) >=
+          stage.index
+    )
+    .reduce<StageDefinition | null>(
+      (bestStage, stage) =>
+        !bestStage || isBetterOfflineFarmStage(stage, bestStage)
+          ? stage
+          : bestStage,
+      null
+    );
+}
+
+function buildRegionFarmRecommendation(
+  data: StaticGameData,
+  progressBeforeBoss: PlayerProgress,
+  regionId: string
+) {
+  const farmStage = getRecommendedRegionFarmStage(
+    data,
+    progressBeforeBoss,
+    regionId
+  );
+
+  if (!farmStage) {
+    return null;
+  }
+
+  return {
+    stageId: farmStage.id,
+    rewards: farmStage.rewards
+  };
+}
+
+function buildRegionMasteryMilestone(
+  data: StaticGameData,
+  progressBeforeBoss: PlayerProgress,
+  regionId: string,
+  farmRecommendation: ReturnType<typeof buildRegionFarmRecommendation>
+) {
+  const mapProgress = progressBeforeBoss.maps[regionId] ?? {
+    combatExperience: 0,
+    highestClearedStageIndex: 0
+  };
+  const nextMastery = getNextMasteryThreshold(
+    mapProgress.combatExperience,
+    data.mastery.thresholds
+  );
+
+  if (!nextMastery) {
+    return null;
+  }
+
+  return {
+    threshold: nextMastery.experience,
+    rank: nextMastery.rank,
+    currentCombatExperience: mapProgress.combatExperience,
+    farmStageId: farmRecommendation?.stageId ?? null,
+    farmClearsRequired: farmRecommendation
+      ? Math.ceil(
+          Math.max(0, nextMastery.experience - mapProgress.combatExperience) /
+            farmRecommendation.rewards.combatExperience
+        )
+      : null
+  };
 }
 
 function getTrainingPlanCost(
@@ -433,6 +523,7 @@ function buildRegionStageProgressionReport(
   let progress = cloneProgress(startingProgress);
   const stageResults: Array<ReturnType<typeof summarizeBattle>> = [];
   let progressBeforeBoss = cloneProgress(progress);
+  const bossStage = getRegionBossStage(data, regionId, stageIds);
 
   for (const stageId of stageIds) {
     const stage = getStage(data, stageId);
@@ -454,17 +545,45 @@ function buildRegionStageProgressionReport(
     }
   }
 
+  const bossBaseline = resolveStageBattle(data, {
+    progress: progressBeforeBoss,
+    stageId: bossStage.id,
+    maxDurationSeconds: 180
+  });
+  const farmRecommendation = buildRegionFarmRecommendation(
+    data,
+    progressBeforeBoss,
+    regionId
+  );
+
   return {
     regionId,
     regionName:
       data.regions.find((region) => region.id === regionId)?.name ?? regionId,
     stageResults,
+    bossGate: {
+      baseline: summarizeBattle(data, bossStage, bossBaseline)
+    },
+    farmRecommendation,
+    masteryMilestone: buildRegionMasteryMilestone(
+      data,
+      progressBeforeBoss,
+      regionId,
+      farmRecommendation
+    ),
     progressBeforeBoss,
     progressAfterRegion: progress
   };
 }
 
+type RegionBalanceReport = ReturnType<typeof buildRegionStageProgressionReport> & {
+  bossGate: ReturnType<typeof buildRegionStageProgressionReport>["bossGate"] & {
+    trained?: ReturnType<typeof summarizeBattle>;
+  };
+};
+
 export function buildBambooRoadBalanceReport(data: StaticGameData) {
+  const regionIds = getRegionIds(data);
   const bambooRoadStageIds = getRegionStageIds(data, BAMBOO_ROAD_REGION_ID);
   const trainedBossPlan = createTrainedBossPlan(data);
   const bambooRoadProgression = buildRegionStageProgressionReport(
@@ -529,6 +648,35 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
     MIST_VALLEY_REGION_ID,
     progressAfterBambooRoad
   );
+  const regionBalances: RegionBalanceReport[] = [];
+  let nextRegionStartingProgress = progressAfterBambooRoad;
+
+  for (const regionId of regionIds) {
+    if (regionId === BAMBOO_ROAD_REGION_ID) {
+      regionBalances.push({
+        ...bambooRoadProgression,
+        bossGate: {
+          ...bambooRoadProgression.bossGate,
+          trained: summarizeBattle(data, bossStage, trainedBoss)
+        }
+      });
+      continue;
+    }
+
+    if (regionId === MIST_VALLEY_REGION_ID) {
+      regionBalances.push(mistValleyBalance);
+      nextRegionStartingProgress = mistValleyBalance.progressAfterRegion;
+      continue;
+    }
+
+    const regionBalance = buildRegionStageProgressionReport(
+      data,
+      regionId,
+      nextRegionStartingProgress
+    );
+    regionBalances.push(regionBalance);
+    nextRegionStartingProgress = regionBalance.progressAfterRegion;
+  }
   const bambooRoadProgressBeforeBoss = progressBeforeBoss.maps[
     BAMBOO_ROAD_REGION_ID
   ] ?? {
@@ -555,6 +703,7 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
     : 0;
 
   return {
+    regionBalances,
     bambooRoadBalance: {
       stageResults,
       bossGate: {
@@ -600,6 +749,8 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
         bambooRoad: bambooRoadProgressBeforeBoss,
         nextMastery
       },
+      farmRecommendation: bambooRoadProgression.farmRecommendation,
+      masteryMilestone: bambooRoadProgression.masteryMilestone,
       formationScenarios: buildFormationScenarioReport(data)
     },
     mistValleyBalance
@@ -612,6 +763,7 @@ export type BambooRoadBalanceReport = ReturnType<
 
 type StageSummary =
   BambooRoadBalanceReport["bambooRoadBalance"]["stageResults"][number];
+type RegionSummary = BambooRoadBalanceReport["regionBalances"][number];
 
 function formatReward(rewards: StageSummary["rewards"]): string {
   if (!rewards) {
@@ -667,6 +819,40 @@ function formatBossLine(stage: StageSummary): string {
   return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks`;
 }
 
+function formatRegionFarmLine(region: RegionSummary): string {
+  if (!region.farmRecommendation) {
+    return `- ${region.regionName}: no cleared farm stage`;
+  }
+
+  const rewards = formatReward(region.farmRecommendation.rewards);
+
+  return `- ${region.regionName}: ${region.farmRecommendation.stageId} (${rewards})`;
+}
+
+function formatRegionMasteryLine(region: RegionSummary): string {
+  const milestone = region.masteryMilestone;
+
+  if (!milestone) {
+    return `- ${region.regionName}: all mastery thresholds reached`;
+  }
+
+  const farmText =
+    milestone.farmStageId && milestone.farmClearsRequired !== null
+      ? `${milestone.farmClearsRequired} ${milestone.farmStageId} farms`
+      : "no farm target";
+
+  return `- ${region.regionName}: ${milestone.currentCombatExperience}/${milestone.threshold} Combat XP toward ${milestone.rank}, ${farmText}`;
+}
+
+function formatRegionBossGateLine(region: RegionSummary): string {
+  const trained =
+    "trained" in region.bossGate && region.bossGate.trained
+      ? `, trained ${formatBossLine(region.bossGate.trained)}`
+      : "";
+
+  return `- ${region.regionName}: baseline ${formatBossLine(region.bossGate.baseline)}${trained}`;
+}
+
 function formatRegionStageTable(
   title: string,
   stages: StageSummary[]
@@ -703,12 +889,22 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
   return [
     "Stage 1.1 Balance Report",
     "",
-    ...formatRegionStageTable("Bamboo Road Balance Report", balance.stageResults),
+    ...report.regionBalances.flatMap((region, index) => [
+      ...(index > 0 ? [""] : []),
+      ...formatRegionStageTable(
+        `${region.regionName} Balance Report`,
+        region.stageResults
+      )
+    ]),
     "",
-    ...formatRegionStageTable(
-      "Mist Valley Balance Report",
-      report.mistValleyBalance.stageResults
-    ),
+    "Region Farm Recommendations",
+    ...report.regionBalances.map(formatRegionFarmLine),
+    "",
+    "Region Mastery Milestones",
+    ...report.regionBalances.map(formatRegionMasteryLine),
+    "",
+    "Region Boss Gates",
+    ...report.regionBalances.map(formatRegionBossGateLine),
     "",
     "Formation Targeting",
     `- first_living frontline target: ${balance.formationScenarios.firstLivingFrontlineTargetId}`,

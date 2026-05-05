@@ -142,6 +142,13 @@ export type BattleEvent =
       damage: number;
     }
   | {
+      type: "heal";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      outerHealing: number;
+    }
+  | {
       type: "defeat";
       time: number;
       targetId: string;

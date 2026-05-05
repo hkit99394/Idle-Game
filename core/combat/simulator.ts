@@ -352,6 +352,39 @@ function markDefeated(
   }
 }
 
+function applyHealingEffects(
+  attacker: CombatantState,
+  skill: SkillDefinition,
+  time: number,
+  events: BattleEvent[]
+): void {
+  if (!isLiving(attacker)) {
+    return;
+  }
+
+  for (const effect of skill.effects) {
+    if (effect.type !== "outer_heal_percent" || effect.value <= 0) {
+      continue;
+    }
+
+    const missingOuterHp = attacker.maxOuterHp - attacker.outerHp;
+    const outerHealing = Math.min(missingOuterHp, attacker.maxOuterHp * effect.value);
+
+    if (outerHealing <= 0) {
+      continue;
+    }
+
+    attacker.outerHp += outerHealing;
+    events.push({
+      type: "heal",
+      time,
+      sourceId: attacker.instanceId,
+      targetId: attacker.instanceId,
+      outerHealing
+    });
+  }
+}
+
 function applyQiBreakIfNeeded(
   attacker: CombatantState,
   target: CombatantState,
@@ -505,6 +538,7 @@ function executeAction(
     innerDamage
   });
 
+  applyHealingEffects(attacker, skill, time, events);
   applyQiBreakIfNeeded(
     attacker,
     target,

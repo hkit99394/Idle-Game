@@ -19,7 +19,8 @@ Stage 1.1 starting point:
 - Epic 9 region content expansion is complete; Mist Valley is the first post-tutorial region.
 - Epic 10 loot and equipment is complete.
 - Epic 11 offline and idle depth is complete.
-- The next planned epic is technical foundation.
+- Epic 12 technical foundation is complete.
+- Stage 1.1 implementation is complete.
 
 ## Recommended Roadmap
 
@@ -131,9 +132,9 @@ Goal:
 | Epic 9: Region Content Expansion | Completed | Content Expansion | Add Mist Valley after Bamboo Road and make multi-region systems work |
 | Epic 10: Loot And Equipment | Completed | Loot And Equipment | Add deterministic drops, inventory, equipment stats, and equip flow |
 | Epic 11: Offline And Idle Depth | Completed | Offline And Idle Depth | Make farming choices previewable and intentional |
-| Epic 12: Technical Foundation | Not started | Technical Foundation | Prepare saves, core engine boundaries, and balance tools for larger content |
+| Epic 12: Technical Foundation | Completed | Technical Foundation | Prepare saves, core engine boundaries, and balance tools for larger content |
 
-Stage 1.1 completed Epics 7-11 first. Epic 12 is the sequenced follow-up epic so the roadmap has an owner, but it can be split into a later stage version as needed.
+Stage 1.1 completed Epics 7-12. Later stage versions can now build on formations, martial arts growth, expanded content, equipment, intentional idle farming, and a cleaner technical foundation.
 
 ## Epic 7 Tasks
 
@@ -674,11 +675,18 @@ Goal:
 
 ### 12.1 Save Migrations
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Add versioned save migration support.
+
+Implementation:
+
+- Save schema now has supported-version migration from v1 saves into the current schema.
+- The parser migrates older saves before validation and cloning.
+- Migration defaults hero level, maps for newer regions, formation, style mastery, skill upgrades, equipment, selected farm target, and offline farm preset.
+- Unsupported versions and malformed saves still fail safely with validation errors.
 
 Acceptance:
 
@@ -689,11 +697,17 @@ Acceptance:
 
 ### 12.2 Core Engine Boundary
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Clarify the reusable backend-safe core engine boundary.
+
+Implementation:
+
+- Added `docs/core-engine-boundary.md`.
+- Added tests that prevent `core/` from importing web/tool modules or using browser runtime APIs.
+- Confirmed web and simulator callers import game logic through stable core entry points.
 
 Acceptance:
 
@@ -704,11 +718,16 @@ Acceptance:
 
 ### 12.3 Scenario Simulator Tests
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Add focused scenario tests for balance-critical combat cases.
+
+Implementation:
+
+- Added deterministic scenario tests for Bamboo Road boss gate behavior, frontline targeting pressure, Inner Qi pressure enemies, and recovery enemies.
+- Added a minimal `outer_heal_percent` combat event path so future recovery/healing enemies can be simulated and tested.
 
 Acceptance:
 
@@ -719,11 +738,18 @@ Acceptance:
 
 ### 12.4 Multi-Region Balance Reports
 
-Status: Not started
+Status: Completed
 
 Task:
 
 - Extend the balance report beyond Bamboo Road.
+
+Implementation:
+
+- Balance report now builds region summaries in configured region order.
+- Missing regions or stages still throw clear errors.
+- Report output includes per-region stage tables, farm recommendations, mastery milestones, and boss gates.
+- Existing Bamboo Road training economy remains available for the first boss gate.
 
 Acceptance:
 
@@ -746,9 +772,11 @@ Stage 1.1 core scope is complete when:
 - A post-tutorial region exists after Bamboo Road.
 - Region progression, farming, mastery, saves, and balance reports work across multiple regions.
 - Equipment drops, inventory, equipping, rarity display, and CP stat effects are implemented.
+- Offline preview, farm recommendations, presets, and save persistence are implemented.
+- Save migrations, core boundary checks, scenario tests, and multi-region balance report summaries are implemented.
 - Tests, typecheck, build, and simulate pass.
 
 Stage 1.1 roadmap planning is complete when:
 
-- Epics 8-12 have enough tasks and acceptance criteria to begin after Epic 7.
-- Any epic that is too large for Stage 1.1 is explicitly carried into a later stage version.
+- Epics 8-12 are documented and completed.
+- Later patrols, training grounds, backend accounts, cloud saves, and larger content are explicitly carried into later stage versions.

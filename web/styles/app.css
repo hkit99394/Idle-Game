@@ -1487,6 +1487,11 @@ h2 {
   border-color: #7b2f2b;
 }
 
+.event-row.heal {
+  border-color: #547536;
+  background: #f4f8ec;
+}
+
 .event-row.defeat {
   border-color: #15120e;
   background: #ece6da;

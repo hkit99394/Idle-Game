@@ -23,6 +23,13 @@ describe("balance report", () => {
     expect(
       report.bambooRoadBalance.stageResults.map((stage) => stage.stageId)
     ).toEqual(bambooRoad.stageIds);
+    expect(report.bambooRoadBalance.farmRecommendation).toMatchObject({
+      stageId: "bamboo_road_8"
+    });
+    expect(report.bambooRoadBalance.masteryMilestone).toMatchObject({
+      threshold: 100,
+      farmStageId: "bamboo_road_8"
+    });
     expect(
       report.bambooRoadBalance.bossGate.economy.trainingEconomy
     ).toMatchObject({
@@ -68,6 +75,33 @@ describe("balance report", () => {
     expect(report.mistValleyBalance.stageResults.at(-1)).toMatchObject({
       stageId: "mist_valley_6"
     });
+    expect(report.mistValleyBalance.farmRecommendation).toMatchObject({
+      stageId: "mist_valley_5"
+    });
+    expect(report.mistValleyBalance.bossGate.baseline).toMatchObject({
+      stageId: "mist_valley_6",
+      ok: true,
+      winner: "player"
+    });
+  });
+
+  it("runs every configured region in region order with summary metrics", () => {
+    const report = buildBambooRoadBalanceReport(staticData);
+
+    expect(report.regionBalances.map((region) => region.regionId)).toEqual(
+      staticData.regions.map((region) => region.id)
+    );
+    expect(
+      report.regionBalances.map((region) =>
+        region.stageResults.map((stage) => stage.stageId)
+      )
+    ).toEqual(staticData.regions.map((region) => region.stageIds));
+    expect(
+      report.regionBalances.every((region) => region.bossGate.baseline.ok)
+    ).toBe(true);
+    expect(
+      report.regionBalances.every((region) => region.masteryMilestone !== null)
+    ).toBe(true);
   });
 
   it("formats a compact human-readable report", () => {
@@ -78,6 +112,9 @@ describe("balance report", () => {
     expect(formatted).toContain("Mist Valley Balance Report");
     expect(formatted).toContain("mist_valley_6");
     expect(formatted).toContain("bamboo_road_10");
+    expect(formatted).toContain("Region Farm Recommendations");
+    expect(formatted).toContain("Region Mastery Milestones");
+    expect(formatted).toContain("Region Boss Gates");
     expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("Formation Targeting");
     expect(formatted).toContain("npm run simulate -- --json");

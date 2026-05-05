@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createInitialPlayerProgress,
   createSaveData,
+  migrateSaveData,
   parseSaveData,
   SAVE_DATA_VERSION,
   validateSaveData
@@ -71,6 +72,65 @@ describe("save schema", () => {
 
     expect(result.save.progress.resources.silver).toBe(0);
     expect(result.save).not.toBe(rawSave);
+  });
+
+  it("migrates MVP save data into the current schema with new defaults", () => {
+    const mvpSave = {
+      version: 1,
+      progress: {
+        resources: {
+          silver: 100,
+          cultivation: 25
+        },
+        heroes: Object.fromEntries(
+          staticData.heroes.map((hero) => [hero.id, { upgrades: {} }])
+        ),
+        sect: {
+          upgrades: {}
+        },
+        maps: {
+          bamboo_road: {
+            combatExperience: 12,
+            highestClearedStageIndex: 1
+          }
+        },
+        currentStageId: "bamboo_road_2"
+      },
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      createdAtMs: 1000,
+      updatedAtMs: 2000,
+      lastOfflineRewardAtMs: 2000
+    };
+
+    const migration = migrateSaveData(staticData, mvpSave);
+    const result = parseSaveData(staticData, mvpSave);
+
+    expect(migration).toMatchObject({
+      ok: true,
+      fromVersion: 1,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.offlineFarmPreset).toBe("balanced");
+    expect(result.save.progress.heroes.iron_fist_disciple.level).toBe(1);
+    expect(result.save.progress.maps.mist_valley).toMatchObject({
+      combatExperience: 0,
+      highestClearedStageIndex: 0
+    });
+    expect(result.save.progress.formation).toMatchObject({
+      iron_fist_disciple: "front"
+    });
+    expect(result.save.progress.styleMastery).toEqual({});
+    expect(result.save.progress.skillUpgrades).toEqual({});
+    expect(result.save.progress.equipment).toEqual({
+      inventory: {},
+      equipped: {}
+    });
   });
 
   it("accepts old saves without an offline farm preset and rejects invalid presets", () => {
@@ -146,7 +206,9 @@ describe("save schema", () => {
     };
     const errors = validateSaveData(staticData, save);
 
-    expect(errors).toContain(`version must be ${SAVE_DATA_VERSION}`);
+    expect(errors).toContain(
+      `version must be a supported save version (1-${SAVE_DATA_VERSION})`
+    );
     expect(errors).toContain(
       "progress.currentStageId must be unlocked by saved progress"
     );

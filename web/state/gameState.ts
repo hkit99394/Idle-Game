@@ -171,6 +171,7 @@ export type BattleEventCategory =
   | "qi_break"
   | "qi_recover"
   | "backlash"
+  | "heal"
   | "defeat";
 
 export type BattleEventBadgeTone =
@@ -992,6 +993,22 @@ function buildBattleEventDetail(
           {
             label: "Qi Broken",
             tone: "qi"
+          }
+        ]
+      };
+    }
+
+    case "heal": {
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "heal",
+        headline: `${target} recovers Outer HP`,
+        detail: `${formatBattleNumber(event.outerHealing)} Outer HP restored`,
+        badges: [
+          {
+            label: `${formatBattleNumber(event.outerHealing)} healed`,
+            tone: "outer"
           }
         ]
       };
