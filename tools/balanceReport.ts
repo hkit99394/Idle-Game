@@ -19,6 +19,7 @@ import type {
 
 export const BAMBOO_ROAD_REGION_ID = "bamboo_road";
 export const MIST_VALLEY_REGION_ID = "mist_valley";
+export const BLACK_IRON_FORT_REGION_ID = "black_iron_fort";
 
 export const TRAINED_BOSS_UPGRADES = {
   heroOuterTraining: 6,
@@ -134,6 +135,10 @@ function getTargetSeconds(
 
   if (stage.regionId === MIST_VALLEY_REGION_ID) {
     return enemyTypes.includes("elite") ? [10, 25] : [5, 18];
+  }
+
+  if (stage.regionId === BLACK_IRON_FORT_REGION_ID) {
+    return enemyTypes.includes("elite") ? [25, 65] : [12, 55];
   }
 
   return enemyTypes.includes("elite") ? [20, 40] : [5, 15];
@@ -391,6 +396,15 @@ function summarizeBattle(
   }
 
   const durationSeconds = Number(result.battle.durationSeconds.toFixed(2));
+  const guardEvents = result.battle.events.filter(
+    (event) => event.type === "guard_absorb"
+  );
+  const protectEvents = result.battle.events.filter(
+    (event) => event.type === "protect"
+  );
+  const armorBreakEvents = result.battle.events.filter(
+    (event) => event.type === "armor_break"
+  );
   const targetMet = targetSeconds
     ? result.battle.winner === "player" &&
       durationSeconds >= targetSeconds[0] &&
@@ -413,6 +427,17 @@ function summarizeBattle(
     stageCleared: result.stageCleared,
     durationSeconds,
     qiBreaks: result.battle.events.filter((event) => event.type === "qi_break").length,
+    guardAbsorbs: guardEvents.length,
+    protections: protectEvents.length,
+    armorBreaks: armorBreakEvents.length,
+    defensiveDamagePrevented: Number(
+      (
+        result.battle.metrics.guardDamagePreventedByPlayer +
+        result.battle.metrics.guardDamagePreventedByEnemy +
+        result.battle.metrics.protectionDamagePreventedByPlayer +
+        result.battle.metrics.protectionDamagePreventedByEnemy
+      ).toFixed(2)
+    ),
     metrics: {
       playerOuterDamage: Number(result.battle.metrics.playerOuterDamage.toFixed(2)),
       playerInnerDamage: Number(result.battle.metrics.playerInnerDamage.toFixed(2)),
@@ -514,6 +539,36 @@ function buildFormationScenarioReport(data: StaticGameData) {
   };
 }
 
+function buildDefensiveEventSummary(
+  stageResults: Array<ReturnType<typeof summarizeBattle>>
+) {
+  return stageResults.reduce(
+    (summary, stage) => {
+      if (!stage.ok) {
+        return summary;
+      }
+
+      return {
+        guardAbsorbs: summary.guardAbsorbs + (stage.guardAbsorbs ?? 0),
+        protections: summary.protections + (stage.protections ?? 0),
+        armorBreaks: summary.armorBreaks + (stage.armorBreaks ?? 0),
+        defensiveDamagePrevented: Number(
+          (
+            summary.defensiveDamagePrevented +
+            (stage.defensiveDamagePrevented ?? 0)
+          ).toFixed(2)
+        )
+      };
+    },
+    {
+      guardAbsorbs: 0,
+      protections: 0,
+      armorBreaks: 0,
+      defensiveDamagePrevented: 0
+    }
+  );
+}
+
 function buildRegionStageProgressionReport(
   data: StaticGameData,
   regionId: string,
@@ -571,6 +626,7 @@ function buildRegionStageProgressionReport(
       regionId,
       farmRecommendation
     ),
+    defensiveEvents: buildDefensiveEventSummary(stageResults),
     progressBeforeBoss,
     progressAfterRegion: progress
   };
@@ -819,6 +875,7 @@ function formatStageRow(stage: StageSummary): string {
       reason.padEnd(13),
       "-".padStart(6),
       "-".padStart(5),
+      "-".padEnd(13),
       formation.padEnd(14),
       "-".padEnd(28),
       "-".padEnd(10)
@@ -831,6 +888,7 @@ function formatStageRow(stage: StageSummary): string {
     `${stage.winner}${stage.stageCleared ? " clear" : " hold"}`.padEnd(13),
     `${stage.durationSeconds}s`.padStart(6),
     String(stage.qiBreaks).padStart(5),
+    `g${stage.guardAbsorbs}/p${stage.protections}/a${stage.armorBreaks}`.padEnd(13),
     formation.padEnd(14),
     formatReward(stage.rewards).padEnd(28),
     formatTarget(stage).padEnd(10)
@@ -842,7 +900,7 @@ function formatBossLine(stage: StageSummary): string {
     return `${stage.stageId}: ${stage.reason ?? "unknown"}`;
   }
 
-  return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks`;
+  return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks, g${stage.guardAbsorbs}/p${stage.protections}/a${stage.armorBreaks}`;
 }
 
 function formatRegionFarmLine(region: RegionSummary): string {
@@ -879,6 +937,12 @@ function formatRegionBossGateLine(region: RegionSummary): string {
   return `- ${region.regionName}: baseline ${formatBossLine(region.bossGate.baseline)}${trained}`;
 }
 
+function formatRegionDefensiveEventLine(region: RegionSummary): string {
+  const events = region.defensiveEvents;
+
+  return `- ${region.regionName}: g${events.guardAbsorbs}/p${events.protections}/a${events.armorBreaks}, ${events.defensiveDamagePrevented} damage prevented`;
+}
+
 function formatRegionStageTable(
   title: string,
   stages: StageSummary[]
@@ -889,6 +953,7 @@ function formatRegionStageTable(
     "result".padEnd(13),
     "time".padStart(6),
     "break".padStart(5),
+    "defense".padEnd(13),
     "formation".padEnd(14),
     "rewards".padEnd(28),
     "target".padEnd(10)
@@ -913,7 +978,7 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     : `not affordable: ${trainingEconomy.reason}`;
 
   return [
-    "Stage 1.1 Balance Report",
+    "Path of Jianghu Balance Report",
     "",
     ...report.regionBalances.flatMap((region, index) => [
       ...(index > 0 ? [""] : []),
@@ -931,6 +996,9 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     "",
     "Region Boss Gates",
     ...report.regionBalances.map(formatRegionBossGateLine),
+    "",
+    "Region Defensive Events",
+    ...report.regionBalances.map(formatRegionDefensiveEventLine),
     "",
     "Formation Targeting",
     `- first_living frontline target: ${balance.formationScenarios.firstLivingFrontlineTargetId}`,

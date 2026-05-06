@@ -1,6 +1,8 @@
 import type { BaseStats, MartialStyleId } from "../combat";
 import type {
   EquipmentDefinition,
+  EquipmentEffect,
+  EquipmentSetDefinition,
   EquipmentSlot,
   HeroDefinition,
   StageEquipmentDrop,
@@ -207,11 +209,87 @@ export function getHeroEquippedEquipment(
   });
 }
 
+function applyEquipmentEffects(stats: BaseStats, effects: EquipmentEffect[]): void {
+  for (const effect of effects) {
+    if (effect.mode === "flat") {
+      stats[effect.stat] += effect.value;
+    } else {
+      stats[effect.stat] *= 1 + effect.value;
+    }
+  }
+}
+
+export function getEquipmentEffects(
+  equipment: EquipmentDefinition
+): EquipmentEffect[] {
+  return [
+    ...equipment.effects,
+    ...(equipment.affixes ?? []).flatMap((affix) => affix.effects)
+  ];
+}
+
+export type ActiveEquipmentSetBonus = {
+  setId: string;
+  name: string;
+  pieces: number;
+  requiredPieces: number;
+  effects: EquipmentEffect[];
+};
+
+export function getActiveEquipmentSetBonuses(
+  equipmentDefinitions: EquipmentDefinition[] | undefined,
+  equipmentSetDefinitions: EquipmentSetDefinition[] | undefined,
+  equipmentProgress: EquipmentProgress | undefined,
+  heroId: string | undefined
+): ActiveEquipmentSetBonus[] {
+  if (
+    !equipmentDefinitions ||
+    !equipmentSetDefinitions ||
+    !equipmentProgress ||
+    !heroId
+  ) {
+    return [];
+  }
+
+  const equippedIds = Object.values(equipmentProgress.equipped[heroId] ?? {});
+  const equipmentById = new Map(
+    equipmentDefinitions.map((equipment) => [equipment.id, equipment])
+  );
+  const piecesBySetId = new Map<string, number>();
+
+  for (const equipmentId of equippedIds) {
+    const setId = equipmentById.get(equipmentId)?.setId;
+
+    if (setId) {
+      piecesBySetId.set(setId, (piecesBySetId.get(setId) ?? 0) + 1);
+    }
+  }
+
+  return equipmentSetDefinitions.flatMap((set) => {
+    const pieces = piecesBySetId.get(set.id) ?? 0;
+
+    return set.bonuses.flatMap((bonus) =>
+      pieces >= bonus.pieces
+        ? [
+            {
+              setId: set.id,
+              name: set.name,
+              pieces,
+              requiredPieces: bonus.pieces,
+              effects: bonus.effects
+            }
+          ]
+        : []
+    );
+  });
+}
+
 export function applyEquipmentBonuses(
   stats: BaseStats,
   equipmentDefinitions: EquipmentDefinition[] | undefined,
   equipmentProgress: EquipmentProgress | undefined,
-  heroId: string | undefined
+  heroId: string | undefined,
+  equipmentSetDefinitions?: EquipmentSetDefinition[]
 ): void {
   if (!equipmentDefinitions || !equipmentProgress || !heroId) {
     return;
@@ -229,13 +307,16 @@ export function applyEquipmentBonuses(
       continue;
     }
 
-    for (const effect of equipment.effects) {
-      if (effect.mode === "flat") {
-        stats[effect.stat] += effect.value;
-      } else {
-        stats[effect.stat] *= 1 + effect.value;
-      }
-    }
+    applyEquipmentEffects(stats, getEquipmentEffects(equipment));
+  }
+
+  for (const bonus of getActiveEquipmentSetBonuses(
+    equipmentDefinitions,
+    equipmentSetDefinitions,
+    equipmentProgress,
+    heroId
+  )) {
+    applyEquipmentEffects(stats, bonus.effects);
   }
 }
 

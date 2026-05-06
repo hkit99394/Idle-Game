@@ -103,7 +103,7 @@ describe("stage progression helpers", () => {
     expect(isStageUnlocked(data, result.progress, mistValleyStage)).toBe(true);
   });
 
-  it("keeps current stage unchanged after a final boss with no next region", () => {
+  it("advances current stage from Mist Valley into Black Iron Fort", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
     progress.maps.mist_valley.highestClearedStageIndex = 6;
@@ -115,9 +115,27 @@ describe("stage progression helpers", () => {
       return;
     }
 
-    expect(getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)).toBe(
-      "mist_valley_6"
-    );
+    expect(
+      getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
+    ).toBe("black_iron_fort_1");
+  });
+
+  it("keeps current stage unchanged after the final configured boss", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 6;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
+    progress.currentStageId = "black_iron_fort_7";
+    const stage = getStageById(staticData, "black_iron_fort_7");
+
+    expect(stage).toBeDefined();
+    if (!stage) {
+      return;
+    }
+
+    expect(
+      getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
+    ).toBe("black_iron_fort_7");
   });
 
   it("uses cleared non-boss stages as valid offline farming targets", () => {

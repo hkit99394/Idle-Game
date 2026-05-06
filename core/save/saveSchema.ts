@@ -8,9 +8,13 @@ import {
   DEFAULT_OFFLINE_FARM_PRESET,
   normalizeOfflineFarmPreset,
   isOfflineFarmPreset,
-  isStageUnlocked
+  isStageUnlocked,
+  isAssignmentUnlocked,
+  isHeroEligibleForAssignment,
+  STYLE_MASTERY_EXPERIENCE_PER_LEVEL
 } from "../progression";
 import type {
+  AssignmentProgress,
   HeroProgress,
   MapProgress,
   PlayerProgress,
@@ -20,10 +24,12 @@ import type {
   OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 2 as const;
+export const SAVE_DATA_VERSION = 4 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
+  2,
+  3,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -268,6 +274,114 @@ function validateStyleMastery(
   return true;
 }
 
+function isUnlockConditionMetForSave(
+  data: Pick<StaticGameData, "heroes" | "stages" | "styles">,
+  progress: UnknownRecord,
+  unlock: StaticGameData["styles"][number]["branches"][number]["unlock"]
+): boolean {
+  switch (unlock.type) {
+    case "always":
+      return true;
+
+    case "stage_cleared": {
+      const stage = getStageById(data, unlock.stageId);
+      const maps = isRecord(progress.maps) ? progress.maps : {};
+      const mapProgress = stage ? maps[stage.regionId] : undefined;
+
+      return (
+        !!stage &&
+        isRecord(mapProgress) &&
+        typeof mapProgress.highestClearedStageIndex === "number" &&
+        mapProgress.highestClearedStageIndex >= stage.index
+      );
+    }
+
+    case "hero_level": {
+      const heroes = isRecord(progress.heroes) ? progress.heroes : {};
+      const heroProgress = heroes[unlock.heroId];
+
+      return (
+        isRecord(heroProgress) &&
+        typeof heroProgress.level === "number" &&
+        heroProgress.level >= unlock.level
+      );
+    }
+
+    case "style_mastery_level": {
+      const styleMastery = isRecord(progress.styleMastery)
+        ? progress.styleMastery
+        : {};
+      const mastery = styleMastery[unlock.styleId];
+      const experience =
+        isRecord(mastery) && typeof mastery.experience === "number"
+          ? mastery.experience
+          : 0;
+
+      return (
+        Math.floor(Math.max(0, experience) / STYLE_MASTERY_EXPERIENCE_PER_LEVEL) >=
+        unlock.level
+      );
+    }
+  }
+}
+
+function validateStyleBranches(
+  data: Pick<StaticGameData, "heroes" | "stages" | "styles">,
+  progress: UnknownRecord,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["styleBranches"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.styleBranches", errors)) {
+    return false;
+  }
+
+  const styleIds = new Set<string>(data.styles.map((style) => style.id));
+  const branchStyleById = new Map<string, string>();
+
+  for (const style of data.styles) {
+    for (const branch of style.branches) {
+      branchStyleById.set(branch.id, style.id);
+    }
+  }
+
+  for (const [styleId, branchId] of Object.entries(value)) {
+    const style = data.styles.find((candidate) => candidate.id === styleId);
+
+    if (!styleIds.has(styleId) || !style) {
+      errors.push(`progress.styleBranches.${styleId} must reference an existing style`);
+      continue;
+    }
+
+    if (typeof branchId !== "string") {
+      errors.push(`progress.styleBranches.${styleId} must be a branch id string`);
+      continue;
+    }
+
+    const branch = style.branches.find((candidate) => candidate.id === branchId);
+
+    if (!branch) {
+      const expectedStyleId = branchStyleById.get(branchId);
+
+      errors.push(
+        expectedStyleId
+          ? `progress.styleBranches.${styleId} must select a branch from style ${styleId}`
+          : `progress.styleBranches.${styleId} must reference an existing style branch`
+      );
+      continue;
+    }
+
+    if (!isUnlockConditionMetForSave(data, progress, branch.unlock)) {
+      errors.push(`progress.styleBranches.${styleId} must be unlocked by saved progress`);
+    }
+  }
+
+  return true;
+}
+
 function validateSkillUpgrades(
   data: Pick<StaticGameData, "skillUpgrades">,
   value: unknown,
@@ -388,6 +502,80 @@ function validateEquipmentProgress(
   return true;
 }
 
+function validateAssignmentProgress(
+  data: Pick<StaticGameData, "assignments" | "heroes" | "stages">,
+  progressValue: UnknownRecord,
+  value: unknown,
+  errors: string[]
+): value is AssignmentProgress | undefined {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.assignments", errors)) {
+    return false;
+  }
+
+  const assignmentsById = new Map(
+    (data.assignments ?? []).map((assignment) => [assignment.id, assignment])
+  );
+  const heroesById = new Map(data.heroes.map((hero) => [hero.id, hero]));
+  const assignedHeroIds = new Set<string>();
+
+  for (const [assignmentId, assignmentValue] of Object.entries(value)) {
+    const path = `progress.assignments.${assignmentId}`;
+    const assignment = assignmentsById.get(assignmentId);
+
+    if (!assignment) {
+      errors.push(`${path} must reference an existing assignment`);
+    }
+
+    if (!validateRecord(assignmentValue, path, errors)) {
+      continue;
+    }
+
+    if (!Array.isArray(assignmentValue.heroIds)) {
+      errors.push(`${path}.heroIds must be an array`);
+      continue;
+    }
+
+    for (const heroId of assignmentValue.heroIds) {
+      if (typeof heroId !== "string") {
+        errors.push(`${path}.heroIds must contain hero ids`);
+        continue;
+      }
+
+      const hero = heroesById.get(heroId);
+
+      if (!hero) {
+        errors.push(`${path}.heroIds.${heroId} must reference an existing hero`);
+        continue;
+      }
+
+      if (assignment && assignedHeroIds.has(heroId)) {
+        errors.push(`${path}.heroIds.${heroId} is already assigned`);
+      }
+
+      if (assignment) {
+        assignedHeroIds.add(heroId);
+      }
+
+      if (assignment && !isHeroEligibleForAssignment(assignment, hero)) {
+        errors.push(`${path}.heroIds.${heroId} is not eligible`);
+      }
+    }
+
+    if (
+      assignment &&
+      !isAssignmentUnlocked(data, progressValue as PlayerProgress, assignment)
+    ) {
+      errors.push(`${path} must be unlocked by saved progress`);
+    }
+  }
+
+  return true;
+}
+
 function normalizeHeroProgressForMigration(value: unknown): HeroProgress | unknown {
   if (!isRecord(value)) {
     return value;
@@ -473,8 +661,10 @@ function normalizeProgressForMigration(
     },
     formation: value.formation ?? defaultProgress.formation,
     styleMastery: value.styleMastery ?? {},
+    styleBranches: value.styleBranches ?? {},
     skillUpgrades: value.skillUpgrades ?? {},
     equipment: normalizeEquipmentProgressForMigration(value.equipment),
+    assignments: value.assignments ?? {},
     currentStageId: value.currentStageId
   };
 }
@@ -527,7 +717,7 @@ function validateCurrentStage(
 }
 
 function validateProgress(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments">,
   value: unknown,
   errors: string[]
 ): value is PlayerProgress {
@@ -543,8 +733,10 @@ function validateProgress(
   validateMaps(data, value.maps, errors);
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);
+  validateStyleBranches(data, value, value.styleBranches, errors);
   validateSkillUpgrades(data, value.skillUpgrades, errors);
   validateEquipmentProgress(data, value.equipment, errors);
+  validateAssignmentProgress(data, value, value.assignments, errors);
 
   if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {
     errors.push("progress.currentStageId must be a non-empty string");
@@ -654,7 +846,7 @@ export function migrateSaveData(
 }
 
 export function validateSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments">,
   raw: unknown
 ): string[] {
   const errors: string[] = [];
@@ -696,7 +888,7 @@ export function validateSaveData(
 }
 
 export function parseSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments">,
   raw: unknown
 ): ParseSaveDataResult {
   const migration = migrateSaveData(data, raw);

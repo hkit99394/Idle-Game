@@ -1,6 +1,9 @@
 import type {
+  AssignmentDefinition,
   EnemyDefinition,
   EquipmentDefinition,
+  EquipmentEffect,
+  EquipmentSetDefinition,
   FormationDefinition,
   HeroDefinition,
   MartialStyleDefinition,
@@ -41,7 +44,7 @@ function validateStats(
   ownerId: string,
   stats: HeroDefinition["baseStats"] | EnemyDefinition["baseStats"]
 ): string[] {
-const errors: string[] = [];
+  const errors: string[] = [];
 
   for (const [stat, value] of Object.entries(stats)) {
     if (typeof value !== "number" || Number.isNaN(value)) {
@@ -223,12 +226,56 @@ function validateSkill(skill: SkillDefinition): string[] {
     );
   }
 
+  for (const effect of skill.effects) {
+    if (!SKILL_EFFECT_TYPES.includes(effect.type)) {
+      errors.push(
+        `Skill ${skill.id} effect ${String(effect.type)} must be one of ${SKILL_EFFECT_TYPES.join(", ")}`
+      );
+    }
+
+    if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+      errors.push(
+        `Skill ${skill.id} effect ${String(effect.type)} value must be a number`
+      );
+    }
+
+    if (
+      TIMED_SKILL_EFFECT_TYPES.includes(
+        effect.type as (typeof TIMED_SKILL_EFFECT_TYPES)[number]
+      ) &&
+      (typeof effect.durationSeconds !== "number" ||
+        effect.durationSeconds <= 0 ||
+        Number.isNaN(effect.durationSeconds))
+    ) {
+      errors.push(
+        `Skill ${skill.id} effect ${effect.type} durationSeconds must be a positive number`
+      );
+    }
+  }
+
   return errors;
 }
 
 const EQUIPMENT_SLOTS = ["weapon", "armor", "manual", "medicine"] as const;
 const EQUIPMENT_RARITIES = ["common", "uncommon", "rare"] as const;
 const EQUIPMENT_EFFECT_MODES = ["flat", "multiplier"] as const;
+const ASSIGNMENT_TYPES = ["patrol", "training_ground"] as const;
+const ASSIGNMENT_DURATION_BUCKETS = ["short", "medium", "long"] as const;
+const SKILL_EFFECT_TYPES = [
+  "outer_heal_percent",
+  "speed_down",
+  "inner_defense_down",
+  "guard",
+  "protect",
+  "armor_break"
+] as const;
+const TIMED_SKILL_EFFECT_TYPES = [
+  "speed_down",
+  "inner_defense_down",
+  "guard",
+  "protect",
+  "armor_break"
+] as const;
 
 const BASE_STAT_KEYS = [
   "maxOuterHp",
@@ -247,7 +294,8 @@ const BASE_STAT_KEYS = [
 
 function validateEquipment(
   equipment: EquipmentDefinition,
-  styleIds: Set<string>
+  styleIds: Set<string>,
+  equipmentSetIds: Set<string>
 ): string[] {
   const errors: string[] = [];
 
@@ -273,26 +321,218 @@ function validateEquipment(
     }
   }
 
+  if (equipment.setId && !equipmentSetIds.has(equipment.setId)) {
+    errors.push(
+      `Equipment ${equipment.id} references missing equipment set ${equipment.setId}`
+    );
+  }
+
   if (equipment.effects.length === 0) {
     errors.push(`Equipment ${equipment.id} must define at least one effect`);
   }
 
   for (const effect of equipment.effects) {
-    if (!BASE_STAT_KEYS.includes(effect.stat)) {
+    errors.push(...validateEquipmentEffect(`Equipment ${equipment.id} effect`, effect));
+  }
+
+  const affixIds = new Set<string>();
+  for (const affix of equipment.affixes ?? []) {
+    if (typeof affix.id !== "string" || affix.id.length === 0) {
+      errors.push(`Equipment ${equipment.id} affix id must be a non-empty string`);
+    } else if (affixIds.has(affix.id)) {
+      errors.push(`Equipment ${equipment.id} affix ${affix.id} is duplicated`);
+    }
+    affixIds.add(affix.id);
+
+    if (typeof affix.name !== "string" || affix.name.length === 0) {
+      errors.push(`Equipment ${equipment.id} affix ${affix.id} must define a name`);
+    }
+
+    if (affix.effects.length === 0) {
       errors.push(
-        `Equipment ${equipment.id} effect stat ${String(effect.stat)} must be a valid base stat`
+        `Equipment ${equipment.id} affix ${affix.id} must define at least one effect`
       );
     }
 
-    if (!EQUIPMENT_EFFECT_MODES.includes(effect.mode)) {
+    for (const effect of affix.effects) {
       errors.push(
-        `Equipment ${equipment.id} effect mode must be one of ${EQUIPMENT_EFFECT_MODES.join(", ")}`
+        ...validateEquipmentEffect(
+          `Equipment ${equipment.id} affix ${affix.id} effect`,
+          effect
+        )
+      );
+    }
+  }
+
+  return errors;
+}
+
+function validateEquipmentEffect(
+  ownerLabel: string,
+  effect: EquipmentEffect
+): string[] {
+  const errors: string[] = [];
+
+  if (!BASE_STAT_KEYS.includes(effect.stat)) {
+    errors.push(
+      `${ownerLabel} stat ${String(effect.stat)} must be a valid base stat`
+    );
+  }
+
+  if (!EQUIPMENT_EFFECT_MODES.includes(effect.mode)) {
+    errors.push(
+      `${ownerLabel} mode must be one of ${EQUIPMENT_EFFECT_MODES.join(", ")}`
+    );
+  }
+
+  if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+    errors.push(`${ownerLabel} value must be a number`);
+  }
+
+  return errors;
+}
+
+function validateEquipmentSet(set: EquipmentSetDefinition): string[] {
+  const errors: string[] = [];
+  const bonusPieces = new Set<number>();
+
+  if (typeof set.name !== "string" || set.name.length === 0) {
+    errors.push(`Equipment set ${set.id} must define a name`);
+  }
+
+  if (set.bonuses.length === 0) {
+    errors.push(`Equipment set ${set.id} must define at least one bonus`);
+  }
+
+  for (const bonus of set.bonuses) {
+    if (!Number.isInteger(bonus.pieces) || bonus.pieces < 2) {
+      errors.push(
+        `Equipment set ${set.id} bonus pieces must be an integer >= 2`
+      );
+    } else if (bonusPieces.has(bonus.pieces)) {
+      errors.push(
+        `Equipment set ${set.id} bonus ${bonus.pieces} pieces is duplicated`
+      );
+    }
+    bonusPieces.add(bonus.pieces);
+
+    if (bonus.effects.length === 0) {
+      errors.push(
+        `Equipment set ${set.id} bonus ${bonus.pieces} must define at least one effect`
       );
     }
 
-    if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
-      errors.push(`Equipment ${equipment.id} effect value must be a number`);
+    for (const effect of bonus.effects) {
+      errors.push(
+        ...validateEquipmentEffect(
+          `Equipment set ${set.id} bonus ${bonus.pieces} effect`,
+          effect
+        )
+      );
     }
+  }
+
+  return errors;
+}
+
+function validateAssignment(
+  assignment: AssignmentDefinition,
+  ids: {
+    heroIds: Set<string>;
+    stageIds: Set<string>;
+    styleIds: Set<string>;
+    regionIds: Set<string>;
+    equipmentIds: Set<string>;
+  }
+): string[] {
+  const errors: string[] = [];
+
+  if (!ASSIGNMENT_TYPES.includes(assignment.type)) {
+    errors.push(
+      `Assignment ${assignment.id} type must be one of ${ASSIGNMENT_TYPES.join(", ")}`
+    );
+  }
+
+  if (!ASSIGNMENT_DURATION_BUCKETS.includes(assignment.durationBucket)) {
+    errors.push(
+      `Assignment ${assignment.id} durationBucket must be one of ${ASSIGNMENT_DURATION_BUCKETS.join(", ")}`
+    );
+  }
+
+  errors.push(
+    ...validateUnlockCondition(
+      `Assignment ${assignment.id}`,
+      assignment.unlockCondition,
+      ids
+    )
+  );
+
+  if (assignment.allowedRoles.length === 0) {
+    errors.push(`Assignment ${assignment.id} must allow at least one role`);
+  }
+
+  for (const role of assignment.allowedRoles) {
+    if (!isCombatRole(role)) {
+      errors.push(
+        `Assignment ${assignment.id} role ${String(role)} must be one of ${COMBAT_ROLES.join(", ")}`
+      );
+    }
+  }
+
+  if (assignment.allowedStyles.length === 0) {
+    errors.push(`Assignment ${assignment.id} must allow at least one style`);
+  }
+
+  for (const styleId of assignment.allowedStyles) {
+    if (!ids.styleIds.has(styleId)) {
+      errors.push(`Assignment ${assignment.id} references missing style ${styleId}`);
+    }
+  }
+
+  const rewards = assignment.rewardProfile;
+  const rewardValues = [
+    rewards.silverPerHour,
+    rewards.cultivationPerHour,
+    rewards.combatExperiencePerHour,
+    rewards.styleMasteryExperiencePerHour
+  ].filter((value): value is number => value !== undefined);
+
+  for (const value of rewardValues) {
+    if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
+      errors.push(`Assignment ${assignment.id} reward values must be non-negative numbers`);
+      break;
+    }
+  }
+
+  if (rewards.mapRegionId && !ids.regionIds.has(rewards.mapRegionId)) {
+    errors.push(
+      `Assignment ${assignment.id} references missing reward map ${rewards.mapRegionId}`
+    );
+  }
+
+  for (const reward of rewards.equipmentRewardsPerHour ?? []) {
+    if (!ids.equipmentIds.has(reward.equipmentId)) {
+      errors.push(
+        `Assignment ${assignment.id} references missing reward equipment ${reward.equipmentId}`
+      );
+    }
+
+    if (
+      typeof reward.quantityPerHour !== "number" ||
+      Number.isNaN(reward.quantityPerHour) ||
+      reward.quantityPerHour < 0
+    ) {
+      errors.push(
+        `Assignment ${assignment.id} equipment reward quantityPerHour must be a non-negative number`
+      );
+    }
+  }
+
+  if (
+    rewardValues.length === 0 &&
+    (rewards.equipmentRewardsPerHour ?? []).length === 0
+  ) {
+    errors.push(`Assignment ${assignment.id} must define at least one reward`);
   }
 
   return errors;
@@ -536,6 +776,34 @@ function validateMartialStyle(
         ids
       )
     );
+
+    if (typeof branch.hiddenInMvp !== "boolean") {
+      errors.push(`Style branch ${style.id}.${branch.id} hiddenInMvp must be a boolean`);
+    }
+
+    if (branch.effects.length === 0) {
+      errors.push(`Style branch ${style.id}.${branch.id} must define at least one effect`);
+    }
+
+    for (const effect of branch.effects) {
+      if (effect.type !== "stat_multiplier") {
+        errors.push(
+          `Style branch ${style.id}.${branch.id} effect type must be stat_multiplier`
+        );
+      }
+
+      if (!BASE_STAT_KEYS.includes(effect.stat)) {
+        errors.push(
+          `Style branch ${style.id}.${branch.id} effect stat ${String(effect.stat)} must be a valid base stat`
+        );
+      }
+
+      if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+        errors.push(
+          `Style branch ${style.id}.${branch.id} effect value must be a number`
+        );
+      }
+    }
   }
 
   return errors;
@@ -544,10 +812,12 @@ function validateMartialStyle(
 export function validateStaticGameData(data: StaticGameData): string[] {
   const errors: string[] = [];
   const entityGroups: Array<[string, EntityWithId[]]> = [
+    ["assignment", data.assignments ?? []],
     ["hero", data.heroes],
     ["skill", data.skills],
     ["enemy", data.enemies],
     ["equipment", data.equipment],
+    ["equipment set", data.equipmentSets ?? []],
     ["region", data.regions],
     ["stage", data.stages],
     ["upgrade", data.upgrades],
@@ -566,13 +836,18 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const heroIds = new Set(data.heroes.map((hero) => hero.id));
   const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
   const equipmentIds = new Set(data.equipment.map((equipment) => equipment.id));
+  const equipmentSetIds = new Set(
+    (data.equipmentSets ?? []).map((set) => set.id)
+  );
   const stageIds = new Set(data.stages.map((stage) => stage.id));
   const styleIds = new Set(data.styles.map((style) => style.id));
   const regionIds = new Set(data.regions.map((region) => region.id));
   const validationIds = {
     heroIds,
     stageIds,
-    styleIds
+    styleIds,
+    regionIds,
+    equipmentIds
   };
 
   errors.push(...validateHeroSkillRefs(data.heroes, skillIds));
@@ -610,7 +885,15 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const equipment of data.equipment) {
-    errors.push(...validateEquipment(equipment, styleIds));
+    errors.push(...validateEquipment(equipment, styleIds, equipmentSetIds));
+  }
+
+  for (const set of data.equipmentSets ?? []) {
+    errors.push(...validateEquipmentSet(set));
+  }
+
+  for (const assignment of data.assignments ?? []) {
+    errors.push(...validateAssignment(assignment, validationIds));
   }
 
   for (const skillUpgrade of data.skillUpgrades) {

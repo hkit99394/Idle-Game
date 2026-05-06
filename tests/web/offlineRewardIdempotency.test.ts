@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   createInitialPlayerProgress,
-  createSaveData
+  createSaveData,
+  setAssignmentHeroes
 } from "../../core";
 import {
   loadSaveDataFromStorage,
@@ -67,5 +68,71 @@ describe("offline reward idempotency", () => {
     expect(
       secondLoad.save.progress.maps.bamboo_road.combatExperience
     ).toBeCloseTo(8640);
+  });
+
+  it("grants offline assignment rewards once with the same timestamp guard", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const savedAtMs = 1000;
+    const firstLoadAtMs = savedAtMs + 10 * 60 * 60 * 1000;
+    const assigned = setAssignmentHeroes(staticData, {
+      progress,
+      assignmentId: "bamboo_road_patrol",
+      heroIds: ["iron_fist_disciple"]
+    });
+
+    expect(assigned.ok).toBe(true);
+    if (!assigned.ok) {
+      return;
+    }
+
+    const save = createSaveData({
+      progress: assigned.progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: savedAtMs
+    });
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const firstLoad = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      firstLoadAtMs
+    );
+    const savedAfterFirstLoad = loadSaveDataFromStorage(staticData, storage);
+    const secondLoad = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      firstLoadAtMs
+    );
+
+    expect(firstLoad.ok).toBe(true);
+    expect(savedAfterFirstLoad.ok).toBe(true);
+    expect(secondLoad.ok).toBe(true);
+    if (!firstLoad.ok || !savedAfterFirstLoad.ok || !secondLoad.ok) {
+      return;
+    }
+
+    expect(firstLoad.offlineAssignmentRewards?.rewards.offlineSeconds).toBe(
+      8 * 60 * 60
+    );
+    expect(firstLoad.offlineAssignmentRewards?.rewards.silver).toBeCloseTo(115.2);
+    expect(
+      firstLoad.offlineAssignmentRewards?.rewards.combatExperience
+    ).toBeCloseTo(19.2);
+    expect(firstLoad.save.progress.resources.silver).toBeCloseTo(115.2);
+    expect(firstLoad.save.progress.maps.bamboo_road.combatExperience).toBeCloseTo(
+      19.2
+    );
+    expect(firstLoad.save.progress.equipment?.inventory.training_wraps).toBe(1);
+    expect(savedAfterFirstLoad.save.updatedAtMs).toBe(firstLoadAtMs);
+    expect(savedAfterFirstLoad.save.lastOfflineRewardAtMs).toBe(firstLoadAtMs);
+
+    expect(secondLoad.offlineAssignmentRewards?.rewards).toMatchObject({
+      offlineSeconds: 0,
+      assignments: []
+    });
+    expect(secondLoad.save.progress.resources.silver).toBeCloseTo(115.2);
+    expect(secondLoad.save.progress.equipment?.inventory.training_wraps).toBe(1);
   });
 });

@@ -31,5 +31,22 @@
       "type": "stage_cleared",
       "stageId": "bamboo_road_10"
     }
+  },
+  {
+    "id": "black_iron_fort",
+    "name": "Black Iron Fort",
+    "stageIds": [
+      "black_iron_fort_1",
+      "black_iron_fort_2",
+      "black_iron_fort_3",
+      "black_iron_fort_4",
+      "black_iron_fort_5",
+      "black_iron_fort_6",
+      "black_iron_fort_7"
+    ],
+    "unlockCondition": {
+      "type": "stage_cleared",
+      "stageId": "mist_valley_6"
+    }
   }
 ]

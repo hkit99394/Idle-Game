@@ -92,6 +92,70 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid skill effects", () => {
+    const invalidData = {
+      ...staticData,
+      skills: staticData.skills.map((skill) =>
+        skill.id === "iron_fist_combo"
+          ? {
+              ...skill,
+              effects: [
+                {
+                  type: "unknown_effect",
+                  value: Number.NaN
+                },
+                {
+                  type: "guard",
+                  value: 0.2
+                }
+              ]
+            }
+          : skill
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, speed_down, inner_defense_down, guard, protect, armor_break",
+        "Skill iron_fist_combo effect unknown_effect value must be a number",
+        "Skill iron_fist_combo effect guard durationSeconds must be a positive number"
+      ])
+    );
+  });
+
+  it("rejects invalid style branch effects", () => {
+    const invalidData = {
+      ...staticData,
+      styles: staticData.styles.map((style) =>
+        style.id === "fist"
+          ? {
+              ...style,
+              branches: style.branches.map((branch) => ({
+                ...branch,
+                hiddenInMvp: "no",
+                effects: [
+                  {
+                    type: "unknown",
+                    stat: "luck",
+                    value: Number.NaN
+                  }
+                ]
+              }))
+            }
+          : style
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Style branch fist.iron_body_fist hiddenInMvp must be a boolean",
+        "Style branch fist.iron_body_fist effect type must be stat_multiplier",
+        "Style branch fist.iron_body_fist effect stat luck must be a valid base stat",
+        "Style branch fist.iron_body_fist effect value must be a number"
+      ])
+    );
+  });
+
   it("rejects invalid enemy formation slots", () => {
     const invalidData = {
       ...staticData,
@@ -192,6 +256,124 @@ describe("static game data validation", () => {
         "Equipment training_wraps effect value must be a number",
         "Stage bamboo_road_1 references missing equipment missing_equipment",
         "Stage bamboo_road_1 equipment drop quantity must be an integer >= 1"
+      ])
+    );
+  });
+
+  it("rejects invalid equipment affixes and set bonuses", () => {
+    const invalidData = {
+      ...staticData,
+      equipment: staticData.equipment.map((equipment) =>
+        equipment.id === "training_wraps"
+          ? {
+              ...equipment,
+              setId: "missing_set",
+              affixes: [
+                {
+                  id: "cracked",
+                  name: "",
+                  effects: [
+                    {
+                      stat: "luck",
+                      mode: "bonus",
+                      value: Number.NaN
+                    }
+                  ]
+                },
+                {
+                  id: "cracked",
+                  name: "Duplicate Cracked",
+                  effects: []
+                }
+              ]
+            }
+          : equipment
+      ),
+      equipmentSets: [
+        ...(staticData.equipmentSets ?? []),
+        {
+          id: "broken_set",
+          name: "",
+          bonuses: [
+            {
+              pieces: 1,
+              effects: [
+                {
+                  stat: "luck",
+                  mode: "bonus",
+                  value: Number.NaN
+                }
+              ]
+            },
+            {
+              pieces: 2,
+              effects: []
+            }
+          ]
+        }
+      ]
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Equipment training_wraps references missing equipment set missing_set",
+        "Equipment training_wraps affix cracked must define a name",
+        "Equipment training_wraps affix cracked effect stat luck must be a valid base stat",
+        "Equipment training_wraps affix cracked effect mode must be one of flat, multiplier",
+        "Equipment training_wraps affix cracked effect value must be a number",
+        "Equipment training_wraps affix cracked is duplicated",
+        "Equipment training_wraps affix cracked must define at least one effect",
+        "Equipment set broken_set must define a name",
+        "Equipment set broken_set bonus pieces must be an integer >= 2",
+        "Equipment set broken_set bonus 1 effect stat luck must be a valid base stat",
+        "Equipment set broken_set bonus 1 effect mode must be one of flat, multiplier",
+        "Equipment set broken_set bonus 1 effect value must be a number",
+        "Equipment set broken_set bonus 2 must define at least one effect"
+      ])
+    );
+  });
+
+  it("rejects invalid assignment definitions", () => {
+    const invalidData = {
+      ...staticData,
+      assignments: [
+        ...(staticData.assignments ?? []),
+        {
+          id: "broken_assignment",
+          name: "Broken Assignment",
+          type: "errand",
+          unlockCondition: {
+            type: "stage_cleared",
+            stageId: "missing_stage"
+          },
+          durationBucket: "forever",
+          allowedRoles: ["duelist"],
+          allowedStyles: ["missing_style"],
+          rewardProfile: {
+            silverPerHour: -1,
+            mapRegionId: "missing_region",
+            equipmentRewardsPerHour: [
+              {
+                equipmentId: "missing_equipment",
+                quantityPerHour: -0.5
+              }
+            ]
+          }
+        }
+      ]
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Assignment broken_assignment type must be one of patrol, training_ground",
+        "Assignment broken_assignment durationBucket must be one of short, medium, long",
+        "Assignment broken_assignment references missing unlock stage missing_stage",
+        "Assignment broken_assignment role duelist must be one of tank, breaker, striker, support",
+        "Assignment broken_assignment references missing style missing_style",
+        "Assignment broken_assignment reward values must be non-negative numbers",
+        "Assignment broken_assignment references missing reward map missing_region",
+        "Assignment broken_assignment references missing reward equipment missing_equipment",
+        "Assignment broken_assignment equipment reward quantityPerHour must be a non-negative number"
       ])
     );
   });

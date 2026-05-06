@@ -1,3 +1,4 @@
+export * from "./assignments";
 export * from "./battleResolution";
 export * from "./equipment";
 export * from "./levels";

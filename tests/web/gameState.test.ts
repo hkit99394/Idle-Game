@@ -6,6 +6,8 @@ import {
   purchaseGameSkillUpgrade,
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
+  selectGameStyleBranch,
+  setGameAssignmentHeroes,
   webGameStateReducer
 } from "../../web/state/gameState";
 import { staticData } from "../helpers/staticData";
@@ -62,7 +64,7 @@ describe("web game state", () => {
       activeBonuses: [],
       progressPercent: 0
     });
-    expect(viewModel.stageOptions).toHaveLength(16);
+    expect(viewModel.stageOptions).toHaveLength(staticData.stages.length);
     expect(viewModel.stageOptions[0]).toMatchObject({
       id: "bamboo_road_1",
       regionName: "Bamboo Road",
@@ -81,6 +83,14 @@ describe("web game state", () => {
     expect(viewModel.stageOptions[10]).toMatchObject({
       id: "mist_valley_1",
       regionName: "Mist Valley",
+      isUnlocked: false,
+      canSelectStage: false,
+      canSelectOfflineFarm: false
+    });
+    expect(
+      viewModel.stageOptions.find((stage) => stage.id === "black_iron_fort_1")
+    ).toMatchObject({
+      regionName: "Black Iron Fort",
       isUnlocked: false,
       canSelectStage: false,
       canSelectOfflineFarm: false
@@ -116,17 +126,33 @@ describe("web game state", () => {
       targetName: "Sect"
     });
     expect(viewModel.skillUpgrades).toHaveLength(4);
+    expect(viewModel.assignments[0]).toMatchObject({
+      assignmentId: "bamboo_road_patrol",
+      unlocked: true,
+      assignedHeroIds: [],
+      rewardSummary: expect.arrayContaining([
+        "24 silver/hour",
+        "4 Combat XP/hour"
+      ])
+    });
+    expect(viewModel.assignments[1]).toMatchObject({
+      assignmentId: "mist_valley_meditation",
+      unlocked: false,
+      lockReason: "Clear Black Iron Guard"
+    });
     expect(viewModel.equipmentInventory).toEqual([]);
     expect(viewModel.heroEquipment[0]).toMatchObject({
       heroId: "iron_fist_disciple",
+      activeSetBonuses: [],
       slots: expect.arrayContaining([
-        {
+        expect.objectContaining({
           slot: "weapon",
           label: "Weapon",
           equipmentId: null,
           name: null,
-          rarity: null
-        }
+          rarity: null,
+          setName: null
+        })
       ])
     });
     expect(viewModel.styleMastery).toHaveLength(7);
@@ -134,7 +160,18 @@ describe("web game state", () => {
       styleId: "fist",
       name: "Fist",
       level: 0,
-      experience: 0
+      experience: 0,
+      branches: [
+        {
+          id: "iron_body_fist",
+          isUnlocked: false,
+          isSelected: false,
+          canSelect: false,
+          hiddenInMvp: false,
+          requirement: "Iron Fist Disciple level 3",
+          effects: ["+6% Max Outer Hp", "+5% Outer Defense"]
+        }
+      ]
     });
     expect(viewModel.playerCombatants).toHaveLength(4);
     expect(viewModel.playerFormation.map((hero) => hero.formationSlot)).toEqual([
@@ -174,6 +211,65 @@ describe("web game state", () => {
       level: 1,
       combatPower: 259
     });
+  });
+
+  it("selects unlocked style branches and applies them to hero previews", () => {
+    const state = createInitialWebGameState(staticData);
+    const lockedState = selectGameStyleBranch(staticData, state, {
+      styleId: "fist",
+      branchId: "iron_body_fist"
+    });
+
+    expect(lockedState.lastStyleBranchAction).toMatchObject({
+      ok: false,
+      reason: "locked_branch"
+    });
+    expect(lockedState.progress.styleBranches?.fist).toBeUndefined();
+
+    const leveledState = webGameStateReducer(
+      staticData,
+      state,
+      {
+        type: "replace_progress",
+        progress: {
+          ...state.progress,
+          heroes: {
+            ...state.progress.heroes,
+            iron_fist_disciple: {
+              ...state.progress.heroes.iron_fist_disciple,
+              level: 3
+            }
+          }
+        }
+      }
+    );
+    const selectedState = selectGameStyleBranch(staticData, leveledState, {
+      styleId: "fist",
+      branchId: "iron_body_fist"
+    });
+    const viewModel = getWebGameViewModel(staticData, selectedState);
+    const fistBranch = viewModel.styleMastery
+      .find((style) => style.styleId === "fist")
+      ?.branches.find((branch) => branch.id === "iron_body_fist");
+
+    expect(selectedState.lastStyleBranchAction).toMatchObject({
+      ok: true,
+      styleId: "fist",
+      branchId: "iron_body_fist"
+    });
+    expect(selectedState.progress.styleBranches?.fist).toBe("iron_body_fist");
+    expect(fistBranch).toMatchObject({
+      isUnlocked: true,
+      isSelected: true,
+      canSelect: false
+    });
+    expect(viewModel.playerCombatants[0]).toMatchObject({
+      definitionId: "iron_fist_disciple",
+      level: 3
+    });
+    expect(viewModel.playerCombatants[0].maxOuterHp).toBeCloseTo(
+      180 * 1.06 ** 2 * 1.06
+    );
   });
 
   it("updates and applies player formation from web state", () => {
@@ -700,6 +796,96 @@ describe("web game state", () => {
       compatibleHeroIds: ["iron_fist_disciple"]
     });
     expect(afterCp).toBeGreaterThan(beforeCp ?? 0);
+  });
+
+  it("shows equipment affixes and active set bonuses", () => {
+    const state = createInitialWebGameState(staticData);
+    const lootState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        equipment: {
+          inventory: {
+            iron_thread_armor: 1,
+            fortress_guard_manual: 1
+          },
+          equipped: {}
+        }
+      }
+    });
+    const inventoryViewModel = getWebGameViewModel(staticData, lootState);
+    const armorView = inventoryViewModel.equipmentInventory.find(
+      (item) => item.equipmentId === "iron_thread_armor"
+    );
+
+    expect(armorView).toMatchObject({
+      setName: "Black Iron Ward",
+      affixes: expect.arrayContaining([
+        expect.stringContaining("Tempered Weave")
+      ]),
+      setBonuses: expect.arrayContaining([
+        expect.stringContaining("Black Iron Ward 2-piece")
+      ])
+    });
+
+    const armorState = equipGameEquipment(staticData, lootState, {
+      heroId: "iron_fist_disciple",
+      equipmentId: "iron_thread_armor"
+    });
+    const manualState = equipGameEquipment(staticData, armorState, {
+      heroId: "iron_fist_disciple",
+      equipmentId: "fortress_guard_manual"
+    });
+    const equippedViewModel = getWebGameViewModel(staticData, manualState);
+    const heroView = equippedViewModel.heroEquipment.find(
+      (hero) => hero.heroId === "iron_fist_disciple"
+    );
+
+    expect(heroView?.activeSetBonuses).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("Black Iron Ward 2-piece")
+      ])
+    );
+  });
+
+  it("shows and updates patrol assignments", () => {
+    const state = createInitialWebGameState(staticData);
+    const assignedState = setGameAssignmentHeroes(staticData, state, {
+      assignmentId: "bamboo_road_patrol",
+      heroIds: ["iron_fist_disciple"]
+    });
+
+    expect(assignedState.lastAssignmentAction?.ok).toBe(true);
+    expect(
+      assignedState.progress.assignments?.bamboo_road_patrol?.heroIds
+    ).toEqual(["iron_fist_disciple"]);
+
+    const viewModel = getWebGameViewModel(staticData, assignedState);
+    const patrol = viewModel.assignments.find(
+      (assignment) => assignment.assignmentId === "bamboo_road_patrol"
+    );
+
+    expect(patrol).toMatchObject({
+      assignedHeroIds: ["iron_fist_disciple"]
+    });
+    expect(
+      patrol?.heroOptions.find((hero) => hero.heroId === "iron_fist_disciple")
+    ).toMatchObject({
+      assignedHere: true
+    });
+
+    const rejectedState = setGameAssignmentHeroes(staticData, assignedState, {
+      assignmentId: "mist_valley_meditation",
+      heroIds: ["iron_fist_disciple"]
+    });
+
+    expect(rejectedState.lastAssignmentAction).toMatchObject({
+      ok: false,
+      reason: "locked_assignment"
+    });
+    expect(rejectedState.progress.assignments?.bamboo_road_patrol?.heroIds).toEqual([
+      "iron_fist_disciple"
+    ]);
   });
 
   it("normalizes selected offline farm stage to the best unlocked farm", () => {

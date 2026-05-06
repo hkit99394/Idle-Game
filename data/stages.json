@@ -231,5 +231,110 @@
     "rewards": { "silver": 340, "cultivation": 170, "combatExperience": 160 },
     "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
     "nextStageId": null
+  },
+  {
+    "id": "black_iron_fort_1",
+    "regionId": "black_iron_fort",
+    "index": 1,
+    "name": "Black Iron Gate",
+    "enemyTeam": {
+      "combatantIds": ["iron_fort_sentry", "shieldwall_guard"],
+      "formation": { "front": [1], "middle": [0], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 170, "cultivation": 86, "combatExperience": 46 },
+    "nextStageId": "black_iron_fort_2"
+  },
+  {
+    "id": "black_iron_fort_2",
+    "regionId": "black_iron_fort",
+    "index": 2,
+    "name": "Shieldwall Yard",
+    "enemyTeam": {
+      "combatantIds": ["shieldwall_guard", "iron_fort_sentry", "iron_fort_sentry"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 192, "cultivation": 96, "combatExperience": 48 },
+    "nextStageId": "black_iron_fort_3"
+  },
+  {
+    "id": "black_iron_fort_3",
+    "regionId": "black_iron_fort",
+    "index": 3,
+    "name": "Hook Chain Foundry",
+    "enemyTeam": {
+      "combatantIds": ["forge_chain_hook", "shieldwall_guard", "iron_fort_sentry"],
+      "formation": { "front": [1], "middle": [0], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 220, "cultivation": 110, "combatExperience": 54 },
+    "nextStageId": "black_iron_fort_4"
+  },
+  {
+    "id": "black_iron_fort_4",
+    "regionId": "black_iron_fort",
+    "index": 4,
+    "name": "Saber Drill Hall",
+    "enemyTeam": {
+      "combatantIds": ["black_iron_saber", "shieldwall_guard"],
+      "formation": { "front": [1], "middle": [0], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 252, "cultivation": 126, "combatExperience": 64 },
+    "equipmentDrops": [{ "equipmentId": "black_iron_saber_blade", "quantity": 1 }],
+    "nextStageId": "black_iron_fort_5"
+  },
+  {
+    "id": "black_iron_fort_5",
+    "regionId": "black_iron_fort",
+    "index": 5,
+    "name": "Iron Armor Barracks",
+    "enemyTeam": {
+      "combatantIds": ["iron_armor_captain", "iron_fort_sentry"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 292, "cultivation": 146, "combatExperience": 78 },
+    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "nextStageId": "black_iron_fort_6"
+  },
+  {
+    "id": "black_iron_fort_6",
+    "regionId": "black_iron_fort",
+    "index": 6,
+    "name": "Black Forge Approach",
+    "enemyTeam": {
+      "combatantIds": ["iron_armor_captain", "black_iron_saber"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 336, "cultivation": 168, "combatExperience": 88 },
+    "equipmentDrops": [
+      { "equipmentId": "fortress_guard_manual", "quantity": 1 },
+      { "equipmentId": "tempered_meridian_pill", "quantity": 1 }
+    ],
+    "nextStageId": "black_iron_fort_7"
+  },
+  {
+    "id": "black_iron_fort_7",
+    "regionId": "black_iron_fort",
+    "index": 7,
+    "name": "Black Fort Commander",
+    "enemyTeam": {
+      "combatantIds": ["iron_armor_captain", "black_fort_commander", "black_iron_saber"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": true,
+    "canFarmOffline": false,
+    "rewards": { "silver": 720, "cultivation": 360, "combatExperience": 260 },
+    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "nextStageId": null
   }
 ]

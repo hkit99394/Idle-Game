@@ -126,11 +126,52 @@ describe("save schema", () => {
       iron_fist_disciple: "front"
     });
     expect(result.save.progress.styleMastery).toEqual({});
+    expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.skillUpgrades).toEqual({});
     expect(result.save.progress.equipment).toEqual({
       inventory: {},
       equipped: {}
     });
+    expect(result.save.progress.assignments).toEqual({});
+  });
+
+  it("migrates Stage 1.1 saves into Stage 1.2 defaults", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const stageOneOneSave = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: null,
+        nowMs: 1000
+      }),
+      version: 3,
+      progress: {
+        ...progress,
+        styleBranches: undefined,
+        equipment: undefined,
+        assignments: undefined
+      }
+    };
+
+    const migration = migrateSaveData(staticData, stageOneOneSave);
+    const result = parseSaveData(staticData, stageOneOneSave);
+
+    expect(migration).toMatchObject({
+      ok: true,
+      fromVersion: 3,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.styleBranches).toEqual({});
+    expect(result.save.progress.equipment).toEqual({
+      inventory: {},
+      equipped: {}
+    });
+    expect(result.save.progress.assignments).toEqual({});
   });
 
   it("accepts old saves without an offline farm preset and rejects invalid presets", () => {
@@ -272,6 +313,7 @@ describe("save schema", () => {
       progress: {
         ...save.progress,
         styleMastery: undefined,
+        styleBranches: undefined,
         skillUpgrades: undefined
       }
     };
@@ -284,6 +326,11 @@ describe("save schema", () => {
             experience: 1
           }
         },
+        styleBranches: {
+          missing_style: "iron_body_fist",
+          fist: "iron_body_fist",
+          palm: "iron_body_fist"
+        },
         skillUpgrades: {
           missing_skill_upgrade: 1
         }
@@ -294,6 +341,9 @@ describe("save schema", () => {
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
         "progress.styleMastery.missing_style must reference an existing style",
+        "progress.styleBranches.missing_style must reference an existing style",
+        "progress.styleBranches.fist must be unlocked by saved progress",
+        "progress.styleBranches.palm must select a branch from style palm",
         "progress.skillUpgrades.missing_skill_upgrade must reference an existing skill upgrade"
       ])
     );
@@ -364,6 +414,50 @@ describe("save schema", () => {
         "progress.equipment.equipped.missing_hero must reference an existing hero",
         "progress.equipment.equipped.iron_fist_disciple.trinket must be weapon, armor, manual, or medicine",
         "progress.equipment.equipped.iron_fist_disciple.armor must reference an existing equipment item"
+      ])
+    );
+  });
+
+  it("accepts old saves without assignments and validates assignment progress", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        assignments: undefined
+      }
+    };
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        assignments: {
+          missing_assignment: {
+            heroIds: ["iron_fist_disciple"]
+          },
+          bamboo_road_patrol: {
+            heroIds: ["missing_hero", "iron_fist_disciple"]
+          },
+          mist_valley_meditation: {
+            heroIds: ["iron_fist_disciple"]
+          }
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(validateSaveData(staticData, badSave)).toEqual(
+      expect.arrayContaining([
+        "progress.assignments.missing_assignment must reference an existing assignment",
+        "progress.assignments.bamboo_road_patrol.heroIds.missing_hero must reference an existing hero",
+        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_disciple is already assigned",
+        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_disciple is not eligible",
+        "progress.assignments.mist_valley_meditation must be unlocked by saved progress"
       ])
     );
   });

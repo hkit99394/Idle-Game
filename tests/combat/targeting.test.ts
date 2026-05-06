@@ -54,6 +54,9 @@ function combatant(input: {
     isQiBroken: input.isQiBroken ?? false,
     qiBreakEndsAt: input.isQiBroken ? 6 : null,
     lastInnerDamageAt: null,
+    guard: null,
+    protection: null,
+    armorBreak: null,
     defeatedAt: null
   };
 }

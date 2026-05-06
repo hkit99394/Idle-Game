@@ -12,8 +12,16 @@ export type UnlockCondition =
   | { type: "hero_level"; heroId: string; level: number }
   | { type: "style_mastery_level"; styleId: MartialStyleId; level: number };
 
+export type SkillEffectType =
+  | "outer_heal_percent"
+  | "speed_down"
+  | "inner_defense_down"
+  | "guard"
+  | "protect"
+  | "armor_break";
+
 export type SkillEffect = {
-  type: string;
+  type: SkillEffectType;
   value: number;
   durationSeconds?: number;
 };
@@ -28,6 +36,52 @@ export type EquipmentEffect = {
   value: number;
 };
 
+export type EquipmentAffixDefinition = {
+  id: string;
+  name: string;
+  effects: EquipmentEffect[];
+};
+
+export type EquipmentSetBonus = {
+  pieces: number;
+  effects: EquipmentEffect[];
+};
+
+export type EquipmentSetDefinition = {
+  id: string;
+  name: string;
+  bonuses: EquipmentSetBonus[];
+};
+
+export type AssignmentType = "patrol" | "training_ground";
+
+export type AssignmentDurationBucket = "short" | "medium" | "long";
+
+export type AssignmentEquipmentReward = {
+  equipmentId: string;
+  quantityPerHour: number;
+};
+
+export type AssignmentRewardProfile = {
+  silverPerHour?: number;
+  cultivationPerHour?: number;
+  combatExperiencePerHour?: number;
+  styleMasteryExperiencePerHour?: number;
+  mapRegionId?: string;
+  equipmentRewardsPerHour?: AssignmentEquipmentReward[];
+};
+
+export type AssignmentDefinition = {
+  id: string;
+  name: string;
+  type: AssignmentType;
+  unlockCondition: UnlockCondition;
+  durationBucket: AssignmentDurationBucket;
+  allowedRoles: CombatRole[];
+  allowedStyles: MartialStyleId[];
+  rewardProfile: AssignmentRewardProfile;
+};
+
 export type EquipmentDefinition = {
   id: string;
   name: string;
@@ -35,6 +89,8 @@ export type EquipmentDefinition = {
   rarity: EquipmentRarity;
   allowedStyles: MartialStyleId[];
   effects: EquipmentEffect[];
+  affixes?: EquipmentAffixDefinition[];
+  setId?: string;
 };
 
 export type HeroDefinition = {
@@ -167,11 +223,18 @@ export type StyleMasteryBonus = {
   effectPerLevel: number;
 };
 
+export type StyleBranchEffect = {
+  type: "stat_multiplier";
+  stat: keyof BaseStats;
+  value: number;
+};
+
 export type StyleBranchDefinition = {
   id: string;
   name: string;
   unlock: UnlockCondition;
   hiddenInMvp: boolean;
+  effects: StyleBranchEffect[];
 };
 
 export type MartialStyleDefinition = {
@@ -210,6 +273,8 @@ export type StaticGameData = {
   skills: SkillDefinition[];
   enemies: EnemyDefinition[];
   equipment: EquipmentDefinition[];
+  equipmentSets?: EquipmentSetDefinition[];
+  assignments?: AssignmentDefinition[];
   regions: RegionDefinition[];
   stages: StageDefinition[];
   upgrades: UpgradeDefinition[];

@@ -24,6 +24,7 @@ import {
   calculateQiBreakBacklashDamage,
   calculateQiBreakBurst,
   calculateQiBreakRecovery,
+  clamp,
   defaultCombatFormulaConstants,
   deriveStats,
   scaleStatsForLevel
@@ -32,6 +33,12 @@ import { getDefaultFormationSlot } from "./formations";
 import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
 
 const BASIC_SKILL_ID = "basic_strike";
+const DEFENSIVE_EFFECT_MAX_VALUE = 0.9;
+const FORMATION_SLOT_ORDER = {
+  front: 0,
+  middle: 1,
+  back: 2
+} as const;
 
 type DefinitionLookup = {
   heroes: Map<string, HeroDefinition>;
@@ -170,6 +177,9 @@ function createCombatantState(
     isQiBroken: false,
     qiBreakEndsAt: null,
     lastInnerDamageAt: null,
+    guard: null,
+    protection: null,
+    armorBreak: null,
     defeatedAt: null
   };
 }
@@ -186,6 +196,12 @@ function createInitialMetrics(): BattleMetrics {
     qiBreaksTriggeredByEnemy: 0,
     backlashDamageToEnemies: 0,
     backlashDamageToPlayers: 0,
+    guardDamagePreventedByPlayer: 0,
+    guardDamagePreventedByEnemy: 0,
+    protectionDamagePreventedByPlayer: 0,
+    protectionDamagePreventedByEnemy: 0,
+    armorBreaksTriggeredByPlayer: 0,
+    armorBreaksTriggeredByEnemy: 0,
     playerEffectiveDps: 0,
     enemyEffectiveDps: 0
   };
@@ -212,6 +228,10 @@ function createInitialContributions(
         outerDamageTaken: 0,
         innerDamageTaken: 0,
         backlashDamageTaken: 0,
+        guardDamagePrevented: 0,
+        protectionDamagePrevented: 0,
+        protectionTriggers: 0,
+        armorBreaksApplied: 0,
         survived: true
       }
     ])
@@ -349,6 +369,300 @@ function markDefeated(
       targetId: combatant.instanceId,
       team: combatant.team
     });
+  }
+}
+
+function getFormationSlotOrder(combatant: CombatantState): number {
+  return FORMATION_SLOT_ORDER[combatant.formationSlot];
+}
+
+function clampDefensiveEffectValue(value: number): number {
+  return clamp(value, 0, DEFENSIVE_EFFECT_MAX_VALUE);
+}
+
+function expireTimedCombatEffects(combatants: CombatantState[], time: number): void {
+  for (const combatant of combatants) {
+    if (combatant.guard && time >= combatant.guard.expiresAt) {
+      combatant.guard = null;
+    }
+
+    if (combatant.protection && time >= combatant.protection.expiresAt) {
+      combatant.protection = null;
+    }
+
+    if (combatant.armorBreak && time >= combatant.armorBreak.expiresAt) {
+      combatant.armorBreak = null;
+    }
+  }
+}
+
+function getActiveEffectValue(
+  effect: CombatantState["guard"],
+  time: number
+): number {
+  if (!effect || time >= effect.expiresAt) {
+    return 0;
+  }
+
+  return clampDefensiveEffectValue(effect.value);
+}
+
+function getEffectiveTargetStats(
+  target: CombatantState,
+  time: number
+): CombatantState["stats"] {
+  const armorBreak = getActiveEffectValue(target.armorBreak, time);
+
+  if (armorBreak <= 0) {
+    return target.stats;
+  }
+
+  return {
+    ...target.stats,
+    outerDefense: target.stats.outerDefense * (1 - armorBreak)
+  };
+}
+
+function findProtector(
+  combatants: CombatantState[],
+  target: CombatantState,
+  time: number
+): CombatantState | null {
+  const targetSlotOrder = getFormationSlotOrder(target);
+
+  return combatants
+    .flatMap((combatant, encounterOrder) =>
+      combatant.team === target.team &&
+      combatant.instanceId !== target.instanceId &&
+      isLiving(combatant) &&
+      getActiveEffectValue(combatant.protection, time) > 0 &&
+      getFormationSlotOrder(combatant) < targetSlotOrder
+        ? [{ combatant, encounterOrder }]
+        : []
+    )
+    .sort((first, second) => {
+      const slotDifference =
+        getFormationSlotOrder(second.combatant) -
+        getFormationSlotOrder(first.combatant);
+
+      return slotDifference || first.encounterOrder - second.encounterOrder;
+    })[0]?.combatant ?? null;
+}
+
+function applyGuardReduction(
+  target: CombatantState,
+  outerDamage: number,
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): number {
+  if (!target.guard || time >= target.guard.expiresAt) {
+    return outerDamage;
+  }
+
+  const armorBreak = getActiveEffectValue(target.armorBreak, time);
+  const reduction = Math.max(0, clampDefensiveEffectValue(target.guard.value) - armorBreak);
+
+  if (reduction <= 0) {
+    return outerDamage;
+  }
+
+  const outerDamagePrevented = outerDamage * reduction;
+
+  if (target.team === "player") {
+    metrics.guardDamagePreventedByPlayer += outerDamagePrevented;
+  } else {
+    metrics.guardDamagePreventedByEnemy += outerDamagePrevented;
+  }
+
+  const targetContribution = contributions.get(target.instanceId);
+
+  if (targetContribution) {
+    targetContribution.guardDamagePrevented += outerDamagePrevented;
+  }
+
+  events.push({
+    type: "guard_absorb",
+    time,
+    targetId: target.instanceId,
+    skillId: target.guard.skillId,
+    outerDamagePrevented,
+    reduction
+  });
+
+  return outerDamage - outerDamagePrevented;
+}
+
+function recordProtection(
+  protector: CombatantState,
+  protectedTarget: CombatantState,
+  attacker: CombatantState,
+  outerDamagePrevented: number,
+  innerDamagePrevented: number,
+  reduction: number,
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): void {
+  if (!protector.protection) {
+    return;
+  }
+
+  const totalPrevented = outerDamagePrevented + innerDamagePrevented;
+
+  if (protector.team === "player") {
+    metrics.protectionDamagePreventedByPlayer += totalPrevented;
+  } else {
+    metrics.protectionDamagePreventedByEnemy += totalPrevented;
+  }
+
+  const protectorContribution = contributions.get(protector.instanceId);
+
+  if (protectorContribution) {
+    protectorContribution.protectionDamagePrevented += totalPrevented;
+    protectorContribution.protectionTriggers += 1;
+  }
+
+  events.push({
+    type: "protect",
+    time,
+    sourceId: protector.instanceId,
+    protectedId: protectedTarget.instanceId,
+    attackerId: attacker.instanceId,
+    skillId: protector.protection.skillId,
+    outerDamagePrevented,
+    innerDamagePrevented,
+    reduction
+  });
+}
+
+function applyProtectionReduction(
+  protector: CombatantState | null,
+  protectedTarget: CombatantState,
+  attacker: CombatantState,
+  outerDamage: number,
+  innerDamage: number,
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): { outerDamage: number; innerDamage: number } {
+  if (!protector || !protector.protection || time >= protector.protection.expiresAt) {
+    return { outerDamage, innerDamage };
+  }
+
+  const reduction = clampDefensiveEffectValue(protector.protection.value);
+
+  if (reduction <= 0) {
+    return { outerDamage, innerDamage };
+  }
+
+  const outerDamagePrevented = outerDamage * reduction;
+  const innerDamagePrevented = innerDamage * reduction;
+
+  recordProtection(
+    protector,
+    protectedTarget,
+    attacker,
+    outerDamagePrevented,
+    innerDamagePrevented,
+    reduction,
+    time,
+    metrics,
+    contributions,
+    events
+  );
+
+  return {
+    outerDamage: outerDamage - outerDamagePrevented,
+    innerDamage: innerDamage - innerDamagePrevented
+  };
+}
+
+function applyDefensiveSkillEffects(
+  attacker: CombatantState,
+  target: CombatantState,
+  skill: SkillDefinition,
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): void {
+  for (const effect of skill.effects) {
+    const durationSeconds = effect.durationSeconds ?? 0;
+
+    if (durationSeconds <= 0) {
+      continue;
+    }
+
+    const value = clampDefensiveEffectValue(effect.value);
+    const endsAt = time + durationSeconds;
+
+    switch (effect.type) {
+      case "guard":
+        attacker.guard = {
+          value,
+          sourceId: attacker.instanceId,
+          skillId: skill.id,
+          expiresAt: endsAt
+        };
+        events.push({
+          type: "guard",
+          time,
+          sourceId: attacker.instanceId,
+          targetId: attacker.instanceId,
+          skillId: skill.id,
+          reduction: value,
+          endsAt
+        });
+        break;
+
+      case "protect":
+        attacker.protection = {
+          value,
+          sourceId: attacker.instanceId,
+          skillId: skill.id,
+          expiresAt: endsAt
+        };
+        break;
+
+      case "armor_break":
+        if (!isLiving(target)) {
+          break;
+        }
+
+        target.armorBreak = {
+          value,
+          sourceId: attacker.instanceId,
+          skillId: skill.id,
+          expiresAt: endsAt
+        };
+
+        if (attacker.team === "player") {
+          metrics.armorBreaksTriggeredByPlayer += 1;
+        } else {
+          metrics.armorBreaksTriggeredByEnemy += 1;
+        }
+
+        const attackerContribution = contributions.get(attacker.instanceId);
+
+        if (attackerContribution) {
+          attackerContribution.armorBreaksApplied += 1;
+        }
+
+        events.push({
+          type: "armor_break",
+          time,
+          sourceId: attacker.instanceId,
+          targetId: target.instanceId,
+          skillId: skill.id,
+          reduction: value,
+          endsAt
+        });
+        break;
+    }
   }
 }
 
@@ -495,30 +809,56 @@ function executeAction(
   }
 
   const skill = chooseSkill(lookup, attacker, time);
-  const target = selectTarget(combatants, attacker.team, skill.targetRule);
+  const intendedTarget = selectTarget(combatants, attacker.team, skill.targetRule);
 
-  if (!target) {
+  if (!intendedTarget) {
     return;
   }
 
-  const outerDamage = calculateOuterDamage(
+  const protector = findProtector(combatants, intendedTarget, time);
+  const target = protector ?? intendedTarget;
+  const effectiveTargetStats = getEffectiveTargetStats(target, time);
+  let outerDamage = calculateOuterDamage(
     {
       attacker: attacker.stats,
-      target: target.stats,
+      target: effectiveTargetStats,
       skillMultiplier: skill.outerMultiplier,
       targetIsQiBroken: target.isQiBroken
     },
     constants
   ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0));
-  const innerDamage = calculateInnerDamage(
+  let innerDamage = calculateInnerDamage(
     {
       attacker: attacker.stats,
-      target: target.stats,
+      target: effectiveTargetStats,
       skillMultiplier: skill.innerMultiplier,
       targetIsQiBroken: target.isQiBroken
     },
     constants
   ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0));
+
+  outerDamage = applyGuardReduction(
+    target,
+    outerDamage,
+    time,
+    metrics,
+    contributions,
+    events
+  );
+
+  const protectedDamage = applyProtectionReduction(
+    protector,
+    intendedTarget,
+    attacker,
+    outerDamage,
+    innerDamage,
+    time,
+    metrics,
+    contributions,
+    events
+  );
+  outerDamage = protectedDamage.outerDamage;
+  innerDamage = protectedDamage.innerDamage;
 
   target.outerHp = Math.max(0, target.outerHp - outerDamage);
   target.innerQi = Math.max(0, target.innerQi - innerDamage);
@@ -535,10 +875,23 @@ function executeAction(
     targetId: target.instanceId,
     skillId: skill.id,
     outerDamage,
-    innerDamage
+    innerDamage,
+    intendedTargetId:
+      target.instanceId === intendedTarget.instanceId
+        ? undefined
+        : intendedTarget.instanceId
   });
 
   applyHealingEffects(attacker, skill, time, events);
+  applyDefensiveSkillEffects(
+    attacker,
+    target,
+    skill,
+    time,
+    metrics,
+    contributions,
+    events
+  );
   applyQiBreakIfNeeded(
     attacker,
     target,
@@ -637,6 +990,7 @@ export function simulateBattle(
   for (let step = 0; step <= totalSteps; step += 1) {
     const time = Number((step * stepSeconds).toFixed(6));
 
+    expireTimedCombatEffects(combatants, time);
     recoverQiBreaks(combatants, time, constants, events);
     recoverInnerQi(combatants, time, stepSeconds, constants);
 

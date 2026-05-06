@@ -13,6 +13,8 @@ import {
   getDefaultFormationSlot,
   getAvailableEquipmentCopyCount,
   getActiveMasterySummaryForStage,
+  getActiveEquipmentSetBonuses,
+  getHeroAssignmentId,
   getEquipmentInventoryCount,
   getOfflineFarmPresetPolicy,
   getRecommendedOfflineFarmStage,
@@ -23,6 +25,8 @@ import {
   getUpgradeLevel,
   hasClearedStage,
   isOfflineFarmStageUnlocked,
+  isAssignmentUnlocked,
+  isHeroEligibleForAssignment,
   isStageUnlocked,
   isStyleBranchUnlocked,
   normalizeOfflineFarmPreset,
@@ -32,12 +36,15 @@ import {
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
   scaleStatsForLevel,
+  selectStyleBranch as selectCoreStyleBranch,
+  setAssignmentHeroes as setCoreAssignmentHeroes,
   setPlayerFormationSlot,
   setOfflineFarmStageTarget,
   STYLE_MASTERY_EXPERIENCE_PER_LEVEL
 } from "../../core";
 import type {
   ActiveMasterySummary,
+  ApplyOfflineAssignmentRewardsResult,
   BattleEvent,
   BattleContribution,
   CombatantInstanceDefinition,
@@ -60,6 +67,10 @@ import type {
   PurchaseUpgradeResult,
   ResolveStageBattleResult,
   SaveData,
+  SelectStyleBranchInput,
+  SelectStyleBranchResult,
+  SetAssignmentHeroesInput,
+  SetAssignmentHeroesResult,
   StaticGameData
 } from "../../core";
 import {
@@ -87,6 +98,8 @@ export type WebGameState = {
   lastPurchase: PurchaseUpgradeResult | null;
   lastSkillPurchase: PurchaseSkillUpgradeResult | null;
   lastEquipmentAction: EquipHeroEquipmentResult | null;
+  lastStyleBranchAction: SelectStyleBranchResult | null;
+  lastAssignmentAction: SetAssignmentHeroesResult | null;
 };
 
 export type WebGameAction =
@@ -106,6 +119,14 @@ export type WebGameAction =
       type: "set_hero_formation_slot";
       heroId: string;
       slot: FormationSlot;
+    }
+  | {
+      type: "style_branch_select_resolved";
+      result: SelectStyleBranchResult;
+    }
+  | {
+      type: "assignment_update_resolved";
+      result: SetAssignmentHeroesResult;
     }
   | {
       type: "battle_resolved";
@@ -142,6 +163,14 @@ export type PurchaseGameSkillUpgradeInput = Omit<
   "progress"
 >;
 export type EquipGameEquipmentInput = Omit<EquipHeroEquipmentInput, "progress">;
+export type SelectGameStyleBranchInput = Omit<
+  SelectStyleBranchInput,
+  "progress"
+>;
+export type SetGameAssignmentHeroesInput = Omit<
+  SetAssignmentHeroesInput,
+  "progress"
+>;
 
 export type BattleCombatantView = {
   instanceId: string;
@@ -168,9 +197,13 @@ export type BattleCombatantView = {
 
 export type BattleEventCategory =
   | "attack"
+  | "armor_break"
   | "qi_break"
   | "qi_recover"
   | "backlash"
+  | "guard"
+  | "guard_absorb"
+  | "protect"
   | "heal"
   | "defeat";
 
@@ -240,6 +273,9 @@ export type EquipmentInventoryItemView = {
   availableCount: number;
   allowedStyles: string[];
   effects: string[];
+  affixes: string[];
+  setName: string | null;
+  setBonuses: string[];
   compatibleHeroIds: string[];
 };
 
@@ -249,6 +285,7 @@ export type HeroEquipmentSlotView = {
   equipmentId: string | null;
   name: string | null;
   rarity: EquipmentRarity | null;
+  setName: string | null;
 };
 
 export type HeroEquipmentView = {
@@ -256,6 +293,7 @@ export type HeroEquipmentView = {
   name: string;
   style: string;
   slots: HeroEquipmentSlotView[];
+  activeSetBonuses: string[];
 };
 
 export type StageOptionView = {
@@ -318,8 +356,11 @@ export type StyleBranchView = {
   id: string;
   name: string;
   isUnlocked: boolean;
+  isSelected: boolean;
+  canSelect: boolean;
   hiddenInMvp: boolean;
   requirement: string;
+  effects: string[];
 };
 
 export type StyleMasteryView = {
@@ -334,12 +375,17 @@ export type StyleMasteryView = {
 };
 
 export type OfflineRewardSummary = {
-  stageId: string;
+  stageId: string | null;
   offlineSeconds: number;
   clears: number;
   silver: number;
   cultivation: number;
   combatExperience: number;
+  assignmentSilver: number;
+  assignmentCultivation: number;
+  assignmentCombatExperience: number;
+  assignmentStyleMasteryExperience: number;
+  assignmentEquipmentRewards: Array<{ equipmentId: string; quantity: number }>;
 };
 
 export type OfflineRewardSummaryView = OfflineRewardSummary & {
@@ -376,6 +422,28 @@ export type OfflineRewardPreviewView = {
   cultivation: number;
   combatExperience: number;
   masteryExperienceGain: number;
+};
+
+export type AssignmentHeroOptionView = {
+  heroId: string;
+  name: string;
+  style: string;
+  role: string;
+  eligible: boolean;
+  assignedHere: boolean;
+  assignedAssignmentName: string | null;
+};
+
+export type AssignmentView = {
+  assignmentId: string;
+  name: string;
+  type: "patrol" | "training_ground";
+  durationBucket: string;
+  unlocked: boolean;
+  lockReason: string | null;
+  assignedHeroIds: string[];
+  rewardSummary: string[];
+  heroOptions: AssignmentHeroOptionView[];
 };
 
 export type SaveStatus =
@@ -447,19 +515,43 @@ function normalizeSelectedStageId(
 }
 
 function createOfflineRewardSummary(
-  offlineRewards: ApplyOfflineRewardsResult | null
+  offlineRewards: ApplyOfflineRewardsResult | null,
+  offlineAssignmentRewards: ApplyOfflineAssignmentRewardsResult | null
 ): OfflineRewardSummary | null {
-  if (!offlineRewards?.ok || offlineRewards.rewards.clears <= 0) {
+  const assignmentRewards = offlineAssignmentRewards?.rewards ?? null;
+  const hasFarmRewards = Boolean(
+    offlineRewards?.ok && offlineRewards.rewards.clears > 0
+  );
+  const hasAssignmentRewards = Boolean(
+    assignmentRewards && assignmentRewards.assignments.length > 0
+  );
+
+  if (!hasFarmRewards && !hasAssignmentRewards) {
     return null;
   }
 
   return {
-    stageId: offlineRewards.stageId,
-    offlineSeconds: offlineRewards.rewards.offlineSeconds,
-    clears: offlineRewards.rewards.clears,
-    silver: offlineRewards.rewards.silver,
-    cultivation: offlineRewards.rewards.cultivation,
-    combatExperience: offlineRewards.rewards.combatExperience
+    stageId: offlineRewards?.ok ? offlineRewards.stageId : null,
+    offlineSeconds: Math.max(
+      offlineRewards?.rewards.offlineSeconds ?? 0,
+      assignmentRewards?.offlineSeconds ?? 0
+    ),
+    clears: offlineRewards?.ok ? offlineRewards.rewards.clears : 0,
+    silver:
+      (offlineRewards?.ok ? offlineRewards.rewards.silver : 0) +
+      (assignmentRewards?.silver ?? 0),
+    cultivation:
+      (offlineRewards?.ok ? offlineRewards.rewards.cultivation : 0) +
+      (assignmentRewards?.cultivation ?? 0),
+    combatExperience:
+      (offlineRewards?.ok ? offlineRewards.rewards.combatExperience : 0) +
+      (assignmentRewards?.combatExperience ?? 0),
+    assignmentSilver: assignmentRewards?.silver ?? 0,
+    assignmentCultivation: assignmentRewards?.cultivation ?? 0,
+    assignmentCombatExperience: assignmentRewards?.combatExperience ?? 0,
+    assignmentStyleMasteryExperience:
+      assignmentRewards?.styleMasteryExperience ?? 0,
+    assignmentEquipmentRewards: assignmentRewards?.equipmentRewards ?? []
   };
 }
 
@@ -480,7 +572,9 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     lastBattleStageId: null,
     lastPurchase: null,
     lastSkillPurchase: null,
-    lastEquipmentAction: null
+    lastEquipmentAction: null,
+    lastStyleBranchAction: null,
+    lastAssignmentAction: null
   };
 }
 
@@ -510,7 +604,9 @@ export function createWebGameStateFromSave(
     lastBattleStageId: null,
     lastPurchase: null,
     lastSkillPurchase: null,
-    lastEquipmentAction: null
+    lastEquipmentAction: null,
+    lastStyleBranchAction: null,
+    lastAssignmentAction: null
   };
 }
 
@@ -533,7 +629,10 @@ export function createInitialWebGameStateFromStorage(
     ? createWebGameStateFromSave(
         data,
         loadResult.save,
-        createOfflineRewardSummary(loadResult.offlineRewards)
+        createOfflineRewardSummary(
+          loadResult.offlineRewards,
+          loadResult.offlineAssignmentRewards
+        )
       )
     : createInitialWebGameState(data);
 }
@@ -608,7 +707,45 @@ export function webGameStateReducer(
         lastBattleStageId: null,
         lastPurchase: null,
         lastSkillPurchase: null,
-        lastEquipmentAction: null
+        lastEquipmentAction: null,
+        lastStyleBranchAction: null,
+        lastAssignmentAction: null
+      };
+    }
+
+    case "style_branch_select_resolved": {
+      const nextProgress = action.result.ok
+        ? action.result.progress
+        : state.progress;
+
+      return {
+        ...state,
+        progress: nextProgress,
+        lastStyleBranchAction: action.result,
+        lastEquipmentAction: null,
+        lastSkillPurchase: null,
+        lastPurchase: null,
+        lastBattle: null,
+        lastBattleStageId: null,
+        lastAssignmentAction: null
+      };
+    }
+
+    case "assignment_update_resolved": {
+      const nextProgress = action.result.ok
+        ? action.result.progress
+        : state.progress;
+
+      return {
+        ...state,
+        progress: nextProgress,
+        lastAssignmentAction: action.result,
+        lastStyleBranchAction: null,
+        lastEquipmentAction: null,
+        lastSkillPurchase: null,
+        lastPurchase: null,
+        lastBattle: null,
+        lastBattleStageId: null
       };
     }
 
@@ -636,7 +773,9 @@ export function webGameStateReducer(
         lastBattleStageId: action.stageId,
         lastPurchase: null,
         lastSkillPurchase: null,
-        lastEquipmentAction: null
+        lastEquipmentAction: null,
+        lastStyleBranchAction: null,
+        lastAssignmentAction: null
       };
     }
 
@@ -657,8 +796,10 @@ export function webGameStateReducer(
         lastPurchase: action.result,
         lastSkillPurchase: null,
         lastEquipmentAction: null,
+        lastStyleBranchAction: null,
         lastBattle: null,
-        lastBattleStageId: null
+        lastBattleStageId: null,
+        lastAssignmentAction: null
       };
     }
 
@@ -673,8 +814,10 @@ export function webGameStateReducer(
         lastSkillPurchase: action.result,
         lastPurchase: null,
         lastEquipmentAction: null,
+        lastStyleBranchAction: null,
         lastBattle: null,
-        lastBattleStageId: null
+        lastBattleStageId: null,
+        lastAssignmentAction: null
       };
     }
 
@@ -687,10 +830,12 @@ export function webGameStateReducer(
         ...state,
         progress: nextProgress,
         lastEquipmentAction: action.result,
+        lastStyleBranchAction: null,
         lastSkillPurchase: null,
         lastPurchase: null,
         lastBattle: null,
-        lastBattleStageId: null
+        lastBattleStageId: null,
+        lastAssignmentAction: null
       };
     }
 
@@ -713,7 +858,9 @@ export function webGameStateReducer(
         lastBattleStageId: null,
         lastPurchase: null,
         lastSkillPurchase: null,
-        lastEquipmentAction: null
+        lastEquipmentAction: null,
+        lastStyleBranchAction: null,
+        lastAssignmentAction: null
       };
 
     case "replace_state":
@@ -788,6 +935,38 @@ export function equipGameEquipment(
 
   return webGameStateReducer(data, state, {
     type: "equipment_equip_resolved",
+    result
+  });
+}
+
+export function selectGameStyleBranch(
+  data: StaticGameData,
+  state: WebGameState,
+  input: SelectGameStyleBranchInput
+): WebGameState {
+  const result = selectCoreStyleBranch(data, {
+    progress: state.progress,
+    ...input
+  });
+
+  return webGameStateReducer(data, state, {
+    type: "style_branch_select_resolved",
+    result
+  });
+}
+
+export function setGameAssignmentHeroes(
+  data: StaticGameData,
+  state: WebGameState,
+  input: SetGameAssignmentHeroesInput
+): WebGameState {
+  const result = setCoreAssignmentHeroes(data, {
+    progress: state.progress,
+    ...input
+  });
+
+  return webGameStateReducer(data, state, {
+    type: "assignment_update_resolved",
     result
   });
 }
@@ -894,11 +1073,17 @@ function formatAttackDetail(
   data: StaticGameData,
   event: Extract<BattleEvent, { type: "attack" }>
 ): string {
-  return [
+  const detail = [
     getSkillName(data, event.skillId),
     `${formatBattleNumber(event.outerDamage)} Outer damage`,
     `${formatBattleNumber(event.innerDamage)} Inner Qi damage`
-  ].join(" · ");
+  ];
+
+  if (event.intendedTargetId && event.intendedTargetId !== event.targetId) {
+    detail.push("redirected by protection");
+  }
+
+  return detail.join(" · ");
 }
 
 function buildBattleEventDetail(
@@ -911,10 +1096,16 @@ function buildBattleEventDetail(
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
       const skillName = getSkillName(data, event.skillId);
+      const intendedTarget =
+        event.intendedTargetId && event.intendedTargetId !== event.targetId
+          ? getName(names, event.intendedTargetId)
+          : null;
 
       return {
         category: "attack",
-        headline: `${source} attacks ${target}`,
+        headline: intendedTarget
+          ? `${source} attacks ${intendedTarget}`
+          : `${source} attacks ${target}`,
         detail: formatAttackDetail(data, event),
         badges: [
           {
@@ -928,6 +1119,106 @@ function buildBattleEventDetail(
           {
             label: `${formatBattleNumber(event.innerDamage)} Inner Qi`,
             tone: "inner"
+          },
+          ...(intendedTarget
+            ? [
+                {
+                  label: `${target} intercepts`,
+                  tone: "neutral" as const
+                }
+              ]
+            : [])
+        ]
+      };
+    }
+
+    case "guard": {
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "guard",
+        headline: `${target} raises guard`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces incoming Outer damage by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Guard",
+            tone: "neutral"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} reduction`,
+            tone: "outer"
+          }
+        ]
+      };
+    }
+
+    case "guard_absorb": {
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "guard_absorb",
+        headline: `${target}'s guard absorbs the strike`,
+        detail:
+          `${getSkillName(data, event.skillId)} prevents ` +
+          `${formatBattleNumber(event.outerDamagePrevented)} Outer damage`,
+        badges: [
+          {
+            label: `${formatBattleNumber(event.outerDamagePrevented)} blocked`,
+            tone: "outer"
+          },
+          {
+            label: "Guard",
+            tone: "neutral"
+          }
+        ]
+      };
+    }
+
+    case "protect": {
+      const protector = getName(names, event.sourceId);
+      const protectedTarget = getName(names, event.protectedId);
+      const attacker = getName(names, event.attackerId);
+      const prevented = event.outerDamagePrevented + event.innerDamagePrevented;
+
+      return {
+        category: "protect",
+        headline: `${protector} protects ${protectedTarget}`,
+        detail:
+          `${getSkillName(data, event.skillId)} intercepts ${attacker} and prevents ` +
+          `${formatBattleNumber(prevented)} total damage`,
+        badges: [
+          {
+            label: "Protection",
+            tone: "neutral"
+          },
+          {
+            label: `${formatBattleNumber(prevented)} prevented`,
+            tone: "outer"
+          }
+        ]
+      };
+    }
+
+    case "armor_break": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "armor_break",
+        headline: `${source} breaks ${target}'s armor`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces guard and Outer Defense by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Armor Break",
+            tone: "danger"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} defense`,
+            tone: "outer"
           }
         ]
       };
@@ -1256,14 +1547,29 @@ function formatEquipmentEffect(
   )}`;
 }
 
+function formatEquipmentSetBonus(
+  set: NonNullable<StaticGameData["equipmentSets"]>[number],
+  bonus: NonNullable<StaticGameData["equipmentSets"]>[number]["bonuses"][number]
+): string {
+  return `${set.name} ${bonus.pieces}-piece: ${bonus.effects
+    .map(formatEquipmentEffect)
+    .join(", ")}`;
+}
+
 function buildEquipmentInventoryViews(
   data: StaticGameData,
   progress: PlayerProgress
 ): EquipmentInventoryItemView[] {
   const styleNames = new Map(data.styles.map((style) => [style.id, style.name]));
+  const equipmentSetById = new Map(
+    (data.equipmentSets ?? []).map((set) => [set.id, set])
+  );
 
   return data.equipment.flatMap((equipment) => {
     const count = getEquipmentInventoryCount(progress, equipment.id);
+    const set = equipment.setId
+      ? equipmentSetById.get(equipment.setId) ?? null
+      : null;
 
     if (count <= 0) {
       return [];
@@ -1281,6 +1587,14 @@ function buildEquipmentInventoryViews(
           (styleId) => styleNames.get(styleId) ?? styleId
         ),
         effects: equipment.effects.map(formatEquipmentEffect),
+        affixes: (equipment.affixes ?? []).map(
+          (affix) =>
+            `${affix.name}: ${affix.effects.map(formatEquipmentEffect).join(", ")}`
+        ),
+        setName: set?.name ?? null,
+        setBonuses: set?.bonuses.map((bonus) =>
+          formatEquipmentSetBonus(set, bonus)
+        ) ?? [],
         compatibleHeroIds: data.heroes
           .filter(
             (hero) =>
@@ -1306,6 +1620,9 @@ function buildHeroEquipmentViews(
   const equipmentById = new Map(
     data.equipment.map((equipment) => [equipment.id, equipment])
   );
+  const equipmentSetById = new Map(
+    (data.equipmentSets ?? []).map((set) => [set.id, set])
+  );
 
   return data.heroes.map((hero) => ({
     heroId: hero.id,
@@ -1320,9 +1637,23 @@ function buildHeroEquipmentViews(
         label: formatEquipmentSlot(slot),
         equipmentId,
         name: equipment?.name ?? null,
-        rarity: equipment?.rarity ?? null
+        rarity: equipment?.rarity ?? null,
+        setName: equipment?.setId
+          ? equipmentSetById.get(equipment.setId)?.name ?? null
+          : null
       };
-    })
+    }),
+    activeSetBonuses: getActiveEquipmentSetBonuses(
+      data.equipment,
+      data.equipmentSets,
+      progress.equipment,
+      hero.id
+    ).map(
+      (bonus) =>
+        `${bonus.name} ${bonus.requiredPieces}-piece: ${bonus.effects
+          .map(formatEquipmentEffect)
+          .join(", ")}`
+    )
   }));
 }
 
@@ -1624,6 +1955,129 @@ function formatStyleBranchRequirement(
   }
 }
 
+function formatStyleBranchEffect(
+  effect: StaticGameData["styles"][number]["branches"][number]["effects"][number]
+): string {
+  switch (effect.type) {
+    case "stat_multiplier":
+      return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
+  }
+}
+
+function formatAssignmentRequirement(
+  data: StaticGameData,
+  assignment: NonNullable<StaticGameData["assignments"]>[number]
+): string {
+  const unlock = assignment.unlockCondition;
+
+  switch (unlock.type) {
+    case "always":
+      return "Available";
+    case "stage_cleared":
+      return `Clear ${
+        getStageById(data, unlock.stageId)?.name ?? unlock.stageId
+      }`;
+    case "hero_level":
+      return `${
+        data.heroes.find((hero) => hero.id === unlock.heroId)?.name ??
+        unlock.heroId
+      } level ${unlock.level}`;
+    case "style_mastery_level":
+      return `${
+        data.styles.find((style) => style.id === unlock.styleId)?.name ??
+        unlock.styleId
+      } mastery ${unlock.level}`;
+  }
+}
+
+function buildAssignmentRewardSummary(
+  data: StaticGameData,
+  assignment: NonNullable<StaticGameData["assignments"]>[number]
+): string[] {
+  const rewards = assignment.rewardProfile;
+  const equipmentNames = new Map(
+    data.equipment.map((equipment) => [equipment.id, equipment.name])
+  );
+  const details: string[] = [];
+
+  if (rewards.silverPerHour) {
+    details.push(`${formatBattleNumber(rewards.silverPerHour)} silver/hour`);
+  }
+
+  if (rewards.cultivationPerHour) {
+    details.push(
+      `${formatBattleNumber(rewards.cultivationPerHour)} cultivation/hour`
+    );
+  }
+
+  if (rewards.combatExperiencePerHour) {
+    details.push(
+      `${formatBattleNumber(rewards.combatExperiencePerHour)} Combat XP/hour`
+    );
+  }
+
+  if (rewards.styleMasteryExperiencePerHour) {
+    details.push(
+      `${formatBattleNumber(
+        rewards.styleMasteryExperiencePerHour
+      )} style mastery/hour`
+    );
+  }
+
+  for (const reward of rewards.equipmentRewardsPerHour ?? []) {
+    details.push(
+      `${reward.quantityPerHour}/hour ${
+        equipmentNames.get(reward.equipmentId) ?? reward.equipmentId
+      }`
+    );
+  }
+
+  return details;
+}
+
+function buildAssignmentViews(
+  data: StaticGameData,
+  progress: PlayerProgress
+): AssignmentView[] {
+  const assignmentNameById = new Map(
+    (data.assignments ?? []).map((assignment) => [assignment.id, assignment.name])
+  );
+
+  return (data.assignments ?? []).map((assignment) => {
+    const unlocked = isAssignmentUnlocked(data, progress, assignment);
+    const assignedHeroIds =
+      progress.assignments?.[assignment.id]?.heroIds ?? [];
+
+    return {
+      assignmentId: assignment.id,
+      name: assignment.name,
+      type: assignment.type,
+      durationBucket: assignment.durationBucket,
+      unlocked,
+      lockReason: unlocked
+        ? null
+        : formatAssignmentRequirement(data, assignment),
+      assignedHeroIds,
+      rewardSummary: buildAssignmentRewardSummary(data, assignment),
+      heroOptions: data.heroes.map((hero) => {
+        const assignedAssignmentId = getHeroAssignmentId(progress, hero.id);
+
+        return {
+          heroId: hero.id,
+          name: hero.name,
+          style: hero.style,
+          role: hero.combatRole,
+          eligible: isHeroEligibleForAssignment(assignment, hero),
+          assignedHere: assignedAssignmentId === assignment.id,
+          assignedAssignmentName: assignedAssignmentId
+            ? assignmentNameById.get(assignedAssignmentId) ?? assignedAssignmentId
+            : null
+        };
+      })
+    };
+  });
+}
+
 function buildStyleMasteryViews(
   data: StaticGameData,
   progress: PlayerProgress
@@ -1652,13 +2106,21 @@ function buildStyleMasteryViews(
       bonuses: style.bonuses.map((bonus) =>
         formatPerLevelEffect(bonus.stat, bonus.effectPerLevel)
       ),
-      branches: style.branches.map((branch) => ({
-        id: branch.id,
-        name: branch.name,
-        isUnlocked: isStyleBranchUnlocked(data, progress, branch),
-        hiddenInMvp: branch.hiddenInMvp,
-        requirement: formatStyleBranchRequirement(data, branch)
-      }))
+      branches: style.branches.map((branch) => {
+        const isUnlocked = isStyleBranchUnlocked(data, progress, branch);
+        const isSelected = progress.styleBranches?.[style.id] === branch.id;
+
+        return {
+          id: branch.id,
+          name: branch.name,
+          isUnlocked,
+          isSelected,
+          canSelect: isUnlocked && !isSelected,
+          hiddenInMvp: branch.hiddenInMvp,
+          requirement: formatStyleBranchRequirement(data, branch),
+          effects: branch.effects.map(formatStyleBranchEffect)
+        };
+      })
     };
   });
 }
@@ -1671,13 +2133,13 @@ function buildOfflineRewardSummaryView(
     return null;
   }
 
-  const stage = getStageById(data, summary.stageId);
+  const stage = summary.stageId ? getStageById(data, summary.stageId) : null;
   const region = data.regions.find((candidate) => candidate.id === stage?.regionId);
 
   return {
     ...summary,
-    stageName: stage?.name ?? summary.stageId,
-    regionName: region?.name ?? stage?.regionId ?? "Unknown map"
+    stageName: stage?.name ?? "Assignments",
+    regionName: region?.name ?? stage?.regionId ?? "Idle routes"
   };
 }
 
@@ -2144,6 +2606,7 @@ export function getWebGameViewModel(
     ),
     equipmentInventory: buildEquipmentInventoryViews(data, state.progress),
     heroEquipment: buildHeroEquipmentViews(data, state.progress),
+    assignments: buildAssignmentViews(data, state.progress),
     upgrades: buildUpgradeViews(data, state.progress),
     skillUpgrades: buildSkillUpgradeViews(data, state.progress),
     styleMastery: buildStyleMasteryViews(data, state.progress),
@@ -2160,7 +2623,9 @@ export function getWebGameViewModel(
     battleSummary: buildBattleSummary(state.lastBattle, lastBattleStage?.name ?? null),
     lastPurchase: state.lastPurchase,
     lastSkillPurchase: state.lastSkillPurchase,
-    lastEquipmentAction: state.lastEquipmentAction
+    lastEquipmentAction: state.lastEquipmentAction,
+    lastStyleBranchAction: state.lastStyleBranchAction,
+    lastAssignmentAction: state.lastAssignmentAction
   };
 }
 
@@ -2286,6 +2751,32 @@ export function useWebGameState(data: StaticGameData) {
       slot
     });
   }, [dispatchAndPersist]);
+
+  const selectStyleBranch = useCallback(
+    (input: SelectGameStyleBranchInput) => {
+      dispatchAndPersist({
+        type: "style_branch_select_resolved",
+        result: selectCoreStyleBranch(data, {
+          progress: state.progress,
+          ...input
+        })
+      });
+    },
+    [data, dispatchAndPersist, state.progress]
+  );
+
+  const setAssignmentHeroes = useCallback(
+    (input: SetGameAssignmentHeroesInput) => {
+      dispatchAndPersist({
+        type: "assignment_update_resolved",
+        result: setCoreAssignmentHeroes(data, {
+          progress: state.progress,
+          ...input
+        })
+      });
+    },
+    [data, dispatchAndPersist, state.progress]
+  );
 
   const dismissOfflineSummary = useCallback(() => {
     dispatch({
@@ -2461,7 +2952,10 @@ export function useWebGameState(data: StaticGameData) {
         };
       }
 
-      const offlineSummary = createOfflineRewardSummary(loadResult.offlineRewards);
+      const offlineSummary = createOfflineRewardSummary(
+        loadResult.offlineRewards,
+        loadResult.offlineAssignmentRewards
+      );
 
       dispatch({
         type: "replace_state",
@@ -2490,6 +2984,8 @@ export function useWebGameState(data: StaticGameData) {
     selectStage,
     setOfflineFarmPreset,
     setHeroFormation,
+    selectStyleBranch,
+    setAssignmentHeroes,
     dismissOfflineSummary,
     exportSave,
     importSave,

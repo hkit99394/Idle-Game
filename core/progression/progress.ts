@@ -42,11 +42,13 @@ export function createInitialPlayerProgress(
     ),
     formation: createDefaultPlayerFormation(data.heroes.map((hero) => hero.id)),
     styleMastery: {},
+    styleBranches: {},
     skillUpgrades: {},
     equipment: {
       inventory: {},
       equipped: {}
     },
+    assignments: {},
     currentStageId: firstStageId
   };
 }
@@ -84,6 +86,9 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
           ])
         )
       : undefined,
+    styleBranches: progress.styleBranches
+      ? { ...progress.styleBranches }
+      : undefined,
     skillUpgrades: progress.skillUpgrades
       ? { ...progress.skillUpgrades }
       : undefined,
@@ -97,6 +102,14 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
             ])
           )
         }
+      : undefined,
+    assignments: progress.assignments
+      ? Object.fromEntries(
+          Object.entries(progress.assignments).map(([assignmentId, assignment]) => [
+            assignmentId,
+            { heroIds: [...assignment.heroIds] }
+          ])
+        )
       : undefined,
     currentStageId: progress.currentStageId
   };
