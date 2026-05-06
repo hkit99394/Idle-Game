@@ -213,7 +213,13 @@ describe("balance report", () => {
     });
     expect(lotusBalance.recoveryEvents).toMatchObject({
       heals: expect.any(Number),
-      outerHealing: expect.any(Number)
+      regenerations: expect.any(Number),
+      wounds: expect.any(Number),
+      cleanses: expect.any(Number),
+      outerHealing: expect.any(Number),
+      innerQiRestored: expect.any(Number),
+      overhealing: expect.any(Number),
+      recoveryPrevented: expect.any(Number)
     });
     expect(lotusBalance.recoveryEvents.heals).toBeGreaterThan(0);
     expect(lotusBalance.recoveryEvents.outerHealing).toBeGreaterThan(0);
@@ -309,6 +315,7 @@ describe("balance report", () => {
     expect(formatted).toContain("defense");
     expect(formatted).toContain("g0/p0/a");
     expect(formatted).toContain("heals");
+    expect(formatted).toContain("recovery denied");
     expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("Formation Targeting");
     expect(formatted).toContain("npm run simulate -- --json");

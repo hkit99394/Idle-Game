@@ -268,7 +268,13 @@
     "effects": [
       {
         "type": "outer_heal_percent",
-        "value": 0.08
+        "value": 0.05,
+        "target": "lowest_outer_hp_ally"
+      },
+      {
+        "type": "inner_heal_percent",
+        "value": 0.03,
+        "target": "lowest_inner_qi_ally"
       }
     ]
   },
@@ -289,6 +295,12 @@
         "type": "guard",
         "value": 0.14,
         "durationSeconds": 4
+      },
+      {
+        "type": "outer_regeneration_percent",
+        "value": 0.015,
+        "durationSeconds": 3,
+        "target": "lowest_outer_hp_ally"
       }
     ]
   },
@@ -322,7 +334,14 @@
       },
       {
         "type": "outer_heal_percent",
-        "value": 0.06
+        "value": 0.035,
+        "target": "lowest_outer_hp_ally"
+      },
+      {
+        "type": "inner_regeneration_percent",
+        "value": 0.015,
+        "durationSeconds": 3,
+        "target": "lowest_inner_qi_ally"
       }
     ]
   },
@@ -336,7 +355,8 @@
     "effects": [
       {
         "type": "outer_heal_percent",
-        "value": 0.1
+        "value": 0.07,
+        "target": "lowest_outer_hp_ally"
       },
       {
         "type": "guard",
@@ -347,6 +367,11 @@
         "type": "protect",
         "value": 0.16,
         "durationSeconds": 5
+      },
+      {
+        "type": "cleanse",
+        "value": 1,
+        "target": "wounded_or_armor_broken_ally"
       }
     ]
   }

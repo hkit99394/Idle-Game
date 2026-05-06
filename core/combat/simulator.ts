@@ -12,6 +12,7 @@ import type {
 import type {
   EnemyDefinition,
   HeroDefinition,
+  SkillEffect,
   SkillUpgradeDefinition,
   SkillDefinition,
   StaticGameData
@@ -34,6 +35,8 @@ import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
 
 const BASIC_SKILL_ID = "basic_strike";
 const DEFENSIVE_EFFECT_MAX_VALUE = 0.9;
+const RECOVERY_EFFECT_MAX_VALUE = 1;
+const RECOVERY_TICK_INTERVAL_SECONDS = 1;
 const FORMATION_SLOT_ORDER = {
   front: 0,
   middle: 1,
@@ -180,6 +183,8 @@ function createCombatantState(
     guard: null,
     protection: null,
     armorBreak: null,
+    wound: null,
+    regeneration: null,
     defeatedAt: null
   };
 }
@@ -202,6 +207,18 @@ function createInitialMetrics(): BattleMetrics {
     protectionDamagePreventedByEnemy: 0,
     armorBreaksTriggeredByPlayer: 0,
     armorBreaksTriggeredByEnemy: 0,
+    woundsTriggeredByPlayer: 0,
+    woundsTriggeredByEnemy: 0,
+    cleansesByPlayer: 0,
+    cleansesByEnemy: 0,
+    playerOuterHealing: 0,
+    enemyOuterHealing: 0,
+    playerInnerQiRestored: 0,
+    enemyInnerQiRestored: 0,
+    playerOverhealing: 0,
+    enemyOverhealing: 0,
+    recoveryPreventedByPlayer: 0,
+    recoveryPreventedByEnemy: 0,
     playerEffectiveDps: 0,
     enemyEffectiveDps: 0
   };
@@ -232,6 +249,12 @@ function createInitialContributions(
         protectionDamagePrevented: 0,
         protectionTriggers: 0,
         armorBreaksApplied: 0,
+        woundsApplied: 0,
+        cleansesApplied: 0,
+        outerHealingDone: 0,
+        innerQiRestored: 0,
+        overhealingDone: 0,
+        recoveryPrevented: 0,
         survived: true
       }
     ])
@@ -380,6 +403,10 @@ function clampDefensiveEffectValue(value: number): number {
   return clamp(value, 0, DEFENSIVE_EFFECT_MAX_VALUE);
 }
 
+function clampRecoveryEffectValue(value: number): number {
+  return clamp(value, 0, RECOVERY_EFFECT_MAX_VALUE);
+}
+
 function expireTimedCombatEffects(combatants: CombatantState[], time: number): void {
   for (const combatant of combatants) {
     if (combatant.guard && time >= combatant.guard.expiresAt) {
@@ -392,6 +419,14 @@ function expireTimedCombatEffects(combatants: CombatantState[], time: number): v
 
     if (combatant.armorBreak && time >= combatant.armorBreak.expiresAt) {
       combatant.armorBreak = null;
+    }
+
+    if (combatant.wound && time >= combatant.wound.expiresAt) {
+      combatant.wound = null;
+    }
+
+    if (combatant.regeneration && time >= combatant.regeneration.expiresAt) {
+      combatant.regeneration = null;
     }
   }
 }
@@ -581,7 +616,213 @@ function applyProtectionReduction(
   };
 }
 
-function applyDefensiveSkillEffects(
+function getWoundReduction(target: CombatantState, time: number): number {
+  if (!target.wound || time >= target.wound.expiresAt) {
+    return 0;
+  }
+
+  return clampRecoveryEffectValue(target.wound.value);
+}
+
+function getMissingOuterHp(combatant: CombatantState): number {
+  return Math.max(0, combatant.maxOuterHp - combatant.outerHp);
+}
+
+function getMissingInnerQi(combatant: CombatantState): number {
+  return Math.max(0, combatant.maxInnerQi - combatant.innerQi);
+}
+
+function hasCleanseableStatus(combatant: CombatantState, time: number): boolean {
+  return (
+    Boolean(combatant.wound && time < combatant.wound.expiresAt) ||
+    Boolean(combatant.armorBreak && time < combatant.armorBreak.expiresAt)
+  );
+}
+
+function selectAllyByScore(
+  combatants: CombatantState[],
+  attacker: CombatantState,
+  getScore: (combatant: CombatantState) => number
+): CombatantState {
+  return combatants
+    .filter((combatant) => combatant.team === attacker.team && isLiving(combatant))
+    .map((combatant, encounterOrder) => ({
+      combatant,
+      encounterOrder,
+      score: getScore(combatant)
+    }))
+    .sort(
+      (first, second) =>
+        second.score - first.score || first.encounterOrder - second.encounterOrder
+    )[0]?.combatant ?? attacker;
+}
+
+function selectEffectTarget(
+  combatants: CombatantState[],
+  attacker: CombatantState,
+  offensiveTarget: CombatantState,
+  effect: SkillEffect,
+  time: number
+): CombatantState {
+  switch (effect.target) {
+    case "target":
+      return offensiveTarget;
+
+    case "lowest_outer_hp_ally":
+      return selectAllyByScore(combatants, attacker, getMissingOuterHp);
+
+    case "lowest_inner_qi_ally":
+      return selectAllyByScore(combatants, attacker, getMissingInnerQi);
+
+    case "wounded_or_armor_broken_ally":
+      return selectAllyByScore(combatants, attacker, (combatant) =>
+        hasCleanseableStatus(combatant, time) ? 1 : 0
+      );
+
+    case "self":
+    case undefined:
+      return attacker;
+  }
+}
+
+function recordRecovery(
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  source: CombatantState,
+  outerHealing: number,
+  innerQiRestored: number,
+  overhealing: number,
+  recoveryPrevented: number,
+  recoveryPreventedById?: string
+): void {
+  if (source.team === "player") {
+    metrics.playerOuterHealing += outerHealing;
+    metrics.playerInnerQiRestored += innerQiRestored;
+    metrics.playerOverhealing += overhealing;
+    metrics.recoveryPreventedByEnemy += recoveryPrevented;
+  } else {
+    metrics.enemyOuterHealing += outerHealing;
+    metrics.enemyInnerQiRestored += innerQiRestored;
+    metrics.enemyOverhealing += overhealing;
+    metrics.recoveryPreventedByPlayer += recoveryPrevented;
+  }
+
+  const sourceContribution = contributions.get(source.instanceId);
+
+  if (sourceContribution) {
+    sourceContribution.outerHealingDone += outerHealing;
+    sourceContribution.innerQiRestored += innerQiRestored;
+    sourceContribution.overhealingDone += overhealing;
+  }
+
+  const preventerContribution = recoveryPreventedById
+    ? contributions.get(recoveryPreventedById)
+    : undefined;
+
+  if (preventerContribution) {
+    preventerContribution.recoveryPrevented += recoveryPrevented;
+  }
+}
+
+function applyRecoveryToTarget(
+  source: CombatantState,
+  target: CombatantState,
+  rawOuterRecovery: number,
+  rawInnerRecovery: number,
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>
+): {
+  outerHealing: number;
+  innerQiRestored: number;
+  overhealing: number;
+  recoveryPrevented: number;
+} {
+  const wound = target.wound && time < target.wound.expiresAt ? target.wound : null;
+  const woundReduction = getWoundReduction(target, time);
+  const recoveryPrevented =
+    (rawOuterRecovery + rawInnerRecovery) * woundReduction;
+  const reducedOuterRecovery = rawOuterRecovery * (1 - woundReduction);
+  const reducedInnerRecovery = rawInnerRecovery * (1 - woundReduction);
+  const outerHealing = Math.min(getMissingOuterHp(target), reducedOuterRecovery);
+  const innerQiRestored = Math.min(
+    getMissingInnerQi(target),
+    reducedInnerRecovery
+  );
+  const overhealing =
+    reducedOuterRecovery -
+    outerHealing +
+    reducedInnerRecovery -
+    innerQiRestored;
+
+  target.outerHp += outerHealing;
+  target.innerQi += innerQiRestored;
+
+  recordRecovery(
+    metrics,
+    contributions,
+    source,
+    outerHealing,
+    innerQiRestored,
+    overhealing,
+    recoveryPrevented,
+    wound?.sourceId
+  );
+
+  return {
+    outerHealing,
+    innerQiRestored,
+    overhealing,
+    recoveryPrevented
+  };
+}
+
+function recordWound(
+  attacker: CombatantState,
+  target: CombatantState,
+  skill: SkillDefinition,
+  value: number,
+  endsAt: number,
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): void {
+  if (!isLiving(target)) {
+    return;
+  }
+
+  target.wound = {
+    value,
+    sourceId: attacker.instanceId,
+    skillId: skill.id,
+    expiresAt: endsAt
+  };
+
+  if (attacker.team === "player") {
+    metrics.woundsTriggeredByPlayer += 1;
+  } else {
+    metrics.woundsTriggeredByEnemy += 1;
+  }
+
+  const attackerContribution = contributions.get(attacker.instanceId);
+
+  if (attackerContribution) {
+    attackerContribution.woundsApplied += 1;
+  }
+
+  events.push({
+    type: "wound",
+    time,
+    sourceId: attacker.instanceId,
+    targetId: target.instanceId,
+    skillId: skill.id,
+    reduction: value,
+    endsAt
+  });
+}
+
+function applyTimedSkillEffects(
   attacker: CombatantState,
   target: CombatantState,
   skill: SkillDefinition,
@@ -597,11 +838,12 @@ function applyDefensiveSkillEffects(
       continue;
     }
 
-    const value = clampDefensiveEffectValue(effect.value);
     const endsAt = time + durationSeconds;
 
     switch (effect.type) {
-      case "guard":
+      case "guard": {
+        const value = clampDefensiveEffectValue(effect.value);
+
         attacker.guard = {
           value,
           sourceId: attacker.instanceId,
@@ -618,8 +860,11 @@ function applyDefensiveSkillEffects(
           endsAt
         });
         break;
+      }
 
-      case "protect":
+      case "protect": {
+        const value = clampDefensiveEffectValue(effect.value);
+
         attacker.protection = {
           value,
           sourceId: attacker.instanceId,
@@ -627,11 +872,14 @@ function applyDefensiveSkillEffects(
           expiresAt: endsAt
         };
         break;
+      }
 
-      case "armor_break":
+      case "armor_break": {
         if (!isLiving(target)) {
           break;
         }
+
+        const value = clampDefensiveEffectValue(effect.value);
 
         target.armorBreak = {
           value,
@@ -662,14 +910,160 @@ function applyDefensiveSkillEffects(
           endsAt
         });
         break;
+      }
+
+      case "wound": {
+        const value = clampRecoveryEffectValue(effect.value);
+
+        if (value <= 0) {
+          break;
+        }
+
+        recordWound(
+          attacker,
+          target,
+          skill,
+          value,
+          endsAt,
+          time,
+          metrics,
+          contributions,
+          events
+        );
+        break;
+      }
     }
   }
 }
 
-function applyHealingEffects(
+function applyCleanseEffect(
+  combatants: CombatantState[],
   attacker: CombatantState,
+  offensiveTarget: CombatantState,
+  skill: SkillDefinition,
+  effect: SkillEffect,
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): void {
+  const target = selectEffectTarget(
+    combatants,
+    attacker,
+    offensiveTarget,
+    effect,
+    time
+  );
+
+  if (!isLiving(target)) {
+    return;
+  }
+
+  const removeCount = Math.max(1, Math.floor(effect.value));
+  const statusesRemoved: Array<"wound" | "armor_break"> = [];
+
+  if (target.wound && time < target.wound.expiresAt) {
+    target.wound = null;
+    statusesRemoved.push("wound");
+  }
+
+  if (
+    statusesRemoved.length < removeCount &&
+    target.armorBreak &&
+    time < target.armorBreak.expiresAt
+  ) {
+    target.armorBreak = null;
+    statusesRemoved.push("armor_break");
+  }
+
+  if (statusesRemoved.length === 0) {
+    return;
+  }
+
+  if (attacker.team === "player") {
+    metrics.cleansesByPlayer += 1;
+  } else {
+    metrics.cleansesByEnemy += 1;
+  }
+
+  const attackerContribution = contributions.get(attacker.instanceId);
+
+  if (attackerContribution) {
+    attackerContribution.cleansesApplied += 1;
+  }
+
+  events.push({
+    type: "cleanse",
+    time,
+    sourceId: attacker.instanceId,
+    targetId: target.instanceId,
+    skillId: skill.id,
+    statusesRemoved
+  });
+}
+
+function applyRegenerationEffect(
+  combatants: CombatantState[],
+  attacker: CombatantState,
+  offensiveTarget: CombatantState,
+  skill: SkillDefinition,
+  effect: SkillEffect,
+  time: number,
+  events: BattleEvent[]
+): void {
+  const durationSeconds = effect.durationSeconds ?? 0;
+  const value = clampRecoveryEffectValue(effect.value);
+
+  if (durationSeconds <= 0 || value <= 0) {
+    return;
+  }
+
+  const target = selectEffectTarget(
+    combatants,
+    attacker,
+    offensiveTarget,
+    effect,
+    time
+  );
+
+  if (!isLiving(target)) {
+    return;
+  }
+
+  const restores =
+    effect.type === "outer_regeneration_percent" ? "outer" : "inner";
+  const endsAt = time + durationSeconds;
+
+  target.regeneration = {
+    value,
+    sourceId: attacker.instanceId,
+    skillId: skill.id,
+    expiresAt: endsAt,
+    nextTickAt: time + RECOVERY_TICK_INTERVAL_SECONDS,
+    tickIntervalSeconds: RECOVERY_TICK_INTERVAL_SECONDS,
+    restores
+  };
+
+  events.push({
+    type: "regeneration",
+    time,
+    sourceId: attacker.instanceId,
+    targetId: target.instanceId,
+    skillId: skill.id,
+    restores,
+    percentPerTick: value,
+    endsAt
+  });
+}
+
+function applyRecoverySkillEffects(
+  combatants: CombatantState[],
+  attacker: CombatantState,
+  offensiveTarget: CombatantState,
   skill: SkillDefinition,
   time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): void {
   if (!isLiving(attacker)) {
@@ -677,25 +1071,125 @@ function applyHealingEffects(
   }
 
   for (const effect of skill.effects) {
-    if (effect.type !== "outer_heal_percent" || effect.value <= 0) {
-      continue;
+    switch (effect.type) {
+      case "outer_heal_percent":
+      case "inner_heal_percent": {
+        const value = clampRecoveryEffectValue(effect.value);
+
+        if (value <= 0) {
+          break;
+        }
+
+        const target = selectEffectTarget(
+          combatants,
+          attacker,
+          offensiveTarget,
+          effect,
+          time
+        );
+
+        if (!isLiving(target)) {
+          break;
+        }
+
+        const result = applyRecoveryToTarget(
+          attacker,
+          target,
+          effect.type === "outer_heal_percent" ? target.maxOuterHp * value : 0,
+          effect.type === "inner_heal_percent" ? target.maxInnerQi * value : 0,
+          time,
+          metrics,
+          contributions
+        );
+
+        events.push({
+          type: "heal",
+          time,
+          sourceId: attacker.instanceId,
+          targetId: target.instanceId,
+          skillId: skill.id,
+          ...result
+        });
+        break;
+      }
+
+      case "outer_regeneration_percent":
+      case "inner_regeneration_percent":
+        applyRegenerationEffect(
+          combatants,
+          attacker,
+          offensiveTarget,
+          skill,
+          effect,
+          time,
+          events
+        );
+        break;
+
+      case "cleanse":
+        applyCleanseEffect(
+          combatants,
+          attacker,
+          offensiveTarget,
+          skill,
+          effect,
+          time,
+          metrics,
+          contributions,
+          events
+        );
+        break;
     }
+  }
+}
 
-    const missingOuterHp = attacker.maxOuterHp - attacker.outerHp;
-    const outerHealing = Math.min(missingOuterHp, attacker.maxOuterHp * effect.value);
+function tickRegeneration(
+  combatants: CombatantState[],
+  time: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): void {
+  for (const combatant of combatants) {
+    while (
+      isLiving(combatant) &&
+      combatant.regeneration &&
+      time >= combatant.regeneration.nextTickAt &&
+      combatant.regeneration.nextTickAt < combatant.regeneration.expiresAt
+    ) {
+      const regeneration = combatant.regeneration;
+      const source =
+        combatants.find(
+          (candidate) => candidate.instanceId === regeneration.sourceId
+        ) ?? combatant;
+      const tickTime = Number(regeneration.nextTickAt.toFixed(6));
+      const result = applyRecoveryToTarget(
+        source,
+        combatant,
+        regeneration.restores === "outer"
+          ? combatant.maxOuterHp * regeneration.value
+          : 0,
+        regeneration.restores === "inner"
+          ? combatant.maxInnerQi * regeneration.value
+          : 0,
+        tickTime,
+        metrics,
+        contributions
+      );
 
-    if (outerHealing <= 0) {
-      continue;
+      events.push({
+        type: "regeneration_tick",
+        time: tickTime,
+        sourceId: regeneration.sourceId,
+        targetId: combatant.instanceId,
+        skillId: regeneration.skillId,
+        ...result
+      });
+
+      regeneration.nextTickAt = Number(
+        (regeneration.nextTickAt + regeneration.tickIntervalSeconds).toFixed(6)
+      );
     }
-
-    attacker.outerHp += outerHealing;
-    events.push({
-      type: "heal",
-      time,
-      sourceId: attacker.instanceId,
-      targetId: attacker.instanceId,
-      outerHealing
-    });
   }
 }
 
@@ -882,8 +1376,17 @@ function executeAction(
         : intendedTarget.instanceId
   });
 
-  applyHealingEffects(attacker, skill, time, events);
-  applyDefensiveSkillEffects(
+  applyTimedSkillEffects(
+    attacker,
+    target,
+    skill,
+    time,
+    metrics,
+    contributions,
+    events
+  );
+  applyRecoverySkillEffects(
+    combatants,
     attacker,
     target,
     skill,
@@ -993,6 +1496,7 @@ export function simulateBattle(
     expireTimedCombatEffects(combatants, time);
     recoverQiBreaks(combatants, time, constants, events);
     recoverInnerQi(combatants, time, stepSeconds, constants);
+    tickRegeneration(combatants, time, metrics, contributions, events);
 
     for (const combatant of combatants) {
       executeAction(

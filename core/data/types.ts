@@ -14,16 +14,29 @@ export type UnlockCondition =
 
 export type SkillEffectType =
   | "outer_heal_percent"
+  | "inner_heal_percent"
+  | "outer_regeneration_percent"
+  | "inner_regeneration_percent"
+  | "wound"
+  | "cleanse"
   | "speed_down"
   | "inner_defense_down"
   | "guard"
   | "protect"
   | "armor_break";
 
+export type SkillEffectTarget =
+  | "self"
+  | "target"
+  | "lowest_outer_hp_ally"
+  | "lowest_inner_qi_ally"
+  | "wounded_or_armor_broken_ally";
+
 export type SkillEffect = {
   type: SkillEffectType;
   value: number;
   durationSeconds?: number;
+  target?: SkillEffectTarget;
 };
 
 export type EquipmentSlot = "weapon" | "armor" | "manual" | "medicine";

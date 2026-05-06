@@ -36,7 +36,7 @@ Deliver the next meaningful layer of sustain, roster choice, and idle planning:
 | Epic | Status | Lane | Goal |
 | --- | --- | --- | --- |
 | Epic 19: Lotus Monastery Region | Completed | Content Expansion | Add the next region with healing and support enemy identity |
-| Epic 20: Recovery And Wound Mechanics | Not Started | Combat Depth | Add healing, regeneration, cleanse, wound, and anti-recovery behavior |
+| Epic 20: Recovery And Wound Mechanics | Completed | Combat Depth | Add healing, regeneration, cleanse, wound, and anti-recovery behavior |
 | Epic 21: Limited Recruitment And Support Roles | Not Started | Hero Growth | Add a first recruit path and make support formation choices meaningful |
 | Epic 22: Herbs And Medicine Progression | Not Started | Loot And Idle | Add deterministic herb rewards, medicine items, and medicine assignments |
 | Epic 23: Status Effect Foundation | Not Started | Technical Combat | Normalize buffs, debuffs, durations, and battle event summaries |
@@ -132,7 +132,7 @@ Acceptance:
 
 ## Epic 20: Recovery And Wound Mechanics
 
-Status: Not Started
+Status: Completed
 
 Goal:
 
@@ -149,7 +149,7 @@ Tasks:
 
 ### 20.1 Heal And Regeneration Effects
 
-Status: Not Started
+Status: Completed
 
 Add direct healing and short regeneration.
 
@@ -161,9 +161,16 @@ Acceptance:
 - Battle logs summarize healing and overheal clearly.
 - Tests cover healing a damaged ally, no-op healing at full HP, and Inner Qi recovery.
 
+Implementation:
+
+- Added direct Outer HP and Inner Qi recovery skill effects.
+- Added deterministic Outer and Inner regeneration ticks.
+- Added effective healing, Inner Qi restored, overheal, and recovery-prevented metrics.
+- Added recovery event UI details and focused combat tests.
+
 ### 20.2 Wound And Anti-Recovery
 
-Status: Not Started
+Status: Completed
 
 Add counterplay against sustain.
 
@@ -175,9 +182,16 @@ Acceptance:
 - At least one player skill, branch, or equipment path can apply wound.
 - Scenario tests show wound improves clear time against a healer team.
 
+Implementation:
+
+- Added timed wound as an anti-recovery debuff.
+- Wound reduces healing and regeneration, credits recovery denial to the wound applier, and leaves damage formulas unchanged.
+- Added a White Crane Slash refinement path that unlocks wound.
+- Added scenario coverage proving wound shortens a healer fight.
+
 ### 20.3 Cleanse And Recovery Protection
 
-Status: Not Started
+Status: Completed
 
 Add support counterplay for debuffs.
 
@@ -188,9 +202,16 @@ Acceptance:
 - Wound and armor break remain distinct statuses.
 - Battle events show who cleansed whom and which status was removed.
 
+Implementation:
+
+- Added cleanse as a skill effect with explicit target selection.
+- Cleanse removes wound and armor break only, preserving positive guard/protection/regeneration effects.
+- Lotus support skills can cleanse wounded or armor-broken allies.
+- Added combat coverage for wound plus armor break cleanse while guard remains active.
+
 ### 20.4 Recovery Battle Summary
 
-Status: Not Started
+Status: Completed
 
 Expose sustain in battle results.
 
@@ -200,6 +221,12 @@ Acceptance:
 - Battle summary includes wound uptime or recovery prevented when present.
 - UI can show healing and wound events without overwhelming the log.
 - Balance report can aggregate healing, overheal, cleanse, and recovery prevented.
+
+Implementation:
+
+- Battle summary now calls out top recovery and recovery denial when present.
+- Battle logs show heal, regeneration, regeneration tick, wound, and cleanse events.
+- Balance reports aggregate healing, Inner Qi restored, overheal, wounds, cleanses, and recovery denied.
 
 ## Epic 21: Limited Recruitment And Support Roles
 

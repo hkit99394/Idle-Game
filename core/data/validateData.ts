@@ -209,6 +209,49 @@ function validateRegionStageOwnership(
   );
 }
 
+function validateSkillEffect(
+  ownerLabel: string,
+  effect: SkillDefinition["effects"][number]
+): string[] {
+  const errors: string[] = [];
+
+  if (!SKILL_EFFECT_TYPES.includes(effect.type)) {
+    errors.push(
+      `${ownerLabel} effect ${String(effect.type)} must be one of ${SKILL_EFFECT_TYPES.join(", ")}`
+    );
+  }
+
+  if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+    errors.push(
+      `${ownerLabel} effect ${String(effect.type)} value must be a number`
+    );
+  }
+
+  if (
+    effect.target !== undefined &&
+    !SKILL_EFFECT_TARGETS.includes(effect.target)
+  ) {
+    errors.push(
+      `${ownerLabel} effect ${String(effect.type)} target must be one of ${SKILL_EFFECT_TARGETS.join(", ")}`
+    );
+  }
+
+  if (
+    TIMED_SKILL_EFFECT_TYPES.includes(
+      effect.type as (typeof TIMED_SKILL_EFFECT_TYPES)[number]
+    ) &&
+    (typeof effect.durationSeconds !== "number" ||
+      effect.durationSeconds <= 0 ||
+      Number.isNaN(effect.durationSeconds))
+  ) {
+    errors.push(
+      `${ownerLabel} effect ${effect.type} durationSeconds must be a positive number`
+    );
+  }
+
+  return errors;
+}
+
 function validateSkill(skill: SkillDefinition): string[] {
   const errors: string[] = [];
 
@@ -227,30 +270,7 @@ function validateSkill(skill: SkillDefinition): string[] {
   }
 
   for (const effect of skill.effects) {
-    if (!SKILL_EFFECT_TYPES.includes(effect.type)) {
-      errors.push(
-        `Skill ${skill.id} effect ${String(effect.type)} must be one of ${SKILL_EFFECT_TYPES.join(", ")}`
-      );
-    }
-
-    if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
-      errors.push(
-        `Skill ${skill.id} effect ${String(effect.type)} value must be a number`
-      );
-    }
-
-    if (
-      TIMED_SKILL_EFFECT_TYPES.includes(
-        effect.type as (typeof TIMED_SKILL_EFFECT_TYPES)[number]
-      ) &&
-      (typeof effect.durationSeconds !== "number" ||
-        effect.durationSeconds <= 0 ||
-        Number.isNaN(effect.durationSeconds))
-    ) {
-      errors.push(
-        `Skill ${skill.id} effect ${effect.type} durationSeconds must be a positive number`
-      );
-    }
+    errors.push(...validateSkillEffect(`Skill ${skill.id}`, effect));
   }
 
   return errors;
@@ -263,13 +283,28 @@ const ASSIGNMENT_TYPES = ["patrol", "training_ground"] as const;
 const ASSIGNMENT_DURATION_BUCKETS = ["short", "medium", "long"] as const;
 const SKILL_EFFECT_TYPES = [
   "outer_heal_percent",
+  "inner_heal_percent",
+  "outer_regeneration_percent",
+  "inner_regeneration_percent",
+  "wound",
+  "cleanse",
   "speed_down",
   "inner_defense_down",
   "guard",
   "protect",
   "armor_break"
 ] as const;
+const SKILL_EFFECT_TARGETS = [
+  "self",
+  "target",
+  "lowest_outer_hp_ally",
+  "lowest_inner_qi_ally",
+  "wounded_or_armor_broken_ally"
+] as const;
 const TIMED_SKILL_EFFECT_TYPES = [
+  "outer_regeneration_percent",
+  "inner_regeneration_percent",
+  "wound",
   "speed_down",
   "inner_defense_down",
   "guard",
@@ -571,6 +606,12 @@ function validateSkillUpgrade(
           `Skill upgrade ${skillUpgrade.id} add_skill_effect unlockLevel must be an integer >= 1`
         );
       }
+      errors.push(
+        ...validateSkillEffect(
+          `Skill upgrade ${skillUpgrade.id} add_skill_effect`,
+          effect.effect
+        )
+      );
       continue;
     }
 

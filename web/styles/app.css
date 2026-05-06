@@ -1646,9 +1646,21 @@ h2 {
   background: #f5e7e2;
 }
 
-.event-row.heal {
+.event-row.heal,
+.event-row.regeneration,
+.event-row.regeneration_tick {
   border-color: #547536;
   background: #f4f8ec;
+}
+
+.event-row.wound {
+  border-color: #9d3f2f;
+  background: #f5e7e2;
+}
+
+.event-row.cleanse {
+  border-color: #517657;
+  background: #eff7ed;
 }
 
 .event-row.defeat {

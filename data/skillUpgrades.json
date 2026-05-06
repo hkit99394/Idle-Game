@@ -36,7 +36,17 @@
     "effects": [
       { "type": "cooldown_seconds", "valuePerLevel": -0.1 },
       { "type": "outer_multiplier", "valuePerLevel": 0.04 },
-      { "type": "inner_multiplier", "valuePerLevel": 0.04 }
+      { "type": "inner_multiplier", "valuePerLevel": 0.04 },
+      {
+        "type": "add_skill_effect",
+        "unlockLevel": 3,
+        "effect": {
+          "type": "wound",
+          "value": 0.35,
+          "durationSeconds": 6,
+          "target": "target"
+        }
+      }
     ]
   },
   {

@@ -563,6 +563,15 @@ function summarizeBattle(
   const healEvents = result.battle.events.filter(
     (event) => event.type === "heal"
   );
+  const regenerationTickEvents = result.battle.events.filter(
+    (event) => event.type === "regeneration_tick"
+  );
+  const woundEvents = result.battle.events.filter(
+    (event) => event.type === "wound"
+  );
+  const cleanseEvents = result.battle.events.filter(
+    (event) => event.type === "cleanse"
+  );
   const targetMet = targetSeconds
     ? result.battle.winner === "player" &&
       durationSeconds >= targetSeconds[0] &&
@@ -588,11 +597,39 @@ function summarizeBattle(
     guardAbsorbs: guardEvents.length,
     protections: protectEvents.length,
     armorBreaks: armorBreakEvents.length,
-    heals: healEvents.length,
+    heals: healEvents.length + regenerationTickEvents.length,
+    regenerations: regenerationTickEvents.length,
+    wounds: woundEvents.length,
+    cleanses: cleanseEvents.length,
     outerHealing: Number(
-      healEvents
-        .reduce((total, event) => total + event.outerHealing, 0)
-        .toFixed(2)
+      (
+        result.battle.metrics.playerOuterHealing +
+        result.battle.metrics.enemyOuterHealing
+      ).toFixed(2)
+    ),
+    innerQiRestored: Number(
+      (
+        result.battle.metrics.playerInnerQiRestored +
+        result.battle.metrics.enemyInnerQiRestored
+      ).toFixed(2)
+    ),
+    overhealing: Number(
+      (
+        result.battle.metrics.playerOverhealing +
+        result.battle.metrics.enemyOverhealing
+      ).toFixed(2)
+    ),
+    recoveryPrevented: Number(
+      (
+        result.battle.metrics.recoveryPreventedByPlayer +
+        result.battle.metrics.recoveryPreventedByEnemy
+      ).toFixed(2)
+    ),
+    recoveryPreventedByPlayer: Number(
+      result.battle.metrics.recoveryPreventedByPlayer.toFixed(2)
+    ),
+    recoveryPreventedByEnemy: Number(
+      result.battle.metrics.recoveryPreventedByEnemy.toFixed(2)
     ),
     defensiveDamagePrevented: Number(
       (
@@ -744,14 +781,35 @@ function buildRecoveryEventSummary(
 
       return {
         heals: summary.heals + (stage.heals ?? 0),
+        regenerations: summary.regenerations + (stage.regenerations ?? 0),
+        wounds: summary.wounds + (stage.wounds ?? 0),
+        cleanses: summary.cleanses + (stage.cleanses ?? 0),
         outerHealing: Number(
           (summary.outerHealing + (stage.outerHealing ?? 0)).toFixed(2)
+        ),
+        innerQiRestored: Number(
+          (summary.innerQiRestored + (stage.innerQiRestored ?? 0)).toFixed(2)
+        ),
+        overhealing: Number(
+          (summary.overhealing + (stage.overhealing ?? 0)).toFixed(2)
+        ),
+        recoveryPrevented: Number(
+          (
+            summary.recoveryPrevented +
+            (stage.recoveryPrevented ?? 0)
+          ).toFixed(2)
         )
       };
     },
     {
       heals: 0,
-      outerHealing: 0
+      regenerations: 0,
+      wounds: 0,
+      cleanses: 0,
+      outerHealing: 0,
+      innerQiRestored: 0,
+      overhealing: 0,
+      recoveryPrevented: 0
     }
   );
 }
@@ -1176,7 +1234,12 @@ function formatRegionDefensiveEventLine(region: RegionSummary): string {
 function formatRegionRecoveryEventLine(region: RegionSummary): string {
   const events = region.recoveryEvents;
 
-  return `- ${region.regionName}: ${events.heals} heals, ${events.outerHealing} Outer HP restored`;
+  return (
+    `- ${region.regionName}: ${events.heals} heals/regen ticks, ` +
+    `${events.outerHealing} Outer HP and ${events.innerQiRestored} Inner Qi restored, ` +
+    `${events.overhealing} overheal, ${events.recoveryPrevented} recovery denied, ` +
+    `${events.wounds} wounds, ${events.cleanses} cleanses`
+  );
 }
 
 function formatRegionStageTable(

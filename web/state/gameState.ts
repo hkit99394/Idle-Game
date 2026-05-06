@@ -205,6 +205,10 @@ export type BattleEventCategory =
   | "guard_absorb"
   | "protect"
   | "heal"
+  | "wound"
+  | "regeneration"
+  | "regeneration_tick"
+  | "cleanse"
   | "defeat";
 
 export type BattleEventBadgeTone =
@@ -1290,16 +1294,168 @@ function buildBattleEventDetail(
     }
 
     case "heal": {
+      const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
+      const restored = event.outerHealing + event.innerQiRestored;
+      const detail = [
+        event.outerHealing > 0
+          ? `${formatBattleNumber(event.outerHealing)} Outer HP`
+          : null,
+        event.innerQiRestored > 0
+          ? `${formatBattleNumber(event.innerQiRestored)} Inner Qi`
+          : null,
+        event.overhealing > 0
+          ? `${formatBattleNumber(event.overhealing)} overheal`
+          : null,
+        event.recoveryPrevented > 0
+          ? `${formatBattleNumber(event.recoveryPrevented)} prevented by wound`
+          : null
+      ].filter(Boolean);
 
       return {
         category: "heal",
-        headline: `${target} recovers Outer HP`,
-        detail: `${formatBattleNumber(event.outerHealing)} Outer HP restored`,
+        headline:
+          source === target
+            ? `${target} restores balance`
+            : `${source} restores ${target}`,
+        detail:
+          detail.length > 0
+            ? `${getSkillName(data, event.skillId)} restores ${detail.join(" · ")}`
+            : `${getSkillName(data, event.skillId)} has no effective recovery`,
         badges: [
           {
-            label: `${formatBattleNumber(event.outerHealing)} healed`,
+            label: `${formatBattleNumber(restored)} restored`,
             tone: "outer"
+          },
+          ...(event.recoveryPrevented > 0
+            ? [
+                {
+                  label: `${formatBattleNumber(event.recoveryPrevented)} denied`,
+                  tone: "danger" as const
+                }
+              ]
+            : [])
+        ]
+      };
+    }
+
+    case "wound": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "wound",
+        headline: `${source} wounds ${target}`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces recovery by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Wound",
+            tone: "danger"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} recovery`,
+            tone: "danger"
+          }
+        ]
+      };
+    }
+
+    case "regeneration": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+      const barLabel = event.restores === "outer" ? "Outer HP" : "Inner Qi";
+
+      return {
+        category: "regeneration",
+        headline:
+          source === target
+            ? `${target} starts regeneration`
+            : `${source} grants regeneration to ${target}`,
+        detail:
+          `${getSkillName(data, event.skillId)} restores ${formatBattlePercent(
+            event.percentPerTick
+          )} ${barLabel} each second until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Regeneration",
+            tone: "neutral"
+          },
+          {
+            label: `${formatBattlePercent(event.percentPerTick)} ${barLabel}`,
+            tone: event.restores === "outer" ? "outer" : "inner"
+          }
+        ]
+      };
+    }
+
+    case "regeneration_tick": {
+      const target = getName(names, event.targetId);
+      const restored = event.outerHealing + event.innerQiRestored;
+      const detail = [
+        event.outerHealing > 0
+          ? `${formatBattleNumber(event.outerHealing)} Outer HP`
+          : null,
+        event.innerQiRestored > 0
+          ? `${formatBattleNumber(event.innerQiRestored)} Inner Qi`
+          : null,
+        event.overhealing > 0
+          ? `${formatBattleNumber(event.overhealing)} overheal`
+          : null,
+        event.recoveryPrevented > 0
+          ? `${formatBattleNumber(event.recoveryPrevented)} prevented by wound`
+          : null
+      ].filter(Boolean);
+
+      return {
+        category: "regeneration_tick",
+        headline: `${target} regenerates`,
+        detail:
+          detail.length > 0
+            ? detail.join(" · ")
+            : `${getSkillName(data, event.skillId)} has no effective recovery`,
+        badges: [
+          {
+            label: `${formatBattleNumber(restored)} restored`,
+            tone: "outer"
+          },
+          ...(event.recoveryPrevented > 0
+            ? [
+                {
+                  label: `${formatBattleNumber(event.recoveryPrevented)} denied`,
+                  tone: "danger" as const
+                }
+              ]
+            : [])
+        ]
+      };
+    }
+
+    case "cleanse": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+      const statuses = event.statusesRemoved
+        .map((status) =>
+          status === "armor_break" ? "Armor Break" : "Wound"
+        )
+        .join(", ");
+
+      return {
+        category: "cleanse",
+        headline:
+          source === target
+            ? `${target} cleanses pressure`
+            : `${source} cleanses ${target}`,
+        detail: `${getSkillName(data, event.skillId)} removes ${statuses}`,
+        badges: [
+          {
+            label: "Cleanse",
+            tone: "neutral"
+          },
+          {
+            label: statuses,
+            tone: "danger"
           }
         ]
       };
@@ -1417,6 +1573,15 @@ function buildContributionSummaryDetails(
       contribution.qiBreaksTriggered * 1000 +
       contribution.qiBreakBurstDamageDealt
   );
+  const topHealer = getTopContribution(
+    battle.contributions,
+    (contribution) =>
+      contribution.outerHealingDone + contribution.innerQiRestored
+  );
+  const topRecoveryDenial = getTopContribution(
+    battle.contributions,
+    (contribution) => contribution.recoveryPrevented
+  );
   const carryPool =
     battle.winner === "timeout"
       ? battle.contributions
@@ -1448,6 +1613,27 @@ function buildContributionSummaryDetails(
     );
   } else {
     details.push("Qi breaker: none.");
+  }
+
+  if (
+    topHealer &&
+    topHealer.outerHealingDone + topHealer.innerQiRestored > 0
+  ) {
+    details.push(
+      `Top recovery: ${formatContributionName(topHealer)} restored ${formatBattleNumber(
+        topHealer.outerHealingDone + topHealer.innerQiRestored
+      )} total recovery.`
+    );
+  }
+
+  if (topRecoveryDenial && topRecoveryDenial.recoveryPrevented > 0) {
+    details.push(
+      `Recovery denied: ${formatContributionName(
+        topRecoveryDenial
+      )} prevented ${formatBattleNumber(
+        topRecoveryDenial.recoveryPrevented
+      )} healing.`
+    );
   }
 
   if (carry) {
