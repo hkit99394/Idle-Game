@@ -333,6 +333,51 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid assignment definitions", () => {
+    const invalidData = {
+      ...staticData,
+      assignments: [
+        ...(staticData.assignments ?? []),
+        {
+          id: "broken_assignment",
+          name: "Broken Assignment",
+          type: "errand",
+          unlockCondition: {
+            type: "stage_cleared",
+            stageId: "missing_stage"
+          },
+          durationBucket: "forever",
+          allowedRoles: ["duelist"],
+          allowedStyles: ["missing_style"],
+          rewardProfile: {
+            silverPerHour: -1,
+            mapRegionId: "missing_region",
+            equipmentRewardsPerHour: [
+              {
+                equipmentId: "missing_equipment",
+                quantityPerHour: -0.5
+              }
+            ]
+          }
+        }
+      ]
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Assignment broken_assignment type must be one of patrol, training_ground",
+        "Assignment broken_assignment durationBucket must be one of short, medium, long",
+        "Assignment broken_assignment references missing unlock stage missing_stage",
+        "Assignment broken_assignment role duelist must be one of tank, breaker, striker, support",
+        "Assignment broken_assignment references missing style missing_style",
+        "Assignment broken_assignment reward values must be non-negative numbers",
+        "Assignment broken_assignment references missing reward map missing_region",
+        "Assignment broken_assignment references missing reward equipment missing_equipment",
+        "Assignment broken_assignment equipment reward quantityPerHour must be a non-negative number"
+      ])
+    );
+  });
+
   it("rejects duplicate enemy formation combatant placement", () => {
     const invalidData: StaticGameData = {
       ...staticData,

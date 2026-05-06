@@ -38,6 +38,8 @@ export type EquipmentProgress = {
   equipped: Record<string, Partial<Record<EquipmentSlot, string>>>;
 };
 
+export type AssignmentProgress = Record<string, { heroIds: string[] }>;
+
 export type PlayerProgress = {
   resources: ResourceState;
   heroes: Record<string, HeroProgress>;
@@ -48,6 +50,7 @@ export type PlayerProgress = {
   styleBranches?: StyleBranchProgress;
   skillUpgrades?: Record<string, number>;
   equipment?: EquipmentProgress;
+  assignments?: AssignmentProgress;
   currentStageId: string;
 };
 

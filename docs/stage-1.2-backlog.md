@@ -37,7 +37,7 @@ Deliver the next meaningful layer of content and player choice:
 | Epic 14: Defensive Combat Mechanics | Completed | Combat Depth | Add armor, guard, protection, and armor-break behavior |
 | Epic 15: Style Branch Choices | Completed | Martial Arts Growth | Let heroes unlock and select early style branches |
 | Epic 16: Equipment Affixes And Sets | Completed | Loot And Equipment | Add deterministic item depth and clearer gear decisions |
-| Epic 17: Patrols And Training Grounds | Planned | Offline And Idle | Add simple hero assignment systems for offline progress |
+| Epic 17: Patrols And Training Grounds | Completed | Offline And Idle | Add simple hero assignment systems for offline progress |
 | Epic 18: Stage 1.2 Technical Foundation | Planned | Technical Foundation | Add migrations, simulator coverage, and balance reports for new systems |
 
 ## Epic 13: Black Iron Fort Region
@@ -303,6 +303,8 @@ Acceptance:
 
 ## Epic 17: Patrols And Training Grounds
 
+Status: Completed
+
 Goal:
 
 - Give offline progress a second layer beyond one selected farm target.
@@ -313,9 +315,21 @@ Recommended first version:
 - Do not require real-time timers per hero yet unless needed.
 - Use the existing offline timestamp and idempotency model.
 
+Implementation:
+
+- Added static assignment definitions for patrol and training ground routes.
+- Added assignment save state under player progress with safe older-save defaults.
+- Added core helpers to assign/unassign eligible heroes and prevent duplicate active assignments.
+- Added offline assignment rewards for silver, cultivation, Combat XP, style mastery, and deterministic equipment trickle rewards.
+- Applied assignment rewards through the same offline timestamp update path as farming so reloads cannot duplicate the same interval.
+- Added a compact Patrols And Training panel with locked-state requirements, reward summaries, and hero assignment controls.
+- Added tests for data validation, assignment rules, offline reward math, save validation, idempotency, and web state.
+
 Tasks:
 
 ### 17.1 Assignment Data Model
+
+Status: Completed
 
 Add assignment definitions.
 
@@ -326,6 +340,8 @@ Acceptance:
 - Data validation catches invalid assignment references.
 
 ### 17.2 Assignment Save State
+
+Status: Completed
 
 Persist assignment choices.
 
@@ -338,6 +354,8 @@ Acceptance:
 
 ### 17.3 Assignment Rewards
 
+Status: Completed
+
 Apply offline assignment rewards safely.
 
 Acceptance:
@@ -348,6 +366,8 @@ Acceptance:
 - Tests prove a second reload cannot duplicate assignment rewards.
 
 ### 17.4 Assignment UI
+
+Status: Completed
 
 Add a simple assignment panel.
 
@@ -412,8 +432,7 @@ Acceptance:
 
 ## Recommended Delivery Order
 
-1. Epic 17: patrols and training grounds.
-2. Epic 18 final: migration, browser smoke, full verification.
+1. Epic 18 final: migration, browser smoke, full verification.
 
 ## Out Of Scope For Stage 1.2
 

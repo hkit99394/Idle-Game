@@ -48,6 +48,7 @@ export function createInitialPlayerProgress(
       inventory: {},
       equipped: {}
     },
+    assignments: {},
     currentStageId: firstStageId
   };
 }
@@ -101,6 +102,14 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
             ])
           )
         }
+      : undefined,
+    assignments: progress.assignments
+      ? Object.fromEntries(
+          Object.entries(progress.assignments).map(([assignmentId, assignment]) => [
+            assignmentId,
+            { heroIds: [...assignment.heroIds] }
+          ])
+        )
       : undefined,
     currentStageId: progress.currentStageId
   };

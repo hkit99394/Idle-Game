@@ -1,4 +1,5 @@
 import type {
+  AssignmentDefinition,
   EnemyDefinition,
   EquipmentDefinition,
   EquipmentEffect,
@@ -258,6 +259,8 @@ function validateSkill(skill: SkillDefinition): string[] {
 const EQUIPMENT_SLOTS = ["weapon", "armor", "manual", "medicine"] as const;
 const EQUIPMENT_RARITIES = ["common", "uncommon", "rare"] as const;
 const EQUIPMENT_EFFECT_MODES = ["flat", "multiplier"] as const;
+const ASSIGNMENT_TYPES = ["patrol", "training_ground"] as const;
+const ASSIGNMENT_DURATION_BUCKETS = ["short", "medium", "long"] as const;
 const SKILL_EFFECT_TYPES = [
   "outer_heal_percent",
   "speed_down",
@@ -427,6 +430,109 @@ function validateEquipmentSet(set: EquipmentSetDefinition): string[] {
         )
       );
     }
+  }
+
+  return errors;
+}
+
+function validateAssignment(
+  assignment: AssignmentDefinition,
+  ids: {
+    heroIds: Set<string>;
+    stageIds: Set<string>;
+    styleIds: Set<string>;
+    regionIds: Set<string>;
+    equipmentIds: Set<string>;
+  }
+): string[] {
+  const errors: string[] = [];
+
+  if (!ASSIGNMENT_TYPES.includes(assignment.type)) {
+    errors.push(
+      `Assignment ${assignment.id} type must be one of ${ASSIGNMENT_TYPES.join(", ")}`
+    );
+  }
+
+  if (!ASSIGNMENT_DURATION_BUCKETS.includes(assignment.durationBucket)) {
+    errors.push(
+      `Assignment ${assignment.id} durationBucket must be one of ${ASSIGNMENT_DURATION_BUCKETS.join(", ")}`
+    );
+  }
+
+  errors.push(
+    ...validateUnlockCondition(
+      `Assignment ${assignment.id}`,
+      assignment.unlockCondition,
+      ids
+    )
+  );
+
+  if (assignment.allowedRoles.length === 0) {
+    errors.push(`Assignment ${assignment.id} must allow at least one role`);
+  }
+
+  for (const role of assignment.allowedRoles) {
+    if (!isCombatRole(role)) {
+      errors.push(
+        `Assignment ${assignment.id} role ${String(role)} must be one of ${COMBAT_ROLES.join(", ")}`
+      );
+    }
+  }
+
+  if (assignment.allowedStyles.length === 0) {
+    errors.push(`Assignment ${assignment.id} must allow at least one style`);
+  }
+
+  for (const styleId of assignment.allowedStyles) {
+    if (!ids.styleIds.has(styleId)) {
+      errors.push(`Assignment ${assignment.id} references missing style ${styleId}`);
+    }
+  }
+
+  const rewards = assignment.rewardProfile;
+  const rewardValues = [
+    rewards.silverPerHour,
+    rewards.cultivationPerHour,
+    rewards.combatExperiencePerHour,
+    rewards.styleMasteryExperiencePerHour
+  ].filter((value): value is number => value !== undefined);
+
+  for (const value of rewardValues) {
+    if (typeof value !== "number" || Number.isNaN(value) || value < 0) {
+      errors.push(`Assignment ${assignment.id} reward values must be non-negative numbers`);
+      break;
+    }
+  }
+
+  if (rewards.mapRegionId && !ids.regionIds.has(rewards.mapRegionId)) {
+    errors.push(
+      `Assignment ${assignment.id} references missing reward map ${rewards.mapRegionId}`
+    );
+  }
+
+  for (const reward of rewards.equipmentRewardsPerHour ?? []) {
+    if (!ids.equipmentIds.has(reward.equipmentId)) {
+      errors.push(
+        `Assignment ${assignment.id} references missing reward equipment ${reward.equipmentId}`
+      );
+    }
+
+    if (
+      typeof reward.quantityPerHour !== "number" ||
+      Number.isNaN(reward.quantityPerHour) ||
+      reward.quantityPerHour < 0
+    ) {
+      errors.push(
+        `Assignment ${assignment.id} equipment reward quantityPerHour must be a non-negative number`
+      );
+    }
+  }
+
+  if (
+    rewardValues.length === 0 &&
+    (rewards.equipmentRewardsPerHour ?? []).length === 0
+  ) {
+    errors.push(`Assignment ${assignment.id} must define at least one reward`);
   }
 
   return errors;
@@ -706,6 +812,7 @@ function validateMartialStyle(
 export function validateStaticGameData(data: StaticGameData): string[] {
   const errors: string[] = [];
   const entityGroups: Array<[string, EntityWithId[]]> = [
+    ["assignment", data.assignments ?? []],
     ["hero", data.heroes],
     ["skill", data.skills],
     ["enemy", data.enemies],
@@ -738,7 +845,9 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const validationIds = {
     heroIds,
     stageIds,
-    styleIds
+    styleIds,
+    regionIds,
+    equipmentIds
   };
 
   errors.push(...validateHeroSkillRefs(data.heroes, skillIds));
@@ -781,6 +890,10 @@ export function validateStaticGameData(data: StaticGameData): string[] {
 
   for (const set of data.equipmentSets ?? []) {
     errors.push(...validateEquipmentSet(set));
+  }
+
+  for (const assignment of data.assignments ?? []) {
+    errors.push(...validateAssignment(assignment, validationIds));
   }
 
   for (const skillUpgrade of data.skillUpgrades) {

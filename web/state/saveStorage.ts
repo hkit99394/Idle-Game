@@ -1,4 +1,5 @@
 import {
+  applyOfflineAssignmentRewards,
   applyOfflineRewards,
   createInitialPlayerProgress,
   createSaveData,
@@ -7,6 +8,7 @@ import {
   setOfflineFarmStageTarget
 } from "../../core";
 import type {
+  ApplyOfflineAssignmentRewardsResult,
   ApplyOfflineRewardsResult,
   SaveData,
   StaticGameData
@@ -20,7 +22,7 @@ export type WebSaveStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">
 
 type SaveSchemaData = Pick<
   StaticGameData,
-  "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment"
+  "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments"
 >;
 
 type OfflineSaveData = SaveSchemaData & Pick<StaticGameData, "mastery">;
@@ -41,6 +43,7 @@ export type LoadSaveDataWithOfflineRewardsResult =
       ok: true;
       save: SaveData;
       offlineRewards: ApplyOfflineRewardsResult | null;
+      offlineAssignmentRewards: ApplyOfflineAssignmentRewardsResult | null;
     }
   | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
 
@@ -185,18 +188,33 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
     lastSavedAtMs: loadResult.save.updatedAtMs,
     currentTimeMs: rewardTimeMs
   });
-  const hasRewards = offlineRewards.ok && offlineRewards.rewards.clears > 0;
+  const hasFarmRewards = offlineRewards.ok && offlineRewards.rewards.clears > 0;
+  const farmProgress = hasFarmRewards
+    ? offlineRewards.progress
+    : loadResult.save.progress;
+  const offlineAssignmentRewards = applyOfflineAssignmentRewards({
+    data,
+    progress: farmProgress,
+    lastSavedAtMs: loadResult.save.updatedAtMs,
+    currentTimeMs: rewardTimeMs
+  });
+  const hasAssignmentRewards =
+    offlineAssignmentRewards.rewards.assignments.length > 0;
+  const hasRewards = hasFarmRewards || hasAssignmentRewards;
 
   if (!hasRewards && !farmTargetChanged) {
     return {
       ok: true,
       save: loadResult.save,
-      offlineRewards
+      offlineRewards,
+      offlineAssignmentRewards
     };
   }
 
   const save = createSaveData({
-    progress: hasRewards ? offlineRewards.progress : loadResult.save.progress,
+    progress: hasAssignmentRewards
+      ? offlineAssignmentRewards.progress
+      : farmProgress,
     selectedOfflineFarmStageId,
     offlineFarmPreset,
     nowMs: hasRewards ? rewardTimeMs : loadResult.save.updatedAtMs,
@@ -212,14 +230,16 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
     return {
       ok: true,
       save: loadResult.save,
-      offlineRewards: null
+      offlineRewards: null,
+      offlineAssignmentRewards: null
     };
   }
 
   return {
     ok: true,
     save,
-    offlineRewards
+    offlineRewards,
+    offlineAssignmentRewards
   };
 }
 

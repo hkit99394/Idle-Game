@@ -5,6 +5,7 @@ import { FORMATION_SLOTS } from "../core";
 import type { FormationSlot, ResolveStageBattleResult } from "../core";
 import { staticData } from "./gameData";
 import type {
+  AssignmentView,
   BattleEventBadgeView,
   BattleCombatantView,
   BattleEventView,
@@ -22,6 +23,7 @@ import type {
   PurchaseGameUpgradeInput,
   SaveDiagnosticsView,
   SelectGameStyleBranchInput,
+  SetGameAssignmentHeroesInput,
   SkillUpgradeView,
   StageOptionView,
   StyleMasteryView,
@@ -509,6 +511,16 @@ function OfflineSummaryPanel({
         <strong>{formatNumber(summary.silver)} silver</strong>
         <strong>{formatNumber(summary.cultivation)} cultivation</strong>
         <strong>{formatNumber(summary.combatExperience)} Combat XP</strong>
+        {summary.assignmentStyleMasteryExperience > 0 ? (
+          <strong>
+            {formatNumber(summary.assignmentStyleMasteryExperience)} style mastery
+          </strong>
+        ) : null}
+        {summary.assignmentEquipmentRewards.map((reward) => (
+          <strong key={reward.equipmentId}>
+            {formatNumber(reward.quantity)} gear
+          </strong>
+        ))}
       </div>
     </section>
   );
@@ -1036,6 +1048,89 @@ function EquipmentPanel({
   );
 }
 
+type AssignmentPanelProps = {
+  assignments: AssignmentView[];
+  onSetAssignment: (input: SetGameAssignmentHeroesInput) => void;
+  status: string;
+};
+
+function AssignmentPanel({
+  assignments,
+  onSetAssignment,
+  status
+}: AssignmentPanelProps) {
+  return (
+    <section className="assignment-panel" aria-label="Patrols and training">
+      <div className="assignment-heading">
+        <div>
+          <span className="label">Idle</span>
+          <h2>Patrols And Training</h2>
+        </div>
+        <span>{assignments.filter((assignment) => assignment.assignedHeroIds.length > 0).length} active</span>
+      </div>
+      <div className="assignment-grid">
+        {assignments.map((assignment) => (
+          <article
+            key={assignment.assignmentId}
+            className={`assignment-card ${assignment.unlocked ? "" : "locked"}`}
+          >
+            <div className="assignment-card-heading">
+              <div>
+                <strong>{assignment.name}</strong>
+                <span>
+                  {assignment.type.replace("_", " ")} · {assignment.durationBucket}
+                </span>
+              </div>
+              <span>{assignment.unlocked ? "Open" : assignment.lockReason}</span>
+            </div>
+            <div className="assignment-rewards">
+              {assignment.rewardSummary.map((reward) => (
+                <span key={reward}>{reward}</span>
+              ))}
+            </div>
+            <div className="assignment-heroes">
+              {assignment.heroOptions.map((hero) => {
+                const disabled =
+                  !assignment.unlocked ||
+                  !hero.eligible ||
+                  (!hero.assignedHere && hero.assignedAssignmentName !== null);
+                const nextHeroIds = hero.assignedHere
+                  ? assignment.assignedHeroIds.filter(
+                      (heroId) => heroId !== hero.heroId
+                    )
+                  : [...assignment.assignedHeroIds, hero.heroId];
+
+                return (
+                  <button
+                    key={hero.heroId}
+                    className={hero.assignedHere ? "assigned" : ""}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() =>
+                      onSetAssignment({
+                        assignmentId: assignment.assignmentId,
+                        heroIds: nextHeroIds
+                      })
+                    }
+                  >
+                    <strong>{hero.name}</strong>
+                    <span>
+                      {hero.assignedHere
+                        ? "Assigned"
+                        : hero.assignedAssignmentName ?? hero.role}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </article>
+        ))}
+      </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
+    </section>
+  );
+}
+
 type SaveToolsPanelProps = {
   diagnostics: SaveDiagnosticsView;
   exportText: string;
@@ -1213,6 +1308,7 @@ function GameApp() {
     saveDiagnostics,
     selectStyleBranch,
     selectStage,
+    setAssignmentHeroes,
     setOfflineFarmPreset,
     setHeroFormation,
     timeTravelOfflineFarm,
@@ -1221,12 +1317,14 @@ function GameApp() {
   const {
     battleEvents,
     battleSummary,
+    assignments,
     enemyTeamLabel,
     enemyCombatants,
     equipmentInventory,
     heroEquipment,
     lastBattle,
     lastEquipmentAction,
+    lastAssignmentAction,
     lastStyleBranchAction,
     lastBattleStage,
     lastPurchase,
@@ -1275,6 +1373,12 @@ function GameApp() {
         : "Branch cleared"
       : lastStyleBranchAction
         ? lastStyleBranchAction.reason.replaceAll("_", " ")
+        : "";
+  const assignmentStatus =
+    lastAssignmentAction?.ok
+      ? "Assignment changed"
+      : lastAssignmentAction
+        ? lastAssignmentAction.reason.replaceAll("_", " ")
         : "";
   const stageType = selectedStage?.isBoss ? "Boss" : "Road";
 
@@ -1377,6 +1481,11 @@ function GameApp() {
           presets={offlineFarmPresets}
           preview={offlineRewardPreview}
           recommendation={offlineFarmRecommendation}
+        />
+        <AssignmentPanel
+          assignments={assignments}
+          onSetAssignment={setAssignmentHeroes}
+          status={assignmentStatus}
         />
         <MasteryPanel mastery={masteryPanel} />
         <StageSelectorPanel

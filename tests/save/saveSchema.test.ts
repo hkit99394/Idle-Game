@@ -132,6 +132,7 @@ describe("save schema", () => {
       inventory: {},
       equipped: {}
     });
+    expect(result.save.progress.assignments).toEqual({});
   });
 
   it("accepts old saves without an offline farm preset and rejects invalid presets", () => {
@@ -374,6 +375,50 @@ describe("save schema", () => {
         "progress.equipment.equipped.missing_hero must reference an existing hero",
         "progress.equipment.equipped.iron_fist_disciple.trinket must be weapon, armor, manual, or medicine",
         "progress.equipment.equipped.iron_fist_disciple.armor must reference an existing equipment item"
+      ])
+    );
+  });
+
+  it("accepts old saves without assignments and validates assignment progress", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        assignments: undefined
+      }
+    };
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        assignments: {
+          missing_assignment: {
+            heroIds: ["iron_fist_disciple"]
+          },
+          bamboo_road_patrol: {
+            heroIds: ["missing_hero", "iron_fist_disciple"]
+          },
+          mist_valley_meditation: {
+            heroIds: ["iron_fist_disciple"]
+          }
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(validateSaveData(staticData, badSave)).toEqual(
+      expect.arrayContaining([
+        "progress.assignments.missing_assignment must reference an existing assignment",
+        "progress.assignments.bamboo_road_patrol.heroIds.missing_hero must reference an existing hero",
+        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_disciple is already assigned",
+        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_disciple is not eligible",
+        "progress.assignments.mist_valley_meditation must be unlocked by saved progress"
       ])
     );
   });

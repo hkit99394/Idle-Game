@@ -53,6 +53,35 @@ export type EquipmentSetDefinition = {
   bonuses: EquipmentSetBonus[];
 };
 
+export type AssignmentType = "patrol" | "training_ground";
+
+export type AssignmentDurationBucket = "short" | "medium" | "long";
+
+export type AssignmentEquipmentReward = {
+  equipmentId: string;
+  quantityPerHour: number;
+};
+
+export type AssignmentRewardProfile = {
+  silverPerHour?: number;
+  cultivationPerHour?: number;
+  combatExperiencePerHour?: number;
+  styleMasteryExperiencePerHour?: number;
+  mapRegionId?: string;
+  equipmentRewardsPerHour?: AssignmentEquipmentReward[];
+};
+
+export type AssignmentDefinition = {
+  id: string;
+  name: string;
+  type: AssignmentType;
+  unlockCondition: UnlockCondition;
+  durationBucket: AssignmentDurationBucket;
+  allowedRoles: CombatRole[];
+  allowedStyles: MartialStyleId[];
+  rewardProfile: AssignmentRewardProfile;
+};
+
 export type EquipmentDefinition = {
   id: string;
   name: string;
@@ -245,6 +274,7 @@ export type StaticGameData = {
   enemies: EnemyDefinition[];
   equipment: EquipmentDefinition[];
   equipmentSets?: EquipmentSetDefinition[];
+  assignments?: AssignmentDefinition[];
   regions: RegionDefinition[];
   stages: StageDefinition[];
   upgrades: UpgradeDefinition[];

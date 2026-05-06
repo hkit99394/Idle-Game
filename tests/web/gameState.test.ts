@@ -7,6 +7,7 @@ import {
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
   selectGameStyleBranch,
+  setGameAssignmentHeroes,
   webGameStateReducer
 } from "../../web/state/gameState";
 import { staticData } from "../helpers/staticData";
@@ -125,6 +126,20 @@ describe("web game state", () => {
       targetName: "Sect"
     });
     expect(viewModel.skillUpgrades).toHaveLength(4);
+    expect(viewModel.assignments[0]).toMatchObject({
+      assignmentId: "bamboo_road_patrol",
+      unlocked: true,
+      assignedHeroIds: [],
+      rewardSummary: expect.arrayContaining([
+        "24 silver/hour",
+        "4 Combat XP/hour"
+      ])
+    });
+    expect(viewModel.assignments[1]).toMatchObject({
+      assignmentId: "mist_valley_meditation",
+      unlocked: false,
+      lockReason: "Clear Black Iron Guard"
+    });
     expect(viewModel.equipmentInventory).toEqual([]);
     expect(viewModel.heroEquipment[0]).toMatchObject({
       heroId: "iron_fist_disciple",
@@ -831,6 +846,46 @@ describe("web game state", () => {
         expect.stringContaining("Black Iron Ward 2-piece")
       ])
     );
+  });
+
+  it("shows and updates patrol assignments", () => {
+    const state = createInitialWebGameState(staticData);
+    const assignedState = setGameAssignmentHeroes(staticData, state, {
+      assignmentId: "bamboo_road_patrol",
+      heroIds: ["iron_fist_disciple"]
+    });
+
+    expect(assignedState.lastAssignmentAction?.ok).toBe(true);
+    expect(
+      assignedState.progress.assignments?.bamboo_road_patrol?.heroIds
+    ).toEqual(["iron_fist_disciple"]);
+
+    const viewModel = getWebGameViewModel(staticData, assignedState);
+    const patrol = viewModel.assignments.find(
+      (assignment) => assignment.assignmentId === "bamboo_road_patrol"
+    );
+
+    expect(patrol).toMatchObject({
+      assignedHeroIds: ["iron_fist_disciple"]
+    });
+    expect(
+      patrol?.heroOptions.find((hero) => hero.heroId === "iron_fist_disciple")
+    ).toMatchObject({
+      assignedHere: true
+    });
+
+    const rejectedState = setGameAssignmentHeroes(staticData, assignedState, {
+      assignmentId: "mist_valley_meditation",
+      heroIds: ["iron_fist_disciple"]
+    });
+
+    expect(rejectedState.lastAssignmentAction).toMatchObject({
+      ok: false,
+      reason: "locked_assignment"
+    });
+    expect(rejectedState.progress.assignments?.bamboo_road_patrol?.heroIds).toEqual([
+      "iron_fist_disciple"
+    ]);
   });
 
   it("normalizes selected offline farm stage to the best unlocked farm", () => {

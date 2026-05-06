@@ -1,0 +1,47 @@
+[
+  {
+    "id": "bamboo_road_patrol",
+    "name": "Bamboo Road Patrol",
+    "type": "patrol",
+    "unlockCondition": { "type": "always" },
+    "durationBucket": "short",
+    "allowedRoles": ["tank", "breaker", "striker"],
+    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "rewardProfile": {
+      "silverPerHour": 24,
+      "combatExperiencePerHour": 4,
+      "mapRegionId": "bamboo_road",
+      "equipmentRewardsPerHour": [
+        { "equipmentId": "training_wraps", "quantityPerHour": 0.25 }
+      ]
+    }
+  },
+  {
+    "id": "mist_valley_meditation",
+    "name": "Mist Valley Meditation",
+    "type": "training_ground",
+    "unlockCondition": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+    "durationBucket": "medium",
+    "allowedRoles": ["breaker", "support"],
+    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "rewardProfile": {
+      "cultivationPerHour": 18,
+      "styleMasteryExperiencePerHour": 12
+    }
+  },
+  {
+    "id": "black_iron_drill_yard",
+    "name": "Black Iron Drill Yard",
+    "type": "training_ground",
+    "unlockCondition": { "type": "stage_cleared", "stageId": "black_iron_fort_1" },
+    "durationBucket": "long",
+    "allowedRoles": ["tank", "breaker", "striker"],
+    "allowedStyles": ["fist", "sword", "blade", "staff"],
+    "rewardProfile": {
+      "cultivationPerHour": 24,
+      "combatExperiencePerHour": 6,
+      "styleMasteryExperiencePerHour": 10,
+      "mapRegionId": "black_iron_fort"
+    }
+  }
+]
