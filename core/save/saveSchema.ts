@@ -11,6 +11,8 @@ import {
   isStageUnlocked,
   isAssignmentUnlocked,
   isHeroEligibleForAssignment,
+  ACTIVE_TEAM_SIZE,
+  isHeroUnlocked,
   STYLE_MASTERY_EXPERIENCE_PER_LEVEL
 } from "../progression";
 import type {
@@ -24,12 +26,13 @@ import type {
   OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 4 as const;
+export const SAVE_DATA_VERSION = 5 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
   2,
   3,
+  4,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -185,6 +188,14 @@ function validateHeroes(
   for (const hero of data.heroes) {
     if (!validateHeroProgress(value[hero.id], `progress.heroes.${hero.id}`, errors)) {
       continue;
+    }
+  }
+
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+
+  for (const heroId of Object.keys(value)) {
+    if (!heroIds.has(heroId)) {
+      errors.push(`progress.heroes.${heroId} must reference an existing hero`);
     }
   }
 
@@ -659,6 +670,7 @@ function normalizeProgressForMigration(
         ])
       )
     },
+    activeHeroIds: value.activeHeroIds ?? defaultProgress.activeHeroIds,
     formation: value.formation ?? defaultProgress.formation,
     styleMastery: value.styleMastery ?? {},
     styleBranches: value.styleBranches ?? {},
@@ -699,6 +711,59 @@ function validatePlayerFormation(
   return true;
 }
 
+function validateActiveHeroIds(
+  data: Pick<StaticGameData, "heroes" | "stages" | "styles">,
+  progress: PlayerProgress,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["activeHeroIds"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!Array.isArray(value)) {
+    errors.push("progress.activeHeroIds must be an array");
+    return false;
+  }
+
+  if (value.length < 1 || value.length > ACTIVE_TEAM_SIZE) {
+    errors.push(
+      `progress.activeHeroIds must contain 1-${ACTIVE_TEAM_SIZE} heroes`
+    );
+  }
+
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+  const seenHeroIds = new Set<string>();
+
+  for (const heroId of value) {
+    if (typeof heroId !== "string") {
+      errors.push("progress.activeHeroIds must contain hero ids");
+      continue;
+    }
+
+    if (seenHeroIds.has(heroId)) {
+      errors.push(`progress.activeHeroIds.${heroId} is duplicated`);
+      continue;
+    }
+    seenHeroIds.add(heroId);
+
+    if (!heroIds.has(heroId)) {
+      errors.push(
+        `progress.activeHeroIds.${heroId} must reference an existing hero`
+      );
+      continue;
+    }
+
+    if (!isHeroUnlocked(data, progress, heroId)) {
+      errors.push(
+        `progress.activeHeroIds.${heroId} must be unlocked by saved progress`
+      );
+    }
+  }
+
+  return true;
+}
+
 function validateCurrentStage(
   data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress,
@@ -731,6 +796,7 @@ function validateProgress(
   validateHeroes(data, value.heroes, errors);
   validateSect(value.sect, errors);
   validateMaps(data, value.maps, errors);
+  validateActiveHeroIds(data, value as PlayerProgress, value.activeHeroIds, errors);
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);
   validateStyleBranches(data, value, value.styleBranches, errors);

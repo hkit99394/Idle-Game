@@ -92,6 +92,27 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects hero unlock conditions that reference missing data", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "lotus_mending_disciple"
+          ? {
+              ...hero,
+              unlock: {
+                type: "stage_cleared",
+                stageId: "missing_stage"
+              }
+            }
+          : hero
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Hero lotus_mending_disciple references missing unlock stage missing_stage"
+    );
+  });
+
   it("rejects invalid skill effects", () => {
     const invalidData = {
       ...staticData,

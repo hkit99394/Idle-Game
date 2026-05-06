@@ -3,6 +3,7 @@ import {
   createInitialPlayerProgress,
   createSaveData,
   migrateSaveData,
+  MVP_PLAYER_HERO_IDS,
   parseSaveData,
   SAVE_DATA_VERSION,
   validateSaveData
@@ -125,6 +126,7 @@ describe("save schema", () => {
     expect(result.save.progress.formation).toMatchObject({
       iron_fist_disciple: "front"
     });
+    expect(result.save.progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
     expect(result.save.progress.styleMastery).toEqual({});
     expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.skillUpgrades).toEqual({});
@@ -166,6 +168,7 @@ describe("save schema", () => {
       return;
     }
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
     expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.equipment).toEqual({
       inventory: {},
@@ -299,6 +302,91 @@ describe("save schema", () => {
     expect(validateSaveData(staticData, badSave)).toContain(
       "progress.formation.iron_fist_disciple must be front, middle, or back"
     );
+  });
+
+  it("accepts old saves without active team and validates active hero ids", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: undefined
+      }
+    };
+    const missingHeroSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: ["missing_hero"]
+      }
+    };
+    const lockedHeroSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: ["iron_fist_disciple", "lotus_mending_disciple"]
+      }
+    };
+    const duplicateHeroSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: ["iron_fist_disciple", "iron_fist_disciple"]
+      }
+    };
+    const tooLargeProgress = {
+      ...save.progress,
+      maps: {
+        ...save.progress.maps,
+        bamboo_road: {
+          combatExperience: 0,
+          highestClearedStageIndex: 10
+        },
+        mist_valley: {
+          combatExperience: 0,
+          highestClearedStageIndex: 10
+        },
+        black_iron_fort: {
+          combatExperience: 0,
+          highestClearedStageIndex: 10
+        },
+        lotus_monastery: {
+          combatExperience: 0,
+          highestClearedStageIndex: 3
+        }
+      },
+      activeHeroIds: staticData.heroes.map((hero) => hero.id)
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(parseSaveData(staticData, oldSave)).toMatchObject({
+      ok: true,
+      save: {
+        progress: {
+          activeHeroIds: [...MVP_PLAYER_HERO_IDS]
+        }
+      }
+    });
+    expect(validateSaveData(staticData, missingHeroSave)).toContain(
+      "progress.activeHeroIds.missing_hero must reference an existing hero"
+    );
+    expect(validateSaveData(staticData, lockedHeroSave)).toContain(
+      "progress.activeHeroIds.lotus_mending_disciple must be unlocked by saved progress"
+    );
+    expect(validateSaveData(staticData, duplicateHeroSave)).toContain(
+      "progress.activeHeroIds.iron_fist_disciple is duplicated"
+    );
+    expect(
+      validateSaveData(staticData, {
+        ...save,
+        progress: tooLargeProgress
+      })
+    ).toContain("progress.activeHeroIds must contain 1-4 heroes");
   });
 
   it("accepts old saves without martial growth fields and validates new fields", () => {

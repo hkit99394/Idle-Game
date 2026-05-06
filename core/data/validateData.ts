@@ -914,6 +914,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   for (const hero of data.heroes) {
     errors.push(...validateStats(hero.id, hero.baseStats));
     errors.push(...validateCombatRole(`Hero ${hero.id}`, hero.combatRole));
+    errors.push(...validateUnlockCondition(`Hero ${hero.id}`, hero.unlock, validationIds));
   }
 
   for (const enemy of data.enemies) {

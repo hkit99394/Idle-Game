@@ -37,7 +37,7 @@ Deliver the next meaningful layer of sustain, roster choice, and idle planning:
 | --- | --- | --- | --- |
 | Epic 19: Lotus Monastery Region | Completed | Content Expansion | Add the next region with healing and support enemy identity |
 | Epic 20: Recovery And Wound Mechanics | Completed | Combat Depth | Add healing, regeneration, cleanse, wound, and anti-recovery behavior |
-| Epic 21: Limited Recruitment And Support Roles | Not Started | Hero Growth | Add a first recruit path and make support formation choices meaningful |
+| Epic 21: Limited Recruitment And Support Roles | Completed | Hero Growth | Add a first recruit path and make support formation choices meaningful |
 | Epic 22: Herbs And Medicine Progression | Not Started | Loot And Idle | Add deterministic herb rewards, medicine items, and medicine assignments |
 | Epic 23: Status Effect Foundation | Not Started | Technical Combat | Normalize buffs, debuffs, durations, and battle event summaries |
 | Epic 24: Stage 1.3 Technical Foundation | Not Started | Technical Foundation | Add migrations, simulator coverage, smoke coverage, and balance reports for new systems |
@@ -230,7 +230,7 @@ Implementation:
 
 ## Epic 21: Limited Recruitment And Support Roles
 
-Status: Not Started
+Status: Completed
 
 Goal:
 
@@ -242,11 +242,21 @@ Recommended first version:
 - Keep existing four heroes as the default core team.
 - Let the player choose a small active team from the available roster only if the UI can stay compact.
 
+Implementation:
+
+- Added Lotus Mending Disciple as a locked Palm support hero unlocked by clearing Jade Needle Cloister.
+- Added Lotus Mending Vow and its refinement path with healing, Inner recovery, and cleanse support identity.
+- Added derived hero unlock checks, active team defaults, active team validation, save migration to version 5, and invalid-save rejection for locked, missing, duplicate, or oversized active teams.
+- Kept the original four MVP heroes as the default active team while allowing unlocked roster swaps through a compact roster panel.
+- Filtered equipment, upgrade, skill refinement, and assignment choices to unlocked heroes so locked recruits do not leak into early-game actions.
+- Added support-aware CP and battle contribution visibility for damage, recovery, protection, recovery denial, top protection, and support carry.
+- Added core, save, data validation, and web state coverage for recruitment and active-team behavior.
+
 Tasks:
 
 ### 21.1 Recruitable Hero Data
 
-Status: Not Started
+Status: Completed
 
 Add a Lotus support hero.
 
@@ -259,7 +269,7 @@ Acceptance:
 
 ### 21.2 Roster Save State
 
-Status: Not Started
+Status: Completed
 
 Persist unlocked heroes safely.
 
@@ -272,7 +282,7 @@ Acceptance:
 
 ### 21.3 Active Team Selection
 
-Status: Not Started
+Status: Completed
 
 Allow basic team choice if roster size exceeds active slots.
 
@@ -286,7 +296,7 @@ Acceptance:
 
 ### 21.4 Support Role Readability
 
-Status: Not Started
+Status: Completed
 
 Make support contribution visible.
 

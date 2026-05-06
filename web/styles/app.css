@@ -618,6 +618,7 @@ textarea {
 .skill-upgrade-panel,
 .equipment-panel,
 .style-mastery-panel,
+.roster-panel,
 .assignment-panel {
   margin-bottom: 22px;
   padding: 16px 0;
@@ -749,6 +750,7 @@ textarea {
 .skill-upgrade-heading,
 .equipment-heading,
 .style-mastery-heading,
+.roster-panel-heading,
 .assignment-heading {
   display: flex;
   flex-wrap: wrap;
@@ -756,6 +758,116 @@ textarea {
   align-items: end;
   justify-content: space-between;
   margin-bottom: 12px;
+}
+
+.roster-panel-heading h2 {
+  overflow-wrap: anywhere;
+  margin: 0;
+}
+
+.roster-panel-heading > span {
+  color: #4d4639;
+  font-weight: 800;
+}
+
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+
+.roster-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.roster-card.active {
+  border-color: #2e5f63;
+  background: #f1f8f2;
+}
+
+.roster-card.locked {
+  opacity: 0.72;
+}
+
+.roster-card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: start;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.roster-card-heading strong,
+.roster-card-heading span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.roster-card-heading div span {
+  display: block;
+  margin-top: 2px;
+  color: #6d6354;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.roster-card-heading > span {
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid #8c6f4b;
+  border-radius: 999px;
+  background: #f3eadc;
+  color: #4f3a22;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 24px;
+}
+
+.roster-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.roster-tags span {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #f0ebe1;
+  color: #4d4639;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+  text-transform: capitalize;
+}
+
+.roster-card button {
+  min-height: 40px;
+  border: 1px solid #2e5f63;
+  border-radius: 6px;
+  background: #2e5f63;
+  color: #fffaf0;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.roster-card button:disabled {
+  border-color: #b9afa0;
+  background: #d8d1c3;
+  color: #6d6354;
+  cursor: not-allowed;
 }
 
 .upgrade-panel-heading h2,
@@ -1525,6 +1637,27 @@ h2 {
   justify-content: flex-start;
   padding-top: 4px;
   border-top: 1px solid #ebe2d2;
+}
+
+.combatant-contributions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid #ebe2d2;
+}
+
+.combatant-contributions span {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #6f7f4f;
+  border-radius: 999px;
+  background: #edf1df;
+  color: #283315;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 22px;
+  overflow-wrap: anywhere;
 }
 
 .combatant-status {

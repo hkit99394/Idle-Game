@@ -62,5 +62,18 @@
       { "type": "outer_multiplier", "valuePerLevel": 0.04 },
       { "type": "inner_multiplier", "valuePerLevel": 0.04 }
     ]
+  },
+  {
+    "id": "lotus_mending_vow_refinement",
+    "skillId": "lotus_mending_vow",
+    "name": "Lotus Mending Rhythm",
+    "costResource": "cultivation",
+    "baseCost": 12,
+    "costGrowth": 1.2,
+    "maxLevel": 5,
+    "effects": [
+      { "type": "cooldown_seconds", "valuePerLevel": -0.12 },
+      { "type": "inner_multiplier", "valuePerLevel": 0.04 }
+    ]
   }
 ]

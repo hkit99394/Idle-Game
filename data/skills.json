@@ -374,5 +374,30 @@
         "target": "wounded_or_armor_broken_ally"
       }
     ]
+  },
+  {
+    "id": "lotus_mending_vow",
+    "name": "Lotus Mending Vow",
+    "cooldownSeconds": 5.2,
+    "outerMultiplier": 0.25,
+    "innerMultiplier": 0.75,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "outer_heal_percent",
+        "value": 0.055,
+        "target": "lowest_outer_hp_ally"
+      },
+      {
+        "type": "inner_heal_percent",
+        "value": 0.04,
+        "target": "lowest_inner_qi_ally"
+      },
+      {
+        "type": "cleanse",
+        "value": 1,
+        "target": "wounded_or_armor_broken_ally"
+      }
+    ]
   }
 ]
