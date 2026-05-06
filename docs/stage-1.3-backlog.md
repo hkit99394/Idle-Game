@@ -35,7 +35,7 @@ Deliver the next meaningful layer of sustain, roster choice, and idle planning:
 
 | Epic | Status | Lane | Goal |
 | --- | --- | --- | --- |
-| Epic 19: Lotus Monastery Region | Not Started | Content Expansion | Add the next region with healing and support enemy identity |
+| Epic 19: Lotus Monastery Region | Completed | Content Expansion | Add the next region with healing and support enemy identity |
 | Epic 20: Recovery And Wound Mechanics | Not Started | Combat Depth | Add healing, regeneration, cleanse, wound, and anti-recovery behavior |
 | Epic 21: Limited Recruitment And Support Roles | Not Started | Hero Growth | Add a first recruit path and make support formation choices meaningful |
 | Epic 22: Herbs And Medicine Progression | Not Started | Loot And Idle | Add deterministic herb rewards, medicine items, and medicine assignments |
@@ -53,7 +53,7 @@ Deliver the next meaningful layer of sustain, roster choice, and idle planning:
 
 ## Epic 19: Lotus Monastery Region
 
-Status: Not Started
+Status: Completed
 
 Goal:
 
@@ -66,11 +66,22 @@ Theme:
 - Encounters should pressure target selection more than raw damage.
 - Counterplay should encourage targeting healers, using Qi Breaks, adding wound effects, and improving burst timing.
 
+Implementation:
+
+- Added Lotus Monastery as the fourth configured region after Black Iron Fort.
+- Added seven Lotus Monastery stages, including six farmable non-boss stages and one non-farmable boss.
+- Added Lotus Outer Disciple, Lotus Mender, Lotus Staff Keeper, Jade Needle Sister, Lotus Sword Warden, and Lotus Abbot.
+- Added Lotus-flavored skills using existing combat primitives: self-heal, Inner pressure, guard, protection, speed pressure, and backline/middle support formations.
+- Tuned non-boss stages to land inside Lotus sustain target ranges in the balance report.
+- Kept the Lotus boss as a late-region gate while making Black Iron Fort unlock into Lotus through a farm-and-training simulation.
+- Added region-level recovery totals to the balance report and kept reward formatting compact when mastery multipliers create fractional values.
+- Added tests for Lotus region reporting, recovery summary output, and Black Iron Fort to Lotus stage progression.
+
 Tasks:
 
 ### 19.1 Region And Stage Data
 
-Status: Not Started
+Status: Completed
 
 Add Lotus Monastery after Black Iron Fort.
 
@@ -85,7 +96,7 @@ Acceptance:
 
 ### 19.2 Enemy Family
 
-Status: Not Started
+Status: Completed
 
 Add Lotus Monastery enemies.
 
@@ -99,7 +110,7 @@ Acceptance:
 
 ### 19.3 Region Balance Identity
 
-Status: Not Started
+Status: Completed
 
 Define Lotus Monastery pacing targets.
 

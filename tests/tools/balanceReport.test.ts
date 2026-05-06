@@ -3,6 +3,7 @@ import type { StaticGameData } from "../../core";
 import {
   BAMBOO_ROAD_REGION_ID,
   BLACK_IRON_FORT_REGION_ID,
+  LOTUS_MONASTERY_REGION_ID,
   MIST_VALLEY_REGION_ID,
   buildBambooRoadBalanceReport,
   formatBalanceReport
@@ -159,6 +160,67 @@ describe("balance report", () => {
       ok: true,
       winner: "enemy"
     });
+    expect(blackIronBalance.bossGate.farmed).toMatchObject({
+      stageId: "black_iron_fort_7",
+      ok: true,
+      winner: "player",
+      stageCleared: true,
+      farmStageId: "black_iron_fort_6"
+    });
+  });
+
+  it("includes Lotus Monastery as a sustain post-Fort region", () => {
+    const report = buildBambooRoadBalanceReport(staticData);
+    const lotusMonastery = staticData.regions.find(
+      (region) => region.id === LOTUS_MONASTERY_REGION_ID
+    );
+
+    expect(lotusMonastery).toBeDefined();
+    if (!lotusMonastery) {
+      return;
+    }
+
+    const lotusBalance = report.regionBalances.find(
+      (region) => region.regionId === LOTUS_MONASTERY_REGION_ID
+    );
+
+    expect(lotusBalance).toBeDefined();
+    if (!lotusBalance) {
+      return;
+    }
+
+    expect(lotusBalance.regionName).toBe("Lotus Monastery");
+    expect(lotusBalance.stageResults.map((stage) => stage.stageId)).toEqual(
+      lotusMonastery.stageIds
+    );
+    expect(lotusBalance.stageResults[0]).toMatchObject({
+      ok: true,
+      winner: "player",
+      stageCleared: true,
+      enemyTypes: ["normal", "normal", "normal"],
+      enemyFormationSlots: ["front", "middle", "back"]
+    });
+    expect(
+      lotusBalance.stageResults
+        .filter((stage) => stage.ok && stage.targetSeconds)
+        .every((stage) => stage.ok && stage.targetMet)
+    ).toBe(true);
+    expect(lotusBalance.stageResults.at(-1)).toMatchObject({
+      stageId: "lotus_monastery_7"
+    });
+    expect(lotusBalance.farmRecommendation).toMatchObject({
+      stageId: "lotus_monastery_6"
+    });
+    expect(lotusBalance.recoveryEvents).toMatchObject({
+      heals: expect.any(Number),
+      outerHealing: expect.any(Number)
+    });
+    expect(lotusBalance.recoveryEvents.heals).toBeGreaterThan(0);
+    expect(lotusBalance.recoveryEvents.outerHealing).toBeGreaterThan(0);
+    expect(lotusBalance.bossGate.baseline).toMatchObject({
+      stageId: "lotus_monastery_7",
+      ok: true
+    });
   });
 
   it("does not require a hard-coded Mist Valley region to build later regions", () => {
@@ -234,6 +296,8 @@ describe("balance report", () => {
     expect(formatted).toContain("Bamboo Road Balance Report");
     expect(formatted).toContain("Mist Valley Balance Report");
     expect(formatted).toContain("Black Iron Fort Balance Report");
+    expect(formatted).toContain("Lotus Monastery Balance Report");
+    expect(formatted).toContain("lotus_monastery_7");
     expect(formatted).toContain("black_iron_fort_7");
     expect(formatted).toContain("mist_valley_6");
     expect(formatted).toContain("bamboo_road_10");
@@ -241,8 +305,10 @@ describe("balance report", () => {
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Boss Gates");
     expect(formatted).toContain("Region Defensive Events");
+    expect(formatted).toContain("Region Recovery Events");
     expect(formatted).toContain("defense");
     expect(formatted).toContain("g0/p0/a");
+    expect(formatted).toContain("heals");
     expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("Formation Targeting");
     expect(formatted).toContain("npm run simulate -- --json");

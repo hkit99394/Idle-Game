@@ -20,6 +20,7 @@ import type {
 export const BAMBOO_ROAD_REGION_ID = "bamboo_road";
 export const MIST_VALLEY_REGION_ID = "mist_valley";
 export const BLACK_IRON_FORT_REGION_ID = "black_iron_fort";
+export const LOTUS_MONASTERY_REGION_ID = "lotus_monastery";
 
 export const TRAINED_BOSS_UPGRADES = {
   heroOuterTraining: 6,
@@ -32,6 +33,12 @@ type TrainingPlanEntry = {
   upgradeId: string;
   targetLevel: number;
   heroId?: string;
+};
+
+type TrainingCandidate = {
+  upgradeId: string;
+  heroId?: string;
+  cost: number;
 };
 
 function createTrainedBossPlan(data: StaticGameData): TrainingPlanEntry[] {
@@ -139,6 +146,10 @@ function getTargetSeconds(
 
   if (stage.regionId === BLACK_IRON_FORT_REGION_ID) {
     return enemyTypes.includes("elite") ? [25, 65] : [12, 55];
+  }
+
+  if (stage.regionId === LOTUS_MONASTERY_REGION_ID) {
+    return enemyTypes.includes("elite") ? [35, 80] : [18, 60];
   }
 
   return enemyTypes.includes("elite") ? [20, 40] : [5, 15];
@@ -314,6 +325,68 @@ function purchaseTrainingPlan(
   };
 }
 
+function purchaseAffordableTraining(data: StaticGameData, progress: PlayerProgress) {
+  let nextProgress = cloneProgress(progress);
+  let totalCost = 0;
+
+  while (true) {
+    const candidates: TrainingCandidate[] = [];
+
+    for (const upgrade of data.upgrades) {
+      if (upgrade.scope === "hero") {
+        for (const hero of data.heroes) {
+          candidates.push({
+            upgradeId: upgrade.id,
+            heroId: hero.id,
+            cost: calculateUpgradeCost(
+              upgrade,
+              getUpgradeLevel(nextProgress, upgrade, hero.id)
+            )
+          });
+        }
+        continue;
+      }
+
+      candidates.push({
+        upgradeId: upgrade.id,
+        cost: calculateUpgradeCost(
+          upgrade,
+          getUpgradeLevel(nextProgress, upgrade)
+        )
+      });
+    }
+
+    candidates.sort((first, second) => first.cost - second.cost);
+
+    const candidate = candidates.find(
+      (entry) => entry.cost <= nextProgress.resources.silver
+    );
+
+    if (!candidate) {
+      return {
+        progress: nextProgress,
+        totalCost
+      };
+    }
+
+    const purchase = purchaseUpgrade(data.upgrades, {
+      progress: nextProgress,
+      upgradeId: candidate.upgradeId,
+      heroId: candidate.heroId
+    });
+
+    if (!purchase.ok) {
+      return {
+        progress: nextProgress,
+        totalCost
+      };
+    }
+
+    totalCost += purchase.cost;
+    nextProgress = purchase.progress;
+  }
+}
+
 function farmUntilTrainingClearsBoss(
   data: StaticGameData,
   progress: PlayerProgress,
@@ -375,6 +448,88 @@ function farmUntilTrainingClearsBoss(
   };
 }
 
+function hasRegionUnlockedByBossClear(
+  data: StaticGameData,
+  bossStageId: string
+): boolean {
+  return data.regions.some(
+    (region) =>
+      region.unlockCondition.type === "stage_cleared" &&
+      region.unlockCondition.stageId === bossStageId
+  );
+}
+
+function farmUntilRegionBossClears(
+  data: StaticGameData,
+  progressBeforeBoss: PlayerProgress,
+  regionId: string,
+  bossStageId: string,
+  maxClears: number
+) {
+  let farmProgress = cloneProgress(progressBeforeBoss);
+  let lastFarmStageId: string | null = null;
+  let totalTrainingCost = 0;
+
+  for (let farmClears = 0; farmClears <= maxClears; farmClears += 1) {
+    const training = purchaseAffordableTraining(data, farmProgress);
+    farmProgress = training.progress;
+    totalTrainingCost += training.totalCost;
+
+    const bossResult = resolveStageBattle(data, {
+      progress: farmProgress,
+      stageId: bossStageId,
+      maxDurationSeconds: 180
+    });
+
+    if (bossResult.ok && bossResult.stageCleared) {
+      return {
+        ok: true as const,
+        farmStageId: lastFarmStageId,
+        farmClears,
+        trainingCost: totalTrainingCost,
+        result: bossResult,
+        progress: bossResult.progress
+      };
+    }
+
+    const farmStage = getRecommendedRegionFarmStage(data, farmProgress, regionId);
+
+    if (!farmStage) {
+      return {
+        ok: false as const,
+        farmStageId: null,
+        farmClears,
+        reason: "no_farm_stage"
+      };
+    }
+
+    const farmResult = resolveStageBattle(data, {
+      progress: farmProgress,
+      stageId: farmStage.id,
+      maxDurationSeconds: 180
+    });
+
+    if (!farmResult.ok || !farmResult.stageCleared) {
+      return {
+        ok: false as const,
+        farmStageId: farmStage.id,
+        farmClears,
+        reason: farmResult.ok ? "farm_stage_not_cleared" : farmResult.reason
+      };
+    }
+
+    lastFarmStageId = farmStage.id;
+    farmProgress = farmResult.progress;
+  }
+
+  return {
+    ok: false as const,
+    farmStageId: lastFarmStageId,
+    farmClears: maxClears,
+    reason: "boss_not_cleared_after_max_farms"
+  };
+}
+
 function summarizeBattle(
   data: StaticGameData,
   stage: StageDefinition,
@@ -405,6 +560,9 @@ function summarizeBattle(
   const armorBreakEvents = result.battle.events.filter(
     (event) => event.type === "armor_break"
   );
+  const healEvents = result.battle.events.filter(
+    (event) => event.type === "heal"
+  );
   const targetMet = targetSeconds
     ? result.battle.winner === "player" &&
       durationSeconds >= targetSeconds[0] &&
@@ -430,6 +588,12 @@ function summarizeBattle(
     guardAbsorbs: guardEvents.length,
     protections: protectEvents.length,
     armorBreaks: armorBreakEvents.length,
+    heals: healEvents.length,
+    outerHealing: Number(
+      healEvents
+        .reduce((total, event) => total + event.outerHealing, 0)
+        .toFixed(2)
+    ),
     defensiveDamagePrevented: Number(
       (
         result.battle.metrics.guardDamagePreventedByPlayer +
@@ -569,6 +733,29 @@ function buildDefensiveEventSummary(
   );
 }
 
+function buildRecoveryEventSummary(
+  stageResults: Array<ReturnType<typeof summarizeBattle>>
+) {
+  return stageResults.reduce(
+    (summary, stage) => {
+      if (!stage.ok) {
+        return summary;
+      }
+
+      return {
+        heals: summary.heals + (stage.heals ?? 0),
+        outerHealing: Number(
+          (summary.outerHealing + (stage.outerHealing ?? 0)).toFixed(2)
+        )
+      };
+    },
+    {
+      heals: 0,
+      outerHealing: 0
+    }
+  );
+}
+
 function buildRegionStageProgressionReport(
   data: StaticGameData,
   regionId: string,
@@ -610,6 +797,21 @@ function buildRegionStageProgressionReport(
     progressBeforeBoss,
     regionId
   );
+  const bossFarmClear =
+    bossBaseline.ok &&
+    !bossBaseline.stageCleared &&
+    regionId !== BAMBOO_ROAD_REGION_ID &&
+    hasRegionUnlockedByBossClear(data, bossStage.id)
+      ? farmUntilRegionBossClears(
+          data,
+          progressBeforeBoss,
+          regionId,
+          bossStage.id,
+          80
+        )
+      : null;
+  const progressAfterRegion =
+    bossFarmClear?.ok ? bossFarmClear.progress : progress;
 
   return {
     regionId,
@@ -617,7 +819,16 @@ function buildRegionStageProgressionReport(
       data.regions.find((region) => region.id === regionId)?.name ?? regionId,
     stageResults,
     bossGate: {
-      baseline: summarizeBattle(data, bossStage, bossBaseline)
+      baseline: summarizeBattle(data, bossStage, bossBaseline),
+      farmed:
+        bossFarmClear?.ok
+          ? {
+              ...summarizeBattle(data, bossStage, bossFarmClear.result),
+              farmStageId: bossFarmClear.farmStageId,
+              farmClears: bossFarmClear.farmClears,
+              trainingCost: bossFarmClear.trainingCost
+            }
+          : undefined
     },
     farmRecommendation,
     masteryMilestone: buildRegionMasteryMilestone(
@@ -627,8 +838,9 @@ function buildRegionStageProgressionReport(
       farmRecommendation
     ),
     defensiveEvents: buildDefensiveEventSummary(stageResults),
+    recoveryEvents: buildRecoveryEventSummary(stageResults),
     progressBeforeBoss,
-    progressAfterRegion: progress
+    progressAfterRegion
   };
 }
 
@@ -852,7 +1064,17 @@ function formatReward(rewards: StageSummary["rewards"]): string {
     return "-";
   }
 
-  return `${rewards.silver} silver / ${rewards.cultivation} cult / ${rewards.combatExperience} xp`;
+  return [
+    `${formatNumber(rewards.silver)} silver`,
+    `${formatNumber(rewards.cultivation)} cult`,
+    `${formatNumber(rewards.combatExperience)} xp`
+  ].join(" / ");
+}
+
+function formatNumber(value: number): string {
+  return Number.isInteger(value)
+    ? String(value)
+    : value.toFixed(2).replace(/\.?0+$/, "");
 }
 
 function formatTarget(stage: StageSummary): string {
@@ -933,14 +1155,28 @@ function formatRegionBossGateLine(region: RegionSummary): string {
     "trained" in region.bossGate && region.bossGate.trained
       ? `, trained ${formatBossLine(region.bossGate.trained)}`
       : "";
+  const farmed = region.bossGate.farmed
+    ? [
+        `, farmed ${formatBossLine(region.bossGate.farmed)}`,
+        `after ${region.bossGate.farmed.farmClears}`,
+        `${region.bossGate.farmed.farmStageId ?? "region"} farms`,
+        `and ${region.bossGate.farmed.trainingCost} silver training`
+      ].join(" ")
+    : "";
 
-  return `- ${region.regionName}: baseline ${formatBossLine(region.bossGate.baseline)}${trained}`;
+  return `- ${region.regionName}: baseline ${formatBossLine(region.bossGate.baseline)}${trained}${farmed}`;
 }
 
 function formatRegionDefensiveEventLine(region: RegionSummary): string {
   const events = region.defensiveEvents;
 
   return `- ${region.regionName}: g${events.guardAbsorbs}/p${events.protections}/a${events.armorBreaks}, ${events.defensiveDamagePrevented} damage prevented`;
+}
+
+function formatRegionRecoveryEventLine(region: RegionSummary): string {
+  const events = region.recoveryEvents;
+
+  return `- ${region.regionName}: ${events.heals} heals, ${events.outerHealing} Outer HP restored`;
 }
 
 function formatRegionStageTable(
@@ -999,6 +1235,9 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     "",
     "Region Defensive Events",
     ...report.regionBalances.map(formatRegionDefensiveEventLine),
+    "",
+    "Region Recovery Events",
+    ...report.regionBalances.map(formatRegionRecoveryEventLine),
     "",
     "Formation Targeting",
     `- first_living frontline target: ${balance.formationScenarios.firstLivingFrontlineTargetId}`,

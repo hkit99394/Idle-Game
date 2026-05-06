@@ -336,5 +336,109 @@
     "rewards": { "silver": 720, "cultivation": 360, "combatExperience": 260 },
     "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
     "nextStageId": null
+  },
+  {
+    "id": "lotus_monastery_1",
+    "regionId": "lotus_monastery",
+    "index": 1,
+    "name": "Lotus Monastery Gate",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_outer_disciple", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 390, "cultivation": 196, "combatExperience": 96 },
+    "nextStageId": "lotus_monastery_2"
+  },
+  {
+    "id": "lotus_monastery_2",
+    "regionId": "lotus_monastery",
+    "index": 2,
+    "name": "Incense Recovery Hall",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_outer_disciple"],
+      "formation": { "front": [0], "middle": [2], "back": [1] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 440, "cultivation": 220, "combatExperience": 102 },
+    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_3"
+  },
+  {
+    "id": "lotus_monastery_3",
+    "regionId": "lotus_monastery",
+    "index": 3,
+    "name": "Jade Needle Cloister",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "jade_needle_sister", "lotus_outer_disciple", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1, 2], "back": [3] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 500, "cultivation": 250, "combatExperience": 112 },
+    "equipmentDrops": [{ "equipmentId": "mist_needle_case", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_4"
+  },
+  {
+    "id": "lotus_monastery_4",
+    "regionId": "lotus_monastery",
+    "index": 4,
+    "name": "Blooming Sword Walk",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 570, "cultivation": 286, "combatExperience": 126 },
+    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_5"
+  },
+  {
+    "id": "lotus_monastery_5",
+    "regionId": "lotus_monastery",
+    "index": 5,
+    "name": "Tranquil Meridian Garden",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 650, "cultivation": 326, "combatExperience": 140 },
+    "equipmentDrops": [{ "equipmentId": "veil_palm_manual", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_6"
+  },
+  {
+    "id": "lotus_monastery_6",
+    "regionId": "lotus_monastery",
+    "index": 6,
+    "name": "Lotus Abbot Approach",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "jade_needle_sister"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 740, "cultivation": 370, "combatExperience": 158 },
+    "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_7"
+  },
+  {
+    "id": "lotus_monastery_7",
+    "regionId": "lotus_monastery",
+    "index": 7,
+    "name": "Lotus Abbot",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_abbot", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": true,
+    "canFarmOffline": false,
+    "rewards": { "silver": 1500, "cultivation": 750, "combatExperience": 420 },
+    "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
+    "nextStageId": null
   }
 ]

@@ -257,5 +257,97 @@
         "durationSeconds": 5.5
       }
     ]
+  },
+  {
+    "id": "lotus_recovery_palm",
+    "name": "Lotus Recovery Palm",
+    "cooldownSeconds": 4.8,
+    "outerMultiplier": 0.35,
+    "innerMultiplier": 1.05,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "outer_heal_percent",
+        "value": 0.08
+      }
+    ]
+  },
+  {
+    "id": "lotus_staff_shelter",
+    "name": "Lotus Staff Shelter",
+    "cooldownSeconds": 5.8,
+    "outerMultiplier": 0.75,
+    "innerMultiplier": 0.35,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "protect",
+        "value": 0.2,
+        "durationSeconds": 5
+      },
+      {
+        "type": "guard",
+        "value": 0.14,
+        "durationSeconds": 4
+      }
+    ]
+  },
+  {
+    "id": "jade_needle_flurry",
+    "name": "Jade Needle Flurry",
+    "cooldownSeconds": 4.2,
+    "outerMultiplier": 0.65,
+    "innerMultiplier": 0.85,
+    "targetRule": "weakest_hp",
+    "effects": [
+      {
+        "type": "speed_down",
+        "value": 0.08,
+        "durationSeconds": 5
+      }
+    ]
+  },
+  {
+    "id": "tranquil_bloom_seal",
+    "name": "Tranquil Bloom Seal",
+    "cooldownSeconds": 5.4,
+    "outerMultiplier": 0.25,
+    "innerMultiplier": 1.45,
+    "targetRule": "inner_broken",
+    "effects": [
+      {
+        "type": "inner_defense_down",
+        "value": 0.1,
+        "durationSeconds": 6
+      },
+      {
+        "type": "outer_heal_percent",
+        "value": 0.06
+      }
+    ]
+  },
+  {
+    "id": "abbot_lotus_vow",
+    "name": "Abbot Lotus Vow",
+    "cooldownSeconds": 6.2,
+    "outerMultiplier": 0.4,
+    "innerMultiplier": 1.55,
+    "targetRule": "highest_cp",
+    "effects": [
+      {
+        "type": "outer_heal_percent",
+        "value": 0.1
+      },
+      {
+        "type": "guard",
+        "value": 0.2,
+        "durationSeconds": 5
+      },
+      {
+        "type": "protect",
+        "value": 0.16,
+        "durationSeconds": 5
+      }
+    ]
   }
 ]
