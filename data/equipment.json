@@ -93,10 +93,83 @@
     "slot": "armor",
     "rarity": "rare",
     "allowedStyles": ["fist", "blade", "staff"],
+    "setId": "black_iron_ward",
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.14 },
       { "stat": "outerDefense", "mode": "multiplier", "value": 0.16 },
       { "stat": "breakResist", "mode": "flat", "value": 0.02 }
+    ],
+    "affixes": [
+      {
+        "id": "tempered_weave",
+        "name": "Tempered Weave",
+        "effects": [
+          { "stat": "outerDefense", "mode": "multiplier", "value": 0.04 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "black_iron_saber_blade",
+    "name": "Black Iron Saber",
+    "slot": "weapon",
+    "rarity": "rare",
+    "allowedStyles": ["sword", "blade"],
+    "setId": "black_iron_ward",
+    "effects": [
+      { "stat": "outerAttack", "mode": "multiplier", "value": 0.14 },
+      { "stat": "breakPower", "mode": "flat", "value": 0.015 }
+    ],
+    "affixes": [
+      {
+        "id": "heavy_edge",
+        "name": "Heavy Edge",
+        "effects": [
+          { "stat": "outerAttack", "mode": "multiplier", "value": 0.04 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fortress_guard_manual",
+    "name": "Fortress Guard Manual",
+    "slot": "manual",
+    "rarity": "uncommon",
+    "allowedStyles": ["fist", "staff"],
+    "setId": "black_iron_ward",
+    "effects": [
+      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.08 },
+      { "stat": "outerDefense", "mode": "multiplier", "value": 0.08 }
+    ],
+    "affixes": [
+      {
+        "id": "body_conditioning",
+        "name": "Body Conditioning",
+        "effects": [
+          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tempered_meridian_pill",
+    "name": "Tempered Meridian Pill",
+    "slot": "medicine",
+    "rarity": "uncommon",
+    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "setId": "black_iron_ward",
+    "effects": [
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.07 },
+      { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.08 }
+    ],
+    "affixes": [
+      {
+        "id": "forge_warmed",
+        "name": "Forge-Warmed",
+        "effects": [
+          { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.03 }
+        ]
+      }
     ]
   }
 ]

@@ -36,6 +36,23 @@ export type EquipmentEffect = {
   value: number;
 };
 
+export type EquipmentAffixDefinition = {
+  id: string;
+  name: string;
+  effects: EquipmentEffect[];
+};
+
+export type EquipmentSetBonus = {
+  pieces: number;
+  effects: EquipmentEffect[];
+};
+
+export type EquipmentSetDefinition = {
+  id: string;
+  name: string;
+  bonuses: EquipmentSetBonus[];
+};
+
 export type EquipmentDefinition = {
   id: string;
   name: string;
@@ -43,6 +60,8 @@ export type EquipmentDefinition = {
   rarity: EquipmentRarity;
   allowedStyles: MartialStyleId[];
   effects: EquipmentEffect[];
+  affixes?: EquipmentAffixDefinition[];
+  setId?: string;
 };
 
 export type HeroDefinition = {
@@ -225,6 +244,7 @@ export type StaticGameData = {
   skills: SkillDefinition[];
   enemies: EnemyDefinition[];
   equipment: EquipmentDefinition[];
+  equipmentSets?: EquipmentSetDefinition[];
   regions: RegionDefinition[];
   stages: StageDefinition[];
   upgrades: UpgradeDefinition[];

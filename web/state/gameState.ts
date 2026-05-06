@@ -13,6 +13,7 @@ import {
   getDefaultFormationSlot,
   getAvailableEquipmentCopyCount,
   getActiveMasterySummaryForStage,
+  getActiveEquipmentSetBonuses,
   getEquipmentInventoryCount,
   getOfflineFarmPresetPolicy,
   getRecommendedOfflineFarmStage,
@@ -256,6 +257,9 @@ export type EquipmentInventoryItemView = {
   availableCount: number;
   allowedStyles: string[];
   effects: string[];
+  affixes: string[];
+  setName: string | null;
+  setBonuses: string[];
   compatibleHeroIds: string[];
 };
 
@@ -265,6 +269,7 @@ export type HeroEquipmentSlotView = {
   equipmentId: string | null;
   name: string | null;
   rarity: EquipmentRarity | null;
+  setName: string | null;
 };
 
 export type HeroEquipmentView = {
@@ -272,6 +277,7 @@ export type HeroEquipmentView = {
   name: string;
   style: string;
   slots: HeroEquipmentSlotView[];
+  activeSetBonuses: string[];
 };
 
 export type StageOptionView = {
@@ -1428,14 +1434,29 @@ function formatEquipmentEffect(
   )}`;
 }
 
+function formatEquipmentSetBonus(
+  set: NonNullable<StaticGameData["equipmentSets"]>[number],
+  bonus: NonNullable<StaticGameData["equipmentSets"]>[number]["bonuses"][number]
+): string {
+  return `${set.name} ${bonus.pieces}-piece: ${bonus.effects
+    .map(formatEquipmentEffect)
+    .join(", ")}`;
+}
+
 function buildEquipmentInventoryViews(
   data: StaticGameData,
   progress: PlayerProgress
 ): EquipmentInventoryItemView[] {
   const styleNames = new Map(data.styles.map((style) => [style.id, style.name]));
+  const equipmentSetById = new Map(
+    (data.equipmentSets ?? []).map((set) => [set.id, set])
+  );
 
   return data.equipment.flatMap((equipment) => {
     const count = getEquipmentInventoryCount(progress, equipment.id);
+    const set = equipment.setId
+      ? equipmentSetById.get(equipment.setId) ?? null
+      : null;
 
     if (count <= 0) {
       return [];
@@ -1453,6 +1474,14 @@ function buildEquipmentInventoryViews(
           (styleId) => styleNames.get(styleId) ?? styleId
         ),
         effects: equipment.effects.map(formatEquipmentEffect),
+        affixes: (equipment.affixes ?? []).map(
+          (affix) =>
+            `${affix.name}: ${affix.effects.map(formatEquipmentEffect).join(", ")}`
+        ),
+        setName: set?.name ?? null,
+        setBonuses: set?.bonuses.map((bonus) =>
+          formatEquipmentSetBonus(set, bonus)
+        ) ?? [],
         compatibleHeroIds: data.heroes
           .filter(
             (hero) =>
@@ -1478,6 +1507,9 @@ function buildHeroEquipmentViews(
   const equipmentById = new Map(
     data.equipment.map((equipment) => [equipment.id, equipment])
   );
+  const equipmentSetById = new Map(
+    (data.equipmentSets ?? []).map((set) => [set.id, set])
+  );
 
   return data.heroes.map((hero) => ({
     heroId: hero.id,
@@ -1492,9 +1524,23 @@ function buildHeroEquipmentViews(
         label: formatEquipmentSlot(slot),
         equipmentId,
         name: equipment?.name ?? null,
-        rarity: equipment?.rarity ?? null
+        rarity: equipment?.rarity ?? null,
+        setName: equipment?.setId
+          ? equipmentSetById.get(equipment.setId)?.name ?? null
+          : null
       };
-    })
+    }),
+    activeSetBonuses: getActiveEquipmentSetBonuses(
+      data.equipment,
+      data.equipmentSets,
+      progress.equipment,
+      hero.id
+    ).map(
+      (bonus) =>
+        `${bonus.name} ${bonus.requiredPieces}-piece: ${bonus.effects
+          .map(formatEquipmentEffect)
+          .join(", ")}`
+    )
   }));
 }
 

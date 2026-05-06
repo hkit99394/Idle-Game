@@ -1053,6 +1053,8 @@ textarea {
 
 .equipment-slot-list,
 .equipment-effects,
+.equipment-affixes,
+.equipment-set-bonuses,
 .equipment-styles,
 .equipment-actions {
   display: flex;
@@ -1062,9 +1064,10 @@ textarea {
 
 .equipment-slot-row {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
+  grid-template-columns: 72px minmax(0, 1fr) auto;
   gap: 8px;
   width: 100%;
+  align-items: center;
   color: #4d4639;
   font-size: 0.82rem;
 }
@@ -1080,7 +1083,21 @@ textarea {
   font-weight: 800;
 }
 
+.equipment-slot-set {
+  min-height: 20px;
+  padding: 0 7px;
+  border: 1px solid #947e47;
+  border-radius: 999px;
+  background: #fbf1cc;
+  color: #4d3d13;
+  font-size: 0.7rem;
+  line-height: 20px;
+  text-align: center;
+}
+
 .equipment-effects span,
+.equipment-affixes span,
+.equipment-set-bonuses span,
 .equipment-styles span,
 .equipment-actions span {
   min-height: 22px;
@@ -1099,6 +1116,18 @@ textarea {
   border-color: #6f7f4f;
   background: #edf1df;
   color: #283315;
+}
+
+.equipment-affixes span {
+  border-color: #9b7246;
+  background: #f8ead7;
+  color: #4d2f12;
+}
+
+.equipment-set-bonuses span {
+  border-color: #947e47;
+  background: #fbf1cc;
+  color: #4d3d13;
 }
 
 .equipment-actions button {

@@ -260,6 +260,79 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid equipment affixes and set bonuses", () => {
+    const invalidData = {
+      ...staticData,
+      equipment: staticData.equipment.map((equipment) =>
+        equipment.id === "training_wraps"
+          ? {
+              ...equipment,
+              setId: "missing_set",
+              affixes: [
+                {
+                  id: "cracked",
+                  name: "",
+                  effects: [
+                    {
+                      stat: "luck",
+                      mode: "bonus",
+                      value: Number.NaN
+                    }
+                  ]
+                },
+                {
+                  id: "cracked",
+                  name: "Duplicate Cracked",
+                  effects: []
+                }
+              ]
+            }
+          : equipment
+      ),
+      equipmentSets: [
+        ...(staticData.equipmentSets ?? []),
+        {
+          id: "broken_set",
+          name: "",
+          bonuses: [
+            {
+              pieces: 1,
+              effects: [
+                {
+                  stat: "luck",
+                  mode: "bonus",
+                  value: Number.NaN
+                }
+              ]
+            },
+            {
+              pieces: 2,
+              effects: []
+            }
+          ]
+        }
+      ]
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Equipment training_wraps references missing equipment set missing_set",
+        "Equipment training_wraps affix cracked must define a name",
+        "Equipment training_wraps affix cracked effect stat luck must be a valid base stat",
+        "Equipment training_wraps affix cracked effect mode must be one of flat, multiplier",
+        "Equipment training_wraps affix cracked effect value must be a number",
+        "Equipment training_wraps affix cracked is duplicated",
+        "Equipment training_wraps affix cracked must define at least one effect",
+        "Equipment set broken_set must define a name",
+        "Equipment set broken_set bonus pieces must be an integer >= 2",
+        "Equipment set broken_set bonus 1 effect stat luck must be a valid base stat",
+        "Equipment set broken_set bonus 1 effect mode must be one of flat, multiplier",
+        "Equipment set broken_set bonus 1 effect value must be a number",
+        "Equipment set broken_set bonus 2 must define at least one effect"
+      ])
+    );
+  });
+
   it("rejects duplicate enemy formation combatant placement", () => {
     const invalidData: StaticGameData = {
       ...staticData,

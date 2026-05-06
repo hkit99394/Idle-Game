@@ -128,14 +128,16 @@ describe("web game state", () => {
     expect(viewModel.equipmentInventory).toEqual([]);
     expect(viewModel.heroEquipment[0]).toMatchObject({
       heroId: "iron_fist_disciple",
+      activeSetBonuses: [],
       slots: expect.arrayContaining([
-        {
+        expect.objectContaining({
           slot: "weapon",
           label: "Weapon",
           equipmentId: null,
           name: null,
-          rarity: null
-        }
+          rarity: null,
+          setName: null
+        })
       ])
     });
     expect(viewModel.styleMastery).toHaveLength(7);
@@ -779,6 +781,56 @@ describe("web game state", () => {
       compatibleHeroIds: ["iron_fist_disciple"]
     });
     expect(afterCp).toBeGreaterThan(beforeCp ?? 0);
+  });
+
+  it("shows equipment affixes and active set bonuses", () => {
+    const state = createInitialWebGameState(staticData);
+    const lootState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        equipment: {
+          inventory: {
+            iron_thread_armor: 1,
+            fortress_guard_manual: 1
+          },
+          equipped: {}
+        }
+      }
+    });
+    const inventoryViewModel = getWebGameViewModel(staticData, lootState);
+    const armorView = inventoryViewModel.equipmentInventory.find(
+      (item) => item.equipmentId === "iron_thread_armor"
+    );
+
+    expect(armorView).toMatchObject({
+      setName: "Black Iron Ward",
+      affixes: expect.arrayContaining([
+        expect.stringContaining("Tempered Weave")
+      ]),
+      setBonuses: expect.arrayContaining([
+        expect.stringContaining("Black Iron Ward 2-piece")
+      ])
+    });
+
+    const armorState = equipGameEquipment(staticData, lootState, {
+      heroId: "iron_fist_disciple",
+      equipmentId: "iron_thread_armor"
+    });
+    const manualState = equipGameEquipment(staticData, armorState, {
+      heroId: "iron_fist_disciple",
+      equipmentId: "fortress_guard_manual"
+    });
+    const equippedViewModel = getWebGameViewModel(staticData, manualState);
+    const heroView = equippedViewModel.heroEquipment.find(
+      (hero) => hero.heroId === "iron_fist_disciple"
+    );
+
+    expect(heroView?.activeSetBonuses).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("Black Iron Ward 2-piece")
+      ])
+    );
   });
 
   it("normalizes selected offline farm stage to the best unlocked farm", () => {

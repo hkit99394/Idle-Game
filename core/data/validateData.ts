@@ -1,6 +1,8 @@
 import type {
   EnemyDefinition,
   EquipmentDefinition,
+  EquipmentEffect,
+  EquipmentSetDefinition,
   FormationDefinition,
   HeroDefinition,
   MartialStyleDefinition,
@@ -289,7 +291,8 @@ const BASE_STAT_KEYS = [
 
 function validateEquipment(
   equipment: EquipmentDefinition,
-  styleIds: Set<string>
+  styleIds: Set<string>,
+  equipmentSetIds: Set<string>
 ): string[] {
   const errors: string[] = [];
 
@@ -315,25 +318,114 @@ function validateEquipment(
     }
   }
 
+  if (equipment.setId && !equipmentSetIds.has(equipment.setId)) {
+    errors.push(
+      `Equipment ${equipment.id} references missing equipment set ${equipment.setId}`
+    );
+  }
+
   if (equipment.effects.length === 0) {
     errors.push(`Equipment ${equipment.id} must define at least one effect`);
   }
 
   for (const effect of equipment.effects) {
-    if (!BASE_STAT_KEYS.includes(effect.stat)) {
+    errors.push(...validateEquipmentEffect(`Equipment ${equipment.id} effect`, effect));
+  }
+
+  const affixIds = new Set<string>();
+  for (const affix of equipment.affixes ?? []) {
+    if (typeof affix.id !== "string" || affix.id.length === 0) {
+      errors.push(`Equipment ${equipment.id} affix id must be a non-empty string`);
+    } else if (affixIds.has(affix.id)) {
+      errors.push(`Equipment ${equipment.id} affix ${affix.id} is duplicated`);
+    }
+    affixIds.add(affix.id);
+
+    if (typeof affix.name !== "string" || affix.name.length === 0) {
+      errors.push(`Equipment ${equipment.id} affix ${affix.id} must define a name`);
+    }
+
+    if (affix.effects.length === 0) {
       errors.push(
-        `Equipment ${equipment.id} effect stat ${String(effect.stat)} must be a valid base stat`
+        `Equipment ${equipment.id} affix ${affix.id} must define at least one effect`
       );
     }
 
-    if (!EQUIPMENT_EFFECT_MODES.includes(effect.mode)) {
+    for (const effect of affix.effects) {
       errors.push(
-        `Equipment ${equipment.id} effect mode must be one of ${EQUIPMENT_EFFECT_MODES.join(", ")}`
+        ...validateEquipmentEffect(
+          `Equipment ${equipment.id} affix ${affix.id} effect`,
+          effect
+        )
+      );
+    }
+  }
+
+  return errors;
+}
+
+function validateEquipmentEffect(
+  ownerLabel: string,
+  effect: EquipmentEffect
+): string[] {
+  const errors: string[] = [];
+
+  if (!BASE_STAT_KEYS.includes(effect.stat)) {
+    errors.push(
+      `${ownerLabel} stat ${String(effect.stat)} must be a valid base stat`
+    );
+  }
+
+  if (!EQUIPMENT_EFFECT_MODES.includes(effect.mode)) {
+    errors.push(
+      `${ownerLabel} mode must be one of ${EQUIPMENT_EFFECT_MODES.join(", ")}`
+    );
+  }
+
+  if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+    errors.push(`${ownerLabel} value must be a number`);
+  }
+
+  return errors;
+}
+
+function validateEquipmentSet(set: EquipmentSetDefinition): string[] {
+  const errors: string[] = [];
+  const bonusPieces = new Set<number>();
+
+  if (typeof set.name !== "string" || set.name.length === 0) {
+    errors.push(`Equipment set ${set.id} must define a name`);
+  }
+
+  if (set.bonuses.length === 0) {
+    errors.push(`Equipment set ${set.id} must define at least one bonus`);
+  }
+
+  for (const bonus of set.bonuses) {
+    if (!Number.isInteger(bonus.pieces) || bonus.pieces < 2) {
+      errors.push(
+        `Equipment set ${set.id} bonus pieces must be an integer >= 2`
+      );
+    } else if (bonusPieces.has(bonus.pieces)) {
+      errors.push(
+        `Equipment set ${set.id} bonus ${bonus.pieces} pieces is duplicated`
+      );
+    }
+    bonusPieces.add(bonus.pieces);
+
+    if (bonus.effects.length === 0) {
+      errors.push(
+        `Equipment set ${set.id} bonus ${bonus.pieces} must define at least one effect`
       );
     }
 
-    if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
-      errors.push(`Equipment ${equipment.id} effect value must be a number`);
+    for (const effect of bonus.effects) {
+      errors.push(
+        ...validateEquipmentEffect(
+          `Equipment set ${set.id} bonus ${bonus.pieces} effect`,
+          effect
+        )
+      );
     }
   }
 
@@ -618,6 +710,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     ["skill", data.skills],
     ["enemy", data.enemies],
     ["equipment", data.equipment],
+    ["equipment set", data.equipmentSets ?? []],
     ["region", data.regions],
     ["stage", data.stages],
     ["upgrade", data.upgrades],
@@ -636,6 +729,9 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const heroIds = new Set(data.heroes.map((hero) => hero.id));
   const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
   const equipmentIds = new Set(data.equipment.map((equipment) => equipment.id));
+  const equipmentSetIds = new Set(
+    (data.equipmentSets ?? []).map((set) => set.id)
+  );
   const stageIds = new Set(data.stages.map((stage) => stage.id));
   const styleIds = new Set(data.styles.map((style) => style.id));
   const regionIds = new Set(data.regions.map((region) => region.id));
@@ -680,7 +776,11 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const equipment of data.equipment) {
-    errors.push(...validateEquipment(equipment, styleIds));
+    errors.push(...validateEquipment(equipment, styleIds, equipmentSetIds));
+  }
+
+  for (const set of data.equipmentSets ?? []) {
+    errors.push(...validateEquipmentSet(set));
   }
 
   for (const skillUpgrade of data.skillUpgrades) {

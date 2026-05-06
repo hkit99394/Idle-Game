@@ -286,6 +286,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 252, "cultivation": 126, "combatExperience": 64 },
+    "equipmentDrops": [{ "equipmentId": "black_iron_saber_blade", "quantity": 1 }],
     "nextStageId": "black_iron_fort_5"
   },
   {
@@ -300,6 +301,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 292, "cultivation": 146, "combatExperience": 78 },
+    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
     "nextStageId": "black_iron_fort_6"
   },
   {
@@ -314,6 +316,10 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 336, "cultivation": 168, "combatExperience": 88 },
+    "equipmentDrops": [
+      { "equipmentId": "fortress_guard_manual", "quantity": 1 },
+      { "equipmentId": "tempered_meridian_pill", "quantity": 1 }
+    ],
     "nextStageId": "black_iron_fort_7"
   },
   {

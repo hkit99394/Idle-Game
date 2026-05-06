@@ -7,6 +7,7 @@ import {
   equipHeroEquipment,
   getEquipmentInventoryCount
 } from "../../core";
+import type { StaticGameData } from "../../core";
 import { staticData } from "../helpers/staticData";
 
 describe("equipment progression", () => {
@@ -147,5 +148,138 @@ describe("equipment progression", () => {
       ok: false,
       reason: "not_enough_copies"
     });
+  });
+
+  it("applies deterministic affixes to derived stats and CP", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.equipment = {
+      inventory: {
+        iron_thread_armor: 1
+      },
+      equipped: {}
+    };
+    const equipResult = equipHeroEquipment(staticData, {
+      progress,
+      heroId: "iron_fist_disciple",
+      equipmentId: "iron_thread_armor"
+    });
+
+    expect(equipResult.ok).toBe(true);
+    if (!equipResult.ok) {
+      return;
+    }
+
+    const withoutAffixData: StaticGameData = {
+      ...staticData,
+      equipment: staticData.equipment.map((equipment) =>
+        equipment.id === "iron_thread_armor"
+          ? { ...equipment, affixes: [] }
+          : equipment
+      )
+    };
+    const withoutAffixTeam = buildPlayerTeamForStage(
+      withoutAffixData,
+      equipResult.progress,
+      "bamboo_road_1"
+    );
+    const withAffixTeam = buildPlayerTeamForStage(
+      staticData,
+      equipResult.progress,
+      "bamboo_road_1"
+    );
+
+    expect(withoutAffixTeam.ok).toBe(true);
+    expect(withAffixTeam.ok).toBe(true);
+    if (!withoutAffixTeam.ok || !withAffixTeam.ok) {
+      return;
+    }
+
+    const withoutAffixHero = withoutAffixTeam.team.combatants.find(
+      (combatant) => combatant.definitionId === "iron_fist_disciple"
+    );
+    const withAffixHero = withAffixTeam.team.combatants.find(
+      (combatant) => combatant.definitionId === "iron_fist_disciple"
+    );
+    const withoutAffixStats = withoutAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
+    const withAffixStats = withAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
+
+    expect(withAffixStats.outerDefense).toBeGreaterThan(
+      withoutAffixStats.outerDefense
+    );
+    expect(calculateCombatPower(withAffixStats)).toBeGreaterThan(
+      calculateCombatPower(withoutAffixStats)
+    );
+  });
+
+  it("applies equipment set bonuses after enough pieces are equipped", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.equipment = {
+      inventory: {
+        iron_thread_armor: 1,
+        fortress_guard_manual: 1
+      },
+      equipped: {}
+    };
+    const armorResult = equipHeroEquipment(staticData, {
+      progress,
+      heroId: "iron_fist_disciple",
+      equipmentId: "iron_thread_armor"
+    });
+
+    expect(armorResult.ok).toBe(true);
+    if (!armorResult.ok) {
+      return;
+    }
+
+    const manualResult = equipHeroEquipment(staticData, {
+      progress: armorResult.progress,
+      heroId: "iron_fist_disciple",
+      equipmentId: "fortress_guard_manual"
+    });
+
+    expect(manualResult.ok).toBe(true);
+    if (!manualResult.ok) {
+      return;
+    }
+
+    const withoutSetData: StaticGameData = {
+      ...staticData,
+      equipmentSets: []
+    };
+    const withoutSetTeam = buildPlayerTeamForStage(
+      withoutSetData,
+      manualResult.progress,
+      "bamboo_road_1"
+    );
+    const withSetTeam = buildPlayerTeamForStage(
+      staticData,
+      manualResult.progress,
+      "bamboo_road_1"
+    );
+
+    expect(withoutSetTeam.ok).toBe(true);
+    expect(withSetTeam.ok).toBe(true);
+    if (!withoutSetTeam.ok || !withSetTeam.ok) {
+      return;
+    }
+
+    const withoutSetHero = withoutSetTeam.team.combatants.find(
+      (combatant) => combatant.definitionId === "iron_fist_disciple"
+    );
+    const withSetHero = withSetTeam.team.combatants.find(
+      (combatant) => combatant.definitionId === "iron_fist_disciple"
+    );
+    const withoutSetStats = withoutSetHero?.statsOverride ?? staticData.heroes[0].baseStats;
+    const withSetStats = withSetHero?.statsOverride ?? staticData.heroes[0].baseStats;
+
+    expect(withSetStats.outerDefense).toBeGreaterThan(
+      withoutSetStats.outerDefense
+    );
+    expect(withSetStats.breakResist).toBeGreaterThan(
+      withoutSetStats.breakResist
+    );
+    expect(calculateCombatPower(withSetStats)).toBeGreaterThan(
+      calculateCombatPower(withoutSetStats)
+    );
   });
 });

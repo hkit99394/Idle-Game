@@ -112,6 +112,7 @@ function createPlayerCombatantStats(
     styleMastery: progress.styleMastery,
     styleBranches: progress.styleBranches,
     equipmentDefinitions: data.equipment,
+    equipmentSetDefinitions: data.equipmentSets,
     equipment: progress.equipment,
     mapAttackMultiplier: context.mapAttackMultiplier
   });

@@ -945,9 +945,19 @@ function EquipmentPanel({
                     >
                       {slot.name ?? "Empty"}
                     </strong>
+                    {slot.setName ? (
+                      <span className="equipment-slot-set">{slot.setName}</span>
+                    ) : null}
                   </div>
                 ))}
               </div>
+              {hero.activeSetBonuses.length > 0 ? (
+                <div className="equipment-set-bonuses">
+                  {hero.activeSetBonuses.map((bonus) => (
+                    <span key={bonus}>{bonus}</span>
+                  ))}
+                </div>
+              ) : null}
             </article>
           ))}
         </div>
@@ -974,6 +984,21 @@ function EquipmentPanel({
                     <span key={effect}>{effect}</span>
                   ))}
                 </div>
+                {item.affixes.length > 0 || item.setName ? (
+                  <div className="equipment-affixes">
+                    {item.affixes.map((affix) => (
+                      <span key={affix}>{affix}</span>
+                    ))}
+                    {item.setName ? <span>Set: {item.setName}</span> : null}
+                  </div>
+                ) : null}
+                {item.setBonuses.length > 0 ? (
+                  <div className="equipment-set-bonuses">
+                    {item.setBonuses.map((bonus) => (
+                      <span key={bonus}>{bonus}</span>
+                    ))}
+                  </div>
+                ) : null}
                 <div className="equipment-styles">
                   {item.allowedStyles.map((style) => (
                     <span key={style}>{style}</span>

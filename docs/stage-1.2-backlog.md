@@ -36,7 +36,7 @@ Deliver the next meaningful layer of content and player choice:
 | Epic 13: Black Iron Fort Region | Completed | Content Expansion | Add the next region with defensive enemy identity |
 | Epic 14: Defensive Combat Mechanics | Completed | Combat Depth | Add armor, guard, protection, and armor-break behavior |
 | Epic 15: Style Branch Choices | Completed | Martial Arts Growth | Let heroes unlock and select early style branches |
-| Epic 16: Equipment Affixes And Sets | Planned | Loot And Equipment | Add deterministic item depth and clearer gear decisions |
+| Epic 16: Equipment Affixes And Sets | Completed | Loot And Equipment | Add deterministic item depth and clearer gear decisions |
 | Epic 17: Patrols And Training Grounds | Planned | Offline And Idle | Add simple hero assignment systems for offline progress |
 | Epic 18: Stage 1.2 Technical Foundation | Planned | Technical Foundation | Add migrations, simulator coverage, and balance reports for new systems |
 
@@ -245,13 +245,27 @@ Acceptance:
 
 ## Epic 16: Equipment Affixes And Sets
 
+Status: Completed
+
 Goal:
 
 - Make equipment choices more meaningful while keeping loot deterministic enough for balance and tests.
 
+Implementation:
+
+- Added optional deterministic affixes to equipment definitions.
+- Added optional equipment set ids and a `Black Iron Ward` two-piece set bonus.
+- Applied base effects, affixes, and active set bonuses through the shared stat derivation path so CP and combat use the same final stats.
+- Added Black Iron Fort weapon, armor, manual, and medicine drops.
+- Updated data validation for affix stats, affix modes, set references, set bonuses, and duplicate set ids.
+- Surfaced affixes, set names, and active set bonuses in the equipment UI.
+- Added tests for affix CP contribution, set stat/CP contribution, data validation, and UI view state.
+
 Tasks:
 
 ### 16.1 Deterministic Affixes
+
+Status: Completed
 
 Add predefined affixes to equipment definitions.
 
@@ -264,6 +278,8 @@ Acceptance:
 
 ### 16.2 Region Gear Identity
 
+Status: Completed
+
 Add Black Iron Fort gear.
 
 Acceptance:
@@ -273,6 +289,8 @@ Acceptance:
 - Drop rewards remain deterministic.
 
 ### 16.3 Simple Set Bonuses
+
+Status: Completed
 
 Add optional two-piece set bonuses.
 
@@ -394,9 +412,8 @@ Acceptance:
 
 ## Recommended Delivery Order
 
-1. Epic 16: equipment affixes and set bonuses.
-2. Epic 17: patrols and training grounds.
-3. Epic 18 final: migration, browser smoke, full verification.
+1. Epic 17: patrols and training grounds.
+2. Epic 18 final: migration, browser smoke, full verification.
 
 ## Out Of Scope For Stage 1.2
 

@@ -142,7 +142,8 @@ export function deriveHeroStatsFromProgress(input: DerivedHeroStatsInput): BaseS
     stats,
     input.equipmentDefinitions,
     input.equipment,
-    input.heroId
+    input.heroId,
+    input.equipmentSetDefinitions
   );
 
   const mapAttackMultiplier = input.mapAttackMultiplier ?? 0;

@@ -2,6 +2,7 @@ import type { BaseStats, FormationSlot } from "../combat";
 import type { BattleResult, TeamInstance } from "../combat";
 import type {
   EquipmentDefinition,
+  EquipmentSetDefinition,
   EquipmentSlot,
   MartialStyleDefinition,
   UpgradeDefinition
@@ -126,6 +127,7 @@ export type DerivedHeroStatsInput = {
   styleMastery?: PlayerProgress["styleMastery"];
   styleBranches?: PlayerProgress["styleBranches"];
   equipmentDefinitions?: EquipmentDefinition[];
+  equipmentSetDefinitions?: EquipmentSetDefinition[];
   equipment?: PlayerProgress["equipment"];
   mapAttackMultiplier?: number;
 };
