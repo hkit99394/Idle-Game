@@ -132,6 +132,14 @@ describe("balance report", () => {
     expect(blackIronBalance.farmRecommendation).toMatchObject({
       stageId: "black_iron_fort_6"
     });
+    expect(blackIronBalance.defensiveEvents).toMatchObject({
+      guardAbsorbs: expect.any(Number),
+      protections: expect.any(Number),
+      armorBreaks: expect.any(Number),
+      defensiveDamagePrevented: expect.any(Number)
+    });
+    expect(blackIronBalance.defensiveEvents.guardAbsorbs).toBeGreaterThan(0);
+    expect(blackIronBalance.defensiveEvents.armorBreaks).toBeGreaterThan(0);
     expect(
       blackIronBalance.stageResults.some((stage) => {
         if (!stage.ok) {
@@ -232,6 +240,7 @@ describe("balance report", () => {
     expect(formatted).toContain("Region Farm Recommendations");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Boss Gates");
+    expect(formatted).toContain("Region Defensive Events");
     expect(formatted).toContain("defense");
     expect(formatted).toContain("g0/p0/a");
     expect(formatted).toContain("Training economy:");

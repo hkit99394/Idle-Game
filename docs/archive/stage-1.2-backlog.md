@@ -38,7 +38,7 @@ Deliver the next meaningful layer of content and player choice:
 | Epic 15: Style Branch Choices | Completed | Martial Arts Growth | Let heroes unlock and select early style branches |
 | Epic 16: Equipment Affixes And Sets | Completed | Loot And Equipment | Add deterministic item depth and clearer gear decisions |
 | Epic 17: Patrols And Training Grounds | Completed | Offline And Idle | Add simple hero assignment systems for offline progress |
-| Epic 18: Stage 1.2 Technical Foundation | Planned | Technical Foundation | Add migrations, simulator coverage, and balance reports for new systems |
+| Epic 18: Stage 1.2 Technical Foundation | Completed | Technical Foundation | Add migrations, simulator coverage, and balance reports for new systems |
 
 ## Epic 13: Black Iron Fort Region
 
@@ -380,13 +380,26 @@ Acceptance:
 
 ## Epic 18: Stage 1.2 Technical Foundation
 
+Status: Completed
+
 Goal:
 
 - Keep new Stage 1.2 systems safe to extend.
 
+Implementation:
+
+- Bumped the save schema to version 4 for the Stage 1.2 save boundary.
+- Added migration coverage for Stage 1.1 saves missing style branch, equipment, and assignment progress.
+- Added clearer invalid-save validation coverage for assignments and retained branch/equipment validation.
+- Added region-level defensive event totals to the balance report while keeping configured region order.
+- Extended the smoke flow to cover route selection, equipment changes, branch selection, assignment setup, and save/reload idempotency.
+- Confirmed scenario coverage for guard/armor, protection, armor break, branch effects, set bonuses, and assignment rewards.
+
 Tasks:
 
 ### 18.1 Save Migration For Stage 1.2
+
+Status: Completed
 
 Add migration support for new fields.
 
@@ -397,6 +410,8 @@ Acceptance:
 - Invalid saves fail with clear validation messages.
 
 ### 18.2 Balance Report Expansion For New Mechanics
+
+Status: Completed
 
 Extend the balance report as Stage 1.2 mechanics are added.
 
@@ -412,6 +427,8 @@ Acceptance:
 
 ### 18.3 Scenario Tests
 
+Status: Completed
+
 Add focused tests for new mechanics.
 
 Acceptance:
@@ -422,6 +439,8 @@ Acceptance:
 
 ### 18.4 Browser Smoke Coverage
 
+Status: Completed
+
 Add broader web interaction coverage.
 
 Acceptance:
@@ -429,10 +448,6 @@ Acceptance:
 - Smoke flow covers route card selection.
 - Smoke flow covers branch selection, equipment changes, and assignment setup.
 - Save/reload preserves new choices.
-
-## Recommended Delivery Order
-
-1. Epic 18 final: migration, browser smoke, full verification.
 
 ## Out Of Scope For Stage 1.2
 

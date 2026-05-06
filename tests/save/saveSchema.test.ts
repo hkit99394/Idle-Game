@@ -135,6 +135,45 @@ describe("save schema", () => {
     expect(result.save.progress.assignments).toEqual({});
   });
 
+  it("migrates Stage 1.1 saves into Stage 1.2 defaults", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const stageOneOneSave = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: null,
+        nowMs: 1000
+      }),
+      version: 3,
+      progress: {
+        ...progress,
+        styleBranches: undefined,
+        equipment: undefined,
+        assignments: undefined
+      }
+    };
+
+    const migration = migrateSaveData(staticData, stageOneOneSave);
+    const result = parseSaveData(staticData, stageOneOneSave);
+
+    expect(migration).toMatchObject({
+      ok: true,
+      fromVersion: 3,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.styleBranches).toEqual({});
+    expect(result.save.progress.equipment).toEqual({
+      inventory: {},
+      equipped: {}
+    });
+    expect(result.save.progress.assignments).toEqual({});
+  });
+
   it("accepts old saves without an offline farm preset and rejects invalid presets", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({

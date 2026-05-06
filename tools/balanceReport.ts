@@ -539,6 +539,36 @@ function buildFormationScenarioReport(data: StaticGameData) {
   };
 }
 
+function buildDefensiveEventSummary(
+  stageResults: Array<ReturnType<typeof summarizeBattle>>
+) {
+  return stageResults.reduce(
+    (summary, stage) => {
+      if (!stage.ok) {
+        return summary;
+      }
+
+      return {
+        guardAbsorbs: summary.guardAbsorbs + (stage.guardAbsorbs ?? 0),
+        protections: summary.protections + (stage.protections ?? 0),
+        armorBreaks: summary.armorBreaks + (stage.armorBreaks ?? 0),
+        defensiveDamagePrevented: Number(
+          (
+            summary.defensiveDamagePrevented +
+            (stage.defensiveDamagePrevented ?? 0)
+          ).toFixed(2)
+        )
+      };
+    },
+    {
+      guardAbsorbs: 0,
+      protections: 0,
+      armorBreaks: 0,
+      defensiveDamagePrevented: 0
+    }
+  );
+}
+
 function buildRegionStageProgressionReport(
   data: StaticGameData,
   regionId: string,
@@ -596,6 +626,7 @@ function buildRegionStageProgressionReport(
       regionId,
       farmRecommendation
     ),
+    defensiveEvents: buildDefensiveEventSummary(stageResults),
     progressBeforeBoss,
     progressAfterRegion: progress
   };
@@ -906,6 +937,12 @@ function formatRegionBossGateLine(region: RegionSummary): string {
   return `- ${region.regionName}: baseline ${formatBossLine(region.bossGate.baseline)}${trained}`;
 }
 
+function formatRegionDefensiveEventLine(region: RegionSummary): string {
+  const events = region.defensiveEvents;
+
+  return `- ${region.regionName}: g${events.guardAbsorbs}/p${events.protections}/a${events.armorBreaks}, ${events.defensiveDamagePrevented} damage prevented`;
+}
+
 function formatRegionStageTable(
   title: string,
   stages: StageSummary[]
@@ -959,6 +996,9 @@ export function formatBalanceReport(report: BambooRoadBalanceReport): string {
     "",
     "Region Boss Gates",
     ...report.regionBalances.map(formatRegionBossGateLine),
+    "",
+    "Region Defensive Events",
+    ...report.regionBalances.map(formatRegionDefensiveEventLine),
     "",
     "Formation Targeting",
     `- first_living frontline target: ${balance.formationScenarios.firstLivingFrontlineTargetId}`,
