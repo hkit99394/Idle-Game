@@ -392,7 +392,8 @@ describe("web save storage", () => {
           ...battleState.progress,
           resources: {
             silver: 20,
-            cultivation: 0
+            cultivation: 0,
+            herbs: 0
           }
         }
       },

@@ -21,6 +21,7 @@ describe("stage clear rewards", () => {
     expect(result.rewards).toEqual({
       silver: 10,
       cultivation: 5,
+      herbs: 0,
       combatExperience: 5
     });
     expect(result.progress.resources.silver).toBe(10);
@@ -71,6 +72,33 @@ describe("stage clear rewards", () => {
     expect(result.rewards.silver).toBeCloseTo(10.2);
     expect(result.rewards.cultivation).toBeCloseTo(5.1);
     expect(result.rewards.combatExperience).toBe(5);
+  });
+
+  it("grants Lotus herbs through stage rewards", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 10;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
+    progress.currentStageId = "lotus_monastery_1";
+
+    const result = applyStageClearRewards(staticData, {
+      progress,
+      stageId: "lotus_monastery_1"
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.rewards.herbs).toBe(6);
+    expect(result.progress.resources.herbs).toBe(6);
+    expect(result.equipmentRewards).toEqual([
+      {
+        equipmentId: "lotus_dew_pill",
+        quantity: 1
+      }
+    ]);
   });
 
   it("returns an error for missing stages", () => {

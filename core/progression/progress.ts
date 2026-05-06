@@ -25,7 +25,8 @@ export function createInitialPlayerProgress(
   return {
     resources: {
       silver: 0,
-      cultivation: 0
+      cultivation: 0,
+      herbs: 0
     },
     heroes: Object.fromEntries(
       data.heroes.map((hero: HeroDefinition) => [hero.id, createInitialHeroProgress()])
@@ -58,7 +59,10 @@ export function createInitialPlayerProgress(
 
 export function cloneProgress(progress: PlayerProgress): PlayerProgress {
   return {
-    resources: { ...progress.resources },
+    resources: {
+      ...progress.resources,
+      herbs: progress.resources.herbs ?? 0
+    },
     heroes: Object.fromEntries(
       Object.entries(progress.heroes).map(([heroId, hero]) => [
         heroId,

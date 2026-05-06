@@ -335,6 +335,7 @@ export type StageOptionView = {
   rewards: {
     silver: number;
     cultivation: number;
+    herbs?: number;
     combatExperience: number;
   };
 };
@@ -419,9 +420,11 @@ export type OfflineRewardSummary = {
   clears: number;
   silver: number;
   cultivation: number;
+  herbs: number;
   combatExperience: number;
   assignmentSilver: number;
   assignmentCultivation: number;
+  assignmentHerbs: number;
   assignmentCombatExperience: number;
   assignmentStyleMasteryExperience: number;
   assignmentEquipmentRewards: Array<{ equipmentId: string; quantity: number }>;
@@ -447,6 +450,7 @@ export type OfflineFarmRecommendationView = {
   presetLabel: string;
   description: string;
   rewardPriority: string[];
+  herbsPerClear: number;
   isSelected: boolean;
 };
 
@@ -459,6 +463,7 @@ export type OfflineRewardPreviewView = {
   clears: number;
   silver: number;
   cultivation: number;
+  herbs: number;
   combatExperience: number;
   masteryExperienceGain: number;
 };
@@ -582,11 +587,15 @@ function createOfflineRewardSummary(
     cultivation:
       (offlineRewards?.ok ? offlineRewards.rewards.cultivation : 0) +
       (assignmentRewards?.cultivation ?? 0),
+    herbs:
+      (offlineRewards?.ok ? offlineRewards.rewards.herbs : 0) +
+      (assignmentRewards?.herbs ?? 0),
     combatExperience:
       (offlineRewards?.ok ? offlineRewards.rewards.combatExperience : 0) +
       (assignmentRewards?.combatExperience ?? 0),
     assignmentSilver: assignmentRewards?.silver ?? 0,
     assignmentCultivation: assignmentRewards?.cultivation ?? 0,
+    assignmentHerbs: assignmentRewards?.herbs ?? 0,
     assignmentCombatExperience: assignmentRewards?.combatExperience ?? 0,
     assignmentStyleMasteryExperience:
       assignmentRewards?.styleMasteryExperience ?? 0,
@@ -2483,6 +2492,10 @@ function buildAssignmentRewardSummary(
     );
   }
 
+  if (rewards.herbsPerHour) {
+    details.push(`${formatBattleNumber(rewards.herbsPerHour)} herbs/hour`);
+  }
+
   if (rewards.combatExperiencePerHour) {
     details.push(
       `${formatBattleNumber(rewards.combatExperiencePerHour)} Combat XP/hour`
@@ -2633,6 +2646,8 @@ function formatOfflineFarmPriority(priority: string): string {
       return "Combat XP";
     case "mastery":
       return "Mastery";
+    case "herbs":
+      return "Herbs";
     default:
       return formatStatName(priority);
   }
@@ -2667,6 +2682,7 @@ function buildOfflineFarmRecommendationView(
       presetLabel: policy.label,
       description: policy.description,
       rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
+      herbsPerClear: 0,
       isSelected: false
     };
   }
@@ -2678,6 +2694,7 @@ function buildOfflineFarmRecommendationView(
     presetLabel: policy.label,
     description: policy.description,
     rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
+    herbsPerClear: recommendedStage.rewards.herbs ?? 0,
     isSelected: recommendedStage.id === selectedOfflineFarmStageId
   };
 }
@@ -2718,6 +2735,7 @@ function buildOfflineRewardPreviewView(
       clears: 0,
       silver: 0,
       cultivation: 0,
+      herbs: 0,
       combatExperience: 0,
       masteryExperienceGain: 0
     };
@@ -2734,6 +2752,7 @@ function buildOfflineRewardPreviewView(
     clears: preview.rewards.clears,
     silver: preview.rewards.silver,
     cultivation: preview.rewards.cultivation,
+    herbs: preview.rewards.herbs,
     combatExperience: preview.rewards.combatExperience,
     masteryExperienceGain: preview.masteryExperienceGain
   };

@@ -21,6 +21,7 @@ export type OfflineAssignmentRewardEntry = {
   heroIds: string[];
   silver: number;
   cultivation: number;
+  herbs: number;
   combatExperience: number;
   styleMasteryExperience: number;
   equipmentRewards: OfflineAssignmentEquipmentReward[];
@@ -31,6 +32,7 @@ export type OfflineAssignmentRewardResult = {
   assignments: OfflineAssignmentRewardEntry[];
   silver: number;
   cultivation: number;
+  herbs: number;
   combatExperience: number;
   styleMasteryExperience: number;
   equipmentRewards: OfflineAssignmentEquipmentReward[];
@@ -58,6 +60,7 @@ export function createEmptyOfflineAssignmentRewards(
     assignments: [],
     silver: 0,
     cultivation: 0,
+    herbs: 0,
     combatExperience: 0,
     styleMasteryExperience: 0,
     equipmentRewards: []
@@ -128,6 +131,7 @@ export function applyOfflineAssignmentRewards(
   const equipmentRewards: OfflineAssignmentEquipmentReward[] = [];
   let silver = 0;
   let cultivation = 0;
+  let herbs = 0;
   let combatExperience = 0;
   let styleMasteryExperience = 0;
 
@@ -158,6 +162,8 @@ export function applyOfflineAssignmentRewards(
       (rewardProfile.silverPerHour ?? 0) * rewardHours * heroMultiplier;
     const assignmentCultivation =
       (rewardProfile.cultivationPerHour ?? 0) * rewardHours * heroMultiplier;
+    const assignmentHerbs =
+      (rewardProfile.herbsPerHour ?? 0) * rewardHours * heroMultiplier;
     const assignmentCombatExperience =
       (rewardProfile.combatExperiencePerHour ?? 0) * rewardHours * heroMultiplier;
     const assignmentStyleMasteryExperience =
@@ -181,6 +187,7 @@ export function applyOfflineAssignmentRewards(
 
     silver += assignmentSilver;
     cultivation += assignmentCultivation;
+    herbs += assignmentHerbs;
     combatExperience += assignmentCombatExperience;
     styleMasteryExperience += assignmentStyleMasteryExperience;
     entries.push({
@@ -188,6 +195,7 @@ export function applyOfflineAssignmentRewards(
       heroIds: eligibleHeroIds,
       silver: assignmentSilver,
       cultivation: assignmentCultivation,
+      herbs: assignmentHerbs,
       combatExperience: assignmentCombatExperience,
       styleMasteryExperience: assignmentStyleMasteryExperience,
       equipmentRewards: assignmentEquipmentRewards
@@ -220,6 +228,7 @@ export function applyOfflineAssignmentRewards(
 
   nextProgress.resources.silver += silver;
   nextProgress.resources.cultivation += cultivation;
+  nextProgress.resources.herbs += herbs;
   addEquipmentRewardsToProgress(nextProgress, equipmentRewards);
   syncHeroLevelsWithCombatExperience(nextProgress);
 
@@ -231,6 +240,7 @@ export function applyOfflineAssignmentRewards(
       assignments: entries,
       silver,
       cultivation,
+      herbs,
       combatExperience,
       styleMasteryExperience,
       equipmentRewards

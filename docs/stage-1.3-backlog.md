@@ -38,7 +38,7 @@ Deliver the next meaningful layer of sustain, roster choice, and idle planning:
 | Epic 19: Lotus Monastery Region | Completed | Content Expansion | Add the next region with healing and support enemy identity |
 | Epic 20: Recovery And Wound Mechanics | Completed | Combat Depth | Add healing, regeneration, cleanse, wound, and anti-recovery behavior |
 | Epic 21: Limited Recruitment And Support Roles | Completed | Hero Growth | Add a first recruit path and make support formation choices meaningful |
-| Epic 22: Herbs And Medicine Progression | Not Started | Loot And Idle | Add deterministic herb rewards, medicine items, and medicine assignments |
+| Epic 22: Herbs And Medicine Progression | Completed | Loot And Idle | Add deterministic herb rewards, medicine items, and medicine assignments |
 | Epic 23: Status Effect Foundation | Not Started | Technical Combat | Normalize buffs, debuffs, durations, and battle event summaries |
 | Epic 24: Stage 1.3 Technical Foundation | Not Started | Technical Foundation | Add migrations, simulator coverage, smoke coverage, and balance reports for new systems |
 
@@ -308,7 +308,7 @@ Acceptance:
 
 ## Epic 22: Herbs And Medicine Progression
 
-Status: Not Started
+Status: Completed
 
 Goal:
 
@@ -320,11 +320,21 @@ Recommended first version:
 - Add deterministic medicine equipment or consumable-like passive items.
 - Do not add inventory-consuming battle items yet unless the UI has a clean command surface.
 
+Implementation:
+
+- Added `herbs` to saved resources with version 6 migration defaults and validation.
+- Added herb rewards to Lotus Monastery stage clears, offline farming, offline previews, route cards, resource header, and offline summaries.
+- Added Lotus Dew Pill and Mending Poultice as deterministic medicine-slot equipment that improves Inner recovery, durability, and CP through the shared equipment stat path.
+- Added Lotus Medicine Pavilion as a Lotus-unlocked assignment that grants herbs, cultivation, style mastery, and medicine items.
+- Added assignment reward summaries for herbs/hour and kept offline reward idempotency intact for medicine assignment rewards.
+- Updated the balance report reward formatter to show herb rewards when a region includes them.
+- Added tests for herb migration/validation, Lotus stage herb rewards, offline herb farming, medicine equipment CP, medicine assignment rewards, idempotent reload behavior, and web view-model formatting.
+
 Tasks:
 
 ### 22.1 Herb Resource
 
-Status: Not Started
+Status: Completed
 
 Add herbs as a deterministic resource.
 
@@ -338,7 +348,7 @@ Acceptance:
 
 ### 22.2 Medicine Items
 
-Status: Not Started
+Status: Completed
 
 Add medicine-flavored deterministic equipment or passive items.
 
@@ -351,7 +361,7 @@ Acceptance:
 
 ### 22.3 Medicine Assignment
 
-Status: Not Started
+Status: Completed
 
 Add a medicine pavilion or herb-gathering assignment.
 
@@ -364,7 +374,7 @@ Acceptance:
 
 ### 22.4 Farm And Assignment Recommendations
 
-Status: Not Started
+Status: Completed
 
 Help the player choose between combat farming and support assignments.
 

@@ -78,6 +78,7 @@ export type AssignmentEquipmentReward = {
 export type AssignmentRewardProfile = {
   silverPerHour?: number;
   cultivationPerHour?: number;
+  herbsPerHour?: number;
   combatExperiencePerHour?: number;
   styleMasteryExperiencePerHour?: number;
   mapRegionId?: string;
@@ -179,6 +180,7 @@ export type TeamDefinition = {
 export type StageRewards = {
   silver: number;
   cultivation: number;
+  herbs?: number;
   combatExperience: number;
 };
 

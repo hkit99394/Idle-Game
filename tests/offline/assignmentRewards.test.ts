@@ -84,4 +84,50 @@ describe("offline assignment rewards", () => {
     expect(result.progress.styleMastery?.palm?.experience).toBe(24);
     expect(result.progress.styleMastery?.fist?.experience ?? 0).toBe(0);
   });
+
+  it("applies Lotus medicine pavilion herbs and medicine rewards", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 10;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
+    progress.maps.lotus_monastery.highestClearedStageIndex = 3;
+    const assigned = setAssignmentHeroes(staticData, {
+      progress,
+      assignmentId: "lotus_medicine_pavilion",
+      heroIds: ["mountain_staff_guardian"]
+    });
+
+    expect(assigned.ok).toBe(true);
+    if (!assigned.ok) {
+      return;
+    }
+
+    const result = applyOfflineAssignmentRewards({
+      data: staticData,
+      progress: assigned.progress,
+      lastSavedAtMs: 0,
+      currentTimeMs: 13 * 60 * 60 * 1000,
+      config: uncappedConfig
+    });
+
+    expect(result.rewards).toMatchObject({
+      cultivation: 156,
+      herbs: 234,
+      styleMasteryExperience: 104
+    });
+    expect(result.rewards.equipmentRewards).toEqual([
+      {
+        equipmentId: "lotus_dew_pill",
+        quantity: 3
+      },
+      {
+        equipmentId: "mending_poultice",
+        quantity: 1
+      }
+    ]);
+    expect(result.progress.resources.herbs).toBe(234);
+    expect(result.progress.resources.cultivation).toBe(156);
+    expect(result.progress.equipment?.inventory.lotus_dew_pill).toBe(3);
+    expect(result.progress.equipment?.inventory.mending_poultice).toBe(1);
+  });
 });

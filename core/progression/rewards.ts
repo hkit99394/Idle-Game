@@ -52,10 +52,12 @@ export function applyStageClearRewards(
   );
   const silver = stage.rewards.silver * rewardMultiplier;
   const cultivation = stage.rewards.cultivation * rewardMultiplier;
+  const herbs = (stage.rewards.herbs ?? 0) * rewardMultiplier;
   const combatExperience = stage.rewards.combatExperience;
 
   nextProgress.resources.silver += silver;
   nextProgress.resources.cultivation += cultivation;
+  nextProgress.resources.herbs += herbs;
   const equipmentRewards = addEquipmentDropsToInventory(
     nextProgress,
     stage.equipmentDrops
@@ -90,6 +92,7 @@ export function applyStageClearRewards(
     rewards: {
       silver,
       cultivation,
+      herbs,
       combatExperience
     },
     masteryRanksBefore,

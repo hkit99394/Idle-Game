@@ -348,7 +348,8 @@
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 390, "cultivation": 196, "combatExperience": 96 },
+    "rewards": { "silver": 390, "cultivation": 196, "herbs": 6, "combatExperience": 96 },
+    "equipmentDrops": [{ "equipmentId": "lotus_dew_pill", "quantity": 1 }],
     "nextStageId": "lotus_monastery_2"
   },
   {
@@ -362,7 +363,7 @@
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 440, "cultivation": 220, "combatExperience": 102 },
+    "rewards": { "silver": 440, "cultivation": 220, "herbs": 8, "combatExperience": 102 },
     "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
     "nextStageId": "lotus_monastery_3"
   },
@@ -377,8 +378,11 @@
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 500, "cultivation": 250, "combatExperience": 112 },
-    "equipmentDrops": [{ "equipmentId": "mist_needle_case", "quantity": 1 }],
+    "rewards": { "silver": 500, "cultivation": 250, "herbs": 10, "combatExperience": 112 },
+    "equipmentDrops": [
+      { "equipmentId": "mist_needle_case", "quantity": 1 },
+      { "equipmentId": "lotus_dew_pill", "quantity": 1 }
+    ],
     "nextStageId": "lotus_monastery_4"
   },
   {
@@ -392,7 +396,7 @@
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 570, "cultivation": 286, "combatExperience": 126 },
+    "rewards": { "silver": 570, "cultivation": 286, "herbs": 12, "combatExperience": 126 },
     "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
     "nextStageId": "lotus_monastery_5"
   },
@@ -407,8 +411,11 @@
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 650, "cultivation": 326, "combatExperience": 140 },
-    "equipmentDrops": [{ "equipmentId": "veil_palm_manual", "quantity": 1 }],
+    "rewards": { "silver": 650, "cultivation": 326, "herbs": 16, "combatExperience": 140 },
+    "equipmentDrops": [
+      { "equipmentId": "veil_palm_manual", "quantity": 1 },
+      { "equipmentId": "mending_poultice", "quantity": 1 }
+    ],
     "nextStageId": "lotus_monastery_6"
   },
   {
@@ -422,7 +429,7 @@
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 740, "cultivation": 370, "combatExperience": 158 },
+    "rewards": { "silver": 740, "cultivation": 370, "herbs": 20, "combatExperience": 158 },
     "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
     "nextStageId": "lotus_monastery_7"
   },
@@ -437,8 +444,11 @@
     },
     "isBoss": true,
     "canFarmOffline": false,
-    "rewards": { "silver": 1500, "cultivation": 750, "combatExperience": 420 },
-    "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
+    "rewards": { "silver": 1500, "cultivation": 750, "herbs": 40, "combatExperience": 420 },
+    "equipmentDrops": [
+      { "equipmentId": "tempered_meridian_pill", "quantity": 1 },
+      { "equipmentId": "mending_poultice", "quantity": 1 }
+    ],
     "nextStageId": null
   }
 ]

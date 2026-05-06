@@ -26,13 +26,14 @@ import type {
   OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 5 as const;
+export const SAVE_DATA_VERSION = 6 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
   2,
   3,
   4,
+  5,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -152,6 +153,7 @@ function validateResources(
 
   validateNumber(value.silver, "progress.resources.silver", errors);
   validateNumber(value.cultivation, "progress.resources.cultivation", errors);
+  validateNumber(value.herbs, "progress.resources.herbs", errors);
 
   return true;
 }
@@ -615,6 +617,17 @@ function normalizeMapProgressForMigration(value: unknown): MapProgress | unknown
   };
 }
 
+function normalizeResourcesForMigration(value: unknown): ResourceState | unknown {
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  return {
+    ...value,
+    herbs: value.herbs === undefined ? 0 : value.herbs
+  };
+}
+
 function normalizeEquipmentProgressForMigration(
   value: unknown
 ): EquipmentProgress | unknown {
@@ -650,7 +663,7 @@ function normalizeProgressForMigration(
 
   return {
     ...value,
-    resources: value.resources,
+    resources: normalizeResourcesForMigration(value.resources),
     heroes: {
       ...defaultProgress.heroes,
       ...Object.fromEntries(

@@ -11,6 +11,7 @@ import type {
 export type ResourceState = {
   silver: number;
   cultivation: number;
+  herbs: number;
 };
 
 export type HeroProgress = {

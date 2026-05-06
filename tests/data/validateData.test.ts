@@ -21,6 +21,41 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects negative herb rewards", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      stages: staticData.stages.map((stage) =>
+        stage.id === "lotus_monastery_1"
+          ? {
+              ...stage,
+              rewards: {
+                ...stage.rewards,
+                herbs: -1
+              }
+            }
+          : stage
+      ),
+      assignments: staticData.assignments?.map((assignment) =>
+        assignment.id === "lotus_medicine_pavilion"
+          ? {
+              ...assignment,
+              rewardProfile: {
+                ...assignment.rewardProfile,
+                herbsPerHour: -1
+              }
+            }
+          : assignment
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Stage lotus_monastery_1 rewards must be non-negative",
+        "Assignment lotus_medicine_pavilion reward values must be non-negative numbers"
+      ])
+    );
+  });
+
   it("rejects enemies without valid level data", () => {
     const invalidData: StaticGameData = {
       ...staticData,

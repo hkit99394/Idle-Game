@@ -1117,7 +1117,14 @@ type StageSummary =
   BambooRoadBalanceReport["bambooRoadBalance"]["stageResults"][number];
 type RegionSummary = BambooRoadBalanceReport["regionBalances"][number];
 
-function formatReward(rewards: StageSummary["rewards"]): string {
+function formatReward(
+  rewards: {
+    silver: number;
+    cultivation: number;
+    herbs?: number;
+    combatExperience: number;
+  } | null | undefined
+): string {
   if (!rewards) {
     return "-";
   }
@@ -1125,6 +1132,7 @@ function formatReward(rewards: StageSummary["rewards"]): string {
   return [
     `${formatNumber(rewards.silver)} silver`,
     `${formatNumber(rewards.cultivation)} cult`,
+    ...(rewards.herbs ? [`${formatNumber(rewards.herbs)} herbs`] : []),
     `${formatNumber(rewards.combatExperience)} xp`
   ].join(" / ");
 }

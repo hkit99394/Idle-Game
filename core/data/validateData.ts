@@ -528,6 +528,7 @@ function validateAssignment(
   const rewardValues = [
     rewards.silverPerHour,
     rewards.cultivationPerHour,
+    rewards.herbsPerHour,
     rewards.combatExperiencePerHour,
     rewards.styleMasteryExperiencePerHour
   ].filter((value): value is number => value !== undefined);
@@ -657,7 +658,12 @@ function validateStage(stage: StageDefinition): string[] {
     errors.push(`Boss stage ${stage.id} cannot be marked for offline farming`);
   }
 
-  if (stage.rewards.silver < 0 || stage.rewards.cultivation < 0 || stage.rewards.combatExperience < 0) {
+  if (
+    stage.rewards.silver < 0 ||
+    stage.rewards.cultivation < 0 ||
+    (stage.rewards.herbs ?? 0) < 0 ||
+    stage.rewards.combatExperience < 0
+  ) {
     errors.push(`Stage ${stage.id} rewards must be non-negative`);
   }
 

@@ -268,7 +268,7 @@ function getOfflineFarmStageRewardPriorityValue(
 ): number {
   return priority === "mastery"
     ? stage.rewards.combatExperience
-    : stage.rewards[priority];
+    : stage.rewards[priority] ?? 0;
 }
 
 export function isBetterOfflineFarmStage(

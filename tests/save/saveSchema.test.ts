@@ -118,6 +118,7 @@ describe("save schema", () => {
     }
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
     expect(result.save.offlineFarmPreset).toBe("balanced");
+    expect(result.save.progress.resources.herbs).toBe(0);
     expect(result.save.progress.heroes.iron_fist_disciple.level).toBe(1);
     expect(result.save.progress.maps.mist_valley).toMatchObject({
       combatExperience: 0,
@@ -270,6 +271,50 @@ describe("save schema", () => {
 
     expect(validateSaveData(staticData, save)).toContain(
       "progress.heroes.iron_fist_disciple.level must be an integer >= 1"
+    );
+  });
+
+  it("migrates old saves without herbs and rejects invalid herb resources", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      version: 5,
+      progress: {
+        ...save.progress,
+        resources: {
+          silver: 10,
+          cultivation: 5
+        }
+      }
+    };
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        resources: {
+          ...save.progress.resources,
+          herbs: -1
+        }
+      }
+    };
+    const result = parseSaveData(staticData, oldSave);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.progress.resources).toMatchObject({
+      silver: 10,
+      cultivation: 5,
+      herbs: 0
+    });
+    expect(validateSaveData(staticData, badSave)).toContain(
+      "progress.resources.herbs must be a non-negative finite number"
     );
   });
 

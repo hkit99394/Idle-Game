@@ -507,6 +507,63 @@ describe("web game state", () => {
     });
   });
 
+  it("shows Lotus herb rewards in routes, offline preview, and assignments", () => {
+    const state = createInitialWebGameState(staticData);
+    const progressedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        currentStageId: "lotus_monastery_2",
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          mist_valley: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          black_iron_fort: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          lotus_monastery: {
+            combatExperience: 0,
+            highestClearedStageIndex: 3
+          }
+        }
+      }
+    });
+    const selectedState = webGameStateReducer(staticData, progressedState, {
+      type: "select_offline_farm_stage",
+      stageId: "lotus_monastery_1"
+    });
+    const viewModel = getWebGameViewModel(staticData, selectedState);
+
+    expect(
+      viewModel.stageOptions.find((stage) => stage.id === "lotus_monastery_1")
+    ).toMatchObject({
+      rewards: {
+        herbs: 6
+      }
+    });
+    expect(viewModel.offlineRewardPreview).toMatchObject({
+      ok: true,
+      stageName: "Lotus Monastery Gate",
+      herbs: 1296
+    });
+    expect(viewModel.offlineFarmRecommendation.herbsPerClear).toBeGreaterThan(0);
+    expect(
+      viewModel.assignments.find(
+        (assignment) => assignment.assignmentId === "lotus_medicine_pavilion"
+      )
+    ).toMatchObject({
+      unlocked: true,
+      rewardSummary: expect.arrayContaining(["18 herbs/hour"])
+    });
+  });
+
   it("uses selected cleared stages as the automatic offline target", () => {
     const state = createInitialWebGameState(staticData);
     const progressedState = webGameStateReducer(staticData, state, {
@@ -715,7 +772,8 @@ describe("web game state", () => {
       ...state.progress,
       resources: {
         silver: 20,
-        cultivation: 0
+        cultivation: 0,
+        herbs: 0
       }
     };
     const affordableViewModel = getWebGameViewModel(staticData, {
@@ -778,7 +836,8 @@ describe("web game state", () => {
       ...state.progress,
       resources: {
         silver: 0,
-        cultivation: 20
+        cultivation: 20,
+        herbs: 0
       }
     };
     const affordableViewModel = getWebGameViewModel(staticData, {

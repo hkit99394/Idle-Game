@@ -616,6 +616,9 @@ function OfflineSummaryPanel({
       <div className="offline-summary-rewards">
         <strong>{formatNumber(summary.silver)} silver</strong>
         <strong>{formatNumber(summary.cultivation)} cultivation</strong>
+        {summary.herbs > 0 ? (
+          <strong>{formatNumber(summary.herbs)} herbs</strong>
+        ) : null}
         <strong>{formatNumber(summary.combatExperience)} Combat XP</strong>
         {summary.assignmentStyleMasteryExperience > 0 ? (
           <strong>
@@ -679,6 +682,9 @@ function OfflineFarmPanel({
           <div className="offline-preview-rewards">
             <span>{formatNumber(preview.silver)} silver</span>
             <span>{formatNumber(preview.cultivation)} cultivation</span>
+            {preview.herbs > 0 ? (
+              <span>{formatNumber(preview.herbs)} herbs</span>
+            ) : null}
             <span>{formatNumber(preview.combatExperience)} Combat XP</span>
             <span>{formatNumber(preview.masteryExperienceGain)} mastery</span>
           </div>
@@ -691,6 +697,9 @@ function OfflineFarmPanel({
             {recommendation.rewardPriority.map((priority) => (
               <span key={priority}>{priority}</span>
             ))}
+            {recommendation.herbsPerClear > 0 ? (
+              <span>{formatNumber(recommendation.herbsPerClear)} herbs/clear</span>
+            ) : null}
           </div>
           <strong>
             {recommendation.isSelected ? "Selected" : "Different from selected"}
@@ -776,6 +785,9 @@ function StageSelectorPanel({
               <div className="stage-rewards">
                 <span>{formatNumber(stage.rewards.silver)} silver</span>
                 <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
+                {stage.rewards.herbs ? (
+                  <span>{formatNumber(stage.rewards.herbs)} herbs</span>
+                ) : null}
                 <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
               </div>
               <div className="stage-card-actions">
@@ -1586,6 +1598,7 @@ function GameApp() {
         <div className="resource-row">
           <span>Silver {formatNumber(progress.resources.silver)}</span>
           <span>Cultivation {formatNumber(progress.resources.cultivation)}</span>
+          <span>Herbs {formatNumber(progress.resources.herbs)}</span>
           <span>Combat Exp {formatNumber(masteryPanel?.combatExperience ?? 0)}</span>
         </div>
         <OfflineSummaryPanel
