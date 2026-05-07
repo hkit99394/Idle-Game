@@ -1,4 +1,9 @@
-import type { BaseStats, MvpStyle, TargetRule } from "../combat";
+import type {
+  BaseStats,
+  MvpStyle,
+  StatusEffectDefinition,
+  TargetRule
+} from "../combat";
 
 export type UnlockCondition =
   | { type: "always" }
@@ -6,8 +11,11 @@ export type UnlockCondition =
 
 export type SkillEffect = {
   type: string;
-  value: number;
+  value?: number;
+  statusId?: string;
+  chance?: number;
   durationSeconds?: number;
+  stacks?: number;
 };
 
 export type HeroDefinition = {
@@ -117,4 +125,5 @@ export type StaticGameData = {
   upgrades: UpgradeDefinition[];
   mastery: MasteryDefinition;
   formations: FormationDefinition[];
+  statusEffects: StatusEffectDefinition[];
 };

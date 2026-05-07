@@ -6,8 +6,26 @@ import type {
   StageDefinition,
   StaticGameData
 } from "./types";
+import type { StatusEffectDefinition } from "../combat";
 
 type EntityWithId = { id: string };
+
+const statusCategories = new Set([
+  "damage",
+  "control",
+  "vulnerability",
+  "recovery",
+  "backlash"
+]);
+const statusStackPolicies = new Set(["refresh", "stack_intensity"]);
+const statusDispelTags = new Set([
+  "poison",
+  "wound",
+  "inner",
+  "vulnerability",
+  "backlash",
+  "debuff"
+]);
 
 function duplicateIds(entities: EntityWithId[]): string[] {
   const seen = new Set<string>();
@@ -95,7 +113,10 @@ function validateRegionStageRefs(
   );
 }
 
-function validateSkill(skill: SkillDefinition): string[] {
+function validateSkill(
+  skill: SkillDefinition,
+  statusEffectIds: Set<string>
+): string[] {
   const errors: string[] = [];
 
   if (skill.cooldownSeconds < 0) {
@@ -104,6 +125,119 @@ function validateSkill(skill: SkillDefinition): string[] {
 
   if (skill.outerMultiplier < 0 || skill.innerMultiplier < 0) {
     errors.push(`Skill ${skill.id} damage multipliers must be non-negative`);
+  }
+
+  for (const effect of skill.effects) {
+    if (effect.type === "apply_status") {
+      if (
+        effect.statusId === undefined ||
+        !statusEffectIds.has(effect.statusId)
+      ) {
+        errors.push(`Skill ${skill.id} references missing status ${effect.statusId}`);
+      }
+
+      if (
+        typeof effect.chance !== "number" ||
+        effect.chance < 0 ||
+        effect.chance > 1
+      ) {
+        errors.push(`Skill ${skill.id} status chance must be between 0 and 1`);
+      }
+
+      if (
+        effect.durationSeconds !== undefined &&
+        effect.durationSeconds <= 0
+      ) {
+        errors.push(
+          `Skill ${skill.id} status durationSeconds must be greater than zero`
+        );
+      }
+
+      if (
+        effect.stacks !== undefined &&
+        (!Number.isInteger(effect.stacks) || effect.stacks <= 0)
+      ) {
+        errors.push(`Skill ${skill.id} status stacks must be a positive integer`);
+      }
+
+      continue;
+    }
+
+    if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+      errors.push(
+        `Skill ${skill.id} effect ${effect.type} value must be a number`
+      );
+    }
+  }
+
+  return errors;
+}
+
+function validateStatusEffect(status: StatusEffectDefinition): string[] {
+  const errors: string[] = [];
+
+  if (!statusCategories.has(status.category)) {
+    errors.push(`Status ${status.id} category must be supported`);
+  }
+
+  if (!statusStackPolicies.has(status.stackPolicy)) {
+    errors.push(`Status ${status.id} stackPolicy must be supported`);
+  }
+
+  if (status.durationSeconds <= 0) {
+    errors.push(`Status ${status.id} durationSeconds must be greater than zero`);
+  }
+
+  if (!Number.isInteger(status.maxStacks) || status.maxStacks <= 0) {
+    errors.push(`Status ${status.id} maxStacks must be a positive integer`);
+  }
+
+  if (
+    status.tickIntervalSeconds !== undefined &&
+    status.tickIntervalSeconds <= 0
+  ) {
+    errors.push(
+      `Status ${status.id} tickIntervalSeconds must be greater than zero`
+    );
+  }
+
+  if (!Array.isArray(status.dispelTags) || status.dispelTags.length === 0) {
+    errors.push(`Status ${status.id} must have at least one dispel tag`);
+  } else {
+    for (const tag of status.dispelTags) {
+      if (!statusDispelTags.has(tag)) {
+        errors.push(`Status ${status.id} dispel tag ${tag} must be supported`);
+      }
+    }
+  }
+
+  if (
+    typeof status.effects !== "object" ||
+    status.effects === null ||
+    Array.isArray(status.effects)
+  ) {
+    errors.push(`Status ${status.id} effects must be an object`);
+    return errors;
+  }
+
+  if (
+    status.tickIntervalSeconds !== undefined &&
+    status.effects.outerDamagePerSecond === undefined
+  ) {
+    errors.push(
+      `Status ${status.id} tickIntervalSeconds requires outerDamagePerSecond`
+    );
+  }
+
+  for (const [effect, value] of Object.entries(status.effects)) {
+    if (typeof value !== "number" || Number.isNaN(value)) {
+      errors.push(`Status ${status.id} effect ${effect} must be a number`);
+      continue;
+    }
+
+    if (value < 0) {
+      errors.push(`Status ${status.id} effect ${effect} must be non-negative`);
+    }
   }
 
   return errors;
@@ -116,7 +250,11 @@ function validateStage(stage: StageDefinition): string[] {
     errors.push(`Boss stage ${stage.id} cannot be marked for offline farming`);
   }
 
-  if (stage.rewards.silver < 0 || stage.rewards.cultivation < 0 || stage.rewards.combatExperience < 0) {
+  if (
+    stage.rewards.silver < 0 ||
+    stage.rewards.cultivation < 0 ||
+    stage.rewards.combatExperience < 0
+  ) {
     errors.push(`Stage ${stage.id} rewards must be non-negative`);
   }
 
@@ -132,7 +270,8 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     ["region", data.regions],
     ["stage", data.stages],
     ["upgrade", data.upgrades],
-    ["formation", data.formations]
+    ["formation", data.formations],
+    ["status effect", data.statusEffects]
   ];
 
   for (const [label, entities] of entityGroups) {
@@ -144,6 +283,9 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const skillIds = new Set(data.skills.map((skill) => skill.id));
   const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
   const stageIds = new Set(data.stages.map((stage) => stage.id));
+  const statusEffectIds = new Set(
+    data.statusEffects.map((status) => status.id)
+  );
 
   errors.push(...validateHeroSkillRefs(data.heroes, skillIds));
   errors.push(...validateEnemySkillRefs(data.enemies, skillIds));
@@ -159,7 +301,11 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const skill of data.skills) {
-    errors.push(...validateSkill(skill));
+    errors.push(...validateSkill(skill, statusEffectIds));
+  }
+
+  for (const status of data.statusEffects) {
+    errors.push(...validateStatusEffect(status));
   }
 
   for (const stage of data.stages) {

@@ -1,0 +1,63 @@
+[
+  {
+    "id": "poison",
+    "name": "Poison",
+    "category": "damage",
+    "durationSeconds": 8,
+    "maxStacks": 3,
+    "stackPolicy": "stack_intensity",
+    "dispelTags": ["poison", "debuff"],
+    "tickIntervalSeconds": 2,
+    "effects": {
+      "outerDamagePerSecond": 0.006
+    }
+  },
+  {
+    "id": "wound",
+    "name": "Wound",
+    "category": "recovery",
+    "durationSeconds": 6,
+    "maxStacks": 2,
+    "stackPolicy": "stack_intensity",
+    "dispelTags": ["wound", "debuff"],
+    "effects": {
+      "healingReceivedMultiplier": 0.75
+    }
+  },
+  {
+    "id": "qi_suppression",
+    "name": "Qi Suppression",
+    "category": "control",
+    "durationSeconds": 6,
+    "maxStacks": 2,
+    "stackPolicy": "refresh",
+    "dispelTags": ["inner", "debuff"],
+    "effects": {
+      "innerRecoveryMultiplier": 0.7
+    }
+  },
+  {
+    "id": "vulnerable",
+    "name": "Vulnerable",
+    "category": "vulnerability",
+    "durationSeconds": 5,
+    "maxStacks": 2,
+    "stackPolicy": "stack_intensity",
+    "dispelTags": ["vulnerability", "debuff"],
+    "effects": {
+      "outerDamageTakenMultiplier": 1.15
+    }
+  },
+  {
+    "id": "burning_blood",
+    "name": "Burning Blood",
+    "category": "backlash",
+    "durationSeconds": 5,
+    "maxStacks": 2,
+    "stackPolicy": "stack_intensity",
+    "dispelTags": ["backlash", "debuff"],
+    "effects": {
+      "attackBacklashOuterHpPercent": 0.01
+    }
+  }
+]
