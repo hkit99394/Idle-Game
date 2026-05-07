@@ -26,7 +26,7 @@ import type {
   OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 6 as const;
+export const SAVE_DATA_VERSION = 7 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
@@ -34,6 +34,7 @@ export const SUPPORTED_SAVE_DATA_VERSIONS = [
   3,
   4,
   5,
+  6,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =

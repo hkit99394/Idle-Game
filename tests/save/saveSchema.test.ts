@@ -8,6 +8,7 @@ import {
   SAVE_DATA_VERSION,
   validateSaveData
 } from "../../core";
+import { stage12SaveFixture } from "../fixtures/stage12Save";
 import { staticData } from "../helpers/staticData";
 
 describe("save schema", () => {
@@ -176,6 +177,52 @@ describe("save schema", () => {
       equipped: {}
     });
     expect(result.save.progress.assignments).toEqual({});
+  });
+
+  it("migrates a Stage 1.2 save fixture into Stage 1.3 defaults", () => {
+    const migration = migrateSaveData(staticData, stage12SaveFixture);
+    const result = parseSaveData(staticData, stage12SaveFixture);
+
+    expect(migration).toMatchObject({
+      ok: true,
+      fromVersion: 4,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.resources).toMatchObject({
+      silver: 2400,
+      cultivation: 950,
+      herbs: 0
+    });
+    expect(result.save.progress.heroes.lotus_mending_disciple).toEqual({
+      level: 1,
+      upgrades: {}
+    });
+    expect(result.save.progress.maps.lotus_monastery).toEqual({
+      combatExperience: 0,
+      highestClearedStageIndex: 0
+    });
+    expect(result.save.progress.activeHeroIds).toEqual([
+      "iron_fist_disciple",
+      "azure_palm_monk",
+      "white_crane_swordsman",
+      "mountain_staff_guardian"
+    ]);
+    expect(result.save.progress.activeHeroIds).not.toContain(
+      "lotus_mending_disciple"
+    );
+    expect(result.save.progress.equipment?.inventory).toMatchObject({
+      tempered_meridian_pill: 1
+    });
+    expect(result.save.progress.equipment?.inventory.lotus_dew_pill).toBeUndefined();
+    expect(result.save.progress.assignments?.lotus_medicine_pavilion).toBeUndefined();
+    expect(result.save.selectedOfflineFarmStageId).toBe("black_iron_fort_6");
   });
 
   it("accepts old saves without an offline farm preset and rejects invalid presets", () => {

@@ -215,6 +215,7 @@ describe("balance report", () => {
       heals: expect.any(Number),
       regenerations: expect.any(Number),
       wounds: expect.any(Number),
+      woundUptimeSeconds: expect.any(Number),
       cleanses: expect.any(Number),
       outerHealing: expect.any(Number),
       innerQiRestored: expect.any(Number),
@@ -223,6 +224,7 @@ describe("balance report", () => {
     });
     expect(lotusBalance.recoveryEvents.heals).toBeGreaterThan(0);
     expect(lotusBalance.recoveryEvents.outerHealing).toBeGreaterThan(0);
+    expect(lotusBalance.recoveryEvents.woundUptimeSeconds).toBeGreaterThanOrEqual(0);
     expect(lotusBalance.bossGate.baseline).toMatchObject({
       stageId: "lotus_monastery_7",
       ok: true
@@ -316,6 +318,7 @@ describe("balance report", () => {
     expect(formatted).toContain("g0/p0/a");
     expect(formatted).toContain("heals");
     expect(formatted).toContain("recovery denied");
+    expect(formatted).toContain("wound uptime");
     expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("Formation Targeting");
     expect(formatted).toContain("npm run simulate -- --json");
@@ -336,6 +339,24 @@ describe("balance report", () => {
 
     expect(() => buildBambooRoadBalanceReport(badData)).toThrow(
       "Missing stage missing_stage"
+    );
+  });
+
+  it("fails loudly when a later configured region references a missing stage", () => {
+    const badData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === LOTUS_MONASTERY_REGION_ID
+          ? {
+              ...region,
+              stageIds: [...region.stageIds, "missing_lotus_stage"]
+            }
+          : region
+      )
+    };
+
+    expect(() => buildBambooRoadBalanceReport(badData)).toThrow(
+      "Missing stage missing_lotus_stage"
     );
   });
 });

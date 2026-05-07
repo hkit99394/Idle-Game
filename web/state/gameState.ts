@@ -18,6 +18,7 @@ import {
   getHeroAssignmentId,
   getActiveHeroIds,
   getEquipmentInventoryCount,
+  getBattleEventStatusId,
   getOfflineFarmPresetPolicy,
   getRecommendedOfflineFarmStage,
   getStageById,
@@ -77,6 +78,7 @@ import type {
   SetActiveHeroTeamResult,
   SetAssignmentHeroesInput,
   SetAssignmentHeroesResult,
+  StatusEffectId,
   StaticGameData
 } from "../../core";
 import {
@@ -246,6 +248,7 @@ export type BattleEventBadgeView = {
 export type BattleEventView = {
   id: string;
   category: BattleEventCategory;
+  statusId: StatusEffectId | null;
   timeSeconds: number;
   timeLabel: string;
   headline: string;
@@ -1660,6 +1663,7 @@ function buildBattleEventViews(
 
     return {
       id: `${index}-${event.type}-${event.time}`,
+      statusId: getBattleEventStatusId(event),
       timeSeconds: event.time,
       timeLabel: formatBattleSeconds(event.time),
       ...detail

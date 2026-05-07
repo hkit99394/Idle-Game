@@ -2,6 +2,7 @@ import {
   calculateUpgradeCost,
   cloneProgress,
   createInitialPlayerProgress,
+  getBattleEventStatusId,
   getRecommendedOfflineFarmStage,
   getUpgradeLevel,
   isBetterOfflineFarmStage,
@@ -11,6 +12,7 @@ import {
   simulateBattle
 } from "../core";
 import type {
+  BattleEvent,
   PlayerProgress,
   ResolveStageBattleResult,
   StaticGameData,
@@ -530,6 +532,62 @@ function farmUntilRegionBossClears(
   };
 }
 
+function calculateWoundUptimeSeconds(
+  events: BattleEvent[],
+  durationSeconds: number
+): number {
+  const intervalsByTarget = new Map<string, Array<[number, number]>>();
+
+  for (const event of events) {
+    if (event.type !== "wound" || getBattleEventStatusId(event) !== "wound") {
+      continue;
+    }
+
+    const start = Math.max(0, event.time);
+    const end = Math.min(durationSeconds, event.endsAt);
+
+    if (end <= start) {
+      continue;
+    }
+
+    const intervals = intervalsByTarget.get(event.targetId) ?? [];
+    intervals.push([start, end]);
+    intervalsByTarget.set(event.targetId, intervals);
+  }
+
+  let total = 0;
+
+  for (const intervals of intervalsByTarget.values()) {
+    intervals.sort((first, second) => first[0] - second[0]);
+
+    let currentStart: number | null = null;
+    let currentEnd = 0;
+
+    for (const [start, end] of intervals) {
+      if (currentStart === null) {
+        currentStart = start;
+        currentEnd = end;
+        continue;
+      }
+
+      if (start <= currentEnd) {
+        currentEnd = Math.max(currentEnd, end);
+        continue;
+      }
+
+      total += currentEnd - currentStart;
+      currentStart = start;
+      currentEnd = end;
+    }
+
+    if (currentStart !== null) {
+      total += currentEnd - currentStart;
+    }
+  }
+
+  return Number(total.toFixed(2));
+}
+
 function summarizeBattle(
   data: StaticGameData,
   stage: StageDefinition,
@@ -552,22 +610,28 @@ function summarizeBattle(
 
   const durationSeconds = Number(result.battle.durationSeconds.toFixed(2));
   const guardEvents = result.battle.events.filter(
-    (event) => event.type === "guard_absorb"
+    (event) =>
+      event.type === "guard_absorb" && getBattleEventStatusId(event) === "guard"
   );
   const protectEvents = result.battle.events.filter(
-    (event) => event.type === "protect"
+    (event) =>
+      event.type === "protect" && getBattleEventStatusId(event) === "protection"
   );
   const armorBreakEvents = result.battle.events.filter(
-    (event) => event.type === "armor_break"
+    (event) =>
+      event.type === "armor_break" &&
+      getBattleEventStatusId(event) === "armor_break"
   );
   const healEvents = result.battle.events.filter(
     (event) => event.type === "heal"
   );
   const regenerationTickEvents = result.battle.events.filter(
-    (event) => event.type === "regeneration_tick"
+    (event) =>
+      event.type === "regeneration_tick" &&
+      getBattleEventStatusId(event) === "regeneration"
   );
   const woundEvents = result.battle.events.filter(
-    (event) => event.type === "wound"
+    (event) => event.type === "wound" && getBattleEventStatusId(event) === "wound"
   );
   const cleanseEvents = result.battle.events.filter(
     (event) => event.type === "cleanse"
@@ -600,6 +664,10 @@ function summarizeBattle(
     heals: healEvents.length + regenerationTickEvents.length,
     regenerations: regenerationTickEvents.length,
     wounds: woundEvents.length,
+    woundUptimeSeconds: calculateWoundUptimeSeconds(
+      result.battle.events,
+      durationSeconds
+    ),
     cleanses: cleanseEvents.length,
     outerHealing: Number(
       (
@@ -783,6 +851,12 @@ function buildRecoveryEventSummary(
         heals: summary.heals + (stage.heals ?? 0),
         regenerations: summary.regenerations + (stage.regenerations ?? 0),
         wounds: summary.wounds + (stage.wounds ?? 0),
+        woundUptimeSeconds: Number(
+          (
+            summary.woundUptimeSeconds +
+            (stage.woundUptimeSeconds ?? 0)
+          ).toFixed(2)
+        ),
         cleanses: summary.cleanses + (stage.cleanses ?? 0),
         outerHealing: Number(
           (summary.outerHealing + (stage.outerHealing ?? 0)).toFixed(2)
@@ -805,6 +879,7 @@ function buildRecoveryEventSummary(
       heals: 0,
       regenerations: 0,
       wounds: 0,
+      woundUptimeSeconds: 0,
       cleanses: 0,
       outerHealing: 0,
       innerQiRestored: 0,
@@ -1246,7 +1321,8 @@ function formatRegionRecoveryEventLine(region: RegionSummary): string {
     `- ${region.regionName}: ${events.heals} heals/regen ticks, ` +
     `${events.outerHealing} Outer HP and ${events.innerQiRestored} Inner Qi restored, ` +
     `${events.overhealing} overheal, ${events.recoveryPrevented} recovery denied, ` +
-    `${events.wounds} wounds, ${events.cleanses} cleanses`
+    `${events.wounds} wounds, ${events.woundUptimeSeconds}s wound uptime, ` +
+    `${events.cleanses} cleanses`
   );
 }
 

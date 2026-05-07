@@ -31,6 +31,16 @@ import {
   scaleStatsForLevel
 } from "./formulas";
 import { getDefaultFormationSlot } from "./formations";
+import {
+  clearCleanseableStatusEffects,
+  createTimedRecoveryStatusEffect,
+  createTimedStatusEffect,
+  expireStatusEffects,
+  getActiveStatusEffect,
+  getActiveStatusEffectValue,
+  hasCleanseableStatusEffect,
+  setStatusEffect
+} from "./statusEffects";
 import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
 
 const BASIC_SKILL_ID = "basic_strike";
@@ -407,46 +417,16 @@ function clampRecoveryEffectValue(value: number): number {
   return clamp(value, 0, RECOVERY_EFFECT_MAX_VALUE);
 }
 
-function expireTimedCombatEffects(combatants: CombatantState[], time: number): void {
-  for (const combatant of combatants) {
-    if (combatant.guard && time >= combatant.guard.expiresAt) {
-      combatant.guard = null;
-    }
-
-    if (combatant.protection && time >= combatant.protection.expiresAt) {
-      combatant.protection = null;
-    }
-
-    if (combatant.armorBreak && time >= combatant.armorBreak.expiresAt) {
-      combatant.armorBreak = null;
-    }
-
-    if (combatant.wound && time >= combatant.wound.expiresAt) {
-      combatant.wound = null;
-    }
-
-    if (combatant.regeneration && time >= combatant.regeneration.expiresAt) {
-      combatant.regeneration = null;
-    }
-  }
-}
-
-function getActiveEffectValue(
-  effect: CombatantState["guard"],
-  time: number
-): number {
-  if (!effect || time >= effect.expiresAt) {
-    return 0;
-  }
-
-  return clampDefensiveEffectValue(effect.value);
-}
-
 function getEffectiveTargetStats(
   target: CombatantState,
   time: number
 ): CombatantState["stats"] {
-  const armorBreak = getActiveEffectValue(target.armorBreak, time);
+  const armorBreak = getActiveStatusEffectValue(
+    target,
+    "armor_break",
+    time,
+    clampDefensiveEffectValue
+  );
 
   if (armorBreak <= 0) {
     return target.stats;
@@ -470,7 +450,12 @@ function findProtector(
       combatant.team === target.team &&
       combatant.instanceId !== target.instanceId &&
       isLiving(combatant) &&
-      getActiveEffectValue(combatant.protection, time) > 0 &&
+      getActiveStatusEffectValue(
+        combatant,
+        "protection",
+        time,
+        clampDefensiveEffectValue
+      ) > 0 &&
       getFormationSlotOrder(combatant) < targetSlotOrder
         ? [{ combatant, encounterOrder }]
         : []
@@ -492,12 +477,19 @@ function applyGuardReduction(
   contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): number {
-  if (!target.guard || time >= target.guard.expiresAt) {
+  const guard = getActiveStatusEffect(target, "guard", time);
+
+  if (!guard) {
     return outerDamage;
   }
 
-  const armorBreak = getActiveEffectValue(target.armorBreak, time);
-  const reduction = Math.max(0, clampDefensiveEffectValue(target.guard.value) - armorBreak);
+  const armorBreak = getActiveStatusEffectValue(
+    target,
+    "armor_break",
+    time,
+    clampDefensiveEffectValue
+  );
+  const reduction = Math.max(0, clampDefensiveEffectValue(guard.value) - armorBreak);
 
   if (reduction <= 0) {
     return outerDamage;
@@ -521,7 +513,8 @@ function applyGuardReduction(
     type: "guard_absorb",
     time,
     targetId: target.instanceId,
-    skillId: target.guard.skillId,
+    skillId: guard.skillId,
+    statusId: "guard",
     outerDamagePrevented,
     reduction
   });
@@ -541,7 +534,9 @@ function recordProtection(
   contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): void {
-  if (!protector.protection) {
+  const protection = getActiveStatusEffect(protector, "protection", time);
+
+  if (!protection) {
     return;
   }
 
@@ -566,7 +561,8 @@ function recordProtection(
     sourceId: protector.instanceId,
     protectedId: protectedTarget.instanceId,
     attackerId: attacker.instanceId,
-    skillId: protector.protection.skillId,
+    skillId: protection.skillId,
+    statusId: "protection",
     outerDamagePrevented,
     innerDamagePrevented,
     reduction
@@ -584,11 +580,17 @@ function applyProtectionReduction(
   contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): { outerDamage: number; innerDamage: number } {
-  if (!protector || !protector.protection || time >= protector.protection.expiresAt) {
+  if (!protector) {
     return { outerDamage, innerDamage };
   }
 
-  const reduction = clampDefensiveEffectValue(protector.protection.value);
+  const protection = getActiveStatusEffect(protector, "protection", time);
+
+  if (!protection) {
+    return { outerDamage, innerDamage };
+  }
+
+  const reduction = clampDefensiveEffectValue(protection.value);
 
   if (reduction <= 0) {
     return { outerDamage, innerDamage };
@@ -617,11 +619,12 @@ function applyProtectionReduction(
 }
 
 function getWoundReduction(target: CombatantState, time: number): number {
-  if (!target.wound || time >= target.wound.expiresAt) {
-    return 0;
-  }
-
-  return clampRecoveryEffectValue(target.wound.value);
+  return getActiveStatusEffectValue(
+    target,
+    "wound",
+    time,
+    clampRecoveryEffectValue
+  );
 }
 
 function getMissingOuterHp(combatant: CombatantState): number {
@@ -633,10 +636,7 @@ function getMissingInnerQi(combatant: CombatantState): number {
 }
 
 function hasCleanseableStatus(combatant: CombatantState, time: number): boolean {
-  return (
-    Boolean(combatant.wound && time < combatant.wound.expiresAt) ||
-    Boolean(combatant.armorBreak && time < combatant.armorBreak.expiresAt)
-  );
+  return hasCleanseableStatusEffect(combatant, time);
 }
 
 function selectAllyByScore(
@@ -738,7 +738,7 @@ function applyRecoveryToTarget(
   overhealing: number;
   recoveryPrevented: number;
 } {
-  const wound = target.wound && time < target.wound.expiresAt ? target.wound : null;
+  const wound = getActiveStatusEffect(target, "wound", time);
   const woundReduction = getWoundReduction(target, time);
   const recoveryPrevented =
     (rawOuterRecovery + rawInnerRecovery) * woundReduction;
@@ -792,12 +792,18 @@ function recordWound(
     return;
   }
 
-  target.wound = {
-    value,
-    sourceId: attacker.instanceId,
-    skillId: skill.id,
-    expiresAt: endsAt
-  };
+  setStatusEffect(
+    target,
+    createTimedStatusEffect({
+      id: "wound",
+      value,
+      sourceId: attacker.instanceId,
+      targetId: target.instanceId,
+      skillId: skill.id,
+      appliedAt: time,
+      durationSeconds: endsAt - time
+    })
+  );
 
   if (attacker.team === "player") {
     metrics.woundsTriggeredByPlayer += 1;
@@ -817,6 +823,7 @@ function recordWound(
     sourceId: attacker.instanceId,
     targetId: target.instanceId,
     skillId: skill.id,
+    statusId: "wound",
     reduction: value,
     endsAt
   });
@@ -844,18 +851,25 @@ function applyTimedSkillEffects(
       case "guard": {
         const value = clampDefensiveEffectValue(effect.value);
 
-        attacker.guard = {
-          value,
-          sourceId: attacker.instanceId,
-          skillId: skill.id,
-          expiresAt: endsAt
-        };
+        setStatusEffect(
+          attacker,
+          createTimedStatusEffect({
+            id: "guard",
+            value,
+            sourceId: attacker.instanceId,
+            targetId: attacker.instanceId,
+            skillId: skill.id,
+            appliedAt: time,
+            durationSeconds
+          })
+        );
         events.push({
           type: "guard",
           time,
           sourceId: attacker.instanceId,
           targetId: attacker.instanceId,
           skillId: skill.id,
+          statusId: "guard",
           reduction: value,
           endsAt
         });
@@ -865,12 +879,18 @@ function applyTimedSkillEffects(
       case "protect": {
         const value = clampDefensiveEffectValue(effect.value);
 
-        attacker.protection = {
-          value,
-          sourceId: attacker.instanceId,
-          skillId: skill.id,
-          expiresAt: endsAt
-        };
+        setStatusEffect(
+          attacker,
+          createTimedStatusEffect({
+            id: "protection",
+            value,
+            sourceId: attacker.instanceId,
+            targetId: attacker.instanceId,
+            skillId: skill.id,
+            appliedAt: time,
+            durationSeconds
+          })
+        );
         break;
       }
 
@@ -881,12 +901,18 @@ function applyTimedSkillEffects(
 
         const value = clampDefensiveEffectValue(effect.value);
 
-        target.armorBreak = {
-          value,
-          sourceId: attacker.instanceId,
-          skillId: skill.id,
-          expiresAt: endsAt
-        };
+        setStatusEffect(
+          target,
+          createTimedStatusEffect({
+            id: "armor_break",
+            value,
+            sourceId: attacker.instanceId,
+            targetId: target.instanceId,
+            skillId: skill.id,
+            appliedAt: time,
+            durationSeconds
+          })
+        );
 
         if (attacker.team === "player") {
           metrics.armorBreaksTriggeredByPlayer += 1;
@@ -906,6 +932,7 @@ function applyTimedSkillEffects(
           sourceId: attacker.instanceId,
           targetId: target.instanceId,
           skillId: skill.id,
+          statusId: "armor_break",
           reduction: value,
           endsAt
         });
@@ -960,21 +987,7 @@ function applyCleanseEffect(
   }
 
   const removeCount = Math.max(1, Math.floor(effect.value));
-  const statusesRemoved: Array<"wound" | "armor_break"> = [];
-
-  if (target.wound && time < target.wound.expiresAt) {
-    target.wound = null;
-    statusesRemoved.push("wound");
-  }
-
-  if (
-    statusesRemoved.length < removeCount &&
-    target.armorBreak &&
-    time < target.armorBreak.expiresAt
-  ) {
-    target.armorBreak = null;
-    statusesRemoved.push("armor_break");
-  }
+  const statusesRemoved = clearCleanseableStatusEffects(target, time, removeCount);
 
   if (statusesRemoved.length === 0) {
     return;
@@ -1034,15 +1047,20 @@ function applyRegenerationEffect(
     effect.type === "outer_regeneration_percent" ? "outer" : "inner";
   const endsAt = time + durationSeconds;
 
-  target.regeneration = {
-    value,
-    sourceId: attacker.instanceId,
-    skillId: skill.id,
-    expiresAt: endsAt,
-    nextTickAt: time + RECOVERY_TICK_INTERVAL_SECONDS,
-    tickIntervalSeconds: RECOVERY_TICK_INTERVAL_SECONDS,
-    restores
-  };
+  setStatusEffect(
+    target,
+    createTimedRecoveryStatusEffect({
+      value,
+      sourceId: attacker.instanceId,
+      targetId: target.instanceId,
+      skillId: skill.id,
+      appliedAt: time,
+      durationSeconds,
+      nextTickAt: time + RECOVERY_TICK_INTERVAL_SECONDS,
+      tickIntervalSeconds: RECOVERY_TICK_INTERVAL_SECONDS,
+      restores
+    })
+  );
 
   events.push({
     type: "regeneration",
@@ -1050,6 +1068,7 @@ function applyRegenerationEffect(
     sourceId: attacker.instanceId,
     targetId: target.instanceId,
     skillId: skill.id,
+    statusId: "regeneration",
     restores,
     percentPerTick: value,
     endsAt
@@ -1183,6 +1202,7 @@ function tickRegeneration(
         sourceId: regeneration.sourceId,
         targetId: combatant.instanceId,
         skillId: regeneration.skillId,
+        statusId: "regeneration",
         ...result
       });
 
@@ -1493,7 +1513,7 @@ export function simulateBattle(
   for (let step = 0; step <= totalSteps; step += 1) {
     const time = Number((step * stepSeconds).toFixed(6));
 
-    expireTimedCombatEffects(combatants, time);
+    expireStatusEffects(combatants, time);
     recoverQiBreaks(combatants, time, constants, events);
     recoverInnerQi(combatants, time, stepSeconds, constants);
     tickRegeneration(combatants, time, metrics, contributions, events);

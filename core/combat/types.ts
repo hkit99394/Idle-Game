@@ -68,14 +68,32 @@ export type InnerRecoveryInput = {
 
 export type CombatantKind = "hero" | "enemy";
 
+export type StatusEffectId =
+  | "guard"
+  | "protection"
+  | "armor_break"
+  | "wound"
+  | "regeneration";
+
+export type CleanseableStatusEffectId = "wound" | "armor_break";
+export type TimedCombatStatusEffectId = Exclude<StatusEffectId, "regeneration">;
+
+export type StatusEffectStackBehavior = "refresh";
+
 export type TimedCombatEffect = {
+  id: TimedCombatStatusEffectId;
   value: number;
   sourceId: string;
+  targetId: string;
   skillId: string;
+  appliedAt: number;
+  durationSeconds: number;
   expiresAt: number;
+  stackBehavior: StatusEffectStackBehavior;
 };
 
-export type TimedRecoveryEffect = TimedCombatEffect & {
+export type TimedRecoveryEffect = Omit<TimedCombatEffect, "id"> & {
+  id: "regeneration";
   nextTickAt: number;
   tickIntervalSeconds: number;
   restores: "outer" | "inner";
@@ -145,6 +163,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
+      statusId: "guard";
       reduction: number;
       endsAt: number;
     }
@@ -153,6 +172,7 @@ export type BattleEvent =
       time: number;
       targetId: string;
       skillId: string;
+      statusId: "guard";
       outerDamagePrevented: number;
       reduction: number;
     }
@@ -163,6 +183,7 @@ export type BattleEvent =
       protectedId: string;
       attackerId: string;
       skillId: string;
+      statusId: "protection";
       outerDamagePrevented: number;
       innerDamagePrevented: number;
       reduction: number;
@@ -173,6 +194,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
+      statusId: "armor_break";
       reduction: number;
       endsAt: number;
     }
@@ -182,6 +204,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
+      statusId: "wound";
       reduction: number;
       endsAt: number;
     }
@@ -191,6 +214,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
+      statusId: "regeneration";
       restores: "outer" | "inner";
       percentPerTick: number;
       endsAt: number;
@@ -201,6 +225,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
+      statusId: "regeneration";
       outerHealing: number;
       innerQiRestored: number;
       overhealing: number;
@@ -212,7 +237,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
-      statusesRemoved: Array<"wound" | "armor_break">;
+      statusesRemoved: CleanseableStatusEffectId[];
     }
   | {
       type: "qi_break";

@@ -6,6 +6,7 @@ import {
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
   selectGameStyleBranch,
+  setGameActiveHeroTeam,
   setGameAssignmentHeroes,
   webGameStateReducer
 } from "../../web/state/gameState";
@@ -24,6 +25,13 @@ const stage12SmokeChoices = {
   equipmentId: "training_wraps",
   heroId: "iron_fist_disciple",
   styleId: "palm"
+} as const;
+
+const stage13SmokeChoices = {
+  assignmentHeroId: "mountain_staff_guardian",
+  assignmentId: "lotus_medicine_pavilion",
+  farmStageId: "lotus_monastery_1",
+  supportHeroId: "lotus_mending_disciple"
 } as const;
 
 function saveState(
@@ -70,6 +78,80 @@ function expectStage12SmokeChoices(state: WebGameState): void {
   expect(state.progress.styleBranches?.[stage12SmokeChoices.styleId]).toBe(
     stage12SmokeChoices.branchId
   );
+}
+
+function createStage13LotusEntryState(
+  storage: WebSaveStorage,
+  nowMs: number
+): WebGameState {
+  const state = createInitialWebGameStateFromStorage(
+    staticData,
+    storage,
+    nowMs
+  );
+  const advancedProgress = {
+    ...state.progress,
+    resources: {
+      silver: 50_000,
+      cultivation: 50_000,
+      herbs: 0
+    },
+    heroes: Object.fromEntries(
+      Object.entries(state.progress.heroes).map(([heroId, heroProgress]) => [
+        heroId,
+        {
+          ...heroProgress,
+          level: heroId === stage13SmokeChoices.supportHeroId ? 1 : 30,
+          upgrades:
+            heroId === stage13SmokeChoices.supportHeroId
+              ? heroProgress.upgrades
+              : {
+                  ...heroProgress.upgrades,
+                  hero_outer_training: 24,
+                  hero_inner_training: 20
+                }
+        }
+      ])
+    ),
+    sect: {
+      upgrades: {
+        sect_outer_training: 24,
+        sect_inner_training: 20
+      }
+    },
+    maps: {
+      ...state.progress.maps,
+      bamboo_road: {
+        combatExperience: 188,
+        highestClearedStageIndex: 10
+      },
+      mist_valley: {
+        combatExperience: 152,
+        highestClearedStageIndex: 6
+      },
+      black_iron_fort: {
+        combatExperience: 378,
+        highestClearedStageIndex: 7
+      },
+      lotus_monastery: {
+        combatExperience: 0,
+        highestClearedStageIndex: 0
+      }
+    },
+    currentStageId: "lotus_monastery_1"
+  };
+  const progressedState = webGameStateReducer(staticData, state, {
+    type: "replace_progress",
+    progress: advancedProgress
+  });
+  const selectedState = webGameStateReducer(staticData, progressedState, {
+    type: "select_stage",
+    stageId: "lotus_monastery_1"
+  });
+
+  saveState(storage, selectedState, nowMs);
+
+  return selectedState;
 }
 
 describe("MVP smoke flow", () => {
@@ -251,6 +333,146 @@ describe("MVP smoke flow", () => {
     );
     expect(secondReloadState.progress.maps.bamboo_road.combatExperience).toBe(
       combatExperienceAfterOffline
+    );
+  });
+
+  it("covers Stage 1.3 Lotus support, medicine, save reload, and offline idempotency", () => {
+    const storage = new MemoryStorage();
+    let nowMs = 10_000;
+    let state = createStage13LotusEntryState(storage, nowMs);
+
+    expect(state.progress.currentStageId).toBe("lotus_monastery_1");
+    expect(state.selectedStageId).toBe("lotus_monastery_1");
+
+    for (const stageId of [
+      "lotus_monastery_1",
+      "lotus_monastery_2",
+      "lotus_monastery_3"
+    ]) {
+      expect(state.selectedStageId).toBe(stageId);
+
+      state = battleAndSave(storage, state, (nowMs += 1_000));
+
+      expect(state.lastBattle?.ok).toBe(true);
+      if (!state.lastBattle?.ok) {
+        throw new Error(`${stageId} did not resolve successfully`);
+      }
+      expect(state.lastBattle.stageCleared, stageId).toBe(true);
+    }
+
+    expect(state.progress.currentStageId).toBe("lotus_monastery_4");
+    expect(
+      state.progress.maps.lotus_monastery.highestClearedStageIndex
+    ).toBe(3);
+    expect(state.progress.resources.herbs).toBeGreaterThan(0);
+
+    const lotusViewModel = getWebGameViewModel(staticData, state);
+
+    expect(
+      lotusViewModel.roster.find(
+        (hero) => hero.heroId === stage13SmokeChoices.supportHeroId
+      )
+    ).toMatchObject({
+      unlocked: true,
+      combatRole: "support"
+    });
+    expect(
+      lotusViewModel.assignments.find(
+        (assignment) => assignment.assignmentId === stage13SmokeChoices.assignmentId
+      )
+    ).toMatchObject({
+      unlocked: true,
+      rewardSummary: expect.arrayContaining(["18 herbs/hour"])
+    });
+
+    state = setGameActiveHeroTeam(staticData, state, {
+      heroIds: [
+        "iron_fist_disciple",
+        "azure_palm_monk",
+        stage13SmokeChoices.assignmentHeroId,
+        stage13SmokeChoices.supportHeroId
+      ]
+    });
+    saveState(storage, state, (nowMs += 1_000));
+
+    expect(state.lastActiveTeamAction?.ok).toBe(true);
+    expect(state.progress.activeHeroIds).toContain(
+      stage13SmokeChoices.supportHeroId
+    );
+
+    state = setGameAssignmentHeroes(staticData, state, {
+      assignmentId: stage13SmokeChoices.assignmentId,
+      heroIds: [stage13SmokeChoices.assignmentHeroId]
+    });
+    saveState(storage, state, (nowMs += 1_000));
+
+    expect(state.lastAssignmentAction?.ok).toBe(true);
+    expect(
+      state.progress.assignments?.[stage13SmokeChoices.assignmentId]?.heroIds
+    ).toEqual([stage13SmokeChoices.assignmentHeroId]);
+
+    state = webGameStateReducer(staticData, state, {
+      type: "select_stage",
+      stageId: stage13SmokeChoices.farmStageId
+    });
+    saveState(storage, state, (nowMs += 1_000));
+
+    expect(state.selectedStageId).toBe(stage13SmokeChoices.farmStageId);
+    expect(state.selectedOfflineFarmStageId).toBe(
+      stage13SmokeChoices.farmStageId
+    );
+
+    const reloadedState = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      nowMs
+    );
+
+    expect(reloadedState.progress.currentStageId).toBe("lotus_monastery_4");
+    expect(reloadedState.progress.activeHeroIds).toContain(
+      stage13SmokeChoices.supportHeroId
+    );
+    expect(
+      reloadedState.progress.assignments?.[stage13SmokeChoices.assignmentId]?.heroIds
+    ).toEqual([stage13SmokeChoices.assignmentHeroId]);
+    expect(reloadedState.selectedOfflineFarmStageId).toBe(
+      stage13SmokeChoices.farmStageId
+    );
+    expect(reloadedState.progress.resources.herbs).toBe(
+      state.progress.resources.herbs
+    );
+
+    const offlineState = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      nowMs + 24 * 60 * 60 * 1000
+    );
+
+    expect(offlineState.offlineSummary).toMatchObject({
+      stageId: stage13SmokeChoices.farmStageId
+    });
+    expect(offlineState.offlineSummary?.herbs).toBeGreaterThan(0);
+    expect(offlineState.offlineSummary?.assignmentHerbs).toBeGreaterThan(0);
+    expect(offlineState.progress.resources.herbs).toBeGreaterThan(
+      reloadedState.progress.resources.herbs
+    );
+    expect(
+      offlineState.progress.equipment?.inventory.lotus_dew_pill
+    ).toBeGreaterThanOrEqual(1);
+
+    const herbsAfterOffline = offlineState.progress.resources.herbs;
+    const lotusDewAfterOffline =
+      offlineState.progress.equipment?.inventory.lotus_dew_pill;
+    const secondReloadState = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      nowMs + 24 * 60 * 60 * 1000
+    );
+
+    expect(secondReloadState.offlineSummary).toBeNull();
+    expect(secondReloadState.progress.resources.herbs).toBe(herbsAfterOffline);
+    expect(secondReloadState.progress.equipment?.inventory.lotus_dew_pill).toBe(
+      lotusDewAfterOffline
     );
   });
 });

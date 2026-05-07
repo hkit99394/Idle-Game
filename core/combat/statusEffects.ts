@@ -1,0 +1,243 @@
+import type {
+  BattleEvent,
+  CleanseableStatusEffectId,
+  CombatantState,
+  StatusEffectId,
+  StatusEffectStackBehavior,
+  TimedCombatEffect,
+  TimedRecoveryEffect
+} from "./types";
+
+export const STATUS_EFFECT_IDS = [
+  "guard",
+  "protection",
+  "armor_break",
+  "wound",
+  "regeneration"
+] as const satisfies readonly StatusEffectId[];
+
+export const CLEANSEABLE_STATUS_EFFECT_IDS = [
+  "wound",
+  "armor_break"
+] as const satisfies readonly CleanseableStatusEffectId[];
+
+const STATUS_FIELD_BY_ID = {
+  guard: "guard",
+  protection: "protection",
+  armor_break: "armorBreak",
+  wound: "wound",
+  regeneration: "regeneration"
+} as const satisfies Record<StatusEffectId, keyof CombatantState>;
+
+export type CreateTimedStatusEffectInput = {
+  id: Exclude<StatusEffectId, "regeneration">;
+  value: number;
+  sourceId: string;
+  targetId: string;
+  skillId: string;
+  appliedAt: number;
+  durationSeconds: number;
+  stackBehavior?: StatusEffectStackBehavior;
+};
+
+export type CreateTimedRecoveryStatusEffectInput =
+  Omit<CreateTimedStatusEffectInput, "id"> & {
+    nextTickAt: number;
+    tickIntervalSeconds: number;
+    restores: TimedRecoveryEffect["restores"];
+  };
+
+export function createTimedStatusEffect(
+  input: CreateTimedStatusEffectInput
+): TimedCombatEffect {
+  return {
+    id: input.id,
+    value: input.value,
+    sourceId: input.sourceId,
+    targetId: input.targetId,
+    skillId: input.skillId,
+    appliedAt: input.appliedAt,
+    durationSeconds: input.durationSeconds,
+    expiresAt: input.appliedAt + input.durationSeconds,
+    stackBehavior: input.stackBehavior ?? "refresh"
+  };
+}
+
+export function createTimedRecoveryStatusEffect(
+  input: CreateTimedRecoveryStatusEffectInput
+): TimedRecoveryEffect {
+  return {
+    id: "regeneration",
+    value: input.value,
+    sourceId: input.sourceId,
+    targetId: input.targetId,
+    skillId: input.skillId,
+    appliedAt: input.appliedAt,
+    durationSeconds: input.durationSeconds,
+    expiresAt: input.appliedAt + input.durationSeconds,
+    stackBehavior: input.stackBehavior ?? "refresh",
+    nextTickAt: input.nextTickAt,
+    tickIntervalSeconds: input.tickIntervalSeconds,
+    restores: input.restores
+  };
+}
+
+export function isStatusEffectActive(
+  effect: TimedCombatEffect | TimedRecoveryEffect | null,
+  time: number
+): boolean {
+  return Boolean(effect && time < effect.expiresAt);
+}
+
+export function getStatusEffect(
+  combatant: CombatantState,
+  statusId: StatusEffectId
+): TimedCombatEffect | TimedRecoveryEffect | null {
+  switch (statusId) {
+    case "guard":
+      return combatant.guard;
+    case "protection":
+      return combatant.protection;
+    case "armor_break":
+      return combatant.armorBreak;
+    case "wound":
+      return combatant.wound;
+    case "regeneration":
+      return combatant.regeneration;
+  }
+}
+
+export function getActiveStatusEffect(
+  combatant: CombatantState,
+  statusId: StatusEffectId,
+  time: number
+): TimedCombatEffect | TimedRecoveryEffect | null {
+  const effect = getStatusEffect(combatant, statusId);
+
+  return isStatusEffectActive(effect, time) ? effect : null;
+}
+
+export function getActiveStatusEffectValue(
+  combatant: CombatantState,
+  statusId: StatusEffectId,
+  time: number,
+  clampValue: (value: number) => number = (value) => value
+): number {
+  const effect = getActiveStatusEffect(combatant, statusId, time);
+
+  return effect ? clampValue(effect.value) : 0;
+}
+
+export function setStatusEffect(
+  combatant: CombatantState,
+  effect: TimedCombatEffect | TimedRecoveryEffect
+): void {
+  switch (effect.id) {
+    case "guard":
+      combatant.guard = effect;
+      break;
+    case "protection":
+      combatant.protection = effect;
+      break;
+    case "armor_break":
+      combatant.armorBreak = effect;
+      break;
+    case "wound":
+      combatant.wound = effect;
+      break;
+    case "regeneration":
+      combatant.regeneration = effect;
+      break;
+  }
+}
+
+export function clearStatusEffect(
+  combatant: CombatantState,
+  statusId: StatusEffectId
+): void {
+  switch (statusId) {
+    case "guard":
+      combatant.guard = null;
+      break;
+    case "protection":
+      combatant.protection = null;
+      break;
+    case "armor_break":
+      combatant.armorBreak = null;
+      break;
+    case "wound":
+      combatant.wound = null;
+      break;
+    case "regeneration":
+      combatant.regeneration = null;
+      break;
+  }
+}
+
+export function expireStatusEffects(
+  combatants: CombatantState[],
+  time: number
+): void {
+  for (const combatant of combatants) {
+    for (const statusId of STATUS_EFFECT_IDS) {
+      const effect = getStatusEffect(combatant, statusId);
+
+      if (effect && !isStatusEffectActive(effect, time)) {
+        clearStatusEffect(combatant, statusId);
+      }
+    }
+  }
+}
+
+export function hasCleanseableStatusEffect(
+  combatant: CombatantState,
+  time: number
+): boolean {
+  return CLEANSEABLE_STATUS_EFFECT_IDS.some((statusId) =>
+    isStatusEffectActive(getStatusEffect(combatant, statusId), time)
+  );
+}
+
+export function clearCleanseableStatusEffects(
+  combatant: CombatantState,
+  time: number,
+  maxCount: number
+): CleanseableStatusEffectId[] {
+  const removed: CleanseableStatusEffectId[] = [];
+
+  for (const statusId of CLEANSEABLE_STATUS_EFFECT_IDS) {
+    if (removed.length >= maxCount) {
+      break;
+    }
+
+    if (isStatusEffectActive(getStatusEffect(combatant, statusId), time)) {
+      clearStatusEffect(combatant, statusId);
+      removed.push(statusId);
+    }
+  }
+
+  return removed;
+}
+
+export function getBattleEventStatusId(
+  event: BattleEvent
+): StatusEffectId | null {
+  switch (event.type) {
+    case "guard":
+    case "guard_absorb":
+    case "protect":
+    case "armor_break":
+    case "wound":
+    case "regeneration":
+    case "regeneration_tick":
+      return event.statusId;
+    case "cleanse":
+      return event.statusesRemoved[0] ?? null;
+    default:
+      return null;
+  }
+}
+
+export function getStatusEffectFieldName(statusId: StatusEffectId): string {
+  return STATUS_FIELD_BY_ID[statusId];
+}

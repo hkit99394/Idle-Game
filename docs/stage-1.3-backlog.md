@@ -39,8 +39,8 @@ Deliver the next meaningful layer of sustain, roster choice, and idle planning:
 | Epic 20: Recovery And Wound Mechanics | Completed | Combat Depth | Add healing, regeneration, cleanse, wound, and anti-recovery behavior |
 | Epic 21: Limited Recruitment And Support Roles | Completed | Hero Growth | Add a first recruit path and make support formation choices meaningful |
 | Epic 22: Herbs And Medicine Progression | Completed | Loot And Idle | Add deterministic herb rewards, medicine items, and medicine assignments |
-| Epic 23: Status Effect Foundation | Not Started | Technical Combat | Normalize buffs, debuffs, durations, and battle event summaries |
-| Epic 24: Stage 1.3 Technical Foundation | Not Started | Technical Foundation | Add migrations, simulator coverage, smoke coverage, and balance reports for new systems |
+| Epic 23: Status Effect Foundation | Completed | Technical Combat | Normalize buffs, debuffs, durations, and battle event summaries |
+| Epic 24: Stage 1.3 Technical Foundation | Completed | Technical Foundation | Add migrations, simulator coverage, smoke coverage, and balance reports for new systems |
 
 ## Recommended Build Order
 
@@ -386,7 +386,7 @@ Acceptance:
 
 ## Epic 23: Status Effect Foundation
 
-Status: Not Started
+Status: Completed
 
 Goal:
 
@@ -402,7 +402,7 @@ Tasks:
 
 ### 23.1 Status Data Shape
 
-Status: Not Started
+Status: Completed
 
 Normalize active statuses.
 
@@ -412,9 +412,15 @@ Acceptance:
 - Existing guard, armor break, protect, branch, and future wound effects can be represented consistently or bridged cleanly.
 - Status duration updates are deterministic and tested.
 
+Implementation:
+
+- Added normalized status ids and timed status metadata for guard, protection, armor break, wound, and regeneration.
+- Bridged regeneration as the recovery status payload while keeping existing guard/protection/armor-break/wound state fields readable.
+- Added deterministic duration coverage for active, refreshed, and expired statuses.
+
 ### 23.2 Status Application Rules
 
-Status: Not Started
+Status: Completed
 
 Centralize apply, refresh, stack, expire, and cleanse behavior.
 
@@ -425,9 +431,15 @@ Acceptance:
 - Cleanse uses shared status metadata instead of special-case string checks where reasonable.
 - Tests cover refresh, stacking, expiration, and cleanse.
 
+Implementation:
+
+- Centralized status create, set, active lookup, value lookup, expiration, and cleanse behavior in `core/combat/statusEffects.ts`.
+- Refresh is the current explicit stack behavior, so reapplying a status replaces the old payload instead of adding values together.
+- Simulator damage, protection, wound recovery denial, regeneration, expiration, and cleanse paths now use shared status helpers.
+
 ### 23.3 Status Event Reporting
 
-Status: Not Started
+Status: Completed
 
 Make combat logs and reports consistent.
 
@@ -437,19 +449,32 @@ Acceptance:
 - UI can group noisy status events.
 - Balance report aggregates healing, wound, cleanse, guard, protection, and armor-break counts from shared event categories.
 
+Implementation:
+
+- Added `statusId` metadata to status application and trigger events so UI/reporting can group noisy status events without re-parsing event names.
+- Added a shared event-to-status helper for guard, protection, armor break, wound, regeneration, and cleanse events.
+- Updated the balance report to aggregate status-heavy event counts through shared status metadata.
+
 ## Epic 24: Stage 1.3 Technical Foundation
 
-Status: Not Started
+Status: Completed
 
 Goal:
 
 - Keep new Stage 1.3 systems safe to extend into Demon Cult, backend save sync, and future mobile polish.
 
+Implementation:
+
+- Bumped the save schema to version 7 as the Stage 1.3 technical boundary.
+- Added an explicit Stage 1.2 save fixture and migration coverage for Lotus roster, Lotus map progress, herbs, medicine inventory defaults, assignments, active team, and farm target preservation.
+- Expanded the balance report with wound uptime and later-region missing-stage failure coverage.
+- Added Stage 1.3 smoke coverage for entering Lotus, clearing early Lotus stages, unlocking the support recruit and medicine pavilion, route farming, save/reload, medicine rewards, and offline idempotency.
+
 Tasks:
 
 ### 24.1 Save Migration For Stage 1.3
 
-Status: Not Started
+Status: Completed
 
 Add migration support for new fields.
 
@@ -460,9 +485,16 @@ Acceptance:
 - Invalid saves fail with clear validation messages.
 - Migration tests include at least one Stage 1.2 save fixture.
 
+Implementation:
+
+- Added `tests/fixtures/stage12Save.ts` as a version 4 Stage 1.2 fixture.
+- Migration now upgrades older saves to save schema version 7.
+- Save schema tests prove Stage 1.2 saves gain safe Lotus map, Lotus recruit, herb, equipment, assignment, and farm defaults.
+- Status effects remain transient combat state, so Stage 1.2 saves need no persisted status payload to migrate.
+
 ### 24.2 Balance Report Expansion For Recovery
 
-Status: Not Started
+Status: Completed
 
 Extend reports for sustain fights.
 
@@ -473,9 +505,15 @@ Acceptance:
 - Report still includes farm recommendation, mastery milestone, defensive events, and boss gate per region.
 - Report fails loudly if configured region or stage data is missing.
 
+Implementation:
+
+- Added wound uptime seconds to per-stage and per-region recovery summaries.
+- Kept configured region order as the report source of truth across Bamboo Road, Mist Valley, Black Iron Fort, and Lotus Monastery.
+- Added missing-stage failure coverage for later configured regions, not only Bamboo Road.
+
 ### 24.3 Scenario Tests
 
-Status: Not Started
+Status: Completed
 
 Add focused tests for new mechanics.
 
@@ -485,9 +523,14 @@ Acceptance:
 - Tests remain deterministic and fast.
 - Existing Stage 1.2 scenarios remain stable.
 
+Implementation:
+
+- Existing focused suites cover recovery, wound, cleanse, support targeting, recruit unlock, herbs, medicine rewards, save migration, and offline idempotency.
+- Added Stage 1.3 migration and smoke coverage without slowing the scenario suites.
+
 ### 24.4 Browser Smoke Coverage
 
-Status: Not Started
+Status: Completed
 
 Add broader web interaction coverage.
 
@@ -497,6 +540,11 @@ Acceptance:
 - Smoke flow covers route selection, support/recruit state if included, medicine rewards, and save/reload.
 - Save/reload preserves new choices and resources.
 - Offline rewards do not duplicate on repeated reloads.
+
+Implementation:
+
+- Extended the web smoke flow with a Stage 1.3 Lotus path from a post-Black-Iron state.
+- The flow clears early Lotus stages, unlocks Lotus Mending Disciple and Lotus Medicine Pavilion, assigns a medicine hero, selects a Lotus farm route, reloads, grants offline herb/medicine rewards, and proves a second reload does not duplicate them.
 
 ## Out Of Scope For Stage 1.3
 
