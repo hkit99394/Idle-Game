@@ -550,6 +550,44 @@ describe("save schema", () => {
     expect(parseSaveData(staticData, oldSave).ok).toBe(true);
   });
 
+  it("rejects unknown maps and impossible cleared stage counts", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        maps: {
+          ...save.progress.maps,
+          missing_region: {
+            combatExperience: 0,
+            highestClearedStageIndex: 1
+          },
+          bamboo_road: {
+            combatExperience: 0,
+            highestClearedStageIndex: 2.5
+          },
+          lotus_monastery: {
+            combatExperience: 0,
+            highestClearedStageIndex: 8
+          }
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, badSave)).toEqual(
+      expect.arrayContaining([
+        "progress.maps.missing_region must reference an existing region",
+        "progress.maps.bamboo_road.highestClearedStageIndex must be an integer between 0 and 10",
+        "progress.maps.lotus_monastery.highestClearedStageIndex must be an integer between 0 and 7"
+      ])
+    );
+  });
+
   it("accepts old saves without equipment and validates equipment progress", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({

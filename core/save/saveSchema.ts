@@ -115,6 +115,25 @@ function validateNumber(
   return true;
 }
 
+function validateIntegerRange(
+  value: unknown,
+  path: string,
+  min: number,
+  max: number,
+  errors: string[]
+): value is number {
+  if (!validateNumber(value, path, errors)) {
+    return false;
+  }
+
+  if (!Number.isInteger(value) || value < min || value > max) {
+    errors.push(`${path} must be an integer between ${min} and ${max}`);
+    return false;
+  }
+
+  return true;
+}
+
 function validateRecord(
   value: unknown,
   path: string,
@@ -218,6 +237,7 @@ function validateSect(value: unknown, errors: string[]): value is SectProgress {
 function validateMapProgress(
   value: unknown,
   path: string,
+  maxClearedStageIndex: number,
   errors: string[]
 ): value is MapProgress {
   if (!validateRecord(value, path, errors)) {
@@ -225,9 +245,11 @@ function validateMapProgress(
   }
 
   validateNumber(value.combatExperience, `${path}.combatExperience`, errors);
-  validateNumber(
+  validateIntegerRange(
     value.highestClearedStageIndex,
     `${path}.highestClearedStageIndex`,
+    0,
+    maxClearedStageIndex,
     errors
   );
 
@@ -243,12 +265,25 @@ function validateMaps(
     return false;
   }
 
+  const regionById = new Map(data.regions.map((region) => [region.id, region]));
+
+  for (const mapId of Object.keys(value)) {
+    if (!regionById.has(mapId)) {
+      errors.push(`progress.maps.${mapId} must reference an existing region`);
+    }
+  }
+
   for (const region of data.regions) {
     if (value[region.id] === undefined) {
       continue;
     }
 
-    validateMapProgress(value[region.id], `progress.maps.${region.id}`, errors);
+    validateMapProgress(
+      value[region.id],
+      `progress.maps.${region.id}`,
+      region.stageIds.length,
+      errors
+    );
   }
 
   return true;

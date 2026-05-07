@@ -143,8 +143,8 @@ describe("offline reward idempotency", () => {
     const firstLoadAtMs = savedAtMs + 24 * 60 * 60 * 1000;
 
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 10;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 6;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
     progress.maps.lotus_monastery.highestClearedStageIndex = 3;
 
     const assigned = setAssignmentHeroes(staticData, {

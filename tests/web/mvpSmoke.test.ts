@@ -30,6 +30,7 @@ const stage12SmokeChoices = {
 const stage13SmokeChoices = {
   assignmentHeroId: "mountain_staff_guardian",
   assignmentId: "lotus_medicine_pavilion",
+  entryBossStageId: "black_iron_fort_7",
   farmStageId: "lotus_monastery_1",
   supportHeroId: "lotus_mending_disciple"
 } as const;
@@ -80,7 +81,7 @@ function expectStage12SmokeChoices(state: WebGameState): void {
   );
 }
 
-function createStage13LotusEntryState(
+function createStage13BlackIronBossReadyState(
   storage: WebSaveStorage,
   nowMs: number
 ): WebGameState {
@@ -131,14 +132,14 @@ function createStage13LotusEntryState(
       },
       black_iron_fort: {
         combatExperience: 378,
-        highestClearedStageIndex: 7
+        highestClearedStageIndex: 6
       },
       lotus_monastery: {
         combatExperience: 0,
         highestClearedStageIndex: 0
       }
     },
-    currentStageId: "lotus_monastery_1"
+    currentStageId: stage13SmokeChoices.entryBossStageId
   };
   const progressedState = webGameStateReducer(staticData, state, {
     type: "replace_progress",
@@ -146,7 +147,7 @@ function createStage13LotusEntryState(
   });
   const selectedState = webGameStateReducer(staticData, progressedState, {
     type: "select_stage",
-    stageId: "lotus_monastery_1"
+    stageId: stage13SmokeChoices.entryBossStageId
   });
 
   saveState(storage, selectedState, nowMs);
@@ -336,13 +337,28 @@ describe("MVP smoke flow", () => {
     );
   });
 
-  it("covers Stage 1.3 Lotus support, medicine, save reload, and offline idempotency", () => {
+  it("covers Stage 1.3 region handoff, Lotus support, medicine, save reload, and offline idempotency", () => {
     const storage = new MemoryStorage();
     let nowMs = 10_000;
-    let state = createStage13LotusEntryState(storage, nowMs);
+    let state = createStage13BlackIronBossReadyState(storage, nowMs);
 
+    expect(state.progress.currentStageId).toBe(
+      stage13SmokeChoices.entryBossStageId
+    );
+    expect(state.selectedStageId).toBe(stage13SmokeChoices.entryBossStageId);
+
+    state = battleAndSave(storage, state, (nowMs += 1_000));
+
+    expect(state.lastBattle?.ok).toBe(true);
+    if (!state.lastBattle?.ok) {
+      throw new Error("Black Iron boss did not resolve successfully");
+    }
+    expect(state.lastBattle.stageCleared).toBe(true);
     expect(state.progress.currentStageId).toBe("lotus_monastery_1");
     expect(state.selectedStageId).toBe("lotus_monastery_1");
+    expect(
+      state.progress.maps.black_iron_fort.highestClearedStageIndex
+    ).toBe(7);
 
     for (const stageId of [
       "lotus_monastery_1",
