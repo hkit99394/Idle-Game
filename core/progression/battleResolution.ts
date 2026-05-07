@@ -19,6 +19,7 @@ import {
   scaleStatsForLevel
 } from "./levels";
 import { getPlayerFormationSlot } from "./playerFormation";
+import { getActiveHeroIds } from "./playerRoster";
 import {
   deriveHeroStatsFromProgress
 } from "./upgrades";
@@ -31,13 +32,6 @@ import type {
   ResolveStageBattleInput,
   ResolveStageBattleResult
 } from "./types";
-
-export const MVP_PLAYER_HERO_IDS = [
-  "iron_fist_disciple",
-  "azure_palm_monk",
-  "white_crane_swordsman",
-  "mountain_staff_guardian"
-] as const;
 
 function getHeroUpgradeDefinitions(data: StaticGameData) {
   return data.upgrades.filter((upgrade) => upgrade.scope === "hero");
@@ -152,7 +146,7 @@ export function buildPlayerTeamForStage(
 
   const team: TeamInstance = {
     id: "player",
-    combatants: MVP_PLAYER_HERO_IDS.map((heroId, heroIndex) => {
+    combatants: getActiveHeroIds(data, progress).map((heroId, heroIndex) => {
       const heroProgress = getEffectiveHeroProgress(progress, heroId, playerLevel);
 
       return {

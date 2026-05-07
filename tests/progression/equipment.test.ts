@@ -106,6 +106,68 @@ describe("equipment progression", () => {
     expect(afterCp).toBeGreaterThan(beforeCp);
   });
 
+  it("equips medicine items through the shared stat and CP path", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.equipment = {
+      inventory: {
+        lotus_dew_pill: 1
+      },
+      equipped: {}
+    };
+    const beforeTeam = buildPlayerTeamForStage(
+      staticData,
+      progress,
+      "bamboo_road_1"
+    );
+
+    expect(beforeTeam.ok).toBe(true);
+    if (!beforeTeam.ok) {
+      return;
+    }
+
+    const beforeHero = beforeTeam.team.combatants.find(
+      (combatant) => combatant.definitionId === "azure_palm_monk"
+    );
+    const equipResult = equipHeroEquipment(staticData, {
+      progress,
+      heroId: "azure_palm_monk",
+      equipmentId: "lotus_dew_pill"
+    });
+
+    expect(equipResult.ok).toBe(true);
+    if (!equipResult.ok) {
+      return;
+    }
+
+    const afterTeam = buildPlayerTeamForStage(
+      staticData,
+      equipResult.progress,
+      "bamboo_road_1"
+    );
+
+    expect(afterTeam.ok).toBe(true);
+    if (!afterTeam.ok) {
+      return;
+    }
+
+    const afterHero = afterTeam.team.combatants.find(
+      (combatant) => combatant.definitionId === "azure_palm_monk"
+    );
+
+    expect(equipResult.progress.equipment?.equipped.azure_palm_monk?.medicine)
+      .toBe("lotus_dew_pill");
+    expect(afterHero?.statsOverride?.maxInnerQi).toBeGreaterThan(
+      beforeHero?.statsOverride?.maxInnerQi ?? 0
+    );
+    expect(afterHero?.statsOverride?.innerRecoveryRate).toBeGreaterThan(
+      beforeHero?.statsOverride?.innerRecoveryRate ?? 0
+    );
+    expect(calculateCombatPower(afterHero?.statsOverride ?? staticData.heroes[1].baseStats))
+      .toBeGreaterThan(
+        calculateCombatPower(beforeHero?.statsOverride ?? staticData.heroes[1].baseStats)
+      );
+  });
+
   it("rejects incompatible gear and unavailable duplicate copies", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.equipment = {

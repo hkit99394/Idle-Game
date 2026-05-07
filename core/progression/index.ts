@@ -6,6 +6,8 @@ export * from "./mastery";
 export * from "./masterySummary";
 export * from "./playerFormation";
 export * from "./playerFormationDefaults";
+export * from "./playerRoster";
+export * from "./playerRosterDefaults";
 export * from "./progress";
 export * from "./rewards";
 export * from "./skillUpgrades";

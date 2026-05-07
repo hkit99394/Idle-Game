@@ -11,6 +11,8 @@ import {
   isStageUnlocked,
   isAssignmentUnlocked,
   isHeroEligibleForAssignment,
+  ACTIVE_TEAM_SIZE,
+  isHeroUnlocked,
   STYLE_MASTERY_EXPERIENCE_PER_LEVEL
 } from "../progression";
 import type {
@@ -24,12 +26,15 @@ import type {
   OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 4 as const;
+export const SAVE_DATA_VERSION = 7 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
   2,
   3,
+  4,
+  5,
+  6,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -110,6 +115,25 @@ function validateNumber(
   return true;
 }
 
+function validateIntegerRange(
+  value: unknown,
+  path: string,
+  min: number,
+  max: number,
+  errors: string[]
+): value is number {
+  if (!validateNumber(value, path, errors)) {
+    return false;
+  }
+
+  if (!Number.isInteger(value) || value < min || value > max) {
+    errors.push(`${path} must be an integer between ${min} and ${max}`);
+    return false;
+  }
+
+  return true;
+}
+
 function validateRecord(
   value: unknown,
   path: string,
@@ -149,6 +173,7 @@ function validateResources(
 
   validateNumber(value.silver, "progress.resources.silver", errors);
   validateNumber(value.cultivation, "progress.resources.cultivation", errors);
+  validateNumber(value.herbs, "progress.resources.herbs", errors);
 
   return true;
 }
@@ -188,6 +213,14 @@ function validateHeroes(
     }
   }
 
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+
+  for (const heroId of Object.keys(value)) {
+    if (!heroIds.has(heroId)) {
+      errors.push(`progress.heroes.${heroId} must reference an existing hero`);
+    }
+  }
+
   return true;
 }
 
@@ -204,6 +237,7 @@ function validateSect(value: unknown, errors: string[]): value is SectProgress {
 function validateMapProgress(
   value: unknown,
   path: string,
+  maxClearedStageIndex: number,
   errors: string[]
 ): value is MapProgress {
   if (!validateRecord(value, path, errors)) {
@@ -211,9 +245,11 @@ function validateMapProgress(
   }
 
   validateNumber(value.combatExperience, `${path}.combatExperience`, errors);
-  validateNumber(
+  validateIntegerRange(
     value.highestClearedStageIndex,
     `${path}.highestClearedStageIndex`,
+    0,
+    maxClearedStageIndex,
     errors
   );
 
@@ -229,12 +265,25 @@ function validateMaps(
     return false;
   }
 
+  const regionById = new Map(data.regions.map((region) => [region.id, region]));
+
+  for (const mapId of Object.keys(value)) {
+    if (!regionById.has(mapId)) {
+      errors.push(`progress.maps.${mapId} must reference an existing region`);
+    }
+  }
+
   for (const region of data.regions) {
     if (value[region.id] === undefined) {
       continue;
     }
 
-    validateMapProgress(value[region.id], `progress.maps.${region.id}`, errors);
+    validateMapProgress(
+      value[region.id],
+      `progress.maps.${region.id}`,
+      region.stageIds.length,
+      errors
+    );
   }
 
   return true;
@@ -604,6 +653,17 @@ function normalizeMapProgressForMigration(value: unknown): MapProgress | unknown
   };
 }
 
+function normalizeResourcesForMigration(value: unknown): ResourceState | unknown {
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  return {
+    ...value,
+    herbs: value.herbs === undefined ? 0 : value.herbs
+  };
+}
+
 function normalizeEquipmentProgressForMigration(
   value: unknown
 ): EquipmentProgress | unknown {
@@ -639,7 +699,7 @@ function normalizeProgressForMigration(
 
   return {
     ...value,
-    resources: value.resources,
+    resources: normalizeResourcesForMigration(value.resources),
     heroes: {
       ...defaultProgress.heroes,
       ...Object.fromEntries(
@@ -659,6 +719,7 @@ function normalizeProgressForMigration(
         ])
       )
     },
+    activeHeroIds: value.activeHeroIds ?? defaultProgress.activeHeroIds,
     formation: value.formation ?? defaultProgress.formation,
     styleMastery: value.styleMastery ?? {},
     styleBranches: value.styleBranches ?? {},
@@ -699,6 +760,59 @@ function validatePlayerFormation(
   return true;
 }
 
+function validateActiveHeroIds(
+  data: Pick<StaticGameData, "heroes" | "stages" | "styles">,
+  progress: PlayerProgress,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["activeHeroIds"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!Array.isArray(value)) {
+    errors.push("progress.activeHeroIds must be an array");
+    return false;
+  }
+
+  if (value.length < 1 || value.length > ACTIVE_TEAM_SIZE) {
+    errors.push(
+      `progress.activeHeroIds must contain 1-${ACTIVE_TEAM_SIZE} heroes`
+    );
+  }
+
+  const heroIds = new Set(data.heroes.map((hero) => hero.id));
+  const seenHeroIds = new Set<string>();
+
+  for (const heroId of value) {
+    if (typeof heroId !== "string") {
+      errors.push("progress.activeHeroIds must contain hero ids");
+      continue;
+    }
+
+    if (seenHeroIds.has(heroId)) {
+      errors.push(`progress.activeHeroIds.${heroId} is duplicated`);
+      continue;
+    }
+    seenHeroIds.add(heroId);
+
+    if (!heroIds.has(heroId)) {
+      errors.push(
+        `progress.activeHeroIds.${heroId} must reference an existing hero`
+      );
+      continue;
+    }
+
+    if (!isHeroUnlocked(data, progress, heroId)) {
+      errors.push(
+        `progress.activeHeroIds.${heroId} must be unlocked by saved progress`
+      );
+    }
+  }
+
+  return true;
+}
+
 function validateCurrentStage(
   data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress,
@@ -731,6 +845,7 @@ function validateProgress(
   validateHeroes(data, value.heroes, errors);
   validateSect(value.sect, errors);
   validateMaps(data, value.maps, errors);
+  validateActiveHeroIds(data, value as PlayerProgress, value.activeHeroIds, errors);
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);
   validateStyleBranches(data, value, value.styleBranches, errors);

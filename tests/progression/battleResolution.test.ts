@@ -27,6 +27,7 @@ describe("stage battle resolution", () => {
     expect(result.rewards).toEqual({
       silver: 10,
       cultivation: 5,
+      herbs: 0,
       combatExperience: 5
     });
     expect(result.progress.resources.silver).toBe(10);

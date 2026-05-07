@@ -68,11 +68,35 @@ export type InnerRecoveryInput = {
 
 export type CombatantKind = "hero" | "enemy";
 
+export type StatusEffectId =
+  | "guard"
+  | "protection"
+  | "armor_break"
+  | "wound"
+  | "regeneration";
+
+export type CleanseableStatusEffectId = "wound" | "armor_break";
+export type TimedCombatStatusEffectId = Exclude<StatusEffectId, "regeneration">;
+
+export type StatusEffectStackBehavior = "refresh";
+
 export type TimedCombatEffect = {
+  id: TimedCombatStatusEffectId;
   value: number;
   sourceId: string;
+  targetId: string;
   skillId: string;
+  appliedAt: number;
+  durationSeconds: number;
   expiresAt: number;
+  stackBehavior: StatusEffectStackBehavior;
+};
+
+export type TimedRecoveryEffect = Omit<TimedCombatEffect, "id"> & {
+  id: "regeneration";
+  nextTickAt: number;
+  tickIntervalSeconds: number;
+  restores: "outer" | "inner";
 };
 
 export type CombatantInstanceDefinition = {
@@ -117,6 +141,8 @@ export type CombatantState = {
   guard: TimedCombatEffect | null;
   protection: TimedCombatEffect | null;
   armorBreak: TimedCombatEffect | null;
+  wound: TimedCombatEffect | null;
+  regeneration: TimedRecoveryEffect | null;
   defeatedAt: number | null;
 };
 
@@ -137,6 +163,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
+      statusId: "guard";
       reduction: number;
       endsAt: number;
     }
@@ -145,6 +172,7 @@ export type BattleEvent =
       time: number;
       targetId: string;
       skillId: string;
+      statusId: "guard";
       outerDamagePrevented: number;
       reduction: number;
     }
@@ -155,6 +183,7 @@ export type BattleEvent =
       protectedId: string;
       attackerId: string;
       skillId: string;
+      statusId: "protection";
       outerDamagePrevented: number;
       innerDamagePrevented: number;
       reduction: number;
@@ -165,8 +194,50 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
+      statusId: "armor_break";
       reduction: number;
       endsAt: number;
+    }
+  | {
+      type: "wound";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      statusId: "wound";
+      reduction: number;
+      endsAt: number;
+    }
+  | {
+      type: "regeneration";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      statusId: "regeneration";
+      restores: "outer" | "inner";
+      percentPerTick: number;
+      endsAt: number;
+    }
+  | {
+      type: "regeneration_tick";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      statusId: "regeneration";
+      outerHealing: number;
+      innerQiRestored: number;
+      overhealing: number;
+      recoveryPrevented: number;
+    }
+  | {
+      type: "cleanse";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      statusesRemoved: CleanseableStatusEffectId[];
     }
   | {
       type: "qi_break";
@@ -194,7 +265,11 @@ export type BattleEvent =
       time: number;
       sourceId: string;
       targetId: string;
+      skillId: string;
       outerHealing: number;
+      innerQiRestored: number;
+      overhealing: number;
+      recoveryPrevented: number;
     }
   | {
       type: "defeat";
@@ -220,6 +295,18 @@ export type BattleMetrics = {
   protectionDamagePreventedByEnemy: number;
   armorBreaksTriggeredByPlayer: number;
   armorBreaksTriggeredByEnemy: number;
+  woundsTriggeredByPlayer: number;
+  woundsTriggeredByEnemy: number;
+  cleansesByPlayer: number;
+  cleansesByEnemy: number;
+  playerOuterHealing: number;
+  enemyOuterHealing: number;
+  playerInnerQiRestored: number;
+  enemyInnerQiRestored: number;
+  playerOverhealing: number;
+  enemyOverhealing: number;
+  recoveryPreventedByPlayer: number;
+  recoveryPreventedByEnemy: number;
   playerEffectiveDps: number;
   enemyEffectiveDps: number;
 };
@@ -243,6 +330,12 @@ export type BattleContribution = {
   protectionDamagePrevented: number;
   protectionTriggers: number;
   armorBreaksApplied: number;
+  woundsApplied: number;
+  cleansesApplied: number;
+  outerHealingDone: number;
+  innerQiRestored: number;
+  overhealingDone: number;
+  recoveryPrevented: number;
   survived: boolean;
 };
 

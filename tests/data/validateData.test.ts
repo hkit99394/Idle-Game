@@ -21,6 +21,41 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects negative herb rewards", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      stages: staticData.stages.map((stage) =>
+        stage.id === "lotus_monastery_1"
+          ? {
+              ...stage,
+              rewards: {
+                ...stage.rewards,
+                herbs: -1
+              }
+            }
+          : stage
+      ),
+      assignments: staticData.assignments?.map((assignment) =>
+        assignment.id === "lotus_medicine_pavilion"
+          ? {
+              ...assignment,
+              rewardProfile: {
+                ...assignment.rewardProfile,
+                herbsPerHour: -1
+              }
+            }
+          : assignment
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Stage lotus_monastery_1 rewards must be non-negative",
+        "Assignment lotus_medicine_pavilion reward values must be non-negative numbers"
+      ])
+    );
+  });
+
   it("rejects enemies without valid level data", () => {
     const invalidData: StaticGameData = {
       ...staticData,
@@ -92,6 +127,27 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects hero unlock conditions that reference missing data", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "lotus_mending_disciple"
+          ? {
+              ...hero,
+              unlock: {
+                type: "stage_cleared",
+                stageId: "missing_stage"
+              }
+            }
+          : hero
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Hero lotus_mending_disciple references missing unlock stage missing_stage"
+    );
+  });
+
   it("rejects invalid skill effects", () => {
     const invalidData = {
       ...staticData,
@@ -116,7 +172,7 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, speed_down, inner_defense_down, guard, protect, armor_break",
+        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break",
         "Skill iron_fist_combo effect unknown_effect value must be a number",
         "Skill iron_fist_combo effect guard durationSeconds must be a positive number"
       ])

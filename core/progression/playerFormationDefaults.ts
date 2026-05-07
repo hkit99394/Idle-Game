@@ -8,15 +8,20 @@ export const MVP_PLAYER_DEFAULT_FORMATION = {
   mountain_staff_guardian: "front"
 } as const satisfies Record<string, FormationSlot>;
 
+const PLAYER_DEFAULT_FORMATION = {
+  ...MVP_PLAYER_DEFAULT_FORMATION,
+  lotus_mending_disciple: "back"
+} as const satisfies Record<string, FormationSlot>;
+
 export function getDefaultPlayerFormationSlot(
   heroId: string,
   heroIndex: number
 ): FormationSlot {
-  const mvpFormation = MVP_PLAYER_DEFAULT_FORMATION as Partial<
+  const defaultFormation = PLAYER_DEFAULT_FORMATION as Partial<
     Record<string, FormationSlot>
   >;
 
-  return mvpFormation[heroId] ?? getDefaultFormationSlot(heroIndex);
+  return defaultFormation[heroId] ?? getDefaultFormationSlot(heroIndex);
 }
 
 export function createDefaultPlayerFormation(

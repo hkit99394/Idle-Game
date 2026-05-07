@@ -5,6 +5,7 @@ import type {
 } from "../data";
 import type { HeroProgress, PlayerProgress } from "./types";
 import { createDefaultPlayerFormation } from "./playerFormationDefaults";
+import { createDefaultActiveHeroIds } from "./playerRosterDefaults";
 
 export function createInitialHeroProgress(): HeroProgress {
   return {
@@ -16,6 +17,7 @@ export function createInitialHeroProgress(): HeroProgress {
 export function createInitialPlayerProgress(
   data: Pick<StaticGameData, "heroes" | "regions" | "stages">
 ): PlayerProgress {
+  const heroIds = data.heroes.map((hero) => hero.id);
   const firstRegion = data.regions[0];
   const firstStageId =
     firstRegion?.stageIds[0] ?? data.stages[0]?.id ?? "";
@@ -23,7 +25,8 @@ export function createInitialPlayerProgress(
   return {
     resources: {
       silver: 0,
-      cultivation: 0
+      cultivation: 0,
+      herbs: 0
     },
     heroes: Object.fromEntries(
       data.heroes.map((hero: HeroDefinition) => [hero.id, createInitialHeroProgress()])
@@ -40,7 +43,8 @@ export function createInitialPlayerProgress(
         }
       ])
     ),
-    formation: createDefaultPlayerFormation(data.heroes.map((hero) => hero.id)),
+    activeHeroIds: createDefaultActiveHeroIds(heroIds),
+    formation: createDefaultPlayerFormation(heroIds),
     styleMastery: {},
     styleBranches: {},
     skillUpgrades: {},
@@ -55,7 +59,10 @@ export function createInitialPlayerProgress(
 
 export function cloneProgress(progress: PlayerProgress): PlayerProgress {
   return {
-    resources: { ...progress.resources },
+    resources: {
+      ...progress.resources,
+      herbs: progress.resources.herbs ?? 0
+    },
     heroes: Object.fromEntries(
       Object.entries(progress.heroes).map(([heroId, hero]) => [
         heroId,
@@ -77,6 +84,9 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
         }
       ])
     ),
+    activeHeroIds: progress.activeHeroIds
+      ? [...progress.activeHeroIds]
+      : undefined,
     formation: progress.formation ? { ...progress.formation } : undefined,
     styleMastery: progress.styleMastery
       ? Object.fromEntries(

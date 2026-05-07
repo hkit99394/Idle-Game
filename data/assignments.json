@@ -43,5 +43,23 @@
       "styleMasteryExperiencePerHour": 10,
       "mapRegionId": "black_iron_fort"
     }
+  },
+  {
+    "id": "lotus_medicine_pavilion",
+    "name": "Lotus Medicine Pavilion",
+    "type": "training_ground",
+    "unlockCondition": { "type": "stage_cleared", "stageId": "lotus_monastery_3" },
+    "durationBucket": "medium",
+    "allowedRoles": ["support", "tank"],
+    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "rewardProfile": {
+      "cultivationPerHour": 12,
+      "herbsPerHour": 18,
+      "styleMasteryExperiencePerHour": 8,
+      "equipmentRewardsPerHour": [
+        { "equipmentId": "lotus_dew_pill", "quantityPerHour": 0.25 },
+        { "equipmentId": "mending_poultice", "quantityPerHour": 0.08 }
+      ]
+    }
   }
 ]

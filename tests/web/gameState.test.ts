@@ -7,6 +7,7 @@ import {
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
   selectGameStyleBranch,
+  setGameActiveHeroTeam,
   setGameAssignmentHeroes,
   webGameStateReducer
 } from "../../web/state/gameState";
@@ -126,6 +127,20 @@ describe("web game state", () => {
       targetName: "Sect"
     });
     expect(viewModel.skillUpgrades).toHaveLength(4);
+    expect(viewModel.activeTeamSize).toBe(4);
+    expect(viewModel.roster).toHaveLength(staticData.heroes.length);
+    expect(viewModel.roster.find((hero) => hero.heroId === "iron_fist_disciple")).toMatchObject({
+      active: true,
+      unlocked: true,
+      canDeactivate: true,
+      combatRole: "striker"
+    });
+    expect(viewModel.roster.find((hero) => hero.heroId === "lotus_mending_disciple")).toMatchObject({
+      active: false,
+      unlocked: false,
+      canActivate: false,
+      lockReason: "Clear Jade Needle Cloister"
+    });
     expect(viewModel.assignments[0]).toMatchObject({
       assignmentId: "bamboo_road_patrol",
       unlocked: true,
@@ -141,6 +156,7 @@ describe("web game state", () => {
       lockReason: "Clear Black Iron Guard"
     });
     expect(viewModel.equipmentInventory).toEqual([]);
+    expect(viewModel.heroEquipment).toHaveLength(4);
     expect(viewModel.heroEquipment[0]).toMatchObject({
       heroId: "iron_fist_disciple",
       activeSetBonuses: [],
@@ -294,6 +310,62 @@ describe("web game state", () => {
     ).toBe("front");
   });
 
+  it("selects an unlocked Lotus support hero for the active team", () => {
+    const state = createInitialWebGameState(staticData);
+    const progressedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          mist_valley: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          black_iron_fort: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          lotus_monastery: {
+            combatExperience: 0,
+            highestClearedStageIndex: 3
+          }
+        }
+      }
+    });
+    const selectedState = setGameActiveHeroTeam(staticData, progressedState, {
+      heroIds: [
+        "iron_fist_disciple",
+        "azure_palm_monk",
+        "white_crane_swordsman",
+        "lotus_mending_disciple"
+      ]
+    });
+    const viewModel = getWebGameViewModel(staticData, selectedState);
+
+    expect(selectedState.lastActiveTeamAction?.ok).toBe(true);
+    expect(selectedState.progress.activeHeroIds).toEqual([
+      "iron_fist_disciple",
+      "azure_palm_monk",
+      "white_crane_swordsman",
+      "lotus_mending_disciple"
+    ]);
+    expect(
+      viewModel.roster.find((hero) => hero.heroId === "lotus_mending_disciple")
+    ).toMatchObject({
+      active: true,
+      unlocked: true,
+      combatRole: "support"
+    });
+    expect(
+      viewModel.playerCombatants.map((combatant) => combatant.definitionId)
+    ).toContain("lotus_mending_disciple");
+  });
+
   it("updates progress while staying on the selected stage after battle", () => {
     const state = createInitialWebGameState(staticData);
     const nextState = resolveSelectedStageBattle(staticData, state);
@@ -432,6 +504,63 @@ describe("web game state", () => {
     ).toMatchObject({
       isUnlocked: true,
       canSelectStage: true
+    });
+  });
+
+  it("shows Lotus herb rewards in routes, offline preview, and assignments", () => {
+    const state = createInitialWebGameState(staticData);
+    const progressedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        currentStageId: "lotus_monastery_2",
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          mist_valley: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          black_iron_fort: {
+            combatExperience: 0,
+            highestClearedStageIndex: 10
+          },
+          lotus_monastery: {
+            combatExperience: 0,
+            highestClearedStageIndex: 3
+          }
+        }
+      }
+    });
+    const selectedState = webGameStateReducer(staticData, progressedState, {
+      type: "select_offline_farm_stage",
+      stageId: "lotus_monastery_1"
+    });
+    const viewModel = getWebGameViewModel(staticData, selectedState);
+
+    expect(
+      viewModel.stageOptions.find((stage) => stage.id === "lotus_monastery_1")
+    ).toMatchObject({
+      rewards: {
+        herbs: 6
+      }
+    });
+    expect(viewModel.offlineRewardPreview).toMatchObject({
+      ok: true,
+      stageName: "Lotus Monastery Gate",
+      herbs: 1296
+    });
+    expect(viewModel.offlineFarmRecommendation.herbsPerClear).toBeGreaterThan(0);
+    expect(
+      viewModel.assignments.find(
+        (assignment) => assignment.assignmentId === "lotus_medicine_pavilion"
+      )
+    ).toMatchObject({
+      unlocked: true,
+      rewardSummary: expect.arrayContaining(["18 herbs/hour"])
     });
   });
 
@@ -643,7 +772,8 @@ describe("web game state", () => {
       ...state.progress,
       resources: {
         silver: 20,
-        cultivation: 0
+        cultivation: 0,
+        herbs: 0
       }
     };
     const affordableViewModel = getWebGameViewModel(staticData, {
@@ -706,7 +836,8 @@ describe("web game state", () => {
       ...state.progress,
       resources: {
         silver: 0,
-        cultivation: 20
+        cultivation: 20,
+        herbs: 0
       }
     };
     const affordableViewModel = getWebGameViewModel(staticData, {

@@ -120,7 +120,7 @@ describe("stage progression helpers", () => {
     ).toBe("black_iron_fort_1");
   });
 
-  it("keeps current stage unchanged after the final configured boss", () => {
+  it("advances current stage from Black Iron Fort into Lotus Monastery", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
     progress.maps.mist_valley.highestClearedStageIndex = 6;
@@ -135,7 +135,26 @@ describe("stage progression helpers", () => {
 
     expect(
       getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
-    ).toBe("black_iron_fort_7");
+    ).toBe("lotus_monastery_1");
+  });
+
+  it("keeps current stage unchanged after the final configured boss", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 6;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
+    progress.maps.lotus_monastery.highestClearedStageIndex = 7;
+    progress.currentStageId = "lotus_monastery_7";
+    const stage = getStageById(staticData, "lotus_monastery_7");
+
+    expect(stage).toBeDefined();
+    if (!stage) {
+      return;
+    }
+
+    expect(
+      getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
+    ).toBe("lotus_monastery_7");
   });
 
   it("uses cleared non-boss stages as valid offline farming targets", () => {

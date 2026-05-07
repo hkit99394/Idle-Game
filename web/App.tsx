@@ -21,8 +21,10 @@ import type {
   PlayerFormationHeroView,
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
+  RosterHeroView,
   SaveDiagnosticsView,
   SelectGameStyleBranchInput,
+  SetGameActiveHeroTeamInput,
   SetGameAssignmentHeroesInput,
   SkillUpgradeView,
   StageOptionView,
@@ -199,6 +201,21 @@ type CombatantCardProps = {
 };
 
 function CombatantCard({ combatant }: CombatantCardProps) {
+  const contributionStats = [
+    combatant.contributionDamage > 0
+      ? `Damage ${formatNumber(combatant.contributionDamage)}`
+      : null,
+    combatant.contributionRecovery > 0
+      ? `Recovery ${formatNumber(combatant.contributionRecovery)}`
+      : null,
+    combatant.contributionProtection > 0
+      ? `Protection ${formatNumber(combatant.contributionProtection)}`
+      : null,
+    combatant.contributionRecoveryPrevented > 0
+      ? `Denied ${formatNumber(combatant.contributionRecoveryPrevented)}`
+      : null
+  ].filter((stat): stat is string => stat !== null);
+
   return (
     <article
       className={`combatant-card ${combatant.kind} ${
@@ -237,6 +254,13 @@ function CombatantCard({ combatant }: CombatantCardProps) {
         <span>Inner Attack {formatNumber(combatant.innerAttack)}</span>
         <span>Speed {formatNumber(combatant.speed)}</span>
       </div>
+      {contributionStats.length > 0 ? (
+        <div className="combatant-contributions">
+          {contributionStats.map((stat) => (
+            <span key={stat}>{stat}</span>
+          ))}
+        </div>
+      ) : null}
       {combatant.isQiBroken || combatant.isDefeated ? (
         <div
           className={`combatant-status ${
@@ -247,6 +271,88 @@ function CombatantCard({ combatant }: CombatantCardProps) {
         </div>
       ) : null}
     </article>
+  );
+}
+
+type RosterPanelProps = {
+  activeTeamSize: number;
+  heroes: RosterHeroView[];
+  onSetActiveTeam: (input: SetGameActiveHeroTeamInput) => void;
+  status: string;
+};
+
+function RosterPanel({
+  activeTeamSize,
+  heroes,
+  onSetActiveTeam,
+  status
+}: RosterPanelProps) {
+  const activeHeroIds = heroes
+    .filter((hero) => hero.active)
+    .map((hero) => hero.heroId);
+
+  return (
+    <section className="roster-panel" aria-label="Hero roster">
+      <div className="roster-panel-heading">
+        <div>
+          <span className="label">Roster</span>
+          <h2>Active Disciples</h2>
+        </div>
+        <span>
+          {activeHeroIds.length}/{activeTeamSize} active
+        </span>
+      </div>
+      <div className="roster-grid">
+        {heroes.map((hero) => {
+          const nextHeroIds = hero.active
+            ? activeHeroIds.filter((heroId) => heroId !== hero.heroId)
+            : [...activeHeroIds, hero.heroId];
+          const canChange = hero.active ? hero.canDeactivate : hero.canActivate;
+          const buttonLabel = !hero.unlocked
+            ? hero.lockReason ?? "Locked"
+            : hero.active
+              ? hero.canDeactivate
+                ? "Remove"
+                : "Keep"
+              : hero.canActivate
+                ? "Join"
+                : "Full";
+
+          return (
+            <article
+              key={hero.heroId}
+              className={`roster-card ${
+                hero.active ? "active" : ""
+              } ${hero.unlocked ? "" : "locked"}`}
+            >
+              <div className="roster-card-heading">
+                <div>
+                  <strong>{hero.name}</strong>
+                  <span>{hero.role}</span>
+                </div>
+                <span>CP {formatNumber(hero.combatPower)}</span>
+              </div>
+              <div className="roster-tags">
+                <span>{hero.style}</span>
+                <span>{formatCombatRole(hero.combatRole)}</span>
+                <span>Lv {formatNumber(hero.level)}</span>
+                {hero.assignedAssignmentName ? (
+                  <span>{hero.assignedAssignmentName}</span>
+                ) : null}
+              </div>
+              <button
+                type="button"
+                disabled={!canChange}
+                onClick={() => onSetActiveTeam({ heroIds: nextHeroIds })}
+              >
+                {buttonLabel}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+      {status ? <div className="upgrade-status">{status}</div> : null}
+    </section>
   );
 }
 
@@ -510,6 +616,9 @@ function OfflineSummaryPanel({
       <div className="offline-summary-rewards">
         <strong>{formatNumber(summary.silver)} silver</strong>
         <strong>{formatNumber(summary.cultivation)} cultivation</strong>
+        {summary.herbs > 0 ? (
+          <strong>{formatNumber(summary.herbs)} herbs</strong>
+        ) : null}
         <strong>{formatNumber(summary.combatExperience)} Combat XP</strong>
         {summary.assignmentStyleMasteryExperience > 0 ? (
           <strong>
@@ -573,6 +682,9 @@ function OfflineFarmPanel({
           <div className="offline-preview-rewards">
             <span>{formatNumber(preview.silver)} silver</span>
             <span>{formatNumber(preview.cultivation)} cultivation</span>
+            {preview.herbs > 0 ? (
+              <span>{formatNumber(preview.herbs)} herbs</span>
+            ) : null}
             <span>{formatNumber(preview.combatExperience)} Combat XP</span>
             <span>{formatNumber(preview.masteryExperienceGain)} mastery</span>
           </div>
@@ -585,6 +697,9 @@ function OfflineFarmPanel({
             {recommendation.rewardPriority.map((priority) => (
               <span key={priority}>{priority}</span>
             ))}
+            {recommendation.herbsPerClear > 0 ? (
+              <span>{formatNumber(recommendation.herbsPerClear)} herbs/clear</span>
+            ) : null}
           </div>
           <strong>
             {recommendation.isSelected ? "Selected" : "Different from selected"}
@@ -670,6 +785,9 @@ function StageSelectorPanel({
               <div className="stage-rewards">
                 <span>{formatNumber(stage.rewards.silver)} silver</span>
                 <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
+                {stage.rewards.herbs ? (
+                  <span>{formatNumber(stage.rewards.herbs)} herbs</span>
+                ) : null}
                 <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
               </div>
               <div className="stage-card-actions">
@@ -1308,6 +1426,7 @@ function GameApp() {
     saveDiagnostics,
     selectStyleBranch,
     selectStage,
+    setActiveHeroTeam,
     setAssignmentHeroes,
     setOfflineFarmPreset,
     setHeroFormation,
@@ -1315,6 +1434,7 @@ function GameApp() {
     viewModel
   } = useWebGameState(staticData);
   const {
+    activeTeamSize,
     battleEvents,
     battleSummary,
     assignments,
@@ -1324,6 +1444,7 @@ function GameApp() {
     heroEquipment,
     lastBattle,
     lastEquipmentAction,
+    lastActiveTeamAction,
     lastAssignmentAction,
     lastStyleBranchAction,
     lastBattleStage,
@@ -1337,6 +1458,7 @@ function GameApp() {
     playerCombatants,
     playerFormation,
     progress,
+    roster,
     selectedStage,
     selectedStageRegionName,
     skillUpgrades,
@@ -1379,6 +1501,12 @@ function GameApp() {
       ? "Assignment changed"
       : lastAssignmentAction
         ? lastAssignmentAction.reason.replaceAll("_", " ")
+        : "";
+  const activeTeamStatus =
+    lastActiveTeamAction?.ok
+      ? "Team changed"
+      : lastActiveTeamAction
+        ? lastActiveTeamAction.reason.replaceAll("_", " ")
         : "";
   const stageType = selectedStage?.isBoss ? "Boss" : "Road";
 
@@ -1470,6 +1598,7 @@ function GameApp() {
         <div className="resource-row">
           <span>Silver {formatNumber(progress.resources.silver)}</span>
           <span>Cultivation {formatNumber(progress.resources.cultivation)}</span>
+          <span>Herbs {formatNumber(progress.resources.herbs)}</span>
           <span>Combat Exp {formatNumber(masteryPanel?.combatExperience ?? 0)}</span>
         </div>
         <OfflineSummaryPanel
@@ -1486,6 +1615,12 @@ function GameApp() {
           assignments={assignments}
           onSetAssignment={setAssignmentHeroes}
           status={assignmentStatus}
+        />
+        <RosterPanel
+          activeTeamSize={activeTeamSize}
+          heroes={roster}
+          onSetActiveTeam={setActiveHeroTeam}
+          status={activeTeamStatus}
         />
         <MasteryPanel mastery={masteryPanel} />
         <StageSelectorPanel

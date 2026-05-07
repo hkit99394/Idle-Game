@@ -57,6 +57,8 @@ function combatant(input: {
     guard: null,
     protection: null,
     armorBreak: null,
+    wound: null,
+    regeneration: null,
     defeatedAt: null
   };
 }

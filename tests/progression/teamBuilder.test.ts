@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildPlayerTeamForStage,
   createInitialPlayerProgress,
+  isHeroUnlocked,
   MVP_PLAYER_HERO_IDS,
+  setActiveHeroTeam,
   setPlayerFormationSlot,
   simulateBattle
 } from "../../core";
@@ -13,6 +15,7 @@ describe("progress-based player team builder", () => {
     const progress = createInitialPlayerProgress(staticData);
     const result = buildPlayerTeamForStage(staticData, progress, "bamboo_road_1");
 
+    expect(progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;
@@ -27,6 +30,93 @@ describe("progress-based player team builder", () => {
       "back",
       "front"
     ]);
+  });
+
+  it("keeps locked roster heroes out of active team selection", () => {
+    const progress = createInitialPlayerProgress(staticData);
+
+    expect(isHeroUnlocked(staticData, progress, "lotus_mending_disciple")).toBe(
+      false
+    );
+
+    const lockedResult = setActiveHeroTeam(staticData, {
+      progress,
+      heroIds: [
+        "iron_fist_disciple",
+        "azure_palm_monk",
+        "white_crane_swordsman",
+        "lotus_mending_disciple"
+      ]
+    });
+
+    expect(lockedResult).toMatchObject({
+      ok: false,
+      reason: "locked_hero"
+    });
+
+    const teamResult = buildPlayerTeamForStage(
+      staticData,
+      progress,
+      "bamboo_road_1"
+    );
+
+    expect(teamResult.ok).toBe(true);
+    if (!teamResult.ok) {
+      return;
+    }
+    expect(
+      teamResult.team.combatants.map((combatant) => combatant.definitionId)
+    ).not.toContain("lotus_mending_disciple");
+  });
+
+  it("allows the Lotus support hero after the unlock stage is cleared", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 10;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
+    progress.maps.lotus_monastery.highestClearedStageIndex = 3;
+    progress.currentStageId = "lotus_monastery_4";
+
+    expect(isHeroUnlocked(staticData, progress, "lotus_mending_disciple")).toBe(
+      true
+    );
+
+    const activeResult = setActiveHeroTeam(staticData, {
+      progress,
+      heroIds: [
+        "iron_fist_disciple",
+        "azure_palm_monk",
+        "white_crane_swordsman",
+        "lotus_mending_disciple"
+      ]
+    });
+
+    expect(activeResult.ok).toBe(true);
+    if (!activeResult.ok) {
+      return;
+    }
+
+    const teamResult = buildPlayerTeamForStage(
+      staticData,
+      activeResult.progress,
+      "lotus_monastery_4"
+    );
+
+    expect(teamResult.ok).toBe(true);
+    if (!teamResult.ok) {
+      return;
+    }
+    expect(teamResult.team.combatants.map((combatant) => combatant.definitionId)).toEqual([
+      "iron_fist_disciple",
+      "azure_palm_monk",
+      "white_crane_swordsman",
+      "lotus_mending_disciple"
+    ]);
+    expect(
+      teamResult.team.combatants.find(
+        (combatant) => combatant.definitionId === "lotus_mending_disciple"
+      )?.formationSlot
+    ).toBe("back");
   });
 
   it("applies hero upgrades, sect upgrades, and map attack mastery", () => {

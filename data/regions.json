@@ -48,5 +48,22 @@
       "type": "stage_cleared",
       "stageId": "mist_valley_6"
     }
+  },
+  {
+    "id": "lotus_monastery",
+    "name": "Lotus Monastery",
+    "stageIds": [
+      "lotus_monastery_1",
+      "lotus_monastery_2",
+      "lotus_monastery_3",
+      "lotus_monastery_4",
+      "lotus_monastery_5",
+      "lotus_monastery_6",
+      "lotus_monastery_7"
+    ],
+    "unlockCondition": {
+      "type": "stage_cleared",
+      "stageId": "black_iron_fort_7"
+    }
   }
 ]

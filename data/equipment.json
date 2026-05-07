@@ -171,5 +171,37 @@
         ]
       }
     ]
+  },
+  {
+    "id": "lotus_dew_pill",
+    "name": "Lotus Dew Pill",
+    "slot": "medicine",
+    "rarity": "common",
+    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "effects": [
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.08 },
+      { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.001 }
+    ]
+  },
+  {
+    "id": "mending_poultice",
+    "name": "Mending Poultice",
+    "slot": "medicine",
+    "rarity": "uncommon",
+    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "effects": [
+      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },
+      { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.0015 }
+    ],
+    "affixes": [
+      {
+        "id": "fresh_ground",
+        "name": "Fresh-Ground",
+        "effects": [
+          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+        ]
+      }
+    ]
   }
 ]

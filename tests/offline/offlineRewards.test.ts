@@ -18,6 +18,7 @@ describe("offline rewards", () => {
       offlineEfficiency: 0.6,
       silverPerClear: 10,
       cultivationPerClear: 5,
+      herbsPerClear: 2,
       combatExperiencePerClear: 5
     });
 
@@ -25,6 +26,7 @@ describe("offline rewards", () => {
     expect(result.clears).toBe(2880);
     expect(result.silver).toBeCloseTo(17280);
     expect(result.cultivation).toBeCloseTo(8640);
+    expect(result.herbs).toBeCloseTo(3456);
     expect(result.combatExperience).toBeCloseTo(8640);
   });
 
@@ -38,6 +40,7 @@ describe("offline rewards", () => {
       offlineEfficiency: 1,
       silverPerClear: 10,
       cultivationPerClear: 5,
+      herbsPerClear: 0,
       combatExperiencePerClear: 5
     });
 
@@ -130,11 +133,58 @@ describe("offline rewards", () => {
       clears: 3,
       silver: 15,
       cultivation: 7.5,
+      herbs: 0,
       combatExperience: 7.5
     });
     expect(preview.masteryExperienceGain).toBe(7.5);
     expect(progress.resources.silver).toBe(0);
     expect(progress.maps.bamboo_road.combatExperience).toBe(0);
+  });
+
+  it("applies and previews herbs from Lotus offline farming", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 10;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
+    progress.maps.lotus_monastery.highestClearedStageIndex = 1;
+    progress.currentStageId = "lotus_monastery_2";
+
+    const preview = previewOfflineRewards({
+      data: staticData,
+      progress,
+      selectedOfflineFarmStageId: "lotus_monastery_1",
+      previewSeconds: 30,
+      config: {
+        offlineCapSeconds: 100,
+        estimatedClearTimeSeconds: 10,
+        minimumClearTimeSeconds: 5,
+        offlineEfficiency: 0.5
+      }
+    });
+    const applied = applyOfflineRewards({
+      data: staticData,
+      progress,
+      selectedOfflineFarmStageId: "lotus_monastery_1",
+      lastSavedAtMs: 0,
+      currentTimeMs: 30_000,
+      config: {
+        offlineCapSeconds: 100,
+        estimatedClearTimeSeconds: 10,
+        minimumClearTimeSeconds: 5,
+        offlineEfficiency: 0.5
+      }
+    });
+
+    expect(preview.ok).toBe(true);
+    if (!preview.ok) {
+      return;
+    }
+    expect(preview.rewards.herbs).toBe(9);
+    expect(applied.ok).toBe(true);
+    if (!applied.ok) {
+      return;
+    }
+    expect(applied.progress.resources.herbs).toBe(9);
   });
 
   it("previews invalid farm targets safely", () => {
@@ -153,6 +203,7 @@ describe("offline rewards", () => {
         clears: 0,
         silver: 0,
         cultivation: 0,
+        herbs: 0,
         combatExperience: 0
       }
     });

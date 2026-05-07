@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import {
   buildEnemyTeamForStage,
   buildPlayerTeamForStage,
+  ACTIVE_TEAM_SIZE,
   calculateCombatPower,
   calculateSkillUpgradeCost,
   calculateUpgradeCost,
@@ -15,7 +16,9 @@ import {
   getActiveMasterySummaryForStage,
   getActiveEquipmentSetBonuses,
   getHeroAssignmentId,
+  getActiveHeroIds,
   getEquipmentInventoryCount,
+  getBattleEventStatusId,
   getOfflineFarmPresetPolicy,
   getRecommendedOfflineFarmStage,
   getStageById,
@@ -26,6 +29,7 @@ import {
   hasClearedStage,
   isOfflineFarmStageUnlocked,
   isAssignmentUnlocked,
+  isHeroUnlocked,
   isHeroEligibleForAssignment,
   isStageUnlocked,
   isStyleBranchUnlocked,
@@ -37,6 +41,7 @@ import {
   resolveStageBattle,
   scaleStatsForLevel,
   selectStyleBranch as selectCoreStyleBranch,
+  setActiveHeroTeam as setCoreActiveHeroTeam,
   setAssignmentHeroes as setCoreAssignmentHeroes,
   setPlayerFormationSlot,
   setOfflineFarmStageTarget,
@@ -69,8 +74,11 @@ import type {
   SaveData,
   SelectStyleBranchInput,
   SelectStyleBranchResult,
+  SetActiveHeroTeamInput,
+  SetActiveHeroTeamResult,
   SetAssignmentHeroesInput,
   SetAssignmentHeroesResult,
+  StatusEffectId,
   StaticGameData
 } from "../../core";
 import {
@@ -99,6 +107,7 @@ export type WebGameState = {
   lastSkillPurchase: PurchaseSkillUpgradeResult | null;
   lastEquipmentAction: EquipHeroEquipmentResult | null;
   lastStyleBranchAction: SelectStyleBranchResult | null;
+  lastActiveTeamAction: SetActiveHeroTeamResult | null;
   lastAssignmentAction: SetAssignmentHeroesResult | null;
 };
 
@@ -127,6 +136,10 @@ export type WebGameAction =
   | {
       type: "assignment_update_resolved";
       result: SetAssignmentHeroesResult;
+    }
+  | {
+      type: "active_team_update_resolved";
+      result: SetActiveHeroTeamResult;
     }
   | {
       type: "battle_resolved";
@@ -171,6 +184,10 @@ export type SetGameAssignmentHeroesInput = Omit<
   SetAssignmentHeroesInput,
   "progress"
 >;
+export type SetGameActiveHeroTeamInput = Omit<
+  SetActiveHeroTeamInput,
+  "progress"
+>;
 
 export type BattleCombatantView = {
   instanceId: string;
@@ -191,6 +208,10 @@ export type BattleCombatantView = {
   innerAttack: number;
   speed: number;
   combatPower: number;
+  contributionDamage: number;
+  contributionRecovery: number;
+  contributionProtection: number;
+  contributionRecoveryPrevented: number;
   isQiBroken: boolean;
   isDefeated: boolean;
 };
@@ -205,6 +226,10 @@ export type BattleEventCategory =
   | "guard_absorb"
   | "protect"
   | "heal"
+  | "wound"
+  | "regeneration"
+  | "regeneration_tick"
+  | "cleanse"
   | "defeat";
 
 export type BattleEventBadgeTone =
@@ -223,6 +248,7 @@ export type BattleEventBadgeView = {
 export type BattleEventView = {
   id: string;
   category: BattleEventCategory;
+  statusId: StatusEffectId | null;
   timeSeconds: number;
   timeLabel: string;
   headline: string;
@@ -312,6 +338,7 @@ export type StageOptionView = {
   rewards: {
     silver: number;
     cultivation: number;
+    herbs?: number;
     combatExperience: number;
   };
 };
@@ -352,6 +379,22 @@ export type PlayerFormationHeroView = {
   formationSlot: FormationSlot;
 };
 
+export type RosterHeroView = {
+  heroId: string;
+  name: string;
+  style: string;
+  role: string;
+  combatRole: CombatRole;
+  level: number;
+  combatPower: number;
+  unlocked: boolean;
+  active: boolean;
+  canActivate: boolean;
+  canDeactivate: boolean;
+  lockReason: string | null;
+  assignedAssignmentName: string | null;
+};
+
 export type StyleBranchView = {
   id: string;
   name: string;
@@ -380,9 +423,11 @@ export type OfflineRewardSummary = {
   clears: number;
   silver: number;
   cultivation: number;
+  herbs: number;
   combatExperience: number;
   assignmentSilver: number;
   assignmentCultivation: number;
+  assignmentHerbs: number;
   assignmentCombatExperience: number;
   assignmentStyleMasteryExperience: number;
   assignmentEquipmentRewards: Array<{ equipmentId: string; quantity: number }>;
@@ -408,6 +453,7 @@ export type OfflineFarmRecommendationView = {
   presetLabel: string;
   description: string;
   rewardPriority: string[];
+  herbsPerClear: number;
   isSelected: boolean;
 };
 
@@ -420,6 +466,7 @@ export type OfflineRewardPreviewView = {
   clears: number;
   silver: number;
   cultivation: number;
+  herbs: number;
   combatExperience: number;
   masteryExperienceGain: number;
 };
@@ -543,11 +590,15 @@ function createOfflineRewardSummary(
     cultivation:
       (offlineRewards?.ok ? offlineRewards.rewards.cultivation : 0) +
       (assignmentRewards?.cultivation ?? 0),
+    herbs:
+      (offlineRewards?.ok ? offlineRewards.rewards.herbs : 0) +
+      (assignmentRewards?.herbs ?? 0),
     combatExperience:
       (offlineRewards?.ok ? offlineRewards.rewards.combatExperience : 0) +
       (assignmentRewards?.combatExperience ?? 0),
     assignmentSilver: assignmentRewards?.silver ?? 0,
     assignmentCultivation: assignmentRewards?.cultivation ?? 0,
+    assignmentHerbs: assignmentRewards?.herbs ?? 0,
     assignmentCombatExperience: assignmentRewards?.combatExperience ?? 0,
     assignmentStyleMasteryExperience:
       assignmentRewards?.styleMasteryExperience ?? 0,
@@ -574,6 +625,7 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     lastSkillPurchase: null,
     lastEquipmentAction: null,
     lastStyleBranchAction: null,
+    lastActiveTeamAction: null,
     lastAssignmentAction: null
   };
 }
@@ -606,6 +658,7 @@ export function createWebGameStateFromSave(
     lastSkillPurchase: null,
     lastEquipmentAction: null,
     lastStyleBranchAction: null,
+    lastActiveTeamAction: null,
     lastAssignmentAction: null
   };
 }
@@ -709,6 +762,7 @@ export function webGameStateReducer(
         lastSkillPurchase: null,
         lastEquipmentAction: null,
         lastStyleBranchAction: null,
+        lastActiveTeamAction: null,
         lastAssignmentAction: null
       };
     }
@@ -727,7 +781,27 @@ export function webGameStateReducer(
         lastPurchase: null,
         lastBattle: null,
         lastBattleStageId: null,
+        lastActiveTeamAction: null,
         lastAssignmentAction: null
+      };
+    }
+
+    case "active_team_update_resolved": {
+      const nextProgress = action.result.ok
+        ? action.result.progress
+        : state.progress;
+
+      return {
+        ...state,
+        progress: nextProgress,
+        lastActiveTeamAction: action.result,
+        lastAssignmentAction: null,
+        lastStyleBranchAction: null,
+        lastEquipmentAction: null,
+        lastSkillPurchase: null,
+        lastPurchase: null,
+        lastBattle: null,
+        lastBattleStageId: null
       };
     }
 
@@ -745,7 +819,8 @@ export function webGameStateReducer(
         lastSkillPurchase: null,
         lastPurchase: null,
         lastBattle: null,
-        lastBattleStageId: null
+        lastBattleStageId: null,
+        lastActiveTeamAction: null
       };
     }
 
@@ -775,6 +850,7 @@ export function webGameStateReducer(
         lastSkillPurchase: null,
         lastEquipmentAction: null,
         lastStyleBranchAction: null,
+        lastActiveTeamAction: null,
         lastAssignmentAction: null
       };
     }
@@ -799,6 +875,7 @@ export function webGameStateReducer(
         lastStyleBranchAction: null,
         lastBattle: null,
         lastBattleStageId: null,
+        lastActiveTeamAction: null,
         lastAssignmentAction: null
       };
     }
@@ -817,6 +894,7 @@ export function webGameStateReducer(
         lastStyleBranchAction: null,
         lastBattle: null,
         lastBattleStageId: null,
+        lastActiveTeamAction: null,
         lastAssignmentAction: null
       };
     }
@@ -835,6 +913,7 @@ export function webGameStateReducer(
         lastPurchase: null,
         lastBattle: null,
         lastBattleStageId: null,
+        lastActiveTeamAction: null,
         lastAssignmentAction: null
       };
     }
@@ -860,6 +939,7 @@ export function webGameStateReducer(
         lastSkillPurchase: null,
         lastEquipmentAction: null,
         lastStyleBranchAction: null,
+        lastActiveTeamAction: null,
         lastAssignmentAction: null
       };
 
@@ -971,6 +1051,22 @@ export function setGameAssignmentHeroes(
   });
 }
 
+export function setGameActiveHeroTeam(
+  data: StaticGameData,
+  state: WebGameState,
+  input: SetGameActiveHeroTeamInput
+): WebGameState {
+  const result = setCoreActiveHeroTeam(data, {
+    progress: state.progress,
+    ...input
+  });
+
+  return webGameStateReducer(data, state, {
+    type: "active_team_update_resolved",
+    result
+  });
+}
+
 function getPreviewInstanceId(
   team: TeamId,
   instance: CombatantInstanceDefinition,
@@ -978,6 +1074,69 @@ function getPreviewInstanceId(
   index: number
 ): string {
   return instance.instanceId ?? `${team}_${nameId}_${index + 1}`;
+}
+
+function calculateSkillSupportCombatPower(
+  data: StaticGameData,
+  skillIds: string[],
+  stats: DerivedStats
+): number {
+  const skillsById = new Map(data.skills.map((skill) => [skill.id, skill]));
+
+  return skillIds.reduce((total, skillId) => {
+    const skill = skillsById.get(skillId);
+
+    if (!skill) {
+      return total;
+    }
+
+    const effectPower = skill.effects.reduce((effectTotal, effect) => {
+      const durationMultiplier = Math.max(1, effect.durationSeconds ?? 1);
+
+      switch (effect.type) {
+        case "outer_heal_percent":
+          return effectTotal + stats.maxOuterHp * effect.value * 0.5;
+        case "inner_heal_percent":
+          return effectTotal + stats.maxInnerQi * effect.value * 0.45;
+        case "outer_regeneration_percent":
+          return effectTotal +
+            stats.maxOuterHp * effect.value * durationMultiplier * 0.35;
+        case "inner_regeneration_percent":
+          return effectTotal +
+            stats.maxInnerQi * effect.value * durationMultiplier * 0.32;
+        case "cleanse":
+          return effectTotal + 80 * Math.max(1, effect.value);
+        case "guard":
+        case "protect":
+          return effectTotal + stats.maxOuterHp * effect.value * 0.25;
+        default:
+          return effectTotal;
+      }
+    }, 0);
+
+    return total + effectPower;
+  }, 0);
+}
+
+function getContributionTotalDamage(contribution?: BattleContribution): number {
+  return contribution
+    ? contribution.outerDamageDealt +
+        contribution.innerDamageDealt +
+        contribution.qiBreakBurstDamageDealt
+    : 0;
+}
+
+function getContributionRecovery(contribution?: BattleContribution): number {
+  return contribution
+    ? contribution.outerHealingDone + contribution.innerQiRestored
+    : 0;
+}
+
+function getContributionProtection(contribution?: BattleContribution): number {
+  return contribution
+    ? contribution.guardDamagePrevented +
+        contribution.protectionDamagePrevented
+    : 0;
 }
 
 function createCombatantView(
@@ -993,8 +1152,11 @@ function createCombatantView(
     formationSlot: FormationSlot;
     level: number;
     stats: DerivedStats;
+    skillIds: string[];
+    combatPowerBonus?: number;
   },
-  finalState?: CombatantState
+  finalState?: CombatantState,
+  contribution?: BattleContribution
 ): BattleCombatantView {
   const stats = finalState?.stats ?? input.stats;
 
@@ -1016,7 +1178,13 @@ function createCombatantView(
     outerAttack: stats.outerAttack,
     innerAttack: stats.innerAttack,
     speed: stats.speed,
-    combatPower: calculateCombatPower(stats),
+    combatPower: Math.round(
+      calculateCombatPower(stats) + (input.combatPowerBonus ?? 0)
+    ),
+    contributionDamage: getContributionTotalDamage(contribution),
+    contributionRecovery: getContributionRecovery(contribution),
+    contributionProtection: getContributionProtection(contribution),
+    contributionRecoveryPrevented: contribution?.recoveryPrevented ?? 0,
     isQiBroken: finalState?.isQiBroken ?? false,
     isDefeated: finalState?.defeatedAt != null
   };
@@ -1290,16 +1458,168 @@ function buildBattleEventDetail(
     }
 
     case "heal": {
+      const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
+      const restored = event.outerHealing + event.innerQiRestored;
+      const detail = [
+        event.outerHealing > 0
+          ? `${formatBattleNumber(event.outerHealing)} Outer HP`
+          : null,
+        event.innerQiRestored > 0
+          ? `${formatBattleNumber(event.innerQiRestored)} Inner Qi`
+          : null,
+        event.overhealing > 0
+          ? `${formatBattleNumber(event.overhealing)} overheal`
+          : null,
+        event.recoveryPrevented > 0
+          ? `${formatBattleNumber(event.recoveryPrevented)} prevented by wound`
+          : null
+      ].filter(Boolean);
 
       return {
         category: "heal",
-        headline: `${target} recovers Outer HP`,
-        detail: `${formatBattleNumber(event.outerHealing)} Outer HP restored`,
+        headline:
+          source === target
+            ? `${target} restores balance`
+            : `${source} restores ${target}`,
+        detail:
+          detail.length > 0
+            ? `${getSkillName(data, event.skillId)} restores ${detail.join(" · ")}`
+            : `${getSkillName(data, event.skillId)} has no effective recovery`,
         badges: [
           {
-            label: `${formatBattleNumber(event.outerHealing)} healed`,
+            label: `${formatBattleNumber(restored)} restored`,
             tone: "outer"
+          },
+          ...(event.recoveryPrevented > 0
+            ? [
+                {
+                  label: `${formatBattleNumber(event.recoveryPrevented)} denied`,
+                  tone: "danger" as const
+                }
+              ]
+            : [])
+        ]
+      };
+    }
+
+    case "wound": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "wound",
+        headline: `${source} wounds ${target}`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces recovery by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Wound",
+            tone: "danger"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} recovery`,
+            tone: "danger"
+          }
+        ]
+      };
+    }
+
+    case "regeneration": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+      const barLabel = event.restores === "outer" ? "Outer HP" : "Inner Qi";
+
+      return {
+        category: "regeneration",
+        headline:
+          source === target
+            ? `${target} starts regeneration`
+            : `${source} grants regeneration to ${target}`,
+        detail:
+          `${getSkillName(data, event.skillId)} restores ${formatBattlePercent(
+            event.percentPerTick
+          )} ${barLabel} each second until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Regeneration",
+            tone: "neutral"
+          },
+          {
+            label: `${formatBattlePercent(event.percentPerTick)} ${barLabel}`,
+            tone: event.restores === "outer" ? "outer" : "inner"
+          }
+        ]
+      };
+    }
+
+    case "regeneration_tick": {
+      const target = getName(names, event.targetId);
+      const restored = event.outerHealing + event.innerQiRestored;
+      const detail = [
+        event.outerHealing > 0
+          ? `${formatBattleNumber(event.outerHealing)} Outer HP`
+          : null,
+        event.innerQiRestored > 0
+          ? `${formatBattleNumber(event.innerQiRestored)} Inner Qi`
+          : null,
+        event.overhealing > 0
+          ? `${formatBattleNumber(event.overhealing)} overheal`
+          : null,
+        event.recoveryPrevented > 0
+          ? `${formatBattleNumber(event.recoveryPrevented)} prevented by wound`
+          : null
+      ].filter(Boolean);
+
+      return {
+        category: "regeneration_tick",
+        headline: `${target} regenerates`,
+        detail:
+          detail.length > 0
+            ? detail.join(" · ")
+            : `${getSkillName(data, event.skillId)} has no effective recovery`,
+        badges: [
+          {
+            label: `${formatBattleNumber(restored)} restored`,
+            tone: "outer"
+          },
+          ...(event.recoveryPrevented > 0
+            ? [
+                {
+                  label: `${formatBattleNumber(event.recoveryPrevented)} denied`,
+                  tone: "danger" as const
+                }
+              ]
+            : [])
+        ]
+      };
+    }
+
+    case "cleanse": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+      const statuses = event.statusesRemoved
+        .map((status) =>
+          status === "armor_break" ? "Armor Break" : "Wound"
+        )
+        .join(", ");
+
+      return {
+        category: "cleanse",
+        headline:
+          source === target
+            ? `${target} cleanses pressure`
+            : `${source} cleanses ${target}`,
+        detail: `${getSkillName(data, event.skillId)} removes ${statuses}`,
+        badges: [
+          {
+            label: "Cleanse",
+            tone: "neutral"
+          },
+          {
+            label: statuses,
+            tone: "danger"
           }
         ]
       };
@@ -1343,6 +1663,7 @@ function buildBattleEventViews(
 
     return {
       id: `${index}-${event.type}-${event.time}`,
+      statusId: getBattleEventStatusId(event),
       timeSeconds: event.time,
       timeLabel: formatBattleSeconds(event.time),
       ...detail
@@ -1376,6 +1697,19 @@ function getContributionDamage(contribution: BattleContribution): number {
     contribution.outerDamageDealt +
     contribution.innerDamageDealt +
     contribution.qiBreakBurstDamageDealt
+  );
+}
+
+function getContributionSupport(contribution: BattleContribution): number {
+  return (
+    contribution.outerHealingDone +
+    contribution.innerQiRestored +
+    contribution.guardDamagePrevented +
+    contribution.protectionDamagePrevented +
+    contribution.recoveryPrevented +
+    contribution.cleansesApplied * 40 +
+    contribution.armorBreaksApplied * 40 +
+    contribution.woundsApplied * 40
   );
 }
 
@@ -1417,6 +1751,20 @@ function buildContributionSummaryDetails(
       contribution.qiBreaksTriggered * 1000 +
       contribution.qiBreakBurstDamageDealt
   );
+  const topHealer = getTopContribution(
+    battle.contributions,
+    (contribution) =>
+      contribution.outerHealingDone + contribution.innerQiRestored
+  );
+  const topProtector = getTopContribution(
+    battle.contributions,
+    (contribution) =>
+      contribution.guardDamagePrevented + contribution.protectionDamagePrevented
+  );
+  const topRecoveryDenial = getTopContribution(
+    battle.contributions,
+    (contribution) => contribution.recoveryPrevented
+  );
   const carryPool =
     battle.winner === "timeout"
       ? battle.contributions
@@ -1430,6 +1778,7 @@ function buildContributionSummaryDetails(
       contribution.qiBreaksTriggered * 100 +
       (contribution.survived ? 50 : 0)
   );
+  const supportCarry = getTopContribution(carryPool, getContributionSupport);
   const details: string[] = [];
 
   if (topDamageDealer) {
@@ -1448,6 +1797,47 @@ function buildContributionSummaryDetails(
     );
   } else {
     details.push("Qi breaker: none.");
+  }
+
+  if (
+    topHealer &&
+    topHealer.outerHealingDone + topHealer.innerQiRestored > 0
+  ) {
+    details.push(
+      `Top recovery: ${formatContributionName(topHealer)} restored ${formatBattleNumber(
+        topHealer.outerHealingDone + topHealer.innerQiRestored
+      )} total recovery.`
+    );
+  }
+
+  if (
+    topProtector &&
+    topProtector.guardDamagePrevented + topProtector.protectionDamagePrevented > 0
+  ) {
+    details.push(
+      `Top protection: ${formatContributionName(topProtector)} prevented ${formatBattleNumber(
+        topProtector.guardDamagePrevented +
+          topProtector.protectionDamagePrevented
+      )} damage.`
+    );
+  }
+
+  if (topRecoveryDenial && topRecoveryDenial.recoveryPrevented > 0) {
+    details.push(
+      `Recovery denied: ${formatContributionName(
+        topRecoveryDenial
+      )} prevented ${formatBattleNumber(
+        topRecoveryDenial.recoveryPrevented
+      )} healing.`
+    );
+  }
+
+  if (supportCarry && getContributionSupport(supportCarry) > 0) {
+    details.push(
+      `Support carry: ${formatContributionName(supportCarry)} supplied ${formatBattleNumber(
+        getContributionSupport(supportCarry)
+      )} support value.`
+    );
   }
 
   if (carry) {
@@ -1598,6 +1988,7 @@ function buildEquipmentInventoryViews(
         compatibleHeroIds: data.heroes
           .filter(
             (hero) =>
+              isHeroUnlocked(data, progress, hero) &&
               equipment.allowedStyles.includes(hero.style) &&
               getAvailableEquipmentCopyCount(
                 progress,
@@ -1624,37 +2015,46 @@ function buildHeroEquipmentViews(
     (data.equipmentSets ?? []).map((set) => [set.id, set])
   );
 
-  return data.heroes.map((hero) => ({
-    heroId: hero.id,
-    name: hero.name,
-    style: hero.style,
-    slots: EQUIPMENT_SLOTS.map((slot) => {
-      const equipmentId = equipped[hero.id]?.[slot] ?? null;
-      const equipment = equipmentId ? equipmentById.get(equipmentId) : null;
+  return data.heroes
+    .filter((hero) => isHeroUnlocked(data, progress, hero))
+    .map((hero) => ({
+      heroId: hero.id,
+      name: hero.name,
+      style: hero.style,
+      slots: EQUIPMENT_SLOTS.map((slot) => {
+        const equipmentId = equipped[hero.id]?.[slot] ?? null;
+        const equipment = equipmentId ? equipmentById.get(equipmentId) : null;
 
-      return {
-        slot,
-        label: formatEquipmentSlot(slot),
-        equipmentId,
-        name: equipment?.name ?? null,
-        rarity: equipment?.rarity ?? null,
-        setName: equipment?.setId
-          ? equipmentSetById.get(equipment.setId)?.name ?? null
-          : null
-      };
-    }),
-    activeSetBonuses: getActiveEquipmentSetBonuses(
-      data.equipment,
-      data.equipmentSets,
-      progress.equipment,
-      hero.id
-    ).map(
-      (bonus) =>
-        `${bonus.name} ${bonus.requiredPieces}-piece: ${bonus.effects
-          .map(formatEquipmentEffect)
-          .join(", ")}`
-    )
-  }));
+        return {
+          slot,
+          label: formatEquipmentSlot(slot),
+          equipmentId,
+          name: equipment?.name ?? null,
+          rarity: equipment?.rarity ?? null,
+          setName: equipment?.setId
+            ? equipmentSetById.get(equipment.setId)?.name ?? null
+            : null
+        };
+      }),
+      activeSetBonuses: getActiveEquipmentSetBonuses(
+        data.equipment,
+        data.equipmentSets,
+        progress.equipment,
+        hero.id
+      ).map(
+        (bonus) =>
+          `${bonus.name} ${bonus.requiredPieces}-piece: ${bonus.effects
+            .map(formatEquipmentEffect)
+            .join(", ")}`
+      )
+    }));
+}
+
+function getUnlockedHeroDefinitions(
+  data: StaticGameData,
+  progress: PlayerProgress
+): StaticGameData["heroes"] {
+  return data.heroes.filter((hero) => isHeroUnlocked(data, progress, hero));
 }
 
 function buildUpgradeViews(
@@ -1704,7 +2104,7 @@ function buildUpgradeViews(
       ];
     }
 
-    return data.heroes.map((hero) => {
+    return getUnlockedHeroDefinitions(data, progress).map((hero) => {
       const level = getUpgradeLevel(progress, upgrade, hero.id);
       const cost = calculateUpgradeCost(upgrade, level);
       const missingSilver = Math.max(0, cost - progress.resources.silver);
@@ -1743,7 +2143,15 @@ function buildSkillUpgradeViews(
   data: StaticGameData,
   progress: PlayerProgress
 ): SkillUpgradeView[] {
-  return data.skillUpgrades.map((upgrade) => {
+  const unlockedSkillIds = new Set(
+    getUnlockedHeroDefinitions(data, progress).flatMap((hero) => hero.skillIds)
+  );
+
+  return data.skillUpgrades.flatMap((upgrade) => {
+    if (!unlockedSkillIds.has(upgrade.skillId)) {
+      return [];
+    }
+
     const skill = data.skills.find((candidate) => candidate.id === upgrade.skillId);
     const level = getSkillUpgradeLevel(progress, upgrade.id);
     const isMaxLevel = level >= upgrade.maxLevel;
@@ -1753,19 +2161,21 @@ function buildSkillUpgradeViews(
       cost - progress.resources.cultivation
     );
 
-    return {
-      key: upgrade.id,
-      skillUpgradeId: upgrade.id,
-      skillId: upgrade.skillId,
-      name: upgrade.name,
-      skillName: skill?.name ?? upgrade.skillId,
-      level,
-      maxLevel: upgrade.maxLevel,
-      cost,
-      affordable: !isMaxLevel && missingCultivation === 0,
-      missingCultivation,
-      effects: upgrade.effects.map(formatSkillUpgradeEffect)
-    };
+    return [
+      {
+        key: upgrade.id,
+        skillUpgradeId: upgrade.id,
+        skillId: upgrade.skillId,
+        name: upgrade.name,
+        skillName: skill?.name ?? upgrade.skillId,
+        level,
+        maxLevel: upgrade.maxLevel,
+        cost,
+        affordable: !isMaxLevel && missingCultivation === 0,
+        missingCultivation,
+        effects: upgrade.effects.map(formatSkillUpgradeEffect)
+      }
+    ];
   });
 }
 
@@ -1990,6 +2400,82 @@ function formatAssignmentRequirement(
   }
 }
 
+function formatHeroUnlockRequirement(
+  data: StaticGameData,
+  hero: StaticGameData["heroes"][number]
+): string {
+  const unlock = hero.unlock;
+
+  switch (unlock.type) {
+    case "always":
+      return "Available";
+    case "stage_cleared":
+      return `Clear ${
+        getStageById(data, unlock.stageId)?.name ?? unlock.stageId
+      }`;
+    case "hero_level":
+      return `${
+        data.heroes.find((candidate) => candidate.id === unlock.heroId)?.name ??
+        unlock.heroId
+      } level ${unlock.level}`;
+    case "style_mastery_level":
+      return `${
+        data.styles.find((style) => style.id === unlock.styleId)?.name ??
+        unlock.styleId
+      } mastery ${unlock.level}`;
+  }
+}
+
+function calculateRosterHeroCombatPower(
+  data: StaticGameData,
+  progress: PlayerProgress,
+  hero: StaticGameData["heroes"][number]
+): number {
+  const level = progress.heroes[hero.id]?.level ?? 1;
+  const stats = deriveStats(scaleStatsForLevel(hero.baseStats, level));
+
+  return Math.round(
+    calculateCombatPower(stats) +
+      calculateSkillSupportCombatPower(data, hero.skillIds, stats)
+  );
+}
+
+function buildRosterHeroViews(
+  data: StaticGameData,
+  progress: PlayerProgress
+): RosterHeroView[] {
+  const activeHeroIds = getActiveHeroIds(data, progress);
+  const activeHeroIdSet = new Set(activeHeroIds);
+  const assignmentNameById = new Map(
+    (data.assignments ?? []).map((assignment) => [assignment.id, assignment.name])
+  );
+
+  return data.heroes.map((hero) => {
+    const unlocked = isHeroUnlocked(data, progress, hero);
+    const active = activeHeroIdSet.has(hero.id);
+    const assignedAssignmentId = getHeroAssignmentId(progress, hero.id);
+
+    return {
+      heroId: hero.id,
+      name: hero.name,
+      style: hero.style,
+      role: hero.role,
+      combatRole: hero.combatRole,
+      level: progress.heroes[hero.id]?.level ?? 1,
+      combatPower: calculateRosterHeroCombatPower(data, progress, hero),
+      unlocked,
+      active,
+      canActivate:
+        unlocked && !active && activeHeroIds.length < ACTIVE_TEAM_SIZE,
+      canDeactivate: active && activeHeroIds.length > 1,
+      lockReason: unlocked ? null : formatHeroUnlockRequirement(data, hero),
+      assignedAssignmentName: assignedAssignmentId
+        ? assignmentNameById.get(assignedAssignmentId) ?? assignedAssignmentId
+        : null
+    };
+  });
+}
+
 function buildAssignmentRewardSummary(
   data: StaticGameData,
   assignment: NonNullable<StaticGameData["assignments"]>[number]
@@ -2008,6 +2494,10 @@ function buildAssignmentRewardSummary(
     details.push(
       `${formatBattleNumber(rewards.cultivationPerHour)} cultivation/hour`
     );
+  }
+
+  if (rewards.herbsPerHour) {
+    details.push(`${formatBattleNumber(rewards.herbsPerHour)} herbs/hour`);
   }
 
   if (rewards.combatExperiencePerHour) {
@@ -2059,7 +2549,7 @@ function buildAssignmentViews(
         : formatAssignmentRequirement(data, assignment),
       assignedHeroIds,
       rewardSummary: buildAssignmentRewardSummary(data, assignment),
-      heroOptions: data.heroes.map((hero) => {
+      heroOptions: getUnlockedHeroDefinitions(data, progress).map((hero) => {
         const assignedAssignmentId = getHeroAssignmentId(progress, hero.id);
 
         return {
@@ -2160,6 +2650,8 @@ function formatOfflineFarmPriority(priority: string): string {
       return "Combat XP";
     case "mastery":
       return "Mastery";
+    case "herbs":
+      return "Herbs";
     default:
       return formatStatName(priority);
   }
@@ -2194,6 +2686,7 @@ function buildOfflineFarmRecommendationView(
       presetLabel: policy.label,
       description: policy.description,
       rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
+      herbsPerClear: 0,
       isSelected: false
     };
   }
@@ -2205,6 +2698,7 @@ function buildOfflineFarmRecommendationView(
     presetLabel: policy.label,
     description: policy.description,
     rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
+    herbsPerClear: recommendedStage.rewards.herbs ?? 0,
     isSelected: recommendedStage.id === selectedOfflineFarmStageId
   };
 }
@@ -2245,6 +2739,7 @@ function buildOfflineRewardPreviewView(
       clears: 0,
       silver: 0,
       cultivation: 0,
+      herbs: 0,
       combatExperience: 0,
       masteryExperienceGain: 0
     };
@@ -2261,6 +2756,7 @@ function buildOfflineRewardPreviewView(
     clears: preview.rewards.clears,
     silver: preview.rewards.silver,
     cultivation: preview.rewards.cultivation,
+    herbs: preview.rewards.herbs,
     combatExperience: preview.rewards.combatExperience,
     masteryExperienceGain: preview.masteryExperienceGain
   };
@@ -2401,13 +2897,21 @@ function buildPlayerCombatantViews(
   data: StaticGameData,
   progress: PlayerProgress,
   stageId: string,
-  finalCombatants?: CombatantState[]
+  finalCombatants?: CombatantState[],
+  contributions?: BattleContribution[]
 ): BattleCombatantView[] {
   const teamResult = buildPlayerTeamForStage(data, progress, stageId);
 
   if (!teamResult.ok) {
     return [];
   }
+
+  const contributionByInstanceId = new Map(
+    (contributions ?? []).map((contribution) => [
+      contribution.instanceId,
+      contribution
+    ])
+  );
 
   return teamResult.team.combatants.flatMap((instance, index) => {
     const hero = data.heroes.find(
@@ -2440,9 +2944,16 @@ function buildPlayerCombatantViews(
         combatRole: hero.combatRole,
         formationSlot,
         level,
-        stats
+        stats,
+        skillIds: hero.skillIds,
+        combatPowerBonus: calculateSkillSupportCombatPower(
+          data,
+          hero.skillIds,
+          stats
+        )
       },
-      getFinalCombatantById(finalCombatants, instanceId)
+      getFinalCombatantById(finalCombatants, instanceId),
+      contributionByInstanceId.get(instanceId)
     );
   });
 }
@@ -2463,13 +2974,21 @@ function buildPlayerFormationViews(
 function buildEnemyCombatantViews(
   data: StaticGameData,
   stageId: string,
-  finalCombatants?: CombatantState[]
+  finalCombatants?: CombatantState[],
+  contributions?: BattleContribution[]
 ): BattleCombatantView[] {
   const teamResult = buildEnemyTeamForStage(data, stageId);
 
   if (!teamResult.ok) {
     return [];
   }
+
+  const contributionByInstanceId = new Map(
+    (contributions ?? []).map((contribution) => [
+      contribution.instanceId,
+      contribution
+    ])
+  );
 
   return teamResult.team.combatants.flatMap((instance, index) => {
     const enemy = data.enemies.find(
@@ -2504,9 +3023,16 @@ function buildEnemyCombatantViews(
         combatRole: enemy.combatRole,
         formationSlot,
         level,
-        stats
+        stats,
+        skillIds: enemy.skillIds,
+        combatPowerBonus: calculateSkillSupportCombatPower(
+          data,
+          enemy.skillIds,
+          stats
+        )
       },
-      getFinalCombatantById(finalCombatants, instanceId)
+      getFinalCombatantById(finalCombatants, instanceId),
+      contributionByInstanceId.get(instanceId)
     );
   });
 }
@@ -2567,16 +3093,25 @@ export function getWebGameViewModel(
   const finalEnemyTeam = showFinalCombatants
     ? successfulLastBattle.battle.finalEnemyTeam
     : undefined;
+  const battleContributions = showFinalCombatants
+    ? successfulLastBattle.battle.contributions
+    : undefined;
   const playerCombatants = selectedStage
     ? buildPlayerCombatantViews(
         data,
         state.progress,
         selectedStage.id,
-        finalPlayerTeam
+        finalPlayerTeam,
+        battleContributions
       )
     : [];
   const enemyCombatants = selectedStage
-    ? buildEnemyCombatantViews(data, selectedStage.id, finalEnemyTeam)
+    ? buildEnemyCombatantViews(
+        data,
+        selectedStage.id,
+        finalEnemyTeam,
+        battleContributions
+      )
     : [];
 
   return {
@@ -2606,6 +3141,8 @@ export function getWebGameViewModel(
     ),
     equipmentInventory: buildEquipmentInventoryViews(data, state.progress),
     heroEquipment: buildHeroEquipmentViews(data, state.progress),
+    roster: buildRosterHeroViews(data, state.progress),
+    activeTeamSize: ACTIVE_TEAM_SIZE,
     assignments: buildAssignmentViews(data, state.progress),
     upgrades: buildUpgradeViews(data, state.progress),
     skillUpgrades: buildSkillUpgradeViews(data, state.progress),
@@ -2625,6 +3162,7 @@ export function getWebGameViewModel(
     lastSkillPurchase: state.lastSkillPurchase,
     lastEquipmentAction: state.lastEquipmentAction,
     lastStyleBranchAction: state.lastStyleBranchAction,
+    lastActiveTeamAction: state.lastActiveTeamAction,
     lastAssignmentAction: state.lastAssignmentAction
   };
 }
@@ -2770,6 +3308,19 @@ export function useWebGameState(data: StaticGameData) {
       dispatchAndPersist({
         type: "assignment_update_resolved",
         result: setCoreAssignmentHeroes(data, {
+          progress: state.progress,
+          ...input
+        })
+      });
+    },
+    [data, dispatchAndPersist, state.progress]
+  );
+
+  const setActiveHeroTeam = useCallback(
+    (input: SetGameActiveHeroTeamInput) => {
+      dispatchAndPersist({
+        type: "active_team_update_resolved",
+        result: setCoreActiveHeroTeam(data, {
           progress: state.progress,
           ...input
         })
@@ -2985,6 +3536,7 @@ export function useWebGameState(data: StaticGameData) {
     setOfflineFarmPreset,
     setHeroFormation,
     selectStyleBranch,
+    setActiveHeroTeam,
     setAssignmentHeroes,
     dismissOfflineSummary,
     exportSave,

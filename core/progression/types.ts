@@ -11,6 +11,7 @@ import type {
 export type ResourceState = {
   silver: number;
   cultivation: number;
+  herbs: number;
 };
 
 export type HeroProgress = {
@@ -45,6 +46,7 @@ export type PlayerProgress = {
   heroes: Record<string, HeroProgress>;
   sect: SectProgress;
   maps: Record<string, MapProgress>;
+  activeHeroIds?: string[];
   formation?: Record<string, FormationSlot>;
   styleMastery?: Record<string, StyleMasteryProgress>;
   styleBranches?: StyleBranchProgress;

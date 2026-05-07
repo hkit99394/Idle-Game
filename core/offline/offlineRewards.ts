@@ -32,6 +32,7 @@ export type OfflineRewardInput = {
   offlineEfficiency: number;
   silverPerClear: number;
   cultivationPerClear: number;
+  herbsPerClear: number;
   combatExperiencePerClear: number;
 };
 
@@ -40,6 +41,7 @@ export type OfflineRewardResult = {
   clears: number;
   silver: number;
   cultivation: number;
+  herbs: number;
   combatExperience: number;
 };
 
@@ -94,6 +96,7 @@ function createEmptyOfflineRewards(): OfflineRewardResult {
     clears: 0,
     silver: 0,
     cultivation: 0,
+    herbs: 0,
     combatExperience: 0
   };
 }
@@ -110,6 +113,7 @@ export function calculateOfflineRewards(input: OfflineRewardInput): OfflineRewar
     clears,
     silver: input.silverPerClear * clears * efficiency,
     cultivation: input.cultivationPerClear * clears * efficiency,
+    herbs: input.herbsPerClear * clears * efficiency,
     combatExperience: input.combatExperiencePerClear * clears * efficiency
   };
 }
@@ -182,6 +186,7 @@ export function previewOfflineRewards(
     offlineEfficiency: config.offlineEfficiency,
     silverPerClear: stage.rewards.silver * rewardMultiplier,
     cultivationPerClear: stage.rewards.cultivation * rewardMultiplier,
+    herbsPerClear: (stage.rewards.herbs ?? 0) * rewardMultiplier,
     combatExperiencePerClear: stage.rewards.combatExperience
   });
 
@@ -249,6 +254,7 @@ export function applyOfflineRewards(
     offlineEfficiency: config.offlineEfficiency,
     silverPerClear: stage.rewards.silver * rewardMultiplier,
     cultivationPerClear: stage.rewards.cultivation * rewardMultiplier,
+    herbsPerClear: (stage.rewards.herbs ?? 0) * rewardMultiplier,
     combatExperiencePerClear: stage.rewards.combatExperience
   });
   const nextProgress = cloneProgress(input.progress);
@@ -259,6 +265,7 @@ export function applyOfflineRewards(
 
   nextProgress.resources.silver += rewards.silver;
   nextProgress.resources.cultivation += rewards.cultivation;
+  nextProgress.resources.herbs += rewards.herbs;
   nextProgress.maps[stage.regionId] = {
     ...nextMapProgress,
     combatExperience: nextMapProgress.combatExperience + rewards.combatExperience

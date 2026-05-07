@@ -3,10 +3,12 @@ import {
   createInitialPlayerProgress,
   createSaveData,
   migrateSaveData,
+  MVP_PLAYER_HERO_IDS,
   parseSaveData,
   SAVE_DATA_VERSION,
   validateSaveData
 } from "../../core";
+import { stage12SaveFixture } from "../fixtures/stage12Save";
 import { staticData } from "../helpers/staticData";
 
 describe("save schema", () => {
@@ -117,6 +119,7 @@ describe("save schema", () => {
     }
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
     expect(result.save.offlineFarmPreset).toBe("balanced");
+    expect(result.save.progress.resources.herbs).toBe(0);
     expect(result.save.progress.heroes.iron_fist_disciple.level).toBe(1);
     expect(result.save.progress.maps.mist_valley).toMatchObject({
       combatExperience: 0,
@@ -125,6 +128,7 @@ describe("save schema", () => {
     expect(result.save.progress.formation).toMatchObject({
       iron_fist_disciple: "front"
     });
+    expect(result.save.progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
     expect(result.save.progress.styleMastery).toEqual({});
     expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.skillUpgrades).toEqual({});
@@ -166,12 +170,59 @@ describe("save schema", () => {
       return;
     }
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
     expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.equipment).toEqual({
       inventory: {},
       equipped: {}
     });
     expect(result.save.progress.assignments).toEqual({});
+  });
+
+  it("migrates a Stage 1.2 save fixture into Stage 1.3 defaults", () => {
+    const migration = migrateSaveData(staticData, stage12SaveFixture);
+    const result = parseSaveData(staticData, stage12SaveFixture);
+
+    expect(migration).toMatchObject({
+      ok: true,
+      fromVersion: 4,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.resources).toMatchObject({
+      silver: 2400,
+      cultivation: 950,
+      herbs: 0
+    });
+    expect(result.save.progress.heroes.lotus_mending_disciple).toEqual({
+      level: 1,
+      upgrades: {}
+    });
+    expect(result.save.progress.maps.lotus_monastery).toEqual({
+      combatExperience: 0,
+      highestClearedStageIndex: 0
+    });
+    expect(result.save.progress.activeHeroIds).toEqual([
+      "iron_fist_disciple",
+      "azure_palm_monk",
+      "white_crane_swordsman",
+      "mountain_staff_guardian"
+    ]);
+    expect(result.save.progress.activeHeroIds).not.toContain(
+      "lotus_mending_disciple"
+    );
+    expect(result.save.progress.equipment?.inventory).toMatchObject({
+      tempered_meridian_pill: 1
+    });
+    expect(result.save.progress.equipment?.inventory.lotus_dew_pill).toBeUndefined();
+    expect(result.save.progress.assignments?.lotus_medicine_pavilion).toBeUndefined();
+    expect(result.save.selectedOfflineFarmStageId).toBe("black_iron_fort_6");
   });
 
   it("accepts old saves without an offline farm preset and rejects invalid presets", () => {
@@ -270,6 +321,50 @@ describe("save schema", () => {
     );
   });
 
+  it("migrates old saves without herbs and rejects invalid herb resources", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      version: 5,
+      progress: {
+        ...save.progress,
+        resources: {
+          silver: 10,
+          cultivation: 5
+        }
+      }
+    };
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        resources: {
+          ...save.progress.resources,
+          herbs: -1
+        }
+      }
+    };
+    const result = parseSaveData(staticData, oldSave);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.progress.resources).toMatchObject({
+      silver: 10,
+      cultivation: 5,
+      herbs: 0
+    });
+    expect(validateSaveData(staticData, badSave)).toContain(
+      "progress.resources.herbs must be a non-negative finite number"
+    );
+  });
+
   it("accepts old saves without formation and rejects invalid formation slots", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
@@ -299,6 +394,91 @@ describe("save schema", () => {
     expect(validateSaveData(staticData, badSave)).toContain(
       "progress.formation.iron_fist_disciple must be front, middle, or back"
     );
+  });
+
+  it("accepts old saves without active team and validates active hero ids", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const oldSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: undefined
+      }
+    };
+    const missingHeroSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: ["missing_hero"]
+      }
+    };
+    const lockedHeroSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: ["iron_fist_disciple", "lotus_mending_disciple"]
+      }
+    };
+    const duplicateHeroSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        activeHeroIds: ["iron_fist_disciple", "iron_fist_disciple"]
+      }
+    };
+    const tooLargeProgress = {
+      ...save.progress,
+      maps: {
+        ...save.progress.maps,
+        bamboo_road: {
+          combatExperience: 0,
+          highestClearedStageIndex: 10
+        },
+        mist_valley: {
+          combatExperience: 0,
+          highestClearedStageIndex: 10
+        },
+        black_iron_fort: {
+          combatExperience: 0,
+          highestClearedStageIndex: 10
+        },
+        lotus_monastery: {
+          combatExperience: 0,
+          highestClearedStageIndex: 3
+        }
+      },
+      activeHeroIds: staticData.heroes.map((hero) => hero.id)
+    };
+
+    expect(validateSaveData(staticData, oldSave)).toEqual([]);
+    expect(parseSaveData(staticData, oldSave)).toMatchObject({
+      ok: true,
+      save: {
+        progress: {
+          activeHeroIds: [...MVP_PLAYER_HERO_IDS]
+        }
+      }
+    });
+    expect(validateSaveData(staticData, missingHeroSave)).toContain(
+      "progress.activeHeroIds.missing_hero must reference an existing hero"
+    );
+    expect(validateSaveData(staticData, lockedHeroSave)).toContain(
+      "progress.activeHeroIds.lotus_mending_disciple must be unlocked by saved progress"
+    );
+    expect(validateSaveData(staticData, duplicateHeroSave)).toContain(
+      "progress.activeHeroIds.iron_fist_disciple is duplicated"
+    );
+    expect(
+      validateSaveData(staticData, {
+        ...save,
+        progress: tooLargeProgress
+      })
+    ).toContain("progress.activeHeroIds must contain 1-4 heroes");
   });
 
   it("accepts old saves without martial growth fields and validates new fields", () => {
@@ -368,6 +548,44 @@ describe("save schema", () => {
 
     expect(validateSaveData(staticData, oldSave)).toEqual([]);
     expect(parseSaveData(staticData, oldSave).ok).toBe(true);
+  });
+
+  it("rejects unknown maps and impossible cleared stage counts", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const badSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        maps: {
+          ...save.progress.maps,
+          missing_region: {
+            combatExperience: 0,
+            highestClearedStageIndex: 1
+          },
+          bamboo_road: {
+            combatExperience: 0,
+            highestClearedStageIndex: 2.5
+          },
+          lotus_monastery: {
+            combatExperience: 0,
+            highestClearedStageIndex: 8
+          }
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, badSave)).toEqual(
+      expect.arrayContaining([
+        "progress.maps.missing_region must reference an existing region",
+        "progress.maps.bamboo_road.highestClearedStageIndex must be an integer between 0 and 10",
+        "progress.maps.lotus_monastery.highestClearedStageIndex must be an integer between 0 and 7"
+      ])
+    );
   });
 
   it("accepts old saves without equipment and validates equipment progress", () => {
