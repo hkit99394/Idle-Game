@@ -47,6 +47,140 @@ body {
   align-items: start;
 }
 
+.counterplay-panel {
+  margin-bottom: 22px;
+  padding: 16px 0;
+  border-top: 1px solid #d6cdbc;
+  border-bottom: 1px solid #d6cdbc;
+}
+
+.counterplay-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.policy-tag {
+  padding: 4px 8px;
+  border: 1px solid #8db39b;
+  border-radius: 999px;
+  color: #2f6041;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.counterplay-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.medicine-list {
+  display: grid;
+  gap: 8px;
+}
+
+.medicine-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.medicine-row div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.medicine-row strong,
+.medicine-row span {
+  overflow-wrap: anywhere;
+}
+
+.medicine-row div span {
+  color: #6a604f;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.medicine-count {
+  color: #2e453e;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.availability-locked,
+.availability-empty {
+  opacity: 0.72;
+}
+
+.availability-disabled {
+  border-color: #d7a8a1;
+  background: #fff0ed;
+}
+
+.stage-preview {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #f8fbfa;
+}
+
+.preview-title {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.preview-title strong,
+.preview-title span {
+  overflow-wrap: anywhere;
+}
+
+.preview-title span {
+  color: #2d6782;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.status-pressure-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pressure-chip {
+  padding: 4px 7px;
+  border: 1px solid #d7a8a1;
+  border-radius: 999px;
+  background: #fff0ed;
+  color: #8d342d;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.stage-preview p {
+  margin: 0;
+  color: #2e453e;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .team-panel,
 .enemy-panel {
   min-height: 320px;
@@ -264,6 +398,10 @@ h2 {
   }
 
   .battle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .counterplay-grid {
     grid-template-columns: 1fr;
   }
 

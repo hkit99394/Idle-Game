@@ -49,7 +49,7 @@ The recommended theme is **Status Counterplay Automation And Balance**. Stage 1.
 | --- | --- | --- | --- |
 | 31 | Resistance Formula Integration | Completed | Apply status resistance to chance, duration, and tick damage |
 | 32 | Auto Medicine System | Completed | Consume medicine safely during battle and non-battle recovery |
-| 33 | Counterplay Loadout And Preview | Not Started | Let players understand and manage medicine/counterplay choices |
+| 33 | Counterplay Loadout And Preview | Completed | Let players understand and manage medicine/counterplay choices |
 | 34 | Status Visual Language | Not Started | Standardize fixed category colors, severity, and cleanse display |
 | 35 | Scenario Simulator And Balance Gates | Not Started | Tune Demon Cult with baseline and counterplay scenarios |
 | 36 | Support Identity Decision | Not Started | Decide whether Lotus support is enough or a new hero is needed |
@@ -205,6 +205,16 @@ Give the player enough visibility to understand why medicine and resistance matt
 - Save migration defaults auto medicine settings safely.
 - Invalid configured medicine id is rejected.
 
+### Progress Notes
+
+- Added persisted auto medicine preferences with default all-auto behavior and a disabled medicine id list.
+- Bumped save data to version 3, with migration defaults for older saves.
+- Added validation that disabled medicine ids reference configured medicine.
+- Added medicine counterplay view models showing unlock state, owned count, max carry, availability, auto eligibility, and effect labels.
+- Added stage counterplay preview models that derive status pressure from enemy skill data and recommend owned auto medicine.
+- Added a compact counterplay panel to the battle surface using the new view models.
+- Added tests for medicine row grouping, Demon Cult status pressure preview, recommendation text, save migration defaults, and invalid preference ids.
+
 ---
 
 ## Epic 34: Status Visual Language
@@ -348,7 +358,7 @@ Decide whether Demon Cult counterplay should be carried by existing Lotus suppor
 
 - [x] Resistance formula integrated and tested.
 - [x] Auto medicine policy implemented and tested.
-- [ ] Counterplay preview/loadout planned or implemented.
+- [x] Counterplay preview/loadout planned or implemented.
 - [ ] Status visual language standardized.
 - [ ] Scenario simulator reports baseline and counterplay routes.
 - [ ] Demon Cult support/new hero decision documented.

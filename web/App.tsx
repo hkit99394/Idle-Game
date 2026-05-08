@@ -1,6 +1,21 @@
 import "./styles/app.css";
-import { createStatusDictionary } from "../core";
-import type { ActiveStatusEffect, StatusEffectDefinition } from "../core";
+import {
+  buildMedicineCounterplayViewModels,
+  buildStageCounterplayPreview,
+  createStatusDictionary,
+  defaultAutoMedicinePreferences
+} from "../core";
+import type {
+  ActiveStatusEffect,
+  MedicineCounterplayViewModel,
+  StaticGameData,
+  StageCounterplayPreview,
+  StatusEffectDefinition
+} from "../core";
+import enemies from "../data/enemies.json" with { type: "json" };
+import medicines from "../data/medicines.json" with { type: "json" };
+import skills from "../data/skills.json" with { type: "json" };
+import stages from "../data/stages.json" with { type: "json" };
 import statusEffects from "../data/statusEffects.json" with { type: "json" };
 import {
   buildStatusChipViewModels,
@@ -10,6 +25,53 @@ import {
 const statusDefinitions = createStatusDictionary(
   statusEffects as StatusEffectDefinition[]
 );
+const counterplayData: Pick<
+  StaticGameData,
+  "medicines" | "stages" | "enemies" | "skills" | "statusEffects"
+> = {
+  medicines: medicines as StaticGameData["medicines"],
+  stages: stages as StaticGameData["stages"],
+  enemies: enemies as StaticGameData["enemies"],
+  skills: skills as StaticGameData["skills"],
+  statusEffects: statusEffects as StaticGameData["statusEffects"]
+};
+const counterplayProgress = {
+  bamboo_road: {
+    highestClearedStageIndex: 10
+  },
+  demon_cult_outpost: {
+    highestClearedStageIndex: 4
+  }
+};
+const counterplayInventory = {
+  clear_heart_pill: 3,
+  quiet_meridian_powder: 1,
+  purity_draught: 1
+};
+const counterplayPreferences = {
+  ...defaultAutoMedicinePreferences,
+  disabledMedicineIds: []
+};
+const previewStage = counterplayData.stages.find(
+  (stage) => stage.id === "demon_cult_outpost_4"
+);
+
+if (previewStage === undefined) {
+  throw new Error("Missing Demon Cult preview stage");
+}
+
+const medicineRows = buildMedicineCounterplayViewModels({
+  data: counterplayData,
+  progress: counterplayProgress,
+  inventory: counterplayInventory,
+  preferences: counterplayPreferences
+});
+const stagePreview = buildStageCounterplayPreview({
+  data: counterplayData,
+  stage: previewStage,
+  inventory: counterplayInventory,
+  preferences: counterplayPreferences
+});
 
 const discipleStatuses: ActiveStatusEffect[] = [
   {
@@ -89,6 +151,10 @@ export function App() {
           <span>Cultivation 0</span>
           <span>Combat Exp 0</span>
         </div>
+        <CounterplayPanel
+          medicines={medicineRows}
+          preview={stagePreview}
+        />
         <div className="battle-grid">
           <div className="team-panel">
             <h2>Disciples</h2>
@@ -135,6 +201,55 @@ export function App() {
         </section>
       </section>
     </main>
+  );
+}
+
+function CounterplayPanel({
+  medicines,
+  preview
+}: {
+  medicines: MedicineCounterplayViewModel[];
+  preview: StageCounterplayPreview;
+}) {
+  return (
+    <section className="counterplay-panel" aria-labelledby="counterplay-heading">
+      <div className="counterplay-header">
+        <h2 id="counterplay-heading">Counterplay</h2>
+        <span className="policy-tag">Auto Medicine</span>
+      </div>
+      <div className="counterplay-grid">
+        <div className="medicine-list" aria-label="Medicine inventory">
+          {medicines.map((medicine) => (
+            <div
+              className={`medicine-row availability-${medicine.availability}`}
+              key={medicine.id}
+            >
+              <div>
+                <strong>{medicine.name}</strong>
+                <span>{medicine.effectLabels.join(" / ")}</span>
+              </div>
+              <span className="medicine-count">
+                {medicine.count}/{medicine.maxCarry}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="stage-preview" aria-label="Stage counterplay preview">
+          <div className="preview-title">
+            <strong>{preview.stageName}</strong>
+            <span>{preview.statusCategories.join(" / ") || "clean"}</span>
+          </div>
+          <div className="status-pressure-row">
+            {preview.statusPressureLabels.map((status) => (
+              <span className="pressure-chip" key={status}>
+                {status}
+              </span>
+            ))}
+          </div>
+          <p>{preview.recommendationText}</p>
+        </div>
+      </div>
+    </section>
   );
 }
 

@@ -40,6 +40,22 @@ export type AutoMedicineResult = {
   skippedReason: AutoMedicineSkippedReason | null;
 };
 
+export type AutoMedicinePreferences = {
+  enabled: boolean;
+  battleCleanseEnabled: boolean;
+  postBattleCleanseEnabled: boolean;
+  preBattleResistanceEnabled: boolean;
+  disabledMedicineIds: string[];
+};
+
+export const defaultAutoMedicinePreferences: AutoMedicinePreferences = {
+  enabled: true,
+  battleCleanseEnabled: true,
+  postBattleCleanseEnabled: true,
+  preBattleResistanceEnabled: true,
+  disabledMedicineIds: []
+};
+
 type AutoMedicineCleanseInput = {
   medicines: MedicineDefinition[];
   inventory: MedicineInventory;
@@ -47,6 +63,7 @@ type AutoMedicineCleanseInput = {
   statusDefinitions: Record<string, StatusEffectDefinition>;
   trigger: Extract<AutoMedicineTrigger, "battle_cleanse" | "post_battle_cleanse">;
   alreadyUsedMedicineIds?: string[];
+  preferences?: AutoMedicinePreferences;
 };
 
 type AutoMedicinePreBattleResistanceInput = {
@@ -57,6 +74,7 @@ type AutoMedicinePreBattleResistanceInput = {
   skills: SkillDefinition[];
   statusDefinitions: Record<string, StatusEffectDefinition>;
   alreadyUsedMedicineIds?: string[];
+  preferences?: AutoMedicinePreferences;
 };
 
 type CleanseCandidate = {
@@ -75,6 +93,14 @@ type ResistanceCandidate = {
 export function applyAutoCleanseMedicine(
   input: AutoMedicineCleanseInput
 ): AutoMedicineResult {
+  if (!isAutoMedicineTriggerEnabled(input.preferences, input.trigger)) {
+    return skipAutoMedicine(
+      input.inventory,
+      input.activeStatuses,
+      "no_owned_match"
+    );
+  }
+
   if (input.activeStatuses.length === 0) {
     return skipAutoMedicine(
       input.inventory,
@@ -119,6 +145,15 @@ export function applyAutoCleanseMedicine(
 export function applyAutoPreBattleResistanceMedicine(
   input: AutoMedicinePreBattleResistanceInput
 ): AutoMedicineResult {
+  if (
+    !isAutoMedicineTriggerEnabled(
+      input.preferences,
+      "pre_battle_resistance"
+    )
+  ) {
+    return skipAutoMedicine(input.inventory, [], "no_owned_match");
+  }
+
   if (getStageStatusPressureIds(input).length === 0) {
     return skipAutoMedicine(input.inventory, [], "no_status_pressure");
   }
@@ -151,7 +186,12 @@ export function applyAutoPreBattleResistanceMedicine(
 export function selectAutoCleanseMedicine(
   input: Omit<AutoMedicineCleanseInput, "trigger">
 ): MedicineDefinition | null {
+  if (input.preferences !== undefined && !input.preferences.enabled) {
+    return null;
+  }
+
   const usedIds = new Set(input.alreadyUsedMedicineIds ?? []);
+  const disabledIds = new Set(input.preferences?.disabledMedicineIds ?? []);
   const candidates = input.medicines
     .flatMap((medicine): CleanseCandidate[] => {
       const candidate = getCleanseCandidate({
@@ -163,7 +203,8 @@ export function selectAutoCleanseMedicine(
       if (
         candidate === null ||
         (input.inventory[medicine.id] ?? 0) <= 0 ||
-        usedIds.has(medicine.id)
+        usedIds.has(medicine.id) ||
+        disabledIds.has(medicine.id)
       ) {
         return [];
       }
@@ -178,14 +219,28 @@ export function selectAutoCleanseMedicine(
 export function selectAutoPreBattleResistanceMedicine(
   input: AutoMedicinePreBattleResistanceInput
 ): MedicineDefinition | null {
+  if (
+    !isAutoMedicineTriggerEnabled(
+      input.preferences,
+      "pre_battle_resistance"
+    )
+  ) {
+    return null;
+  }
+
   if (getStageStatusPressureIds(input).length === 0) {
     return null;
   }
 
   const usedIds = new Set(input.alreadyUsedMedicineIds ?? []);
+  const disabledIds = new Set(input.preferences?.disabledMedicineIds ?? []);
   const candidates = input.medicines
     .flatMap((medicine): ResistanceCandidate[] => {
-      if ((input.inventory[medicine.id] ?? 0) <= 0 || usedIds.has(medicine.id)) {
+      if (
+        (input.inventory[medicine.id] ?? 0) <= 0 ||
+        usedIds.has(medicine.id) ||
+        disabledIds.has(medicine.id)
+      ) {
         return [];
       }
 
@@ -347,6 +402,27 @@ function buildUseSummary(
     statusResistanceBonus: result.statusResistanceBonus,
     statusResistanceDurationSeconds: result.statusResistanceDurationSeconds
   };
+}
+
+function isAutoMedicineTriggerEnabled(
+  preferences: AutoMedicinePreferences | undefined,
+  trigger: AutoMedicineTrigger
+): boolean {
+  const resolved = preferences ?? defaultAutoMedicinePreferences;
+
+  if (!resolved.enabled) {
+    return false;
+  }
+
+  if (trigger === "battle_cleanse") {
+    return resolved.battleCleanseEnabled;
+  }
+
+  if (trigger === "post_battle_cleanse") {
+    return resolved.postBattleCleanseEnabled;
+  }
+
+  return resolved.preBattleResistanceEnabled;
 }
 
 function skipAutoMedicine(
