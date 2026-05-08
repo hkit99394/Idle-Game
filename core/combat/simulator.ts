@@ -32,10 +32,12 @@ import {
 } from "./formulas";
 import { getDefaultFormationSlot } from "./formations";
 import {
+  addStatusResistanceBonus,
   advanceStatusEffects,
   createStatusDictionary,
   expireStatusEffects,
   getActiveStatusEffectValue,
+  getCombatantStatusResistance,
   getStatusCombatModifiers
 } from "./statusEffects";
 import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
@@ -61,6 +63,11 @@ import {
   applyTimedSkillEffects,
   tickRegeneration
 } from "./effectPipeline";
+import {
+  applyAutoCleanseMedicine,
+  applyAutoPreBattleResistanceMedicine
+} from "./autoMedicine/application";
+import type { AutoMedicineUseSummary } from "./autoMedicine/types";
 
 const BASIC_SKILL_ID = "basic_strike";
 type DefinitionLookup = {
@@ -208,6 +215,7 @@ function createCombatantState(
     wound: null,
     speedDown: null,
     innerDefenseDown: null,
+    statusResistanceBonuses: [],
     activeStatuses: [],
     regeneration: null,
     defeatedAt: null
@@ -238,6 +246,195 @@ function createCombatants(
   );
 
   return [...playerCombatants, ...enemyCombatants];
+}
+
+type RuntimeAutoMedicineState = {
+  inventory: Record<string, number | undefined>;
+  uses: AutoMedicineUseSummary[];
+};
+
+type BattleRuntime = {
+  input: SimulateBattleInput;
+  lookup: DefinitionLookup;
+  constants: CombatFormulaConstants;
+  maxDurationSeconds: number;
+  stepSeconds: number;
+  combatants: CombatantState[];
+  events: BattleEvent[];
+  metrics: BattleMetrics;
+  contributions: Map<string, BattleContribution>;
+  autoMedicine: RuntimeAutoMedicineState;
+};
+
+function applyPreBattleAutoMedicine(
+  staticData: StaticGameData,
+  input: SimulateBattleInput,
+  statusDefinitions: Record<string, StatusEffectDefinition>
+): {
+  autoMedicine: RuntimeAutoMedicineState;
+  preBattleUse: AutoMedicineUseSummary | null;
+} {
+  const autoMedicine: RuntimeAutoMedicineState = {
+    inventory: { ...(input.autoMedicine?.inventory ?? {}) },
+    uses: []
+  };
+
+  if (!input.autoMedicine?.stage) {
+    return {
+      autoMedicine,
+      preBattleUse: null
+    };
+  }
+
+  const result = applyAutoPreBattleResistanceMedicine({
+    medicines: input.autoMedicine.medicines,
+    inventory: autoMedicine.inventory,
+    stage: input.autoMedicine.stage,
+    enemies: input.autoMedicine.enemies ?? staticData.enemies,
+    skills: input.autoMedicine.skills ?? staticData.skills,
+    statusDefinitions,
+    preferences: input.autoMedicine.preferences
+  });
+
+  autoMedicine.inventory = result.inventory;
+
+  return {
+    autoMedicine,
+    preBattleUse: result.usedMedicine
+  };
+}
+
+function createBattleRuntime(
+  staticData: StaticGameData,
+  input: SimulateBattleInput
+): BattleRuntime {
+  const constants = input.constants ?? defaultCombatFormulaConstants;
+  const lookup = createLookup(staticData);
+  const preBattleAutoMedicine = applyPreBattleAutoMedicine(
+    staticData,
+    input,
+    lookup.statusDefinitions
+  );
+  const combatants = createCombatants(lookup, input, constants);
+  const runtime: BattleRuntime = {
+    input,
+    lookup,
+    constants,
+    maxDurationSeconds: input.maxDurationSeconds ?? 180,
+    stepSeconds: input.stepSeconds ?? 0.1,
+    combatants,
+    events: [],
+    metrics: createInitialMetrics(),
+    contributions: createInitialContributions(combatants),
+    autoMedicine: preBattleAutoMedicine.autoMedicine
+  };
+
+  if (preBattleAutoMedicine.preBattleUse) {
+    applyPreBattleAutoMedicineUse(runtime, preBattleAutoMedicine.preBattleUse);
+  }
+
+  return runtime;
+}
+
+function applyPreBattleAutoMedicineUse(
+  runtime: BattleRuntime,
+  preBattleUse: AutoMedicineUseSummary
+): void {
+  const usedMedicine = recordAutoMedicineUse(runtime.events, preBattleUse, 0);
+
+  for (const combatant of runtime.combatants) {
+    if (combatant.team === "player" && isLiving(combatant)) {
+      applyAutoMedicineResistanceBonus(combatant, usedMedicine, 0);
+    }
+  }
+
+  runtime.autoMedicine.uses.push(usedMedicine);
+}
+
+function recordAutoMedicineUse(
+  events: BattleEvent[],
+  usedMedicine: AutoMedicineUseSummary,
+  time: number,
+  targetId?: string
+): AutoMedicineUseSummary {
+  const summary = {
+    ...usedMedicine,
+    timeSeconds: time,
+    targetId
+  };
+
+  events.push({
+    type: "auto_medicine",
+    time,
+    medicineId: summary.medicineId,
+    trigger: summary.trigger,
+    targetId,
+    cleansedStatusIds: summary.cleansedStatusIds,
+    statusResistanceBonus: summary.statusResistanceBonus,
+    statusResistanceDurationSeconds: summary.statusResistanceDurationSeconds
+  });
+
+  return summary;
+}
+
+function applyAutoMedicineResistanceBonus(
+  combatant: CombatantState,
+  usedMedicine: AutoMedicineUseSummary,
+  time: number
+): void {
+  addStatusResistanceBonus(combatant, {
+    medicineId: usedMedicine.medicineId,
+    value: usedMedicine.statusResistanceBonus,
+    appliedAt: time,
+    durationSeconds: usedMedicine.statusResistanceDurationSeconds
+  });
+}
+
+function applyBattleCleanseAutoMedicine(
+  input: SimulateBattleInput,
+  statusDefinitions: Record<string, StatusEffectDefinition>,
+  combatants: CombatantState[],
+  autoMedicine: RuntimeAutoMedicineState,
+  time: number,
+  events: BattleEvent[]
+): void {
+  if (!input.autoMedicine) {
+    return;
+  }
+
+  for (const combatant of combatants) {
+    if (
+      combatant.team !== "player" ||
+      !isLiving(combatant)
+    ) {
+      continue;
+    }
+
+    const result = applyAutoCleanseMedicine({
+      medicines: input.autoMedicine.medicines,
+      inventory: autoMedicine.inventory,
+      activeStatuses: combatant.activeStatuses,
+      combatant,
+      timeSeconds: time,
+      statusDefinitions,
+      trigger: "battle_cleanse",
+      preferences: input.autoMedicine.preferences
+    });
+
+    autoMedicine.inventory = result.inventory;
+    combatant.activeStatuses = result.statuses;
+
+    if (result.usedMedicine) {
+      const usedMedicine = recordAutoMedicineUse(
+        events,
+        result.usedMedicine,
+        time,
+        combatant.instanceId
+      );
+      applyAutoMedicineResistanceBonus(combatant, usedMedicine, time);
+      autoMedicine.uses.push(usedMedicine);
+    }
+  }
 }
 
 function chooseSkill(
@@ -385,7 +582,7 @@ function advanceCombatantDataStatuses(
       definitions: statusDefinitions,
       deltaSeconds,
       targetMaxOuterHp: combatant.maxOuterHp,
-      targetStatusResistance: combatant.stats.statusResistance
+      targetStatusResistance: getCombatantStatusResistance(combatant, time)
     });
 
     combatant.activeStatuses = result.statuses;
@@ -616,73 +813,100 @@ function getWinner(combatants: CombatantState[]): TeamId | null {
   return null;
 }
 
+function advanceSimulationPhase(
+  runtime: BattleRuntime,
+  time: number,
+  deltaSeconds: number
+): void {
+  expireStatusEffects(runtime.combatants, time);
+  advanceCombatantDataStatuses(
+    runtime.combatants,
+    runtime.lookup.statusDefinitions,
+    time,
+    deltaSeconds,
+    runtime.metrics,
+    runtime.contributions,
+    runtime.events
+  );
+  recoverQiBreaks(
+    runtime.combatants,
+    time,
+    runtime.constants,
+    runtime.events
+  );
+  recoverInnerQi(
+    runtime.combatants,
+    runtime.lookup.statusDefinitions,
+    time,
+    deltaSeconds,
+    runtime.constants
+  );
+  tickRegeneration(
+    runtime.combatants,
+    runtime.lookup.statusDefinitions,
+    time,
+    runtime.metrics,
+    runtime.contributions,
+    runtime.events
+  );
+}
+
+function executeActionPhase(
+  runtime: BattleRuntime,
+  time: number
+): TeamId | null {
+  for (const combatant of runtime.combatants) {
+    executeAction(
+      runtime.lookup,
+      runtime.combatants,
+      combatant,
+      time,
+      runtime.constants,
+      runtime.metrics,
+      runtime.contributions,
+      runtime.events
+    );
+    applyBattleCleanseAutoMedicine(
+      runtime.input,
+      runtime.lookup.statusDefinitions,
+      runtime.combatants,
+      runtime.autoMedicine,
+      time,
+      runtime.events
+    );
+
+    const currentWinner = getWinner(runtime.combatants);
+
+    if (currentWinner) {
+      return currentWinner;
+    }
+  }
+
+  return null;
+}
+
+function executeBattleStep(runtime: BattleRuntime, time: number): TeamId | null {
+  advanceSimulationPhase(runtime, time, runtime.stepSeconds);
+
+  return executeActionPhase(runtime, time);
+}
+
 export function simulateBattle(
   staticData: StaticGameData,
   input: SimulateBattleInput
 ): BattleResult {
-  const constants = input.constants ?? defaultCombatFormulaConstants;
-  const maxDurationSeconds = input.maxDurationSeconds ?? 180;
-  const stepSeconds = input.stepSeconds ?? 0.1;
-  const lookup = createLookup(staticData);
-  const combatants = createCombatants(lookup, input, constants);
-  const events: BattleEvent[] = [];
-  const metrics = createInitialMetrics();
-  const contributions = createInitialContributions(combatants);
-  const totalSteps = Math.ceil(maxDurationSeconds / stepSeconds);
-  let durationSeconds = maxDurationSeconds;
+  const runtime = createBattleRuntime(staticData, input);
+  const totalSteps = Math.ceil(runtime.maxDurationSeconds / runtime.stepSeconds);
+  let durationSeconds = runtime.maxDurationSeconds;
   let winner: BattleResult["winner"] = "timeout";
 
   for (let step = 0; step <= totalSteps; step += 1) {
-    const time = Number((step * stepSeconds).toFixed(6));
+    const time = Number((step * runtime.stepSeconds).toFixed(6));
+    const currentWinner = executeBattleStep(runtime, time);
 
-    expireStatusEffects(combatants, time);
-    advanceCombatantDataStatuses(
-      combatants,
-      lookup.statusDefinitions,
-      time,
-      stepSeconds,
-      metrics,
-      contributions,
-      events
-    );
-    recoverQiBreaks(combatants, time, constants, events);
-    recoverInnerQi(
-      combatants,
-      lookup.statusDefinitions,
-      time,
-      stepSeconds,
-      constants
-    );
-    tickRegeneration(
-      combatants,
-      lookup.statusDefinitions,
-      time,
-      metrics,
-      contributions,
-      events
-    );
-
-    for (const combatant of combatants) {
-      executeAction(
-        lookup,
-        combatants,
-        combatant,
-        time,
-        constants,
-        metrics,
-        contributions,
-        events
-      );
-      const currentWinner = getWinner(combatants);
-
-      if (currentWinner) {
-        winner = currentWinner;
-        durationSeconds = time;
-        break;
-      }
-    }
-
-    if (winner !== "timeout") {
+    if (currentWinner) {
+      winner = currentWinner;
+      durationSeconds = time;
       break;
     }
   }
@@ -690,10 +914,18 @@ export function simulateBattle(
   return {
     winner,
     durationSeconds,
-    events,
-    finalPlayerTeam: combatants.filter((combatant) => combatant.team === "player"),
-    finalEnemyTeam: combatants.filter((combatant) => combatant.team === "enemy"),
-    metrics: finalizeMetrics(metrics, durationSeconds),
-    contributions: finalizeContributions(combatants, contributions)
+    events: runtime.events,
+    finalPlayerTeam: runtime.combatants.filter(
+      (combatant) => combatant.team === "player"
+    ),
+    finalEnemyTeam: runtime.combatants.filter(
+      (combatant) => combatant.team === "enemy"
+    ),
+    metrics: finalizeMetrics(runtime.metrics, durationSeconds),
+    contributions: finalizeContributions(
+      runtime.combatants,
+      runtime.contributions
+    ),
+    autoMedicine: runtime.autoMedicine
   };
 }

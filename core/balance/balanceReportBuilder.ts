@@ -3,10 +3,12 @@ import {
   calculateAttackInterval,
   calculateInnerDamage,
   calculateOuterDamage,
-  calculateStatusApplicationChance,
-  calculateStatusDuration,
-  calculateStatusTickOuterDamage,
-  createStatusDictionary
+  createStatusDictionary,
+  estimateStatusApplication,
+  estimateStatusHealingDenied,
+  estimateStatusModifierDamage,
+  estimateStatusTickDamage,
+  getStageStatusPressureIds
 } from "../combat";
 import {
   getStageClearTimeTargetRange
@@ -306,15 +308,15 @@ function estimateStatusMetrics(input: {
   enemyDps: number;
   playerAttackEventsPerSecond: number;
 }): StageStatusMetrics {
-  const pressureStatusIds = getStageStatusIds({
+  const pressureStatusIds = getStageStatusPressureIds({
     stage: input.stage,
     enemies: input.enemies,
-    skillById: input.skillById
+    skills: [...input.skillById.values()]
   });
   const resistanceMedicine = getScenarioResistanceMedicine(
     input.scenario,
     input.medicines,
-    pressureStatusIds
+    new Set(pressureStatusIds)
   );
   const targetStats = {
     ...input.targetStats,
@@ -356,39 +358,41 @@ function estimateStatusMetrics(input: {
           continue;
         }
 
-        const chance = calculateStatusApplicationChance({
-          baseChance: effect.chance ?? 1,
-          attackerStatusAccuracy: enemy.baseStats.statusAccuracy,
-          targetStatusResistance: targetStats.statusResistance
+        const application = estimateStatusApplication({
+          effect,
+          definition: status,
+          attackerStats: enemy.baseStats,
+          targetStats,
+          casts
         });
-        const expectedApplications = casts * chance;
-        const stacks = effect.stacks ?? 1;
-        const durationSeconds = effect.durationSeconds ?? status.durationSeconds;
-        const resistedDurationSeconds = calculateStatusDuration(
-          durationSeconds,
-          targetStats.statusResistance
-        );
-        const tickDamage = estimateStatusDamage(
-          status,
-          durationSeconds,
-          targetStats.maxOuterHp,
-          targetStats.statusResistance,
-          stacks,
-          expectedApplications
-        );
-        const unresistedTickDamage = estimateStatusDamage(
-          status,
-          durationSeconds,
-          targetStats.maxOuterHp,
-          0,
-          stacks,
-          expectedApplications
-        );
+        const tickDamage = estimateStatusTickDamage({
+          definition: status,
+          resistedDurationSeconds: application.resistedDurationSeconds,
+          targetMaxOuterHp: targetStats.maxOuterHp,
+          targetStatusResistance: targetStats.statusResistance,
+          stacks: application.stacks,
+          expectedApplications: application.expectedApplications
+        });
+        const unresistedDuration = estimateStatusApplication({
+          effect,
+          definition: status,
+          attackerStats: enemy.baseStats,
+          targetStats: { statusResistance: 0 },
+          casts
+        }).resistedDurationSeconds;
+        const unresistedTickDamage = estimateStatusTickDamage({
+          definition: status,
+          resistedDurationSeconds: unresistedDuration,
+          targetMaxOuterHp: targetStats.maxOuterHp,
+          targetStatusResistance: 0,
+          stacks: application.stacks,
+          expectedApplications: application.expectedApplications
+        });
         const modifierDamage = estimateStatusModifierDamage({
-          status,
-          stacks,
-          expectedApplications,
-          resistedDurationSeconds,
+          definition: status,
+          stacks: application.stacks,
+          expectedApplications: application.expectedApplications,
+          resistedDurationSeconds: application.resistedDurationSeconds,
           targetMaxOuterHp: targetStats.maxOuterHp,
           enemyDps: input.enemyDps,
           playerAttackEventsPerSecond: input.playerAttackEventsPerSecond
@@ -396,18 +400,19 @@ function estimateStatusMetrics(input: {
 
         statusIds.add(status.id);
         attempts += casts;
-        applications += expectedApplications;
-        expectedDurationSeconds += expectedApplications * resistedDurationSeconds;
+        applications += application.expectedApplications;
+        expectedDurationSeconds +=
+          application.expectedApplications * application.resistedDurationSeconds;
         totalTickDamage += tickDamage;
         reducedTickDamage += Math.max(0, unresistedTickDamage - tickDamage);
         expectedDamage += tickDamage + modifierDamage;
-        healingDenied += estimateHealingDenied(
-          status,
-          stacks,
-          expectedApplications,
-          durationSeconds,
-          targetStats.statusResistance
-        );
+        healingDenied += estimateStatusHealingDenied({
+          definition: status,
+          stacks: application.stacks,
+          expectedApplications: application.expectedApplications,
+          durationSeconds: application.durationSeconds,
+          resistedDurationSeconds: application.resistedDurationSeconds
+        });
       }
     }
   }
@@ -444,88 +449,6 @@ function estimateStatusMetrics(input: {
     healingDenied: mitigatedHealingDenied,
     statusIds: [...statusIds].sort()
   };
-}
-
-function estimateStatusDamage(
-  status: StatusEffectDefinition,
-  durationSeconds: number,
-  targetMaxOuterHp: number,
-  targetStatusResistance: number,
-  stacks: number,
-  expectedApplications: number
-): number {
-  if (status.tickIntervalSeconds === undefined) {
-    return 0;
-  }
-
-  const damagePerTick = calculateStatusTickOuterDamage({
-    definition: status,
-    targetMaxOuterHp,
-    stacks,
-    targetStatusResistance
-  });
-  const resistedDurationSeconds = calculateStatusDuration(
-    durationSeconds,
-    targetStatusResistance
-  );
-  const expectedTicks = resistedDurationSeconds / status.tickIntervalSeconds;
-
-  return damagePerTick * expectedTicks * expectedApplications;
-}
-
-function estimateHealingDenied(
-  status: StatusEffectDefinition,
-  stacks: number,
-  expectedApplications: number,
-  durationSeconds: number,
-  targetStatusResistance: number
-): number {
-  const multiplier = status.effects.healingReceivedMultiplier;
-
-  if (multiplier === undefined) {
-    return 0;
-  }
-
-  const resistedDurationSeconds = calculateStatusDuration(
-    durationSeconds,
-    targetStatusResistance
-  );
-  const durationRatio = resistedDurationSeconds / durationSeconds;
-
-  return (1 - multiplier ** stacks) * 20 * expectedApplications * durationRatio;
-}
-
-function estimateStatusModifierDamage(input: {
-  status: StatusEffectDefinition;
-  stacks: number;
-  expectedApplications: number;
-  resistedDurationSeconds: number;
-  targetMaxOuterHp: number;
-  enemyDps: number;
-  playerAttackEventsPerSecond: number;
-}): number {
-  const vulnerabilityMultiplier =
-    input.status.effects.outerDamageTakenMultiplier === undefined
-      ? 1
-      : input.status.effects.outerDamageTakenMultiplier ** input.stacks;
-  const vulnerabilityDamage =
-    vulnerabilityMultiplier > 1
-      ? input.enemyDps *
-        (vulnerabilityMultiplier - 1) *
-        input.resistedDurationSeconds *
-        input.expectedApplications
-      : 0;
-  const backlashDamage =
-    input.status.effects.attackBacklashOuterHpPercent === undefined
-      ? 0
-      : input.targetMaxOuterHp *
-        input.status.effects.attackBacklashOuterHpPercent *
-        input.stacks *
-        input.playerAttackEventsPerSecond *
-        input.resistedDurationSeconds *
-        input.expectedApplications;
-
-  return vulnerabilityDamage + backlashDamage;
 }
 
 function estimateCleanses(input: {
@@ -641,39 +564,6 @@ function getScenarioResistanceMedicine(
     statusResistanceBonus: selected.bonus,
     medicineConsumed: 1
   };
-}
-
-function getStageStatusIds(input: {
-  stage: StageDefinition;
-  enemies: EnemyDefinition[];
-  skillById: Map<string, SkillDefinition>;
-}): Set<string> {
-  const enemyById = new Map(input.enemies.map((enemy) => [enemy.id, enemy]));
-  const statusIds = new Set<string>();
-
-  for (const enemyId of input.stage.enemyTeam.combatantIds) {
-    const enemy = enemyById.get(enemyId);
-
-    if (enemy === undefined) {
-      continue;
-    }
-
-    for (const skillId of enemy.skillIds) {
-      const skill = input.skillById.get(skillId);
-
-      if (skill === undefined) {
-        continue;
-      }
-
-      for (const effect of skill.effects) {
-        if (effect.type === "apply_status" && effect.statusId !== undefined) {
-          statusIds.add(effect.statusId);
-        }
-      }
-    }
-  }
-
-  return statusIds;
 }
 
 function getFarmRecommendation(

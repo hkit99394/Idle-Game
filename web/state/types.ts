@@ -190,6 +190,7 @@ export type BattleEventCategory =
   | "regeneration"
   | "regeneration_tick"
   | "cleanse"
+  | "auto_medicine"
   | "defeat";
 
 export type BattleEventBadgeTone =

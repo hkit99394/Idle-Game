@@ -12,16 +12,12 @@ import {
 import type { StaticGameData } from "../../../core";
 import type { CounterplaySettingsView, WebGameState } from "../types";
 
-function getEmptyMedicineInventory(): Record<string, number> {
-  return {};
-}
-
 export function buildCounterplaySettingsView(
   data: StaticGameData,
   state: WebGameState,
   selectedStage: ReturnType<typeof getStageById> | null
 ): CounterplaySettingsView {
-  const inventory = getEmptyMedicineInventory();
+  const inventory = state.progress.medicineInventory ?? {};
   const preferences = state.autoMedicinePreferences;
   const unlocked = isAutoMedicineUnlocked({
     medicines: data.medicines,

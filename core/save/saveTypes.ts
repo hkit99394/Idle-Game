@@ -1,6 +1,13 @@
 import type { StaticGameData } from "../data";
 import type { AutoMedicinePreferences } from "../combat";
-import type { OfflineFarmPreset, PlayerProgress } from "../progression";
+import type {
+  ApplyOfflineAssignmentRewardsResult,
+  ApplyOfflineRewardsResult
+} from "../offline";
+import type {
+  OfflineFarmPreset,
+  PlayerProgress
+} from "../progression";
 
 export const SAVE_DATA_VERSION = 9 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
@@ -51,6 +58,18 @@ export type ParseSaveDataResult =
       errors: string[];
     };
 
+export type SaveLoadTransactionSuccess = {
+  ok: true;
+  save: SaveData;
+  changed: boolean;
+  offlineRewards: ApplyOfflineRewardsResult | null;
+  offlineAssignmentRewards: ApplyOfflineAssignmentRewardsResult | null;
+};
+
+export type LoadSaveTransactionResult =
+  | SaveLoadTransactionSuccess
+  | Extract<ParseSaveDataResult, { ok: false }>;
+
 export type SaveMigrationResult =
   | {
       ok: true;
@@ -77,3 +96,5 @@ export type SaveValidationData = Pick<
   | "assignments"
   | "medicines"
 >;
+export type SaveLoadTransactionData = SaveValidationData &
+  Pick<StaticGameData, "mastery">;

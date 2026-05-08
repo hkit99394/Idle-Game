@@ -55,8 +55,18 @@ export function validateSaveData(
 
   const migratedRaw = migration.ok ? migration.save : raw;
 
+  validateMigratedSaveData(data, migratedRaw, errors);
+
+  return errors;
+}
+
+function validateMigratedSaveData(
+  data: SaveValidationData,
+  migratedRaw: unknown,
+  errors: string[]
+): void {
   if (!validateRecord(migratedRaw, "save", errors)) {
-    return errors;
+    return;
   }
 
   validateProgress(data, migratedRaw.progress, errors);
@@ -81,8 +91,6 @@ export function validateSaveData(
   }
 
   validateTimestamps(migratedRaw, errors);
-
-  return errors;
 }
 
 export function parseSaveData(
@@ -90,21 +98,23 @@ export function parseSaveData(
   raw: unknown
 ): ParseSaveDataResult {
   const migration = migrateSaveData(data, raw);
-  const errors = validateSaveData(data, raw);
-
-  if (errors.length > 0) {
-    return {
-      ok: false,
-      reason: "invalid_save",
-      errors
-    };
-  }
+  const errors: string[] = [];
 
   if (!migration.ok) {
     return {
       ok: false,
       reason: "invalid_save",
       errors: migration.errors
+    };
+  }
+
+  validateMigratedSaveData(data, migration.save, errors);
+
+  if (errors.length > 0) {
+    return {
+      ok: false,
+      reason: "invalid_save",
+      errors
     };
   }
 

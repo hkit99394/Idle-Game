@@ -592,7 +592,8 @@ export function resolveSelectedStageBattle(
   const result = resolveStageBattle(data, {
     progress: state.progress,
     stageId: state.selectedStageId,
-    maxDurationSeconds: 180
+    maxDurationSeconds: 180,
+    autoMedicinePreferences: state.autoMedicinePreferences
   });
 
   return webGameStateReducer(data, state, {

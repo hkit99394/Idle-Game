@@ -1,13 +1,26 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyStatusEffect,
+  cleanseCombatantStatuses,
   clearCleanseableStatusEffects,
+  createStatusDictionary,
   createTimedStatusEffect,
   expireStatusEffects,
   getActiveStatusEffect,
   getBattleEventStatusId,
   setStatusEffect
 } from "../../core";
-import type { BattleEvent, CombatantState, TeamId } from "../../core";
+import type {
+  BattleEvent,
+  CombatantState,
+  StatusEffectDefinition,
+  TeamId
+} from "../../core";
+import statusEffects from "../../data/statusEffects.json" with { type: "json" };
+
+const statusDefinitions = createStatusDictionary(
+  statusEffects as StatusEffectDefinition[]
+);
 
 const baseStats = {
   maxOuterHp: 100,
@@ -59,6 +72,7 @@ function combatant(input: {
     wound: null,
     speedDown: null,
     innerDefenseDown: null,
+    statusResistanceBonuses: [],
     activeStatuses: [],
     regeneration: null,
     defeatedAt: null
@@ -216,5 +230,64 @@ describe("status effects", () => {
     expect(getBattleEventStatusId(guardAbsorb)).toBe("guard");
     expect(getBattleEventStatusId(cleanse)).toBe("wound");
     expect(getBattleEventStatusId(attack)).toBeNull();
+  });
+
+  it("uses one cleanse priority across mixed timed and data-driven statuses", () => {
+    const target = combatant({ id: "hero" });
+
+    setStatusEffect(
+      target,
+      createTimedStatusEffect({
+        id: "armor_break",
+        value: 0.4,
+        sourceId: "enemy",
+        targetId: "hero",
+        skillId: "iron_split",
+        appliedAt: 0,
+        durationSeconds: 8
+      })
+    );
+    setStatusEffect(
+      target,
+      createTimedStatusEffect({
+        id: "wound",
+        value: 0.3,
+        sourceId: "enemy",
+        targetId: "hero",
+        skillId: "blood_seal",
+        appliedAt: 0,
+        durationSeconds: 5
+      })
+    );
+    target.activeStatuses = [
+      applyStatusEffect({
+        activeStatuses: [],
+        definition: statusDefinitions.poison
+      }).applied,
+      applyStatusEffect({
+        activeStatuses: [],
+        definition: statusDefinitions.qi_suppression
+      }).applied
+    ];
+
+    const cleanse = cleanseCombatantStatuses({
+      combatant: target,
+      time: 1,
+      statusDefinitions,
+      dispelTags: ["debuff"],
+      maxCount: 3
+    });
+
+    expect(cleanse.cleansedStatusIds).toEqual(["wound", "armor_break", "poison"]);
+    expect(cleanse.descriptors.map((status) => status.label)).toEqual([
+      "Wound",
+      "Armor Break",
+      "Poison"
+    ]);
+    expect(target.wound).toBeNull();
+    expect(target.armorBreak).toBeNull();
+    expect(target.activeStatuses.map((status) => status.statusId)).toEqual([
+      "qi_suppression"
+    ]);
   });
 });

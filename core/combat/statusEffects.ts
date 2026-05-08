@@ -1,7 +1,6 @@
 import { clamp } from "./formulas";
 import type {
   ActiveStatusEffect,
-  BattleEvent,
   CleanseableStatusEffectId,
   CombatantState,
   StatusAdvanceEvent,
@@ -20,6 +19,12 @@ import type {
   TimedCombatEffect,
   TimedRecoveryEffect
 } from "./types";
+import {
+  CLEANSEABLE_STATUS_EFFECT_IDS,
+  STATUS_EFFECT_IDS,
+  getBattleEventStatusId,
+  getStatusEffectFieldName
+} from "./statusMetadata";
 
 export const defaultStatusResistanceFormulaConstants: StatusResistanceFormulaConstants = {
   maxEffectiveResistance: 0.8,
@@ -36,33 +41,6 @@ export const defaultStatusCombatModifiers: StatusCombatModifiers = {
   outerDamageTakenMultiplier: 1,
   attackBacklashOuterHpPercent: 0
 };
-
-export const STATUS_EFFECT_IDS = [
-  "guard",
-  "protection",
-  "armor_break",
-  "wound",
-  "speed_down",
-  "inner_defense_down",
-  "regeneration"
-] as const satisfies readonly StatusEffectId[];
-
-export const CLEANSEABLE_STATUS_EFFECT_IDS = [
-  "wound",
-  "armor_break",
-  "speed_down",
-  "inner_defense_down"
-] as const satisfies readonly CleanseableStatusEffectId[];
-
-const STATUS_FIELD_BY_ID = {
-  guard: "guard",
-  protection: "protection",
-  armor_break: "armorBreak",
-  wound: "wound",
-  speed_down: "speedDown",
-  inner_defense_down: "innerDefenseDown",
-  regeneration: "regeneration"
-} as const satisfies Record<StatusEffectId, keyof CombatantState>;
 
 export function createStatusDictionary(
   definitions: StatusEffectDefinition[]
@@ -292,6 +270,50 @@ export function getStatusCombatModifiers(
   );
 }
 
+export function addStatusResistanceBonus(
+  combatant: CombatantState,
+  input: {
+    medicineId: string;
+    value: number;
+    appliedAt: number;
+    durationSeconds: number;
+  }
+): void {
+  if (input.value <= 0 || input.durationSeconds <= 0) {
+    return;
+  }
+
+  combatant.statusResistanceBonuses = [
+    ...combatant.statusResistanceBonuses,
+    {
+      value: input.value,
+      medicineId: input.medicineId,
+      appliedAt: input.appliedAt,
+      durationSeconds: input.durationSeconds,
+      expiresAt: input.appliedAt + input.durationSeconds
+    }
+  ];
+}
+
+export function getActiveStatusResistanceBonus(
+  combatant: CombatantState,
+  time: number
+): number {
+  return combatant.statusResistanceBonuses
+    .filter((bonus) => time < bonus.expiresAt)
+    .reduce((total, bonus) => total + bonus.value, 0);
+}
+
+export function getCombatantStatusResistance(
+  combatant: CombatantState,
+  time: number
+): number {
+  return calculateEffectiveStatusResistance(
+    combatant.stats.statusResistance,
+    getActiveStatusResistanceBonus(combatant, time)
+  );
+}
+
 export type CreateTimedStatusEffectInput = {
   id: Exclude<StatusEffectId, "regeneration">;
   value: number;
@@ -458,6 +480,10 @@ export function expireStatusEffects(
   time: number
 ): void {
   for (const combatant of combatants) {
+    combatant.statusResistanceBonuses = combatant.statusResistanceBonuses.filter(
+      (bonus) => time < bonus.expiresAt
+    );
+
     for (const statusId of STATUS_EFFECT_IDS) {
       const effect = getStatusEffect(combatant, statusId);
 
@@ -498,33 +524,7 @@ export function clearCleanseableStatusEffects(
   return removed;
 }
 
-export function getBattleEventStatusId(
-  event: BattleEvent
-): string | null {
-  switch (event.type) {
-    case "guard":
-    case "guard_absorb":
-    case "protect":
-    case "armor_break":
-    case "wound":
-    case "speed_down":
-    case "inner_defense_down":
-    case "regeneration":
-    case "regeneration_tick":
-    case "status_apply":
-    case "status_tick":
-    case "status_expire":
-      return event.statusId;
-    case "cleanse":
-      return event.statusesRemoved[0] ?? null;
-    default:
-      return null;
-  }
-}
-
-export function getStatusEffectFieldName(statusId: StatusEffectId): string {
-  return STATUS_FIELD_BY_ID[statusId];
-}
+export { getBattleEventStatusId, getStatusEffectFieldName };
 
 function createActiveStatus(
   definition: StatusEffectDefinition,

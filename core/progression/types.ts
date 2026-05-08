@@ -1,5 +1,6 @@
-import type { BaseStats, FormationSlot } from "../combat";
+import type { BaseStats, FormationSlot, MedicineInventory } from "../combat";
 import type { BattleResult, TeamInstance } from "../combat";
+import type { AutoMedicinePreferences } from "../combat";
 import type {
   EquipmentDefinition,
   EquipmentSetDefinition,
@@ -52,6 +53,7 @@ export type PlayerProgress = {
   styleBranches?: StyleBranchProgress;
   skillUpgrades?: Record<string, number>;
   equipment?: EquipmentProgress;
+  medicineInventory?: MedicineInventory;
   assignments?: AssignmentProgress;
   currentStageId: string;
 };
@@ -206,6 +208,7 @@ export type ResolveStageBattleInput = {
   progress: PlayerProgress;
   stageId: string;
   maxDurationSeconds?: number;
+  autoMedicinePreferences?: AutoMedicinePreferences;
 };
 
 export type ResolveStageBattleResult =

@@ -110,6 +110,7 @@ export function normalizeProgressForMigration(
     styleBranches: value.styleBranches ?? {},
     skillUpgrades: value.skillUpgrades ?? {},
     equipment: normalizeEquipmentProgressForMigration(value.equipment),
+    medicineInventory: value.medicineInventory ?? {},
     assignments: value.assignments ?? {},
     currentStageId: value.currentStageId
   };

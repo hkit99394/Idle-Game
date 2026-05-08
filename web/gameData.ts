@@ -1,4 +1,4 @@
-import type { StaticGameData } from "../core";
+import { buildStaticGameData } from "../core";
 import assignments from "../data/assignments.json" with { type: "json" };
 import enemies from "../data/enemies.json" with { type: "json" };
 import equipment from "../data/equipment.json" with { type: "json" };
@@ -15,20 +15,20 @@ import statusEffects from "../data/statusEffects.json" with { type: "json" };
 import styles from "../data/styles.json" with { type: "json" };
 import upgrades from "../data/upgrades.json" with { type: "json" };
 
-export const staticData: StaticGameData = {
-  assignments: assignments as StaticGameData["assignments"],
-  heroes: heroes as StaticGameData["heroes"],
-  skills: skills as StaticGameData["skills"],
-  enemies: enemies as StaticGameData["enemies"],
-  equipment: equipment as StaticGameData["equipment"],
-  equipmentSets: equipmentSets as StaticGameData["equipmentSets"],
-  regions: regions as StaticGameData["regions"],
-  stages: stages as StaticGameData["stages"],
-  upgrades: upgrades as StaticGameData["upgrades"],
-  skillUpgrades: skillUpgrades as StaticGameData["skillUpgrades"],
-  mastery: mastery as StaticGameData["mastery"],
-  formations: formations as StaticGameData["formations"],
-  styles: styles as StaticGameData["styles"],
-  statusEffects: statusEffects as StaticGameData["statusEffects"],
-  medicines: medicines as StaticGameData["medicines"]
-};
+export const staticData = buildStaticGameData({
+  assignments,
+  heroes,
+  skills,
+  enemies,
+  equipment,
+  equipmentSets,
+  regions,
+  stages,
+  upgrades,
+  skillUpgrades,
+  mastery,
+  formations,
+  styles,
+  statusEffects,
+  medicines
+});

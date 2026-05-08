@@ -36,14 +36,6 @@ export function applyAutoCleanseMedicine(
     );
   }
 
-  if (input.activeStatuses.length === 0) {
-    return skipAutoMedicine(
-      input.inventory,
-      input.activeStatuses,
-      "no_active_statuses"
-    );
-  }
-
   const medicine = selectAutoCleanseMedicine(input);
 
   if (medicine === null) {
@@ -58,6 +50,8 @@ export function applyAutoCleanseMedicine(
     medicine,
     inventory: input.inventory,
     activeStatuses: input.activeStatuses,
+    combatant: input.combatant,
+    timeSeconds: input.timeSeconds,
     statusDefinitions: input.statusDefinitions
   });
 
@@ -126,7 +120,7 @@ function buildUseSummary(
   return {
     trigger,
     medicineId: result.consumedMedicineId,
-    cleansedStatusIds: result.cleansed.map((status) => status.statusId),
+    cleansedStatusIds: result.cleansedStatusIds,
     statusResistanceBonus: result.statusResistanceBonus,
     statusResistanceDurationSeconds: result.statusResistanceDurationSeconds
   };

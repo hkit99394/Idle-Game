@@ -4,6 +4,7 @@ import type {
   StatusDispelTag,
   StatusEffectDefinition
 } from "../types";
+import { getActiveStatusCandidates } from "../cleansePolicy";
 import { isAutoMedicineUnlocked } from "./unlock";
 import { getPreBattleResistancePolicyDecision } from "./policy";
 import type {
@@ -31,6 +32,8 @@ export function selectAutoCleanseMedicine(
       const candidate = getCleanseCandidate({
         medicine,
         activeStatuses: input.activeStatuses,
+        combatant: input.combatant,
+        timeSeconds: input.timeSeconds,
         statusDefinitions: input.statusDefinitions
       });
 
@@ -85,11 +88,14 @@ export function selectAutoPreBattleResistanceMedicine(
 function getCleanseCandidate(input: {
   medicine: MedicineDefinition;
   activeStatuses: ActiveStatusEffect[];
+  combatant?: AutoMedicineCleanseInput["combatant"];
+  timeSeconds?: number;
   statusDefinitions: Record<string, StatusEffectDefinition>;
 }): CleanseCandidate | null {
   const matchingStatusIds = new Set<string>();
   const cleanseTags = new Set<StatusDispelTag>();
   let maxCleanseCount = 0;
+  const cleanseTargets = getCleanseTargets(input);
 
   for (const effect of input.medicine.effects) {
     if (effect.type !== "cleanse_status") {
@@ -102,14 +108,9 @@ function getCleanseCandidate(input: {
 
     maxCleanseCount += effect.maxCount ?? Number.POSITIVE_INFINITY;
 
-    for (const status of input.activeStatuses) {
-      const definition = input.statusDefinitions[status.statusId];
-
-      if (
-        definition !== undefined &&
-        canCleanseStatus(effect.dispelTags, definition)
-      ) {
-        matchingStatusIds.add(status.statusId);
+    for (const target of cleanseTargets) {
+      if (canCleanseTags(effect.dispelTags, target.dispelTags)) {
+        matchingStatusIds.add(target.id);
       }
     }
   }
@@ -124,6 +125,37 @@ function getCleanseCandidate(input: {
     cleanseBreadth: getCleanseBreadth(cleanseTags),
     maxCleanseCount
   };
+}
+
+function getCleanseTargets(input: {
+  activeStatuses: ActiveStatusEffect[];
+  combatant?: AutoMedicineCleanseInput["combatant"];
+  timeSeconds?: number;
+  statusDefinitions: Record<string, StatusEffectDefinition>;
+}): Array<{ id: string; dispelTags: StatusDispelTag[] }> {
+  if (input.combatant) {
+    return getActiveStatusCandidates({
+      combatant: input.combatant,
+      time: input.timeSeconds ?? 0,
+      statusDefinitions: input.statusDefinitions
+    }).map((candidate) => ({
+      id: candidate.id,
+      dispelTags: candidate.dispelTags
+    }));
+  }
+
+  return input.activeStatuses.flatMap((status) => {
+    const definition = input.statusDefinitions[status.statusId];
+
+    return definition === undefined
+      ? []
+      : [
+          {
+            id: status.statusId,
+            dispelTags: definition.dispelTags
+          }
+        ];
+  });
 }
 
 function getResistanceCandidate(
@@ -152,11 +184,11 @@ function getResistanceCandidate(
   };
 }
 
-function canCleanseStatus(
+function canCleanseTags(
   dispelTags: StatusDispelTag[],
-  status: StatusEffectDefinition
+  statusDispelTags: StatusDispelTag[]
 ): boolean {
-  return dispelTags.some((tag) => status.dispelTags.includes(tag));
+  return dispelTags.some((tag) => statusDispelTags.includes(tag));
 }
 
 function getCleanseBreadth(tags: Set<StatusDispelTag>): number {

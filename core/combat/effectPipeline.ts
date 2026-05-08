@@ -15,16 +15,18 @@ import { clampDefensiveEffectValue, clampRecoveryEffectValue } from "./defensive
 import {
   applyStatusEffect,
   calculateStatusApplicationChance,
-  cleanseStatusEffects,
-  clearCleanseableStatusEffects,
   createTimedRecoveryStatusEffect,
   createTimedStatusEffect,
   getActiveStatusEffect,
   getActiveStatusEffectValue,
+  getCombatantStatusResistance,
   getStatusCombatModifiers,
-  hasCleanseableStatusEffect,
   setStatusEffect
 } from "./statusEffects";
+import {
+  cleanseCombatantStatuses,
+  hasCleanseableCombatantStatus
+} from "./cleansePolicy";
 import { isLiving } from "./targeting";
 
 const RECOVERY_TICK_INTERVAL_SECONDS = 1;
@@ -69,20 +71,21 @@ function hasCleanseableStatus(
   time: number,
   statusDefinitions?: Record<string, StatusEffectDefinition>
 ): boolean {
-  if (hasCleanseableStatusEffect(combatant, time)) {
-    return true;
-  }
-
   if (statusDefinitions === undefined) {
-    return false;
+    return hasCleanseableCombatantStatus({
+      combatant,
+      time,
+      statusDefinitions: {},
+      dispelTags: SKILL_CLEANSE_DISPEL_TAGS,
+      includeData: false
+    });
   }
 
-  return combatant.activeStatuses.some((status) => {
-    const definition = statusDefinitions[status.statusId];
-
-    return definition?.dispelTags.some((tag) =>
-      SKILL_CLEANSE_DISPEL_TAGS.includes(tag)
-    ) ?? false;
+  return hasCleanseableCombatantStatus({
+    combatant,
+    time,
+    statusDefinitions,
+    dispelTags: SKILL_CLEANSE_DISPEL_TAGS
   });
 }
 
@@ -424,7 +427,7 @@ function applyDataStatusEffect(
   const chance = calculateStatusApplicationChance({
     baseChance: effect.chance,
     attackerStatusAccuracy: attacker.stats.statusAccuracy,
-    targetStatusResistance: target.stats.statusResistance
+    targetStatusResistance: getCombatantStatusResistance(target, time)
   });
 
   if (chance <= 0) {
@@ -448,7 +451,7 @@ function applyDataStatusEffect(
     definition,
     durationSeconds: effect.durationSeconds,
     stacks: effect.stacks,
-    targetStatusResistance: target.stats.statusResistance,
+    targetStatusResistance: getCombatantStatusResistance(target, time),
     sourceTeamId: attacker.team,
     sourceCombatantId: attacker.instanceId
   });
@@ -676,30 +679,15 @@ function applyCleanseEffect(
   }
 
   const removeCount = Math.max(1, Math.floor(effect.value));
-  const timedStatusesRemoved = clearCleanseableStatusEffects(
-    target,
+  const cleanse = cleanseCombatantStatuses({
+    combatant: target,
     time,
-    removeCount
-  );
-  const remainingCleanseCount = removeCount - timedStatusesRemoved.length;
-  const dataCleanse =
-    remainingCleanseCount > 0
-      ? cleanseStatusEffects({
-          activeStatuses: target.activeStatuses,
-          definitions: statusDefinitions,
-          dispelTags: SKILL_CLEANSE_DISPEL_TAGS,
-          maxCount: remainingCleanseCount
-        })
-      : null;
-  const dataStatusesRemoved =
-    dataCleanse?.cleansed.map((status) => status.statusId) ?? [];
-  const statusesRemoved = [...timedStatusesRemoved, ...dataStatusesRemoved];
+    statusDefinitions,
+    dispelTags: SKILL_CLEANSE_DISPEL_TAGS,
+    maxCount: removeCount
+  });
 
-  if (dataCleanse) {
-    target.activeStatuses = dataCleanse.statuses;
-  }
-
-  if (statusesRemoved.length === 0) {
+  if (cleanse.cleansedStatusIds.length === 0) {
     return;
   }
 
@@ -721,7 +709,7 @@ function applyCleanseEffect(
     sourceId: attacker.instanceId,
     targetId: target.instanceId,
     skillId: skill.id,
-    statusesRemoved
+    statusesRemoved: cleanse.cleansedStatusIds
   });
 }
 

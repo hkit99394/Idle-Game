@@ -1,5 +1,6 @@
 import type { StaticGameData } from "../data";
 import { isFormationSlot } from "../combat";
+import type { MedicineInventory } from "../combat";
 import {
   ACTIVE_TEAM_SIZE,
   EQUIPMENT_SLOTS,
@@ -416,6 +417,41 @@ export function validateEquipmentProgress(
   return true;
 }
 
+export function validateMedicineInventory(
+  data: Pick<StaticGameData, "medicines">,
+  value: unknown,
+  errors: string[]
+): value is MedicineInventory | undefined {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!validateRecord(value, "progress.medicineInventory", errors)) {
+    return false;
+  }
+
+  const medicineIds = new Set(data.medicines.map((medicine) => medicine.id));
+
+  for (const [medicineId, count] of Object.entries(value)) {
+    if (!medicineIds.has(medicineId)) {
+      errors.push(
+        `progress.medicineInventory.${medicineId} must reference an existing medicine`
+      );
+    }
+
+    if (
+      validateNumber(count, `progress.medicineInventory.${medicineId}`, errors) &&
+      (!Number.isInteger(count) || count < 0)
+    ) {
+      errors.push(
+        `progress.medicineInventory.${medicineId} must be an integer >= 0`
+      );
+    }
+  }
+
+  return true;
+}
+
 export function validateAssignmentProgress(
   data: Pick<StaticGameData, "assignments" | "heroes" | "stages">,
   progressValue: UnknownRecord,
@@ -611,6 +647,7 @@ export function validateProgress(
   validateStyleBranches(data, value, value.styleBranches, errors);
   validateSkillUpgrades(data, value.skillUpgrades, errors);
   validateEquipmentProgress(data, value.equipment, errors);
+  validateMedicineInventory(data, value.medicineInventory, errors);
   validateAssignmentProgress(data, value, value.assignments, errors);
 
   if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {

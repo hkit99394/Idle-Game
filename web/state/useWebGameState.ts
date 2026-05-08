@@ -131,6 +131,7 @@ import {
   createInitialWebGameStateFromStorage,
   createOfflineRewardSummary,
   createWebGameStateFromSave,
+  resolveSelectedStageBattle,
   webGameStateReducer
 } from "./reducer";
 
@@ -185,16 +186,18 @@ export function useWebGameState(data: StaticGameData) {
   }, [data]);
 
   const battleSelectedStage = useCallback(() => {
-    dispatchAndPersist({
-      type: "battle_resolved",
-      stageId: state.selectedStageId,
-      result: resolveStageBattle(data, {
-        progress: state.progress,
-        stageId: state.selectedStageId,
-        maxDurationSeconds: 180
-      })
+    const nextState = resolveSelectedStageBattle(data, state);
+
+    dispatch({
+      type: "replace_state",
+      state: nextState
     });
-  }, [data, dispatchAndPersist, state.progress, state.selectedStageId]);
+    persistState(nextState);
+  }, [
+    data,
+    persistState,
+    state
+  ]);
 
   const purchaseUpgrade = useCallback(
     (input: PurchaseGameUpgradeInput) => {

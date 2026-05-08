@@ -9,6 +9,7 @@ import type { PlayerProgress, RegionProgress } from "../../progression";
 import type { MedicineInventory } from "../medicine";
 import type {
   ActiveStatusEffect,
+  CombatantState,
   StatusDispelTag,
   StatusEffectDefinition
 } from "../types";
@@ -29,6 +30,8 @@ export type AutoMedicineSkippedReason =
 export type AutoMedicineUseSummary = {
   trigger: AutoMedicineTrigger;
   medicineId: string;
+  timeSeconds?: number;
+  targetId?: string;
   cleansedStatusIds: string[];
   statusResistanceBonus: number;
   statusResistanceDurationSeconds: number;
@@ -105,6 +108,8 @@ export type AutoMedicineUnlockInput = {
 
 export type AutoMedicineCleanseInput = AutoMedicineUnlockInput & {
   activeStatuses: ActiveStatusEffect[];
+  combatant?: CombatantState;
+  timeSeconds?: number;
   statusDefinitions: Record<string, StatusEffectDefinition>;
   trigger: Extract<AutoMedicineTrigger, "battle_cleanse" | "post_battle_cleanse">;
   alreadyUsedMedicineIds?: string[];

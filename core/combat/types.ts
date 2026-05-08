@@ -1,6 +1,16 @@
 import type { FormationSlot } from "./formations";
 import type { CombatRole } from "./roles";
 import type { MartialStyleId } from "./styles";
+import type {
+  AutoMedicinePreferences,
+  AutoMedicineUseSummary
+} from "./autoMedicine/types";
+import type {
+  EnemyDefinition,
+  MedicineDefinition,
+  SkillDefinition,
+  StageDefinition
+} from "../data/types";
 
 export type TeamId = "player" | "enemy";
 
@@ -232,6 +242,14 @@ export type TimedRecoveryEffect = Omit<TimedCombatEffect, "id"> & {
   restores: "outer" | "inner";
 };
 
+export type TimedStatusResistanceBonus = {
+  value: number;
+  medicineId: string;
+  appliedAt: number;
+  durationSeconds: number;
+  expiresAt: number;
+};
+
 export type CombatantInstanceDefinition = {
   definitionId: string;
   kind: CombatantKind;
@@ -277,6 +295,7 @@ export type CombatantState = {
   wound: TimedCombatEffect | null;
   speedDown: TimedCombatEffect | null;
   innerDefenseDown: TimedCombatEffect | null;
+  statusResistanceBonuses: TimedStatusResistanceBonus[];
   activeStatuses: ActiveStatusEffect[];
   regeneration: TimedRecoveryEffect | null;
   defeatedAt: number | null;
@@ -423,6 +442,16 @@ export type BattleEvent =
       statusesRemoved: string[];
     }
   | {
+      type: "auto_medicine";
+      time: number;
+      medicineId: string;
+      trigger: AutoMedicineUseSummary["trigger"];
+      targetId?: string;
+      cleansedStatusIds: string[];
+      statusResistanceBonus: number;
+      statusResistanceDurationSeconds: number;
+    }
+  | {
       type: "qi_break";
       time: number;
       sourceId: string;
@@ -528,6 +557,17 @@ export type SimulateBattleInput = {
   maxDurationSeconds?: number;
   stepSeconds?: number;
   constants?: CombatFormulaConstants;
+  autoMedicine?: BattleAutoMedicineInput;
+};
+
+export type BattleAutoMedicineInput = {
+  medicines: MedicineDefinition[];
+  inventory: Record<string, number | undefined>;
+  preferences?: AutoMedicinePreferences;
+  progress?: unknown;
+  stage?: StageDefinition;
+  enemies?: EnemyDefinition[];
+  skills?: SkillDefinition[];
 };
 
 export type BattleResult = {
@@ -538,4 +578,8 @@ export type BattleResult = {
   finalEnemyTeam: CombatantState[];
   metrics: BattleMetrics;
   contributions: BattleContribution[];
+  autoMedicine: {
+    inventory: Record<string, number | undefined>;
+    uses: AutoMedicineUseSummary[];
+  };
 };
