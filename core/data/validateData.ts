@@ -1,6 +1,7 @@
 import type {
   EnemyDefinition,
   HeroDefinition,
+  MedicineDefinition,
   RegionDefinition,
   SkillDefinition,
   StageDefinition,
@@ -315,6 +316,75 @@ function validateStage(stage: StageDefinition): string[] {
   return errors;
 }
 
+function validateMedicine(
+  medicine: MedicineDefinition,
+  stageIds: Set<string>
+): string[] {
+  const errors: string[] = [];
+
+  if (!Number.isInteger(medicine.maxCarry) || medicine.maxCarry <= 0) {
+    errors.push(`Medicine ${medicine.id} maxCarry must be a positive integer`);
+  }
+
+  if (
+    medicine.unlock.type === "stage_cleared" &&
+    !stageIds.has(medicine.unlock.stageId)
+  ) {
+    errors.push(
+      `Medicine ${medicine.id} references missing unlock stage ${medicine.unlock.stageId}`
+    );
+  }
+
+  if (medicine.effects.length === 0) {
+    errors.push(`Medicine ${medicine.id} must have at least one effect`);
+  }
+
+  for (const effect of medicine.effects) {
+    if (effect.type === "cleanse_status") {
+      if (!Array.isArray(effect.dispelTags) || effect.dispelTags.length === 0) {
+        errors.push(
+          `Medicine ${medicine.id} cleanse effect must have at least one dispel tag`
+        );
+      } else {
+        for (const tag of effect.dispelTags) {
+          if (!statusDispelTags.has(tag)) {
+            errors.push(
+              `Medicine ${medicine.id} dispel tag ${tag} must be supported`
+            );
+          }
+        }
+      }
+
+      if (
+        effect.maxCount !== undefined &&
+        (!Number.isInteger(effect.maxCount) || effect.maxCount <= 0)
+      ) {
+        errors.push(
+          `Medicine ${medicine.id} cleanse maxCount must be a positive integer`
+        );
+      }
+
+      continue;
+    }
+
+    if (effect.type === "status_resistance_bonus") {
+      if (effect.value <= 0) {
+        errors.push(
+          `Medicine ${medicine.id} status resistance value must be positive`
+        );
+      }
+
+      if (effect.durationSeconds <= 0) {
+        errors.push(
+          `Medicine ${medicine.id} status resistance durationSeconds must be positive`
+        );
+      }
+    }
+  }
+
+  return errors;
+}
+
 export function validateStaticGameData(data: StaticGameData): string[] {
   const errors: string[] = [];
   const entityGroups: Array<[string, EntityWithId[]]> = [
@@ -325,7 +395,8 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     ["stage", data.stages],
     ["upgrade", data.upgrades],
     ["formation", data.formations],
-    ["status effect", data.statusEffects]
+    ["status effect", data.statusEffects],
+    ["medicine", data.medicines]
   ];
 
   for (const [label, entities] of entityGroups) {
@@ -364,6 +435,10 @@ export function validateStaticGameData(data: StaticGameData): string[] {
 
   for (const status of data.statusEffects) {
     errors.push(...validateStatusEffect(status));
+  }
+
+  for (const medicine of data.medicines) {
+    errors.push(...validateMedicine(medicine, stageIds));
   }
 
   for (const stage of data.stages) {

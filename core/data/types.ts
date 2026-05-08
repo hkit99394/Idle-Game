@@ -1,6 +1,7 @@
 import type {
   BaseStats,
   MvpStyle,
+  StatusDispelTag,
   StatusEffectDefinition,
   TargetRule
 } from "../combat";
@@ -103,13 +104,40 @@ export type FormationDefinition = {
   slots: string[];
 };
 
+export type MedicineEffect =
+  | {
+      type: "cleanse_status";
+      dispelTags: StatusDispelTag[];
+      maxCount?: number;
+    }
+  | {
+      type: "status_resistance_bonus";
+      value: number;
+      durationSeconds: number;
+    };
+
+export type MedicineDefinition = {
+  id: string;
+  name: string;
+  unlock: UnlockCondition;
+  maxCarry: number;
+  effects: MedicineEffect[];
+};
+
 export type UpgradeDefinition = {
   id: string;
   name: string;
   scope: "hero" | "sect";
   stat: keyof Pick<
     BaseStats,
-    "maxOuterHp" | "maxInnerQi" | "outerAttack" | "innerAttack" | "outerDefense" | "innerDefense"
+    | "maxOuterHp"
+    | "maxInnerQi"
+    | "outerAttack"
+    | "innerAttack"
+    | "outerDefense"
+    | "innerDefense"
+    | "statusAccuracy"
+    | "statusResistance"
   >;
   baseCost: number;
   costGrowth: number;
@@ -126,4 +154,5 @@ export type StaticGameData = {
   mastery: MasteryDefinition;
   formations: FormationDefinition[];
   statusEffects: StatusEffectDefinition[];
+  medicines: MedicineDefinition[];
 };

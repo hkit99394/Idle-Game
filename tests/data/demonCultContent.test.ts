@@ -3,6 +3,7 @@ import type { StaticGameData } from "../../core";
 import enemies from "../../data/enemies.json" with { type: "json" };
 import formations from "../../data/formations.json" with { type: "json" };
 import heroes from "../../data/heroes.json" with { type: "json" };
+import medicines from "../../data/medicines.json" with { type: "json" };
 import mastery from "../../data/mastery.json" with { type: "json" };
 import regions from "../../data/regions.json" with { type: "json" };
 import skills from "../../data/skills.json" with { type: "json" };
@@ -19,7 +20,8 @@ const staticData: StaticGameData = {
   upgrades: upgrades as StaticGameData["upgrades"],
   mastery: mastery as StaticGameData["mastery"],
   formations: formations as StaticGameData["formations"],
-  statusEffects: statusEffects as StaticGameData["statusEffects"]
+  statusEffects: statusEffects as StaticGameData["statusEffects"],
+  medicines: medicines as StaticGameData["medicines"]
 };
 
 describe("Demon Cult Outpost content", () => {

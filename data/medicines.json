@@ -1,0 +1,55 @@
+[
+  {
+    "id": "clear_heart_pill",
+    "name": "Clear Heart Pill",
+    "unlock": {
+      "type": "stage_cleared",
+      "stageId": "bamboo_road_10"
+    },
+    "maxCarry": 20,
+    "effects": [
+      {
+        "type": "cleanse_status",
+        "dispelTags": ["poison", "wound"],
+        "maxCount": 2
+      }
+    ]
+  },
+  {
+    "id": "quiet_meridian_powder",
+    "name": "Quiet Meridian Powder",
+    "unlock": {
+      "type": "stage_cleared",
+      "stageId": "demon_cult_outpost_2"
+    },
+    "maxCarry": 10,
+    "effects": [
+      {
+        "type": "status_resistance_bonus",
+        "value": 0.12,
+        "durationSeconds": 12
+      }
+    ]
+  },
+  {
+    "id": "purity_draught",
+    "name": "Purity Draught",
+    "unlock": {
+      "type": "stage_cleared",
+      "stageId": "demon_cult_outpost_4"
+    },
+    "maxCarry": 8,
+    "effects": [
+      {
+        "type": "cleanse_status",
+        "dispelTags": ["debuff"],
+        "maxCount": 1
+      },
+      {
+        "type": "status_resistance_bonus",
+        "value": 0.08,
+        "durationSeconds": 10
+      }
+    ]
+  }
+]

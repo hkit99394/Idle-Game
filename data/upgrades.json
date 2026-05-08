@@ -34,5 +34,14 @@
     "baseCost": 100,
     "costGrowth": 1.18,
     "effectPerLevel": 0.05
+  },
+  {
+    "id": "sect_purity_training",
+    "name": "Sect Purity Training",
+    "scope": "sect",
+    "stat": "statusResistance",
+    "baseCost": 140,
+    "costGrowth": 1.2,
+    "effectPerLevel": 0.025
   }
 ]

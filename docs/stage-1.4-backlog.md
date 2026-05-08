@@ -39,7 +39,7 @@ The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is t
 | --- | --- | --- | --- |
 | 25 | Status Effect Engine | In Progress | Add reusable combat statuses, ticking effects, cleanses, and telemetry |
 | 26 | Demon Cult Outpost Region | In Progress | Add region, stages, enemies, rewards, and boss gate |
-| 27 | Counterplay Growth | Not Started | Add upgrades, medicine, and support hooks that answer status pressure |
+| 27 | Counterplay Growth | In Progress | Add upgrades, medicine, and support hooks that answer status pressure |
 | 28 | Battle UI And Summary Polish | Not Started | Make statuses readable during and after battle |
 | 29 | Offline, Save, And Migration Safety | Not Started | Keep imported saves, offline farming, and diagnostics safe |
 | 30 | Simulator And Balance Pass | Not Started | Validate the new region and all-region balance reports |
@@ -164,6 +164,11 @@ Branch-scope note: this checkout currently only has Bamboo Road content, so the 
 
 Make the new debuff pressure feel fair by giving the player visible, upgradeable answers.
 
+Branch-scope note: this checkout does not yet have support heroes, CP,
+manuals, or equipment systems. The first Epic 27 slice adds medicine and
+resistance counterplay in core/data; support, CP, manuals, and equipment can
+build on these hooks later.
+
 ### Tasks
 
 - Add status resistance or status mitigation stat to core formulas.
@@ -196,6 +201,15 @@ Make the new debuff pressure feel fair by giving the player visible, upgradeable
 - Lotus support cleanse can fire in combat and is deterministic under test.
 - Resistance reduces status pressure without reaching full immunity by default.
 - CP changes when counterplay equipment is equipped.
+
+### Progress Notes
+
+- Added medicine definitions for Clear Heart Pill, Quiet Meridian Powder, and Purity Draught.
+- Added core medicine counterplay helpers for inventory-safe consumption, cleansing, and timed status resistance bonuses.
+- Added Sect Purity Training as a `statusResistance` upgrade.
+- Added static validation for medicine unlocks, carry caps, cleanse tags, cleanse counts, and resistance bonus effects.
+- Added medicine tests for poison/wound cleansing, safe missing-inventory failure, resistance bonus output, and inventory decrement.
+- Remaining integration work: battle timeline consumption hooks, support-hero cleanse skills, CP contribution, equipment/manual rewards, and UI selection/preview.
 
 ---
 
