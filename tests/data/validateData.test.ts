@@ -267,6 +267,34 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid region balance target ranges", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "bamboo_road"
+          ? {
+              ...region,
+              balanceTargets: {
+                clearTimeSeconds: {
+                  normal: { min: 20, max: 10 },
+                  elite: { min: -1, max: 40 },
+                  boss: { min: 0, max: "fast" }
+                }
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region bamboo_road balanceTargets.clearTimeSeconds.normal.min must be less than or equal to max",
+        "Region bamboo_road balanceTargets.clearTimeSeconds.elite.min must be non-negative",
+        "Region bamboo_road balanceTargets.clearTimeSeconds.boss.max must be a finite number"
+      ])
+    );
+  });
+
   it("rejects invalid equipment definitions and drop references", () => {
     const invalidData = {
       ...staticData,

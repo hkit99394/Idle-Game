@@ -8,8 +8,12 @@ import {
   calculateStatusTickOuterDamage,
   createStatusDictionary
 } from "../combat";
+import {
+  getStageClearTimeTargetRange
+} from "./targets";
 import type { BaseStats, StatusEffectDefinition } from "../combat";
 import type {
+  ClearTimeTargetRange,
   EnemyDefinition,
   HeroDefinition,
   MedicineDefinition,
@@ -60,10 +64,7 @@ export type StageStatusMetrics = {
 export type StageBalanceAssessment = {
   rating: BalanceAssessmentRating;
   reasons: string[];
-  clearTimeRangeSeconds: {
-    min: number;
-    max: number;
-  };
+  clearTimeRangeSeconds: ClearTimeTargetRange | null;
 };
 
 export type StageBalanceReport = {
@@ -180,6 +181,19 @@ type StaticDataForBalance = Pick<
   | "statusEffects"
   | "medicines"
 >;
+
+type BossGateSummary = NonNullable<RegionBalanceReport["bossGate"]>;
+
+type DemonCultBossGateContext = {
+  baseline: BossGateSummary;
+  intended: BossGateSummary;
+  intendedStage: StageBalanceReport;
+};
+
+type DemonCultBossGateCheck = {
+  passed: boolean;
+  reason: string;
+};
 
 export const defaultBalanceScenarioPresets: BalanceScenarioPreset[] = [
   {
@@ -436,7 +450,7 @@ export function formatBalanceReport(report: BalanceReport): string {
 }
 
 function buildStageBalanceReport(input: {
-  data: Pick<StaticDataForBalance, "medicines">;
+  data: Pick<StaticDataForBalance, "medicines" | "regions">;
   stage: StageDefinition;
   scenario: BalanceScenarioPreset;
   playerTeam: HeroDefinition[];
@@ -525,10 +539,16 @@ function buildStageBalanceReport(input: {
     ),
     rewards: input.stage.rewards,
     statusMetrics,
-    balanceAssessment: assessStageBalance(input.stage, result, {
-      estimatedClearTimeSeconds,
-      estimatedSurvivalSeconds
-    })
+    balanceAssessment: assessStageBalance(
+      input.data,
+      input.stage,
+      enemies,
+      result,
+      {
+        estimatedClearTimeSeconds,
+        estimatedSurvivalSeconds
+      }
+    )
   };
 }
 
@@ -1086,14 +1106,23 @@ function estimateTeamAttackEventsPerSecond(
 }
 
 function assessStageBalance(
+  data: Pick<StaticDataForBalance, "regions">,
   stage: StageDefinition,
+  enemies: EnemyDefinition[],
   result: BalanceResult,
   timing: {
     estimatedClearTimeSeconds: number;
     estimatedSurvivalSeconds: number;
   }
 ): StageBalanceAssessment {
-  const clearTimeRangeSeconds = getClearTimeRange(stage);
+  const region = data.regions.find(
+    (candidate) => candidate.id === stage.regionId
+  );
+  const clearTimeRangeSeconds = getStageClearTimeTargetRange({
+    region,
+    stage,
+    enemies
+  });
   const reasons: string[] = [];
 
   if (result === "enemy_hold") {
@@ -1101,6 +1130,14 @@ function assessStageBalance(
 
     return {
       rating: "impossible",
+      reasons,
+      clearTimeRangeSeconds
+    };
+  }
+
+  if (clearTimeRangeSeconds === null) {
+    return {
+      rating: "target",
       reasons,
       clearTimeRangeSeconds
     };
@@ -1133,30 +1170,6 @@ function assessStageBalance(
   };
 }
 
-function getClearTimeRange(stage: StageDefinition): {
-  min: number;
-  max: number;
-} {
-  if (stage.isBoss) {
-    return {
-      min: 45,
-      max: 240
-    };
-  }
-
-  if (stage.enemyTeam.combatantIds.length >= 3) {
-    return {
-      min: 20,
-      max: 150
-    };
-  }
-
-  return {
-    min: 10,
-    max: 120
-  };
-}
-
 function getBossGateRating(survivalRatio: number): BalanceGateRating {
   if (survivalRatio >= bossGateCriteria.passSurvivalRatio) {
     return "pass";
@@ -1172,75 +1185,14 @@ function getBossGateRating(survivalRatio: number): BalanceGateRating {
 function getDemonCultBossGate(
   scenarios: BalanceScenarioReport[]
 ): DemonCultBossGateReport | null {
-  const baseline = getScenarioRegion(
-    getScenarioReport(scenarios, "baseline"),
-    "demon_cult_outpost"
-  )?.bossGate;
-  const intended = getScenarioRegion(
-    getScenarioReport(scenarios, "combined"),
-    "demon_cult_outpost"
-  )?.bossGate;
-  const intendedStage = getScenarioRegion(
-    getScenarioReport(scenarios, "combined"),
-    "demon_cult_outpost"
-  )?.stages.find((stage) => stage.isBoss);
+  const context = getDemonCultBossGateContext(scenarios);
 
-  if (baseline == null || intended == null || intendedStage === undefined) {
+  if (context === null) {
     return null;
   }
 
-  const baselineBlocked = baseline.result === "enemy_hold";
-  const survivalPass =
-    intended.result === "player_clear" ||
-    intended.survivalRatio >= bossGateCriteria.nearSurvivalRatio;
-  const clearTimePass = isWithinRange(
-    intendedStage.estimatedClearTimeSeconds,
-    demonCultBossGateCriteria.acceptableClearTimeSeconds
-  );
-  const preferredClearTimePass = isWithinRange(
-    intendedStage.estimatedClearTimeSeconds,
-    demonCultBossGateCriteria.preferredClearTimeSeconds
-  );
-  const medicinePass =
-    intendedStage.statusMetrics.medicineConsumed <=
-    demonCultBossGateCriteria.maxMedicineConsumed;
-  const statusDamagePass =
-    intendedStage.statusMetrics.expectedDamage <=
-    demonCultBossGateCriteria.maxStatusDamage;
-  const gateChecks = [
-    {
-      passed: baselineBlocked,
-      reason: baselineBlocked
-        ? "baseline remains blocked"
-        : "baseline should remain blocked"
-    },
-    {
-      passed: survivalPass,
-      reason: survivalPass
-        ? `combined survival ratio ${formatNumber(intended.survivalRatio)} reaches the intended gate`
-        : `combined survival ratio ${formatNumber(intended.survivalRatio)} is below ${formatNumber(bossGateCriteria.nearSurvivalRatio)}`
-    },
-    {
-      passed: clearTimePass,
-      reason: clearTimePass
-        ? preferredClearTimePass
-          ? `combined clear time ${formatNumber(intendedStage.estimatedClearTimeSeconds)}s is in the preferred 90-120s band`
-          : `combined clear time ${formatNumber(intendedStage.estimatedClearTimeSeconds)}s is in the acceptable 80-140s band`
-        : `combined clear time ${formatNumber(intendedStage.estimatedClearTimeSeconds)}s is outside the acceptable 80-140s band`
-    },
-    {
-      passed: medicinePass,
-      reason: medicinePass
-        ? `medicine use ${formatNumber(intendedStage.statusMetrics.medicineConsumed)} is predictable`
-        : `medicine use ${formatNumber(intendedStage.statusMetrics.medicineConsumed)} exceeds the configured limit`
-    },
-    {
-      passed: statusDamagePass,
-      reason: statusDamagePass
-        ? `status damage ${formatNumber(intendedStage.statusMetrics.expectedDamage)} stays within the intended pressure limit`
-        : `status damage ${formatNumber(intendedStage.statusMetrics.expectedDamage)} exceeds the intended pressure limit`
-    }
-  ];
+  const { baseline, intended, intendedStage } = context;
+  const gateChecks = getDemonCultBossGateChecks(context);
   const pass = gateChecks.every((check) => check.passed);
   const failedCheck = gateChecks.find((check) => !check.passed);
 
@@ -1267,6 +1219,116 @@ function getDemonCultBossGate(
   };
 }
 
+function getDemonCultBossGateContext(
+  scenarios: BalanceScenarioReport[]
+): DemonCultBossGateContext | null {
+  const baselineScenario = getScenarioReport(scenarios, "baseline");
+  const intendedScenario = getScenarioReport(scenarios, "combined");
+  const baseline = getScenarioRegion(
+    baselineScenario,
+    "demon_cult_outpost"
+  )?.bossGate;
+  const intendedRegion = getScenarioRegion(
+    intendedScenario,
+    "demon_cult_outpost"
+  );
+  const intended = intendedRegion?.bossGate;
+  const intendedStage = intendedRegion?.stages.find((stage) => stage.isBoss);
+
+  if (baseline == null || intended == null || intendedStage === undefined) {
+    return null;
+  }
+
+  return {
+    baseline,
+    intended,
+    intendedStage
+  };
+}
+
+function getDemonCultBossGateChecks(
+  context: DemonCultBossGateContext
+): DemonCultBossGateCheck[] {
+  const { baseline, intended, intendedStage } = context;
+  const baselineBlocked = baseline.result === "enemy_hold";
+  const survivalPass =
+    intended.result === "player_clear" ||
+    intended.survivalRatio >= bossGateCriteria.nearSurvivalRatio;
+  const clearTimePass = isWithinRange(
+    intendedStage.estimatedClearTimeSeconds,
+    demonCultBossGateCriteria.acceptableClearTimeSeconds
+  );
+  const preferredClearTimePass = isWithinRange(
+    intendedStage.estimatedClearTimeSeconds,
+    demonCultBossGateCriteria.preferredClearTimeSeconds
+  );
+  const medicinePass =
+    intendedStage.statusMetrics.medicineConsumed <=
+    demonCultBossGateCriteria.maxMedicineConsumed;
+  const statusDamagePass =
+    intendedStage.statusMetrics.expectedDamage <=
+    demonCultBossGateCriteria.maxStatusDamage;
+
+  return [
+    {
+      passed: baselineBlocked,
+      reason: baselineBlocked
+        ? "baseline remains blocked"
+        : "baseline should remain blocked"
+    },
+    {
+      passed: survivalPass,
+      reason: survivalPass
+        ? `combined survival ratio ${formatNumber(intended.survivalRatio)} reaches the intended gate`
+        : `combined survival ratio ${formatNumber(intended.survivalRatio)} is below ${formatNumber(bossGateCriteria.nearSurvivalRatio)}`
+    },
+    {
+      passed: clearTimePass,
+      reason: getDemonCultClearTimeGateReason(
+        intendedStage.estimatedClearTimeSeconds,
+        clearTimePass,
+        preferredClearTimePass
+      )
+    },
+    {
+      passed: medicinePass,
+      reason: medicinePass
+        ? `medicine use ${formatNumber(intendedStage.statusMetrics.medicineConsumed)} is predictable`
+        : `medicine use ${formatNumber(intendedStage.statusMetrics.medicineConsumed)} exceeds the configured limit`
+    },
+    {
+      passed: statusDamagePass,
+      reason: statusDamagePass
+        ? `status damage ${formatNumber(intendedStage.statusMetrics.expectedDamage)} stays within the intended pressure limit`
+        : `status damage ${formatNumber(intendedStage.statusMetrics.expectedDamage)} exceeds the intended pressure limit`
+    }
+  ];
+}
+
+function getDemonCultClearTimeGateReason(
+  clearTimeSeconds: number,
+  clearTimePass: boolean,
+  preferredClearTimePass: boolean
+): string {
+  const clearTime = formatNumber(clearTimeSeconds);
+  const preferredRange = formatRange(
+    demonCultBossGateCriteria.preferredClearTimeSeconds
+  );
+  const acceptableRange = formatRange(
+    demonCultBossGateCriteria.acceptableClearTimeSeconds
+  );
+
+  if (!clearTimePass) {
+    return `combined clear time ${clearTime}s is outside the acceptable ${acceptableRange}s band`;
+  }
+
+  if (preferredClearTimePass) {
+    return `combined clear time ${clearTime}s is in the preferred ${preferredRange}s band`;
+  }
+
+  return `combined clear time ${clearTime}s is in the acceptable ${acceptableRange}s band`;
+}
+
 function isWithinRange(
   value: number,
   range: {
@@ -1275,6 +1337,10 @@ function isWithinRange(
   }
 ): boolean {
   return value >= range.min && value <= range.max;
+}
+
+function formatRange(range: { min: number; max: number }): string {
+  return `${formatNumber(range.min)}-${formatNumber(range.max)}`;
 }
 
 function getScenarioRegion(

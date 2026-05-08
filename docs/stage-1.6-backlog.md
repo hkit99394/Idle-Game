@@ -352,12 +352,12 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 5. Epic 41: Lotus Purity Support Growth. Completed.
 6. Epic 42: Demon Cult Boss Tuning Gates. Completed.
 
-## Open Questions Before Implementation
+## Resolved Open Questions
 
-- Should first medicine unlock mean "medicine item appears in configured unlocks" or "inventory count becomes greater than zero"? Recommended: either condition unlocks UI, but auto-use requires inventory.
-- Should disabled medicine rows remain visible when inventory is zero? Recommended: yes, if unlocked.
-- Should support growth be an upgrade, a manual, or a hero refinement label? Resolved: deterministic sect/manual-style upgrade, not a new hero.
-- Should manual use of medicine be added now? Recommended: defer unless needed for testing/debugging.
+- First medicine unlock uses either condition: a medicine item appears in configured unlocks or inventory count becomes greater than zero. Auto-use still requires inventory.
+- Disabled medicine rows remain visible when inventory is zero, as long as the medicine has been unlocked.
+- Support growth is a deterministic sect/manual-style upgrade, not a new hero and not a hero refinement label.
+- Manual medicine use is deferred unless it becomes necessary for testing, debugging, or a richer battle-control stage.
 
 ## Final Stage 1.6 Checklist
 
@@ -368,5 +368,5 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 - [x] Lotus/support contribution visible in UI and simulator.
 - [x] Demon Cult boss tuning criteria updated.
 - [x] `npm test`, `npm run build`, `npm run simulate`, and `npm run support-decision` pass.
-- [ ] Stage 1.6 backlog reviewed.
+- [x] Stage 1.6 backlog reviewed.
 - [ ] Stage 1.6 backlog moved to archive after completion.

@@ -5,9 +5,11 @@ An idle martial arts RPG concept built around separate **Outer Art** and **Inner
 Start with the main design draft:
 
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
+- [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
 - [Planning Questions Before Analysis Stage](docs/planning-questions.md)
 - [Analysis Stage](docs/analysis-stage.md)
-- [Stage 1.2 Backlog](docs/stage-1.2-backlog.md)
+- [Stage 1.6 Backlog](docs/stage-1.6-backlog.md)
+- [Archived Stage 1.2 Backlog](docs/archive/stage-1.2-backlog.md)
 - [Archived Stage 1.1 Backlog](docs/archive/stage-1.1-backlog.md)
 - [Archived MVP Backlog](docs/archive/mvp-backlog.md)
 - [Balance Template CSV](docs/balance-template.csv)
@@ -16,7 +18,7 @@ Start with the main design draft:
 
 - Responsive web prototype with continuous stage fighting.
 - Clicking a map route card selects where the team fights; cleared non-boss cards also become the offline farm target.
-- Bamboo Road, Mist Valley, and Black Iron Fort are implemented with team encounters, formation slots, targeting rules, CP, levels, rewards, equipment, and map mastery.
+- Bamboo Road, Mist Valley, Black Iron Fort, Lotus Monastery, and Demon Cult Outpost are implemented with team encounters, formation slots, targeting rules, CP, levels, rewards, equipment, medicine, status counterplay, and map mastery.
 - Save export/import, reset, diagnostics, offline reward preview, time travel testing, and farm presets are available in the web UI.
 - `core/` is kept backend-safe so battle, progression, offline rewards, saves, and validation can later move behind accounts or cloud save.
 

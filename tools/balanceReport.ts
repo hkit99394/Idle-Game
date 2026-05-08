@@ -4,7 +4,9 @@ import {
   createInitialPlayerProgress,
   getBattleEventStatusId,
   getRecommendedOfflineFarmStage,
+  getStageClearTimeTargetRange,
   getUpgradeLevel,
+  isWithinClearTimeTarget,
   isBetterOfflineFarmStage,
   getNextMasteryThreshold,
   purchaseUpgrade,
@@ -136,25 +138,16 @@ function getTargetSeconds(
   data: StaticGameData,
   stage: StageDefinition
 ): [number, number] | null {
-  if (stage.isBoss) {
-    return null;
-  }
+  const region = data.regions.find(
+    (candidate) => candidate.id === stage.regionId
+  );
+  const target = getStageClearTimeTargetRange({
+    region,
+    stage,
+    enemies: getStageEnemies(data, stage)
+  });
 
-  const enemyTypes = getStageEnemies(data, stage).map((enemy) => enemy.type);
-
-  if (stage.regionId === MIST_VALLEY_REGION_ID) {
-    return enemyTypes.includes("elite") ? [10, 25] : [5, 18];
-  }
-
-  if (stage.regionId === BLACK_IRON_FORT_REGION_ID) {
-    return enemyTypes.includes("elite") ? [25, 65] : [12, 55];
-  }
-
-  if (stage.regionId === LOTUS_MONASTERY_REGION_ID) {
-    return enemyTypes.includes("elite") ? [35, 80] : [18, 60];
-  }
-
-  return enemyTypes.includes("elite") ? [20, 40] : [5, 15];
+  return target ? [target.min, target.max] : null;
 }
 
 function getUpgrade(data: StaticGameData, upgradeId: string) {
@@ -638,8 +631,10 @@ function summarizeBattle(
   );
   const targetMet = targetSeconds
     ? result.battle.winner === "player" &&
-      durationSeconds >= targetSeconds[0] &&
-      durationSeconds <= targetSeconds[1]
+      isWithinClearTimeTarget(durationSeconds, {
+        min: targetSeconds[0],
+        max: targetSeconds[1]
+      })
     : null;
 
   return {
@@ -1021,7 +1016,7 @@ function buildRegionBalancesInOrder(
   return regionBalances;
 }
 
-export function buildBambooRoadBalanceReport(data: StaticGameData) {
+export function buildGameBalanceReport(data: StaticGameData) {
   const regionIds = getRegionIds(data);
   const bambooRoadStageIds = getRegionStageIds(data, BAMBOO_ROAD_REGION_ID);
   const trainedBossPlan = createTrainedBossPlan(data);
@@ -1049,7 +1044,9 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
   );
 
   if (!recommendedFarmStage) {
-    throw new Error("No cleared Bamboo Road stage is available for farm simulation");
+    throw new Error(
+      "No cleared Bamboo Road stage is available for farm simulation"
+    );
   }
 
   const farmStageId = recommendedFarmStage.id;
@@ -1184,13 +1181,14 @@ export function buildBambooRoadBalanceReport(data: StaticGameData) {
   };
 }
 
-export type BambooRoadBalanceReport = ReturnType<
-  typeof buildBambooRoadBalanceReport
->;
+export const buildBambooRoadBalanceReport = buildGameBalanceReport;
+
+export type GameBalanceReport = ReturnType<typeof buildGameBalanceReport>;
+export type BambooRoadBalanceReport = GameBalanceReport;
 
 type StageSummary =
-  BambooRoadBalanceReport["bambooRoadBalance"]["stageResults"][number];
-type RegionSummary = BambooRoadBalanceReport["regionBalances"][number];
+  GameBalanceReport["bambooRoadBalance"]["stageResults"][number];
+type RegionSummary = GameBalanceReport["regionBalances"][number];
 
 function formatReward(
   rewards: {
@@ -1352,7 +1350,7 @@ function formatRegionStageTable(
   ];
 }
 
-export function formatBalanceReport(report: BambooRoadBalanceReport): string {
+export function formatBalanceReport(report: GameBalanceReport): string {
   const balance = report.bambooRoadBalance;
   const firstMastery = balance.upgradeEconomy.firstMastery;
   const trainingEconomy = balance.bossGate.economy.trainingEconomy;

@@ -15,7 +15,7 @@ import statusEffects from "../data/statusEffects.json" with { type: "json" };
 import styles from "../data/styles.json" with { type: "json" };
 import upgrades from "../data/upgrades.json" with { type: "json" };
 import {
-  buildBambooRoadBalanceReport,
+  buildGameBalanceReport,
   formatBalanceReport
 } from "./balanceReport";
 
@@ -37,7 +37,7 @@ const staticData: StaticGameData = {
   medicines: medicines as StaticGameData["medicines"]
 };
 
-const report = buildBambooRoadBalanceReport(staticData);
+const report = buildGameBalanceReport(staticData);
 
 if (process.argv.includes("--json")) {
   console.log(JSON.stringify(report, null, 2));

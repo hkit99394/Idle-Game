@@ -238,11 +238,25 @@ export type StageDefinition = {
   nextStageId: string | null;
 };
 
+export type ClearTimeTargetRange = {
+  min: number;
+  max: number;
+};
+
+export type RegionBalanceTargets = {
+  clearTimeSeconds: {
+    normal: ClearTimeTargetRange;
+    elite: ClearTimeTargetRange;
+    boss?: ClearTimeTargetRange;
+  };
+};
+
 export type RegionDefinition = {
   id: string;
   name: string;
   stageIds: string[];
   unlockCondition: UnlockCondition;
+  balanceTargets?: RegionBalanceTargets;
 };
 
 export type MasteryBonus = {

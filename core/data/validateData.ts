@@ -70,6 +70,98 @@ function duplicateIds(entities: EntityWithId[]): string[] {
   return [...duplicates];
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function validateClearTimeTargetRange(
+  ownerLabel: string,
+  value: unknown
+): string[] {
+  const errors: string[] = [];
+
+  if (!isRecord(value)) {
+    return [`${ownerLabel} must be an object`];
+  }
+
+  if (typeof value.min !== "number" || !Number.isFinite(value.min)) {
+    errors.push(`${ownerLabel}.min must be a finite number`);
+  }
+
+  if (typeof value.max !== "number" || !Number.isFinite(value.max)) {
+    errors.push(`${ownerLabel}.max must be a finite number`);
+  }
+
+  if (
+    typeof value.min === "number" &&
+    Number.isFinite(value.min) &&
+    value.min < 0
+  ) {
+    errors.push(`${ownerLabel}.min must be non-negative`);
+  }
+
+  if (
+    typeof value.max === "number" &&
+    Number.isFinite(value.max) &&
+    value.max <= 0
+  ) {
+    errors.push(`${ownerLabel}.max must be greater than zero`);
+  }
+
+  if (
+    typeof value.min === "number" &&
+    Number.isFinite(value.min) &&
+    typeof value.max === "number" &&
+    Number.isFinite(value.max) &&
+    value.min > value.max
+  ) {
+    errors.push(`${ownerLabel}.min must be less than or equal to max`);
+  }
+
+  return errors;
+}
+
+function validateRegionBalanceTargets(region: RegionDefinition): string[] {
+  const targets = region.balanceTargets;
+
+  if (targets === undefined) {
+    return [];
+  }
+
+  if (!isRecord(targets)) {
+    return [`Region ${region.id} balanceTargets must be an object`];
+  }
+
+  if (!isRecord(targets.clearTimeSeconds)) {
+    return [
+      `Region ${region.id} balanceTargets.clearTimeSeconds must be an object`
+    ];
+  }
+
+  const clearTimeSeconds = targets.clearTimeSeconds;
+  const errors = [
+    ...validateClearTimeTargetRange(
+      `Region ${region.id} balanceTargets.clearTimeSeconds.normal`,
+      clearTimeSeconds.normal
+    ),
+    ...validateClearTimeTargetRange(
+      `Region ${region.id} balanceTargets.clearTimeSeconds.elite`,
+      clearTimeSeconds.elite
+    )
+  ];
+
+  if (clearTimeSeconds.boss !== undefined) {
+    errors.push(
+      ...validateClearTimeTargetRange(
+        `Region ${region.id} balanceTargets.clearTimeSeconds.boss`,
+        clearTimeSeconds.boss
+      )
+    );
+  }
+
+  return errors;
+}
+
 function validateStats(
   ownerId: string,
   stats: HeroDefinition["baseStats"] | EnemyDefinition["baseStats"]
@@ -1129,6 +1221,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   errors.push(...validateRegionStageRefs(data.regions, stageIds));
   errors.push(...validateRegionStageOwnership(data.regions, data.stages));
   for (const region of data.regions) {
+    errors.push(...validateRegionBalanceTargets(region));
     errors.push(
       ...validateUnlockCondition(
         `Region ${region.id}`,
