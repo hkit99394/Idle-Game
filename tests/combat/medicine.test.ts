@@ -112,5 +112,6 @@ describe("medicine counterplay", () => {
     expect(result.statusResistanceBonus).toBeCloseTo(0.12);
     expect(result.statusResistanceDurationSeconds).toBe(12);
     expect(applyMedicineResistanceBonus(0.05, result)).toBeCloseTo(0.17);
+    expect(applyMedicineResistanceBonus(0.75, result)).toBeCloseTo(0.8);
   });
 });

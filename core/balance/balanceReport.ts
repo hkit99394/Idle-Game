@@ -3,6 +3,8 @@ import {
   calculateInnerDamage,
   calculateOuterDamage,
   calculateStatusApplicationChance,
+  calculateStatusDuration,
+  calculateStatusTickOuterDamage,
   createStatusDictionary
 } from "../combat";
 import type { BaseStats, StatusEffectDefinition } from "../combat";
@@ -335,13 +337,16 @@ function estimateStatusMetrics(input: {
           status,
           effect.durationSeconds ?? status.durationSeconds,
           input.targetStats.maxOuterHp,
+          input.targetStats.statusResistance,
           stacks,
           expectedApplications
         );
         healingDenied += estimateHealingDenied(
           status,
           stacks,
-          expectedApplications
+          expectedApplications,
+          effect.durationSeconds ?? status.durationSeconds,
+          input.targetStats.statusResistance
         );
       }
     }
@@ -368,22 +373,35 @@ function estimateStatusDamage(
   status: StatusEffectDefinition,
   durationSeconds: number,
   targetMaxOuterHp: number,
+  targetStatusResistance: number,
   stacks: number,
   expectedApplications: number
 ): number {
-  return (
-    targetMaxOuterHp *
-    (status.effects.outerDamagePerSecond ?? 0) *
-    durationSeconds *
-    stacks *
-    expectedApplications
+  if (status.tickIntervalSeconds === undefined) {
+    return 0;
+  }
+
+  const damagePerTick = calculateStatusTickOuterDamage({
+    definition: status,
+    targetMaxOuterHp,
+    stacks,
+    targetStatusResistance
+  });
+  const resistedDurationSeconds = calculateStatusDuration(
+    durationSeconds,
+    targetStatusResistance
   );
+  const expectedTicks = resistedDurationSeconds / status.tickIntervalSeconds;
+
+  return damagePerTick * expectedTicks * expectedApplications;
 }
 
 function estimateHealingDenied(
   status: StatusEffectDefinition,
   stacks: number,
-  expectedApplications: number
+  expectedApplications: number,
+  durationSeconds: number,
+  targetStatusResistance: number
 ): number {
   const multiplier = status.effects.healingReceivedMultiplier;
 
@@ -391,7 +409,13 @@ function estimateHealingDenied(
     return 0;
   }
 
-  return (1 - multiplier ** stacks) * 20 * expectedApplications;
+  const resistedDurationSeconds = calculateStatusDuration(
+    durationSeconds,
+    targetStatusResistance
+  );
+  const durationRatio = resistedDurationSeconds / durationSeconds;
+
+  return (1 - multiplier ** stacks) * 20 * expectedApplications * durationRatio;
 }
 
 function estimateCleanses(input: {

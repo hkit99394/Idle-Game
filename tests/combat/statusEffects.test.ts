@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   advanceStatusEffects,
   applyStatusEffect,
+  calculateEffectiveStatusResistance,
   calculateStatusApplicationChance,
   calculateStatusDuration,
+  calculateStatusTickOuterDamage,
   cleanseStatusEffects,
   createStatusDictionary,
   getStatusCombatModifiers
@@ -87,6 +89,51 @@ describe("status effects", () => {
     ]);
   });
 
+  it("reduces poison duration and tick damage with status resistance", () => {
+    const applied = applyStatusEffect({
+      activeStatuses: [],
+      definition: definitions.poison,
+      stacks: 2,
+      targetStatusResistance: 0.5
+    });
+
+    const advanced = advanceStatusEffects({
+      activeStatuses: applied.statuses,
+      definitions,
+      deltaSeconds: 5,
+      targetMaxOuterHp: 1000,
+      targetStatusResistance: 0.5
+    });
+
+    expect(applied.applied.remainingSeconds).toBeCloseTo(5);
+    expect(advanced.statuses).toEqual([]);
+    expect(advanced.events).toMatchObject([
+      {
+        type: "status_tick",
+        statusId: "poison",
+        stacks: 2
+      },
+      {
+        type: "status_tick",
+        statusId: "poison",
+        stacks: 2
+      },
+      {
+        type: "status_expire",
+        statusId: "poison"
+      }
+    ]);
+    expect(advanced.events[0]).toMatchObject({ type: "status_tick" });
+    expect(advanced.events[1]).toMatchObject({ type: "status_tick" });
+    if (
+      advanced.events[0].type === "status_tick" &&
+      advanced.events[1].type === "status_tick"
+    ) {
+      expect(advanced.events[0].outerDamage).toBeCloseTo(16.8);
+      expect(advanced.events[1].outerDamage).toBeCloseTo(16.8);
+    }
+  });
+
   it("combines wound, Qi Suppression, Vulnerable, and Burning Blood modifiers", () => {
     const statuses = [
       applyStatusEffect({
@@ -148,6 +195,7 @@ describe("status effects", () => {
   });
 
   it("calculates status chance and duration with resistance caps", () => {
+    expect(calculateEffectiveStatusResistance(0.7, 0.3)).toBeCloseTo(0.8);
     expect(
       calculateStatusApplicationChance({
         baseChance: 0.7,
@@ -161,7 +209,23 @@ describe("status effects", () => {
         attackerStatusAccuracy: 1
       })
     ).toBeCloseTo(0.95);
-    expect(calculateStatusDuration(10, 0.25)).toBeCloseTo(7.5);
-    expect(calculateStatusDuration(10, 1)).toBeCloseTo(2);
+    expect(calculateStatusDuration(10, 0.25)).toBeCloseTo(8.125);
+    expect(calculateStatusDuration(10, 1)).toBeCloseTo(4);
+    expect(
+      calculateStatusTickOuterDamage({
+        definition: definitions.poison,
+        targetMaxOuterHp: 1000,
+        stacks: 1,
+        targetStatusResistance: 0.8
+      })
+    ).toBeCloseTo(6.24);
+    expect(
+      calculateStatusTickOuterDamage({
+        definition: definitions.wound,
+        targetMaxOuterHp: 1000,
+        stacks: 1,
+        targetStatusResistance: 0.8
+      })
+    ).toBe(0);
   });
 });

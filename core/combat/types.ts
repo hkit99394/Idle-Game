@@ -97,6 +97,15 @@ export type StatusEffectDefinition = {
   effects: StatusEffectModifiers;
 };
 
+export type StatusResistanceFormulaConstants = {
+  maxEffectiveResistance: number;
+  minimumApplicationChance: number;
+  maximumApplicationChance: number;
+  durationReductionScale: number;
+  tickDamageReductionScale: number;
+  minimumDurationSeconds: number;
+};
+
 export type ActiveStatusEffect = {
   statusId: string;
   remainingSeconds: number;
@@ -111,6 +120,7 @@ export type StatusApplicationInput = {
   definition: StatusEffectDefinition;
   durationSeconds?: number;
   stacks?: number;
+  targetStatusResistance?: number;
   sourceTeamId?: TeamId;
   sourceCombatantId?: string;
 };
@@ -126,6 +136,7 @@ export type StatusAdvanceInput = {
   definitions: Record<string, StatusEffectDefinition>;
   deltaSeconds: number;
   targetMaxOuterHp: number;
+  targetStatusResistance?: number;
 };
 
 export type StatusTickEvent = {

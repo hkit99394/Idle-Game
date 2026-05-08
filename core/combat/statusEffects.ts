@@ -10,8 +10,18 @@ import type {
   StatusCleanseInput,
   StatusCleanseResult,
   StatusCombatModifiers,
-  StatusEffectDefinition
+  StatusEffectDefinition,
+  StatusResistanceFormulaConstants
 } from "./types";
+
+export const defaultStatusResistanceFormulaConstants: StatusResistanceFormulaConstants = {
+  maxEffectiveResistance: 0.8,
+  minimumApplicationChance: 0.05,
+  maximumApplicationChance: 0.95,
+  durationReductionScale: 0.75,
+  tickDamageReductionScale: 0.6,
+  minimumDurationSeconds: 1
+};
 
 export const defaultStatusCombatModifiers: StatusCombatModifiers = {
   healingReceivedMultiplier: 1,
@@ -31,32 +41,86 @@ export function createStatusDictionary(
 export function calculateStatusApplicationChance(
   input: StatusApplicationChanceInput
 ): number {
-  const minimumChance = input.minimumChance ?? 0.05;
-  const maximumChance = input.maximumChance ?? 0.95;
+  const minimumChance =
+    input.minimumChance ??
+    defaultStatusResistanceFormulaConstants.minimumApplicationChance;
+  const maximumChance =
+    input.maximumChance ??
+    defaultStatusResistanceFormulaConstants.maximumApplicationChance;
   const chance =
     input.baseChance +
     (input.attackerStatusAccuracy ?? 0) -
-    (input.targetStatusResistance ?? 0);
+    calculateEffectiveStatusResistance(input.targetStatusResistance ?? 0);
 
   return clamp(chance, minimumChance, maximumChance);
+}
+
+export function calculateEffectiveStatusResistance(
+  statusResistance: number,
+  temporaryBonus = 0
+): number {
+  return clamp(
+    statusResistance + temporaryBonus,
+    0,
+    defaultStatusResistanceFormulaConstants.maxEffectiveResistance
+  );
 }
 
 export function calculateStatusDuration(
   baseDurationSeconds: number,
   targetStatusResistance = 0,
-  minimumDurationSeconds = 1
+  minimumDurationSeconds =
+    defaultStatusResistanceFormulaConstants.minimumDurationSeconds
 ): number {
+  const effectiveResistance =
+    calculateEffectiveStatusResistance(targetStatusResistance);
+
   return Math.max(
     minimumDurationSeconds,
-    baseDurationSeconds * (1 - clamp(targetStatusResistance, 0, 0.8))
+    baseDurationSeconds *
+      (1 -
+        effectiveResistance *
+          defaultStatusResistanceFormulaConstants.durationReductionScale)
+  );
+}
+
+export function calculateStatusTickOuterDamage(input: {
+  definition: StatusEffectDefinition;
+  targetMaxOuterHp: number;
+  stacks: number;
+  targetStatusResistance?: number;
+}): number {
+  if (
+    input.definition.tickIntervalSeconds === undefined ||
+    input.definition.effects.outerDamagePerSecond === undefined
+  ) {
+    return 0;
+  }
+
+  const effectiveResistance = calculateEffectiveStatusResistance(
+    input.targetStatusResistance ?? 0
+  );
+  const resistanceMultiplier =
+    1 -
+    effectiveResistance *
+      defaultStatusResistanceFormulaConstants.tickDamageReductionScale;
+
+  return (
+    input.targetMaxOuterHp *
+    input.definition.effects.outerDamagePerSecond *
+    input.definition.tickIntervalSeconds *
+    input.stacks *
+    resistanceMultiplier
   );
 }
 
 export function applyStatusEffect(
   input: StatusApplicationInput
 ): StatusApplicationResult {
-  const durationSeconds =
-    input.durationSeconds ?? input.definition.durationSeconds;
+  const durationSeconds = calculateStatusDuration(
+    input.durationSeconds ?? input.definition.durationSeconds,
+    input.targetStatusResistance
+  );
   const addedStacks = input.stacks ?? 1;
   const existingIndex = input.activeStatuses.findIndex(
     (status) => status.statusId === input.definition.id
@@ -114,7 +178,8 @@ export function advanceStatusEffects(
       status,
       definition,
       input.deltaSeconds,
-      input.targetMaxOuterHp
+      input.targetMaxOuterHp,
+      input.targetStatusResistance
     );
 
     events.push(...advanced.events);
@@ -237,7 +302,8 @@ function advanceSingleStatus(
   status: ActiveStatusEffect,
   definition: StatusEffectDefinition,
   deltaSeconds: number,
-  targetMaxOuterHp: number
+  targetMaxOuterHp: number,
+  targetStatusResistance = 0
 ): {
   status: ActiveStatusEffect | null;
   events: StatusAdvanceEvent[];
@@ -253,11 +319,12 @@ function advanceSingleStatus(
     nextTickInSeconds !== undefined
   ) {
     while (nextTickInSeconds <= advanceSeconds) {
-      const tickDamage = calculateStatusTickOuterDamage(
+      const tickDamage = calculateStatusTickOuterDamage({
         definition,
         targetMaxOuterHp,
-        status.stacks
-      );
+        stacks: status.stacks,
+        targetStatusResistance
+      });
 
       events.push({
         type: "status_tick",
@@ -288,26 +355,6 @@ function advanceSingleStatus(
     },
     events
   };
-}
-
-function calculateStatusTickOuterDamage(
-  definition: StatusEffectDefinition,
-  targetMaxOuterHp: number,
-  stacks: number
-): number {
-  if (
-    definition.tickIntervalSeconds === undefined ||
-    definition.effects.outerDamagePerSecond === undefined
-  ) {
-    return 0;
-  }
-
-  return (
-    targetMaxOuterHp *
-    definition.effects.outerDamagePerSecond *
-    definition.tickIntervalSeconds *
-    stacks
-  );
 }
 
 function clampStacks(stacks: number, maxStacks: number): number {
