@@ -26,6 +26,34 @@ import {
 
 type EntityWithId = { id: string };
 
+const statusCategories = new Set([
+  "damage",
+  "control",
+  "vulnerability",
+  "recovery",
+  "backlash"
+]);
+const statusStackPolicies = new Set(["refresh", "stack_intensity"]);
+const statusDispelTags = new Set([
+  "poison",
+  "wound",
+  "inner",
+  "vulnerability",
+  "backlash",
+  "debuff"
+]);
+const statusEffectKeys = new Set([
+  "outerDamagePerSecond",
+  "healingReceivedMultiplier",
+  "innerRecoveryMultiplier",
+  "outerDamageTakenMultiplier",
+  "attackBacklashOuterHpPercent"
+]);
+const medicineEffectTypes = new Set([
+  "cleanse_status",
+  "status_resistance_bonus"
+]);
+
 function duplicateIds(entities: EntityWithId[]): string[] {
   const seen = new Set<string>();
   const duplicates = new Set<string>();
@@ -856,6 +884,82 @@ function validateMartialStyle(
   return errors;
 }
 
+function validateMedicine(
+  medicine: MedicineDefinition,
+  stageIds: Set<string>
+): string[] {
+  const errors: string[] = [];
+
+  if (!Number.isInteger(medicine.maxCarry) || medicine.maxCarry <= 0) {
+    errors.push(`Medicine ${medicine.id} maxCarry must be a positive integer`);
+  }
+
+  if (
+    medicine.unlock.type === "stage_cleared" &&
+    !stageIds.has(medicine.unlock.stageId)
+  ) {
+    errors.push(
+      `Medicine ${medicine.id} references missing unlock stage ${medicine.unlock.stageId}`
+    );
+  }
+
+  if (medicine.effects.length === 0) {
+    errors.push(`Medicine ${medicine.id} must have at least one effect`);
+  }
+
+  for (const effect of medicine.effects) {
+    if (!medicineEffectTypes.has(effect.type)) {
+      errors.push(
+        `Medicine ${medicine.id} effect ${effect.type} must be supported`
+      );
+      continue;
+    }
+
+    if (effect.type === "cleanse_status") {
+      if (!Array.isArray(effect.dispelTags) || effect.dispelTags.length === 0) {
+        errors.push(
+          `Medicine ${medicine.id} cleanse effect must have at least one dispel tag`
+        );
+      } else {
+        for (const tag of effect.dispelTags) {
+          if (!statusDispelTags.has(tag)) {
+            errors.push(
+              `Medicine ${medicine.id} dispel tag ${tag} must be supported`
+            );
+          }
+        }
+      }
+
+      if (
+        effect.maxCount !== undefined &&
+        (!Number.isInteger(effect.maxCount) || effect.maxCount <= 0)
+      ) {
+        errors.push(
+          `Medicine ${medicine.id} cleanse maxCount must be a positive integer`
+        );
+      }
+
+      continue;
+    }
+
+    if (effect.type === "status_resistance_bonus") {
+      if (effect.value <= 0) {
+        errors.push(
+          `Medicine ${medicine.id} status resistance value must be positive`
+        );
+      }
+
+      if (effect.durationSeconds <= 0) {
+        errors.push(
+          `Medicine ${medicine.id} status resistance durationSeconds must be positive`
+        );
+      }
+    }
+  }
+
+  return errors;
+}
+
 export function validateStaticGameData(data: StaticGameData): string[] {
   const errors: string[] = [];
   const entityGroups: Array<[string, EntityWithId[]]> = [
@@ -929,7 +1033,15 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const skill of data.skills) {
-    errors.push(...validateSkill(skill));
+    errors.push(...validateSkill(skill, statusEffectIds));
+  }
+
+  for (const status of data.statusEffects) {
+    errors.push(...validateStatusEffect(status));
+  }
+
+  for (const medicine of data.medicines) {
+    errors.push(...validateMedicine(medicine, stageIds));
   }
 
   for (const equipment of data.equipment) {

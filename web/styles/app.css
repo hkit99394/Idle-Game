@@ -1,6 +1,6 @@
 :root {
   color: #15120e;
-  background: #f4f0e7;
+  background: #f3efe7;
   font-family:
     Inter,
     ui-sans-serif,
@@ -34,8 +34,8 @@ textarea {
 .app-shell {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(244, 240, 231, 0.92), rgba(235, 230, 218, 0.96)),
-    #f4f0e7;
+    linear-gradient(180deg, rgba(243, 239, 231, 0.94), rgba(232, 234, 227, 0.98)),
+    #f3efe7;
 }
 
 .battle-surface {
@@ -2127,5 +2127,9 @@ h2 {
   .event-row {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .summary-list {
+    grid-template-columns: 1fr;
   }
 }

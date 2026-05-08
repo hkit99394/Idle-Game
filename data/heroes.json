@@ -17,7 +17,9 @@
       "critDamage": 1.5,
       "breakPower": 0,
       "breakResist": 0.01,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0,
+      "statusResistance": 0.02
     },
     "skillIds": ["iron_fist_combo"],
     "passiveIds": [],
@@ -41,7 +43,9 @@
       "critDamage": 1.4,
       "breakPower": 0.03,
       "breakResist": 0.01,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0.04,
+      "statusResistance": 0.03
     },
     "skillIds": ["meridian_shock"],
     "passiveIds": [],
@@ -65,7 +69,9 @@
       "critDamage": 1.6,
       "breakPower": 0.01,
       "breakResist": 0.01,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0.02,
+      "statusResistance": 0.02
     },
     "skillIds": ["white_crane_slash"],
     "passiveIds": [],
@@ -89,7 +95,9 @@
       "critDamage": 1.4,
       "breakPower": 0,
       "breakResist": 0.03,
-      "innerRecoveryRate": 0.006
+      "innerRecoveryRate": 0.006,
+      "statusAccuracy": 0,
+      "statusResistance": 0.05
     },
     "skillIds": ["sweeping_staff"],
     "passiveIds": [],

@@ -25,6 +25,8 @@ export type BaseStats = {
   breakPower: number;
   breakResist: number;
   innerRecoveryRate: number;
+  statusAccuracy: number;
+  statusResistance: number;
 };
 
 export type DerivedStats = BaseStats;

@@ -26,9 +26,11 @@
     "targetRule": "first_living",
     "effects": [
       {
-        "type": "inner_defense_down",
-        "value": 0.1,
-        "durationSeconds": 6
+        "type": "apply_status",
+        "statusId": "qi_suppression",
+        "chance": 0.75,
+        "durationSeconds": 6,
+        "stacks": 1
       }
     ]
   },

@@ -19,7 +19,9 @@
       "critDamage": 1.4,
       "breakPower": 0,
       "breakResist": 0,
-      "innerRecoveryRate": 0.004
+      "innerRecoveryRate": 0.004,
+      "statusAccuracy": 0,
+      "statusResistance": 0
     },
     "skillIds": ["bandit_cut"],
     "traitIds": []
@@ -44,7 +46,9 @@
       "critDamage": 1.4,
       "breakPower": 0.01,
       "breakResist": 0.01,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0.03,
+      "statusResistance": 0.02
     },
     "skillIds": ["meridian_shock"],
     "traitIds": []
@@ -69,7 +73,9 @@
       "critDamage": 1.5,
       "breakPower": 0,
       "breakResist": 0.02,
-      "innerRecoveryRate": 0.004
+      "innerRecoveryRate": 0.004,
+      "statusAccuracy": 0,
+      "statusResistance": 0.08
     },
     "skillIds": ["guarding_saber"],
     "traitIds": ["boss"]

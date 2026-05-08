@@ -32,6 +32,7 @@ const staticData: StaticGameData = {
   formations: formations as StaticGameData["formations"],
   styles: styles as StaticGameData["styles"]
 };
+const report = buildBalanceReport(staticData);
 
 const report = buildBambooRoadBalanceReport(staticData);
 

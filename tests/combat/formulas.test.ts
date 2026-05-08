@@ -25,7 +25,9 @@ const attacker: DerivedStats = {
   critDamage: 1.5,
   breakPower: 0,
   breakResist: 0,
-  innerRecoveryRate: 0.005
+  innerRecoveryRate: 0.005,
+  statusAccuracy: 0,
+  statusResistance: 0
 };
 
 const target: DerivedStats = {
@@ -40,7 +42,9 @@ const target: DerivedStats = {
   critDamage: 1.5,
   breakPower: 0,
   breakResist: 0,
-  innerRecoveryRate: 0.005
+  innerRecoveryRate: 0.005,
+  statusAccuracy: 0,
+  statusResistance: 0
 };
 
 describe("combat formulas", () => {
