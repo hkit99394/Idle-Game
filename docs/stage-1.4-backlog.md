@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.4 is planned and not started.
+Stage 1.4 is in progress.
 
 The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is to add a new region whose enemies pressure the player through burst damage, wounds, Qi suppression, and debuffs, while giving the Lotus support and medicine systems a clear combat purpose.
 
@@ -41,7 +41,7 @@ The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is t
 | 26 | Demon Cult Outpost Region | In Progress | Add region, stages, enemies, rewards, and boss gate |
 | 27 | Counterplay Growth | In Progress | Add upgrades, medicine, and support hooks that answer status pressure |
 | 28 | Battle UI And Summary Polish | In Progress | Make statuses readable during and after battle |
-| 29 | Offline, Save, And Migration Safety | Not Started | Keep imported saves, offline farming, and diagnostics safe |
+| 29 | Offline, Save, And Migration Safety | In Progress | Keep imported saves, offline farming, and diagnostics safe |
 | 30 | Simulator And Balance Pass | Not Started | Validate the new region and all-region balance reports |
 
 ---
@@ -264,6 +264,10 @@ smoke coverage can land when the combat loop exists.
 
 Keep Stage 1.4 safe for existing saves and offline farming.
 
+Branch-scope note: this checkout did not have a save module yet. The first Epic
+29 slice introduces the core save boundary and offline reward application; web
+storage/import UI can be added once the playable state layer exists.
+
 ### Tasks
 
 - Bump save data version if new persisted fields are added.
@@ -288,6 +292,16 @@ Keep Stage 1.4 safe for existing saves and offline farming.
 - Fractional or oversized highest-cleared stage values are rejected.
 - Offline Demon Cult reward applies once across repeated reloads.
 - Offline rewards do not clear Demon Cult boss.
+
+### Progress Notes
+
+- Added versioned save data with resources, map progress, medicine inventory, selected farm target, and timestamp guards.
+- Added migration from pre-Stage 1.4 saves so missing Demon Cult map progress and medicine inventory default safely.
+- Added diagnostics for unknown map ids, impossible map progress, invalid medicine inventory, and invalid timestamps.
+- Added core validation for selected offline farm targets requiring cleared, non-boss, farmable stages.
+- Added offline reward application that advances `updatedAtMs` and `lastOfflineRewardAtMs` immediately after rewards are applied.
+- Added tests for Stage 1.3 migration, invalid imports, Demon Cult farm target safety, and duplicate offline reward prevention.
+- Remaining integration work: browser storage/import UI, save diagnostics panel, and end-to-end reload smoke once the playable state layer exists.
 
 ---
 
