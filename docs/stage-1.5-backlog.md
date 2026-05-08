@@ -51,7 +51,7 @@ The recommended theme is **Status Counterplay Automation And Balance**. Stage 1.
 | 32 | Auto Medicine System | Completed | Consume medicine safely during battle and non-battle recovery |
 | 33 | Counterplay Loadout And Preview | Completed | Let players understand and manage medicine/counterplay choices |
 | 34 | Status Visual Language | Completed | Standardize fixed category colors, severity, and cleanse display |
-| 35 | Scenario Simulator And Balance Gates | Not Started | Tune Demon Cult with baseline and counterplay scenarios |
+| 35 | Scenario Simulator And Balance Gates | Completed | Tune Demon Cult with baseline and counterplay scenarios |
 | 36 | Support Identity Decision | Not Started | Decide whether Lotus support is enough or a new hero is needed |
 
 ---
@@ -308,6 +308,17 @@ Use the simulator to tune Demon Cult around intended counterplay instead of raw 
 - Scenario totals include status duration and reduced tick damage.
 - Medicine scenario records expected medicine consumption.
 - Boss gate result changes when counterplay is applied.
+
+### Progress Notes
+
+- Added default balance scenario presets for baseline, resistance, medicine, and combined counterplay.
+- Updated the core balance report to run every configured region and stage for every scenario while preserving baseline `regions` and `totals` for existing consumers.
+- Added scenario metrics for status attempts, application chance, expected duration, tick damage, reduced tick damage, cleanses, and medicine consumed.
+- Added broad status pressure estimates for vulnerability and backlash statuses so Demon Cult boss gates reflect more than poison damage.
+- Added stage balance assessments for `too_fast`, `target`, `too_slow`, and `impossible` outcomes.
+- Added explicit Demon Cult boss gate criteria: baseline must remain blocked, and the combined scenario must reach at least the near-clear survival ratio.
+- Updated CLI formatting so `npm run simulate` prints a scenario summary before detailed per-stage output.
+- Added tests for scenario coverage, missing scenario validation, status duration/reduced tick totals, medicine consumption, and Demon Cult boss gate improvement.
 
 ---
 
