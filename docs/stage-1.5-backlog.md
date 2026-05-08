@@ -52,7 +52,7 @@ The recommended theme is **Status Counterplay Automation And Balance**. Stage 1.
 | 33 | Counterplay Loadout And Preview | Completed | Let players understand and manage medicine/counterplay choices |
 | 34 | Status Visual Language | Completed | Standardize fixed category colors, severity, and cleanse display |
 | 35 | Scenario Simulator And Balance Gates | Completed | Tune Demon Cult with baseline and counterplay scenarios |
-| 36 | Support Identity Decision | Not Started | Decide whether Lotus support is enough or a new hero is needed |
+| 36 | Support Identity Decision | Completed | Decide whether Lotus support is enough or a new hero is needed |
 
 ---
 
@@ -356,6 +356,46 @@ Decide whether Demon Cult counterplay should be carried by existing Lotus suppor
 - Prototype scenario can be run without changing default static data.
 - Decision document references simulator outputs.
 
+### Support Identity Decision Record
+
+Decision: **keep Lotus/support counterplay as the Stage 1.6 direction; do not add a new production hero yet.**
+
+Simulator evidence from `npm run support-decision`:
+
+| Option | Estimated CP | Boss Result | Gate | survival ratio | Clear Time | Survival Time | status damage | Status Duration | medicine |
+| --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Default combined route | - | enemy_hold | near | 0.8 | 100.3s | 84.3s | 95.9 | 101.6 | 2 |
+| Lotus support prototype | 2825 | enemy_hold | near | 0.9 | 100.3s | 86.2s | 61.0 | 70.9 | 2 |
+| New support hero prototype | 3430 | player_clear | pass | 1.1 | 96.2s | 104.4s | 74.1 | 76.7 | 2 |
+| Temporary manual prototype | 3017 | enemy_hold | near | 0.9 | 100.3s | 87.3s | 42.4 | 52.6 | 2 |
+
+Rationale:
+
+- The default combined route already reaches the Demon Cult near-clear gate, so Stage 1.6 should make the support identity more visible instead of expanding the roster immediately.
+- The Lotus support prototype improves survival ratio and status damage while keeping medicine use and UI scope stable.
+- The new hero prototype clears the boss, but it requires new roster, unlock timing, formation, and presentation work before the combat loop needs that complexity.
+- The temporary manual prototype is numerically strong, but the fantasy is weaker; fold this into Lotus/support training rather than making it a separate direction.
+
+Rejected alternatives:
+
+- New anti-Demon Cult hero: defer until team composition needs a roster shake-up. Prototype role would be anti-status support, Staff style, unlocked around Demon Cult stage 4, with roster and formation UI impact.
+- Temporary ally/manual only: useful as a reward format, but it should reinforce Lotus purity support rather than replace character identity.
+
+Stage 1.6 recommendation:
+
+- Make Mountain Staff Guardian and Lotus purity training the visible anti-status counterplay path.
+- Add Lotus purity support upgrades or manuals that grant status resistance and cleanse reliability.
+- Show support contribution in battle summary and counterplay preview.
+- Keep a new Lotus hero as a later content reward only if Stage 1.6 playtests need roster excitement.
+
+### Progress Notes
+
+- Added a pure support identity decision report that compares Lotus support, new support hero, and temporary manual prototypes without mutating production static data.
+- Added a prototype Lotus support hero and skill inside the decision simulator only; `data/heroes.json` and `data/skills.json` are unchanged.
+- Added estimated team CP, Demon Cult boss clear time, survival time, survival ratio, medicine use, status damage, and status duration for each option.
+- Added `npm run support-decision` and `npm run support-decision -- --json` for rerunning the spike outside tests.
+- Added tests that protect prototype isolation, selected direction, default balance data safety, and decision documentation.
+
 ---
 
 ## Recommended Implementation Order
@@ -381,7 +421,7 @@ Decide whether Demon Cult counterplay should be carried by existing Lotus suppor
 - [x] Auto medicine policy implemented and tested.
 - [x] Counterplay preview/loadout planned or implemented.
 - [x] Status visual language standardized.
-- [ ] Scenario simulator reports baseline and counterplay routes.
-- [ ] Demon Cult support/new hero decision documented.
+- [x] Scenario simulator reports baseline and counterplay routes.
+- [x] Demon Cult support/new hero decision documented.
 - [ ] Stage 1.5 backlog reviewed.
 - [ ] Stage 1.5 backlog moved to archive after completion.

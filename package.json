@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "simulate": "vite-node tools/simulateBattle.ts"
+    "simulate": "vite-node tools/simulateBattle.ts",
+    "support-decision": "vite-node tools/supportDecision.ts"
   },
   "dependencies": {
     "react": "^19.0.0",
