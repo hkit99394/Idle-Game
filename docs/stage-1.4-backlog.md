@@ -8,7 +8,7 @@ The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is t
 
 ## Stage Goals
 
-- Add a new Demon Cult Outpost region after Lotus Monastery.
+- Add a new Demon Cult Outpost region after the current final boss gate.
 - Introduce status effects as a first-class combat system.
 - Add counterplay through support heroes, medicine, resist stats, and targeted upgrades.
 - Make battle summaries explain debuff pressure, cleansing, and burst deaths.
@@ -38,7 +38,7 @@ The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is t
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 25 | Status Effect Engine | In Progress | Add reusable combat statuses, ticking effects, cleanses, and telemetry |
-| 26 | Demon Cult Outpost Region | Not Started | Add region, stages, enemies, rewards, and boss gate |
+| 26 | Demon Cult Outpost Region | In Progress | Add region, stages, enemies, rewards, and boss gate |
 | 27 | Counterplay Growth | Not Started | Add upgrades, medicine, and support hooks that answer status pressure |
 | 28 | Battle UI And Summary Polish | Not Started | Make statuses readable during and after battle |
 | 29 | Offline, Save, And Migration Safety | Not Started | Keep imported saves, offline farming, and diagnostics safe |
@@ -107,6 +107,8 @@ Create a small, data-driven status effect system that can support poison, wound,
 
 Add a new region after Lotus Monastery that teaches the player to answer burst and debuff pressure.
 
+Branch-scope note: this checkout currently only has Bamboo Road content, so the first Demon Cult implementation unlocks after `bamboo_road_10`. If Lotus Monastery content is restored on this branch later, retarget the Demon Cult unlock condition to the Lotus boss.
+
 ### Tasks
 
 - Add Demon Cult Outpost to region data.
@@ -129,7 +131,7 @@ Add a new region after Lotus Monastery that teaches the player to answer burst a
 
 ### Acceptance Criteria
 
-- Demon Cult unlocks only after the configured Lotus boss clear.
+- Demon Cult unlocks only after the configured previous boss clear.
 - Locked Demon Cult stages cannot be selected or farmed.
 - Clearing Demon Cult stages updates current/highest stage correctly.
 - Boss clears remain online-only.
@@ -138,11 +140,21 @@ Add a new region after Lotus Monastery that teaches the player to answer burst a
 
 ### Test Coverage
 
-- Lotus boss clear unlocks Demon Cult stage 1.
+- Configured previous boss clear unlocks Demon Cult stage 1.
 - Re-clearing older regions does not move current stage backward.
 - Demon Cult boss remains locked until prior stages are cleared.
 - Farm recommendation selects the best cleared farmable Demon Cult stage.
 - Enemy teams spawn with configured formation slots.
+
+### Progress Notes
+
+- Added Demon Cult Outpost to static region data as a seven-stage region.
+- Connected Bamboo Road boss progression into Demon Cult stage 1 for this branch.
+- Added Demon Cult enemies, boss, status-heavy skills, farmable normal stages, rewards, and an online-only boss gate.
+- Added core stage progression helpers for region unlock, stage unlock, cleared-state checks, and offline farmability.
+- Added content tests for Demon Cult region shape and status-pattern coverage.
+- Added progression tests for Demon Cult unlock gating and non-boss farmability.
+- Remaining integration work: full battle-resolution progression updates, farm recommendation policy, all-region simulator balance, and eventual Lotus retarget if Lotus content returns.
 
 ---
 

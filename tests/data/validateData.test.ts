@@ -41,6 +41,34 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects broken stage progression references", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      stages: staticData.stages.map((stage) =>
+        stage.id === "bamboo_road_10"
+          ? { ...stage, nextStageId: "missing_stage" }
+          : stage
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Stage bamboo_road_10 references missing next stage missing_stage"
+    );
+  });
+
+  it("rejects region stage order mismatches", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      stages: staticData.stages.map((stage) =>
+        stage.id === "demon_cult_outpost_1" ? { ...stage, index: 2 } : stage
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Stage demon_cult_outpost_1 index must match its region order"
+    );
+  });
+
   it("rejects skills that reference missing statuses", () => {
     const invalidData: StaticGameData = {
       ...staticData,

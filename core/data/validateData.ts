@@ -113,6 +113,60 @@ function validateRegionStageRefs(
   );
 }
 
+function validateUnlockConditionRefs(
+  regions: RegionDefinition[],
+  stageIds: Set<string>
+): string[] {
+  return regions.flatMap((region) =>
+    region.unlockCondition.type === "stage_cleared" &&
+    !stageIds.has(region.unlockCondition.stageId)
+      ? [
+          `Region ${region.id} references missing unlock stage ${region.unlockCondition.stageId}`
+        ]
+      : []
+  );
+}
+
+function validateStageNextStageRefs(
+  stages: StageDefinition[],
+  stageIds: Set<string>
+): string[] {
+  return stages.flatMap((stage) =>
+    stage.nextStageId !== null && !stageIds.has(stage.nextStageId)
+      ? [`Stage ${stage.id} references missing next stage ${stage.nextStageId}`]
+      : []
+  );
+}
+
+function validateRegionStageMembership(
+  regions: RegionDefinition[],
+  stagesById: Map<string, StageDefinition>
+): string[] {
+  return regions.flatMap((region) =>
+    region.stageIds.flatMap((stageId, index) => {
+      const stage = stagesById.get(stageId);
+
+      if (stage === undefined) {
+        return [];
+      }
+
+      const errors: string[] = [];
+
+      if (stage.regionId !== region.id) {
+        errors.push(
+          `Region ${region.id} includes stage ${stage.id} from ${stage.regionId}`
+        );
+      }
+
+      if (stage.index !== index + 1) {
+        errors.push(`Stage ${stage.id} index must match its region order`);
+      }
+
+      return errors;
+    })
+  );
+}
+
 function validateSkill(
   skill: SkillDefinition,
   statusEffectIds: Set<string>
@@ -283,6 +337,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const skillIds = new Set(data.skills.map((skill) => skill.id));
   const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
   const stageIds = new Set(data.stages.map((stage) => stage.id));
+  const stagesById = new Map(data.stages.map((stage) => [stage.id, stage]));
   const statusEffectIds = new Set(
     data.statusEffects.map((status) => status.id)
   );
@@ -291,6 +346,9 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   errors.push(...validateEnemySkillRefs(data.enemies, skillIds));
   errors.push(...validateStageEnemyRefs(data.stages, enemyIds));
   errors.push(...validateRegionStageRefs(data.regions, stageIds));
+  errors.push(...validateUnlockConditionRefs(data.regions, stageIds));
+  errors.push(...validateStageNextStageRefs(data.stages, stageIds));
+  errors.push(...validateRegionStageMembership(data.regions, stagesById));
 
   for (const hero of data.heroes) {
     errors.push(...validateStats(hero.id, hero.baseStats));

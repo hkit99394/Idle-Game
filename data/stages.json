@@ -107,6 +107,91 @@
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 120, "cultivation": 60, "combatExperience": 100 },
+    "nextStageId": "demon_cult_outpost_1"
+  },
+  {
+    "id": "demon_cult_outpost_1",
+    "regionId": "demon_cult_outpost",
+    "index": 1,
+    "name": "Red Sash Gate",
+    "enemyTeam": { "combatantIds": ["red_sash_blade", "blood_candle_acolyte"] },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 150, "cultivation": 75, "combatExperience": 120 },
+    "nextStageId": "demon_cult_outpost_2"
+  },
+  {
+    "id": "demon_cult_outpost_2",
+    "regionId": "demon_cult_outpost",
+    "index": 2,
+    "name": "Ash Vial Yard",
+    "enemyTeam": { "combatantIds": ["ash_vial_rogue", "red_sash_blade"] },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 172, "cultivation": 86, "combatExperience": 130 },
+    "nextStageId": "demon_cult_outpost_3"
+  },
+  {
+    "id": "demon_cult_outpost_3",
+    "regionId": "demon_cult_outpost",
+    "index": 3,
+    "name": "Hex Seal Altar",
+    "enemyTeam": { "combatantIds": ["hex_seal_adept", "blood_candle_acolyte"] },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 198, "cultivation": 99, "combatExperience": 145 },
+    "nextStageId": "demon_cult_outpost_4"
+  },
+  {
+    "id": "demon_cult_outpost_4",
+    "regionId": "demon_cult_outpost",
+    "index": 4,
+    "name": "Burning Blood Hall",
+    "enemyTeam": {
+      "combatantIds": ["red_sash_blade", "hex_seal_adept", "ash_vial_rogue"]
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 230, "cultivation": 115, "combatExperience": 165 },
+    "nextStageId": "demon_cult_outpost_5"
+  },
+  {
+    "id": "demon_cult_outpost_5",
+    "regionId": "demon_cult_outpost",
+    "index": 5,
+    "name": "Candle Scripture Vault",
+    "enemyTeam": {
+      "combatantIds": ["blood_candle_acolyte", "demon_banner_guard"]
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 268, "cultivation": 134, "combatExperience": 190 },
+    "nextStageId": "demon_cult_outpost_6"
+  },
+  {
+    "id": "demon_cult_outpost_6",
+    "regionId": "demon_cult_outpost",
+    "index": 6,
+    "name": "Outpost Inner Court",
+    "enemyTeam": {
+      "combatantIds": ["ash_vial_rogue", "hex_seal_adept", "demon_banner_guard"]
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 312, "cultivation": 156, "combatExperience": 220 },
+    "nextStageId": "demon_cult_outpost_7"
+  },
+  {
+    "id": "demon_cult_outpost_7",
+    "regionId": "demon_cult_outpost",
+    "index": 7,
+    "name": "Demon Banner Captain",
+    "enemyTeam": {
+      "combatantIds": ["demon_banner_captain", "hex_seal_adept", "red_sash_blade"]
+    },
+    "isBoss": true,
+    "canFarmOffline": false,
+    "rewards": { "silver": 760, "cultivation": 380, "combatExperience": 480 },
     "nextStageId": null
   }
 ]

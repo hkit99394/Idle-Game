@@ -15,5 +15,22 @@
       "bamboo_road_10"
     ],
     "unlockCondition": { "type": "always" }
+  },
+  {
+    "id": "demon_cult_outpost",
+    "name": "Demon Cult Outpost",
+    "stageIds": [
+      "demon_cult_outpost_1",
+      "demon_cult_outpost_2",
+      "demon_cult_outpost_3",
+      "demon_cult_outpost_4",
+      "demon_cult_outpost_5",
+      "demon_cult_outpost_6",
+      "demon_cult_outpost_7"
+    ],
+    "unlockCondition": {
+      "type": "stage_cleared",
+      "stageId": "bamboo_road_10"
+    }
   }
 ]

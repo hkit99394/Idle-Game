@@ -77,5 +77,104 @@
     "innerMultiplier": 0.1,
     "targetRule": "first_living",
     "effects": []
+  },
+  {
+    "id": "poison_needle",
+    "name": "Poison Needle",
+    "cooldownSeconds": 4.5,
+    "outerMultiplier": 0.45,
+    "innerMultiplier": 0.2,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "poison",
+        "chance": 0.65,
+        "durationSeconds": 8,
+        "stacks": 1
+      }
+    ]
+  },
+  {
+    "id": "red_sash_combo",
+    "name": "Red Sash Combo",
+    "cooldownSeconds": 5,
+    "outerMultiplier": 1.45,
+    "innerMultiplier": 0.15,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "vulnerable",
+        "chance": 0.55,
+        "durationSeconds": 5,
+        "stacks": 1
+      }
+    ]
+  },
+  {
+    "id": "hex_seal",
+    "name": "Hex Seal",
+    "cooldownSeconds": 6,
+    "outerMultiplier": 0.25,
+    "innerMultiplier": 1.3,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "qi_suppression",
+        "chance": 0.7,
+        "durationSeconds": 6,
+        "stacks": 1
+      }
+    ]
+  },
+  {
+    "id": "ash_vial",
+    "name": "Ash Vial",
+    "cooldownSeconds": 7,
+    "outerMultiplier": 0.65,
+    "innerMultiplier": 0.1,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "poison",
+        "chance": 0.75,
+        "durationSeconds": 8,
+        "stacks": 1
+      },
+      {
+        "type": "apply_status",
+        "statusId": "wound",
+        "chance": 0.5,
+        "durationSeconds": 6,
+        "stacks": 1
+      }
+    ]
+  },
+  {
+    "id": "burning_banner",
+    "name": "Burning Banner",
+    "cooldownSeconds": 8,
+    "outerMultiplier": 0.8,
+    "innerMultiplier": 0.8,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "burning_blood",
+        "chance": 0.65,
+        "durationSeconds": 5,
+        "stacks": 1
+      },
+      {
+        "type": "apply_status",
+        "statusId": "vulnerable",
+        "chance": 0.35,
+        "durationSeconds": 5,
+        "stacks": 1
+      }
+    ]
   }
 ]
