@@ -264,14 +264,26 @@ export function resolveStageBattle(
   const battle = simulateBattle(data, {
     playerTeam: playerTeam.team,
     enemyTeam: enemyTeam.team,
-    maxDurationSeconds: input.maxDurationSeconds
+    maxDurationSeconds: input.maxDurationSeconds,
+    autoMedicine: {
+      medicines: data.medicines,
+      inventory: input.progress.medicineInventory ?? {},
+      preferences: input.autoMedicinePreferences,
+      stage,
+      enemies: data.enemies,
+      skills: data.skills
+    }
   });
+  const progressAfterBattleMedicine = applyBattleMedicineInventory(
+    input.progress,
+    battle.autoMedicine.inventory
+  );
 
   if (battle.winner !== "player") {
     return {
       ok: true,
       stageCleared: false,
-      progress: input.progress,
+      progress: progressAfterBattleMedicine,
       battle,
       rewards: null,
       masteryRanksBefore: [],
@@ -284,7 +296,7 @@ export function resolveStageBattle(
   }
 
   const rewardsResult = applyStageClearRewards(data, {
-    progress: input.progress,
+    progress: progressAfterBattleMedicine,
     stageId: stage.id
   });
 
@@ -316,4 +328,35 @@ export function resolveStageBattle(
     suggestedFarmStageId: null,
     equipmentRewards: rewardsResult.equipmentRewards
   };
+}
+
+function applyBattleMedicineInventory(
+  progress: PlayerProgress,
+  medicineInventory: PlayerProgress["medicineInventory"]
+): PlayerProgress {
+  const currentInventory = progress.medicineInventory ?? {};
+
+  if (isSameMedicineInventory(currentInventory, medicineInventory ?? {})) {
+    return progress;
+  }
+
+  return {
+    ...progress,
+    medicineInventory: { ...(medicineInventory ?? {}) }
+  };
+}
+
+function isSameMedicineInventory(
+  left: NonNullable<PlayerProgress["medicineInventory"]>,
+  right: NonNullable<PlayerProgress["medicineInventory"]>
+): boolean {
+  const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+
+  for (const key of keys) {
+    if ((left[key] ?? 0) !== (right[key] ?? 0)) {
+      return false;
+    }
+  }
+
+  return true;
 }

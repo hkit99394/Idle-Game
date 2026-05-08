@@ -2,32 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   buildBalanceReport,
   defaultBalanceScenarioPresets,
-  formatBalanceReport
+  formatBalanceReport,
+  getStageStatusPressureIds
 } from "../../core";
 import type { StaticGameData } from "../../core";
-import enemies from "../../data/enemies.json" with { type: "json" };
-import formations from "../../data/formations.json" with { type: "json" };
-import heroes from "../../data/heroes.json" with { type: "json" };
-import mastery from "../../data/mastery.json" with { type: "json" };
-import medicines from "../../data/medicines.json" with { type: "json" };
-import regions from "../../data/regions.json" with { type: "json" };
-import skills from "../../data/skills.json" with { type: "json" };
-import stages from "../../data/stages.json" with { type: "json" };
-import statusEffects from "../../data/statusEffects.json" with { type: "json" };
-import upgrades from "../../data/upgrades.json" with { type: "json" };
-
-const staticData: StaticGameData = {
-  heroes: heroes as StaticGameData["heroes"],
-  skills: skills as StaticGameData["skills"],
-  enemies: enemies as StaticGameData["enemies"],
-  regions: regions as StaticGameData["regions"],
-  stages: stages as StaticGameData["stages"],
-  upgrades: upgrades as StaticGameData["upgrades"],
-  mastery: mastery as StaticGameData["mastery"],
-  formations: formations as StaticGameData["formations"],
-  statusEffects: statusEffects as StaticGameData["statusEffects"],
-  medicines: medicines as StaticGameData["medicines"]
-};
+import { staticData } from "../helpers/staticData";
 
 describe("balance report", () => {
   it("includes every configured region and stage in region order", () => {
@@ -144,6 +123,8 @@ describe("balance report", () => {
     const medicine = getScenario(report, "medicine");
     const combined = getScenario(report, "combined");
     const baselineDemonBoss = getDemonCultBoss(baseline);
+    const resistanceDemonBoss = getDemonCultBoss(resistance);
+    const medicineDemonBoss = getDemonCultBoss(medicine);
     const combinedDemonBoss = getDemonCultBoss(combined);
 
     expect(resistance.totals.statusApplications).toBeLessThan(
@@ -156,6 +137,8 @@ describe("balance report", () => {
       baseline.totals.statusDurationSeconds
     );
     expect(baselineDemonBoss.result).toBe("enemy_hold");
+    expect(resistanceDemonBoss.rating).toBe("fail");
+    expect(medicineDemonBoss.rating).toBe("fail");
     expect(combinedDemonBoss.survivalRatio).toBeGreaterThan(
       baselineDemonBoss.survivalRatio
     );
@@ -165,6 +148,84 @@ describe("balance report", () => {
       intendedScenarioId: "combined",
       pass: true
     });
+    expect(report.demonCultBossGate?.criteria).toMatchObject({
+      intendedNearSurvivalRatio: 0.9,
+      preferredClearTimeSeconds: {
+        min: 90,
+        max: 120
+      },
+      acceptableClearTimeSeconds: {
+        min: 80,
+        max: 140
+      }
+    });
+    expect(report.demonCultBossGate?.estimatedClearTimeSeconds).toBeGreaterThanOrEqual(80);
+    expect(report.demonCultBossGate?.estimatedClearTimeSeconds).toBeLessThanOrEqual(140);
+    expect(report.demonCultBossGate?.medicineConsumed).toBeLessThanOrEqual(4);
+    expect(report.demonCultBossGate?.statusDamage).toBeLessThanOrEqual(600);
+    expect(report.demonCultBossGate?.reasons).toEqual(
+      expect.arrayContaining([
+        "baseline remains blocked",
+        expect.stringContaining("combined survival ratio"),
+        expect.stringContaining("combined clear time"),
+        expect.stringContaining("medicine use"),
+        expect.stringContaining("status damage")
+      ])
+    );
+  });
+
+  it("keeps Demon Cult boss balance status pressure aligned with combat helpers", () => {
+    const report = buildBalanceReport(staticData);
+    const combined = getScenario(report, "combined");
+    const combinedDemonBoss = getDemonCultBoss(combined);
+    const combinedDemonBossStage = combined.regions
+      .flatMap((region) => region.stages)
+      .find((stage) => stage.stageId === combinedDemonBoss.stageId);
+    const bossStage = staticData.stages.find(
+      (stage) => stage.id === combinedDemonBoss.stageId
+    );
+
+    expect(bossStage).toBeDefined();
+    expect(combinedDemonBossStage).toBeDefined();
+    if (bossStage === undefined || combinedDemonBossStage === undefined) {
+      return;
+    }
+
+    expect(combinedDemonBossStage.statusMetrics.statusIds).toEqual(
+      getStageStatusPressureIds({
+        stage: bossStage,
+        enemies: staticData.enemies,
+        skills: staticData.skills
+      })
+    );
+    expect(combinedDemonBossStage.statusMetrics.medicineConsumed).toBe(
+      report.demonCultBossGate?.medicineConsumed
+    );
+  });
+
+  it("flags Demon Cult boss clear time outside the acceptable tuning band", () => {
+    const slowData: StaticGameData = {
+      ...staticData,
+      enemies: staticData.enemies.map((enemy) =>
+        enemy.id === "demon_cult_overseer"
+          ? {
+              ...enemy,
+              baseStats: {
+                ...enemy.baseStats,
+                maxOuterHp: enemy.baseStats.maxOuterHp * 1.4,
+                outerAttack: enemy.baseStats.outerAttack * 0.4,
+                innerAttack: enemy.baseStats.innerAttack * 0.4
+              }
+            }
+          : enemy
+      )
+    };
+    const report = buildBalanceReport(slowData);
+
+    expect(report.demonCultBossGate?.pass).toBe(false);
+    expect(report.demonCultBossGate?.failureReason).toContain(
+      "combined clear time"
+    );
   });
 
   it("fails loudly when required scenario presets are missing", () => {

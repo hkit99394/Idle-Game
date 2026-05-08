@@ -52,6 +52,7 @@ export function createInitialPlayerProgress(
       inventory: {},
       equipped: {}
     },
+    medicineInventory: {},
     assignments: {},
     currentStageId: firstStageId
   };
@@ -112,6 +113,9 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
             ])
           )
         }
+      : undefined,
+    medicineInventory: progress.medicineInventory
+      ? { ...progress.medicineInventory }
       : undefined,
     assignments: progress.assignments
       ? Object.fromEntries(

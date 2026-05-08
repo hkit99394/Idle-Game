@@ -1,39 +1,26 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  buildBalanceReport,
   buildSupportIdentityDecisionReport
-} from "../../core";
-import type { StaticGameData } from "../../core";
-import enemies from "../../data/enemies.json" with { type: "json" };
-import formations from "../../data/formations.json" with { type: "json" };
-import heroes from "../../data/heroes.json" with { type: "json" };
-import mastery from "../../data/mastery.json" with { type: "json" };
-import medicines from "../../data/medicines.json" with { type: "json" };
-import regions from "../../data/regions.json" with { type: "json" };
-import skills from "../../data/skills.json" with { type: "json" };
-import stages from "../../data/stages.json" with { type: "json" };
-import statusEffects from "../../data/statusEffects.json" with { type: "json" };
-import upgrades from "../../data/upgrades.json" with { type: "json" };
-
-const staticData: StaticGameData = {
-  heroes: heroes as StaticGameData["heroes"],
-  skills: skills as StaticGameData["skills"],
-  enemies: enemies as StaticGameData["enemies"],
-  regions: regions as StaticGameData["regions"],
-  stages: stages as StaticGameData["stages"],
-  upgrades: upgrades as StaticGameData["upgrades"],
-  mastery: mastery as StaticGameData["mastery"],
-  formations: formations as StaticGameData["formations"],
-  statusEffects: statusEffects as StaticGameData["statusEffects"],
-  medicines: medicines as StaticGameData["medicines"]
-};
+} from "../../tools/supportDecision/decision";
+import { buildBalanceReport } from "../../core";
+import { createSupportIdentityDecisionInput } from "../../tools/fixtures/supportIdentityPrototypes";
+import { staticData } from "../helpers/staticData";
 
 describe("support identity decision", () => {
+  function buildDecisionReport() {
+    const decisionInput = createSupportIdentityDecisionInput(staticData);
+
+    return buildSupportIdentityDecisionReport(
+      decisionInput.data,
+      decisionInput.options
+    );
+  }
+
   it("runs prototype support options without changing production static data", () => {
     const heroIdsBefore = staticData.heroes.map((hero) => hero.id);
     const skillIdsBefore = staticData.skills.map((skill) => skill.id);
-    const report = buildSupportIdentityDecisionReport(staticData);
+    const report = buildDecisionReport();
 
     expect(staticData.heroes.map((hero) => hero.id)).toEqual(heroIdsBefore);
     expect(staticData.skills.map((skill) => skill.id)).toEqual(skillIdsBefore);
@@ -47,7 +34,7 @@ describe("support identity decision", () => {
   });
 
   it("selects Lotus support using scenario metrics", () => {
-    const report = buildSupportIdentityDecisionReport(staticData);
+    const report = buildDecisionReport();
     const lotus = getOption(report, "lotus_support");
     const newHero = getOption(report, "new_support_hero");
     const manual = getOption(report, "temporary_manual");
@@ -55,10 +42,18 @@ describe("support identity decision", () => {
     expect(report.selectedOptionId).toBe("lotus_support");
     expect(lotus.productionRosterChangeRequired).toBe(false);
     expect(newHero.productionRosterChangeRequired).toBe(true);
+    expect(lotus.supportContribution).toMatchObject({
+      label: "Lotus Purity Training",
+      statusResistanceBonus: 0.08
+    });
+    expect(lotus.supportContribution?.estimatedCpContribution).toBeGreaterThan(0);
     expect(lotus.estimatedTeamCp).toBeGreaterThan(0);
     expect(newHero.estimatedTeamCp).toBeGreaterThan(lotus.estimatedTeamCp);
     expect(manual.demonCultBoss.statusDamage).toBeLessThan(
       report.defaultCombinedGate.statusDamage
+    );
+    expect(lotus.demonCultBoss.statusDurationSeconds).toBeLessThan(
+      report.defaultCombinedGate.statusDurationSeconds
     );
     expect(lotus.demonCultBoss.survivalRatio).toBeGreaterThan(
       report.defaultCombinedGate.survivalRatio

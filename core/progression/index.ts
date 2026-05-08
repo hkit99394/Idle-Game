@@ -13,5 +13,6 @@ export * from "./rewards";
 export * from "./skillUpgrades";
 export * from "./stages";
 export * from "./styleMastery";
+export * from "./supportGrowth";
 export * from "./types";
 export * from "./upgrades";

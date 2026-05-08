@@ -1,6 +1,14 @@
 import type { StageDefinition, StaticGameData } from "../data";
 import type { PlayerProgress } from "./types";
 
+export type RegionProgress = Record<
+  string,
+  {
+    highestClearedStageIndex: number;
+    combatExperience?: number;
+  }
+>;
+
 export const OFFLINE_FARM_PRESETS = [
   "balanced",
   "silver",
@@ -102,9 +110,39 @@ export function hasClearedStage(
   );
 }
 
+function isPlayerProgress(
+  progress: PlayerProgress | RegionProgress
+): progress is PlayerProgress {
+  return (
+    typeof (progress as PlayerProgress).currentStageId === "string" &&
+    typeof (progress as PlayerProgress).maps === "object"
+  );
+}
+
+function getProgressMaps(progress: PlayerProgress | RegionProgress): RegionProgress {
+  return isPlayerProgress(progress) ? progress.maps : progress;
+}
+
+export function isStageCleared(
+  data: Pick<StaticGameData, "stages">,
+  progress: PlayerProgress | RegionProgress,
+  stageId: string
+): boolean {
+  const stage = getStageById(data, stageId);
+
+  if (!stage) {
+    return false;
+  }
+
+  return (
+    (getProgressMaps(progress)[stage.regionId]?.highestClearedStageIndex ?? 0) >=
+    stage.index
+  );
+}
+
 export function isRegionUnlocked(
   data: Pick<StaticGameData, "regions" | "stages">,
-  progress: PlayerProgress,
+  progress: PlayerProgress | RegionProgress,
   regionId: string
 ): boolean {
   const region = data.regions.find((candidate) => candidate.id === regionId);
@@ -120,7 +158,9 @@ export function isRegionUnlocked(
   if (region.unlockCondition.type === "stage_cleared") {
     const requiredStage = getStageById(data, region.unlockCondition.stageId);
 
-    return requiredStage ? hasClearedStage(progress, requiredStage) : false;
+    return requiredStage
+      ? isStageCleared(data, progress, requiredStage.id)
+      : false;
   }
 
   return false;
@@ -128,14 +168,21 @@ export function isRegionUnlocked(
 
 export function isStageUnlocked(
   data: Pick<StaticGameData, "regions" | "stages">,
-  progress: PlayerProgress,
-  stage: StageDefinition
+  progress: PlayerProgress | RegionProgress,
+  stageOrId: StageDefinition | string
 ): boolean {
+  const stage =
+    typeof stageOrId === "string" ? getStageById(data, stageOrId) : stageOrId;
+
+  if (!stage) {
+    return false;
+  }
+
   if (!isRegionUnlocked(data, progress, stage.regionId)) {
     return false;
   }
 
-  const mapProgress = progress.maps[stage.regionId];
+  const mapProgress = getProgressMaps(progress)[stage.regionId];
 
   if (!mapProgress) {
     return stage.index === 1;
@@ -229,6 +276,21 @@ export function isOfflineFarmStageUnlocked(
   stageId: string
 ): boolean {
   return validateOfflineFarmStageTarget(data, progress, stageId).ok;
+}
+
+export function isStageFarmable(
+  data: Pick<StaticGameData, "stages">,
+  progress: PlayerProgress | RegionProgress,
+  stageId: string
+): boolean {
+  const stage = getStageById(data, stageId);
+
+  return Boolean(
+    stage &&
+      !stage.isBoss &&
+      stage.canFarmOffline &&
+      isStageCleared(data, progress, stage.id)
+  );
 }
 
 export function getUnlockedOfflineFarmStages(

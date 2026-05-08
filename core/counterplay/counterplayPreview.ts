@@ -1,10 +1,16 @@
 import {
   defaultAutoMedicinePreferences,
+  getMedicineAutoUseLabel,
+  getPreBattleResistanceModeLabel,
+  getPreBattleResistancePolicyDecision,
   getStageStatusPressureIds,
+  isMedicineAutoUseEnabled,
   selectAutoCleanseMedicine,
   selectAutoPreBattleResistanceMedicine,
   type AutoMedicinePreferences,
-  type MedicineInventory
+  type AutoMedicineToggleLabel,
+  type MedicineInventory,
+  type PreBattleResistanceMode
 } from "../combat";
 import type {
   EnemyDefinition,
@@ -14,8 +20,12 @@ import type {
   StaticGameData
 } from "../data";
 import type { ActiveStatusEffect, StatusEffectDefinition } from "../combat";
-import type { RegionProgress } from "../progression";
-import { isStageCleared } from "../progression";
+import {
+  getLotusSupportGrowthContribution,
+  isStageCleared,
+  type PlayerProgress,
+  type RegionProgress
+} from "../progression";
 
 export type MedicineAvailability = "ready" | "empty" | "locked" | "disabled";
 
@@ -26,6 +36,9 @@ export type MedicineCounterplayViewModel = {
   maxCarry: number;
   unlocked: boolean;
   owned: boolean;
+  disabled: boolean;
+  autoUseEnabled: boolean;
+  autoUseLabel: AutoMedicineToggleLabel;
   autoEligible: boolean;
   availability: MedicineAvailability;
   effectLabels: string[];
@@ -44,11 +57,16 @@ export type StageCounterplayPreview = {
   statusCategories: StatusEffectDefinition["category"][];
   recommendedMedicineIds: string[];
   recommendationText: string;
+  supportContributionText: string | null;
+  supportResistanceBonus: number;
+  preBattleResistanceMode: PreBattleResistanceMode;
+  preBattleResistanceModeLabel: string;
+  preBattleResistancePolicyReason: string | null;
 };
 
 type CounterplayData = Pick<
   StaticGameData,
-  "medicines" | "stages" | "enemies" | "skills" | "statusEffects"
+  "medicines" | "stages" | "enemies" | "skills" | "statusEffects" | "upgrades"
 >;
 
 export function buildMedicineCounterplayViewModels(input: {
@@ -69,11 +87,11 @@ export function buildMedicineCounterplayViewModels(input: {
     );
     const owned = count > 0;
     const disabled = disabledMedicineIds.has(medicine.id);
+    const autoUseEnabled = isMedicineAutoUseEnabled(preferences, medicine.id);
     const autoEligible =
-      preferences.enabled &&
+      autoUseEnabled &&
       unlocked &&
       owned &&
-      !disabled &&
       hasAutoEffect(medicine);
 
     return {
@@ -83,6 +101,9 @@ export function buildMedicineCounterplayViewModels(input: {
       maxCarry: medicine.maxCarry,
       unlocked,
       owned,
+      disabled,
+      autoUseEnabled,
+      autoUseLabel: getMedicineAutoUseLabel(preferences, medicine.id),
       autoEligible,
       availability: getMedicineAvailability({
         unlocked,
@@ -98,8 +119,10 @@ export function buildStageCounterplayPreview(input: {
   data: CounterplayData;
   stage: StageDefinition;
   inventory: MedicineInventory;
+  progress?: Pick<PlayerProgress, "sect">;
   preferences?: AutoMedicinePreferences;
 }): StageCounterplayPreview {
+  const preferences = input.preferences ?? defaultAutoMedicinePreferences;
   const statusDefinitions = Object.fromEntries(
     input.data.statusEffects.map((status) => [status.id, status])
   );
@@ -107,6 +130,15 @@ export function buildStageCounterplayPreview(input: {
     stage: input.stage,
     enemies: input.data.enemies,
     skills: input.data.skills
+  });
+  const preBattleResistancePolicy = getPreBattleResistancePolicyDecision({
+    medicines: input.data.medicines,
+    inventory: input.inventory,
+    stage: input.stage,
+    enemies: input.data.enemies,
+    skills: input.data.skills,
+    statusDefinitions,
+    preferences
   });
   const pressureStatuses = statusPressureIds.flatMap((statusId) => {
     const status = statusDefinitions[statusId];
@@ -119,14 +151,14 @@ export function buildStageCounterplayPreview(input: {
     enemies: input.data.enemies,
     skills: input.data.skills,
     statusDefinitions,
-    preferences: input.preferences
+    preferences
   });
   const cleanseMedicineIds = selectStageCleanseMedicineIds({
     medicines: input.data.medicines,
     inventory: input.inventory,
     pressureStatuses,
     statusDefinitions,
-    preferences: input.preferences
+    preferences
   });
   const recommendedMedicineIds = [
     ...new Set([
@@ -134,6 +166,13 @@ export function buildStageCounterplayPreview(input: {
       ...cleanseMedicineIds
     ].filter((medicineId): medicineId is string => medicineId !== undefined))
   ];
+  const supportContribution = input.progress
+    ? getLotusSupportGrowthContribution(input.data, input.progress)
+    : null;
+  const supportContributionText =
+    supportContribution !== null && statusPressureIds.length > 0
+      ? supportContribution.contributionText
+      : null;
 
   return {
     stageId: input.stage.id,
@@ -153,7 +192,14 @@ export function buildStageCounterplayPreview(input: {
       pressureStatuses,
       recommendedMedicineIds,
       medicines: input.data.medicines
-    })
+    }),
+    supportContributionText,
+    supportResistanceBonus: supportContribution?.effectiveResistanceBonus ?? 0,
+    preBattleResistanceMode: preBattleResistancePolicy.mode,
+    preBattleResistanceModeLabel: getPreBattleResistanceModeLabel(
+      preBattleResistancePolicy.mode
+    ),
+    preBattleResistancePolicyReason: preBattleResistancePolicy.skippedReason
   };
 }
 
@@ -205,11 +251,16 @@ function isMedicineUnlocked(
   progress: RegionProgress,
   medicine: MedicineDefinition
 ): boolean {
-  if (medicine.unlock.type === "always") {
-    return true;
-  }
+  switch (medicine.unlock.type) {
+    case "always":
+      return true;
 
-  return isStageCleared(data, progress, medicine.unlock.stageId);
+    case "stage_cleared":
+      return isStageCleared(data, progress, medicine.unlock.stageId);
+
+    default:
+      return false;
+  }
 }
 
 function hasAutoEffect(medicine: MedicineDefinition): boolean {

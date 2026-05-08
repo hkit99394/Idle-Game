@@ -7,12 +7,12 @@ import type {
   CombatantInstanceDefinition,
   CombatantState,
   SimulateBattleInput,
+  StatusEffectDefinition,
   TeamId
 } from "./types";
 import type {
   EnemyDefinition,
   HeroDefinition,
-  SkillEffect,
   SkillUpgradeDefinition,
   SkillDefinition,
   StaticGameData
@@ -32,32 +32,50 @@ import {
 } from "./formulas";
 import { getDefaultFormationSlot } from "./formations";
 import {
-  clearCleanseableStatusEffects,
-  createTimedRecoveryStatusEffect,
-  createTimedStatusEffect,
+  addStatusResistanceBonus,
+  advanceStatusEffects,
+  createStatusDictionary,
   expireStatusEffects,
-  getActiveStatusEffect,
   getActiveStatusEffectValue,
-  hasCleanseableStatusEffect,
-  setStatusEffect
+  getCombatantStatusResistance,
+  getStatusCombatModifiers
 } from "./statusEffects";
 import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
 
-const BASIC_SKILL_ID = "basic_strike";
-const DEFENSIVE_EFFECT_MAX_VALUE = 0.9;
-const RECOVERY_EFFECT_MAX_VALUE = 1;
-const RECOVERY_TICK_INTERVAL_SECONDS = 1;
-const FORMATION_SLOT_ORDER = {
-  front: 0,
-  middle: 1,
-  back: 2
-} as const;
+import {
+  createInitialContributions,
+  createInitialMetrics,
+  finalizeContributions,
+  finalizeMetrics,
+  markDefeated,
+  recordBacklash,
+  recordDamage,
+  recordQiBreak
+} from "./battleRecorder";
+import {
+  applyGuardReduction,
+  applyProtectionReduction,
+  findProtector,
+  getEffectiveTargetStats
+} from "./defensivePipeline";
+import {
+  applyRecoverySkillEffects,
+  applyTimedSkillEffects,
+  tickRegeneration
+} from "./effectPipeline";
+import {
+  applyAutoCleanseMedicine,
+  applyAutoPreBattleResistanceMedicine
+} from "./autoMedicine/application";
+import type { AutoMedicineUseSummary } from "./autoMedicine/types";
 
+const BASIC_SKILL_ID = "basic_strike";
 type DefinitionLookup = {
   heroes: Map<string, HeroDefinition>;
   enemies: Map<string, EnemyDefinition>;
   skills: Map<string, SkillDefinition>;
   skillUpgrades: SkillUpgradeDefinition[];
+  statusDefinitions: Record<string, StatusEffectDefinition>;
 };
 
 function createLookup(staticData: StaticGameData): DefinitionLookup {
@@ -65,7 +83,8 @@ function createLookup(staticData: StaticGameData): DefinitionLookup {
     heroes: new Map(staticData.heroes.map((hero) => [hero.id, hero])),
     enemies: new Map(staticData.enemies.map((enemy) => [enemy.id, enemy])),
     skills: new Map(staticData.skills.map((skill) => [skill.id, skill])),
-    skillUpgrades: staticData.skillUpgrades
+    skillUpgrades: staticData.skillUpgrades,
+    statusDefinitions: createStatusDictionary(staticData.statusEffects)
   };
 }
 
@@ -194,81 +213,24 @@ function createCombatantState(
     protection: null,
     armorBreak: null,
     wound: null,
+    speedDown: null,
+    innerDefenseDown: null,
+    statusResistanceBonuses: [],
+    activeStatuses: [],
     regeneration: null,
     defeatedAt: null
   };
 }
 
-function createInitialMetrics(): BattleMetrics {
-  return {
-    playerOuterDamage: 0,
-    playerInnerDamage: 0,
-    enemyOuterDamage: 0,
-    enemyInnerDamage: 0,
-    playerQiBreakBurstDamage: 0,
-    enemyQiBreakBurstDamage: 0,
-    qiBreaksTriggeredByPlayer: 0,
-    qiBreaksTriggeredByEnemy: 0,
-    backlashDamageToEnemies: 0,
-    backlashDamageToPlayers: 0,
-    guardDamagePreventedByPlayer: 0,
-    guardDamagePreventedByEnemy: 0,
-    protectionDamagePreventedByPlayer: 0,
-    protectionDamagePreventedByEnemy: 0,
-    armorBreaksTriggeredByPlayer: 0,
-    armorBreaksTriggeredByEnemy: 0,
-    woundsTriggeredByPlayer: 0,
-    woundsTriggeredByEnemy: 0,
-    cleansesByPlayer: 0,
-    cleansesByEnemy: 0,
-    playerOuterHealing: 0,
-    enemyOuterHealing: 0,
-    playerInnerQiRestored: 0,
-    enemyInnerQiRestored: 0,
-    playerOverhealing: 0,
-    enemyOverhealing: 0,
-    recoveryPreventedByPlayer: 0,
-    recoveryPreventedByEnemy: 0,
-    playerEffectiveDps: 0,
-    enemyEffectiveDps: 0
-  };
-}
-
-function createInitialContributions(
-  combatants: CombatantState[]
-): Map<string, BattleContribution> {
-  return new Map(
-    combatants.map((combatant) => [
-      combatant.instanceId,
-      {
-        instanceId: combatant.instanceId,
-        definitionId: combatant.definitionId,
-        kind: combatant.kind,
-        team: combatant.team,
-        name: combatant.name,
-        formationSlot: combatant.formationSlot,
-        combatRole: combatant.combatRole,
-        outerDamageDealt: 0,
-        innerDamageDealt: 0,
-        qiBreakBurstDamageDealt: 0,
-        qiBreaksTriggered: 0,
-        outerDamageTaken: 0,
-        innerDamageTaken: 0,
-        backlashDamageTaken: 0,
-        guardDamagePrevented: 0,
-        protectionDamagePrevented: 0,
-        protectionTriggers: 0,
-        armorBreaksApplied: 0,
-        woundsApplied: 0,
-        cleansesApplied: 0,
-        outerHealingDone: 0,
-        innerQiRestored: 0,
-        overhealingDone: 0,
-        recoveryPrevented: 0,
-        survived: true
-      }
-    ])
+function getEffectiveActionSpeed(combatant: CombatantState, time: number): number {
+  const speedReduction = getActiveStatusEffectValue(
+    combatant,
+    "speed_down",
+    time,
+    (value) => clamp(value, 0, 0.9)
   );
+
+  return combatant.stats.speed * (1 - speedReduction);
 }
 
 function createCombatants(
@@ -284,6 +246,195 @@ function createCombatants(
   );
 
   return [...playerCombatants, ...enemyCombatants];
+}
+
+type RuntimeAutoMedicineState = {
+  inventory: Record<string, number | undefined>;
+  uses: AutoMedicineUseSummary[];
+};
+
+type BattleRuntime = {
+  input: SimulateBattleInput;
+  lookup: DefinitionLookup;
+  constants: CombatFormulaConstants;
+  maxDurationSeconds: number;
+  stepSeconds: number;
+  combatants: CombatantState[];
+  events: BattleEvent[];
+  metrics: BattleMetrics;
+  contributions: Map<string, BattleContribution>;
+  autoMedicine: RuntimeAutoMedicineState;
+};
+
+function applyPreBattleAutoMedicine(
+  staticData: StaticGameData,
+  input: SimulateBattleInput,
+  statusDefinitions: Record<string, StatusEffectDefinition>
+): {
+  autoMedicine: RuntimeAutoMedicineState;
+  preBattleUse: AutoMedicineUseSummary | null;
+} {
+  const autoMedicine: RuntimeAutoMedicineState = {
+    inventory: { ...(input.autoMedicine?.inventory ?? {}) },
+    uses: []
+  };
+
+  if (!input.autoMedicine?.stage) {
+    return {
+      autoMedicine,
+      preBattleUse: null
+    };
+  }
+
+  const result = applyAutoPreBattleResistanceMedicine({
+    medicines: input.autoMedicine.medicines,
+    inventory: autoMedicine.inventory,
+    stage: input.autoMedicine.stage,
+    enemies: input.autoMedicine.enemies ?? staticData.enemies,
+    skills: input.autoMedicine.skills ?? staticData.skills,
+    statusDefinitions,
+    preferences: input.autoMedicine.preferences
+  });
+
+  autoMedicine.inventory = result.inventory;
+
+  return {
+    autoMedicine,
+    preBattleUse: result.usedMedicine
+  };
+}
+
+function createBattleRuntime(
+  staticData: StaticGameData,
+  input: SimulateBattleInput
+): BattleRuntime {
+  const constants = input.constants ?? defaultCombatFormulaConstants;
+  const lookup = createLookup(staticData);
+  const preBattleAutoMedicine = applyPreBattleAutoMedicine(
+    staticData,
+    input,
+    lookup.statusDefinitions
+  );
+  const combatants = createCombatants(lookup, input, constants);
+  const runtime: BattleRuntime = {
+    input,
+    lookup,
+    constants,
+    maxDurationSeconds: input.maxDurationSeconds ?? 180,
+    stepSeconds: input.stepSeconds ?? 0.1,
+    combatants,
+    events: [],
+    metrics: createInitialMetrics(),
+    contributions: createInitialContributions(combatants),
+    autoMedicine: preBattleAutoMedicine.autoMedicine
+  };
+
+  if (preBattleAutoMedicine.preBattleUse) {
+    applyPreBattleAutoMedicineUse(runtime, preBattleAutoMedicine.preBattleUse);
+  }
+
+  return runtime;
+}
+
+function applyPreBattleAutoMedicineUse(
+  runtime: BattleRuntime,
+  preBattleUse: AutoMedicineUseSummary
+): void {
+  const usedMedicine = recordAutoMedicineUse(runtime.events, preBattleUse, 0);
+
+  for (const combatant of runtime.combatants) {
+    if (combatant.team === "player" && isLiving(combatant)) {
+      applyAutoMedicineResistanceBonus(combatant, usedMedicine, 0);
+    }
+  }
+
+  runtime.autoMedicine.uses.push(usedMedicine);
+}
+
+function recordAutoMedicineUse(
+  events: BattleEvent[],
+  usedMedicine: AutoMedicineUseSummary,
+  time: number,
+  targetId?: string
+): AutoMedicineUseSummary {
+  const summary = {
+    ...usedMedicine,
+    timeSeconds: time,
+    targetId
+  };
+
+  events.push({
+    type: "auto_medicine",
+    time,
+    medicineId: summary.medicineId,
+    trigger: summary.trigger,
+    targetId,
+    cleansedStatusIds: summary.cleansedStatusIds,
+    statusResistanceBonus: summary.statusResistanceBonus,
+    statusResistanceDurationSeconds: summary.statusResistanceDurationSeconds
+  });
+
+  return summary;
+}
+
+function applyAutoMedicineResistanceBonus(
+  combatant: CombatantState,
+  usedMedicine: AutoMedicineUseSummary,
+  time: number
+): void {
+  addStatusResistanceBonus(combatant, {
+    medicineId: usedMedicine.medicineId,
+    value: usedMedicine.statusResistanceBonus,
+    appliedAt: time,
+    durationSeconds: usedMedicine.statusResistanceDurationSeconds
+  });
+}
+
+function applyBattleCleanseAutoMedicine(
+  input: SimulateBattleInput,
+  statusDefinitions: Record<string, StatusEffectDefinition>,
+  combatants: CombatantState[],
+  autoMedicine: RuntimeAutoMedicineState,
+  time: number,
+  events: BattleEvent[]
+): void {
+  if (!input.autoMedicine) {
+    return;
+  }
+
+  for (const combatant of combatants) {
+    if (
+      combatant.team !== "player" ||
+      !isLiving(combatant)
+    ) {
+      continue;
+    }
+
+    const result = applyAutoCleanseMedicine({
+      medicines: input.autoMedicine.medicines,
+      inventory: autoMedicine.inventory,
+      activeStatuses: combatant.activeStatuses,
+      combatant,
+      timeSeconds: time,
+      statusDefinitions,
+      trigger: "battle_cleanse",
+      preferences: input.autoMedicine.preferences
+    });
+
+    autoMedicine.inventory = result.inventory;
+    combatant.activeStatuses = result.statuses;
+
+    if (result.usedMedicine) {
+      const usedMedicine = recordAutoMedicineUse(
+        events,
+        result.usedMedicine,
+        time,
+        combatant.instanceId
+      );
+      applyAutoMedicineResistanceBonus(combatant, usedMedicine, time);
+      autoMedicine.uses.push(usedMedicine);
+    }
+  }
 }
 
 function chooseSkill(
@@ -308,909 +459,6 @@ function chooseSkill(
     lookup.skillUpgrades,
     combatant.skillUpgradeLevels
   );
-}
-
-function recordDamage(
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  source: CombatantState,
-  target: CombatantState,
-  outerDamage: number,
-  innerDamage: number
-): void {
-  if (source.team === "player") {
-    metrics.playerOuterDamage += outerDamage;
-    metrics.playerInnerDamage += innerDamage;
-  } else {
-    metrics.enemyOuterDamage += outerDamage;
-    metrics.enemyInnerDamage += innerDamage;
-  }
-
-  const sourceContribution = contributions.get(source.instanceId);
-  const targetContribution = contributions.get(target.instanceId);
-
-  if (sourceContribution) {
-    sourceContribution.outerDamageDealt += outerDamage;
-    sourceContribution.innerDamageDealt += innerDamage;
-  }
-
-  if (targetContribution) {
-    targetContribution.outerDamageTaken += outerDamage;
-    targetContribution.innerDamageTaken += innerDamage;
-  }
-}
-
-function recordQiBreak(
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  source: CombatantState,
-  target: CombatantState,
-  burstDamage: number
-): void {
-  if (source.team === "player") {
-    metrics.qiBreaksTriggeredByPlayer += 1;
-    metrics.playerQiBreakBurstDamage += burstDamage;
-  } else {
-    metrics.qiBreaksTriggeredByEnemy += 1;
-    metrics.enemyQiBreakBurstDamage += burstDamage;
-  }
-
-  const sourceContribution = contributions.get(source.instanceId);
-  const targetContribution = contributions.get(target.instanceId);
-
-  if (sourceContribution) {
-    sourceContribution.qiBreaksTriggered += 1;
-    sourceContribution.qiBreakBurstDamageDealt += burstDamage;
-  }
-
-  if (targetContribution) {
-    targetContribution.outerDamageTaken += burstDamage;
-  }
-}
-
-function recordBacklash(
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  brokenAttacker: CombatantState,
-  damage: number
-): void {
-  if (brokenAttacker.team === "player") {
-    metrics.backlashDamageToPlayers += damage;
-  } else {
-    metrics.backlashDamageToEnemies += damage;
-  }
-
-  const contribution = contributions.get(brokenAttacker.instanceId);
-
-  if (contribution) {
-    contribution.outerDamageTaken += damage;
-    contribution.backlashDamageTaken += damage;
-  }
-}
-
-function markDefeated(
-  combatant: CombatantState,
-  time: number,
-  events: BattleEvent[]
-): void {
-  if (combatant.outerHp <= 0 && combatant.defeatedAt === null) {
-    combatant.outerHp = 0;
-    combatant.defeatedAt = time;
-    events.push({
-      type: "defeat",
-      time,
-      targetId: combatant.instanceId,
-      team: combatant.team
-    });
-  }
-}
-
-function getFormationSlotOrder(combatant: CombatantState): number {
-  return FORMATION_SLOT_ORDER[combatant.formationSlot];
-}
-
-function clampDefensiveEffectValue(value: number): number {
-  return clamp(value, 0, DEFENSIVE_EFFECT_MAX_VALUE);
-}
-
-function clampRecoveryEffectValue(value: number): number {
-  return clamp(value, 0, RECOVERY_EFFECT_MAX_VALUE);
-}
-
-function getEffectiveTargetStats(
-  target: CombatantState,
-  time: number
-): CombatantState["stats"] {
-  const armorBreak = getActiveStatusEffectValue(
-    target,
-    "armor_break",
-    time,
-    clampDefensiveEffectValue
-  );
-
-  if (armorBreak <= 0) {
-    return target.stats;
-  }
-
-  return {
-    ...target.stats,
-    outerDefense: target.stats.outerDefense * (1 - armorBreak)
-  };
-}
-
-function findProtector(
-  combatants: CombatantState[],
-  target: CombatantState,
-  time: number
-): CombatantState | null {
-  const targetSlotOrder = getFormationSlotOrder(target);
-
-  return combatants
-    .flatMap((combatant, encounterOrder) =>
-      combatant.team === target.team &&
-      combatant.instanceId !== target.instanceId &&
-      isLiving(combatant) &&
-      getActiveStatusEffectValue(
-        combatant,
-        "protection",
-        time,
-        clampDefensiveEffectValue
-      ) > 0 &&
-      getFormationSlotOrder(combatant) < targetSlotOrder
-        ? [{ combatant, encounterOrder }]
-        : []
-    )
-    .sort((first, second) => {
-      const slotDifference =
-        getFormationSlotOrder(second.combatant) -
-        getFormationSlotOrder(first.combatant);
-
-      return slotDifference || first.encounterOrder - second.encounterOrder;
-    })[0]?.combatant ?? null;
-}
-
-function applyGuardReduction(
-  target: CombatantState,
-  outerDamage: number,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): number {
-  const guard = getActiveStatusEffect(target, "guard", time);
-
-  if (!guard) {
-    return outerDamage;
-  }
-
-  const armorBreak = getActiveStatusEffectValue(
-    target,
-    "armor_break",
-    time,
-    clampDefensiveEffectValue
-  );
-  const reduction = Math.max(0, clampDefensiveEffectValue(guard.value) - armorBreak);
-
-  if (reduction <= 0) {
-    return outerDamage;
-  }
-
-  const outerDamagePrevented = outerDamage * reduction;
-
-  if (target.team === "player") {
-    metrics.guardDamagePreventedByPlayer += outerDamagePrevented;
-  } else {
-    metrics.guardDamagePreventedByEnemy += outerDamagePrevented;
-  }
-
-  const targetContribution = contributions.get(target.instanceId);
-
-  if (targetContribution) {
-    targetContribution.guardDamagePrevented += outerDamagePrevented;
-  }
-
-  events.push({
-    type: "guard_absorb",
-    time,
-    targetId: target.instanceId,
-    skillId: guard.skillId,
-    statusId: "guard",
-    outerDamagePrevented,
-    reduction
-  });
-
-  return outerDamage - outerDamagePrevented;
-}
-
-function recordProtection(
-  protector: CombatantState,
-  protectedTarget: CombatantState,
-  attacker: CombatantState,
-  outerDamagePrevented: number,
-  innerDamagePrevented: number,
-  reduction: number,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): void {
-  const protection = getActiveStatusEffect(protector, "protection", time);
-
-  if (!protection) {
-    return;
-  }
-
-  const totalPrevented = outerDamagePrevented + innerDamagePrevented;
-
-  if (protector.team === "player") {
-    metrics.protectionDamagePreventedByPlayer += totalPrevented;
-  } else {
-    metrics.protectionDamagePreventedByEnemy += totalPrevented;
-  }
-
-  const protectorContribution = contributions.get(protector.instanceId);
-
-  if (protectorContribution) {
-    protectorContribution.protectionDamagePrevented += totalPrevented;
-    protectorContribution.protectionTriggers += 1;
-  }
-
-  events.push({
-    type: "protect",
-    time,
-    sourceId: protector.instanceId,
-    protectedId: protectedTarget.instanceId,
-    attackerId: attacker.instanceId,
-    skillId: protection.skillId,
-    statusId: "protection",
-    outerDamagePrevented,
-    innerDamagePrevented,
-    reduction
-  });
-}
-
-function applyProtectionReduction(
-  protector: CombatantState | null,
-  protectedTarget: CombatantState,
-  attacker: CombatantState,
-  outerDamage: number,
-  innerDamage: number,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): { outerDamage: number; innerDamage: number } {
-  if (!protector) {
-    return { outerDamage, innerDamage };
-  }
-
-  const protection = getActiveStatusEffect(protector, "protection", time);
-
-  if (!protection) {
-    return { outerDamage, innerDamage };
-  }
-
-  const reduction = clampDefensiveEffectValue(protection.value);
-
-  if (reduction <= 0) {
-    return { outerDamage, innerDamage };
-  }
-
-  const outerDamagePrevented = outerDamage * reduction;
-  const innerDamagePrevented = innerDamage * reduction;
-
-  recordProtection(
-    protector,
-    protectedTarget,
-    attacker,
-    outerDamagePrevented,
-    innerDamagePrevented,
-    reduction,
-    time,
-    metrics,
-    contributions,
-    events
-  );
-
-  return {
-    outerDamage: outerDamage - outerDamagePrevented,
-    innerDamage: innerDamage - innerDamagePrevented
-  };
-}
-
-function getWoundReduction(target: CombatantState, time: number): number {
-  return getActiveStatusEffectValue(
-    target,
-    "wound",
-    time,
-    clampRecoveryEffectValue
-  );
-}
-
-function getMissingOuterHp(combatant: CombatantState): number {
-  return Math.max(0, combatant.maxOuterHp - combatant.outerHp);
-}
-
-function getMissingInnerQi(combatant: CombatantState): number {
-  return Math.max(0, combatant.maxInnerQi - combatant.innerQi);
-}
-
-function hasCleanseableStatus(combatant: CombatantState, time: number): boolean {
-  return hasCleanseableStatusEffect(combatant, time);
-}
-
-function selectAllyByScore(
-  combatants: CombatantState[],
-  attacker: CombatantState,
-  getScore: (combatant: CombatantState) => number
-): CombatantState {
-  return combatants
-    .filter((combatant) => combatant.team === attacker.team && isLiving(combatant))
-    .map((combatant, encounterOrder) => ({
-      combatant,
-      encounterOrder,
-      score: getScore(combatant)
-    }))
-    .sort(
-      (first, second) =>
-        second.score - first.score || first.encounterOrder - second.encounterOrder
-    )[0]?.combatant ?? attacker;
-}
-
-function selectEffectTarget(
-  combatants: CombatantState[],
-  attacker: CombatantState,
-  offensiveTarget: CombatantState,
-  effect: SkillEffect,
-  time: number
-): CombatantState {
-  switch (effect.target) {
-    case "target":
-      return offensiveTarget;
-
-    case "lowest_outer_hp_ally":
-      return selectAllyByScore(combatants, attacker, getMissingOuterHp);
-
-    case "lowest_inner_qi_ally":
-      return selectAllyByScore(combatants, attacker, getMissingInnerQi);
-
-    case "wounded_or_armor_broken_ally":
-      return selectAllyByScore(combatants, attacker, (combatant) =>
-        hasCleanseableStatus(combatant, time) ? 1 : 0
-      );
-
-    case "self":
-    case undefined:
-      return attacker;
-  }
-}
-
-function recordRecovery(
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  source: CombatantState,
-  outerHealing: number,
-  innerQiRestored: number,
-  overhealing: number,
-  recoveryPrevented: number,
-  recoveryPreventedById?: string
-): void {
-  if (source.team === "player") {
-    metrics.playerOuterHealing += outerHealing;
-    metrics.playerInnerQiRestored += innerQiRestored;
-    metrics.playerOverhealing += overhealing;
-    metrics.recoveryPreventedByEnemy += recoveryPrevented;
-  } else {
-    metrics.enemyOuterHealing += outerHealing;
-    metrics.enemyInnerQiRestored += innerQiRestored;
-    metrics.enemyOverhealing += overhealing;
-    metrics.recoveryPreventedByPlayer += recoveryPrevented;
-  }
-
-  const sourceContribution = contributions.get(source.instanceId);
-
-  if (sourceContribution) {
-    sourceContribution.outerHealingDone += outerHealing;
-    sourceContribution.innerQiRestored += innerQiRestored;
-    sourceContribution.overhealingDone += overhealing;
-  }
-
-  const preventerContribution = recoveryPreventedById
-    ? contributions.get(recoveryPreventedById)
-    : undefined;
-
-  if (preventerContribution) {
-    preventerContribution.recoveryPrevented += recoveryPrevented;
-  }
-}
-
-function applyRecoveryToTarget(
-  source: CombatantState,
-  target: CombatantState,
-  rawOuterRecovery: number,
-  rawInnerRecovery: number,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>
-): {
-  outerHealing: number;
-  innerQiRestored: number;
-  overhealing: number;
-  recoveryPrevented: number;
-} {
-  const wound = getActiveStatusEffect(target, "wound", time);
-  const woundReduction = getWoundReduction(target, time);
-  const recoveryPrevented =
-    (rawOuterRecovery + rawInnerRecovery) * woundReduction;
-  const reducedOuterRecovery = rawOuterRecovery * (1 - woundReduction);
-  const reducedInnerRecovery = rawInnerRecovery * (1 - woundReduction);
-  const outerHealing = Math.min(getMissingOuterHp(target), reducedOuterRecovery);
-  const innerQiRestored = Math.min(
-    getMissingInnerQi(target),
-    reducedInnerRecovery
-  );
-  const overhealing =
-    reducedOuterRecovery -
-    outerHealing +
-    reducedInnerRecovery -
-    innerQiRestored;
-
-  target.outerHp += outerHealing;
-  target.innerQi += innerQiRestored;
-
-  recordRecovery(
-    metrics,
-    contributions,
-    source,
-    outerHealing,
-    innerQiRestored,
-    overhealing,
-    recoveryPrevented,
-    wound?.sourceId
-  );
-
-  return {
-    outerHealing,
-    innerQiRestored,
-    overhealing,
-    recoveryPrevented
-  };
-}
-
-function recordWound(
-  attacker: CombatantState,
-  target: CombatantState,
-  skill: SkillDefinition,
-  value: number,
-  endsAt: number,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): void {
-  if (!isLiving(target)) {
-    return;
-  }
-
-  setStatusEffect(
-    target,
-    createTimedStatusEffect({
-      id: "wound",
-      value,
-      sourceId: attacker.instanceId,
-      targetId: target.instanceId,
-      skillId: skill.id,
-      appliedAt: time,
-      durationSeconds: endsAt - time
-    })
-  );
-
-  if (attacker.team === "player") {
-    metrics.woundsTriggeredByPlayer += 1;
-  } else {
-    metrics.woundsTriggeredByEnemy += 1;
-  }
-
-  const attackerContribution = contributions.get(attacker.instanceId);
-
-  if (attackerContribution) {
-    attackerContribution.woundsApplied += 1;
-  }
-
-  events.push({
-    type: "wound",
-    time,
-    sourceId: attacker.instanceId,
-    targetId: target.instanceId,
-    skillId: skill.id,
-    statusId: "wound",
-    reduction: value,
-    endsAt
-  });
-}
-
-function applyTimedSkillEffects(
-  attacker: CombatantState,
-  target: CombatantState,
-  skill: SkillDefinition,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): void {
-  for (const effect of skill.effects) {
-    const durationSeconds = effect.durationSeconds ?? 0;
-
-    if (durationSeconds <= 0) {
-      continue;
-    }
-
-    const endsAt = time + durationSeconds;
-
-    switch (effect.type) {
-      case "guard": {
-        const value = clampDefensiveEffectValue(effect.value);
-
-        setStatusEffect(
-          attacker,
-          createTimedStatusEffect({
-            id: "guard",
-            value,
-            sourceId: attacker.instanceId,
-            targetId: attacker.instanceId,
-            skillId: skill.id,
-            appliedAt: time,
-            durationSeconds
-          })
-        );
-        events.push({
-          type: "guard",
-          time,
-          sourceId: attacker.instanceId,
-          targetId: attacker.instanceId,
-          skillId: skill.id,
-          statusId: "guard",
-          reduction: value,
-          endsAt
-        });
-        break;
-      }
-
-      case "protect": {
-        const value = clampDefensiveEffectValue(effect.value);
-
-        setStatusEffect(
-          attacker,
-          createTimedStatusEffect({
-            id: "protection",
-            value,
-            sourceId: attacker.instanceId,
-            targetId: attacker.instanceId,
-            skillId: skill.id,
-            appliedAt: time,
-            durationSeconds
-          })
-        );
-        break;
-      }
-
-      case "armor_break": {
-        if (!isLiving(target)) {
-          break;
-        }
-
-        const value = clampDefensiveEffectValue(effect.value);
-
-        setStatusEffect(
-          target,
-          createTimedStatusEffect({
-            id: "armor_break",
-            value,
-            sourceId: attacker.instanceId,
-            targetId: target.instanceId,
-            skillId: skill.id,
-            appliedAt: time,
-            durationSeconds
-          })
-        );
-
-        if (attacker.team === "player") {
-          metrics.armorBreaksTriggeredByPlayer += 1;
-        } else {
-          metrics.armorBreaksTriggeredByEnemy += 1;
-        }
-
-        const attackerContribution = contributions.get(attacker.instanceId);
-
-        if (attackerContribution) {
-          attackerContribution.armorBreaksApplied += 1;
-        }
-
-        events.push({
-          type: "armor_break",
-          time,
-          sourceId: attacker.instanceId,
-          targetId: target.instanceId,
-          skillId: skill.id,
-          statusId: "armor_break",
-          reduction: value,
-          endsAt
-        });
-        break;
-      }
-
-      case "wound": {
-        const value = clampRecoveryEffectValue(effect.value);
-
-        if (value <= 0) {
-          break;
-        }
-
-        recordWound(
-          attacker,
-          target,
-          skill,
-          value,
-          endsAt,
-          time,
-          metrics,
-          contributions,
-          events
-        );
-        break;
-      }
-    }
-  }
-}
-
-function applyCleanseEffect(
-  combatants: CombatantState[],
-  attacker: CombatantState,
-  offensiveTarget: CombatantState,
-  skill: SkillDefinition,
-  effect: SkillEffect,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): void {
-  const target = selectEffectTarget(
-    combatants,
-    attacker,
-    offensiveTarget,
-    effect,
-    time
-  );
-
-  if (!isLiving(target)) {
-    return;
-  }
-
-  const removeCount = Math.max(1, Math.floor(effect.value));
-  const statusesRemoved = clearCleanseableStatusEffects(target, time, removeCount);
-
-  if (statusesRemoved.length === 0) {
-    return;
-  }
-
-  if (attacker.team === "player") {
-    metrics.cleansesByPlayer += 1;
-  } else {
-    metrics.cleansesByEnemy += 1;
-  }
-
-  const attackerContribution = contributions.get(attacker.instanceId);
-
-  if (attackerContribution) {
-    attackerContribution.cleansesApplied += 1;
-  }
-
-  events.push({
-    type: "cleanse",
-    time,
-    sourceId: attacker.instanceId,
-    targetId: target.instanceId,
-    skillId: skill.id,
-    statusesRemoved
-  });
-}
-
-function applyRegenerationEffect(
-  combatants: CombatantState[],
-  attacker: CombatantState,
-  offensiveTarget: CombatantState,
-  skill: SkillDefinition,
-  effect: SkillEffect,
-  time: number,
-  events: BattleEvent[]
-): void {
-  const durationSeconds = effect.durationSeconds ?? 0;
-  const value = clampRecoveryEffectValue(effect.value);
-
-  if (durationSeconds <= 0 || value <= 0) {
-    return;
-  }
-
-  const target = selectEffectTarget(
-    combatants,
-    attacker,
-    offensiveTarget,
-    effect,
-    time
-  );
-
-  if (!isLiving(target)) {
-    return;
-  }
-
-  const restores =
-    effect.type === "outer_regeneration_percent" ? "outer" : "inner";
-  const endsAt = time + durationSeconds;
-
-  setStatusEffect(
-    target,
-    createTimedRecoveryStatusEffect({
-      value,
-      sourceId: attacker.instanceId,
-      targetId: target.instanceId,
-      skillId: skill.id,
-      appliedAt: time,
-      durationSeconds,
-      nextTickAt: time + RECOVERY_TICK_INTERVAL_SECONDS,
-      tickIntervalSeconds: RECOVERY_TICK_INTERVAL_SECONDS,
-      restores
-    })
-  );
-
-  events.push({
-    type: "regeneration",
-    time,
-    sourceId: attacker.instanceId,
-    targetId: target.instanceId,
-    skillId: skill.id,
-    statusId: "regeneration",
-    restores,
-    percentPerTick: value,
-    endsAt
-  });
-}
-
-function applyRecoverySkillEffects(
-  combatants: CombatantState[],
-  attacker: CombatantState,
-  offensiveTarget: CombatantState,
-  skill: SkillDefinition,
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): void {
-  if (!isLiving(attacker)) {
-    return;
-  }
-
-  for (const effect of skill.effects) {
-    switch (effect.type) {
-      case "outer_heal_percent":
-      case "inner_heal_percent": {
-        const value = clampRecoveryEffectValue(effect.value);
-
-        if (value <= 0) {
-          break;
-        }
-
-        const target = selectEffectTarget(
-          combatants,
-          attacker,
-          offensiveTarget,
-          effect,
-          time
-        );
-
-        if (!isLiving(target)) {
-          break;
-        }
-
-        const result = applyRecoveryToTarget(
-          attacker,
-          target,
-          effect.type === "outer_heal_percent" ? target.maxOuterHp * value : 0,
-          effect.type === "inner_heal_percent" ? target.maxInnerQi * value : 0,
-          time,
-          metrics,
-          contributions
-        );
-
-        events.push({
-          type: "heal",
-          time,
-          sourceId: attacker.instanceId,
-          targetId: target.instanceId,
-          skillId: skill.id,
-          ...result
-        });
-        break;
-      }
-
-      case "outer_regeneration_percent":
-      case "inner_regeneration_percent":
-        applyRegenerationEffect(
-          combatants,
-          attacker,
-          offensiveTarget,
-          skill,
-          effect,
-          time,
-          events
-        );
-        break;
-
-      case "cleanse":
-        applyCleanseEffect(
-          combatants,
-          attacker,
-          offensiveTarget,
-          skill,
-          effect,
-          time,
-          metrics,
-          contributions,
-          events
-        );
-        break;
-    }
-  }
-}
-
-function tickRegeneration(
-  combatants: CombatantState[],
-  time: number,
-  metrics: BattleMetrics,
-  contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
-): void {
-  for (const combatant of combatants) {
-    while (
-      isLiving(combatant) &&
-      combatant.regeneration &&
-      time >= combatant.regeneration.nextTickAt &&
-      combatant.regeneration.nextTickAt < combatant.regeneration.expiresAt
-    ) {
-      const regeneration = combatant.regeneration;
-      const source =
-        combatants.find(
-          (candidate) => candidate.instanceId === regeneration.sourceId
-        ) ?? combatant;
-      const tickTime = Number(regeneration.nextTickAt.toFixed(6));
-      const result = applyRecoveryToTarget(
-        source,
-        combatant,
-        regeneration.restores === "outer"
-          ? combatant.maxOuterHp * regeneration.value
-          : 0,
-        regeneration.restores === "inner"
-          ? combatant.maxInnerQi * regeneration.value
-          : 0,
-        tickTime,
-        metrics,
-        contributions
-      );
-
-      events.push({
-        type: "regeneration_tick",
-        time: tickTime,
-        sourceId: regeneration.sourceId,
-        targetId: combatant.instanceId,
-        skillId: regeneration.skillId,
-        statusId: "regeneration",
-        ...result
-      });
-
-      regeneration.nextTickAt = Number(
-        (regeneration.nextTickAt + regeneration.tickIntervalSeconds).toFixed(6)
-      );
-    }
-  }
 }
 
 function applyQiBreakIfNeeded(
@@ -1282,6 +530,7 @@ function recoverQiBreaks(
 
 function recoverInnerQi(
   combatants: CombatantState[],
+  statusDefinitions: Record<string, StatusEffectDefinition>,
   time: number,
   deltaSeconds: number,
   constants: CombatFormulaConstants
@@ -1299,12 +548,87 @@ function recoverInnerQi(
       continue;
     }
 
+    const modifiers = getStatusCombatModifiers(
+      combatant.activeStatuses,
+      statusDefinitions
+    );
     combatant.innerQi = calculateInnerRecovery({
       maxInnerQi: combatant.maxInnerQi,
       currentInnerQi: combatant.innerQi,
-      innerRecoveryRate: combatant.stats.innerRecoveryRate,
+      innerRecoveryRate:
+        combatant.stats.innerRecoveryRate * modifiers.innerRecoveryMultiplier,
       deltaSeconds
     });
+  }
+}
+
+function advanceCombatantDataStatuses(
+  combatants: CombatantState[],
+  statusDefinitions: Record<string, StatusEffectDefinition>,
+  time: number,
+  deltaSeconds: number,
+  metrics: BattleMetrics,
+  contributions: Map<string, BattleContribution>,
+  events: BattleEvent[]
+): void {
+  for (const combatant of combatants) {
+    if (!isLiving(combatant) || combatant.activeStatuses.length === 0) {
+      continue;
+    }
+
+    const previousStatuses = combatant.activeStatuses;
+    const result = advanceStatusEffects({
+      activeStatuses: combatant.activeStatuses,
+      definitions: statusDefinitions,
+      deltaSeconds,
+      targetMaxOuterHp: combatant.maxOuterHp,
+      targetStatusResistance: getCombatantStatusResistance(combatant, time)
+    });
+
+    combatant.activeStatuses = result.statuses;
+
+    for (const event of result.events) {
+      if (event.type === "status_expire") {
+        events.push({
+          type: "status_expire",
+          time,
+          targetId: combatant.instanceId,
+          statusId: event.statusId
+        });
+        continue;
+      }
+
+      if (event.outerDamage <= 0) {
+        continue;
+      }
+
+      const activeStatus = previousStatuses.find(
+        (status) => status.statusId === event.statusId
+      );
+      const source = activeStatus?.sourceCombatantId
+        ? combatants.find(
+            (candidate) =>
+              candidate.instanceId === activeStatus.sourceCombatantId
+          )
+        : undefined;
+
+      combatant.outerHp = Math.max(0, combatant.outerHp - event.outerDamage);
+
+      if (source) {
+        recordDamage(metrics, contributions, source, combatant, event.outerDamage, 0);
+      }
+
+      events.push({
+        type: "status_tick",
+        time,
+        sourceId: activeStatus?.sourceCombatantId,
+        targetId: combatant.instanceId,
+        statusId: event.statusId,
+        stacks: event.stacks,
+        outerDamage: event.outerDamage
+      });
+      markDefeated(combatant, time, events);
+    }
   }
 }
 
@@ -1332,6 +656,10 @@ function executeAction(
   const protector = findProtector(combatants, intendedTarget, time);
   const target = protector ?? intendedTarget;
   const effectiveTargetStats = getEffectiveTargetStats(target, time);
+  const targetStatusModifiers = getStatusCombatModifiers(
+    target.activeStatuses,
+    lookup.statusDefinitions
+  );
   let outerDamage = calculateOuterDamage(
     {
       attacker: attacker.stats,
@@ -1340,7 +668,8 @@ function executeAction(
       targetIsQiBroken: target.isQiBroken
     },
     constants
-  ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0));
+  ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0)) *
+    targetStatusModifiers.outerDamageTakenMultiplier;
   let innerDamage = calculateInnerDamage(
     {
       attacker: attacker.stats,
@@ -1397,6 +726,8 @@ function executeAction(
   });
 
   applyTimedSkillEffects(
+    combatants,
+    lookup.statusDefinitions,
     attacker,
     target,
     skill,
@@ -1407,6 +738,7 @@ function executeAction(
   );
   applyRecoverySkillEffects(
     combatants,
+    lookup.statusDefinitions,
     attacker,
     target,
     skill,
@@ -1439,11 +771,31 @@ function executeAction(
     markDefeated(attacker, time, events);
   }
 
+  const attackerStatusModifiers = getStatusCombatModifiers(
+    attacker.activeStatuses,
+    lookup.statusDefinitions
+  );
+  const statusBacklashDamage =
+    attacker.maxOuterHp * attackerStatusModifiers.attackBacklashOuterHpPercent;
+
+  if (statusBacklashDamage > 0 && isLiving(attacker)) {
+    attacker.outerHp -= statusBacklashDamage;
+    recordBacklash(metrics, contributions, attacker, statusBacklashDamage);
+    events.push({
+      type: "backlash",
+      time,
+      sourceId: attacker.instanceId,
+      damage: statusBacklashDamage
+    });
+    markDefeated(attacker, time, events);
+  }
+
   if (skill.id !== BASIC_SKILL_ID) {
     attacker.skillCooldowns[skill.id] = time + skill.cooldownSeconds;
   }
 
-  attacker.nextActionAt = time + calculateAttackInterval(attacker.stats.speed, constants);
+  attacker.nextActionAt =
+    time + calculateAttackInterval(getEffectiveActionSpeed(attacker, time), constants);
 }
 
 function getWinner(combatants: CombatantState[]): TeamId | null {
@@ -1461,84 +813,100 @@ function getWinner(combatants: CombatantState[]): TeamId | null {
   return null;
 }
 
-function finalizeMetrics(metrics: BattleMetrics, durationSeconds: number): BattleMetrics {
-  const safeDuration = Math.max(durationSeconds, 0.001);
-
-  return {
-    ...metrics,
-    playerEffectiveDps:
-      (metrics.playerOuterDamage +
-        metrics.playerQiBreakBurstDamage +
-        metrics.backlashDamageToEnemies) /
-      safeDuration,
-    enemyEffectiveDps:
-      (metrics.enemyOuterDamage +
-        metrics.enemyQiBreakBurstDamage +
-        metrics.backlashDamageToPlayers) /
-      safeDuration
-  };
+function advanceSimulationPhase(
+  runtime: BattleRuntime,
+  time: number,
+  deltaSeconds: number
+): void {
+  expireStatusEffects(runtime.combatants, time);
+  advanceCombatantDataStatuses(
+    runtime.combatants,
+    runtime.lookup.statusDefinitions,
+    time,
+    deltaSeconds,
+    runtime.metrics,
+    runtime.contributions,
+    runtime.events
+  );
+  recoverQiBreaks(
+    runtime.combatants,
+    time,
+    runtime.constants,
+    runtime.events
+  );
+  recoverInnerQi(
+    runtime.combatants,
+    runtime.lookup.statusDefinitions,
+    time,
+    deltaSeconds,
+    runtime.constants
+  );
+  tickRegeneration(
+    runtime.combatants,
+    runtime.lookup.statusDefinitions,
+    time,
+    runtime.metrics,
+    runtime.contributions,
+    runtime.events
+  );
 }
 
-function finalizeContributions(
-  combatants: CombatantState[],
-  contributions: Map<string, BattleContribution>
-): BattleContribution[] {
-  for (const combatant of combatants) {
-    const contribution = contributions.get(combatant.instanceId);
+function executeActionPhase(
+  runtime: BattleRuntime,
+  time: number
+): TeamId | null {
+  for (const combatant of runtime.combatants) {
+    executeAction(
+      runtime.lookup,
+      runtime.combatants,
+      combatant,
+      time,
+      runtime.constants,
+      runtime.metrics,
+      runtime.contributions,
+      runtime.events
+    );
+    applyBattleCleanseAutoMedicine(
+      runtime.input,
+      runtime.lookup.statusDefinitions,
+      runtime.combatants,
+      runtime.autoMedicine,
+      time,
+      runtime.events
+    );
 
-    if (contribution) {
-      contribution.survived = isLiving(combatant);
+    const currentWinner = getWinner(runtime.combatants);
+
+    if (currentWinner) {
+      return currentWinner;
     }
   }
 
-  return [...contributions.values()];
+  return null;
+}
+
+function executeBattleStep(runtime: BattleRuntime, time: number): TeamId | null {
+  advanceSimulationPhase(runtime, time, runtime.stepSeconds);
+
+  return executeActionPhase(runtime, time);
 }
 
 export function simulateBattle(
   staticData: StaticGameData,
   input: SimulateBattleInput
 ): BattleResult {
-  const constants = input.constants ?? defaultCombatFormulaConstants;
-  const maxDurationSeconds = input.maxDurationSeconds ?? 180;
-  const stepSeconds = input.stepSeconds ?? 0.1;
-  const lookup = createLookup(staticData);
-  const combatants = createCombatants(lookup, input, constants);
-  const events: BattleEvent[] = [];
-  const metrics = createInitialMetrics();
-  const contributions = createInitialContributions(combatants);
-  const totalSteps = Math.ceil(maxDurationSeconds / stepSeconds);
-  let durationSeconds = maxDurationSeconds;
+  const runtime = createBattleRuntime(staticData, input);
+  const totalSteps = Math.ceil(runtime.maxDurationSeconds / runtime.stepSeconds);
+  let durationSeconds = runtime.maxDurationSeconds;
   let winner: BattleResult["winner"] = "timeout";
 
   for (let step = 0; step <= totalSteps; step += 1) {
-    const time = Number((step * stepSeconds).toFixed(6));
+    const time = Number((step * runtime.stepSeconds).toFixed(6));
+    const currentWinner = executeBattleStep(runtime, time);
 
-    expireStatusEffects(combatants, time);
-    recoverQiBreaks(combatants, time, constants, events);
-    recoverInnerQi(combatants, time, stepSeconds, constants);
-    tickRegeneration(combatants, time, metrics, contributions, events);
-
-    for (const combatant of combatants) {
-      executeAction(
-        lookup,
-        combatants,
-        combatant,
-        time,
-        constants,
-        metrics,
-        contributions,
-        events
-      );
-      const currentWinner = getWinner(combatants);
-
-      if (currentWinner) {
-        winner = currentWinner;
-        durationSeconds = time;
-        break;
-      }
-    }
-
-    if (winner !== "timeout") {
+    if (currentWinner) {
+      winner = currentWinner;
+      durationSeconds = time;
       break;
     }
   }
@@ -1546,10 +914,18 @@ export function simulateBattle(
   return {
     winner,
     durationSeconds,
-    events,
-    finalPlayerTeam: combatants.filter((combatant) => combatant.team === "player"),
-    finalEnemyTeam: combatants.filter((combatant) => combatant.team === "enemy"),
-    metrics: finalizeMetrics(metrics, durationSeconds),
-    contributions: finalizeContributions(combatants, contributions)
+    events: runtime.events,
+    finalPlayerTeam: runtime.combatants.filter(
+      (combatant) => combatant.team === "player"
+    ),
+    finalEnemyTeam: runtime.combatants.filter(
+      (combatant) => combatant.team === "enemy"
+    ),
+    metrics: finalizeMetrics(runtime.metrics, durationSeconds),
+    contributions: finalizeContributions(
+      runtime.combatants,
+      runtime.contributions
+    ),
+    autoMedicine: runtime.autoMedicine
   };
 }

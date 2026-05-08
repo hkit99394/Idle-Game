@@ -1,10 +1,15 @@
 import type { MedicineDefinition } from "../data";
 import {
-  calculateEffectiveStatusResistance,
-  cleanseStatusEffects
+  calculateEffectiveStatusResistance
 } from "./statusEffects";
+import {
+  cleanseCombatantStatuses,
+  cleanseDataStatusEffects
+} from "./cleansePolicy";
 import type {
   ActiveStatusEffect,
+  CombatantState,
+  StatusDispelTag,
   StatusEffectDefinition
 } from "./types";
 
@@ -14,6 +19,8 @@ export type MedicineUseInput = {
   medicine: MedicineDefinition;
   inventory: MedicineInventory;
   activeStatuses: ActiveStatusEffect[];
+  combatant?: CombatantState;
+  timeSeconds?: number;
   statusDefinitions: Record<string, StatusEffectDefinition>;
 };
 
@@ -23,6 +30,7 @@ export type MedicineUseSuccess = {
   statuses: ActiveStatusEffect[];
   consumedMedicineId: string;
   cleansed: ActiveStatusEffect[];
+  cleansedStatusIds: string[];
   statusResistanceBonus: number;
   statusResistanceDurationSeconds: number;
 };
@@ -44,22 +52,26 @@ export function useMedicineCounterplay(input: MedicineUseInput): MedicineUseResu
     };
   }
 
-  let statuses = input.activeStatuses;
+  let statuses = input.combatant?.activeStatuses ?? input.activeStatuses;
   let cleansed: ActiveStatusEffect[] = [];
+  let cleansedStatusIds: string[] = [];
   let statusResistanceBonus = 0;
   let statusResistanceDurationSeconds = 0;
 
   for (const effect of input.medicine.effects) {
     if (effect.type === "cleanse_status") {
-      const cleanse = cleanseStatusEffects({
+      const cleanse = cleanseMedicineStatuses({
+        combatant: input.combatant,
+        timeSeconds: input.timeSeconds,
         activeStatuses: statuses,
-        definitions: input.statusDefinitions,
+        statusDefinitions: input.statusDefinitions,
         dispelTags: effect.dispelTags,
         maxCount: effect.maxCount
       });
 
       statuses = cleanse.statuses;
       cleansed = [...cleansed, ...cleanse.cleansed];
+      cleansedStatusIds = appendUnique(cleansedStatusIds, cleanse.cleansedStatusIds);
       continue;
     }
 
@@ -72,7 +84,7 @@ export function useMedicineCounterplay(input: MedicineUseInput): MedicineUseResu
     }
   }
 
-  if (cleansed.length === 0 && statusResistanceBonus === 0) {
+  if (cleansedStatusIds.length === 0 && statusResistanceBonus === 0) {
     return {
       ok: false,
       reason: "no_effect"
@@ -85,6 +97,7 @@ export function useMedicineCounterplay(input: MedicineUseInput): MedicineUseResu
     statuses,
     consumedMedicineId: input.medicine.id,
     cleansed,
+    cleansedStatusIds,
     statusResistanceBonus,
     statusResistanceDurationSeconds
   };
@@ -114,4 +127,61 @@ function decrementMedicine(
   }
 
   return nextInventory;
+}
+
+function cleanseMedicineStatuses(input: {
+  combatant?: CombatantState;
+  timeSeconds?: number;
+  activeStatuses: ActiveStatusEffect[];
+  statusDefinitions: Record<string, StatusEffectDefinition>;
+  dispelTags: StatusDispelTag[];
+  maxCount?: number;
+}): {
+  statuses: ActiveStatusEffect[];
+  cleansed: ActiveStatusEffect[];
+  cleansedStatusIds: string[];
+} {
+  if (input.combatant) {
+    input.combatant.activeStatuses = input.activeStatuses;
+    const cleanse = cleanseCombatantStatuses({
+      combatant: input.combatant,
+      time: input.timeSeconds ?? 0,
+      statusDefinitions: input.statusDefinitions,
+      dispelTags: input.dispelTags,
+      maxCount: input.maxCount
+    });
+
+    return {
+      statuses: cleanse.statuses,
+      cleansed: cleanse.cleansed,
+      cleansedStatusIds: cleanse.cleansedStatusIds
+    };
+  }
+
+  const cleanse = cleanseDataStatusEffects({
+    activeStatuses: input.activeStatuses,
+    definitions: input.statusDefinitions,
+    dispelTags: input.dispelTags,
+    maxCount: input.maxCount
+  });
+
+  return {
+    statuses: cleanse.statuses,
+    cleansed: cleanse.cleansed,
+    cleansedStatusIds: cleanse.cleansed.map((status) => status.statusId)
+  };
+}
+
+function appendUnique(values: string[], nextValues: string[]): string[] {
+  const seen = new Set(values);
+  const next = [...values];
+
+  for (const value of nextValues) {
+    if (!seen.has(value)) {
+      seen.add(value);
+      next.push(value);
+    }
+  }
+
+  return next;
 }

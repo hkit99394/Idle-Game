@@ -67,6 +67,53 @@ describe("web save storage", () => {
     expect(state.offlineFarmPreset).toBe("silver");
   });
 
+  it("persists counterplay settings through save reload", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const baseState = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+    const configuredState = webGameStateReducer(staticData, baseState, {
+      type: "replace_state",
+      state: {
+        ...baseState,
+        progress,
+        autoMedicinePreferences: {
+          ...baseState.autoMedicinePreferences,
+          enabled: false,
+          preBattleResistanceMode: "status_heavy",
+          disabledMedicineIds: ["clear_heart_pill"]
+        }
+      }
+    });
+    const saveResult = saveWebGameStateToStorage(
+      staticData,
+      configuredState,
+      storage,
+      2000
+    );
+    const reloadedState = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      3000
+    );
+
+    expect(saveResult.ok).toBe(true);
+    expect(reloadedState.autoMedicinePreferences).toMatchObject({
+      enabled: false,
+      preBattleResistanceMode: "status_heavy",
+      disabledMedicineIds: ["clear_heart_pill"]
+    });
+    expect(
+      getWebGameViewModel(staticData, reloadedState).counterplaySettings
+    ).toMatchObject({
+      globalEnabled: false,
+      resistanceMode: "status_heavy"
+    });
+  });
+
   it("exports and imports a validated save payload", () => {
     const sourceStorage = new MemoryStorage();
     const targetStorage = new MemoryStorage();
@@ -78,6 +125,14 @@ describe("web save storage", () => {
       progress,
       selectedOfflineFarmStageId: "bamboo_road_2",
       offlineFarmPreset: "cultivation",
+      autoMedicinePreferences: {
+        enabled: true,
+        battleCleanseEnabled: true,
+        postBattleCleanseEnabled: true,
+        preBattleResistanceEnabled: true,
+        preBattleResistanceMode: "status_heavy",
+        disabledMedicineIds: ["clear_heart_pill"]
+      },
       nowMs: 1000
     });
 
@@ -106,6 +161,10 @@ describe("web save storage", () => {
     expect(importedSave.save.progress.currentStageId).toBe("bamboo_road_3");
     expect(importedSave.save.selectedOfflineFarmStageId).toBe("bamboo_road_2");
     expect(importedSave.save.offlineFarmPreset).toBe("cultivation");
+    expect(importedSave.save.autoMedicinePreferences).toMatchObject({
+      preBattleResistanceMode: "status_heavy",
+      disabledMedicineIds: ["clear_heart_pill"]
+    });
   });
 
   it("rejects invalid imports without replacing the current save", () => {
@@ -133,6 +192,91 @@ describe("web save storage", () => {
       return;
     }
     expect(currentSave.save.progress.resources.silver).toBe(50);
+  });
+
+  it("rejects imports with unknown disabled auto medicine ids", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 50;
+    const currentSave = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const invalidImport = {
+      ...currentSave,
+      autoMedicinePreferences: {
+        ...currentSave.autoMedicinePreferences,
+        disabledMedicineIds: ["missing_medicine"]
+      }
+    };
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(currentSave));
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(invalidImport)
+    );
+    const savedAfterImport = loadSaveDataFromStorage(staticData, storage);
+
+    expect(importResult.ok).toBe(false);
+    if (importResult.ok) {
+      return;
+    }
+    expect(importResult.reason).toBe("invalid_save");
+    expect(importResult.errors).toContain(
+      "autoMedicinePreferences.disabledMedicineIds.0 must reference an existing medicine"
+    );
+    expect(savedAfterImport.ok).toBe(true);
+    if (!savedAfterImport.ok) {
+      return;
+    }
+    expect(
+      savedAfterImport.save.autoMedicinePreferences.disabledMedicineIds
+    ).toEqual([]);
+  });
+
+  it("rejects imports with unknown pre-battle resistance modes", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const currentSave = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const invalidImport = {
+      ...currentSave,
+      autoMedicinePreferences: {
+        ...currentSave.autoMedicinePreferences,
+        preBattleResistanceMode: "only_boss_when_rich"
+      }
+    };
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(currentSave));
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(invalidImport)
+    );
+    const savedAfterImport = loadSaveDataFromStorage(staticData, storage);
+
+    expect(importResult.ok).toBe(false);
+    if (importResult.ok) {
+      return;
+    }
+    expect(importResult.reason).toBe("invalid_save");
+    expect(importResult.errors).toContain(
+      "autoMedicinePreferences.preBattleResistanceMode must be a supported mode"
+    );
+    expect(savedAfterImport.ok).toBe(true);
+    if (!savedAfterImport.ok) {
+      return;
+    }
+    expect(
+      savedAfterImport.save.autoMedicinePreferences.preBattleResistanceMode
+    ).toBe("boss_and_elite");
   });
 
   it("resets storage to a new game save", () => {

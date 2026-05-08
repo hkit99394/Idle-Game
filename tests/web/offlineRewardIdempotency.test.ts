@@ -70,6 +70,75 @@ describe("offline reward idempotency", () => {
     ).toBeCloseTo(8640);
   });
 
+  it("grants Demon Cult farm rewards once through the current save schema", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const savedAtMs = 1000;
+    const firstLoadAtMs = savedAtMs + 60_000;
+
+    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.mist_valley.highestClearedStageIndex = 6;
+    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
+    progress.maps.lotus_monastery.highestClearedStageIndex = 7;
+    progress.maps.demon_cult_outpost.highestClearedStageIndex = 6;
+    progress.currentStageId = "demon_cult_outpost_7";
+
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "demon_cult_outpost_6",
+      nowMs: savedAtMs
+    });
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const firstLoad = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      firstLoadAtMs
+    );
+    const secondLoad = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      firstLoadAtMs
+    );
+
+    expect(firstLoad.ok).toBe(true);
+    expect(secondLoad.ok).toBe(true);
+    if (!firstLoad.ok || !secondLoad.ok) {
+      return;
+    }
+
+    const firstOfflineRewards = firstLoad.offlineRewards;
+
+    expect(firstOfflineRewards?.ok).toBe(true);
+    if (!firstOfflineRewards?.ok) {
+      return;
+    }
+
+    expect(firstOfflineRewards.stageId).toBe("demon_cult_outpost_6");
+    expect(firstOfflineRewards.rewards.clears).toBe(6);
+    expect(firstLoad.save.progress.resources.silver).toBeCloseTo(5832);
+    expect(firstLoad.save.progress.resources.cultivation).toBeCloseTo(2916);
+    expect(firstLoad.save.progress.resources.herbs).toBeCloseTo(180);
+    expect(firstLoad.save.progress.maps.demon_cult_outpost.combatExperience).toBeCloseTo(
+      1101.6
+    );
+    expect(firstLoad.save.progress.currentStageId).toBe("demon_cult_outpost_7");
+
+    const secondOfflineRewards = secondLoad.offlineRewards;
+
+    expect(secondOfflineRewards?.ok).toBe(true);
+    if (!secondOfflineRewards?.ok) {
+      return;
+    }
+
+    expect(secondOfflineRewards.rewards.clears).toBe(0);
+    expect(secondLoad.save.progress.resources).toEqual(firstLoad.save.progress.resources);
+    expect(secondLoad.save.progress.maps.demon_cult_outpost).toEqual(
+      firstLoad.save.progress.maps.demon_cult_outpost
+    );
+  });
+
   it("grants offline assignment rewards once with the same timestamp guard", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);

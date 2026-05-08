@@ -1,8 +1,7 @@
 import {
-  applyOfflineAssignmentRewards,
-  applyOfflineRewards,
   createInitialPlayerProgress,
   createSaveData,
+  applySaveLoadTransaction,
   parseSaveData,
   normalizeOfflineFarmPreset,
   setOfflineFarmStageTarget
@@ -10,6 +9,7 @@ import {
 import type {
   ApplyOfflineAssignmentRewardsResult,
   ApplyOfflineRewardsResult,
+  LoadSaveTransactionResult,
   SaveData,
   StaticGameData
 } from "../../core";
@@ -22,7 +22,14 @@ export type WebSaveStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">
 
 type SaveSchemaData = Pick<
   StaticGameData,
-  "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments"
+  | "heroes"
+  | "regions"
+  | "stages"
+  | "styles"
+  | "skillUpgrades"
+  | "equipment"
+  | "assignments"
+  | "medicines"
 >;
 
 type OfflineSaveData = SaveSchemaData & Pick<StaticGameData, "mastery">;
@@ -39,12 +46,7 @@ export type LoadSaveDataFromStorageResult =
     };
 
 export type LoadSaveDataWithOfflineRewardsResult =
-  | {
-      ok: true;
-      save: SaveData;
-      offlineRewards: ApplyOfflineRewardsResult | null;
-      offlineAssignmentRewards: ApplyOfflineAssignmentRewardsResult | null;
-    }
+  | Omit<Extract<LoadSaveTransactionResult, { ok: true }>, "changed">
   | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
 
 export type SaveStateToStorageResult =
@@ -169,63 +171,18 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
     return loadResult;
   }
 
-  const rewardTimeMs = Math.max(nowMs, loadResult.save.updatedAtMs);
-  const offlineFarmPreset = normalizeOfflineFarmPreset(
-    loadResult.save.offlineFarmPreset
-  );
-  const selectedOfflineFarmStageId = setOfflineFarmStageTarget(
+  const transaction = applySaveLoadTransaction({
     data,
-    loadResult.save.progress,
-    loadResult.save.selectedOfflineFarmStageId,
-    offlineFarmPreset
-  );
-  const farmTargetChanged =
-    selectedOfflineFarmStageId !== loadResult.save.selectedOfflineFarmStageId;
-  const offlineRewards = applyOfflineRewards({
-    data,
-    progress: loadResult.save.progress,
-    selectedOfflineFarmStageId,
-    lastSavedAtMs: loadResult.save.updatedAtMs,
-    currentTimeMs: rewardTimeMs
+    save: loadResult.save,
+    nowMs
   });
-  const hasFarmRewards = offlineRewards.ok && offlineRewards.rewards.clears > 0;
-  const farmProgress = hasFarmRewards
-    ? offlineRewards.progress
-    : loadResult.save.progress;
-  const offlineAssignmentRewards = applyOfflineAssignmentRewards({
-    data,
-    progress: farmProgress,
-    lastSavedAtMs: loadResult.save.updatedAtMs,
-    currentTimeMs: rewardTimeMs
-  });
-  const hasAssignmentRewards =
-    offlineAssignmentRewards.rewards.assignments.length > 0;
-  const hasRewards = hasFarmRewards || hasAssignmentRewards;
 
-  if (!hasRewards && !farmTargetChanged) {
-    return {
-      ok: true,
-      save: loadResult.save,
-      offlineRewards,
-      offlineAssignmentRewards
-    };
+  if (!transaction.changed) {
+    return transaction;
   }
 
-  const save = createSaveData({
-    progress: hasAssignmentRewards
-      ? offlineAssignmentRewards.progress
-      : farmProgress,
-    selectedOfflineFarmStageId,
-    offlineFarmPreset,
-    nowMs: hasRewards ? rewardTimeMs : loadResult.save.updatedAtMs,
-    lastOfflineRewardAtMs: hasRewards
-      ? rewardTimeMs
-      : loadResult.save.lastOfflineRewardAtMs,
-    previousSave: loadResult.save
-  });
-
   try {
-    storage.setItem(key, JSON.stringify(save));
+    storage.setItem(key, JSON.stringify(transaction.save));
   } catch {
     return {
       ok: true,
@@ -237,9 +194,9 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
 
   return {
     ok: true,
-    save,
-    offlineRewards,
-    offlineAssignmentRewards
+    save: transaction.save,
+    offlineRewards: transaction.offlineRewards,
+    offlineAssignmentRewards: transaction.offlineAssignmentRewards
   };
 }
 
@@ -247,7 +204,10 @@ export function saveWebGameStateToStorage(
   data: SaveSchemaData,
   state: Pick<
     WebGameState,
-    "progress" | "selectedOfflineFarmStageId" | "offlineFarmPreset"
+    | "progress"
+    | "autoMedicinePreferences"
+    | "selectedOfflineFarmStageId"
+    | "offlineFarmPreset"
   >,
   storage: WebSaveStorage,
   nowMs = Date.now(),
@@ -256,6 +216,7 @@ export function saveWebGameStateToStorage(
   const previousSaveResult = loadSaveDataFromStorage(data, storage, key);
   const save = createSaveData({
     progress: state.progress,
+    autoMedicinePreferences: state.autoMedicinePreferences,
     selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
     offlineFarmPreset: state.offlineFarmPreset,
     nowMs,

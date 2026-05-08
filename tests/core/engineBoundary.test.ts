@@ -50,4 +50,22 @@ describe("core engine boundary", () => {
     expect(existsSync(join(CORE_ROOT, "progression", "index.ts"))).toBe(true);
     expect(existsSync(join(CORE_ROOT, "save", "index.ts"))).toBe(true);
   });
+
+  it("keeps refactored entry points as thin orchestration layers", () => {
+    const lineCount = (path: string) =>
+      readFileSync(path, "utf8").trimEnd().split("\n").length;
+
+    expect(lineCount(join(CORE_ROOT, "balance", "balanceReport.ts"))).toBeLessThanOrEqual(10);
+    expect(lineCount(join(CORE_ROOT, "combat", "autoMedicine.ts"))).toBeLessThanOrEqual(10);
+    expect(lineCount(join(CORE_ROOT, "save", "saveSchema.ts"))).toBeLessThanOrEqual(10);
+    expect(lineCount(join(process.cwd(), "web", "state", "gameState.ts"))).toBeLessThanOrEqual(10);
+    expect(lineCount(join(process.cwd(), "web", "state", "viewModel.ts"))).toBeLessThanOrEqual(180);
+    expect(lineCount(join(process.cwd(), "web", "components", "GamePanels.tsx"))).toBeLessThanOrEqual(30);
+    expect(lineCount(join(process.cwd(), "tools", "balanceReport.ts"))).toBeLessThanOrEqual(10);
+    expect(existsSync(join(process.cwd(), "tools", "supportDecision", "decision.ts"))).toBe(true);
+    expect(existsSync(join(CORE_ROOT, "balance", "supportIdentityDecision.ts"))).toBe(false);
+    expect(existsSync(join(CORE_ROOT, "data", "validation", "combat.ts"))).toBe(true);
+    expect(existsSync(join(CORE_ROOT, "combat", "autoMedicine", "selection.ts"))).toBe(true);
+    expect(existsSync(join(CORE_ROOT, "save", "migrations.ts"))).toBe(true);
+  });
 });

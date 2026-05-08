@@ -100,7 +100,9 @@
       "critDamage": 1.4,
       "breakPower": 0.02,
       "breakResist": 0.01,
-      "innerRecoveryRate": 0.006
+      "innerRecoveryRate": 0.006,
+      "statusAccuracy": 0,
+      "statusResistance": 0.02
     },
     "skillIds": ["mist_palm_jab"],
     "traitIds": []
@@ -125,7 +127,9 @@
       "critDamage": 1.55,
       "breakPower": 0.01,
       "breakResist": 0.01,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0,
+      "statusResistance": 0.02
     },
     "skillIds": ["needle_flurry"],
     "traitIds": []
@@ -150,7 +154,9 @@
       "critDamage": 1.4,
       "breakPower": 0,
       "breakResist": 0.04,
-      "innerRecoveryRate": 0.009
+      "innerRecoveryRate": 0.009,
+      "statusAccuracy": 0,
+      "statusResistance": 0.03
     },
     "skillIds": ["fog_staff_guard"],
     "traitIds": []
@@ -175,7 +181,9 @@
       "critDamage": 1.45,
       "breakPower": 0.04,
       "breakResist": 0.03,
-      "innerRecoveryRate": 0.007
+      "innerRecoveryRate": 0.007,
+      "statusAccuracy": 0,
+      "statusResistance": 0.04
     },
     "skillIds": ["cloud_meridian_press"],
     "traitIds": []
@@ -200,7 +208,9 @@
       "critDamage": 1.5,
       "breakPower": 0.05,
       "breakResist": 0.05,
-      "innerRecoveryRate": 0.008
+      "innerRecoveryRate": 0.008,
+      "statusAccuracy": 0,
+      "statusResistance": 0.05
     },
     "skillIds": ["valley_heart_seal"],
     "traitIds": ["boss"]
@@ -225,7 +235,9 @@
       "critDamage": 1.45,
       "breakPower": 0,
       "breakResist": 0.05,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0,
+      "statusResistance": 0.04
     },
     "skillIds": ["shieldwall_chop"],
     "traitIds": []
@@ -250,7 +262,9 @@
       "critDamage": 1.4,
       "breakPower": 0,
       "breakResist": 0.07,
-      "innerRecoveryRate": 0.007
+      "innerRecoveryRate": 0.007,
+      "statusAccuracy": 0,
+      "statusResistance": 0.05
     },
     "skillIds": ["fortress_staff_lock"],
     "traitIds": []
@@ -275,7 +289,9 @@
       "critDamage": 1.55,
       "breakPower": 0.01,
       "breakResist": 0.04,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0,
+      "statusResistance": 0.04
     },
     "skillIds": ["black_iron_counter"],
     "traitIds": []
@@ -300,7 +316,9 @@
       "critDamage": 1.45,
       "breakPower": 0.01,
       "breakResist": 0.03,
-      "innerRecoveryRate": 0.005
+      "innerRecoveryRate": 0.005,
+      "statusAccuracy": 0,
+      "statusResistance": 0.03
     },
     "skillIds": ["chain_hook_pressure"],
     "traitIds": []
@@ -325,7 +343,9 @@
       "critDamage": 1.5,
       "breakPower": 0.01,
       "breakResist": 0.08,
-      "innerRecoveryRate": 0.006
+      "innerRecoveryRate": 0.006,
+      "statusAccuracy": 0,
+      "statusResistance": 0.06
     },
     "skillIds": ["iron_wall_command"],
     "traitIds": []
@@ -350,7 +370,9 @@
       "critDamage": 1.55,
       "breakPower": 0.02,
       "breakResist": 0.1,
-      "innerRecoveryRate": 0.007
+      "innerRecoveryRate": 0.007,
+      "statusAccuracy": 0,
+      "statusResistance": 0.08
     },
     "skillIds": ["black_fort_edict"],
     "traitIds": ["boss"]
@@ -375,7 +397,9 @@
       "critDamage": 1.45,
       "breakPower": 0.04,
       "breakResist": 0.04,
-      "innerRecoveryRate": 0.01
+      "innerRecoveryRate": 0.01,
+      "statusAccuracy": 0,
+      "statusResistance": 0.07
     },
     "skillIds": ["lotus_recovery_palm"],
     "traitIds": []
@@ -400,7 +424,9 @@
       "critDamage": 1.4,
       "breakPower": 0.03,
       "breakResist": 0.06,
-      "innerRecoveryRate": 0.014
+      "innerRecoveryRate": 0.014,
+      "statusAccuracy": 0,
+      "statusResistance": 0.09
     },
     "skillIds": ["tranquil_bloom_seal"],
     "traitIds": []
@@ -425,7 +451,9 @@
       "critDamage": 1.4,
       "breakPower": 0.01,
       "breakResist": 0.08,
-      "innerRecoveryRate": 0.009
+      "innerRecoveryRate": 0.009,
+      "statusAccuracy": 0,
+      "statusResistance": 0.08
     },
     "skillIds": ["lotus_staff_shelter"],
     "traitIds": []
@@ -450,7 +478,9 @@
       "critDamage": 1.55,
       "breakPower": 0.02,
       "breakResist": 0.04,
-      "innerRecoveryRate": 0.008
+      "innerRecoveryRate": 0.008,
+      "statusAccuracy": 0,
+      "statusResistance": 0.06
     },
     "skillIds": ["jade_needle_flurry"],
     "traitIds": []
@@ -475,7 +505,9 @@
       "critDamage": 1.6,
       "breakPower": 0.02,
       "breakResist": 0.05,
-      "innerRecoveryRate": 0.008
+      "innerRecoveryRate": 0.008,
+      "statusAccuracy": 0,
+      "statusResistance": 0.06
     },
     "skillIds": ["white_crane_slash"],
     "traitIds": []
@@ -500,9 +532,173 @@
       "critDamage": 1.5,
       "breakPower": 0.05,
       "breakResist": 0.09,
-      "innerRecoveryRate": 0.012
+      "innerRecoveryRate": 0.012,
+      "statusAccuracy": 0,
+      "statusResistance": 0.1
     },
     "skillIds": ["abbot_lotus_vow"],
+    "traitIds": ["boss"]
+  },
+  {
+    "id": "miasma_palm_apprentice",
+    "name": "Miasma Palm Apprentice",
+    "family": "demon_cult",
+    "type": "normal",
+    "style": "palm",
+    "combatRole": "breaker",
+    "level": 9,
+    "baseStats": {
+      "maxOuterHp": 980,
+      "maxInnerQi": 540,
+      "outerAttack": 28,
+      "innerAttack": 48,
+      "outerDefense": 24,
+      "innerDefense": 36,
+      "speed": 16,
+      "critChance": 0.05,
+      "critDamage": 1.45,
+      "breakPower": 0.04,
+      "breakResist": 0.04,
+      "innerRecoveryRate": 0.009,
+      "statusAccuracy": 0.1,
+      "statusResistance": 0.08
+    },
+    "skillIds": ["miasma_palm"],
+    "traitIds": []
+  },
+  {
+    "id": "blood_brand_duelist",
+    "name": "Blood Brand Duelist",
+    "family": "demon_cult",
+    "type": "elite",
+    "style": "blade",
+    "combatRole": "striker",
+    "level": 9,
+    "baseStats": {
+      "maxOuterHp": 1220,
+      "maxInnerQi": 500,
+      "outerAttack": 18,
+      "innerAttack": 12,
+      "outerDefense": 30,
+      "innerDefense": 30,
+      "speed": 18,
+      "critChance": 0.07,
+      "critDamage": 1.6,
+      "breakPower": 0.03,
+      "breakResist": 0.05,
+      "innerRecoveryRate": 0.008,
+      "statusAccuracy": 0.08,
+      "statusResistance": 0.09
+    },
+    "skillIds": ["blood_brand_cut"],
+    "traitIds": []
+  },
+  {
+    "id": "marrow_lock_supplicant",
+    "name": "Marrow Lock Supplicant",
+    "family": "demon_cult",
+    "type": "normal",
+    "style": "hidden_weapons",
+    "combatRole": "support",
+    "level": 10,
+    "baseStats": {
+      "maxOuterHp": 1050,
+      "maxInnerQi": 640,
+      "outerAttack": 22,
+      "innerAttack": 46,
+      "outerDefense": 24,
+      "innerDefense": 40,
+      "speed": 10,
+      "critChance": 0.04,
+      "critDamage": 1.45,
+      "breakPower": 0.03,
+      "breakResist": 0.05,
+      "innerRecoveryRate": 0.01,
+      "statusAccuracy": 0.12,
+      "statusResistance": 0.1
+    },
+    "skillIds": ["marrow_lock_hex"],
+    "traitIds": []
+  },
+  {
+    "id": "burning_blood_captain",
+    "name": "Burning Blood Captain",
+    "family": "demon_cult",
+    "type": "elite",
+    "style": "blade",
+    "combatRole": "striker",
+    "level": 10,
+    "baseStats": {
+      "maxOuterHp": 1600,
+      "maxInnerQi": 720,
+      "outerAttack": 19,
+      "innerAttack": 15,
+      "outerDefense": 36,
+      "innerDefense": 38,
+      "speed": 12,
+      "critChance": 0.08,
+      "critDamage": 1.65,
+      "breakPower": 0.05,
+      "breakResist": 0.07,
+      "innerRecoveryRate": 0.009,
+      "statusAccuracy": 0.11,
+      "statusResistance": 0.12
+    },
+    "skillIds": ["burning_blood_edict"],
+    "traitIds": []
+  },
+  {
+    "id": "demon_cult_ritualist",
+    "name": "Demon Cult Ritualist",
+    "family": "demon_cult",
+    "type": "normal",
+    "style": "palm",
+    "combatRole": "breaker",
+    "level": 10,
+    "baseStats": {
+      "maxOuterHp": 1180,
+      "maxInnerQi": 720,
+      "outerAttack": 8,
+      "innerAttack": 18,
+      "outerDefense": 26,
+      "innerDefense": 44,
+      "speed": 14,
+      "critChance": 0.05,
+      "critDamage": 1.5,
+      "breakPower": 0.05,
+      "breakResist": 0.06,
+      "innerRecoveryRate": 0.01,
+      "statusAccuracy": 0.1,
+      "statusResistance": 0.11
+    },
+    "skillIds": ["miasma_palm", "marrow_lock_hex"],
+    "traitIds": []
+  },
+  {
+    "id": "demon_cult_overseer",
+    "name": "Demon Cult Overseer",
+    "family": "demon_cult",
+    "type": "boss",
+    "style": "blade",
+    "combatRole": "striker",
+    "level": 11,
+    "baseStats": {
+      "maxOuterHp": 3900,
+      "maxInnerQi": 1300,
+      "outerAttack": 23,
+      "innerAttack": 20,
+      "outerDefense": 44,
+      "innerDefense": 48,
+      "speed": 10,
+      "critChance": 0.08,
+      "critDamage": 1.65,
+      "breakPower": 0.06,
+      "breakResist": 0.09,
+      "innerRecoveryRate": 0.01,
+      "statusAccuracy": 0.13,
+      "statusResistance": 0.14
+    },
+    "skillIds": ["burning_blood_edict", "marrow_lock_hex"],
     "traitIds": ["boss"]
   }
 ]

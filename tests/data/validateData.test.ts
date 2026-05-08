@@ -172,7 +172,7 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break",
+        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break, apply_status",
         "Skill iron_fist_combo effect unknown_effect value must be a number",
         "Skill iron_fist_combo effect guard durationSeconds must be a positive number"
       ])
@@ -263,6 +263,34 @@ describe("static game data validation", () => {
         "Stage mist_valley_1 references missing next stage missing_next_stage",
         "Region mist_valley references missing stage missing_stage",
         "Region mist_valley includes stage bamboo_road_1 from region bamboo_road"
+      ])
+    );
+  });
+
+  it("rejects invalid region balance target ranges", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "bamboo_road"
+          ? {
+              ...region,
+              balanceTargets: {
+                clearTimeSeconds: {
+                  normal: { min: 20, max: 10 },
+                  elite: { min: -1, max: 40 },
+                  boss: { min: 0, max: "fast" }
+                }
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region bamboo_road balanceTargets.clearTimeSeconds.normal.min must be less than or equal to max",
+        "Region bamboo_road balanceTargets.clearTimeSeconds.elite.min must be non-negative",
+        "Region bamboo_road balanceTargets.clearTimeSeconds.boss.max must be a finite number"
       ])
     );
   });

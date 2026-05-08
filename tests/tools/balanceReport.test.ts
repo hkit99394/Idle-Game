@@ -5,14 +5,14 @@ import {
   BLACK_IRON_FORT_REGION_ID,
   LOTUS_MONASTERY_REGION_ID,
   MIST_VALLEY_REGION_ID,
-  buildBambooRoadBalanceReport,
+  buildGameBalanceReport,
   formatBalanceReport
 } from "../../tools/balanceReport";
 import { staticData } from "../helpers/staticData";
 
 describe("balance report", () => {
   it("builds Bamboo Road results from region stage order", () => {
-    const report = buildBambooRoadBalanceReport(staticData);
+    const report = buildGameBalanceReport(staticData);
     const bambooRoad = staticData.regions.find(
       (region) => region.id === BAMBOO_ROAD_REGION_ID
     );
@@ -53,7 +53,7 @@ describe("balance report", () => {
   });
 
   it("includes Mist Valley results from the region stage order", () => {
-    const report = buildBambooRoadBalanceReport(staticData);
+    const report = buildGameBalanceReport(staticData);
     const mistValley = staticData.regions.find(
       (region) => region.id === MIST_VALLEY_REGION_ID
     );
@@ -97,7 +97,7 @@ describe("balance report", () => {
   });
 
   it("includes Black Iron Fort as a defensive post-Mist region", () => {
-    const report = buildBambooRoadBalanceReport(staticData);
+    const report = buildGameBalanceReport(staticData);
     const blackIronFort = staticData.regions.find(
       (region) => region.id === BLACK_IRON_FORT_REGION_ID
     );
@@ -170,7 +170,7 @@ describe("balance report", () => {
   });
 
   it("includes Lotus Monastery as a sustain post-Fort region", () => {
-    const report = buildBambooRoadBalanceReport(staticData);
+    const report = buildGameBalanceReport(staticData);
     const lotusMonastery = staticData.regions.find(
       (region) => region.id === LOTUS_MONASTERY_REGION_ID
     );
@@ -254,7 +254,7 @@ describe("balance report", () => {
       )
     };
 
-    const report = buildBambooRoadBalanceReport(renamedData);
+    const report = buildGameBalanceReport(renamedData);
 
     expect(report.regionBalances.map((region) => region.regionId)).toEqual(
       renamedData.regions.map((region) => region.id)
@@ -269,7 +269,8 @@ describe("balance report", () => {
     });
     expect(renamedRegionBalance?.stageResults[0]).toMatchObject({
       ok: true,
-      stageCleared: true
+      stageCleared: true,
+      targetSeconds: [5, 18]
     });
     expect(
       report.regionBalances.some(
@@ -279,7 +280,7 @@ describe("balance report", () => {
   });
 
   it("runs every configured region in region order with summary metrics", () => {
-    const report = buildBambooRoadBalanceReport(staticData);
+    const report = buildGameBalanceReport(staticData);
 
     expect(report.regionBalances.map((region) => region.regionId)).toEqual(
       staticData.regions.map((region) => region.id)
@@ -298,7 +299,7 @@ describe("balance report", () => {
   });
 
   it("formats a compact human-readable report", () => {
-    const report = buildBambooRoadBalanceReport(staticData);
+    const report = buildGameBalanceReport(staticData);
     const formatted = formatBalanceReport(report);
 
     expect(formatted).toContain("Bamboo Road Balance Report");
@@ -337,7 +338,7 @@ describe("balance report", () => {
       )
     };
 
-    expect(() => buildBambooRoadBalanceReport(badData)).toThrow(
+    expect(() => buildGameBalanceReport(badData)).toThrow(
       "Missing stage missing_stage"
     );
   });
@@ -355,7 +356,7 @@ describe("balance report", () => {
       )
     };
 
-    expect(() => buildBambooRoadBalanceReport(badData)).toThrow(
+    expect(() => buildGameBalanceReport(badData)).toThrow(
       "Missing stage missing_lotus_stage"
     );
   });

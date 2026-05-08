@@ -52,5 +52,17 @@
     ],
     "baseCost": 48,
     "costGrowth": 1.14
+  },
+  {
+    "id": "lotus_purity_training",
+    "name": "Lotus Purity Training",
+    "scope": "sect",
+    "art": "inner",
+    "effects": [
+      { "stat": "statusResistance", "mode": "flat", "effectPerLevel": 0.04 },
+      { "stat": "innerDefense", "effectPerLevel": 0.02 }
+    ],
+    "baseCost": 72,
+    "costGrowth": 1.16
   }
 ]

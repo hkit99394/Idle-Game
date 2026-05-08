@@ -449,6 +449,104 @@
       { "equipmentId": "tempered_meridian_pill", "quantity": 1 },
       { "equipmentId": "mending_poultice", "quantity": 1 }
     ],
+    "nextStageId": "demon_cult_outpost_1"
+  },
+  {
+    "id": "demon_cult_outpost_1",
+    "regionId": "demon_cult_outpost",
+    "index": 1,
+    "name": "Miasma Gate",
+    "enemyTeam": {
+      "combatantIds": ["miasma_palm_apprentice", "miasma_palm_apprentice"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 860, "cultivation": 430, "herbs": 24, "combatExperience": 176 },
+    "nextStageId": "demon_cult_outpost_2"
+  },
+  {
+    "id": "demon_cult_outpost_2",
+    "regionId": "demon_cult_outpost",
+    "index": 2,
+    "name": "Blood Brand Yard",
+    "enemyTeam": {
+      "combatantIds": ["blood_brand_duelist", "miasma_palm_apprentice"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 960, "cultivation": 480, "herbs": 28, "combatExperience": 194 },
+    "nextStageId": "demon_cult_outpost_3"
+  },
+  {
+    "id": "demon_cult_outpost_3",
+    "regionId": "demon_cult_outpost",
+    "index": 3,
+    "name": "Marrow Lock Shrine",
+    "enemyTeam": {
+      "combatantIds": ["blood_brand_duelist", "marrow_lock_supplicant", "miasma_palm_apprentice"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 1080, "cultivation": 540, "herbs": 32, "combatExperience": 214 },
+    "nextStageId": "demon_cult_outpost_4"
+  },
+  {
+    "id": "demon_cult_outpost_4",
+    "regionId": "demon_cult_outpost",
+    "index": 4,
+    "name": "Burning Blood Hall",
+    "enemyTeam": {
+      "combatantIds": ["burning_blood_captain", "marrow_lock_supplicant", "miasma_palm_apprentice"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 1220, "cultivation": 610, "herbs": 36, "combatExperience": 238 },
+    "nextStageId": "demon_cult_outpost_5"
+  },
+  {
+    "id": "demon_cult_outpost_5",
+    "regionId": "demon_cult_outpost",
+    "index": 5,
+    "name": "Ritual Smoke Crossing",
+    "enemyTeam": {
+      "combatantIds": ["burning_blood_captain", "demon_cult_ritualist", "blood_brand_duelist"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 1400, "cultivation": 700, "herbs": 42, "combatExperience": 266 },
+    "nextStageId": "demon_cult_outpost_6"
+  },
+  {
+    "id": "demon_cult_outpost_6",
+    "regionId": "demon_cult_outpost",
+    "index": 6,
+    "name": "Outpost Inner Court",
+    "enemyTeam": {
+      "combatantIds": ["burning_blood_captain", "demon_cult_ritualist", "marrow_lock_supplicant"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 1620, "cultivation": 810, "herbs": 50, "combatExperience": 306 },
+    "nextStageId": "demon_cult_outpost_7"
+  },
+  {
+    "id": "demon_cult_outpost_7",
+    "regionId": "demon_cult_outpost",
+    "index": 7,
+    "name": "Demon Cult Overseer",
+    "enemyTeam": {
+      "combatantIds": ["burning_blood_captain", "demon_cult_overseer", "demon_cult_ritualist"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": true,
+    "canFarmOffline": false,
+    "rewards": { "silver": 2600, "cultivation": 1300, "herbs": 80, "combatExperience": 620 },
     "nextStageId": null
   }
 ]

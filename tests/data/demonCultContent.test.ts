@@ -1,33 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { StaticGameData } from "../../core";
-import enemies from "../../data/enemies.json" with { type: "json" };
-import formations from "../../data/formations.json" with { type: "json" };
-import heroes from "../../data/heroes.json" with { type: "json" };
-import medicines from "../../data/medicines.json" with { type: "json" };
-import mastery from "../../data/mastery.json" with { type: "json" };
-import regions from "../../data/regions.json" with { type: "json" };
-import skills from "../../data/skills.json" with { type: "json" };
-import stages from "../../data/stages.json" with { type: "json" };
-import statusEffects from "../../data/statusEffects.json" with { type: "json" };
-import upgrades from "../../data/upgrades.json" with { type: "json" };
-
-const staticData: StaticGameData = {
-  heroes: heroes as StaticGameData["heroes"],
-  skills: skills as StaticGameData["skills"],
-  enemies: enemies as StaticGameData["enemies"],
-  regions: regions as StaticGameData["regions"],
-  stages: stages as StaticGameData["stages"],
-  upgrades: upgrades as StaticGameData["upgrades"],
-  mastery: mastery as StaticGameData["mastery"],
-  formations: formations as StaticGameData["formations"],
-  statusEffects: statusEffects as StaticGameData["statusEffects"],
-  medicines: medicines as StaticGameData["medicines"]
-};
+import { staticData } from "../helpers/staticData";
 
 describe("Demon Cult Outpost content", () => {
-  it("connects after the Bamboo Road boss as a seven-stage region", () => {
-    const bambooBoss = staticData.stages.find(
-      (stage) => stage.id === "bamboo_road_10"
+  it("connects after the Lotus boss as a seven-stage region", () => {
+    const lotusBoss = staticData.stages.find(
+      (stage) => stage.id === "lotus_monastery_7"
     );
     const demonRegion = staticData.regions.find(
       (region) => region.id === "demon_cult_outpost"
@@ -36,11 +13,11 @@ describe("Demon Cult Outpost content", () => {
       (stage) => stage.regionId === "demon_cult_outpost"
     );
 
-    expect(bambooBoss?.nextStageId).toBe("demon_cult_outpost_1");
+    expect(lotusBoss?.nextStageId).toBe("demon_cult_outpost_1");
     expect(demonRegion).toMatchObject({
       unlockCondition: {
         type: "stage_cleared",
-        stageId: "bamboo_road_10"
+        stageId: "lotus_monastery_7"
       }
     });
     expect(demonRegion?.stageIds).toHaveLength(7);
