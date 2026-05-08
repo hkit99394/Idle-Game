@@ -76,6 +76,7 @@ export function applySaveLoadTransaction(input: {
     return {
       ok: true,
       save: input.save,
+      previousSave: input.save,
       changed: false,
       offlineRewards,
       offlineAssignmentRewards
@@ -96,6 +97,7 @@ export function applySaveLoadTransaction(input: {
         : input.save.lastOfflineRewardAtMs,
       previousSave: input.save
     }),
+    previousSave: input.save,
     changed: true,
     offlineRewards,
     offlineAssignmentRewards

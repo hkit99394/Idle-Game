@@ -2,8 +2,8 @@ import {
   createInitialPlayerProgress,
   createSaveData,
   applySaveLoadTransaction,
+  loadSaveTransaction,
   parseSaveData,
-  normalizeOfflineFarmPreset,
   setOfflineFarmStageTarget
 } from "../../core";
 import type {
@@ -46,7 +46,10 @@ export type LoadSaveDataFromStorageResult =
     };
 
 export type LoadSaveDataWithOfflineRewardsResult =
-  | Omit<Extract<LoadSaveTransactionResult, { ok: true }>, "changed">
+  | Omit<
+      Extract<LoadSaveTransactionResult, { ok: true }>,
+      "changed" | "previousSave"
+    >
   | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
 
 export type SaveStateToStorageResult =
@@ -165,28 +168,33 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
   nowMs = Date.now(),
   key = WEB_SAVE_STORAGE_KEY
 ): LoadSaveDataWithOfflineRewardsResult {
-  const loadResult = loadSaveDataFromStorage(data, storage, key);
+  const rawSaveResult = loadRawSaveFromStorage(storage, key);
 
-  if (!loadResult.ok) {
-    return loadResult;
+  if (!rawSaveResult.ok) {
+    return rawSaveResult;
   }
 
-  const transaction = applySaveLoadTransaction({
+  const transaction = loadSaveTransaction({
     data,
-    save: loadResult.save,
+    rawSave: rawSaveResult.rawSave,
     nowMs
   });
 
-  if (!transaction.changed) {
-    return transaction;
+  if (!transaction.ok) {
+    return {
+      ok: false,
+      reason: "invalid_save",
+      errors: transaction.errors
+    };
   }
 
-  try {
-    storage.setItem(key, JSON.stringify(transaction.save));
-  } catch {
+  if (
+    transaction.changed &&
+    !persistSaveToStorage(storage, transaction.save, key)
+  ) {
     return {
       ok: true,
-      save: loadResult.save,
+      save: transaction.previousSave,
       offlineRewards: null,
       offlineAssignmentRewards: null
     };
@@ -258,7 +266,7 @@ export function exportSaveDataFromStorage(
 }
 
 export function importSaveDataToStorage(
-  data: SaveSchemaData,
+  data: OfflineSaveData,
   storage: WebSaveStorage,
   rawSaveText: string,
   key = WEB_SAVE_STORAGE_KEY
@@ -295,16 +303,12 @@ export function importSaveDataToStorage(
     };
   }
 
-  const save: SaveData = {
-    ...parseResult.save,
-    selectedOfflineFarmStageId: setOfflineFarmStageTarget(
-      data,
-      parseResult.save.progress,
-      parseResult.save.selectedOfflineFarmStageId,
-      parseResult.save.offlineFarmPreset
-    ),
-    offlineFarmPreset: normalizeOfflineFarmPreset(parseResult.save.offlineFarmPreset)
-  };
+  const transaction = applySaveLoadTransaction({
+    data,
+    save: parseResult.save,
+    nowMs: parseResult.save.updatedAtMs
+  });
+  const save = transaction.save;
 
   try {
     storage.setItem(key, JSON.stringify(save));
@@ -320,6 +324,64 @@ export function importSaveDataToStorage(
     ok: true,
     save
   };
+}
+
+type LoadRawSaveFromStorageResult =
+  | {
+      ok: true;
+      rawSave: unknown;
+    }
+  | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
+
+function loadRawSaveFromStorage(
+  storage: WebSaveStorage,
+  key: string
+): LoadRawSaveFromStorageResult {
+  let rawSave: string | null;
+
+  try {
+    rawSave = storage.getItem(key);
+  } catch (error) {
+    return {
+      ok: false,
+      reason: "storage_error",
+      errors: [error instanceof Error ? error.message : "Unable to read save"]
+    };
+  }
+
+  if (!rawSave) {
+    return {
+      ok: false,
+      reason: "missing_save",
+      errors: []
+    };
+  }
+
+  try {
+    return {
+      ok: true,
+      rawSave: JSON.parse(rawSave)
+    };
+  } catch {
+    return {
+      ok: false,
+      reason: "invalid_json",
+      errors: ["Stored save is not valid JSON"]
+    };
+  }
+}
+
+function persistSaveToStorage(
+  storage: WebSaveStorage,
+  save: SaveData,
+  key: string
+): boolean {
+  try {
+    storage.setItem(key, JSON.stringify(save));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function resetSaveDataInStorage(

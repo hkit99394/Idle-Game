@@ -167,6 +167,35 @@ describe("web save storage", () => {
     });
   });
 
+  it("normalizes imported offline farm metadata through the core save transaction", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_10",
+      nowMs: 1000
+    });
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(save)
+    );
+    const importedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(importResult.ok).toBe(true);
+    expect(importedSave.ok).toBe(true);
+    if (!importResult.ok || !importedSave.ok) {
+      return;
+    }
+    expect(importResult.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(importedSave.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(importedSave.save.updatedAtMs).toBe(1000);
+    expect(importedSave.save.lastOfflineRewardAtMs).toBe(1000);
+  });
+
   it("rejects invalid imports without replacing the current save", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);

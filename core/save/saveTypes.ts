@@ -61,6 +61,7 @@ export type ParseSaveDataResult =
 export type SaveLoadTransactionSuccess = {
   ok: true;
   save: SaveData;
+  previousSave: SaveData;
   changed: boolean;
   offlineRewards: ApplyOfflineRewardsResult | null;
   offlineAssignmentRewards: ApplyOfflineAssignmentRewardsResult | null;
