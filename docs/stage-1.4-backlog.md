@@ -40,7 +40,7 @@ The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is t
 | 25 | Status Effect Engine | In Progress | Add reusable combat statuses, ticking effects, cleanses, and telemetry |
 | 26 | Demon Cult Outpost Region | In Progress | Add region, stages, enemies, rewards, and boss gate |
 | 27 | Counterplay Growth | In Progress | Add upgrades, medicine, and support hooks that answer status pressure |
-| 28 | Battle UI And Summary Polish | Not Started | Make statuses readable during and after battle |
+| 28 | Battle UI And Summary Polish | In Progress | Make statuses readable during and after battle |
 | 29 | Offline, Save, And Migration Safety | Not Started | Keep imported saves, offline farming, and diagnostics safe |
 | 30 | Simulator And Balance Pass | Not Started | Validate the new region and all-region balance reports |
 
@@ -219,6 +219,11 @@ build on these hooks later.
 
 Make status combat understandable without adding heavy tutorial text.
 
+Branch-scope note: this checkout has a static battle shell, not a full battle
+timeline or save/reload flow. The first Epic 28 slice adds reusable status
+presentation helpers and a status-readable battle screen; live battle/reload
+smoke coverage can land when the combat loop exists.
+
 ### Tasks
 
 - Show active status chips near each combatant.
@@ -241,6 +246,15 @@ Make status combat understandable without adding heavy tutorial text.
 - View model exposes active statuses and severity.
 - Summary groups status damage and cleanses by combatant.
 - Smoke test covers a Demon Cult status battle and reload.
+
+### Progress Notes
+
+- Added status chip view-model helpers for severity, category tone, stack labels, and remaining time.
+- Added status summary helpers for status damage, cleanses, and debuff rows.
+- Updated the web battle shell with status chips for player/enemy combatants and a compact battle summary panel.
+- Added responsive styles so status chips wrap on mobile without resizing bars or combatant cards.
+- Added tests for chip severity ordering and status summary grouping.
+- Remaining integration work: feed live battle events into the status presentation helpers, add boss failure hints from real loss causes, and add smoke coverage once battle reload state exists.
 
 ---
 
