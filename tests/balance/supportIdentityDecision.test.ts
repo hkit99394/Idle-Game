@@ -65,10 +65,18 @@ describe("support identity decision", () => {
     expect(report.selectedOptionId).toBe("lotus_support");
     expect(lotus.productionRosterChangeRequired).toBe(false);
     expect(newHero.productionRosterChangeRequired).toBe(true);
+    expect(lotus.supportContribution).toMatchObject({
+      label: "Lotus Purity Training",
+      statusResistanceBonus: 0.08
+    });
+    expect(lotus.supportContribution?.estimatedCpContribution).toBeGreaterThan(0);
     expect(lotus.estimatedTeamCp).toBeGreaterThan(0);
     expect(newHero.estimatedTeamCp).toBeGreaterThan(lotus.estimatedTeamCp);
     expect(manual.demonCultBoss.statusDamage).toBeLessThan(
       report.defaultCombinedGate.statusDamage
+    );
+    expect(lotus.demonCultBoss.statusDurationSeconds).toBeLessThan(
+      report.defaultCombinedGate.statusDurationSeconds
     );
     expect(lotus.demonCultBoss.survivalRatio).toBeGreaterThan(
       report.defaultCombinedGate.survivalRatio

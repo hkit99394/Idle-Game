@@ -1,4 +1,4 @@
-import type { BaseStats } from "../combat";
+import { calculateEffectiveStatusResistance, type BaseStats } from "../combat";
 import type { UpgradeDefinition } from "../data";
 import { applyEquipmentBonuses } from "./equipment";
 import { scaleStatsForLevel } from "./levels";
@@ -91,13 +91,25 @@ export function formatUpgradeEffectStats(
   return effects.map((effect) => effect.stat);
 }
 
-function applyStatMultiplier(
+function applyUpgradeEffect(
   stats: BaseStats,
-  stat: keyof BaseStats,
-  effectPerLevel: number,
+  effect: Pick<UpgradeDefinition["effects"][number], "stat" | "effectPerLevel" | "mode">,
   level: number
 ): void {
-  stats[stat] *= 1 + effectPerLevel * level;
+  if ((effect.mode ?? "multiplier") === "flat") {
+    if (effect.stat === "statusResistance") {
+      stats.statusResistance = calculateEffectiveStatusResistance(
+        stats.statusResistance,
+        effect.effectPerLevel * level
+      );
+      return;
+    }
+
+    stats[effect.stat] += effect.effectPerLevel * level;
+    return;
+  }
+
+  stats[effect.stat] *= 1 + effect.effectPerLevel * level;
 }
 
 function applyUpgradeEffects(
@@ -106,7 +118,7 @@ function applyUpgradeEffects(
   level: number
 ): void {
   for (const effect of upgrade.effects) {
-    applyStatMultiplier(stats, effect.stat, effect.effectPerLevel, level);
+    applyUpgradeEffect(stats, effect, level);
   }
 }
 

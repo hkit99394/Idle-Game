@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildMedicineCounterplayViewModels,
   buildStageCounterplayPreview,
+  createInitialPlayerProgress,
   defaultAutoMedicinePreferences
 } from "../../core";
 import type {
@@ -218,6 +219,8 @@ describe("counterplay preview", () => {
   });
 
   it("previews stage status pressure and recommended counterplay", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.sect.upgrades.lotus_purity_training = 2;
     const preview = buildStageCounterplayPreview({
       data: statusPreviewData,
       stage: statusPreviewStage,
@@ -226,6 +229,7 @@ describe("counterplay preview", () => {
         quiet_meridian_powder: 1,
         purity_draught: 1
       },
+      progress,
       preferences: {
         ...defaultAutoMedicinePreferences,
         preBattleResistanceMode: "always_when_recommended"
@@ -256,6 +260,10 @@ describe("counterplay preview", () => {
     });
     expect(preview.recommendationText).toBe(
       "Expected Poison, Qi Suppression, Vulnerable, Wound. Recommended auto medicine: Quiet Meridian Powder, Clear Heart Pill, Purity Draught."
+    );
+    expect(preview.supportResistanceBonus).toBeCloseTo(0.08);
+    expect(preview.supportContributionText).toBe(
+      "Lotus Purity Training Lv 2 adds 8% team status resistance before the cap."
     );
   });
 

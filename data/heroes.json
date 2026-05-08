@@ -121,7 +121,9 @@
       "critDamage": 1.35,
       "breakPower": 0.01,
       "breakResist": 0.03,
-      "innerRecoveryRate": 0.008
+      "innerRecoveryRate": 0.008,
+      "statusAccuracy": 0.02,
+      "statusResistance": 0.08
     },
     "skillIds": ["lotus_mending_vow"],
     "passiveIds": [],

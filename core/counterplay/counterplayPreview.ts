@@ -20,8 +20,12 @@ import type {
   StaticGameData
 } from "../data";
 import type { ActiveStatusEffect, StatusEffectDefinition } from "../combat";
-import type { RegionProgress } from "../progression";
-import { isStageCleared } from "../progression";
+import {
+  getLotusSupportGrowthContribution,
+  isStageCleared,
+  type PlayerProgress,
+  type RegionProgress
+} from "../progression";
 
 export type MedicineAvailability = "ready" | "empty" | "locked" | "disabled";
 
@@ -53,6 +57,8 @@ export type StageCounterplayPreview = {
   statusCategories: StatusEffectDefinition["category"][];
   recommendedMedicineIds: string[];
   recommendationText: string;
+  supportContributionText: string | null;
+  supportResistanceBonus: number;
   preBattleResistanceMode: PreBattleResistanceMode;
   preBattleResistanceModeLabel: string;
   preBattleResistancePolicyReason: string | null;
@@ -60,7 +66,7 @@ export type StageCounterplayPreview = {
 
 type CounterplayData = Pick<
   StaticGameData,
-  "medicines" | "stages" | "enemies" | "skills" | "statusEffects"
+  "medicines" | "stages" | "enemies" | "skills" | "statusEffects" | "upgrades"
 >;
 
 export function buildMedicineCounterplayViewModels(input: {
@@ -113,6 +119,7 @@ export function buildStageCounterplayPreview(input: {
   data: CounterplayData;
   stage: StageDefinition;
   inventory: MedicineInventory;
+  progress?: Pick<PlayerProgress, "sect">;
   preferences?: AutoMedicinePreferences;
 }): StageCounterplayPreview {
   const preferences = input.preferences ?? defaultAutoMedicinePreferences;
@@ -159,6 +166,13 @@ export function buildStageCounterplayPreview(input: {
       ...cleanseMedicineIds
     ].filter((medicineId): medicineId is string => medicineId !== undefined))
   ];
+  const supportContribution = input.progress
+    ? getLotusSupportGrowthContribution(input.data, input.progress)
+    : null;
+  const supportContributionText =
+    supportContribution !== null && statusPressureIds.length > 0
+      ? supportContribution.contributionText
+      : null;
 
   return {
     stageId: input.stage.id,
@@ -179,6 +193,8 @@ export function buildStageCounterplayPreview(input: {
       recommendedMedicineIds,
       medicines: input.data.medicines
     }),
+    supportContributionText,
+    supportResistanceBonus: supportContribution?.effectiveResistanceBonus ?? 0,
     preBattleResistanceMode: preBattleResistancePolicy.mode,
     preBattleResistanceModeLabel: getPreBattleResistanceModeLabel(
       preBattleResistancePolicy.mode

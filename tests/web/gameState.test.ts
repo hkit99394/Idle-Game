@@ -109,7 +109,7 @@ describe("web game state", () => {
       canSelectStage: false,
       canSelectOfflineFarm: false
     });
-    expect(viewModel.upgrades).toHaveLength(10);
+    expect(viewModel.upgrades).toHaveLength(11);
     expect(
       viewModel.upgrades.find(
         (upgrade) =>
@@ -138,6 +138,19 @@ describe("web game state", () => {
       affordable: false,
       missingSilver: 48,
       targetName: "Sect"
+    });
+    expect(
+      viewModel.upgrades.find(
+        (upgrade) => upgrade.upgradeId === "lotus_purity_training"
+      )
+    ).toMatchObject({
+      level: 0,
+      cost: 72,
+      targetName: "Sect",
+      effects: expect.arrayContaining([
+        "+4% Status Resistance per level",
+        "+2% Inner Defense per level"
+      ])
     });
     expect(viewModel.skillUpgrades).toHaveLength(4);
     expect(viewModel.activeTeamSize).toBe(4);
@@ -218,7 +231,7 @@ describe("web game state", () => {
       formationSlot: "front",
       combatRole: "striker",
       level: 1,
-      combatPower: 504
+      combatPower: 516
     });
     expect(viewModel.enemyCombatants).toHaveLength(2);
     expect(viewModel.enemyCombatants[0]).toMatchObject({
@@ -1163,6 +1176,93 @@ describe("web game state", () => {
       autoUseEnabled: false,
       autoUseLabel: "Auto Off",
       canToggle: true
+    });
+  });
+
+  it("shows Lotus support contribution in the selected stage counterplay view", () => {
+    const stageId = "web_status_counterplay";
+    const data = {
+      ...staticData,
+      enemies: [
+        ...staticData.enemies,
+        {
+          ...staticData.enemies[0],
+          id: "web_status_counterplay_enemy",
+          skillIds: ["web_poison_hex"]
+        }
+      ],
+      skills: [
+        ...staticData.skills,
+        {
+          id: "web_poison_hex",
+          name: "Web Poison Hex",
+          cooldownSeconds: 1,
+          outerMultiplier: 0,
+          innerMultiplier: 0,
+          targetRule: "first_living" as const,
+          effects: [
+            {
+              type: "apply_status" as const,
+              statusId: "poison",
+              chance: 1,
+              durationSeconds: 8,
+              stacks: 1
+            }
+          ]
+        }
+      ],
+      stages: [
+        ...staticData.stages,
+        {
+          id: stageId,
+          regionId: "bamboo_road",
+          index: 11,
+          name: "Web Status Counterplay",
+          enemyTeam: {
+            combatantIds: ["web_status_counterplay_enemy"]
+          },
+          isBoss: false,
+          canFarmOffline: false,
+          rewards: {
+            silver: 0,
+            cultivation: 0,
+            combatExperience: 0
+          },
+          nextStageId: null
+        }
+      ]
+    };
+    const state = createInitialWebGameState(data);
+    const progressedState = webGameStateReducer(data, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        currentStageId: stageId,
+        sect: {
+          upgrades: {
+            lotus_purity_training: 2
+          }
+        },
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            ...state.progress.maps.bamboo_road,
+            highestClearedStageIndex: 10
+          }
+        }
+      }
+    });
+    const selectedState = webGameStateReducer(data, progressedState, {
+      type: "select_stage",
+      stageId
+    });
+    const viewModel = getWebGameViewModel(data, selectedState);
+
+    expect(viewModel.counterplaySettings.stagePreview).toMatchObject({
+      stageId,
+      supportResistanceBonus: 0.08,
+      supportContributionText:
+        "Lotus Purity Training Lv 2 adds 8% team status resistance before the cap."
     });
   });
 });

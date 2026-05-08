@@ -63,6 +63,7 @@ export function calculateCombatPower(stats: DerivedStats): number {
   const qiControl =
     (Math.max(0, stats.breakPower) + Math.max(0, stats.breakResist)) * 500;
   const innerRecovery = stats.maxInnerQi * Math.max(0, stats.innerRecoveryRate) * 20;
+  const statusTenacity = clamp(stats.statusResistance, 0, 0.8) * 600;
 
   return Math.max(
     1,
@@ -71,7 +72,8 @@ export function calculateCombatPower(stats: DerivedStats): number {
         innerDurability +
         offense +
         qiControl +
-        innerRecovery
+        innerRecovery +
+        statusTenacity
     )
   );
 }

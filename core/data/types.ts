@@ -305,7 +305,9 @@ export type UpgradeEffect = {
     | "outerDefense"
     | "innerDefense"
     | "innerRecoveryRate"
+    | "statusResistance"
   >;
+  mode?: "multiplier" | "flat";
   effectPerLevel: number;
 };
 

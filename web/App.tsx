@@ -1361,6 +1361,11 @@ function CounterplaySettingsPanel({
           )}
         </div>
         <p>{recommendationText}</p>
+        {settings.stagePreview?.supportContributionText ? (
+          <p className="counterplay-support-note">
+            {settings.stagePreview.supportContributionText}
+          </p>
+        ) : null}
       </div>
     </section>
   );

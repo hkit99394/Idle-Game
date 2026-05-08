@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  calculateCombatPower,
+  calculateEffectiveStatusResistance,
   calculateUpgradeCost,
   calculateSkillUpgradeCost,
   createInitialPlayerProgress,
@@ -178,6 +180,52 @@ describe("upgrades", () => {
 
     expect(stats.outerAttack).toBeCloseTo(hero.baseStats.outerAttack * 1.06 * 1.1);
     expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.06 * 1.04);
+  });
+
+  it("applies Lotus purity training as capped team resistance with CP value", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const guardian = staticData.heroes.find(
+      (candidate) => candidate.id === "mountain_staff_guardian"
+    );
+
+    expect(guardian).toBeDefined();
+    if (!guardian) {
+      return;
+    }
+
+    const commonInput = {
+      baseStats: guardian.baseStats,
+      heroProgress: progress.heroes.mountain_staff_guardian,
+      sectProgress: progress.sect,
+      heroUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "hero"
+      ),
+      sectUpgradeDefinitions: staticData.upgrades.filter(
+        (upgrade) => upgrade.scope === "sect"
+      )
+    };
+    const before = deriveHeroStatsFromProgress(commonInput);
+
+    progress.sect.upgrades.lotus_purity_training = 2;
+    const after = deriveHeroStatsFromProgress({
+      ...commonInput,
+      sectProgress: progress.sect
+    });
+
+    expect(after.statusResistance).toBeCloseTo(
+      calculateEffectiveStatusResistance(guardian.baseStats.statusResistance, 0.08)
+    );
+    expect(calculateCombatPower(after)).toBeGreaterThan(
+      calculateCombatPower(before)
+    );
+
+    progress.sect.upgrades.lotus_purity_training = 30;
+    const capped = deriveHeroStatsFromProgress({
+      ...commonInput,
+      sectProgress: progress.sect
+    });
+
+    expect(capped.statusResistance).toBe(0.8);
   });
 
   it("applies style mastery only to matching hero styles", () => {

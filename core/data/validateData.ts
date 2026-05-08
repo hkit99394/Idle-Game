@@ -76,6 +76,12 @@ function validateStats(
 ): string[] {
   const errors: string[] = [];
 
+  for (const stat of BASE_STAT_KEYS) {
+    if (stats[stat] === undefined) {
+      errors.push(`${ownerId} stat ${stat} is required`);
+    }
+  }
+
   for (const [stat, value] of Object.entries(stats)) {
     if (typeof value !== "number" || Number.isNaN(value)) {
       errors.push(`${ownerId} stat ${stat} must be a number`);
@@ -794,6 +800,24 @@ function validateUpgrade(upgrade: StaticGameData["upgrades"][number]): string[] 
   }
 
   for (const effect of upgrade.effects) {
+    if (!BASE_STAT_KEYS.includes(effect.stat)) {
+      errors.push(
+        `Upgrade ${upgrade.id} effect stat ${String(effect.stat)} must be a valid base stat`
+      );
+    }
+
+    if (
+      effect.mode !== undefined &&
+      effect.mode !== "multiplier" &&
+      effect.mode !== "flat"
+    ) {
+      errors.push(`Upgrade ${upgrade.id} effect ${effect.stat} mode must be multiplier or flat`);
+    }
+
+    if (effect.mode === "flat" && effect.stat !== "statusResistance") {
+      errors.push(`Upgrade ${upgrade.id} flat effects are only supported for statusResistance`);
+    }
+
     if (
       typeof effect.effectPerLevel !== "number" ||
       Number.isNaN(effect.effectPerLevel)

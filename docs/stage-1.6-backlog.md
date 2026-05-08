@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.6 is planned.
+Stage 1.6 is in progress. Epics 37-41 are complete; Epic 42 remains.
 
 The recommended theme is **Lotus Support And Medicine Control**. Stage 1.5 proved that status resistance, automatic medicine, scenario balance gates, and Lotus/support identity can carry Demon Cult counterplay without adding a new production hero. Stage 1.6 should make that counterplay visible, configurable, and trustworthy in the web UI.
 
@@ -69,7 +69,7 @@ Why this target:
 | 38 | Per-Medicine Auto Policy | Completed | Let players disable automatic use for each medicine type |
 | 39 | Pre-Battle Resistance Policy | Completed | Make resistance medicine consumption mode configurable |
 | 40 | Counterplay Settings Panel | Completed | Add compact UI controls for medicine automation |
-| 41 | Lotus Purity Support Growth | Not Started | Make support identity visible without adding a new hero |
+| 41 | Lotus Purity Support Growth | Completed | Make support identity visible without adding a new hero |
 | 42 | Demon Cult Boss Tuning Gates | Not Started | Tune intended counterplay toward the target boss window |
 
 ---
@@ -251,9 +251,20 @@ Add a small web UI settings panel so medicine automation feels intentional witho
 
 ## Epic 41: Lotus Purity Support Growth
 
+**Status:** Completed.
+
 ### Goal
 
 Make Lotus/support counterplay feel like a martial arts identity, not just invisible resistance math.
+
+### Implementation Notes
+
+- Added **Lotus Purity Training** as a deterministic sect/manual-style upgrade.
+- Flat status resistance upgrade effects now use the shared capped resistance formula.
+- Status resistance contributes modestly to CP, enough to make the support path visible without dominating attack/defense.
+- Counterplay preview shows Lotus support mitigation text for status-pressure stages.
+- Support-decision output now reports support bonus and estimated support CP contribution, using prototype Demon Cult decision content when production Demon Cult stages are not yet present.
+- Production roster remains unchanged.
 
 ### Design Direction
 
@@ -329,14 +340,14 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 2. Epic 38: Per-Medicine Auto Policy.
 3. Epic 39: Pre-Battle Resistance Policy.
 4. Epic 40: Counterplay Settings Panel.
-5. Epic 41: Lotus Purity Support Growth.
+5. Epic 41: Lotus Purity Support Growth. Completed.
 6. Epic 42: Demon Cult Boss Tuning Gates.
 
 ## Open Questions Before Implementation
 
 - Should first medicine unlock mean "medicine item appears in configured unlocks" or "inventory count becomes greater than zero"? Recommended: either condition unlocks UI, but auto-use requires inventory.
 - Should disabled medicine rows remain visible when inventory is zero? Recommended: yes, if unlocked.
-- Should support growth be an upgrade, a manual, or a hero refinement label? Recommended for Stage 1.6: deterministic upgrade/manual data, not a new hero.
+- Should support growth be an upgrade, a manual, or a hero refinement label? Resolved: deterministic sect/manual-style upgrade, not a new hero.
 - Should manual use of medicine be added now? Recommended: defer unless needed for testing/debugging.
 
 ## Final Stage 1.6 Checklist

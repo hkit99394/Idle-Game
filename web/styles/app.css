@@ -1916,6 +1916,10 @@ h2 {
   overflow-wrap: anywhere;
 }
 
+.counterplay-preview .counterplay-support-note {
+  color: #2e5f63;
+}
+
 .counterplay-settings-grid {
   display: grid;
   grid-template-columns: minmax(220px, 0.8fr) minmax(240px, 1.2fr);

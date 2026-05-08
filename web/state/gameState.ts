@@ -2009,7 +2009,19 @@ function formatStatName(stat: string): string {
   );
 }
 
-function formatPerLevelEffect(stat: string, value: number): string {
+function formatPerLevelEffect(
+  stat: string,
+  value: number,
+  mode: "multiplier" | "flat" = "multiplier"
+): string {
+  if (mode === "flat") {
+    const formattedValue =
+      stat === "statusResistance"
+        ? formatMasteryPercent(value)
+        : `${value >= 0 ? "+" : ""}${value}`;
+    return `${formattedValue} ${formatStatName(stat)} per level`;
+  }
+
   return `${formatMasteryPercent(value)} ${formatStatName(stat)} per level`;
 }
 
@@ -2180,7 +2192,7 @@ function buildUpgradeViews(
     heroId,
     targetName,
     effects: upgrade.effects.map((effect) =>
-      formatPerLevelEffect(effect.stat, effect.effectPerLevel)
+      formatPerLevelEffect(effect.stat, effect.effectPerLevel, effect.mode)
     ),
     level,
     cost,
@@ -3216,6 +3228,7 @@ function buildCounterplaySettingsView(
           data,
           stage: selectedStage,
           inventory,
+          progress: state.progress,
           preferences
         })
       : null
