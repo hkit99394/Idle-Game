@@ -420,7 +420,7 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
-      statusesRemoved: CleanseableStatusEffectId[];
+      statusesRemoved: string[];
     }
   | {
       type: "qi_break";

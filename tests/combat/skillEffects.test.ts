@@ -312,4 +312,80 @@ describe("skill effect combat coverage", () => {
     expect(target.activeStatuses).toEqual([]);
     expect(target.outerHp).toBe(target.maxOuterHp);
   });
+
+  it("cleanse removes data-driven debuffs applied through skill effects", () => {
+    const data = withScenarioData({
+      skills: [
+        {
+          id: "scenario_poison",
+          name: "Scenario Poison",
+          cooldownSeconds: 20,
+          outerMultiplier: 0,
+          innerMultiplier: 0,
+          targetRule: "first_living",
+          effects: [
+            {
+              type: "apply_status",
+              statusId: "poison",
+              chance: 1,
+              durationSeconds: 4,
+              stacks: 1
+            }
+          ]
+        },
+        {
+          id: "scenario_cleanse_ally",
+          name: "Scenario Cleanse Ally",
+          cooldownSeconds: 20,
+          outerMultiplier: 0,
+          innerMultiplier: 0,
+          targetRule: "first_living",
+          effects: [
+            {
+              type: "cleanse",
+              value: 1,
+              target: "wounded_or_armor_broken_ally"
+            }
+          ]
+        }
+      ],
+      heroes: [
+        createHero("scenario_poisoned_ally", ["basic_strike"], {
+          speed: 0
+        }),
+        createHero("scenario_cleanser", ["scenario_cleanse_ally"], {
+          speed: 0
+        })
+      ],
+      enemies: [
+        createEnemy("scenario_poisoner", ["scenario_poison"], {
+          speed: 100
+        })
+      ]
+    });
+
+    const result = simulateBattle(data, {
+      playerTeam: {
+        id: "player",
+        combatants: [
+          { kind: "hero", definitionId: "scenario_poisoned_ally" },
+          { kind: "hero", definitionId: "scenario_cleanser" }
+        ]
+      },
+      enemyTeam: {
+        id: "enemy",
+        combatants: [{ kind: "enemy", definitionId: "scenario_poisoner" }]
+      },
+      maxDurationSeconds: 2.1
+    });
+    const cleanse = result.events.find((event) => event.type === "cleanse");
+
+    expect(result.events.some((event) => event.type === "status_apply")).toBe(true);
+    expect(cleanse).toMatchObject({
+      type: "cleanse",
+      targetId: "player_scenario_poisoned_ally_1",
+      statusesRemoved: ["poison"]
+    });
+    expect(result.finalPlayerTeam[0]?.activeStatuses).toEqual([]);
+  });
 });

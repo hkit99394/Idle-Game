@@ -3,6 +3,7 @@ import type {
   BattleEvent,
   BattleMetrics,
   CombatantState,
+  StatusDispelTag,
   StatusEffectDefinition
 } from "./types";
 import type {
@@ -14,6 +15,7 @@ import { clampDefensiveEffectValue, clampRecoveryEffectValue } from "./defensive
 import {
   applyStatusEffect,
   calculateStatusApplicationChance,
+  cleanseStatusEffects,
   clearCleanseableStatusEffects,
   createTimedRecoveryStatusEffect,
   createTimedStatusEffect,
@@ -26,6 +28,7 @@ import {
 import { isLiving } from "./targeting";
 
 const RECOVERY_TICK_INTERVAL_SECONDS = 1;
+const SKILL_CLEANSE_DISPEL_TAGS: StatusDispelTag[] = ["debuff"];
 
 export const COMBAT_SKILL_EFFECT_HANDLERS = {
   outer_heal_percent: "recovery",
@@ -61,8 +64,26 @@ function getMissingInnerQi(combatant: CombatantState): number {
   return Math.max(0, combatant.maxInnerQi - combatant.innerQi);
 }
 
-function hasCleanseableStatus(combatant: CombatantState, time: number): boolean {
-  return hasCleanseableStatusEffect(combatant, time);
+function hasCleanseableStatus(
+  combatant: CombatantState,
+  time: number,
+  statusDefinitions?: Record<string, StatusEffectDefinition>
+): boolean {
+  if (hasCleanseableStatusEffect(combatant, time)) {
+    return true;
+  }
+
+  if (statusDefinitions === undefined) {
+    return false;
+  }
+
+  return combatant.activeStatuses.some((status) => {
+    const definition = statusDefinitions[status.statusId];
+
+    return definition?.dispelTags.some((tag) =>
+      SKILL_CLEANSE_DISPEL_TAGS.includes(tag)
+    ) ?? false;
+  });
 }
 
 function selectAllyByScore(
@@ -88,7 +109,8 @@ function selectEffectTarget(
   attacker: CombatantState,
   offensiveTarget: CombatantState,
   effect: SkillEffect,
-  time: number
+  time: number,
+  statusDefinitions?: Record<string, StatusEffectDefinition>
 ): CombatantState {
   switch (effect.target) {
     case "target":
@@ -102,7 +124,7 @@ function selectEffectTarget(
 
     case "wounded_or_armor_broken_ally":
       return selectAllyByScore(combatants, attacker, (combatant) =>
-        hasCleanseableStatus(combatant, time) ? 1 : 0
+        hasCleanseableStatus(combatant, time, statusDefinitions) ? 1 : 0
       );
 
     case "self":
@@ -630,6 +652,7 @@ export function applyTimedSkillEffects(
 
 function applyCleanseEffect(
   combatants: CombatantState[],
+  statusDefinitions: Record<string, StatusEffectDefinition>,
   attacker: CombatantState,
   offensiveTarget: CombatantState,
   skill: SkillDefinition,
@@ -644,7 +667,8 @@ function applyCleanseEffect(
     attacker,
     offensiveTarget,
     effect,
-    time
+    time,
+    statusDefinitions
   );
 
   if (!isLiving(target)) {
@@ -652,7 +676,28 @@ function applyCleanseEffect(
   }
 
   const removeCount = Math.max(1, Math.floor(effect.value));
-  const statusesRemoved = clearCleanseableStatusEffects(target, time, removeCount);
+  const timedStatusesRemoved = clearCleanseableStatusEffects(
+    target,
+    time,
+    removeCount
+  );
+  const remainingCleanseCount = removeCount - timedStatusesRemoved.length;
+  const dataCleanse =
+    remainingCleanseCount > 0
+      ? cleanseStatusEffects({
+          activeStatuses: target.activeStatuses,
+          definitions: statusDefinitions,
+          dispelTags: SKILL_CLEANSE_DISPEL_TAGS,
+          maxCount: remainingCleanseCount
+        })
+      : null;
+  const dataStatusesRemoved =
+    dataCleanse?.cleansed.map((status) => status.statusId) ?? [];
+  const statusesRemoved = [...timedStatusesRemoved, ...dataStatusesRemoved];
+
+  if (dataCleanse) {
+    target.activeStatuses = dataCleanse.statuses;
+  }
 
   if (statusesRemoved.length === 0) {
     return;
@@ -815,6 +860,7 @@ export function applyRecoverySkillEffects(
       case "cleanse":
         applyCleanseEffect(
           combatants,
+          statusDefinitions,
           attacker,
           offensiveTarget,
           skill,

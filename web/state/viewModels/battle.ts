@@ -203,6 +203,21 @@ function getStatusName(data: StaticGameData, statusId: string): string {
   return data.statusEffects.find((status) => status.id === statusId)?.name ?? statusId;
 }
 
+function getBattleStatusName(data: StaticGameData, statusId: string): string {
+  switch (statusId) {
+    case "armor_break":
+      return "Armor Break";
+    case "speed_down":
+      return "Speed Down";
+    case "inner_defense_down":
+      return "Inner Defense Down";
+    case "wound":
+      return "Wound";
+    default:
+      return getStatusName(data, statusId);
+  }
+}
+
 function formatAttackDetail(
   data: StaticGameData,
   event: Extract<BattleEvent, { type: "attack" }>
@@ -674,15 +689,7 @@ function buildBattleEventDetail(
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
       const statuses = event.statusesRemoved
-        .map((status) =>
-          status === "armor_break"
-            ? "Armor Break"
-            : status === "speed_down"
-              ? "Speed Down"
-              : status === "inner_defense_down"
-                ? "Inner Defense Down"
-                : "Wound"
-        )
+        .map((status) => getBattleStatusName(data, status))
         .join(", ");
 
       return {
