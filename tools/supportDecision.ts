@@ -1,7 +1,7 @@
 import {
   buildSupportIdentityDecisionReport,
   formatSupportIdentityDecisionReport
-} from "../core";
+} from "./supportDecision/decision";
 import { createSupportIdentityDecisionInput } from "./fixtures/supportIdentityPrototypes";
 import assignments from "../data/assignments.json" with { type: "json" };
 import enemies from "../data/enemies.json" with { type: "json" };

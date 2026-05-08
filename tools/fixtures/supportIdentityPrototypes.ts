@@ -3,7 +3,7 @@ import type { BalanceScenarioPreset } from "../../core/balance/balanceReport";
 import type {
   StaticDataForSupportDecision,
   SupportIdentityOptionInput
-} from "../../core/balance/supportIdentityDecision";
+} from "../supportDecision/decision";
 import type { HeroDefinition, SkillDefinition } from "../../core/data";
 
 const lotusSupportScenarioBonus = 0.08;

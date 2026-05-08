@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  buildBalanceReport,
   buildSupportIdentityDecisionReport
-} from "../../core";
+} from "../../tools/supportDecision/decision";
+import { buildBalanceReport } from "../../core";
 import type { StaticGameData } from "../../core";
 import { createSupportIdentityDecisionInput } from "../../tools/fixtures/supportIdentityPrototypes";
 import assignments from "../../data/assignments.json" with { type: "json" };

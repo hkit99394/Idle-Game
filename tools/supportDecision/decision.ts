@@ -1,14 +1,14 @@
 import {
   buildBalanceReport,
   defaultBalanceScenarioPresets
-} from "./balanceReport";
+} from "../../core/balance/balanceReport";
 import type {
   BalanceGateRating,
   BalanceReport,
   BalanceScenarioPreset
-} from "./balanceReport";
-import { calculateEffectiveStatusResistance, type BaseStats } from "../combat";
-import type { HeroDefinition, StaticGameData } from "../data";
+} from "../../core/balance/balanceReport";
+import { calculateEffectiveStatusResistance, type BaseStats } from "../../core/combat";
+import type { HeroDefinition, StaticGameData } from "../../core/data";
 
 export type SupportIdentityOptionId =
   | "lotus_support"
