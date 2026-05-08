@@ -1,0 +1,15 @@
+[
+  {
+    "id": "black_iron_ward",
+    "name": "Black Iron Ward",
+    "bonuses": [
+      {
+        "pieces": 2,
+        "effects": [
+          { "stat": "outerDefense", "mode": "multiplier", "value": 0.05 },
+          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+        ]
+      }
+    ]
+  }
+]

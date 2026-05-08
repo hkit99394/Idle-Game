@@ -874,6 +874,14 @@ Acceptance:
 - Clearing a stage grants silver, cultivation, and Combat Experience.
 - Reaching 100, 500, and 3000 Combat Experience grants expected bonuses.
 
+Implementation status:
+
+- Core progression state exists for resources, heroes, sect upgrades, and map progress.
+- Stage clear rewards can be applied by stage id.
+- Hero and sect upgrade purchases spend silver and increase upgrade levels.
+- Hero stats can be derived from hero upgrades, sect upgrades, and map mastery.
+- Map mastery exposes reached ranks, next threshold, attack bonus, and reward bonus helpers.
+
 ### Milestone D: Web Prototype
 
 Deliverables:

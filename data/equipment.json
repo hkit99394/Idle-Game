@@ -1,0 +1,207 @@
+[
+  {
+    "id": "training_wraps",
+    "name": "Training Wraps",
+    "slot": "weapon",
+    "rarity": "common",
+    "allowedStyles": ["fist", "leg"],
+    "effects": [
+      { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
+      { "stat": "critChance", "mode": "flat", "value": 0.01 }
+    ]
+  },
+  {
+    "id": "willow_palm_manual",
+    "name": "Willow Palm Manual",
+    "slot": "manual",
+    "rarity": "common",
+    "allowedStyles": ["palm"],
+    "effects": [
+      { "stat": "innerAttack", "mode": "multiplier", "value": 0.08 },
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.05 }
+    ]
+  },
+  {
+    "id": "crane_edge_sword",
+    "name": "Crane Edge Sword",
+    "slot": "weapon",
+    "rarity": "uncommon",
+    "allowedStyles": ["sword"],
+    "effects": [
+      { "stat": "outerAttack", "mode": "multiplier", "value": 0.12 },
+      { "stat": "speed", "mode": "multiplier", "value": 0.06 }
+    ]
+  },
+  {
+    "id": "guardian_staff",
+    "name": "Guardian Staff",
+    "slot": "weapon",
+    "rarity": "uncommon",
+    "allowedStyles": ["staff"],
+    "effects": [
+      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.1 },
+      { "stat": "outerDefense", "mode": "multiplier", "value": 0.12 }
+    ]
+  },
+  {
+    "id": "woven_travel_robe",
+    "name": "Woven Travel Robe",
+    "slot": "armor",
+    "rarity": "common",
+    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "effects": [
+      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.04 }
+    ]
+  },
+  {
+    "id": "calming_breath_pill",
+    "name": "Calming Breath Pill",
+    "slot": "medicine",
+    "rarity": "common",
+    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "effects": [
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },
+      { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.1 }
+    ]
+  },
+  {
+    "id": "mist_needle_case",
+    "name": "Mist Needle Case",
+    "slot": "weapon",
+    "rarity": "uncommon",
+    "allowedStyles": ["hidden_weapons"],
+    "effects": [
+      { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
+      { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 }
+    ]
+  },
+  {
+    "id": "veil_palm_manual",
+    "name": "Veil Palm Manual",
+    "slot": "manual",
+    "rarity": "uncommon",
+    "allowedStyles": ["palm"],
+    "effects": [
+      { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 },
+      { "stat": "breakPower", "mode": "flat", "value": 0.01 }
+    ]
+  },
+  {
+    "id": "iron_thread_armor",
+    "name": "Iron Thread Armor",
+    "slot": "armor",
+    "rarity": "rare",
+    "allowedStyles": ["fist", "blade", "staff"],
+    "setId": "black_iron_ward",
+    "effects": [
+      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.14 },
+      { "stat": "outerDefense", "mode": "multiplier", "value": 0.16 },
+      { "stat": "breakResist", "mode": "flat", "value": 0.02 }
+    ],
+    "affixes": [
+      {
+        "id": "tempered_weave",
+        "name": "Tempered Weave",
+        "effects": [
+          { "stat": "outerDefense", "mode": "multiplier", "value": 0.04 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "black_iron_saber_blade",
+    "name": "Black Iron Saber",
+    "slot": "weapon",
+    "rarity": "rare",
+    "allowedStyles": ["sword", "blade"],
+    "setId": "black_iron_ward",
+    "effects": [
+      { "stat": "outerAttack", "mode": "multiplier", "value": 0.14 },
+      { "stat": "breakPower", "mode": "flat", "value": 0.015 }
+    ],
+    "affixes": [
+      {
+        "id": "heavy_edge",
+        "name": "Heavy Edge",
+        "effects": [
+          { "stat": "outerAttack", "mode": "multiplier", "value": 0.04 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fortress_guard_manual",
+    "name": "Fortress Guard Manual",
+    "slot": "manual",
+    "rarity": "uncommon",
+    "allowedStyles": ["fist", "staff"],
+    "setId": "black_iron_ward",
+    "effects": [
+      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.08 },
+      { "stat": "outerDefense", "mode": "multiplier", "value": 0.08 }
+    ],
+    "affixes": [
+      {
+        "id": "body_conditioning",
+        "name": "Body Conditioning",
+        "effects": [
+          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "tempered_meridian_pill",
+    "name": "Tempered Meridian Pill",
+    "slot": "medicine",
+    "rarity": "uncommon",
+    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "setId": "black_iron_ward",
+    "effects": [
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.07 },
+      { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.08 }
+    ],
+    "affixes": [
+      {
+        "id": "forge_warmed",
+        "name": "Forge-Warmed",
+        "effects": [
+          { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.03 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lotus_dew_pill",
+    "name": "Lotus Dew Pill",
+    "slot": "medicine",
+    "rarity": "common",
+    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "effects": [
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.08 },
+      { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.001 }
+    ]
+  },
+  {
+    "id": "mending_poultice",
+    "name": "Mending Poultice",
+    "slot": "medicine",
+    "rarity": "uncommon",
+    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "effects": [
+      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
+      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },
+      { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.0015 }
+    ],
+    "affixes": [
+      {
+        "id": "fresh_ground",
+        "name": "Fresh-Ground",
+        "effects": [
+          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+        ]
+      }
+    ]
+  }
+]
