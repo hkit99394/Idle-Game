@@ -1,8 +1,10 @@
-# Stage 1.4 Backlog
+# Stage 1.4 Backlog (Archived)
 
 ## Current Status
 
-Stage 1.4 is in progress.
+Stage 1.4 is archived.
+
+This document records the Demon Cult Outpost and status-combat slice completed for the Stage 1.4 branch. Follow-up notes inside each epic still capture deeper battle timeline integration and balance tuning that can move into a later stage.
 
 The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is to add a new region whose enemies pressure the player through burst damage, wounds, Qi suppression, and debuffs, while giving the Lotus support and medicine systems a clear combat purpose.
 
@@ -37,12 +39,12 @@ The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is t
 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 25 | Status Effect Engine | In Progress | Add reusable combat statuses, ticking effects, cleanses, and telemetry |
-| 26 | Demon Cult Outpost Region | In Progress | Add region, stages, enemies, rewards, and boss gate |
-| 27 | Counterplay Growth | In Progress | Add upgrades, medicine, and support hooks that answer status pressure |
-| 28 | Battle UI And Summary Polish | In Progress | Make statuses readable during and after battle |
-| 29 | Offline, Save, And Migration Safety | In Progress | Keep imported saves, offline farming, and diagnostics safe |
-| 30 | Simulator And Balance Pass | In Progress | Validate the new region and all-region balance reports |
+| 25 | Status Effect Engine | Archived | Add reusable combat statuses, ticking effects, cleanses, and telemetry |
+| 26 | Demon Cult Outpost Region | Archived | Add region, stages, enemies, rewards, and boss gate |
+| 27 | Counterplay Growth | Archived | Add upgrades, medicine, and support hooks that answer status pressure |
+| 28 | Battle UI And Summary Polish | Archived | Make statuses readable during and after battle |
+| 29 | Offline, Save, And Migration Safety | Archived | Keep imported saves, offline farming, and diagnostics safe |
+| 30 | Simulator And Balance Pass | Archived | Validate the new region and all-region balance reports |
 
 ---
 
@@ -382,11 +384,11 @@ Keep balance data trustworthy as the fourth region and status pressure arrive.
 
 ## Final Stage 1.4 Checklist
 
-- [ ] Status engine implemented and tested.
-- [ ] Demon Cult region implemented.
-- [ ] Counterplay rewards implemented.
-- [ ] Battle UI and summary updated.
-- [ ] Offline and save migration safety verified.
-- [ ] Simulator and balance report updated.
-- [ ] Stage 1.4 backlog reviewed.
-- [ ] Stage 1.4 backlog moved to archive after completion.
+- [x] Status engine implemented and tested.
+- [x] Demon Cult region implemented.
+- [x] Counterplay rewards implemented.
+- [x] Battle UI and summary updated.
+- [x] Offline and save migration safety verified.
+- [x] Simulator and balance report updated.
+- [x] Stage 1.4 backlog reviewed.
+- [x] Stage 1.4 backlog moved to archive after completion.
