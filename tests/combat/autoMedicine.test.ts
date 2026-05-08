@@ -5,6 +5,7 @@ import {
   applyStatusEffect,
   createStatusDictionary,
   getStageStatusPressureIds,
+  isAutoMedicineUnlocked,
   selectAutoCleanseMedicine,
   selectAutoPreBattleResistanceMedicine
 } from "../../core";
@@ -40,6 +41,71 @@ function getStage(stageId: string): StageDefinition {
   return stage;
 }
 
+const statusPressureStage: StageDefinition = {
+  id: "test_status_pressure",
+  regionId: "bamboo_road",
+  index: 1,
+  name: "Status Pressure Test",
+  enemyTeam: {
+    combatantIds: ["test_status_pressure_enemy"]
+  },
+  isBoss: false,
+  canFarmOffline: false,
+  rewards: {
+    silver: 0,
+    cultivation: 0,
+    combatExperience: 0
+  },
+  nextStageId: null
+};
+
+const statusPressureEnemies: EnemyDefinition[] = [
+  ...enemyDefinitions,
+  {
+    ...enemyDefinitions[0],
+    id: "test_status_pressure_enemy",
+    skillIds: ["test_poison_hex", "test_vulnerability_hex"]
+  }
+];
+
+const statusPressureSkills: SkillDefinition[] = [
+  ...skillDefinitions,
+  {
+    id: "test_poison_hex",
+    name: "Test Poison Hex",
+    cooldownSeconds: 1,
+    outerMultiplier: 0,
+    innerMultiplier: 0,
+    targetRule: "first_living",
+    effects: [
+      {
+        type: "apply_status",
+        statusId: "poison",
+        chance: 1,
+        durationSeconds: 8,
+        stacks: 1
+      }
+    ]
+  },
+  {
+    id: "test_vulnerability_hex",
+    name: "Test Vulnerability Hex",
+    cooldownSeconds: 1,
+    outerMultiplier: 0,
+    innerMultiplier: 0,
+    targetRule: "first_living",
+    effects: [
+      {
+        type: "apply_status",
+        statusId: "vulnerable",
+        chance: 1,
+        durationSeconds: 5,
+        stacks: 1
+      }
+    ]
+  }
+];
+
 function status(statusId: string): ActiveStatusEffect {
   const definition = statusDefinitions[statusId];
 
@@ -54,6 +120,64 @@ function status(statusId: string): ActiveStatusEffect {
 }
 
 describe("auto medicine", () => {
+  it("keeps automation locked until medicine is owned or unlocked", () => {
+    expect(
+      isAutoMedicineUnlocked({
+        medicines: medicineDefinitions,
+        inventory: {},
+        progress: {
+          bamboo_road: {
+            highestClearedStageIndex: 9
+          }
+        },
+        stages: stageDefinitions
+      })
+    ).toBe(false);
+
+    expect(
+      isAutoMedicineUnlocked({
+        medicines: medicineDefinitions,
+        inventory: {},
+        progress: {
+          bamboo_road: {
+            highestClearedStageIndex: 10
+          }
+        },
+        stages: stageDefinitions
+      })
+    ).toBe(true);
+
+    expect(
+      isAutoMedicineUnlocked({
+        medicines: medicineDefinitions,
+        inventory: {
+          clear_heart_pill: 1
+        }
+      })
+    ).toBe(true);
+  });
+
+  it("skips automatic use while automation is locked", () => {
+    const result = applyAutoCleanseMedicine({
+      medicines: medicineDefinitions,
+      inventory: {
+        clear_heart_pill: 1
+      },
+      activeStatuses: [status("poison")],
+      statusDefinitions,
+      trigger: "battle_cleanse",
+      automationUnlocked: false
+    });
+
+    expect(result).toMatchObject({
+      inventory: {
+        clear_heart_pill: 1
+      },
+      usedMedicine: null,
+      skippedReason: "automation_locked"
+    });
+  });
+
   it("prefers narrow cleanse medicine before broad debuff cleanse", () => {
     const activeStatuses = [status("poison"), status("wound")];
 
@@ -115,13 +239,11 @@ describe("auto medicine", () => {
   });
 
   it("selects pre-battle resistance medicine for status-heavy stages", () => {
-    const stage = getStage("demon_cult_outpost_1");
-
     expect(
       getStageStatusPressureIds({
-        stage,
-        enemies: enemyDefinitions,
-        skills: skillDefinitions
+        stage: statusPressureStage,
+        enemies: statusPressureEnemies,
+        skills: statusPressureSkills
       })
     ).toEqual(["poison", "vulnerable"]);
     expect(
@@ -131,9 +253,9 @@ describe("auto medicine", () => {
           quiet_meridian_powder: 1,
           purity_draught: 1
         },
-        stage,
-        enemies: enemyDefinitions,
-        skills: skillDefinitions,
+        stage: statusPressureStage,
+        enemies: statusPressureEnemies,
+        skills: statusPressureSkills,
         statusDefinitions
       })?.id
     ).toBe("quiet_meridian_powder");
@@ -141,12 +263,12 @@ describe("auto medicine", () => {
     const result = applyAutoPreBattleResistanceMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        quiet_meridian_powder: 1,
-        purity_draught: 1
-      },
-      stage,
-      enemies: enemyDefinitions,
-      skills: skillDefinitions,
+          quiet_meridian_powder: 1,
+          purity_draught: 1
+        },
+      stage: statusPressureStage,
+      enemies: statusPressureEnemies,
+      skills: statusPressureSkills,
       statusDefinitions
     });
 

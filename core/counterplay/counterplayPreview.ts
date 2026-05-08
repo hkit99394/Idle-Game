@@ -205,11 +205,16 @@ function isMedicineUnlocked(
   progress: RegionProgress,
   medicine: MedicineDefinition
 ): boolean {
-  if (medicine.unlock.type === "always") {
-    return true;
-  }
+  switch (medicine.unlock.type) {
+    case "always":
+      return true;
 
-  return isStageCleared(data, progress, medicine.unlock.stageId);
+    case "stage_cleared":
+      return isStageCleared(data, progress, medicine.unlock.stageId);
+
+    default:
+      return false;
+  }
 }
 
 function hasAutoEffect(medicine: MedicineDefinition): boolean {

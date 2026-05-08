@@ -26,6 +26,13 @@ describe("save schema", () => {
     expect(save.version).toBe(SAVE_DATA_VERSION);
     expect(save.progress.resources.silver).toBe(42);
     expect(save.progress.currentStageId).toBe("bamboo_road_1");
+    expect(save.autoMedicinePreferences).toEqual({
+      enabled: true,
+      battleCleanseEnabled: true,
+      postBattleCleanseEnabled: true,
+      preBattleResistanceEnabled: true,
+      disabledMedicineIds: []
+    });
     expect(save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
     expect(save.offlineFarmPreset).toBe("balanced");
     expect(save.createdAtMs).toBe(1000);
@@ -118,6 +125,13 @@ describe("save schema", () => {
       return;
     }
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.autoMedicinePreferences).toEqual({
+      enabled: true,
+      battleCleanseEnabled: true,
+      postBattleCleanseEnabled: true,
+      preBattleResistanceEnabled: true,
+      disabledMedicineIds: []
+    });
     expect(result.save.offlineFarmPreset).toBe("balanced");
     expect(result.save.progress.resources.herbs).toBe(0);
     expect(result.save.progress.heroes.iron_fist_disciple.level).toBe(1);

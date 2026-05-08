@@ -303,7 +303,7 @@ export function applyOfflineRewardsToSave(
 
   const stage = getStageById(data, save.selectedOfflineFarmStageId);
 
-  if (stage === undefined) {
+  if (stage === null) {
     return {
       ok: false,
       reason: "invalid_farm_target",
@@ -320,6 +320,7 @@ export function applyOfflineRewardsToSave(
     offlineEfficiency: options.offlineEfficiency,
     silverPerClear: stage.rewards.silver,
     cultivationPerClear: stage.rewards.cultivation,
+    herbsPerClear: stage.rewards.herbs ?? 0,
     combatExperiencePerClear: stage.rewards.combatExperience
   });
   const nextSave: SaveData = {

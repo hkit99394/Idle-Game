@@ -1,5 +1,9 @@
 import type { StaticGameData } from "../data";
-import { isFormationSlot } from "../combat";
+import {
+  defaultAutoMedicinePreferences,
+  isFormationSlot,
+  type AutoMedicinePreferences
+} from "../combat";
 import {
   createInitialPlayerProgress,
   cloneProgress,
@@ -26,7 +30,7 @@ import type {
   OfflineFarmPreset
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 7 as const;
+export const SAVE_DATA_VERSION = 8 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
@@ -35,6 +39,7 @@ export const SUPPORTED_SAVE_DATA_VERSIONS = [
   4,
   5,
   6,
+  7,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -43,6 +48,7 @@ export type SupportedSaveDataVersion =
 export type SaveData = {
   version: typeof SAVE_DATA_VERSION;
   progress: PlayerProgress;
+  autoMedicinePreferences: AutoMedicinePreferences;
   selectedOfflineFarmStageId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
   createdAtMs: number;
@@ -56,8 +62,9 @@ export type CreateSaveDataInput = {
   offlineFarmPreset?: OfflineFarmPreset;
   nowMs: number;
   lastOfflineRewardAtMs?: number;
+  autoMedicinePreferences?: AutoMedicinePreferences;
   previousSave?: Pick<SaveData, "createdAtMs" | "lastOfflineRewardAtMs"> &
-    Partial<Pick<SaveData, "offlineFarmPreset">> | null;
+    Partial<Pick<SaveData, "offlineFarmPreset" | "autoMedicinePreferences">> | null;
 };
 
 export type ParseSaveDataResult =
@@ -730,6 +737,81 @@ function normalizeProgressForMigration(
   };
 }
 
+function normalizeAutoMedicinePreferences(
+  value: unknown
+): AutoMedicinePreferences {
+  if (!isRecord(value)) {
+    return {
+      ...defaultAutoMedicinePreferences,
+      disabledMedicineIds: [...defaultAutoMedicinePreferences.disabledMedicineIds]
+    };
+  }
+
+  return {
+    enabled:
+      typeof value.enabled === "boolean"
+        ? value.enabled
+        : defaultAutoMedicinePreferences.enabled,
+    battleCleanseEnabled:
+      typeof value.battleCleanseEnabled === "boolean"
+        ? value.battleCleanseEnabled
+        : defaultAutoMedicinePreferences.battleCleanseEnabled,
+    postBattleCleanseEnabled:
+      typeof value.postBattleCleanseEnabled === "boolean"
+        ? value.postBattleCleanseEnabled
+        : defaultAutoMedicinePreferences.postBattleCleanseEnabled,
+    preBattleResistanceEnabled:
+      typeof value.preBattleResistanceEnabled === "boolean"
+        ? value.preBattleResistanceEnabled
+        : defaultAutoMedicinePreferences.preBattleResistanceEnabled,
+    disabledMedicineIds: Array.isArray(value.disabledMedicineIds)
+      ? [
+          ...new Set(
+            value.disabledMedicineIds.filter(
+              (medicineId): medicineId is string =>
+                typeof medicineId === "string"
+            )
+          )
+        ]
+      : []
+  };
+}
+
+function validateAutoMedicinePreferences(
+  value: unknown,
+  errors: string[]
+): value is AutoMedicinePreferences {
+  if (!validateRecord(value, "autoMedicinePreferences", errors)) {
+    return false;
+  }
+
+  for (const key of [
+    "enabled",
+    "battleCleanseEnabled",
+    "postBattleCleanseEnabled",
+    "preBattleResistanceEnabled"
+  ] as const) {
+    if (typeof value[key] !== "boolean") {
+      errors.push(`autoMedicinePreferences.${key} must be a boolean`);
+    }
+  }
+
+  if (!Array.isArray(value.disabledMedicineIds)) {
+    errors.push("autoMedicinePreferences.disabledMedicineIds must be an array");
+    return false;
+  }
+
+  for (const [index, medicineId] of value.disabledMedicineIds.entries()) {
+    if (typeof medicineId !== "string") {
+      errors.push(
+        `autoMedicinePreferences.disabledMedicineIds.${index} must be a medicine id`
+      );
+    }
+  }
+
+  return true;
+}
+
 function validatePlayerFormation(
   data: Pick<StaticGameData, "heroes">,
   value: unknown,
@@ -891,6 +973,9 @@ export function cloneSaveData(save: SaveData): SaveData {
   return {
     version: SAVE_DATA_VERSION,
     progress: cloneProgress(save.progress),
+    autoMedicinePreferences: normalizeAutoMedicinePreferences(
+      save.autoMedicinePreferences
+    ),
     selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
     offlineFarmPreset: normalizeOfflineFarmPreset(save.offlineFarmPreset),
     createdAtMs: save.createdAtMs,
@@ -903,6 +988,10 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
   return {
     version: SAVE_DATA_VERSION,
     progress: cloneProgress(input.progress),
+    autoMedicinePreferences: normalizeAutoMedicinePreferences(
+      input.autoMedicinePreferences ??
+        input.previousSave?.autoMedicinePreferences
+    ),
     selectedOfflineFarmStageId: input.selectedOfflineFarmStageId,
     offlineFarmPreset:
       input.offlineFarmPreset ??
@@ -941,6 +1030,9 @@ export function migrateSaveData(
     ...raw,
     version: SAVE_DATA_VERSION,
     progress: normalizeProgressForMigration(data, raw.progress),
+    autoMedicinePreferences: normalizeAutoMedicinePreferences(
+      raw.autoMedicinePreferences
+    ),
     selectedOfflineFarmStageId:
       raw.selectedOfflineFarmStageId === undefined
         ? null
@@ -982,6 +1074,7 @@ export function validateSaveData(
   }
 
   validateProgress(data, migratedRaw.progress, errors);
+  validateAutoMedicinePreferences(migratedRaw.autoMedicinePreferences, errors);
 
   if (
     migratedRaw.selectedOfflineFarmStageId !== null &&

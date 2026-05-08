@@ -103,6 +103,7 @@ const prototypeLotusHero: HeroDefinition = {
   name: "Prototype Lotus Purity Adept",
   style: "staff",
   role: "Anti-status support",
+  combatRole: "support",
   baseStats: {
     maxOuterHp: 150,
     maxInnerQi: 180,

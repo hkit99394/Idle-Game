@@ -1,6 +1,7 @@
 export * from "./autoMedicine";
 export * from "./formulas";
 export * from "./formations";
+export * from "./medicine";
 export * from "./roles";
 export * from "./simulator";
 export * from "./statusEffects";

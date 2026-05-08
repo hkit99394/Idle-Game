@@ -7,9 +7,11 @@ import type {
   FormationDefinition,
   HeroDefinition,
   MartialStyleDefinition,
+  MedicineDefinition,
   RegionDefinition,
   SkillUpgradeDefinition,
   SkillDefinition,
+  StatusEffectDefinition,
   StageDefinition,
   StaticGameData
 } from "./types";
@@ -239,7 +241,8 @@ function validateRegionStageOwnership(
 
 function validateSkillEffect(
   ownerLabel: string,
-  effect: SkillDefinition["effects"][number]
+  effect: SkillDefinition["effects"][number],
+  statusEffectIds: Set<string>
 ): string[] {
   const errors: string[] = [];
 
@@ -249,7 +252,29 @@ function validateSkillEffect(
     );
   }
 
-  if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
+  if (effect.type === "apply_status") {
+    if (!statusEffectIds.has(effect.statusId)) {
+      errors.push(
+        `${ownerLabel} effect apply_status references missing status ${effect.statusId}`
+      );
+    }
+
+    if (
+      typeof effect.chance !== "number" ||
+      Number.isNaN(effect.chance) ||
+      effect.chance < 0 ||
+      effect.chance > 1
+    ) {
+      errors.push(`${ownerLabel} effect apply_status chance must be 0-1`);
+    }
+
+    if (
+      effect.stacks !== undefined &&
+      (!Number.isInteger(effect.stacks) || effect.stacks <= 0)
+    ) {
+      errors.push(`${ownerLabel} effect apply_status stacks must be positive`);
+    }
+  } else if (typeof effect.value !== "number" || Number.isNaN(effect.value)) {
     errors.push(
       `${ownerLabel} effect ${String(effect.type)} value must be a number`
     );
@@ -265,9 +290,10 @@ function validateSkillEffect(
   }
 
   if (
-    TIMED_SKILL_EFFECT_TYPES.includes(
+    (TIMED_SKILL_EFFECT_TYPES.includes(
       effect.type as (typeof TIMED_SKILL_EFFECT_TYPES)[number]
-    ) &&
+    ) ||
+      effect.type === "apply_status") &&
     (typeof effect.durationSeconds !== "number" ||
       effect.durationSeconds <= 0 ||
       Number.isNaN(effect.durationSeconds))
@@ -280,7 +306,10 @@ function validateSkillEffect(
   return errors;
 }
 
-function validateSkill(skill: SkillDefinition): string[] {
+function validateSkill(
+  skill: SkillDefinition,
+  statusEffectIds: Set<string>
+): string[] {
   const errors: string[] = [];
 
   if (skill.cooldownSeconds < 0) {
@@ -298,7 +327,7 @@ function validateSkill(skill: SkillDefinition): string[] {
   }
 
   for (const effect of skill.effects) {
-    errors.push(...validateSkillEffect(`Skill ${skill.id}`, effect));
+    errors.push(...validateSkillEffect(`Skill ${skill.id}`, effect, statusEffectIds));
   }
 
   return errors;
@@ -320,7 +349,8 @@ const SKILL_EFFECT_TYPES = [
   "inner_defense_down",
   "guard",
   "protect",
-  "armor_break"
+  "armor_break",
+  "apply_status"
 ] as const;
 const SKILL_EFFECT_TARGETS = [
   "self",
@@ -352,7 +382,9 @@ const BASE_STAT_KEYS = [
   "critDamage",
   "breakPower",
   "breakResist",
-  "innerRecoveryRate"
+  "innerRecoveryRate",
+  "statusAccuracy",
+  "statusResistance"
 ] as const;
 
 function validateEquipment(
@@ -604,7 +636,8 @@ function validateAssignment(
 
 function validateSkillUpgrade(
   skillUpgrade: SkillUpgradeDefinition,
-  skillIds: Set<string>
+  skillIds: Set<string>,
+  statusEffectIds: Set<string>
 ): string[] {
   const errors: string[] = [];
 
@@ -638,7 +671,8 @@ function validateSkillUpgrade(
       errors.push(
         ...validateSkillEffect(
           `Skill upgrade ${skillUpgrade.id} add_skill_effect`,
-          effect.effect
+          effect.effect,
+          statusEffectIds
         )
       );
       continue;
@@ -884,6 +918,62 @@ function validateMartialStyle(
   return errors;
 }
 
+function validateStatusEffect(status: StatusEffectDefinition): string[] {
+  const errors: string[] = [];
+
+  if (!statusCategories.has(status.category)) {
+    errors.push(`Status ${status.id} category must be supported`);
+  }
+
+  if (
+    typeof status.durationSeconds !== "number" ||
+    status.durationSeconds <= 0 ||
+    Number.isNaN(status.durationSeconds)
+  ) {
+    errors.push(`Status ${status.id} durationSeconds must be positive`);
+  }
+
+  if (!Number.isInteger(status.maxStacks) || status.maxStacks <= 0) {
+    errors.push(`Status ${status.id} maxStacks must be a positive integer`);
+  }
+
+  if (!statusStackPolicies.has(status.stackPolicy)) {
+    errors.push(`Status ${status.id} stackPolicy must be supported`);
+  }
+
+  if (!Array.isArray(status.dispelTags) || status.dispelTags.length === 0) {
+    errors.push(`Status ${status.id} must define at least one dispel tag`);
+  } else {
+    for (const tag of status.dispelTags) {
+      if (!statusDispelTags.has(tag)) {
+        errors.push(`Status ${status.id} dispel tag ${tag} must be supported`);
+      }
+    }
+  }
+
+  if (
+    status.tickIntervalSeconds !== undefined &&
+    (typeof status.tickIntervalSeconds !== "number" ||
+      status.tickIntervalSeconds <= 0 ||
+      Number.isNaN(status.tickIntervalSeconds))
+  ) {
+    errors.push(`Status ${status.id} tickIntervalSeconds must be positive`);
+  }
+
+  for (const [effectKey, value] of Object.entries(status.effects)) {
+    if (!statusEffectKeys.has(effectKey)) {
+      errors.push(`Status ${status.id} effect ${effectKey} must be supported`);
+      continue;
+    }
+
+    if (typeof value !== "number" || Number.isNaN(value)) {
+      errors.push(`Status ${status.id} effect ${effectKey} must be a number`);
+    }
+  }
+
+  return errors;
+}
+
 function validateMedicine(
   medicine: MedicineDefinition,
   stageIds: Set<string>
@@ -974,7 +1064,9 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     ["upgrade", data.upgrades],
     ["formation", data.formations],
     ["style", data.styles],
-    ["skill upgrade", data.skillUpgrades]
+    ["skill upgrade", data.skillUpgrades],
+    ["status", data.statusEffects],
+    ["medicine", data.medicines]
   ];
 
   for (const [label, entities] of entityGroups) {
@@ -993,6 +1085,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   const stageIds = new Set(data.stages.map((stage) => stage.id));
   const styleIds = new Set(data.styles.map((style) => style.id));
   const regionIds = new Set(data.regions.map((region) => region.id));
+  const statusEffectIds = new Set(data.statusEffects.map((status) => status.id));
   const validationIds = {
     heroIds,
     stageIds,
@@ -1057,7 +1150,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const skillUpgrade of data.skillUpgrades) {
-    errors.push(...validateSkillUpgrade(skillUpgrade, skillIds));
+    errors.push(...validateSkillUpgrade(skillUpgrade, skillIds, statusEffectIds));
   }
 
   for (const stage of data.stages) {

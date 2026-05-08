@@ -14,7 +14,9 @@ const baseStats = {
   critDamage: 1,
   breakPower: 0,
   breakResist: 0,
-  innerRecoveryRate: 0
+  innerRecoveryRate: 0,
+  statusAccuracy: 0,
+  statusResistance: 0
 };
 
 function combatant(input: {

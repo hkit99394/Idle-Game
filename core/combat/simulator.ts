@@ -968,7 +968,7 @@ function applyCleanseEffect(
   attacker: CombatantState,
   offensiveTarget: CombatantState,
   skill: SkillDefinition,
-  effect: SkillEffect,
+  effect: SkillEffect & { value: number },
   time: number,
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>,
@@ -1020,7 +1020,7 @@ function applyRegenerationEffect(
   attacker: CombatantState,
   offensiveTarget: CombatantState,
   skill: SkillDefinition,
-  effect: SkillEffect,
+  effect: SkillEffect & { value: number },
   time: number,
   events: BattleEvent[]
 ): void {

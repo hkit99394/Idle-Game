@@ -6,10 +6,12 @@ import equipmentSets from "../../data/equipmentSets.json" with { type: "json" };
 import formations from "../../data/formations.json" with { type: "json" };
 import heroes from "../../data/heroes.json" with { type: "json" };
 import mastery from "../../data/mastery.json" with { type: "json" };
+import medicines from "../../data/medicines.json" with { type: "json" };
 import regions from "../../data/regions.json" with { type: "json" };
 import skillUpgrades from "../../data/skillUpgrades.json" with { type: "json" };
 import skills from "../../data/skills.json" with { type: "json" };
 import stages from "../../data/stages.json" with { type: "json" };
+import statusEffects from "../../data/statusEffects.json" with { type: "json" };
 import styles from "../../data/styles.json" with { type: "json" };
 import upgrades from "../../data/upgrades.json" with { type: "json" };
 
@@ -26,5 +28,7 @@ export const staticData: StaticGameData = {
   skillUpgrades: skillUpgrades as StaticGameData["skillUpgrades"],
   mastery: mastery as StaticGameData["mastery"],
   formations: formations as StaticGameData["formations"],
-  styles: styles as StaticGameData["styles"]
+  styles: styles as StaticGameData["styles"],
+  statusEffects: statusEffects as StaticGameData["statusEffects"],
+  medicines: medicines as StaticGameData["medicines"]
 };

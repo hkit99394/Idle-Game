@@ -3,8 +3,12 @@ import type {
   CombatRole,
   FormationSlot,
   MartialStyleId,
+  StatusDispelTag,
+  StatusEffectDefinition,
   TargetRule
 } from "../combat";
+
+export type { StatusEffectDefinition } from "../combat";
 
 export type UnlockCondition =
   | { type: "always" }
@@ -23,7 +27,8 @@ export type SkillEffectType =
   | "inner_defense_down"
   | "guard"
   | "protect"
-  | "armor_break";
+  | "armor_break"
+  | "apply_status";
 
 export type SkillEffectTarget =
   | "self"
@@ -32,12 +37,23 @@ export type SkillEffectTarget =
   | "lowest_inner_qi_ally"
   | "wounded_or_armor_broken_ally";
 
-export type SkillEffect = {
-  type: SkillEffectType;
+export type DirectSkillEffect = {
+  type: Exclude<SkillEffectType, "apply_status">;
   value: number;
   durationSeconds?: number;
   target?: SkillEffectTarget;
 };
+
+export type ApplyStatusSkillEffect = {
+  type: "apply_status";
+  statusId: string;
+  chance: number;
+  durationSeconds?: number;
+  stacks?: number;
+  target?: SkillEffectTarget;
+};
+
+export type SkillEffect = DirectSkillEffect | ApplyStatusSkillEffect;
 
 export type EquipmentSlot = "weapon" | "armor" | "manual" | "medicine";
 
@@ -172,6 +188,26 @@ export type EnemyDefinition = {
   traitIds: string[];
 };
 
+export type MedicineEffect =
+  | {
+      type: "cleanse_status";
+      dispelTags: StatusDispelTag[];
+      maxCount?: number;
+    }
+  | {
+      type: "status_resistance_bonus";
+      value: number;
+      durationSeconds: number;
+    };
+
+export type MedicineDefinition = {
+  id: string;
+  name: string;
+  unlock: UnlockCondition;
+  maxCarry: number;
+  effects: MedicineEffect[];
+};
+
 export type TeamDefinition = {
   combatantIds: string[];
   formation?: Partial<Record<FormationSlot, number[]>>;
@@ -297,4 +333,6 @@ export type StaticGameData = {
   mastery: MasteryDefinition;
   formations: FormationDefinition[];
   styles: MartialStyleDefinition[];
+  statusEffects: StatusEffectDefinition[];
+  medicines: MedicineDefinition[];
 };

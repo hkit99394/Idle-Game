@@ -2,8 +2,10 @@ import type {
   EnemyDefinition,
   MedicineDefinition,
   SkillDefinition,
-  StageDefinition
+  StageDefinition,
+  StaticGameData
 } from "../data";
+import type { PlayerProgress, RegionProgress } from "../progression";
 import {
   useMedicineCounterplay,
   type MedicineInventory,
@@ -21,6 +23,7 @@ export type AutoMedicineTrigger =
   | "pre_battle_resistance";
 
 export type AutoMedicineSkippedReason =
+  | "automation_locked"
   | "no_active_statuses"
   | "no_owned_match"
   | "no_status_pressure";
@@ -56,9 +59,15 @@ export const defaultAutoMedicinePreferences: AutoMedicinePreferences = {
   disabledMedicineIds: []
 };
 
-type AutoMedicineCleanseInput = {
+export type AutoMedicineUnlockInput = {
   medicines: MedicineDefinition[];
   inventory: MedicineInventory;
+  progress?: PlayerProgress | RegionProgress;
+  stages?: StaticGameData["stages"];
+  automationUnlocked?: boolean;
+};
+
+type AutoMedicineCleanseInput = AutoMedicineUnlockInput & {
   activeStatuses: ActiveStatusEffect[];
   statusDefinitions: Record<string, StatusEffectDefinition>;
   trigger: Extract<AutoMedicineTrigger, "battle_cleanse" | "post_battle_cleanse">;
@@ -66,9 +75,7 @@ type AutoMedicineCleanseInput = {
   preferences?: AutoMedicinePreferences;
 };
 
-type AutoMedicinePreBattleResistanceInput = {
-  medicines: MedicineDefinition[];
-  inventory: MedicineInventory;
+type AutoMedicinePreBattleResistanceInput = AutoMedicineUnlockInput & {
   stage: StageDefinition;
   enemies: EnemyDefinition[];
   skills: SkillDefinition[];
@@ -90,9 +97,35 @@ type ResistanceCandidate = {
   durationSeconds: number;
 };
 
+export function isAutoMedicineUnlocked(input: AutoMedicineUnlockInput): boolean {
+  if (input.automationUnlocked !== undefined) {
+    return input.automationUnlocked;
+  }
+
+  if (hasOwnedMedicine(input.medicines, input.inventory)) {
+    return true;
+  }
+
+  if (input.progress === undefined || input.stages === undefined) {
+    return false;
+  }
+
+  return input.medicines.some((medicine) =>
+    isMedicineUnlockConditionMet(input.progress, input.stages, medicine)
+  );
+}
+
 export function applyAutoCleanseMedicine(
   input: AutoMedicineCleanseInput
 ): AutoMedicineResult {
+  if (!isAutoMedicineUnlocked(input)) {
+    return skipAutoMedicine(
+      input.inventory,
+      input.activeStatuses,
+      "automation_locked"
+    );
+  }
+
   if (!isAutoMedicineTriggerEnabled(input.preferences, input.trigger)) {
     return skipAutoMedicine(
       input.inventory,
@@ -145,6 +178,10 @@ export function applyAutoCleanseMedicine(
 export function applyAutoPreBattleResistanceMedicine(
   input: AutoMedicinePreBattleResistanceInput
 ): AutoMedicineResult {
+  if (!isAutoMedicineUnlocked(input)) {
+    return skipAutoMedicine(input.inventory, [], "automation_locked");
+  }
+
   if (
     !isAutoMedicineTriggerEnabled(
       input.preferences,
@@ -186,6 +223,10 @@ export function applyAutoPreBattleResistanceMedicine(
 export function selectAutoCleanseMedicine(
   input: Omit<AutoMedicineCleanseInput, "trigger">
 ): MedicineDefinition | null {
+  if (!isAutoMedicineUnlocked(input)) {
+    return null;
+  }
+
   if (input.preferences !== undefined && !input.preferences.enabled) {
     return null;
   }
@@ -219,6 +260,10 @@ export function selectAutoCleanseMedicine(
 export function selectAutoPreBattleResistanceMedicine(
   input: AutoMedicinePreBattleResistanceInput
 ): MedicineDefinition | null {
+  if (!isAutoMedicineUnlocked(input)) {
+    return null;
+  }
+
   if (
     !isAutoMedicineTriggerEnabled(
       input.preferences,
@@ -402,6 +447,52 @@ function buildUseSummary(
     statusResistanceBonus: result.statusResistanceBonus,
     statusResistanceDurationSeconds: result.statusResistanceDurationSeconds
   };
+}
+
+function hasOwnedMedicine(
+  medicines: MedicineDefinition[],
+  inventory: MedicineInventory
+): boolean {
+  const medicineIds = new Set(medicines.map((medicine) => medicine.id));
+
+  return Object.entries(inventory).some(
+    ([medicineId, count]) => medicineIds.has(medicineId) && (count ?? 0) > 0
+  );
+}
+
+function isMedicineUnlockConditionMet(
+  progress: PlayerProgress | RegionProgress | undefined,
+  stages: StaticGameData["stages"] | undefined,
+  medicine: MedicineDefinition
+): boolean {
+  if (medicine.unlock.type === "always") {
+    return true;
+  }
+
+  if (progress === undefined || stages === undefined) {
+    return false;
+  }
+
+  if (medicine.unlock.type !== "stage_cleared") {
+    return false;
+  }
+
+  const stageId = medicine.unlock.stageId;
+  const stage = stages.find((candidate) => candidate.id === stageId);
+
+  if (stage === undefined) {
+    return false;
+  }
+
+  const maps =
+    typeof (progress as PlayerProgress).currentStageId === "string" &&
+    typeof (progress as PlayerProgress).maps === "object"
+      ? (progress as PlayerProgress).maps
+      : (progress as RegionProgress);
+
+  return (
+    (maps[stage.regionId]?.highestClearedStageIndex ?? 0) >= stage.index
+  );
 }
 
 function isAutoMedicineTriggerEnabled(
