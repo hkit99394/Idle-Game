@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildBalanceReport, formatBalanceReport } from "../../core";
+import {
+  buildBalanceReport,
+  defaultBalanceScenarioPresets,
+  formatBalanceReport
+} from "../../core";
 import type { StaticGameData } from "../../core";
 import enemies from "../../data/enemies.json" with { type: "json" };
 import formations from "../../data/formations.json" with { type: "json" };
@@ -38,6 +42,18 @@ describe("balance report", () => {
         .flatMap((region) => region.stages)
         .map((stage) => stage.stageId)
     ).toEqual(staticData.regions.flatMap((region) => region.stageIds));
+    expect(report.scenarios.map((scenario) => scenario.scenarioId)).toEqual([
+      "baseline",
+      "resistance",
+      "medicine",
+      "combined"
+    ]);
+    for (const scenario of report.scenarios) {
+      expect(scenario.regions.map((region) => region.regionId)).toEqual(
+        staticData.regions.map((region) => region.id)
+      );
+      expect(scenario.totals.stages).toBe(staticData.stages.length);
+    }
   });
 
   it("fails loudly when a configured region references a missing stage", () => {
@@ -109,12 +125,56 @@ describe("balance report", () => {
         }
       ]
     });
-    const qiSuppressionStage = report.regions
+    const medicineScenario = report.scenarios.find(
+      (scenario) => scenario.scenarioId === "medicine"
+    );
+    const qiSuppressionStage = medicineScenario?.regions
       .flatMap((region) => region.stages)
       .find((stage) => stage.statusMetrics.statusIds.includes("qi_suppression"));
 
     expect(qiSuppressionStage).toBeDefined();
-    expect(qiSuppressionStage?.statusMetrics.cleanses).toBe(1);
+    expect(qiSuppressionStage?.statusMetrics.cleanses).toBeGreaterThan(0);
+    expect(qiSuppressionStage?.statusMetrics.medicineConsumed).toBe(1);
+  });
+
+  it("reports scenario totals for resistance, medicine, and boss gate checks", () => {
+    const report = buildBalanceReport(staticData);
+    const baseline = getScenario(report, "baseline");
+    const resistance = getScenario(report, "resistance");
+    const medicine = getScenario(report, "medicine");
+    const combined = getScenario(report, "combined");
+    const baselineDemonBoss = getDemonCultBoss(baseline);
+    const combinedDemonBoss = getDemonCultBoss(combined);
+
+    expect(resistance.totals.statusApplications).toBeLessThan(
+      baseline.totals.statusApplications
+    );
+    expect(resistance.totals.reducedTickDamage).toBeGreaterThan(0);
+    expect(medicine.totals.medicineConsumed).toBeGreaterThan(0);
+    expect(medicine.totals.cleanses).toBeGreaterThan(0);
+    expect(combined.totals.statusDurationSeconds).toBeLessThan(
+      baseline.totals.statusDurationSeconds
+    );
+    expect(baselineDemonBoss.result).toBe("enemy_hold");
+    expect(combinedDemonBoss.survivalRatio).toBeGreaterThan(
+      baselineDemonBoss.survivalRatio
+    );
+    expect(report.demonCultBossGate).toMatchObject({
+      stageId: "demon_cult_outpost_7",
+      baselineScenarioId: "baseline",
+      intendedScenarioId: "combined",
+      pass: true
+    });
+  });
+
+  it("fails loudly when required scenario presets are missing", () => {
+    expect(() =>
+      buildBalanceReport(staticData, {
+        scenarios: defaultBalanceScenarioPresets.filter(
+          (scenario) => scenario.id !== "combined"
+        )
+      })
+    ).toThrow("Missing balance scenario combined");
   });
 
   it("formats readable CLI text and JSON-ready status summaries", () => {
@@ -122,12 +182,49 @@ describe("balance report", () => {
     const text = formatBalanceReport(report);
 
     expect(text).toContain("Demon Cult Outpost");
+    expect(text).toContain("Scenario Summary");
+    expect(text).toContain("combined");
     expect(text).toContain("demon_cult_outpost_7");
     expect(report.totals.statusApplications).toBeGreaterThan(0);
-    expect(JSON.parse(JSON.stringify(report))).toMatchObject({
+    const json = JSON.parse(JSON.stringify(report));
+
+    expect(json.scenarios[0]).toMatchObject({
+      scenarioId: "baseline",
       totals: {
         stages: staticData.stages.length
       }
     });
+    expect(json.totals).toMatchObject({
+      stages: staticData.stages.length
+    });
   });
 });
+
+function getScenario(
+  report: ReturnType<typeof buildBalanceReport>,
+  scenarioId: string
+) {
+  const scenario = report.scenarios.find(
+    (candidate) => candidate.scenarioId === scenarioId
+  );
+
+  if (scenario === undefined) {
+    throw new Error(`Missing test scenario ${scenarioId}`);
+  }
+
+  return scenario;
+}
+
+function getDemonCultBoss(
+  scenario: ReturnType<typeof buildBalanceReport>["scenarios"][number]
+) {
+  const boss = scenario.regions
+    .find((region) => region.regionId === "demon_cult_outpost")
+    ?.bossGate;
+
+  if (boss == null) {
+    throw new Error(`Missing Demon Cult boss for ${scenario.scenarioId}`);
+  }
+
+  return boss;
+}

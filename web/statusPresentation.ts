@@ -7,14 +7,25 @@ import type {
 
 export type StatusSeverity = "low" | "medium" | "high";
 
+export type StatusToneRole = StatusCategory | "cleanse";
+
+export type StatusToneDefinition = {
+  role: StatusToneRole;
+  label: string;
+  className: string;
+};
+
 export type StatusChipViewModel = {
   statusId: string;
   label: string;
   category: StatusCategory;
+  categoryLabel: string;
   severity: StatusSeverity;
+  severityLabel: string;
   toneClassName: string;
   remainingLabel: string;
   stacksLabel: string | null;
+  ariaLabel: string;
 };
 
 export type StatusSummaryInput = {
@@ -31,20 +42,58 @@ export type StatusSummaryInput = {
 };
 
 export type StatusSummaryViewModel = {
-  callouts: string[];
+  callouts: Array<{
+    id: string;
+    label: string;
+    toneClassName: string;
+    ariaLabel: string;
+  }>;
   rows: Array<{
     label: string;
     value: string;
+    toneClassName: string;
   }>;
 };
 
-const categoryToneClassNames: Record<StatusCategory, string> = {
-  damage: "tone-damage",
-  control: "tone-control",
-  vulnerability: "tone-vulnerability",
-  recovery: "tone-recovery",
-  backlash: "tone-backlash"
+export const statusToneDefinitions: Record<
+  StatusToneRole,
+  StatusToneDefinition
+> = {
+  damage: {
+    role: "damage",
+    label: "Damage",
+    className: "tone-damage"
+  },
+  control: {
+    role: "control",
+    label: "Control",
+    className: "tone-control"
+  },
+  vulnerability: {
+    role: "vulnerability",
+    label: "Vulnerability",
+    className: "tone-vulnerability"
+  },
+  recovery: {
+    role: "recovery",
+    label: "Recovery",
+    className: "tone-recovery"
+  },
+  backlash: {
+    role: "backlash",
+    label: "Backlash",
+    className: "tone-backlash"
+  },
+  cleanse: {
+    role: "cleanse",
+    label: "Cleanse",
+    className: "tone-cleanse"
+  }
 };
+
+export function getStatusTone(role: StatusToneRole): StatusToneDefinition {
+  return statusToneDefinitions[role];
+}
 
 export function buildStatusChipViewModels(
   activeStatuses: ActiveStatusEffect[],
@@ -59,16 +108,21 @@ export function buildStatusChipViewModels(
       }
 
       const severity = getStatusSeverity(status, definition);
+      const severityLabel = formatSeverityLabel(severity);
+      const tone = getStatusTone(definition.category);
 
       return [
         {
           statusId: status.statusId,
           label: definition.name,
           category: definition.category,
+          categoryLabel: tone.label,
           severity,
-          toneClassName: categoryToneClassNames[definition.category],
+          severityLabel,
+          toneClassName: tone.className,
           remainingLabel: `${Math.ceil(status.remainingSeconds)}s`,
-          stacksLabel: status.stacks > 1 ? `x${status.stacks}` : null
+          stacksLabel: status.stacks > 1 ? `x${status.stacks}` : null,
+          ariaLabel: `${definition.name}, ${tone.label}, ${severityLabel}, ${Math.ceil(status.remainingSeconds)} seconds remaining`
         }
       ];
     })
@@ -106,17 +160,32 @@ export function buildStatusSummaryViewModel(
 
   const mostStatusDamage = getTopEntry(damageByTarget);
   const mostCleanses = getTopEntry(cleansesByCombatant);
-  const callouts: string[] = [];
+  const damageTone = getStatusTone("damage");
+  const cleanseTone = getStatusTone("cleanse");
+  const controlTone = getStatusTone("control");
+  const callouts: StatusSummaryViewModel["callouts"] = [];
 
   if (mostStatusDamage !== null) {
+    const label = `${mostStatusDamage.key} took ${formatWholeNumber(mostStatusDamage.value)} status damage`;
     callouts.push(
-      `${mostStatusDamage.key} took ${formatWholeNumber(mostStatusDamage.value)} status damage`
+      {
+        id: "status-damage",
+        label,
+        toneClassName: damageTone.className,
+        ariaLabel: `${damageTone.label} summary: ${label}`
+      }
     );
   }
 
   if (mostCleanses !== null) {
+    const label = `${mostCleanses.key} cleansed ${formatWholeNumber(mostCleanses.value)} status`;
     callouts.push(
-      `${mostCleanses.key} cleansed ${formatWholeNumber(mostCleanses.value)} status`
+      {
+        id: "cleanses",
+        label,
+        toneClassName: cleanseTone.className,
+        ariaLabel: `${cleanseTone.label} summary: ${label}`
+      }
     );
   }
 
@@ -126,18 +195,21 @@ export function buildStatusSummaryViewModel(
       value:
         mostStatusDamage === null
           ? "0"
-          : `${formatWholeNumber(mostStatusDamage.value)} to ${mostStatusDamage.key}`
+          : `${formatWholeNumber(mostStatusDamage.value)} to ${mostStatusDamage.key}`,
+      toneClassName: damageTone.className
     },
     {
       label: "Cleanses",
       value:
         mostCleanses === null
           ? "0"
-          : `${formatWholeNumber(mostCleanses.value)} by ${mostCleanses.key}`
+          : `${formatWholeNumber(mostCleanses.value)} by ${mostCleanses.key}`,
+      toneClassName: cleanseTone.className
     },
     {
       label: "Debuffs",
-      value: formatDebuffList(input.cleanses, input.statusDefinitions)
+      value: formatDebuffList(input.cleanses, input.statusDefinitions),
+      toneClassName: controlTone.className
     }
   ];
 
@@ -166,6 +238,10 @@ function getStatusSeverity(
   }
 
   return "low";
+}
+
+function formatSeverityLabel(severity: StatusSeverity): string {
+  return `${severity[0].toUpperCase()}${severity.slice(1)} severity`;
 }
 
 function getTopEntry(

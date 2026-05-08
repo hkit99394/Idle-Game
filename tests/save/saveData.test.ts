@@ -50,6 +50,13 @@ describe("save data", () => {
       "demon_cult_outpost"
     ]);
     expect(save.progress.medicineInventory).toEqual({});
+    expect(save.autoMedicinePreferences).toEqual({
+      enabled: true,
+      battleCleanseEnabled: true,
+      postBattleCleanseEnabled: true,
+      preBattleResistanceEnabled: true,
+      disabledMedicineIds: []
+    });
     expect(validateSaveData(staticData, save)).toEqual([]);
   });
 
@@ -91,6 +98,51 @@ describe("save data", () => {
       combatExperience: 0
     });
     expect(result.save.progress.medicineInventory).toEqual({});
+    expect(result.save.autoMedicinePreferences).toEqual({
+      enabled: true,
+      battleCleanseEnabled: true,
+      postBattleCleanseEnabled: true,
+      preBattleResistanceEnabled: true,
+      disabledMedicineIds: []
+    });
+  });
+
+  it("persists and validates auto medicine preferences", () => {
+    const save: SaveData = {
+      ...createInitialSaveData(staticData, 1000),
+      autoMedicinePreferences: {
+        enabled: true,
+        battleCleanseEnabled: true,
+        postBattleCleanseEnabled: false,
+        preBattleResistanceEnabled: true,
+        disabledMedicineIds: ["clear_heart_pill", "missing_medicine"]
+      }
+    };
+
+    expect(diagnoseSaveData(staticData, save)).toContain(
+      "autoMedicinePreferences.disabledMedicineIds.1 must reference an existing medicine"
+    );
+
+    const validSave: SaveData = {
+      ...save,
+      autoMedicinePreferences: {
+        ...save.autoMedicinePreferences,
+        disabledMedicineIds: ["clear_heart_pill"]
+      }
+    };
+    const result = parseSaveData(staticData, validSave);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.autoMedicinePreferences).toEqual({
+      enabled: true,
+      battleCleanseEnabled: true,
+      postBattleCleanseEnabled: false,
+      preBattleResistanceEnabled: true,
+      disabledMedicineIds: ["clear_heart_pill"]
+    });
   });
 
   it("rejects unknown maps and impossible cleared stage counts", () => {

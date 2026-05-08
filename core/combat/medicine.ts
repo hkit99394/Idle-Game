@@ -1,5 +1,8 @@
 import type { MedicineDefinition } from "../data";
-import { cleanseStatusEffects } from "./statusEffects";
+import {
+  calculateEffectiveStatusResistance,
+  cleanseStatusEffects
+} from "./statusEffects";
 import type {
   ActiveStatusEffect,
   StatusEffectDefinition
@@ -91,7 +94,10 @@ export function applyMedicineResistanceBonus(
   baseStatusResistance: number,
   medicineUse: Pick<MedicineUseSuccess, "statusResistanceBonus">
 ): number {
-  return baseStatusResistance + medicineUse.statusResistanceBonus;
+  return calculateEffectiveStatusResistance(
+    baseStatusResistance,
+    medicineUse.statusResistanceBonus
+  );
 }
 
 function decrementMedicine(

@@ -1,3 +1,4 @@
+export * from "./autoMedicine";
 export * from "./formulas";
 export * from "./formations";
 export * from "./roles";

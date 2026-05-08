@@ -1,8 +1,12 @@
+import {
+  defaultAutoMedicinePreferences,
+  type AutoMedicinePreferences
+} from "../combat";
 import type { StaticGameData } from "../data";
 import { calculateOfflineRewards } from "../offline";
 import { getStageById, isStageFarmable } from "../progression";
 
-export const SAVE_DATA_VERSION = 2 as const;
+export const SAVE_DATA_VERSION = 3 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 
 export type SavedMapProgress = {
@@ -24,6 +28,7 @@ export type PlayerSaveProgress = {
 export type SaveData = {
   version: typeof SAVE_DATA_VERSION;
   progress: PlayerSaveProgress;
+  autoMedicinePreferences: AutoMedicinePreferences;
   selectedOfflineFarmStageId: string | null;
   createdAtMs: number;
   updatedAtMs: number;
@@ -91,6 +96,7 @@ export function createInitialSaveData(
       maps: createDefaultMapProgress(data),
       medicineInventory: {}
     },
+    autoMedicinePreferences: { ...defaultAutoMedicinePreferences },
     selectedOfflineFarmStageId: null,
     createdAtMs: nowMs,
     updatedAtMs: nowMs,
@@ -138,6 +144,9 @@ export function migrateSaveData(
       maps: normalizeMapProgress(data, progress.maps),
       medicineInventory: normalizeMedicineInventory(progress.medicineInventory)
     },
+    autoMedicinePreferences: normalizeAutoMedicinePreferences(
+      value.autoMedicinePreferences
+    ),
     selectedOfflineFarmStageId:
       typeof value.selectedOfflineFarmStageId === "string" ||
       value.selectedOfflineFarmStageId === null
@@ -178,6 +187,7 @@ export function validateSaveData(
   validateResources(save.progress.resources, errors);
   validateMapProgress(data, save.progress.maps, errors);
   validateMedicineInventory(data, save.progress.medicineInventory, errors);
+  validateAutoMedicinePreferences(data, save.autoMedicinePreferences, errors);
 
   if (save.selectedOfflineFarmStageId !== null) {
     errors.push(
@@ -426,6 +436,43 @@ function normalizeMedicineInventory(value: unknown): Record<string, number> {
   ) as Record<string, number>;
 }
 
+function normalizeAutoMedicinePreferences(
+  value: unknown
+): AutoMedicinePreferences {
+  if (!isRecord(value)) {
+    return { ...defaultAutoMedicinePreferences };
+  }
+
+  return {
+    enabled:
+      typeof value.enabled === "boolean"
+        ? value.enabled
+        : defaultAutoMedicinePreferences.enabled,
+    battleCleanseEnabled:
+      typeof value.battleCleanseEnabled === "boolean"
+        ? value.battleCleanseEnabled
+        : defaultAutoMedicinePreferences.battleCleanseEnabled,
+    postBattleCleanseEnabled:
+      typeof value.postBattleCleanseEnabled === "boolean"
+        ? value.postBattleCleanseEnabled
+        : defaultAutoMedicinePreferences.postBattleCleanseEnabled,
+    preBattleResistanceEnabled:
+      typeof value.preBattleResistanceEnabled === "boolean"
+        ? value.preBattleResistanceEnabled
+        : defaultAutoMedicinePreferences.preBattleResistanceEnabled,
+    disabledMedicineIds: Array.isArray(value.disabledMedicineIds)
+      ? [
+          ...new Set(
+            value.disabledMedicineIds.filter(
+              (medicineId): medicineId is string =>
+                typeof medicineId === "string"
+            )
+          )
+        ]
+      : []
+  };
+}
+
 function validateTimestamps(save: SaveData, errors: string[]): void {
   validateNonNegativeFinite(save.createdAtMs, "createdAtMs", errors);
   validateNonNegativeFinite(save.updatedAtMs, "updatedAtMs", errors);
@@ -492,6 +539,22 @@ function validateMapProgress(
       `progress.maps.${region.id}.combatExperience`,
       errors
     );
+  }
+}
+
+function validateAutoMedicinePreferences(
+  data: Pick<StaticGameData, "medicines">,
+  preferences: AutoMedicinePreferences,
+  errors: string[]
+): void {
+  const medicineIds = new Set(data.medicines.map((medicine) => medicine.id));
+
+  for (const [index, medicineId] of preferences.disabledMedicineIds.entries()) {
+    if (!medicineIds.has(medicineId)) {
+      errors.push(
+        `autoMedicinePreferences.disabledMedicineIds.${index} must reference an existing medicine`
+      );
+    }
   }
 }
 

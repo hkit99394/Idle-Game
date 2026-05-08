@@ -2129,6 +2129,10 @@ h2 {
     gap: 4px;
   }
 
+  .counterplay-grid {
+    grid-template-columns: 1fr;
+  }
+
   .summary-list {
     grid-template-columns: 1fr;
   }
