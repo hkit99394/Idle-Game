@@ -5,6 +5,7 @@ import {
   buildSupportIdentityDecisionReport
 } from "../../core";
 import type { StaticGameData } from "../../core";
+import { createSupportIdentityDecisionInput } from "../../tools/fixtures/supportIdentityPrototypes";
 import assignments from "../../data/assignments.json" with { type: "json" };
 import enemies from "../../data/enemies.json" with { type: "json" };
 import equipment from "../../data/equipment.json" with { type: "json" };
@@ -40,10 +41,19 @@ const staticData: StaticGameData = {
 };
 
 describe("support identity decision", () => {
+  function buildDecisionReport() {
+    const decisionInput = createSupportIdentityDecisionInput(staticData);
+
+    return buildSupportIdentityDecisionReport(
+      decisionInput.data,
+      decisionInput.options
+    );
+  }
+
   it("runs prototype support options without changing production static data", () => {
     const heroIdsBefore = staticData.heroes.map((hero) => hero.id);
     const skillIdsBefore = staticData.skills.map((skill) => skill.id);
-    const report = buildSupportIdentityDecisionReport(staticData);
+    const report = buildDecisionReport();
 
     expect(staticData.heroes.map((hero) => hero.id)).toEqual(heroIdsBefore);
     expect(staticData.skills.map((skill) => skill.id)).toEqual(skillIdsBefore);
@@ -57,7 +67,7 @@ describe("support identity decision", () => {
   });
 
   it("selects Lotus support using scenario metrics", () => {
-    const report = buildSupportIdentityDecisionReport(staticData);
+    const report = buildDecisionReport();
     const lotus = getOption(report, "lotus_support");
     const newHero = getOption(report, "new_support_hero");
     const manual = getOption(report, "temporary_manual");

@@ -2,6 +2,7 @@ import {
   buildSupportIdentityDecisionReport,
   formatSupportIdentityDecisionReport
 } from "../core";
+import { createSupportIdentityDecisionInput } from "./fixtures/supportIdentityPrototypes";
 import assignments from "../data/assignments.json" with { type: "json" };
 import enemies from "../data/enemies.json" with { type: "json" };
 import equipment from "../data/equipment.json" with { type: "json" };
@@ -37,7 +38,11 @@ const staticData: StaticGameData = {
   medicines: medicines as StaticGameData["medicines"]
 };
 
-const report = buildSupportIdentityDecisionReport(staticData);
+const decisionInput = createSupportIdentityDecisionInput(staticData);
+const report = buildSupportIdentityDecisionReport(
+  decisionInput.data,
+  decisionInput.options
+);
 
 if (process.argv.includes("--json")) {
   console.log(JSON.stringify(report, null, 2));

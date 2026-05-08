@@ -1,0 +1,1 @@
+export const OFFLINE_TIME_TRAVEL_SECONDS = 60 * 60;
