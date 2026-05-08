@@ -1,13 +1,16 @@
 import {
   defaultAutoMedicinePreferences,
   getMedicineAutoUseLabel,
+  getPreBattleResistanceModeLabel,
+  getPreBattleResistancePolicyDecision,
   getStageStatusPressureIds,
   isMedicineAutoUseEnabled,
   selectAutoCleanseMedicine,
   selectAutoPreBattleResistanceMedicine,
   type AutoMedicinePreferences,
   type AutoMedicineToggleLabel,
-  type MedicineInventory
+  type MedicineInventory,
+  type PreBattleResistanceMode
 } from "../combat";
 import type {
   EnemyDefinition,
@@ -50,6 +53,9 @@ export type StageCounterplayPreview = {
   statusCategories: StatusEffectDefinition["category"][];
   recommendedMedicineIds: string[];
   recommendationText: string;
+  preBattleResistanceMode: PreBattleResistanceMode;
+  preBattleResistanceModeLabel: string;
+  preBattleResistancePolicyReason: string | null;
 };
 
 type CounterplayData = Pick<
@@ -109,6 +115,7 @@ export function buildStageCounterplayPreview(input: {
   inventory: MedicineInventory;
   preferences?: AutoMedicinePreferences;
 }): StageCounterplayPreview {
+  const preferences = input.preferences ?? defaultAutoMedicinePreferences;
   const statusDefinitions = Object.fromEntries(
     input.data.statusEffects.map((status) => [status.id, status])
   );
@@ -116,6 +123,15 @@ export function buildStageCounterplayPreview(input: {
     stage: input.stage,
     enemies: input.data.enemies,
     skills: input.data.skills
+  });
+  const preBattleResistancePolicy = getPreBattleResistancePolicyDecision({
+    medicines: input.data.medicines,
+    inventory: input.inventory,
+    stage: input.stage,
+    enemies: input.data.enemies,
+    skills: input.data.skills,
+    statusDefinitions,
+    preferences
   });
   const pressureStatuses = statusPressureIds.flatMap((statusId) => {
     const status = statusDefinitions[statusId];
@@ -128,14 +144,14 @@ export function buildStageCounterplayPreview(input: {
     enemies: input.data.enemies,
     skills: input.data.skills,
     statusDefinitions,
-    preferences: input.preferences
+    preferences
   });
   const cleanseMedicineIds = selectStageCleanseMedicineIds({
     medicines: input.data.medicines,
     inventory: input.inventory,
     pressureStatuses,
     statusDefinitions,
-    preferences: input.preferences
+    preferences
   });
   const recommendedMedicineIds = [
     ...new Set([
@@ -162,7 +178,12 @@ export function buildStageCounterplayPreview(input: {
       pressureStatuses,
       recommendedMedicineIds,
       medicines: input.data.medicines
-    })
+    }),
+    preBattleResistanceMode: preBattleResistancePolicy.mode,
+    preBattleResistanceModeLabel: getPreBattleResistanceModeLabel(
+      preBattleResistancePolicy.mode
+    ),
+    preBattleResistancePolicyReason: preBattleResistancePolicy.skippedReason
   };
 }
 

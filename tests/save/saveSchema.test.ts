@@ -31,6 +31,7 @@ describe("save schema", () => {
       battleCleanseEnabled: true,
       postBattleCleanseEnabled: true,
       preBattleResistanceEnabled: true,
+      preBattleResistanceMode: "boss_and_elite",
       disabledMedicineIds: []
     });
     expect(save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
@@ -130,6 +131,7 @@ describe("save schema", () => {
       battleCleanseEnabled: true,
       postBattleCleanseEnabled: true,
       preBattleResistanceEnabled: true,
+      preBattleResistanceMode: "boss_and_elite",
       disabledMedicineIds: []
     });
     expect(result.save.offlineFarmPreset).toBe("balanced");
@@ -304,6 +306,59 @@ describe("save schema", () => {
     expect(parseSaveData(staticData, invalidSave)).toMatchObject({
       ok: false,
       reason: "invalid_save"
+    });
+  });
+
+  it("persists and validates pre-battle resistance policy mode", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      autoMedicinePreferences: {
+        enabled: true,
+        battleCleanseEnabled: true,
+        postBattleCleanseEnabled: true,
+        preBattleResistanceEnabled: true,
+        preBattleResistanceMode: "status_heavy",
+        disabledMedicineIds: []
+      },
+      nowMs: 1000
+    });
+    const invalidSave = {
+      ...save,
+      autoMedicinePreferences: {
+        ...save.autoMedicinePreferences,
+        preBattleResistanceMode: "only_boss_when_rich"
+      }
+    };
+    const oldSave = {
+      ...save,
+      version: 8,
+      autoMedicinePreferences: {
+        ...save.autoMedicinePreferences,
+        preBattleResistanceMode: undefined
+      }
+    };
+
+    expect(parseSaveData(staticData, save)).toMatchObject({
+      ok: true,
+      save: {
+        autoMedicinePreferences: {
+          preBattleResistanceMode: "status_heavy"
+        }
+      }
+    });
+    expect(validateSaveData(staticData, invalidSave)).toContain(
+      "autoMedicinePreferences.preBattleResistanceMode must be a supported mode"
+    );
+    expect(parseSaveData(staticData, oldSave)).toMatchObject({
+      ok: true,
+      save: {
+        version: SAVE_DATA_VERSION,
+        autoMedicinePreferences: {
+          preBattleResistanceMode: "boss_and_elite"
+        }
+      }
     });
   });
 

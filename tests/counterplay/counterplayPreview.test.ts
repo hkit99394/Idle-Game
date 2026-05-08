@@ -225,6 +225,10 @@ describe("counterplay preview", () => {
         clear_heart_pill: 2,
         quiet_meridian_powder: 1,
         purity_draught: 1
+      },
+      preferences: {
+        ...defaultAutoMedicinePreferences,
+        preBattleResistanceMode: "always_when_recommended"
       }
     });
 
@@ -245,6 +249,11 @@ describe("counterplay preview", () => {
       "clear_heart_pill",
       "purity_draught"
     ]);
+    expect(preview).toMatchObject({
+      preBattleResistanceMode: "always_when_recommended",
+      preBattleResistanceModeLabel: "Always When Recommended",
+      preBattleResistancePolicyReason: null
+    });
     expect(preview.recommendationText).toBe(
       "Expected Poison, Qi Suppression, Vulnerable, Wound. Recommended auto medicine: Quiet Meridian Powder, Clear Heart Pill, Purity Draught."
     );
@@ -263,7 +272,10 @@ describe("counterplay preview", () => {
       statusPressureIds: [],
       statusCategories: [],
       recommendedMedicineIds: [],
-      recommendationText: "No major status pressure expected."
+      recommendationText: "No major status pressure expected.",
+      preBattleResistanceMode: "boss_and_elite",
+      preBattleResistanceModeLabel: "Boss And Elite",
+      preBattleResistancePolicyReason: "no_status_pressure"
     });
   });
 

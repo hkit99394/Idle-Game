@@ -1,5 +1,6 @@
 import {
   defaultAutoMedicinePreferences,
+  isPreBattleResistanceMode,
   type AutoMedicinePreferences
 } from "../combat";
 import type { StaticGameData } from "../data";
@@ -461,6 +462,12 @@ function normalizeAutoMedicinePreferences(
       typeof value.preBattleResistanceEnabled === "boolean"
         ? value.preBattleResistanceEnabled
         : defaultAutoMedicinePreferences.preBattleResistanceEnabled,
+    preBattleResistanceMode:
+      typeof value.preBattleResistanceMode === "string"
+        ? (value.preBattleResistanceMode as AutoMedicinePreferences[
+            "preBattleResistanceMode"
+          ])
+        : defaultAutoMedicinePreferences.preBattleResistanceMode,
     disabledMedicineIds: Array.isArray(value.disabledMedicineIds)
       ? [
           ...new Set(
@@ -549,6 +556,12 @@ function validateAutoMedicinePreferences(
   errors: string[]
 ): void {
   const medicineIds = new Set(data.medicines.map((medicine) => medicine.id));
+
+  if (!isPreBattleResistanceMode(preferences.preBattleResistanceMode)) {
+    errors.push(
+      "autoMedicinePreferences.preBattleResistanceMode must be a supported mode"
+    );
+  }
 
   for (const [index, medicineId] of preferences.disabledMedicineIds.entries()) {
     if (!medicineIds.has(medicineId)) {

@@ -66,6 +66,7 @@ describe("save data", () => {
       battleCleanseEnabled: true,
       postBattleCleanseEnabled: true,
       preBattleResistanceEnabled: true,
+      preBattleResistanceMode: "boss_and_elite",
       disabledMedicineIds: []
     });
     expect(validateSaveData(staticData, save)).toEqual([]);
@@ -114,6 +115,7 @@ describe("save data", () => {
       battleCleanseEnabled: true,
       postBattleCleanseEnabled: true,
       preBattleResistanceEnabled: true,
+      preBattleResistanceMode: "boss_and_elite",
       disabledMedicineIds: []
     });
   });
@@ -126,6 +128,7 @@ describe("save data", () => {
         battleCleanseEnabled: true,
         postBattleCleanseEnabled: false,
         preBattleResistanceEnabled: true,
+        preBattleResistanceMode: "status_heavy",
         disabledMedicineIds: ["clear_heart_pill", "missing_medicine"]
       }
     };
@@ -141,8 +144,18 @@ describe("save data", () => {
         disabledMedicineIds: ["clear_heart_pill"]
       }
     };
+    const invalidModeSave = {
+      ...validSave,
+      autoMedicinePreferences: {
+        ...validSave.autoMedicinePreferences,
+        preBattleResistanceMode: "only_when_rich"
+      }
+    };
     const result = parseSaveData(staticData, validSave);
 
+    expect(diagnoseSaveData(staticData, invalidModeSave)).toContain(
+      "autoMedicinePreferences.preBattleResistanceMode must be a supported mode"
+    );
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;
@@ -152,6 +165,7 @@ describe("save data", () => {
       battleCleanseEnabled: true,
       postBattleCleanseEnabled: false,
       preBattleResistanceEnabled: true,
+      preBattleResistanceMode: "status_heavy",
       disabledMedicineIds: ["clear_heart_pill"]
     });
   });

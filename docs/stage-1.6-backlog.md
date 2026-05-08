@@ -67,7 +67,7 @@ Why this target:
 | --- | --- | --- | --- |
 | 37 | Auto Medicine Unlock Rules | Completed | Unlock auto medicine when medicine becomes available |
 | 38 | Per-Medicine Auto Policy | Completed | Let players disable automatic use for each medicine type |
-| 39 | Pre-Battle Resistance Policy | Not Started | Make resistance medicine consumption mode configurable |
+| 39 | Pre-Battle Resistance Policy | Completed | Make resistance medicine consumption mode configurable |
 | 40 | Counterplay Settings Panel | Not Started | Add compact UI controls for medicine automation |
 | 41 | Lotus Purity Support Growth | Not Started | Make support identity visible without adding a new hero |
 | 42 | Demon Cult Boss Tuning Gates | Not Started | Tune intended counterplay toward the target boss window |
@@ -173,7 +173,7 @@ Recommended default after unlock: **Boss And Elite**.
 - Update the resistance selection helper to respect stage type and policy mode.
 - Define status-heavy threshold using enemy status skill count, status category count, or expected applications from the simulator.
 - Add clear skip reasons for "policy disabled" and "stage below policy threshold".
-- Surface the selected mode in the settings panel.
+- Surface the selected mode through the counterplay view model for the settings panel.
 
 ### Acceptance Criteria
 
@@ -189,6 +189,15 @@ Recommended default after unlock: **Boss And Elite**.
 - Normal status-light stages do not consume under Boss And Elite or Status Heavy.
 - Demon Cult boss consumes resistance medicine under Boss And Elite.
 - Imported invalid policy mode is rejected or migrated safely.
+
+### Progress Notes
+
+- Added `preBattleResistanceMode` with `off`, `boss_and_elite`, `status_heavy`, and `always_when_recommended` modes.
+- Default mode is now `boss_and_elite`; the previous aggressive behavior remains available through `always_when_recommended`.
+- Defined status-heavy pressure as at least two status-applying skill effects or at least two status categories.
+- Added policy skip reasons for disabled policy and stages below the selected policy threshold.
+- Save/load/import now persists the policy mode and rejects unknown imported modes.
+- Counterplay preview exposes the selected mode and label for the upcoming settings panel.
 
 ---
 
@@ -326,7 +335,7 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 
 - [x] Auto medicine unlocks after first medicine availability.
 - [x] Per-medicine auto toggles implemented and persisted.
-- [ ] Pre-battle resistance policy modes implemented.
+- [x] Pre-battle resistance policy modes implemented.
 - [ ] Counterplay settings panel added and mobile-safe.
 - [ ] Lotus/support contribution visible in UI and simulator.
 - [ ] Demon Cult boss tuning criteria updated.

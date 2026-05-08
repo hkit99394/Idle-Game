@@ -26,7 +26,9 @@ export type AutoMedicineSkippedReason =
   | "automation_locked"
   | "no_active_statuses"
   | "no_owned_match"
-  | "no_status_pressure";
+  | "no_status_pressure"
+  | "policy_disabled"
+  | "stage_below_policy_threshold";
 
 export type AutoMedicineUseSummary = {
   trigger: AutoMedicineTrigger;
@@ -48,14 +50,45 @@ export type AutoMedicinePreferences = {
   battleCleanseEnabled: boolean;
   postBattleCleanseEnabled: boolean;
   preBattleResistanceEnabled: boolean;
+  preBattleResistanceMode: PreBattleResistanceMode;
   disabledMedicineIds: string[];
 };
+
+export type PreBattleResistanceMode =
+  | "off"
+  | "boss_and_elite"
+  | "status_heavy"
+  | "always_when_recommended";
+
+export const PRE_BATTLE_RESISTANCE_MODES: PreBattleResistanceMode[] = [
+  "off",
+  "boss_and_elite",
+  "status_heavy",
+  "always_when_recommended"
+];
+
+export const DEFAULT_PRE_BATTLE_RESISTANCE_MODE: PreBattleResistanceMode =
+  "boss_and_elite";
+
+export const PRE_BATTLE_RESISTANCE_MODE_LABELS: Record<
+  PreBattleResistanceMode,
+  string
+> = {
+  off: "Off",
+  boss_and_elite: "Boss And Elite",
+  status_heavy: "Status Heavy",
+  always_when_recommended: "Always When Recommended"
+};
+
+export const STATUS_HEAVY_STATUS_SKILL_COUNT_THRESHOLD = 2;
+export const STATUS_HEAVY_STATUS_CATEGORY_COUNT_THRESHOLD = 2;
 
 export const defaultAutoMedicinePreferences: AutoMedicinePreferences = {
   enabled: true,
   battleCleanseEnabled: true,
   postBattleCleanseEnabled: true,
   preBattleResistanceEnabled: true,
+  preBattleResistanceMode: DEFAULT_PRE_BATTLE_RESISTANCE_MODE,
   disabledMedicineIds: []
 };
 
@@ -102,6 +135,24 @@ type ResistanceCandidate = {
   medicine: MedicineDefinition;
   resistanceBonus: number;
   durationSeconds: number;
+};
+
+export type StageStatusPressureProfile = {
+  statusIds: string[];
+  statusSkillCount: number;
+  statusCategoryCount: number;
+  isBossOrEliteStage: boolean;
+  isStatusHeavy: boolean;
+};
+
+export type PreBattleResistancePolicyDecision = {
+  allowed: boolean;
+  skippedReason: Extract<
+    AutoMedicineSkippedReason,
+    "no_status_pressure" | "policy_disabled" | "stage_below_policy_threshold"
+  > | null;
+  mode: PreBattleResistanceMode;
+  profile: StageStatusPressureProfile;
 };
 
 export function isAutoMedicineUnlocked(input: AutoMedicineUnlockInput): boolean {
@@ -161,6 +212,20 @@ export function setMedicineAutoUsePreference(
     ...resolved,
     disabledMedicineIds: [...disabledMedicineIds].sort()
   };
+}
+
+export function isPreBattleResistanceMode(
+  value: unknown
+): value is PreBattleResistanceMode {
+  return PRE_BATTLE_RESISTANCE_MODES.includes(
+    value as PreBattleResistanceMode
+  );
+}
+
+export function getPreBattleResistanceModeLabel(
+  mode: PreBattleResistanceMode
+): string {
+  return PRE_BATTLE_RESISTANCE_MODE_LABELS[mode];
 }
 
 export function applyAutoCleanseMedicine(
@@ -230,17 +295,14 @@ export function applyAutoPreBattleResistanceMedicine(
     return skipAutoMedicine(input.inventory, [], "automation_locked");
   }
 
-  if (
-    !isAutoMedicineTriggerEnabled(
-      input.preferences,
-      "pre_battle_resistance"
-    )
-  ) {
-    return skipAutoMedicine(input.inventory, [], "no_owned_match");
-  }
+  const policyDecision = getPreBattleResistancePolicyDecision(input);
 
-  if (getStageStatusPressureIds(input).length === 0) {
-    return skipAutoMedicine(input.inventory, [], "no_status_pressure");
+  if (!policyDecision.allowed) {
+    return skipAutoMedicine(
+      input.inventory,
+      [],
+      policyDecision.skippedReason ?? "stage_below_policy_threshold"
+    );
   }
 
   const medicine = selectAutoPreBattleResistanceMedicine(input);
@@ -312,16 +374,7 @@ export function selectAutoPreBattleResistanceMedicine(
     return null;
   }
 
-  if (
-    !isAutoMedicineTriggerEnabled(
-      input.preferences,
-      "pre_battle_resistance"
-    )
-  ) {
-    return null;
-  }
-
-  if (getStageStatusPressureIds(input).length === 0) {
+  if (!getPreBattleResistancePolicyDecision(input).allowed) {
     return null;
   }
 
@@ -351,15 +404,31 @@ export function getStageStatusPressureIds(input: {
   enemies: EnemyDefinition[];
   skills: SkillDefinition[];
 }): string[] {
+  return getStageStatusPressureProfile(input).statusIds;
+}
+
+export function getStageStatusPressureProfile(input: {
+  stage: StageDefinition;
+  enemies: EnemyDefinition[];
+  skills: SkillDefinition[];
+  statusDefinitions?: Record<string, StatusEffectDefinition>;
+}): StageStatusPressureProfile {
   const enemyById = new Map(input.enemies.map((enemy) => [enemy.id, enemy]));
   const skillById = new Map(input.skills.map((skill) => [skill.id, skill]));
   const statusIds = new Set<string>();
+  const statusCategories = new Set<string>();
+  let statusSkillCount = 0;
+  let hasBossOrEliteEnemy = false;
 
   for (const enemyId of input.stage.enemyTeam.combatantIds) {
     const enemy = enemyById.get(enemyId);
 
     if (enemy === undefined) {
       continue;
+    }
+
+    if (enemy.type === "elite" || enemy.type === "boss") {
+      hasBossOrEliteEnemy = true;
     }
 
     for (const skillId of enemy.skillIds) {
@@ -371,13 +440,80 @@ export function getStageStatusPressureIds(input: {
 
       for (const effect of skill.effects) {
         if (effect.type === "apply_status" && effect.statusId !== undefined) {
+          statusSkillCount += 1;
           statusIds.add(effect.statusId);
+          const status = input.statusDefinitions?.[effect.statusId];
+
+          if (status !== undefined) {
+            statusCategories.add(status.category);
+          }
         }
       }
     }
   }
 
-  return [...statusIds].sort();
+  const statusCategoryCount = statusCategories.size;
+
+  return {
+    statusIds: [...statusIds].sort(),
+    statusSkillCount,
+    statusCategoryCount,
+    isBossOrEliteStage: input.stage.isBoss || hasBossOrEliteEnemy,
+    isStatusHeavy:
+      statusSkillCount >= STATUS_HEAVY_STATUS_SKILL_COUNT_THRESHOLD ||
+      statusCategoryCount >= STATUS_HEAVY_STATUS_CATEGORY_COUNT_THRESHOLD
+  };
+}
+
+export function getPreBattleResistancePolicyDecision(
+  input: AutoMedicinePreBattleResistanceInput
+): PreBattleResistancePolicyDecision {
+  const preferences = input.preferences ?? defaultAutoMedicinePreferences;
+  const mode = isPreBattleResistanceMode(preferences.preBattleResistanceMode)
+    ? preferences.preBattleResistanceMode
+    : DEFAULT_PRE_BATTLE_RESISTANCE_MODE;
+  const profile = getStageStatusPressureProfile(input);
+
+  if (
+    !isAutoMedicineTriggerEnabled(preferences, "pre_battle_resistance") ||
+    mode === "off"
+  ) {
+    return {
+      allowed: false,
+      skippedReason: "policy_disabled",
+      mode,
+      profile
+    };
+  }
+
+  if (profile.statusIds.length === 0) {
+    return {
+      allowed: false,
+      skippedReason: "no_status_pressure",
+      mode,
+      profile
+    };
+  }
+
+  if (
+    mode === "always_when_recommended" ||
+    (mode === "boss_and_elite" && profile.isBossOrEliteStage) ||
+    (mode === "status_heavy" && profile.isStatusHeavy)
+  ) {
+    return {
+      allowed: true,
+      skippedReason: null,
+      mode,
+      profile
+    };
+  }
+
+  return {
+    allowed: false,
+    skippedReason: "stage_below_policy_threshold",
+    mode,
+    profile
+  };
 }
 
 function getCleanseCandidate(input: {
