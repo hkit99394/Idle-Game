@@ -27,6 +27,17 @@ const statusDispelTags = new Set([
   "backlash",
   "debuff"
 ]);
+const statusEffectKeys = new Set([
+  "outerDamagePerSecond",
+  "healingReceivedMultiplier",
+  "innerRecoveryMultiplier",
+  "outerDamageTakenMultiplier",
+  "attackBacklashOuterHpPercent"
+]);
+const medicineEffectTypes = new Set([
+  "cleanse_status",
+  "status_resistance_bonus"
+]);
 
 function duplicateIds(entities: EntityWithId[]): string[] {
   const seen = new Set<string>();
@@ -285,6 +296,10 @@ function validateStatusEffect(status: StatusEffectDefinition): string[] {
   }
 
   for (const [effect, value] of Object.entries(status.effects)) {
+    if (!statusEffectKeys.has(effect)) {
+      errors.push(`Status ${status.id} effect ${effect} must be supported`);
+    }
+
     if (typeof value !== "number" || Number.isNaN(value)) {
       errors.push(`Status ${status.id} effect ${effect} must be a number`);
       continue;
@@ -340,6 +355,13 @@ function validateMedicine(
   }
 
   for (const effect of medicine.effects) {
+    if (!medicineEffectTypes.has(effect.type)) {
+      errors.push(
+        `Medicine ${medicine.id} effect ${effect.type} must be supported`
+      );
+      continue;
+    }
+
     if (effect.type === "cleanse_status") {
       if (!Array.isArray(effect.dispelTags) || effect.dispelTags.length === 0) {
         errors.push(

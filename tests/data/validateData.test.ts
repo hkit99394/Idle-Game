@@ -105,7 +105,9 @@ describe("static game data validation", () => {
               category: "curse",
               dispelTags: ["unknown_tag"],
               tickIntervalSeconds: 2,
-              effects: {}
+              effects: {
+                typoDamagePerSecond: 0.1
+              }
             }
           : status
       ) as StaticGameData["statusEffects"]
@@ -115,7 +117,8 @@ describe("static game data validation", () => {
       expect.arrayContaining([
         "Status poison category must be supported",
         "Status poison dispel tag unknown_tag must be supported",
-        "Status poison tickIntervalSeconds requires outerDamagePerSecond"
+        "Status poison tickIntervalSeconds requires outerDamagePerSecond",
+        "Status poison effect typoDamagePerSecond must be supported"
       ])
     );
   });
@@ -133,6 +136,10 @@ describe("static game data validation", () => {
                   type: "cleanse_status",
                   dispelTags: ["bad_tag"],
                   maxCount: 0
+                },
+                {
+                  type: "unknown_effect",
+                  value: 1
                 }
               ]
             }
@@ -144,7 +151,8 @@ describe("static game data validation", () => {
       expect.arrayContaining([
         "Medicine clear_heart_pill maxCarry must be a positive integer",
         "Medicine clear_heart_pill dispel tag bad_tag must be supported",
-        "Medicine clear_heart_pill cleanse maxCount must be a positive integer"
+        "Medicine clear_heart_pill cleanse maxCount must be a positive integer",
+        "Medicine clear_heart_pill effect unknown_effect must be supported"
       ])
     );
   });

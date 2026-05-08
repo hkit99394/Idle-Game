@@ -42,7 +42,7 @@ The recommended theme is **Demon Cult Outpost And Status Combat**. The goal is t
 | 27 | Counterplay Growth | In Progress | Add upgrades, medicine, and support hooks that answer status pressure |
 | 28 | Battle UI And Summary Polish | In Progress | Make statuses readable during and after battle |
 | 29 | Offline, Save, And Migration Safety | In Progress | Keep imported saves, offline farming, and diagnostics safe |
-| 30 | Simulator And Balance Pass | Not Started | Validate the new region and all-region balance reports |
+| 30 | Simulator And Balance Pass | In Progress | Validate the new region and all-region balance reports |
 
 ---
 
@@ -96,6 +96,7 @@ Create a small, data-driven status effect system that can support poison, wound,
 - Added data-driven status definitions for Poison, Wound, Qi Suppression, Vulnerable, and Burning Blood.
 - Updated skill effects so Palm and Staff techniques can reference status ids through data.
 - Added static validation for status definitions and skill status references.
+- Tightened static validation so unsupported status effect keys and unsupported medicine effect types fail loudly instead of being silently ignored.
 - Added deterministic combat/status tests for stacking, ticking, expiration, cleanse rules, resistance formulas, and modifiers.
 - Remaining integration work: apply status effects inside the full battle timeline and feed status events into battle summaries once the battle resolver expands beyond formula-level simulation.
 
@@ -347,6 +348,17 @@ Keep balance data trustworthy as the fourth region and status pressure arrive.
 - Removing or renaming Demon Cult fails tests with a useful error.
 - Status metrics are nonzero in Demon Cult scenarios.
 - JSON output includes status summaries.
+
+### Progress Notes
+
+- Added a pure core balance report builder that reads every configured region in region order.
+- Added readable CLI output and JSON output through `npm run simulate` and `npm run simulate -- --json`.
+- Added per-stage estimates for clear time, survival time, result, status applications, status damage, cleanses, and resists.
+- Added Demon Cult farm recommendation and boss gate summaries to the report.
+- Added tests for configured region/stage coverage, missing-stage failure, Demon Cult status pressure, farm recommendation, and JSON-ready output.
+- Refactored cleanse coverage estimates to use status dispel tags, matching the combat cleanse rules.
+- Remaining integration work: add trained, cleanse-focused, and resistance-focused scenarios once the battle timeline has richer full-team simulation hooks.
+- Remaining tuning work: calibrate Demon Cult normal stage clear-time bands and boss gate thresholds after scenario simulation is connected.
 
 ---
 
