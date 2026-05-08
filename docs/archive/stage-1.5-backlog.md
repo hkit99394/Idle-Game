@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.5 is in progress.
+Stage 1.5 is completed and archived.
 
 The recommended theme is **Status Counterplay Automation And Balance**. Stage 1.4 introduced Demon Cult Outpost, status data, medicine, save safety, presentation helpers, and balance reporting. Stage 1.5 should make those systems feel playable by integrating stronger resistance formulas, automatic medicine use, fixed status color rules, and scenario-based balance tuning.
 
@@ -365,9 +365,9 @@ Simulator evidence from `npm run support-decision`:
 | Option | Estimated CP | Boss Result | Gate | survival ratio | Clear Time | Survival Time | status damage | Status Duration | medicine |
 | --- | ---: | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Default combined route | - | enemy_hold | near | 0.8 | 100.3s | 84.3s | 95.9 | 101.6 | 2 |
-| Lotus support prototype | 2825 | enemy_hold | near | 0.9 | 100.3s | 86.2s | 61.0 | 70.9 | 2 |
-| New support hero prototype | 3430 | player_clear | pass | 1.1 | 96.2s | 104.4s | 74.1 | 76.7 | 2 |
-| Temporary manual prototype | 3017 | enemy_hold | near | 0.9 | 100.3s | 87.3s | 42.4 | 52.6 | 2 |
+| Lotus support prototype | 3529 | enemy_hold | near | 0.9 | 100.3s | 86.2s | 61.0 | 70.9 | 2 |
+| New support hero prototype | 4310 | player_clear | pass | 1.1 | 96.2s | 104.4s | 74.1 | 76.7 | 2 |
+| Temporary manual prototype | 3721 | enemy_hold | near | 0.9 | 100.3s | 87.3s | 42.4 | 52.6 | 2 |
 
 Rationale:
 
@@ -423,5 +423,5 @@ Stage 1.6 recommendation:
 - [x] Status visual language standardized.
 - [x] Scenario simulator reports baseline and counterplay routes.
 - [x] Demon Cult support/new hero decision documented.
-- [ ] Stage 1.5 backlog reviewed.
-- [ ] Stage 1.5 backlog moved to archive after completion.
+- [x] Stage 1.5 backlog reviewed.
+- [x] Stage 1.5 backlog moved to archive after completion.

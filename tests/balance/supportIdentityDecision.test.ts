@@ -79,7 +79,7 @@ describe("support identity decision", () => {
   });
 
   it("documents the decision with simulator evidence", () => {
-    const doc = readFileSync("docs/stage-1.5-backlog.md", "utf8");
+    const doc = readFileSync("docs/archive/stage-1.5-backlog.md", "utf8");
 
     expect(doc).toContain("Support Identity Decision Record");
     expect(doc).toContain("survival ratio");

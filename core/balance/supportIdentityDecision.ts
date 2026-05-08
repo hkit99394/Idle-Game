@@ -7,7 +7,7 @@ import type {
   BalanceReport,
   BalanceScenarioPreset
 } from "./balanceReport";
-import type { BaseStats } from "../combat";
+import { calculateEffectiveStatusResistance, type BaseStats } from "../combat";
 import type { HeroDefinition, SkillDefinition, StaticGameData } from "../data";
 
 export type SupportIdentityOptionId =
@@ -67,6 +67,16 @@ type StaticDataForSupportDecision = Pick<
   | "medicines"
 >;
 
+type SupportIdentityPrototype = {
+  optionId: SupportIdentityOptionId;
+  label: string;
+  summary: string;
+  productionRosterChangeRequired: boolean;
+  prototypeNotes: string[];
+  data: StaticDataForSupportDecision;
+  scenarios?: BalanceScenarioPreset[];
+};
+
 const lotusSupportScenarioBonus = 0.08;
 const temporaryManualScenarioBonus = 0.14;
 
@@ -121,8 +131,8 @@ export function buildSupportIdentityDecisionReport(
   data: StaticDataForSupportDecision
 ): SupportIdentityDecisionReport {
   const defaultCombined = getCombinedDemonCultBoss(buildBalanceReport(data));
-  const options: SupportIdentityOptionReport[] = [
-    buildOptionReport({
+  const options = buildOptionReports([
+    {
       optionId: "lotus_support",
       label: "Lotus support remains main counterplay",
       summary:
@@ -132,13 +142,10 @@ export function buildSupportIdentityDecisionReport(
         `Adds ${formatPercent(lotusSupportScenarioBonus)} support resistance to the combined scenario only.`,
         "Represents Lotus method/manual progression without changing production hero data."
       ],
-      heroesForCp: data.heroes,
-      scenarioResistanceBonusForCp: lotusSupportScenarioBonus,
-      report: buildBalanceReport(data, {
-        scenarios: withCombinedScenarioBonus(lotusSupportScenarioBonus)
-      })
-    }),
-    buildOptionReport({
+      data,
+      scenarios: withCombinedScenarioBonus(lotusSupportScenarioBonus, "support")
+    },
+    {
       optionId: "new_support_hero",
       label: "Add a new anti-Demon Cult support hero",
       summary:
@@ -148,11 +155,9 @@ export function buildSupportIdentityDecisionReport(
         `Adds prototype hero ${prototypeLotusHero.name} and skill ${prototypeLotusSkill.name} only to the decision simulation.`,
         "Would require roster, unlock, formation, and UI work before production."
       ],
-      heroesForCp: [...data.heroes, prototypeLotusHero],
-      scenarioResistanceBonusForCp: 0,
-      report: buildBalanceReport(withPrototypeLotusHero(data))
-    }),
-    buildOptionReport({
+      data: withPrototypeLotusHero(data)
+    },
+    {
       optionId: "temporary_manual",
       label: "Add a temporary manual or ally",
       summary:
@@ -162,13 +167,10 @@ export function buildSupportIdentityDecisionReport(
         `Adds ${formatPercent(temporaryManualScenarioBonus)} manual resistance to the combined scenario only.`,
         "Represents a lower-scope reward, but it is less personal than support progression."
       ],
-      heroesForCp: data.heroes,
-      scenarioResistanceBonusForCp: temporaryManualScenarioBonus,
-      report: buildBalanceReport(data, {
-        scenarios: withCombinedScenarioBonus(temporaryManualScenarioBonus)
-      })
-    })
-  ];
+      data,
+      scenarios: withCombinedScenarioBonus(temporaryManualScenarioBonus, "manual")
+    }
+  ]);
 
   return {
     selectedOptionId: "lotus_support",
@@ -264,16 +266,27 @@ export function formatSupportIdentityDecisionReport(
   return lines.join("\n");
 }
 
-function buildOptionReport(input: {
-  optionId: SupportIdentityOptionId;
-  label: string;
-  summary: string;
-  productionRosterChangeRequired: boolean;
-  prototypeNotes: string[];
-  heroesForCp: HeroDefinition[];
-  scenarioResistanceBonusForCp: number;
-  report: BalanceReport;
-}): SupportIdentityOptionReport {
+function buildOptionReports(
+  prototypes: SupportIdentityPrototype[]
+): SupportIdentityOptionReport[] {
+  return prototypes.map((prototype) => {
+    const scenarios = prototype.scenarios ?? defaultBalanceScenarioPresets;
+    const report = buildBalanceReport(prototype.data, { scenarios });
+
+    return buildOptionReport({
+      ...prototype,
+      combinedScenario: getCombinedScenarioPreset(scenarios),
+      report
+    });
+  });
+}
+
+function buildOptionReport(
+  input: SupportIdentityPrototype & {
+    combinedScenario: BalanceScenarioPreset;
+    report: BalanceReport;
+  }
+): SupportIdentityOptionReport {
   const boss = getCombinedDemonCultBoss(input.report);
 
   return {
@@ -283,8 +296,8 @@ function buildOptionReport(input: {
     productionRosterChangeRequired: input.productionRosterChangeRequired,
     prototypeNotes: input.prototypeNotes,
     estimatedTeamCp: estimateTeamCp(
-      input.heroesForCp,
-      input.scenarioResistanceBonusForCp
+      input.data.heroes,
+      input.combinedScenario.statusResistanceBonus
     ),
     demonCultBoss: {
       stageId: boss.stage.stageId,
@@ -300,17 +313,30 @@ function buildOptionReport(input: {
   };
 }
 
+function getCombinedScenarioPreset(
+  scenarios: BalanceScenarioPreset[]
+): BalanceScenarioPreset {
+  const scenario = scenarios.find((entry) => entry.id === "combined");
+
+  if (scenario === undefined) {
+    throw new Error("Missing combined support decision scenario");
+  }
+
+  return scenario;
+}
+
 function withCombinedScenarioBonus(
-  supportResistanceBonus: number
+  resistanceBonus: number,
+  sourceLabel: "support" | "manual"
 ): BalanceScenarioPreset[] {
   return defaultBalanceScenarioPresets.map((scenario) =>
     scenario.id === "combined"
       ? {
           ...scenario,
           statusResistanceBonus:
-            scenario.statusResistanceBonus + supportResistanceBonus,
-          description: `${scenario.description} Prototype support bonus: ${formatPercent(
-            supportResistanceBonus
+            scenario.statusResistanceBonus + resistanceBonus,
+          description: `${scenario.description} Prototype ${sourceLabel} bonus: ${formatPercent(
+            resistanceBonus
           )}.`
         }
       : scenario
@@ -373,7 +399,11 @@ function estimateHeroCp(
     stats.breakPower * 500 +
     stats.breakResist * 350 +
     stats.statusAccuracy * 600 +
-    (stats.statusResistance + scenarioResistanceBonus) * 800
+    calculateEffectiveStatusResistance(
+      stats.statusResistance,
+      scenarioResistanceBonus
+    ) *
+      800
   );
 }
 
