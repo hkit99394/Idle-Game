@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   calculateAttackInterval,
+  calculateCombatPower,
   calculateExpectedCritMultiplier,
   calculateInnerDamage,
   calculateInnerRecovery,
@@ -57,6 +58,11 @@ describe("combat formulas", () => {
 
   it("calculates expected crit multiplier", () => {
     expect(calculateExpectedCritMultiplier(0.1, 1.5)).toBeCloseTo(1.05);
+  });
+
+  it("calculates display combat power from durability and offense stats", () => {
+    expect(calculateCombatPower(attacker)).toBe(3729);
+    expect(calculateCombatPower(target)).toBe(2740);
   });
 
   it("mitigates outer damage with target outer defense", () => {

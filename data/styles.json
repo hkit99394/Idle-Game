@@ -1,0 +1,139 @@
+[
+  {
+    "id": "fist",
+    "name": "Fist",
+    "bonuses": [
+      { "stat": "outerAttack", "effectPerLevel": 0.01 }
+    ],
+    "branches": [
+      {
+        "id": "iron_body_fist",
+        "name": "Iron Body Fist",
+        "unlock": { "type": "hero_level", "heroId": "iron_fist_disciple", "level": 3 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.06 },
+          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.05 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "palm",
+    "name": "Palm",
+    "bonuses": [
+      { "stat": "innerAttack", "effectPerLevel": 0.01 }
+    ],
+    "branches": [
+      {
+        "id": "cloud_meridian_palm",
+        "name": "Cloud Meridian Palm",
+        "unlock": { "type": "style_mastery_level", "styleId": "palm", "level": 2 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.05 },
+          { "type": "stat_multiplier", "stat": "breakPower", "value": 0.08 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "leg",
+    "name": "Leg",
+    "bonuses": [
+      { "stat": "speed", "effectPerLevel": 0.01 }
+    ],
+    "branches": [
+      {
+        "id": "wind_step_leg",
+        "name": "Wind Step Leg",
+        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "speed", "value": 0.06 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sword",
+    "name": "Sword",
+    "bonuses": [
+      { "stat": "outerAttack", "effectPerLevel": 0.006 },
+      { "stat": "innerAttack", "effectPerLevel": 0.006 }
+    ],
+    "branches": [
+      {
+        "id": "white_crane_sword",
+        "name": "White Crane Sword",
+        "unlock": { "type": "hero_level", "heroId": "white_crane_swordsman", "level": 3 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.03 },
+          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.03 },
+          { "type": "stat_multiplier", "stat": "speed", "value": 0.03 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "blade",
+    "name": "Blade",
+    "bonuses": [
+      { "stat": "outerAttack", "effectPerLevel": 0.008 },
+      { "stat": "outerDefense", "effectPerLevel": 0.004 }
+    ],
+    "branches": [
+      {
+        "id": "black_iron_blade",
+        "name": "Black Iron Blade",
+        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.04 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "staff",
+    "name": "Staff",
+    "bonuses": [
+      { "stat": "maxOuterHp", "effectPerLevel": 0.008 },
+      { "stat": "outerDefense", "effectPerLevel": 0.008 }
+    ],
+    "branches": [
+      {
+        "id": "mountain_guard_staff",
+        "name": "Mountain Guard Staff",
+        "unlock": { "type": "hero_level", "heroId": "mountain_staff_guardian", "level": 3 },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.06 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "hidden_weapons",
+    "name": "Hidden Weapons",
+    "bonuses": [
+      { "stat": "innerAttack", "effectPerLevel": 0.006 },
+      { "stat": "speed", "effectPerLevel": 0.006 }
+    ],
+    "branches": [
+      {
+        "id": "rain_needle_art",
+        "name": "Rain Needle Art",
+        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "hiddenInMvp": false,
+        "effects": [
+          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "speed", "value": 0.04 }
+        ]
+      }
+    ]
+  }
+]

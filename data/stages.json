@@ -4,7 +4,10 @@
     "regionId": "bamboo_road",
     "index": 1,
     "name": "Bamboo Road 1",
-    "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
+    "enemyTeam": {
+      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 10, "cultivation": 5, "combatExperience": 5 },
@@ -15,10 +18,14 @@
     "regionId": "bamboo_road",
     "index": 2,
     "name": "Bamboo Road 2",
-    "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
+    "enemyTeam": {
+      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 12, "cultivation": 6, "combatExperience": 5 },
+    "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 5 },
+    "equipmentDrops": [{ "equipmentId": "training_wraps", "quantity": 1 }],
     "nextStageId": "bamboo_road_3"
   },
   {
@@ -26,10 +33,13 @@
     "regionId": "bamboo_road",
     "index": 3,
     "name": "Bamboo Road 3",
-    "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
+    "enemyTeam": {
+      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 6 },
+    "rewards": { "silver": 18, "cultivation": 9, "combatExperience": 6 },
     "nextStageId": "bamboo_road_4"
   },
   {
@@ -37,10 +47,13 @@
     "regionId": "bamboo_road",
     "index": 4,
     "name": "Bamboo Road 4",
-    "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
+    "enemyTeam": {
+      "combatantIds": ["bamboo_bandit", "bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 16, "cultivation": 8, "combatExperience": 6 },
+    "rewards": { "silver": 22, "cultivation": 11, "combatExperience": 6 },
     "nextStageId": "bamboo_road_5"
   },
   {
@@ -48,10 +61,14 @@
     "regionId": "bamboo_road",
     "index": 5,
     "name": "Bamboo Road 5",
-    "enemyTeam": { "combatantIds": ["mist_palm_thug"] },
+    "enemyTeam": {
+      "combatantIds": ["mist_palm_thug", "bamboo_bandit"],
+      "formation": { "front": [1], "middle": [0], "back": [] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 20, "cultivation": 10, "combatExperience": 20 },
+    "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
+    "equipmentDrops": [{ "equipmentId": "willow_palm_manual", "quantity": 1 }],
     "nextStageId": "bamboo_road_6"
   },
   {
@@ -59,10 +76,13 @@
     "regionId": "bamboo_road",
     "index": 6,
     "name": "Bamboo Road 6",
-    "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
+    "enemyTeam": {
+      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 23, "cultivation": 11, "combatExperience": 8 },
+    "rewards": { "silver": 30, "cultivation": 15, "combatExperience": 8 },
     "nextStageId": "bamboo_road_7"
   },
   {
@@ -70,10 +90,13 @@
     "regionId": "bamboo_road",
     "index": 7,
     "name": "Bamboo Road 7",
-    "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
+    "enemyTeam": {
+      "combatantIds": ["bamboo_bandit", "bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 26, "cultivation": 13, "combatExperience": 8 },
+    "rewards": { "silver": 36, "cultivation": 18, "combatExperience": 8 },
     "nextStageId": "bamboo_road_8"
   },
   {
@@ -81,10 +104,14 @@
     "regionId": "bamboo_road",
     "index": 8,
     "name": "Bamboo Road 8",
-    "enemyTeam": { "combatantIds": ["mist_palm_thug"] },
+    "enemyTeam": {
+      "combatantIds": ["mist_palm_thug", "bamboo_bandit"],
+      "formation": { "front": [1], "middle": [0], "back": [] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
+    "rewards": { "silver": 44, "cultivation": 22, "combatExperience": 20 },
+    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
     "nextStageId": "bamboo_road_9"
   },
   {
@@ -92,10 +119,13 @@
     "regionId": "bamboo_road",
     "index": 9,
     "name": "Bamboo Road 9",
-    "enemyTeam": { "combatantIds": ["bamboo_bandit"] },
+    "enemyTeam": {
+      "combatantIds": ["mist_palm_thug", "bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [1], "middle": [0], "back": [2] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 38, "cultivation": 19, "combatExperience": 10 },
+    "rewards": { "silver": 52, "cultivation": 26, "combatExperience": 10 },
     "nextStageId": "bamboo_road_10"
   },
   {
@@ -103,95 +133,322 @@
     "regionId": "bamboo_road",
     "index": 10,
     "name": "Black Iron Guard",
-    "enemyTeam": { "combatantIds": ["black_iron_guard"] },
+    "enemyTeam": {
+      "combatantIds": ["black_iron_guard", "bamboo_bandit", "bamboo_bandit"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
     "isBoss": true,
     "canFarmOffline": false,
-    "rewards": { "silver": 120, "cultivation": 60, "combatExperience": 100 },
-    "nextStageId": "demon_cult_outpost_1"
+    "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 100 },
+    "equipmentDrops": [{ "equipmentId": "guardian_staff", "quantity": 1 }],
+    "nextStageId": null
   },
   {
-    "id": "demon_cult_outpost_1",
-    "regionId": "demon_cult_outpost",
+    "id": "mist_valley_1",
+    "regionId": "mist_valley",
     "index": 1,
-    "name": "Red Sash Gate",
-    "enemyTeam": { "combatantIds": ["red_sash_blade", "blood_candle_acolyte"] },
+    "name": "Mist Valley Gate",
+    "enemyTeam": {
+      "combatantIds": ["mist_valley_acolyte", "mist_valley_acolyte"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 150, "cultivation": 75, "combatExperience": 120 },
-    "nextStageId": "demon_cult_outpost_2"
+    "rewards": { "silver": 66, "cultivation": 34, "combatExperience": 24 },
+    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
+    "nextStageId": "mist_valley_2"
   },
   {
-    "id": "demon_cult_outpost_2",
-    "regionId": "demon_cult_outpost",
+    "id": "mist_valley_2",
+    "regionId": "mist_valley",
     "index": 2,
-    "name": "Ash Vial Yard",
-    "enemyTeam": { "combatantIds": ["ash_vial_rogue", "red_sash_blade"] },
+    "name": "Reed Fog Ambush",
+    "enemyTeam": {
+      "combatantIds": ["mist_valley_acolyte", "veilstep_needler"],
+      "formation": { "front": [0], "middle": [], "back": [1] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 172, "cultivation": 86, "combatExperience": 130 },
-    "nextStageId": "demon_cult_outpost_3"
+    "rewards": { "silver": 78, "cultivation": 40, "combatExperience": 26 },
+    "nextStageId": "mist_valley_3"
   },
   {
-    "id": "demon_cult_outpost_3",
-    "regionId": "demon_cult_outpost",
+    "id": "mist_valley_3",
+    "regionId": "mist_valley",
     "index": 3,
-    "name": "Hex Seal Altar",
-    "enemyTeam": { "combatantIds": ["hex_seal_adept", "blood_candle_acolyte"] },
+    "name": "Clouded Meridian Path",
+    "enemyTeam": {
+      "combatantIds": ["fog_staff_ward", "mist_valley_acolyte", "mist_valley_acolyte"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 198, "cultivation": 99, "combatExperience": 145 },
-    "nextStageId": "demon_cult_outpost_4"
+    "rewards": { "silver": 92, "cultivation": 46, "combatExperience": 28 },
+    "equipmentDrops": [{ "equipmentId": "woven_travel_robe", "quantity": 1 }],
+    "nextStageId": "mist_valley_4"
   },
   {
-    "id": "demon_cult_outpost_4",
-    "regionId": "demon_cult_outpost",
+    "id": "mist_valley_4",
+    "regionId": "mist_valley",
     "index": 4,
-    "name": "Burning Blood Hall",
+    "name": "Needle Rain Crossing",
     "enemyTeam": {
-      "combatantIds": ["red_sash_blade", "hex_seal_adept", "ash_vial_rogue"]
+      "combatantIds": ["mist_valley_acolyte", "veilstep_needler", "veilstep_needler"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 230, "cultivation": 115, "combatExperience": 165 },
-    "nextStageId": "demon_cult_outpost_5"
+    "rewards": { "silver": 116, "cultivation": 58, "combatExperience": 34 },
+    "equipmentDrops": [{ "equipmentId": "mist_needle_case", "quantity": 1 }],
+    "nextStageId": "mist_valley_5"
   },
   {
-    "id": "demon_cult_outpost_5",
-    "regionId": "demon_cult_outpost",
+    "id": "mist_valley_5",
+    "regionId": "mist_valley",
     "index": 5,
-    "name": "Candle Scripture Vault",
+    "name": "Veil Palm Shrine",
     "enemyTeam": {
-      "combatantIds": ["blood_candle_acolyte", "demon_banner_guard"]
+      "combatantIds": ["fog_staff_ward", "mist_palm_adept"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
-    "rewards": { "silver": 268, "cultivation": 134, "combatExperience": 190 },
-    "nextStageId": "demon_cult_outpost_6"
+    "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 40 },
+    "equipmentDrops": [{ "equipmentId": "veil_palm_manual", "quantity": 1 }],
+    "nextStageId": "mist_valley_6"
   },
   {
-    "id": "demon_cult_outpost_6",
-    "regionId": "demon_cult_outpost",
+    "id": "mist_valley_6",
+    "regionId": "mist_valley",
     "index": 6,
-    "name": "Outpost Inner Court",
+    "name": "Mist Valley Elder",
     "enemyTeam": {
-      "combatantIds": ["ash_vial_rogue", "hex_seal_adept", "demon_banner_guard"]
-    },
-    "isBoss": false,
-    "canFarmOffline": true,
-    "rewards": { "silver": 312, "cultivation": 156, "combatExperience": 220 },
-    "nextStageId": "demon_cult_outpost_7"
-  },
-  {
-    "id": "demon_cult_outpost_7",
-    "regionId": "demon_cult_outpost",
-    "index": 7,
-    "name": "Demon Banner Captain",
-    "enemyTeam": {
-      "combatantIds": ["demon_banner_captain", "hex_seal_adept", "red_sash_blade"]
+      "combatantIds": ["fog_staff_ward", "mist_valley_elder", "veilstep_needler"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": true,
     "canFarmOffline": false,
-    "rewards": { "silver": 760, "cultivation": 380, "combatExperience": 480 },
+    "rewards": { "silver": 340, "cultivation": 170, "combatExperience": 160 },
+    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "nextStageId": null
+  },
+  {
+    "id": "black_iron_fort_1",
+    "regionId": "black_iron_fort",
+    "index": 1,
+    "name": "Black Iron Gate",
+    "enemyTeam": {
+      "combatantIds": ["iron_fort_sentry", "shieldwall_guard"],
+      "formation": { "front": [1], "middle": [0], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 170, "cultivation": 86, "combatExperience": 46 },
+    "nextStageId": "black_iron_fort_2"
+  },
+  {
+    "id": "black_iron_fort_2",
+    "regionId": "black_iron_fort",
+    "index": 2,
+    "name": "Shieldwall Yard",
+    "enemyTeam": {
+      "combatantIds": ["shieldwall_guard", "iron_fort_sentry", "iron_fort_sentry"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 192, "cultivation": 96, "combatExperience": 48 },
+    "nextStageId": "black_iron_fort_3"
+  },
+  {
+    "id": "black_iron_fort_3",
+    "regionId": "black_iron_fort",
+    "index": 3,
+    "name": "Hook Chain Foundry",
+    "enemyTeam": {
+      "combatantIds": ["forge_chain_hook", "shieldwall_guard", "iron_fort_sentry"],
+      "formation": { "front": [1], "middle": [0], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 220, "cultivation": 110, "combatExperience": 54 },
+    "nextStageId": "black_iron_fort_4"
+  },
+  {
+    "id": "black_iron_fort_4",
+    "regionId": "black_iron_fort",
+    "index": 4,
+    "name": "Saber Drill Hall",
+    "enemyTeam": {
+      "combatantIds": ["black_iron_saber", "shieldwall_guard"],
+      "formation": { "front": [1], "middle": [0], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 252, "cultivation": 126, "combatExperience": 64 },
+    "equipmentDrops": [{ "equipmentId": "black_iron_saber_blade", "quantity": 1 }],
+    "nextStageId": "black_iron_fort_5"
+  },
+  {
+    "id": "black_iron_fort_5",
+    "regionId": "black_iron_fort",
+    "index": 5,
+    "name": "Iron Armor Barracks",
+    "enemyTeam": {
+      "combatantIds": ["iron_armor_captain", "iron_fort_sentry"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 292, "cultivation": 146, "combatExperience": 78 },
+    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "nextStageId": "black_iron_fort_6"
+  },
+  {
+    "id": "black_iron_fort_6",
+    "regionId": "black_iron_fort",
+    "index": 6,
+    "name": "Black Forge Approach",
+    "enemyTeam": {
+      "combatantIds": ["iron_armor_captain", "black_iron_saber"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 336, "cultivation": 168, "combatExperience": 88 },
+    "equipmentDrops": [
+      { "equipmentId": "fortress_guard_manual", "quantity": 1 },
+      { "equipmentId": "tempered_meridian_pill", "quantity": 1 }
+    ],
+    "nextStageId": "black_iron_fort_7"
+  },
+  {
+    "id": "black_iron_fort_7",
+    "regionId": "black_iron_fort",
+    "index": 7,
+    "name": "Black Fort Commander",
+    "enemyTeam": {
+      "combatantIds": ["iron_armor_captain", "black_fort_commander", "black_iron_saber"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": true,
+    "canFarmOffline": false,
+    "rewards": { "silver": 720, "cultivation": 360, "combatExperience": 260 },
+    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "nextStageId": null
+  },
+  {
+    "id": "lotus_monastery_1",
+    "regionId": "lotus_monastery",
+    "index": 1,
+    "name": "Lotus Monastery Gate",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_outer_disciple", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 390, "cultivation": 196, "herbs": 6, "combatExperience": 96 },
+    "equipmentDrops": [{ "equipmentId": "lotus_dew_pill", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_2"
+  },
+  {
+    "id": "lotus_monastery_2",
+    "regionId": "lotus_monastery",
+    "index": 2,
+    "name": "Incense Recovery Hall",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_outer_disciple"],
+      "formation": { "front": [0], "middle": [2], "back": [1] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 440, "cultivation": 220, "herbs": 8, "combatExperience": 102 },
+    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_3"
+  },
+  {
+    "id": "lotus_monastery_3",
+    "regionId": "lotus_monastery",
+    "index": 3,
+    "name": "Jade Needle Cloister",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "jade_needle_sister", "lotus_outer_disciple", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1, 2], "back": [3] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 500, "cultivation": 250, "herbs": 10, "combatExperience": 112 },
+    "equipmentDrops": [
+      { "equipmentId": "mist_needle_case", "quantity": 1 },
+      { "equipmentId": "lotus_dew_pill", "quantity": 1 }
+    ],
+    "nextStageId": "lotus_monastery_4"
+  },
+  {
+    "id": "lotus_monastery_4",
+    "regionId": "lotus_monastery",
+    "index": 4,
+    "name": "Blooming Sword Walk",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 570, "cultivation": 286, "herbs": 12, "combatExperience": 126 },
+    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_5"
+  },
+  {
+    "id": "lotus_monastery_5",
+    "regionId": "lotus_monastery",
+    "index": 5,
+    "name": "Tranquil Meridian Garden",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 650, "cultivation": 326, "herbs": 16, "combatExperience": 140 },
+    "equipmentDrops": [
+      { "equipmentId": "veil_palm_manual", "quantity": 1 },
+      { "equipmentId": "mending_poultice", "quantity": 1 }
+    ],
+    "nextStageId": "lotus_monastery_6"
+  },
+  {
+    "id": "lotus_monastery_6",
+    "regionId": "lotus_monastery",
+    "index": 6,
+    "name": "Lotus Abbot Approach",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "jade_needle_sister"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": false,
+    "canFarmOffline": true,
+    "rewards": { "silver": 740, "cultivation": 370, "herbs": 20, "combatExperience": 158 },
+    "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
+    "nextStageId": "lotus_monastery_7"
+  },
+  {
+    "id": "lotus_monastery_7",
+    "regionId": "lotus_monastery",
+    "index": 7,
+    "name": "Lotus Abbot",
+    "enemyTeam": {
+      "combatantIds": ["lotus_staff_keeper", "lotus_abbot", "lotus_mender"],
+      "formation": { "front": [0], "middle": [1], "back": [2] }
+    },
+    "isBoss": true,
+    "canFarmOffline": false,
+    "rewards": { "silver": 1500, "cultivation": 750, "herbs": 40, "combatExperience": 420 },
+    "equipmentDrops": [
+      { "equipmentId": "tempered_meridian_pill", "quantity": 1 },
+      { "equipmentId": "mending_poultice", "quantity": 1 }
+    ],
     "nextStageId": null
   }
 ]

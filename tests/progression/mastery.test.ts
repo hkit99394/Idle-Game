@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { getNextMasteryThreshold, getReachedMasteryThresholds } from "../../core";
+import {
+  getEnemyFamilyDamageMultiplier,
+  getMapAttackMultiplier,
+  getMapRewardMultiplier,
+  getNextMasteryThreshold,
+  getReachedMasteryRanks,
+  getReachedMasteryThresholds
+} from "../../core";
 import type { MasteryDefinition } from "../../core";
 import mastery from "../../data/mastery.json" with { type: "json" };
 
@@ -18,5 +25,16 @@ describe("map mastery", () => {
   it("returns the next threshold", () => {
     expect(getNextMasteryThreshold(0, masteryData.thresholds)?.rank).toBe("familiar");
     expect(getNextMasteryThreshold(3000, masteryData.thresholds)).toBeNull();
+  });
+
+  it("returns ranks and typed mastery multipliers", () => {
+    expect(getReachedMasteryRanks(3000, masteryData.thresholds)).toEqual([
+      "familiar",
+      "trained",
+      "mastered"
+    ]);
+    expect(getMapAttackMultiplier(100, masteryData.thresholds)).toBeCloseTo(0.01);
+    expect(getMapRewardMultiplier(500, masteryData.thresholds)).toBeCloseTo(0.02);
+    expect(getEnemyFamilyDamageMultiplier(3000, masteryData.thresholds)).toBeCloseTo(0.03);
   });
 });
