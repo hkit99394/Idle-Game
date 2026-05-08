@@ -57,6 +57,9 @@ function combatant(input: {
     protection: null,
     armorBreak: null,
     wound: null,
+    speedDown: null,
+    innerDefenseDown: null,
+    activeStatuses: [],
     regeneration: null,
     defeatedAt: null
   };

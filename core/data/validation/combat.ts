@@ -1,4 +1,5 @@
 import type { EnemyDefinition, HeroDefinition, MedicineDefinition, SkillDefinition, StatusEffectDefinition } from "../types";
+import { SKILL_EFFECT_TYPES } from "../types";
 import { TARGET_RULES, isTargetRule } from "../../combat";
 import { validateStats } from "./shared";
 
@@ -30,20 +31,6 @@ const medicineEffectTypes = new Set([
   "status_resistance_bonus"
 ]);
 
-const SKILL_EFFECT_TYPES = [
-  "outer_heal_percent",
-  "inner_heal_percent",
-  "outer_regeneration_percent",
-  "inner_regeneration_percent",
-  "wound",
-  "cleanse",
-  "speed_down",
-  "inner_defense_down",
-  "guard",
-  "protect",
-  "armor_break",
-  "apply_status"
-] as const;
 const SKILL_EFFECT_TARGETS = [
   "self",
   "target",

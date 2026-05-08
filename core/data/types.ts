@@ -16,19 +16,22 @@ export type UnlockCondition =
   | { type: "hero_level"; heroId: string; level: number }
   | { type: "style_mastery_level"; styleId: MartialStyleId; level: number };
 
-export type SkillEffectType =
-  | "outer_heal_percent"
-  | "inner_heal_percent"
-  | "outer_regeneration_percent"
-  | "inner_regeneration_percent"
-  | "wound"
-  | "cleanse"
-  | "speed_down"
-  | "inner_defense_down"
-  | "guard"
-  | "protect"
-  | "armor_break"
-  | "apply_status";
+export const SKILL_EFFECT_TYPES = [
+  "outer_heal_percent",
+  "inner_heal_percent",
+  "outer_regeneration_percent",
+  "inner_regeneration_percent",
+  "wound",
+  "cleanse",
+  "speed_down",
+  "inner_defense_down",
+  "guard",
+  "protect",
+  "armor_break",
+  "apply_status"
+] as const;
+
+export type SkillEffectType = (typeof SKILL_EFFECT_TYPES)[number];
 
 export type SkillEffectTarget =
   | "self"

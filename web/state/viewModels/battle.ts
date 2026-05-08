@@ -199,6 +199,10 @@ function getSkillName(data: StaticGameData, skillId: string): string {
   return data.skills.find((skill) => skill.id === skillId)?.name ?? skillId;
 }
 
+function getStatusName(data: StaticGameData, statusId: string): string {
+  return data.statusEffects.find((status) => status.id === statusId)?.name ?? statusId;
+}
+
 function formatAttackDetail(
   data: StaticGameData,
   event: Extract<BattleEvent, { type: "attack" }>
@@ -488,6 +492,114 @@ function buildBattleEventDetail(
       };
     }
 
+    case "speed_down": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "speed_down",
+        headline: `${source} slows ${target}`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces speed by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Speed Down",
+            tone: "danger"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} speed`,
+            tone: "danger"
+          }
+        ]
+      };
+    }
+
+    case "inner_defense_down": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+
+      return {
+        category: "inner_defense_down",
+        headline: `${source} weakens ${target}'s Inner Defense`,
+        detail:
+          `${getSkillName(data, event.skillId)} reduces Inner Defense by ` +
+          `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
+        badges: [
+          {
+            label: "Inner Defense Down",
+            tone: "danger"
+          },
+          {
+            label: `${formatBattlePercent(event.reduction)} defense`,
+            tone: "inner"
+          }
+        ]
+      };
+    }
+
+    case "status_apply": {
+      const source = getName(names, event.sourceId);
+      const target = getName(names, event.targetId);
+      const statusName = getStatusName(data, event.statusId);
+
+      return {
+        category: "status_apply",
+        headline: `${source} applies ${statusName} to ${target}`,
+        detail:
+          `${getSkillName(data, event.skillId)} applies ${event.stacks} stack(s) for ` +
+          `${formatBattleSeconds(event.durationSeconds)}`,
+        badges: [
+          {
+            label: statusName,
+            tone: "danger"
+          },
+          {
+            label: `${formatBattlePercent(event.chance)} chance`,
+            tone: "neutral"
+          }
+        ]
+      };
+    }
+
+    case "status_tick": {
+      const target = getName(names, event.targetId);
+      const statusName = getStatusName(data, event.statusId);
+
+      return {
+        category: "status_tick",
+        headline: `${target} suffers ${statusName}`,
+        detail: `${formatBattleNumber(event.outerDamage)} Outer damage from ${statusName}`,
+        badges: [
+          {
+            label: statusName,
+            tone: "danger"
+          },
+          {
+            label: `${formatBattleNumber(event.outerDamage)} Outer HP`,
+            tone: "outer"
+          }
+        ]
+      };
+    }
+
+    case "status_expire": {
+      const target = getName(names, event.targetId);
+      const statusName = getStatusName(data, event.statusId);
+
+      return {
+        category: "status_expire",
+        headline: `${statusName} fades from ${target}`,
+        detail: `${target} is no longer affected by ${statusName}`,
+        badges: [
+          {
+            label: statusName,
+            tone: "neutral"
+          }
+        ]
+      };
+    }
+
     case "regeneration": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
@@ -563,7 +675,13 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
       const statuses = event.statusesRemoved
         .map((status) =>
-          status === "armor_break" ? "Armor Break" : "Wound"
+          status === "armor_break"
+            ? "Armor Break"
+            : status === "speed_down"
+              ? "Speed Down"
+              : status === "inner_defense_down"
+                ? "Inner Defense Down"
+                : "Wound"
         )
         .join(", ");
 

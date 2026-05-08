@@ -200,9 +200,15 @@ export type StatusEffectId =
   | "protection"
   | "armor_break"
   | "wound"
+  | "speed_down"
+  | "inner_defense_down"
   | "regeneration";
 
-export type CleanseableStatusEffectId = "wound" | "armor_break";
+export type CleanseableStatusEffectId =
+  | "wound"
+  | "armor_break"
+  | "speed_down"
+  | "inner_defense_down";
 export type TimedCombatStatusEffectId = Exclude<StatusEffectId, "regeneration">;
 
 export type StatusEffectStackBehavior = "refresh";
@@ -269,6 +275,9 @@ export type CombatantState = {
   protection: TimedCombatEffect | null;
   armorBreak: TimedCombatEffect | null;
   wound: TimedCombatEffect | null;
+  speedDown: TimedCombatEffect | null;
+  innerDefenseDown: TimedCombatEffect | null;
+  activeStatuses: ActiveStatusEffect[];
   regeneration: TimedRecoveryEffect | null;
   defeatedAt: number | null;
 };
@@ -334,6 +343,53 @@ export type BattleEvent =
       statusId: "wound";
       reduction: number;
       endsAt: number;
+    }
+  | {
+      type: "speed_down";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      statusId: "speed_down";
+      reduction: number;
+      endsAt: number;
+    }
+  | {
+      type: "inner_defense_down";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      statusId: "inner_defense_down";
+      reduction: number;
+      endsAt: number;
+    }
+  | {
+      type: "status_apply";
+      time: number;
+      sourceId: string;
+      targetId: string;
+      skillId: string;
+      statusId: string;
+      stacks: number;
+      durationSeconds: number;
+      chance: number;
+      refreshed: boolean;
+    }
+  | {
+      type: "status_tick";
+      time: number;
+      sourceId?: string;
+      targetId: string;
+      statusId: string;
+      stacks: number;
+      outerDamage: number;
+    }
+  | {
+      type: "status_expire";
+      time: number;
+      targetId: string;
+      statusId: string;
     }
   | {
       type: "regeneration";

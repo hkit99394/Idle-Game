@@ -33,14 +33,21 @@ export function getEffectiveTargetStats(
     time,
     clampDefensiveEffectValue
   );
+  const innerDefenseDown = getActiveStatusEffectValue(
+    target,
+    "inner_defense_down",
+    time,
+    clampDefensiveEffectValue
+  );
 
-  if (armorBreak <= 0) {
+  if (armorBreak <= 0 && innerDefenseDown <= 0) {
     return target.stats;
   }
 
   return {
     ...target.stats,
-    outerDefense: target.stats.outerDefense * (1 - armorBreak)
+    outerDefense: target.stats.outerDefense * (1 - armorBreak),
+    innerDefense: target.stats.innerDefense * (1 - innerDefenseDown)
   };
 }
 

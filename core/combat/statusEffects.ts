@@ -42,12 +42,16 @@ export const STATUS_EFFECT_IDS = [
   "protection",
   "armor_break",
   "wound",
+  "speed_down",
+  "inner_defense_down",
   "regeneration"
 ] as const satisfies readonly StatusEffectId[];
 
 export const CLEANSEABLE_STATUS_EFFECT_IDS = [
   "wound",
-  "armor_break"
+  "armor_break",
+  "speed_down",
+  "inner_defense_down"
 ] as const satisfies readonly CleanseableStatusEffectId[];
 
 const STATUS_FIELD_BY_ID = {
@@ -55,6 +59,8 @@ const STATUS_FIELD_BY_ID = {
   protection: "protection",
   armor_break: "armorBreak",
   wound: "wound",
+  speed_down: "speedDown",
+  inner_defense_down: "innerDefenseDown",
   regeneration: "regeneration"
 } as const satisfies Record<StatusEffectId, keyof CombatantState>;
 
@@ -359,6 +365,10 @@ export function getStatusEffect(
       return combatant.armorBreak;
     case "wound":
       return combatant.wound;
+    case "speed_down":
+      return combatant.speedDown;
+    case "inner_defense_down":
+      return combatant.innerDefenseDown;
     case "regeneration":
       return combatant.regeneration;
   }
@@ -402,6 +412,12 @@ export function setStatusEffect(
     case "wound":
       combatant.wound = effect;
       break;
+    case "speed_down":
+      combatant.speedDown = effect;
+      break;
+    case "inner_defense_down":
+      combatant.innerDefenseDown = effect;
+      break;
     case "regeneration":
       combatant.regeneration = effect;
       break;
@@ -424,6 +440,12 @@ export function clearStatusEffect(
       break;
     case "wound":
       combatant.wound = null;
+      break;
+    case "speed_down":
+      combatant.speedDown = null;
+      break;
+    case "inner_defense_down":
+      combatant.innerDefenseDown = null;
       break;
     case "regeneration":
       combatant.regeneration = null;
@@ -478,15 +500,20 @@ export function clearCleanseableStatusEffects(
 
 export function getBattleEventStatusId(
   event: BattleEvent
-): StatusEffectId | null {
+): string | null {
   switch (event.type) {
     case "guard":
     case "guard_absorb":
     case "protect":
     case "armor_break":
     case "wound":
+    case "speed_down":
+    case "inner_defense_down":
     case "regeneration":
     case "regeneration_tick":
+    case "status_apply":
+    case "status_tick":
+    case "status_expire":
       return event.statusId;
     case "cleanse":
       return event.statusesRemoved[0] ?? null;

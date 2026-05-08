@@ -33,7 +33,6 @@ import type {
   SetAssignmentHeroesInput,
   SetAssignmentHeroesResult,
   StageCounterplayPreview,
-  StatusEffectId,
   StaticGameData
 } from "../../core";
 
@@ -183,6 +182,11 @@ export type BattleEventCategory =
   | "protect"
   | "heal"
   | "wound"
+  | "speed_down"
+  | "inner_defense_down"
+  | "status_apply"
+  | "status_tick"
+  | "status_expire"
   | "regeneration"
   | "regeneration_tick"
   | "cleanse"
@@ -204,7 +208,7 @@ export type BattleEventBadgeView = {
 export type BattleEventView = {
   id: string;
   category: BattleEventCategory;
-  statusId: StatusEffectId | null;
+  statusId: string | null;
   timeSeconds: number;
   timeLabel: string;
   headline: string;
