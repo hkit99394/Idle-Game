@@ -35,9 +35,9 @@ const staticData: StaticGameData = {
 };
 
 describe("Demon Cult Outpost content", () => {
-  it("connects after the Bamboo Road boss as a seven-stage region", () => {
-    const bambooBoss = staticData.stages.find(
-      (stage) => stage.id === "bamboo_road_10"
+  it("connects after the Lotus boss as a seven-stage region", () => {
+    const lotusBoss = staticData.stages.find(
+      (stage) => stage.id === "lotus_monastery_7"
     );
     const demonRegion = staticData.regions.find(
       (region) => region.id === "demon_cult_outpost"
@@ -46,11 +46,11 @@ describe("Demon Cult Outpost content", () => {
       (stage) => stage.regionId === "demon_cult_outpost"
     );
 
-    expect(bambooBoss?.nextStageId).toBe("demon_cult_outpost_1");
+    expect(lotusBoss?.nextStageId).toBe("demon_cult_outpost_1");
     expect(demonRegion).toMatchObject({
       unlockCondition: {
         type: "stage_cleared",
-        stageId: "bamboo_road_10"
+        stageId: "lotus_monastery_7"
       }
     });
     expect(demonRegion?.stageIds).toHaveLength(7);

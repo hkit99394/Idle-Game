@@ -401,5 +401,87 @@
         "target": "wounded_or_armor_broken_ally"
       }
     ]
+  },
+  {
+    "id": "miasma_palm",
+    "name": "Miasma Palm",
+    "cooldownSeconds": 4.4,
+    "outerMultiplier": 0.55,
+    "innerMultiplier": 1.2,
+    "targetRule": "first_living",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "poison",
+        "chance": 0.72,
+        "durationSeconds": 8,
+        "stacks": 1
+      }
+    ]
+  },
+  {
+    "id": "blood_brand_cut",
+    "name": "Blood Brand Cut",
+    "cooldownSeconds": 5.2,
+    "outerMultiplier": 1.05,
+    "innerMultiplier": 0.7,
+    "targetRule": "weakest_hp",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "wound",
+        "chance": 0.62,
+        "durationSeconds": 6,
+        "stacks": 1
+      }
+    ]
+  },
+  {
+    "id": "marrow_lock_hex",
+    "name": "Marrow Lock Hex",
+    "cooldownSeconds": 5.8,
+    "outerMultiplier": 0.35,
+    "innerMultiplier": 1.35,
+    "targetRule": "highest_cp",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "qi_suppression",
+        "chance": 0.68,
+        "durationSeconds": 6,
+        "stacks": 1
+      },
+      {
+        "type": "apply_status",
+        "statusId": "vulnerable",
+        "chance": 0.42,
+        "durationSeconds": 5,
+        "stacks": 1
+      }
+    ]
+  },
+  {
+    "id": "burning_blood_edict",
+    "name": "Burning Blood Edict",
+    "cooldownSeconds": 6.4,
+    "outerMultiplier": 0.9,
+    "innerMultiplier": 1.15,
+    "targetRule": "highest_cp",
+    "effects": [
+      {
+        "type": "apply_status",
+        "statusId": "burning_blood",
+        "chance": 0.64,
+        "durationSeconds": 5,
+        "stacks": 1
+      },
+      {
+        "type": "apply_status",
+        "statusId": "poison",
+        "chance": 0.52,
+        "durationSeconds": 8,
+        "stacks": 1
+      }
+    ]
   }
 ]

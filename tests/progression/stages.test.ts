@@ -41,12 +41,12 @@ const staticData: StaticGameData = {
 };
 
 describe("stage progression", () => {
-  it("unlocks Demon Cult Outpost only after the Bamboo Road boss is cleared", () => {
+  it("unlocks Demon Cult Outpost only after the Lotus boss is cleared", () => {
     const beforeBoss: RegionProgress = {
-      bamboo_road: { highestClearedStageIndex: 9 }
+      lotus_monastery: { highestClearedStageIndex: 6 }
     };
     const afterBoss: RegionProgress = {
-      bamboo_road: { highestClearedStageIndex: 10 }
+      lotus_monastery: { highestClearedStageIndex: 7 }
     };
 
     expect(
@@ -65,11 +65,11 @@ describe("stage progression", () => {
 
   it("gates later Demon Cult stages by highest cleared stage index", () => {
     const entryProgress: RegionProgress = {
-      bamboo_road: { highestClearedStageIndex: 10 },
+      lotus_monastery: { highestClearedStageIndex: 7 },
       demon_cult_outpost: { highestClearedStageIndex: 0 }
     };
     const stageOneClearedProgress: RegionProgress = {
-      bamboo_road: { highestClearedStageIndex: 10 },
+      lotus_monastery: { highestClearedStageIndex: 7 },
       demon_cult_outpost: { highestClearedStageIndex: 1 }
     };
 
@@ -83,7 +83,7 @@ describe("stage progression", () => {
 
   it("allows offline farming only for cleared non-boss farm stages", () => {
     const progress: RegionProgress = {
-      bamboo_road: { highestClearedStageIndex: 10 },
+      lotus_monastery: { highestClearedStageIndex: 7 },
       demon_cult_outpost: { highestClearedStageIndex: 6 }
     };
 

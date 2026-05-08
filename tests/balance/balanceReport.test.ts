@@ -154,6 +154,8 @@ describe("balance report", () => {
     const medicine = getScenario(report, "medicine");
     const combined = getScenario(report, "combined");
     const baselineDemonBoss = getDemonCultBoss(baseline);
+    const resistanceDemonBoss = getDemonCultBoss(resistance);
+    const medicineDemonBoss = getDemonCultBoss(medicine);
     const combinedDemonBoss = getDemonCultBoss(combined);
 
     expect(resistance.totals.statusApplications).toBeLessThan(
@@ -166,6 +168,8 @@ describe("balance report", () => {
       baseline.totals.statusDurationSeconds
     );
     expect(baselineDemonBoss.result).toBe("enemy_hold");
+    expect(resistanceDemonBoss.rating).toBe("fail");
+    expect(medicineDemonBoss.rating).toBe("fail");
     expect(combinedDemonBoss.survivalRatio).toBeGreaterThan(
       baselineDemonBoss.survivalRatio
     );
@@ -175,6 +179,55 @@ describe("balance report", () => {
       intendedScenarioId: "combined",
       pass: true
     });
+    expect(report.demonCultBossGate?.criteria).toMatchObject({
+      intendedNearSurvivalRatio: 0.9,
+      preferredClearTimeSeconds: {
+        min: 90,
+        max: 120
+      },
+      acceptableClearTimeSeconds: {
+        min: 80,
+        max: 140
+      }
+    });
+    expect(report.demonCultBossGate?.estimatedClearTimeSeconds).toBeGreaterThanOrEqual(80);
+    expect(report.demonCultBossGate?.estimatedClearTimeSeconds).toBeLessThanOrEqual(140);
+    expect(report.demonCultBossGate?.medicineConsumed).toBeLessThanOrEqual(4);
+    expect(report.demonCultBossGate?.statusDamage).toBeLessThanOrEqual(600);
+    expect(report.demonCultBossGate?.reasons).toEqual(
+      expect.arrayContaining([
+        "baseline remains blocked",
+        expect.stringContaining("combined survival ratio"),
+        expect.stringContaining("combined clear time"),
+        expect.stringContaining("medicine use"),
+        expect.stringContaining("status damage")
+      ])
+    );
+  });
+
+  it("flags Demon Cult boss clear time outside the acceptable tuning band", () => {
+    const slowData: StaticGameData = {
+      ...staticData,
+      enemies: staticData.enemies.map((enemy) =>
+        enemy.id === "demon_cult_overseer"
+          ? {
+              ...enemy,
+              baseStats: {
+                ...enemy.baseStats,
+                maxOuterHp: enemy.baseStats.maxOuterHp * 1.4,
+                outerAttack: enemy.baseStats.outerAttack * 0.4,
+                innerAttack: enemy.baseStats.innerAttack * 0.4
+              }
+            }
+          : enemy
+      )
+    };
+    const report = buildBalanceReport(slowData);
+
+    expect(report.demonCultBossGate?.pass).toBe(false);
+    expect(report.demonCultBossGate?.failureReason).toContain(
+      "combined clear time"
+    );
   });
 
   it("fails loudly when required scenario presets are missing", () => {

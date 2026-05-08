@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.6 is in progress. Epics 37-41 are complete; Epic 42 remains.
+Stage 1.6 implementation is complete. Epics 37-42 are completed and ready for review.
 
 The recommended theme is **Lotus Support And Medicine Control**. Stage 1.5 proved that status resistance, automatic medicine, scenario balance gates, and Lotus/support identity can carry Demon Cult counterplay without adding a new production hero. Stage 1.6 should make that counterplay visible, configurable, and trustworthy in the web UI.
 
@@ -29,7 +29,7 @@ boss gate pass: player clears, or simulator reports near-clear with survival rat
 
 Why this target:
 
-- Current support-decision output estimates the boss clear time around 100 seconds, which is already in the target band.
+- Current balance output estimates the intended combined boss clear time at about 132 seconds, which is inside the acceptable band; Lotus support pushes the support-decision option to a full clear.
 - A 90-120 second boss gives status pressure enough time to matter without making an idle-map boss feel stalled.
 - The current report still treats combined counterplay as near-clear, so Stage 1.6 should tune survival ratio upward before forcing a full-clear requirement.
 
@@ -46,7 +46,7 @@ Why this target:
 
 - No PvP.
 - No account backend or cloud save.
-- No new full region.
+- No additional full region beyond the Stage 1.6 Demon Cult Outpost gate.
 - No production anti-Demon Cult hero.
 - No random affix crafting.
 - No full manual equipment system unless a Lotus purity manual is implemented as a simple deterministic upgrade.
@@ -70,7 +70,7 @@ Why this target:
 | 39 | Pre-Battle Resistance Policy | Completed | Make resistance medicine consumption mode configurable |
 | 40 | Counterplay Settings Panel | Completed | Add compact UI controls for medicine automation |
 | 41 | Lotus Purity Support Growth | Completed | Make support identity visible without adding a new hero |
-| 42 | Demon Cult Boss Tuning Gates | Not Started | Tune intended counterplay toward the target boss window |
+| 42 | Demon Cult Boss Tuning Gates | Completed | Tune intended counterplay toward the target boss window |
 
 ---
 
@@ -304,9 +304,18 @@ Possible deterministic growth hooks:
 
 ## Epic 42: Demon Cult Boss Tuning Gates
 
+**Status:** Completed.
+
 ### Goal
 
 Tune the Demon Cult boss so intended combined counterplay feels like a hard but fair gate.
+
+### Implementation Notes
+
+- Added production Demon Cult Outpost stage, enemy, and status-skill data for the existing medicine unlock path.
+- Balance report now gates Demon Cult with baseline block, combined survival ratio, clear-time band, medicine use, and status damage checks.
+- Tuned the Demon Cult Overseer gate so baseline, resistance-only, and medicine-only remain blocked while combined counterplay reaches the near-clear gate.
+- Support-decision output now uses production Demon Cult data instead of prototype content when the region exists.
 
 ### Tasks
 
@@ -341,7 +350,7 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 3. Epic 39: Pre-Battle Resistance Policy.
 4. Epic 40: Counterplay Settings Panel.
 5. Epic 41: Lotus Purity Support Growth. Completed.
-6. Epic 42: Demon Cult Boss Tuning Gates.
+6. Epic 42: Demon Cult Boss Tuning Gates. Completed.
 
 ## Open Questions Before Implementation
 
@@ -356,8 +365,8 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 - [x] Per-medicine auto toggles implemented and persisted.
 - [x] Pre-battle resistance policy modes implemented.
 - [x] Counterplay settings panel added and mobile-safe.
-- [ ] Lotus/support contribution visible in UI and simulator.
-- [ ] Demon Cult boss tuning criteria updated.
-- [ ] `npm test`, `npm run build`, `npm run simulate`, and `npm run support-decision` pass.
+- [x] Lotus/support contribution visible in UI and simulator.
+- [x] Demon Cult boss tuning criteria updated.
+- [x] `npm test`, `npm run build`, `npm run simulate`, and `npm run support-decision` pass.
 - [ ] Stage 1.6 backlog reviewed.
 - [ ] Stage 1.6 backlog moved to archive after completion.

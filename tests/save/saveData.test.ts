@@ -56,10 +56,9 @@ describe("save data", () => {
     const save = createInitialSaveData(staticData, 1000);
 
     expect(save.version).toBe(SAVE_DATA_VERSION);
-    expect(Object.keys(save.progress.maps).sort()).toEqual([
-      "bamboo_road",
-      "demon_cult_outpost"
-    ]);
+    expect(Object.keys(save.progress.maps).sort()).toEqual(
+      staticData.regions.map((region) => region.id).sort()
+    );
     expect(save.progress.medicineInventory).toEqual({});
     expect(save.autoMedicinePreferences).toEqual({
       enabled: true,
@@ -264,9 +263,9 @@ describe("save data", () => {
     expect(firstApply.summary).toMatchObject({
       stageId: "demon_cult_outpost_6",
       clears: 6,
-      silver: 1872,
-      cultivation: 936,
-      combatExperience: 1320
+      silver: 9720,
+      cultivation: 4860,
+      combatExperience: 1836
     });
     expect(firstApply.save.lastOfflineRewardAtMs).toBe(60_000);
     expect(firstApply.save.updatedAtMs).toBe(60_000);
