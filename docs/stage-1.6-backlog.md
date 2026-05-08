@@ -68,7 +68,7 @@ Why this target:
 | 37 | Auto Medicine Unlock Rules | Completed | Unlock auto medicine when medicine becomes available |
 | 38 | Per-Medicine Auto Policy | Completed | Let players disable automatic use for each medicine type |
 | 39 | Pre-Battle Resistance Policy | Completed | Make resistance medicine consumption mode configurable |
-| 40 | Counterplay Settings Panel | Not Started | Add compact UI controls for medicine automation |
+| 40 | Counterplay Settings Panel | Completed | Add compact UI controls for medicine automation |
 | 41 | Lotus Purity Support Growth | Not Started | Make support identity visible without adding a new hero |
 | 42 | Demon Cult Boss Tuning Gates | Not Started | Tune intended counterplay toward the target boss window |
 
@@ -239,6 +239,14 @@ Add a small web UI settings panel so medicine automation feels intentional witho
 - Web smoke or component-level test covers toggling settings and reload persistence.
 - Mobile-safe text/layout is checked through existing frontend verification flow.
 
+### Progress Notes
+
+- Added live web-state storage for auto medicine preferences instead of only preserving previous save values.
+- Added a compact Counterplay settings panel with global auto medicine, per-medicine toggles, and pre-battle resistance mode selection.
+- Locked state now appears before the first medicine unlock and disables the controls.
+- Preference changes persist through save/reload/import, including disabled medicine ids and resistance mode.
+- Added responsive CSS for one-column mobile layout and compact medicine rows.
+
 ---
 
 ## Epic 41: Lotus Purity Support Growth
@@ -336,7 +344,7 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 - [x] Auto medicine unlocks after first medicine availability.
 - [x] Per-medicine auto toggles implemented and persisted.
 - [x] Pre-battle resistance policy modes implemented.
-- [ ] Counterplay settings panel added and mobile-safe.
+- [x] Counterplay settings panel added and mobile-safe.
 - [ ] Lotus/support contribution visible in UI and simulator.
 - [ ] Demon Cult boss tuning criteria updated.
 - [ ] `npm test`, `npm run build`, `npm run simulate`, and `npm run support-decision` pass.

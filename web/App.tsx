@@ -2,7 +2,11 @@ import { Component, useEffect, useState } from "react";
 import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
 import "./styles/app.css";
 import { FORMATION_SLOTS } from "../core";
-import type { FormationSlot, ResolveStageBattleResult } from "../core";
+import type {
+  FormationSlot,
+  PreBattleResistanceMode,
+  ResolveStageBattleResult
+} from "../core";
 import { staticData } from "./gameData";
 import type {
   AssignmentView,
@@ -10,6 +14,7 @@ import type {
   BattleCombatantView,
   BattleEventView,
   BattleSummaryView,
+  CounterplaySettingsView,
   EquipGameEquipmentInput,
   EquipmentInventoryItemView,
   HeroEquipmentView,
@@ -1249,6 +1254,118 @@ function AssignmentPanel({
   );
 }
 
+type CounterplaySettingsPanelProps = {
+  onSetAutoMedicineEnabled: (enabled: boolean) => void;
+  onSetMedicineAutoUse: (medicineId: string, enabled: boolean) => void;
+  onSetPreBattleResistanceMode: (mode: PreBattleResistanceMode) => void;
+  settings: CounterplaySettingsView;
+};
+
+function CounterplaySettingsPanel({
+  onSetAutoMedicineEnabled,
+  onSetMedicineAutoUse,
+  onSetPreBattleResistanceMode,
+  settings
+}: CounterplaySettingsPanelProps) {
+  function handleGlobalChange(event: ChangeEvent<HTMLInputElement>) {
+    onSetAutoMedicineEnabled(event.target.checked);
+  }
+
+  function handleResistanceModeChange(event: ChangeEvent<HTMLSelectElement>) {
+    onSetPreBattleResistanceMode(event.target.value as PreBattleResistanceMode);
+  }
+
+  const pressureItems = settings.stagePreview?.statusPressureItems ?? [];
+  const recommendationText =
+    settings.stagePreview?.recommendationText ??
+    "No selected stage counterplay data.";
+
+  return (
+    <section
+      className="counterplay-settings-panel"
+      aria-label="Counterplay settings"
+    >
+      <div className="counterplay-settings-heading">
+        <div>
+          <span className="label">Counterplay</span>
+          <h2>Medicine Automation</h2>
+        </div>
+        <span>{settings.unlocked ? settings.globalLabel : "Locked"}</span>
+      </div>
+      {settings.lockedReason ? (
+        <p className="counterplay-lock-message">{settings.lockedReason}</p>
+      ) : null}
+      <div className="counterplay-settings-grid">
+        <label className="counterplay-toggle-row">
+          <input
+            type="checkbox"
+            checked={settings.globalEnabled}
+            disabled={!settings.unlocked}
+            onChange={handleGlobalChange}
+          />
+          <span>
+            <strong>Auto Medicine</strong>
+            <small>{settings.globalLabel}</small>
+          </span>
+        </label>
+        <label className="counterplay-mode-field">
+          <span>Resistance Mode</span>
+          <select
+            value={settings.resistanceMode}
+            disabled={!settings.unlocked}
+            onChange={handleResistanceModeChange}
+          >
+            {settings.resistanceModeOptions.map((mode) => (
+              <option key={mode.id} value={mode.id}>
+                {mode.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <div className="medicine-toggle-list">
+        {settings.medicineRows.map((medicine) => (
+          <label
+            key={medicine.id}
+            className={`medicine-toggle-row ${medicine.disabled ? "disabled" : ""}`}
+          >
+            <input
+              type="checkbox"
+              checked={medicine.autoUseEnabled}
+              disabled={!medicine.canToggle}
+              onChange={(event) =>
+                onSetMedicineAutoUse(medicine.id, event.target.checked)
+              }
+            />
+            <span>
+              <strong>{medicine.name}</strong>
+              <small>
+                {medicine.availability} · {formatNumber(medicine.count)}/
+                {formatNumber(medicine.maxCarry)}
+              </small>
+            </span>
+            <em>{medicine.autoUseLabel}</em>
+          </label>
+        ))}
+      </div>
+      <div className="counterplay-preview">
+        <div className="status-pressure-list">
+          {pressureItems.length > 0 ? (
+            pressureItems.map((item) => (
+              <span key={item.statusId} className={`status-${item.category}`}>
+                {item.label}
+              </span>
+            ))
+          ) : (
+            <span>No status pressure</span>
+          )}
+        </div>
+        <p>{recommendationText}</p>
+      </div>
+    </section>
+  );
+}
+
 type SaveToolsPanelProps = {
   diagnostics: SaveDiagnosticsView;
   exportText: string;
@@ -1428,8 +1545,11 @@ function GameApp() {
     selectStage,
     setActiveHeroTeam,
     setAssignmentHeroes,
+    setAutoMedicineEnabled,
     setOfflineFarmPreset,
     setHeroFormation,
+    setMedicineAutoUse,
+    setPreBattleResistanceMode,
     timeTravelOfflineFarm,
     viewModel
   } = useWebGameState(staticData);
@@ -1438,6 +1558,7 @@ function GameApp() {
     battleEvents,
     battleSummary,
     assignments,
+    counterplaySettings,
     enemyTeamLabel,
     enemyCombatants,
     equipmentInventory,
@@ -1615,6 +1736,12 @@ function GameApp() {
           assignments={assignments}
           onSetAssignment={setAssignmentHeroes}
           status={assignmentStatus}
+        />
+        <CounterplaySettingsPanel
+          onSetAutoMedicineEnabled={setAutoMedicineEnabled}
+          onSetMedicineAutoUse={setMedicineAutoUse}
+          onSetPreBattleResistanceMode={setPreBattleResistanceMode}
+          settings={counterplaySettings}
         />
         <RosterPanel
           activeTeamSize={activeTeamSize}

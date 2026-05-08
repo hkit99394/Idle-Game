@@ -1873,6 +1873,212 @@ h2 {
   color: #15120e;
 }
 
+.counterplay-settings-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 22px;
+  padding: 16px 0;
+  border-top: 1px solid #d6cdbc;
+  border-bottom: 1px solid #d6cdbc;
+}
+
+.counterplay-settings-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.counterplay-settings-heading h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.counterplay-settings-heading > span {
+  min-height: 24px;
+  padding: 0 9px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #fffaf0;
+  color: #4d4639;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 24px;
+}
+
+.counterplay-lock-message,
+.counterplay-preview p {
+  margin: 0;
+  color: #6d6354;
+  font-size: 0.86rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.counterplay-settings-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(240px, 1.2fr);
+  gap: 12px;
+}
+
+.counterplay-toggle-row,
+.counterplay-mode-field,
+.medicine-toggle-row {
+  min-width: 0;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.counterplay-toggle-row,
+.medicine-toggle-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 52px;
+  padding: 10px 12px;
+}
+
+.counterplay-toggle-row input,
+.medicine-toggle-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #2e5f63;
+}
+
+.counterplay-toggle-row span,
+.medicine-toggle-row span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.counterplay-toggle-row strong,
+.medicine-toggle-row strong {
+  overflow-wrap: anywhere;
+}
+
+.counterplay-toggle-row small,
+.medicine-toggle-row small {
+  color: #6d6354;
+  font-size: 0.78rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  text-transform: capitalize;
+}
+
+.counterplay-mode-field {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  color: #4d4639;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.counterplay-mode-field select {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #c7bbab;
+  border-radius: 6px;
+  background: #f4efe5;
+  color: #15120e;
+}
+
+.counterplay-toggle-row:has(input:disabled),
+.counterplay-mode-field:has(select:disabled),
+.medicine-toggle-row:has(input:disabled) {
+  background: #ece6da;
+  color: #6d6354;
+}
+
+.medicine-toggle-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 10px;
+}
+
+.medicine-toggle-row em {
+  max-width: 100%;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #f4efe5;
+  color: #4d4639;
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.medicine-toggle-row.disabled em {
+  border-color: #a64236;
+  background: #f5e7e2;
+  color: #7b2f2b;
+}
+
+.counterplay-preview {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #f4efe5;
+}
+
+.status-pressure-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.status-pressure-list span {
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #fffaf0;
+  color: #4d4639;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+}
+
+.status-pressure-list .status-damage {
+  border-color: #a64236;
+  background: #f5e7e2;
+  color: #7b2f2b;
+}
+
+.status-pressure-list .status-control {
+  border-color: #2e5f63;
+  background: #e3f0f4;
+  color: #1f5559;
+}
+
+.status-pressure-list .status-vulnerability {
+  border-color: #8c6f4b;
+  background: #f3eadc;
+  color: #4f3a22;
+}
+
+.status-pressure-list .status-recovery {
+  border-color: #6f7f4f;
+  background: #edf1df;
+  color: #283315;
+}
+
+.status-pressure-list .status-backlash {
+  border-color: #7b2f2b;
+  background: #ece6da;
+  color: #15120e;
+}
+
 .save-tools {
   display: grid;
   gap: 14px;
@@ -2048,6 +2254,10 @@ h2 {
     grid-template-columns: 1fr;
   }
 
+  .counterplay-settings-grid {
+    grid-template-columns: 1fr;
+  }
+
   .stage-list {
     grid-template-columns: 1fr;
   }
@@ -2106,6 +2316,18 @@ h2 {
   .upgrade-card button,
   .save-actions button {
     width: 100%;
+  }
+
+  .counterplay-toggle-row,
+  .medicine-toggle-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .medicine-toggle-row em {
+    grid-column: 1 / -1;
+    width: 100%;
+    border-radius: 6px;
+    text-align: center;
   }
 
   .save-actions {

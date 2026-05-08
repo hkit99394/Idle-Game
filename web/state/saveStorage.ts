@@ -254,7 +254,10 @@ export function saveWebGameStateToStorage(
   data: SaveSchemaData,
   state: Pick<
     WebGameState,
-    "progress" | "selectedOfflineFarmStageId" | "offlineFarmPreset"
+    | "progress"
+    | "autoMedicinePreferences"
+    | "selectedOfflineFarmStageId"
+    | "offlineFarmPreset"
   >,
   storage: WebSaveStorage,
   nowMs = Date.now(),
@@ -263,6 +266,7 @@ export function saveWebGameStateToStorage(
   const previousSaveResult = loadSaveDataFromStorage(data, storage, key);
   const save = createSaveData({
     progress: state.progress,
+    autoMedicinePreferences: state.autoMedicinePreferences,
     selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
     offlineFarmPreset: state.offlineFarmPreset,
     nowMs,

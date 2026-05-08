@@ -3,14 +3,19 @@ import {
   buildEnemyTeamForStage,
   buildPlayerTeamForStage,
   ACTIVE_TEAM_SIZE,
+  buildMedicineCounterplayViewModels,
+  buildStageCounterplayPreview,
   calculateCombatPower,
   calculateSkillUpgradeCost,
   calculateUpgradeCost,
   createInitialPlayerProgress,
   DEFAULT_OFFLINE_FARM_PRESET,
+  defaultAutoMedicinePreferences,
   deriveStats,
   equipHeroEquipment as equipCoreHeroEquipment,
   EQUIPMENT_SLOTS,
+  getMedicineAutoUseLabel,
+  getPreBattleResistanceModeLabel,
   getDefaultFormationSlot,
   getAvailableEquipmentCopyCount,
   getActiveMasterySummaryForStage,
@@ -27,20 +32,24 @@ import {
   getStyleMasteryLevel,
   getUpgradeLevel,
   hasClearedStage,
+  isAutoMedicineUnlocked,
   isOfflineFarmStageUnlocked,
   isAssignmentUnlocked,
   isHeroUnlocked,
   isHeroEligibleForAssignment,
+  isPreBattleResistanceMode,
   isStageUnlocked,
   isStyleBranchUnlocked,
   normalizeOfflineFarmPreset,
   OFFLINE_FARM_PRESET_POLICIES,
+  PRE_BATTLE_RESISTANCE_MODES,
   previewOfflineRewards,
   purchaseSkillUpgrade as purchaseCoreSkillUpgrade,
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
   scaleStatsForLevel,
   selectStyleBranch as selectCoreStyleBranch,
+  setMedicineAutoUsePreference,
   setActiveHeroTeam as setCoreActiveHeroTeam,
   setAssignmentHeroes as setCoreAssignmentHeroes,
   setPlayerFormationSlot,
@@ -50,6 +59,7 @@ import {
 import type {
   ActiveMasterySummary,
   ApplyOfflineAssignmentRewardsResult,
+  AutoMedicinePreferences,
   BattleEvent,
   BattleContribution,
   CombatantInstanceDefinition,
@@ -64,7 +74,9 @@ import type {
   MasteryBonus,
   OfflineFarmPreset,
   TeamId,
+  MedicineCounterplayViewModel,
   PlayerProgress,
+  PreBattleResistanceMode,
   ApplyOfflineRewardsResult,
   PurchaseSkillUpgradeInput,
   PurchaseSkillUpgradeResult,
@@ -78,6 +90,7 @@ import type {
   SetActiveHeroTeamResult,
   SetAssignmentHeroesInput,
   SetAssignmentHeroesResult,
+  StageCounterplayPreview,
   StatusEffectId,
   StaticGameData
 } from "../../core";
@@ -97,6 +110,7 @@ import type { WebSaveStorage } from "./saveStorage";
 
 export type WebGameState = {
   progress: PlayerProgress;
+  autoMedicinePreferences: AutoMedicinePreferences;
   selectedStageId: string;
   selectedOfflineFarmStageId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
@@ -123,6 +137,19 @@ export type WebGameAction =
   | {
       type: "set_offline_farm_preset";
       preset: OfflineFarmPreset;
+    }
+  | {
+      type: "set_auto_medicine_enabled";
+      enabled: boolean;
+    }
+  | {
+      type: "set_medicine_auto_use";
+      medicineId: string;
+      enabled: boolean;
+    }
+  | {
+      type: "set_pre_battle_resistance_mode";
+      mode: PreBattleResistanceMode;
     }
   | {
       type: "set_hero_formation_slot";
@@ -518,6 +545,28 @@ export type SaveDiagnosticsView = {
   errors: string[];
 };
 
+export type CounterplayMedicineSettingView = MedicineCounterplayViewModel & {
+  canToggle: boolean;
+};
+
+export type PreBattleResistanceModeOptionView = {
+  id: PreBattleResistanceMode;
+  label: string;
+  isSelected: boolean;
+};
+
+export type CounterplaySettingsView = {
+  unlocked: boolean;
+  lockedReason: string | null;
+  globalEnabled: boolean;
+  globalLabel: string;
+  medicineRows: CounterplayMedicineSettingView[];
+  resistanceMode: PreBattleResistanceMode;
+  resistanceModeLabel: string;
+  resistanceModeOptions: PreBattleResistanceModeOptionView[];
+  stagePreview: StageCounterplayPreview | null;
+};
+
 export type SaveToolResult =
   | {
       ok: true;
@@ -611,6 +660,12 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
 
   return {
     progress,
+    autoMedicinePreferences: {
+      ...defaultAutoMedicinePreferences,
+      disabledMedicineIds: [
+        ...defaultAutoMedicinePreferences.disabledMedicineIds
+      ]
+    },
     selectedStageId: progress.currentStageId,
     selectedOfflineFarmStageId: getDefaultFarmStageId(
       data,
@@ -639,6 +694,12 @@ export function createWebGameStateFromSave(
 
   return {
     progress: save.progress,
+    autoMedicinePreferences: {
+      ...save.autoMedicinePreferences,
+      disabledMedicineIds: [
+        ...save.autoMedicinePreferences.disabledMedicineIds
+      ]
+    },
     selectedStageId: normalizeSelectedStageId(
       data,
       save.progress,
@@ -740,6 +801,47 @@ export function webGameStateReducer(
         )
       };
     }
+
+    case "set_auto_medicine_enabled":
+      return {
+        ...state,
+        autoMedicinePreferences: {
+          ...state.autoMedicinePreferences,
+          enabled: action.enabled
+        }
+      };
+
+    case "set_medicine_auto_use": {
+      const medicineExists = data.medicines.some(
+        (medicine) => medicine.id === action.medicineId
+      );
+
+      if (!medicineExists) {
+        return state;
+      }
+
+      return {
+        ...state,
+        autoMedicinePreferences: setMedicineAutoUsePreference(
+          state.autoMedicinePreferences,
+          action.medicineId,
+          action.enabled
+        )
+      };
+    }
+
+    case "set_pre_battle_resistance_mode":
+      if (!isPreBattleResistanceMode(action.mode)) {
+        return state;
+      }
+
+      return {
+        ...state,
+        autoMedicinePreferences: {
+          ...state.autoMedicinePreferences,
+          preBattleResistanceMode: action.mode
+        }
+      };
 
     case "set_hero_formation_slot": {
       const result = setPlayerFormationSlot(
@@ -3062,6 +3164,64 @@ function buildEnemyTeamLabel(
     .join(" / ");
 }
 
+function getEmptyMedicineInventory(): Record<string, number> {
+  return {};
+}
+
+function buildCounterplaySettingsView(
+  data: StaticGameData,
+  state: WebGameState,
+  selectedStage: ReturnType<typeof getStageById> | null
+): CounterplaySettingsView {
+  const inventory = getEmptyMedicineInventory();
+  const preferences = state.autoMedicinePreferences;
+  const unlocked = isAutoMedicineUnlocked({
+    medicines: data.medicines,
+    inventory,
+    progress: state.progress,
+    stages: data.stages
+  });
+  const resistanceMode = isPreBattleResistanceMode(
+    preferences.preBattleResistanceMode
+  )
+    ? preferences.preBattleResistanceMode
+    : defaultAutoMedicinePreferences.preBattleResistanceMode;
+
+  return {
+    unlocked,
+    lockedReason: unlocked
+      ? null
+      : "Unlocks when the first medicine becomes available.",
+    globalEnabled: preferences.enabled,
+    globalLabel: preferences.enabled ? "Auto On" : "Auto Off",
+    medicineRows: buildMedicineCounterplayViewModels({
+      data,
+      progress: state.progress.maps,
+      inventory,
+      preferences
+    }).map((medicine) => ({
+      ...medicine,
+      autoUseLabel: getMedicineAutoUseLabel(preferences, medicine.id),
+      canToggle: unlocked
+    })),
+    resistanceMode,
+    resistanceModeLabel: getPreBattleResistanceModeLabel(resistanceMode),
+    resistanceModeOptions: PRE_BATTLE_RESISTANCE_MODES.map((mode) => ({
+      id: mode,
+      label: getPreBattleResistanceModeLabel(mode),
+      isSelected: mode === resistanceMode
+    })),
+    stagePreview: selectedStage
+      ? buildStageCounterplayPreview({
+          data,
+          stage: selectedStage,
+          inventory,
+          preferences
+        })
+      : null
+  };
+}
+
 export function getWebGameViewModel(
   data: StaticGameData,
   state: WebGameState
@@ -3151,6 +3311,7 @@ export function getWebGameViewModel(
     playerCombatants,
     enemyCombatants,
     enemyTeamLabel,
+    counterplaySettings: buildCounterplaySettingsView(data, state, selectedStage),
     masterySummary: activeMasterySummary,
     masteryPanel: buildMasteryPanel(data, activeMasterySummary),
     offlineSummary: buildOfflineRewardSummaryView(data, state.offlineSummary),
@@ -3281,6 +3442,34 @@ export function useWebGameState(data: StaticGameData) {
       preset
     });
   }, [dispatchAndPersist]);
+
+  const setAutoMedicineEnabled = useCallback((enabled: boolean) => {
+    dispatchAndPersist({
+      type: "set_auto_medicine_enabled",
+      enabled
+    });
+  }, [dispatchAndPersist]);
+
+  const setMedicineAutoUse = useCallback(
+    (medicineId: string, enabled: boolean) => {
+      dispatchAndPersist({
+        type: "set_medicine_auto_use",
+        medicineId,
+        enabled
+      });
+    },
+    [dispatchAndPersist]
+  );
+
+  const setPreBattleResistanceMode = useCallback(
+    (mode: PreBattleResistanceMode) => {
+      dispatchAndPersist({
+        type: "set_pre_battle_resistance_mode",
+        mode
+      });
+    },
+    [dispatchAndPersist]
+  );
 
   const setHeroFormation = useCallback((heroId: string, slot: FormationSlot) => {
     dispatchAndPersist({
@@ -3534,6 +3723,9 @@ export function useWebGameState(data: StaticGameData) {
     equipEquipment,
     selectStage,
     setOfflineFarmPreset,
+    setAutoMedicineEnabled,
+    setMedicineAutoUse,
+    setPreBattleResistanceMode,
     setHeroFormation,
     selectStyleBranch,
     setActiveHeroTeam,

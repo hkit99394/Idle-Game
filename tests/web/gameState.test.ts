@@ -49,6 +49,19 @@ describe("web game state", () => {
       combatExperience: 0,
       masteryExperienceGain: 0
     });
+    expect(viewModel.counterplaySettings).toMatchObject({
+      unlocked: false,
+      lockedReason: "Unlocks when the first medicine becomes available.",
+      globalEnabled: true,
+      globalLabel: "Auto On",
+      resistanceMode: "boss_and_elite",
+      resistanceModeLabel: "Boss And Elite"
+    });
+    expect(viewModel.counterplaySettings.medicineRows[0]).toMatchObject({
+      id: "clear_heart_pill",
+      canToggle: false,
+      autoUseLabel: "Auto On"
+    });
     expect(viewModel.enemyTeamLabel).toBe("Bamboo Road Bandit x2");
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();
@@ -1086,5 +1099,70 @@ describe("web game state", () => {
     });
     expect(masteryState.offlineFarmPreset).toBe("mastery");
     expect(masteryState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+  });
+
+  it("updates counterplay automation settings in web state", () => {
+    const state = createInitialWebGameState(staticData);
+    const unlockedState = webGameStateReducer(staticData, state, {
+      type: "replace_progress",
+      progress: {
+        ...state.progress,
+        currentStageId: "mist_valley_1",
+        maps: {
+          ...state.progress.maps,
+          bamboo_road: {
+            combatExperience: 300,
+            highestClearedStageIndex: 10
+          }
+        }
+      }
+    });
+    const disabledGlobalState = webGameStateReducer(staticData, unlockedState, {
+      type: "set_auto_medicine_enabled",
+      enabled: false
+    });
+    const disabledMedicineState = webGameStateReducer(
+      staticData,
+      unlockedState,
+      {
+        type: "set_medicine_auto_use",
+        medicineId: "clear_heart_pill",
+        enabled: false
+      }
+    );
+    const modeState = webGameStateReducer(staticData, disabledMedicineState, {
+      type: "set_pre_battle_resistance_mode",
+      mode: "status_heavy"
+    });
+    const viewModel = getWebGameViewModel(staticData, modeState);
+
+    expect(
+      getWebGameViewModel(staticData, unlockedState).counterplaySettings
+    ).toMatchObject({
+      unlocked: true,
+      lockedReason: null
+    });
+    expect(disabledGlobalState.autoMedicinePreferences.enabled).toBe(false);
+    expect(
+      disabledMedicineState.autoMedicinePreferences.disabledMedicineIds
+    ).toEqual(["clear_heart_pill"]);
+    expect(modeState.autoMedicinePreferences.preBattleResistanceMode).toBe(
+      "status_heavy"
+    );
+    expect(viewModel.counterplaySettings).toMatchObject({
+      unlocked: true,
+      resistanceMode: "status_heavy",
+      resistanceModeLabel: "Status Heavy"
+    });
+    expect(
+      viewModel.counterplaySettings.medicineRows.find(
+        (medicine) => medicine.id === "clear_heart_pill"
+      )
+    ).toMatchObject({
+      disabled: true,
+      autoUseEnabled: false,
+      autoUseLabel: "Auto Off",
+      canToggle: true
+    });
   });
 });

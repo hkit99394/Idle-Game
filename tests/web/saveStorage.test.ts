@@ -67,6 +67,53 @@ describe("web save storage", () => {
     expect(state.offlineFarmPreset).toBe("silver");
   });
 
+  it("persists counterplay settings through save reload", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const baseState = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+    const configuredState = webGameStateReducer(staticData, baseState, {
+      type: "replace_state",
+      state: {
+        ...baseState,
+        progress,
+        autoMedicinePreferences: {
+          ...baseState.autoMedicinePreferences,
+          enabled: false,
+          preBattleResistanceMode: "status_heavy",
+          disabledMedicineIds: ["clear_heart_pill"]
+        }
+      }
+    });
+    const saveResult = saveWebGameStateToStorage(
+      staticData,
+      configuredState,
+      storage,
+      2000
+    );
+    const reloadedState = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      3000
+    );
+
+    expect(saveResult.ok).toBe(true);
+    expect(reloadedState.autoMedicinePreferences).toMatchObject({
+      enabled: false,
+      preBattleResistanceMode: "status_heavy",
+      disabledMedicineIds: ["clear_heart_pill"]
+    });
+    expect(
+      getWebGameViewModel(staticData, reloadedState).counterplaySettings
+    ).toMatchObject({
+      globalEnabled: false,
+      resistanceMode: "status_heavy"
+    });
+  });
+
   it("exports and imports a validated save payload", () => {
     const sourceStorage = new MemoryStorage();
     const targetStorage = new MemoryStorage();
