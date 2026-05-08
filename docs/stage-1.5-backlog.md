@@ -48,7 +48,7 @@ The recommended theme is **Status Counterplay Automation And Balance**. Stage 1.
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 31 | Resistance Formula Integration | Completed | Apply status resistance to chance, duration, and tick damage |
-| 32 | Auto Medicine System | Not Started | Consume medicine safely during battle and non-battle recovery |
+| 32 | Auto Medicine System | Completed | Consume medicine safely during battle and non-battle recovery |
 | 33 | Counterplay Loadout And Preview | Not Started | Let players understand and manage medicine/counterplay choices |
 | 34 | Status Visual Language | Not Started | Standardize fixed category colors, severity, and cleanse display |
 | 35 | Scenario Simulator And Balance Gates | Not Started | Tune Demon Cult with baseline and counterplay scenarios |
@@ -162,6 +162,16 @@ Recommended MVP policy:
 - Pre-battle resistance medicine is selected for status-heavy stages.
 - No inventory is consumed when the target has no matching status.
 - Duplicate trigger windows do not double-consume medicine.
+
+### Progress Notes
+
+- Added core auto medicine policy helpers for battle cleanse, post-battle cleanse, and pre-battle resistance triggers.
+- Added deterministic cleanse medicine selection that prefers narrow matching cleanse tags before broad `debuff` cleanse.
+- Added pre-battle resistance selection that only triggers for stages whose enemy skills apply statuses.
+- Added trigger-window idempotency through `alreadyUsedMedicineIds` so the same medicine id is not consumed twice in the same trigger window.
+- Added auto medicine summaries with trigger, consumed medicine id, cleansed status ids, resistance bonus, and resistance duration for future battle summaries.
+- Added tests for Clear Heart Pill auto cleanse, Purity Draught fallback cleanse, Quiet Meridian Powder pre-battle resistance, no-effect safety, and duplicate-trigger safety.
+- Remaining integration work: call these helpers from the future full battle timeline and any later medicine settings UI.
 
 ---
 
@@ -337,7 +347,7 @@ Decide whether Demon Cult counterplay should be carried by existing Lotus suppor
 ## Final Stage 1.5 Checklist
 
 - [x] Resistance formula integrated and tested.
-- [ ] Auto medicine policy implemented and tested.
+- [x] Auto medicine policy implemented and tested.
 - [ ] Counterplay preview/loadout planned or implemented.
 - [ ] Status visual language standardized.
 - [ ] Scenario simulator reports baseline and counterplay routes.
