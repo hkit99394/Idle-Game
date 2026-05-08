@@ -1,9 +1,12 @@
 import {
   defaultAutoMedicinePreferences,
+  getMedicineAutoUseLabel,
   getStageStatusPressureIds,
+  isMedicineAutoUseEnabled,
   selectAutoCleanseMedicine,
   selectAutoPreBattleResistanceMedicine,
   type AutoMedicinePreferences,
+  type AutoMedicineToggleLabel,
   type MedicineInventory
 } from "../combat";
 import type {
@@ -26,6 +29,9 @@ export type MedicineCounterplayViewModel = {
   maxCarry: number;
   unlocked: boolean;
   owned: boolean;
+  disabled: boolean;
+  autoUseEnabled: boolean;
+  autoUseLabel: AutoMedicineToggleLabel;
   autoEligible: boolean;
   availability: MedicineAvailability;
   effectLabels: string[];
@@ -69,11 +75,11 @@ export function buildMedicineCounterplayViewModels(input: {
     );
     const owned = count > 0;
     const disabled = disabledMedicineIds.has(medicine.id);
+    const autoUseEnabled = isMedicineAutoUseEnabled(preferences, medicine.id);
     const autoEligible =
-      preferences.enabled &&
+      autoUseEnabled &&
       unlocked &&
       owned &&
-      !disabled &&
       hasAutoEffect(medicine);
 
     return {
@@ -83,6 +89,9 @@ export function buildMedicineCounterplayViewModels(input: {
       maxCarry: medicine.maxCarry,
       unlocked,
       owned,
+      disabled,
+      autoUseEnabled,
+      autoUseLabel: getMedicineAutoUseLabel(preferences, medicine.id),
       autoEligible,
       availability: getMedicineAvailability({
         unlocked,

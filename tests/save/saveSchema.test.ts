@@ -267,6 +267,46 @@ describe("save schema", () => {
     );
   });
 
+  it("preserves and validates disabled auto medicine ids", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const validSave = {
+      ...save,
+      autoMedicinePreferences: {
+        ...save.autoMedicinePreferences,
+        disabledMedicineIds: ["clear_heart_pill"]
+      }
+    };
+    const invalidSave = {
+      ...validSave,
+      autoMedicinePreferences: {
+        ...validSave.autoMedicinePreferences,
+        disabledMedicineIds: ["clear_heart_pill", "missing_medicine"]
+      }
+    };
+    const result = parseSaveData(staticData, validSave);
+
+    expect(validateSaveData(staticData, validSave)).toEqual([]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
+      "clear_heart_pill"
+    ]);
+    expect(validateSaveData(staticData, invalidSave)).toContain(
+      "autoMedicinePreferences.disabledMedicineIds.1 must reference an existing medicine"
+    );
+    expect(parseSaveData(staticData, invalidSave)).toMatchObject({
+      ok: false,
+      reason: "invalid_save"
+    });
+  });
+
   it("fails safely for malformed saves", () => {
     const result = parseSaveData(staticData, {
       version: SAVE_DATA_VERSION,

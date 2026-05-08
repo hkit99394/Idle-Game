@@ -135,6 +135,49 @@ describe("web save storage", () => {
     expect(currentSave.save.progress.resources.silver).toBe(50);
   });
 
+  it("rejects imports with unknown disabled auto medicine ids", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 50;
+    const currentSave = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const invalidImport = {
+      ...currentSave,
+      autoMedicinePreferences: {
+        ...currentSave.autoMedicinePreferences,
+        disabledMedicineIds: ["missing_medicine"]
+      }
+    };
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(currentSave));
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(invalidImport)
+    );
+    const savedAfterImport = loadSaveDataFromStorage(staticData, storage);
+
+    expect(importResult.ok).toBe(false);
+    if (importResult.ok) {
+      return;
+    }
+    expect(importResult.reason).toBe("invalid_save");
+    expect(importResult.errors).toContain(
+      "autoMedicinePreferences.disabledMedicineIds.0 must reference an existing medicine"
+    );
+    expect(savedAfterImport.ok).toBe(true);
+    if (!savedAfterImport.ok) {
+      return;
+    }
+    expect(
+      savedAfterImport.save.autoMedicinePreferences.disabledMedicineIds
+    ).toEqual([]);
+  });
+
   it("resets storage to a new game save", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);

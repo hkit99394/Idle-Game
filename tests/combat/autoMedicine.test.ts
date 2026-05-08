@@ -7,7 +7,8 @@ import {
   getStageStatusPressureIds,
   isAutoMedicineUnlocked,
   selectAutoCleanseMedicine,
-  selectAutoPreBattleResistanceMedicine
+  selectAutoPreBattleResistanceMedicine,
+  setMedicineAutoUsePreference
 } from "../../core";
 import type {
   ActiveStatusEffect,
@@ -238,6 +239,67 @@ describe("auto medicine", () => {
     expect(result.statuses).toEqual([]);
   });
 
+  it("skips disabled cleanse medicine and can re-enable it", () => {
+    const activeStatuses = [
+      status("poison"),
+      status("wound"),
+      status("qi_suppression")
+    ];
+    const disabledClearHeartPill = setMedicineAutoUsePreference(
+      undefined,
+      "clear_heart_pill",
+      false
+    );
+
+    expect(
+      selectAutoCleanseMedicine({
+        medicines: medicineDefinitions,
+        inventory: {
+          clear_heart_pill: 1,
+          purity_draught: 1
+        },
+        activeStatuses,
+        statusDefinitions,
+        preferences: disabledClearHeartPill
+      })?.id
+    ).toBe("purity_draught");
+
+    const result = applyAutoCleanseMedicine({
+      medicines: medicineDefinitions,
+      inventory: {
+        clear_heart_pill: 1,
+        purity_draught: 1
+      },
+      activeStatuses,
+      statusDefinitions,
+      trigger: "battle_cleanse",
+      preferences: disabledClearHeartPill
+    });
+
+    expect(result.usedMedicine?.medicineId).toBe("purity_draught");
+    expect(result.inventory.clear_heart_pill).toBe(1);
+    expect(result.inventory.purity_draught).toBeUndefined();
+
+    const reenabledClearHeartPill = setMedicineAutoUsePreference(
+      disabledClearHeartPill,
+      "clear_heart_pill",
+      true
+    );
+
+    expect(
+      selectAutoCleanseMedicine({
+        medicines: medicineDefinitions,
+        inventory: {
+          clear_heart_pill: 1,
+          purity_draught: 1
+        },
+        activeStatuses,
+        statusDefinitions,
+        preferences: reenabledClearHeartPill
+      })?.id
+    ).toBe("clear_heart_pill");
+  });
+
   it("selects pre-battle resistance medicine for status-heavy stages", () => {
     expect(
       getStageStatusPressureIds({
@@ -263,9 +325,9 @@ describe("auto medicine", () => {
     const result = applyAutoPreBattleResistanceMedicine({
       medicines: medicineDefinitions,
       inventory: {
-          quiet_meridian_powder: 1,
-          purity_draught: 1
-        },
+        quiet_meridian_powder: 1,
+        purity_draught: 1
+      },
       stage: statusPressureStage,
       enemies: statusPressureEnemies,
       skills: statusPressureSkills,
@@ -280,6 +342,46 @@ describe("auto medicine", () => {
     });
     expect(result.inventory.quiet_meridian_powder).toBeUndefined();
     expect(result.inventory.purity_draught).toBe(1);
+  });
+
+  it("skips disabled pre-battle resistance medicine", () => {
+    const preferences = setMedicineAutoUsePreference(
+      undefined,
+      "quiet_meridian_powder",
+      false
+    );
+
+    expect(
+      selectAutoPreBattleResistanceMedicine({
+        medicines: medicineDefinitions,
+        inventory: {
+          quiet_meridian_powder: 1,
+          purity_draught: 1
+        },
+        stage: statusPressureStage,
+        enemies: statusPressureEnemies,
+        skills: statusPressureSkills,
+        statusDefinitions,
+        preferences
+      })?.id
+    ).toBe("purity_draught");
+
+    const result = applyAutoPreBattleResistanceMedicine({
+      medicines: medicineDefinitions,
+      inventory: {
+        quiet_meridian_powder: 1,
+        purity_draught: 1
+      },
+      stage: statusPressureStage,
+      enemies: statusPressureEnemies,
+      skills: statusPressureSkills,
+      statusDefinitions,
+      preferences
+    });
+
+    expect(result.usedMedicine?.medicineId).toBe("purity_draught");
+    expect(result.inventory.quiet_meridian_powder).toBe(1);
+    expect(result.inventory.purity_draught).toBeUndefined();
   });
 
   it("does not consume medicine when there is no matching trigger", () => {

@@ -4,7 +4,12 @@ import {
   buildStageCounterplayPreview,
   defaultAutoMedicinePreferences
 } from "../../core";
-import type { StaticGameData } from "../../core";
+import type {
+  EnemyDefinition,
+  SkillDefinition,
+  StageDefinition,
+  StaticGameData
+} from "../../core";
 import assignments from "../../data/assignments.json" with { type: "json" };
 import enemies from "../../data/enemies.json" with { type: "json" };
 import equipment from "../../data/equipment.json" with { type: "json" };
@@ -49,6 +54,113 @@ function getStage(stageId: string) {
   return stage;
 }
 
+const statusPreviewStage: StageDefinition = {
+  id: "test_status_counterplay",
+  regionId: "bamboo_road",
+  index: 11,
+  name: "Status Counterplay Test",
+  enemyTeam: {
+    combatantIds: ["test_status_counterplay_enemy"]
+  },
+  isBoss: false,
+  canFarmOffline: false,
+  rewards: {
+    silver: 0,
+    cultivation: 0,
+    combatExperience: 0
+  },
+  nextStageId: null
+};
+
+const statusPreviewData: StaticGameData = {
+  ...staticData,
+  enemies: [
+    ...staticData.enemies,
+    {
+      ...staticData.enemies[0],
+      id: "test_status_counterplay_enemy",
+      skillIds: [
+        "test_poison_hex",
+        "test_meridian_lock",
+        "test_vulnerability_hex",
+        "test_wound_hex"
+      ]
+    } as EnemyDefinition
+  ],
+  skills: [
+    ...staticData.skills,
+    {
+      id: "test_poison_hex",
+      name: "Test Poison Hex",
+      cooldownSeconds: 1,
+      outerMultiplier: 0,
+      innerMultiplier: 0,
+      targetRule: "first_living",
+      effects: [
+        {
+          type: "apply_status",
+          statusId: "poison",
+          chance: 1,
+          durationSeconds: 8,
+          stacks: 1
+        }
+      ]
+    },
+    {
+      id: "test_meridian_lock",
+      name: "Test Meridian Lock",
+      cooldownSeconds: 1,
+      outerMultiplier: 0,
+      innerMultiplier: 0,
+      targetRule: "first_living",
+      effects: [
+        {
+          type: "apply_status",
+          statusId: "qi_suppression",
+          chance: 1,
+          durationSeconds: 8,
+          stacks: 1
+        }
+      ]
+    },
+    {
+      id: "test_vulnerability_hex",
+      name: "Test Vulnerability Hex",
+      cooldownSeconds: 1,
+      outerMultiplier: 0,
+      innerMultiplier: 0,
+      targetRule: "first_living",
+      effects: [
+        {
+          type: "apply_status",
+          statusId: "vulnerable",
+          chance: 1,
+          durationSeconds: 8,
+          stacks: 1
+        }
+      ]
+    },
+    {
+      id: "test_wound_hex",
+      name: "Test Wound Hex",
+      cooldownSeconds: 1,
+      outerMultiplier: 0,
+      innerMultiplier: 0,
+      targetRule: "first_living",
+      effects: [
+        {
+          type: "apply_status",
+          statusId: "wound",
+          chance: 1,
+          durationSeconds: 8,
+          stacks: 1
+        }
+      ]
+    }
+  ] as SkillDefinition[],
+  stages: [...staticData.stages, statusPreviewStage]
+};
+
 describe("counterplay preview", () => {
   it("groups medicine by unlock, ownership, and auto eligibility", () => {
     const rows = buildMedicineCounterplayViewModels({
@@ -56,9 +168,6 @@ describe("counterplay preview", () => {
       progress: {
         bamboo_road: {
           highestClearedStageIndex: 10
-        },
-        demon_cult_outpost: {
-          highestClearedStageIndex: 2
         }
       },
       inventory: {
@@ -67,7 +176,7 @@ describe("counterplay preview", () => {
       },
       preferences: {
         ...defaultAutoMedicinePreferences,
-        disabledMedicineIds: ["quiet_meridian_powder"]
+        disabledMedicineIds: ["clear_heart_pill"]
       }
     });
 
@@ -77,22 +186,31 @@ describe("counterplay preview", () => {
         count: 3,
         unlocked: true,
         owned: true,
-        autoEligible: true,
-        availability: "ready"
+        disabled: true,
+        autoUseEnabled: false,
+        autoUseLabel: "Auto Off",
+        autoEligible: false,
+        availability: "disabled"
       }),
       expect.objectContaining({
         id: "quiet_meridian_powder",
         count: 1,
-        unlocked: true,
+        unlocked: false,
         owned: true,
+        disabled: false,
+        autoUseEnabled: true,
+        autoUseLabel: "Auto On",
         autoEligible: false,
-        availability: "disabled"
+        availability: "locked"
       }),
       expect.objectContaining({
         id: "purity_draught",
         count: 0,
         unlocked: false,
         owned: false,
+        disabled: false,
+        autoUseEnabled: true,
+        autoUseLabel: "Auto On",
         autoEligible: false,
         availability: "locked"
       })
@@ -101,8 +219,8 @@ describe("counterplay preview", () => {
 
   it("previews stage status pressure and recommended counterplay", () => {
     const preview = buildStageCounterplayPreview({
-      data: staticData,
-      stage: getStage("demon_cult_outpost_4"),
+      data: statusPreviewData,
+      stage: statusPreviewStage,
       inventory: {
         clear_heart_pill: 2,
         quiet_meridian_powder: 1,
@@ -151,8 +269,8 @@ describe("counterplay preview", () => {
 
   it("respects disabled medicine preferences in stage recommendations", () => {
     const preview = buildStageCounterplayPreview({
-      data: staticData,
-      stage: getStage("demon_cult_outpost_1"),
+      data: statusPreviewData,
+      stage: statusPreviewStage,
       inventory: {
         clear_heart_pill: 2,
         quiet_meridian_powder: 1

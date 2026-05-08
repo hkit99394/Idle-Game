@@ -92,6 +92,18 @@ export type SaveMigrationResult =
     };
 
 type UnknownRecord = Record<string, unknown>;
+type SaveMigrationData = Pick<StaticGameData, "heroes" | "regions" | "stages">;
+type SaveValidationData = Pick<
+  StaticGameData,
+  | "heroes"
+  | "regions"
+  | "stages"
+  | "styles"
+  | "skillUpgrades"
+  | "equipment"
+  | "assignments"
+  | "medicines"
+>;
 
 function isRecord(value: unknown): value is UnknownRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -778,6 +790,7 @@ function normalizeAutoMedicinePreferences(
 }
 
 function validateAutoMedicinePreferences(
+  data: Pick<StaticGameData, "medicines">,
   value: unknown,
   errors: string[]
 ): value is AutoMedicinePreferences {
@@ -801,10 +814,19 @@ function validateAutoMedicinePreferences(
     return false;
   }
 
+  const medicineIds = new Set(data.medicines.map((medicine) => medicine.id));
+
   for (const [index, medicineId] of value.disabledMedicineIds.entries()) {
     if (typeof medicineId !== "string") {
       errors.push(
         `autoMedicinePreferences.disabledMedicineIds.${index} must be a medicine id`
+      );
+      continue;
+    }
+
+    if (!medicineIds.has(medicineId)) {
+      errors.push(
+        `autoMedicinePreferences.disabledMedicineIds.${index} must reference an existing medicine`
       );
     }
   }
@@ -913,7 +935,7 @@ function validateCurrentStage(
 }
 
 function validateProgress(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments">,
+  data: SaveValidationData,
   value: unknown,
   errors: string[]
 ): value is PlayerProgress {
@@ -1007,7 +1029,7 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
 }
 
 export function migrateSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: SaveMigrationData,
   raw: unknown
 ): SaveMigrationResult {
   if (!isRecord(raw)) {
@@ -1053,7 +1075,7 @@ export function migrateSaveData(
 }
 
 export function validateSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments">,
+  data: SaveValidationData,
   raw: unknown
 ): string[] {
   const errors: string[] = [];
@@ -1074,7 +1096,11 @@ export function validateSaveData(
   }
 
   validateProgress(data, migratedRaw.progress, errors);
-  validateAutoMedicinePreferences(migratedRaw.autoMedicinePreferences, errors);
+  validateAutoMedicinePreferences(
+    data,
+    migratedRaw.autoMedicinePreferences,
+    errors
+  );
 
   if (
     migratedRaw.selectedOfflineFarmStageId !== null &&
@@ -1096,7 +1122,7 @@ export function validateSaveData(
 }
 
 export function parseSaveData(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "styles" | "skillUpgrades" | "equipment" | "assignments">,
+  data: SaveValidationData,
   raw: unknown
 ): ParseSaveDataResult {
   const migration = migrateSaveData(data, raw);

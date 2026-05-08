@@ -59,6 +59,13 @@ export const defaultAutoMedicinePreferences: AutoMedicinePreferences = {
   disabledMedicineIds: []
 };
 
+export const AUTO_MEDICINE_ON_LABEL = "Auto On" as const;
+export const AUTO_MEDICINE_OFF_LABEL = "Auto Off" as const;
+
+export type AutoMedicineToggleLabel =
+  | typeof AUTO_MEDICINE_ON_LABEL
+  | typeof AUTO_MEDICINE_OFF_LABEL;
+
 export type AutoMedicineUnlockInput = {
   medicines: MedicineDefinition[];
   inventory: MedicineInventory;
@@ -113,6 +120,47 @@ export function isAutoMedicineUnlocked(input: AutoMedicineUnlockInput): boolean 
   return input.medicines.some((medicine) =>
     isMedicineUnlockConditionMet(input.progress, input.stages, medicine)
   );
+}
+
+export function isMedicineAutoUseEnabled(
+  preferences: AutoMedicinePreferences | undefined,
+  medicineId: string
+): boolean {
+  const resolved = preferences ?? defaultAutoMedicinePreferences;
+
+  return (
+    resolved.enabled &&
+    !resolved.disabledMedicineIds.includes(medicineId)
+  );
+}
+
+export function getMedicineAutoUseLabel(
+  preferences: AutoMedicinePreferences | undefined,
+  medicineId: string
+): AutoMedicineToggleLabel {
+  return isMedicineAutoUseEnabled(preferences, medicineId)
+    ? AUTO_MEDICINE_ON_LABEL
+    : AUTO_MEDICINE_OFF_LABEL;
+}
+
+export function setMedicineAutoUsePreference(
+  preferences: AutoMedicinePreferences | undefined,
+  medicineId: string,
+  enabled: boolean
+): AutoMedicinePreferences {
+  const resolved = preferences ?? defaultAutoMedicinePreferences;
+  const disabledMedicineIds = new Set(resolved.disabledMedicineIds);
+
+  if (enabled) {
+    disabledMedicineIds.delete(medicineId);
+  } else {
+    disabledMedicineIds.add(medicineId);
+  }
+
+  return {
+    ...resolved,
+    disabledMedicineIds: [...disabledMedicineIds].sort()
+  };
 }
 
 export function applyAutoCleanseMedicine(

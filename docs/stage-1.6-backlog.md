@@ -66,7 +66,7 @@ Why this target:
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 37 | Auto Medicine Unlock Rules | Completed | Unlock auto medicine when medicine becomes available |
-| 38 | Per-Medicine Auto Policy | Not Started | Let players disable automatic use for each medicine type |
+| 38 | Per-Medicine Auto Policy | Completed | Let players disable automatic use for each medicine type |
 | 39 | Pre-Battle Resistance Policy | Not Started | Make resistance medicine consumption mode configurable |
 | 40 | Counterplay Settings Panel | Not Started | Add compact UI controls for medicine automation |
 | 41 | Lotus Purity Support Growth | Not Started | Make support identity visible without adding a new hero |
@@ -140,6 +140,13 @@ Players should be able to disable automatic use per medicine type while keeping 
 - Auto pre-battle resistance skips disabled resistance medicine.
 - Save validation rejects unknown disabled medicine ids.
 - UI view models expose per-medicine auto state.
+
+### Progress Notes
+
+- Added shared per-medicine auto policy helpers for toggling, checking eligibility, and exposing stable "Auto On" / "Auto Off" labels.
+- Battle cleanse, post-battle cleanse, and pre-battle resistance now have explicit tests proving disabled medicine ids are skipped and can be re-enabled.
+- Save validation and web import now reject disabled medicine ids that are not present in configured medicine data.
+- Counterplay medicine view models expose disabled state, auto-use enabled state, and stable auto-use labels for the upcoming settings panel.
 
 ---
 
@@ -318,7 +325,7 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 ## Final Stage 1.6 Checklist
 
 - [x] Auto medicine unlocks after first medicine availability.
-- [ ] Per-medicine auto toggles implemented and persisted.
+- [x] Per-medicine auto toggles implemented and persisted.
 - [ ] Pre-battle resistance policy modes implemented.
 - [ ] Counterplay settings panel added and mobile-safe.
 - [ ] Lotus/support contribution visible in UI and simulator.
