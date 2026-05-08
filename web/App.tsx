@@ -19,7 +19,8 @@ import stages from "../data/stages.json" with { type: "json" };
 import statusEffects from "../data/statusEffects.json" with { type: "json" };
 import {
   buildStatusChipViewModels,
-  buildStatusSummaryViewModel
+  buildStatusSummaryViewModel,
+  getStatusTone
 } from "./statusPresentation";
 
 const statusDefinitions = createStatusDictionary(
@@ -185,14 +186,21 @@ export function App() {
           <h2 id="summary-heading">Battle Summary</h2>
           <div className="callout-row">
             {statusSummary.callouts.map((callout) => (
-              <span className="summary-callout" key={callout}>
-                {callout}
+              <span
+                aria-label={callout.ariaLabel}
+                className={`summary-callout ${callout.toneClassName}`}
+                key={callout.id}
+              >
+                {callout.label}
               </span>
             ))}
           </div>
           <dl className="summary-list">
             {statusSummary.rows.map((row) => (
-              <div className="summary-row" key={row.label}>
+              <div
+                className={`summary-row ${row.toneClassName}`}
+                key={row.label}
+              >
                 <dt>{row.label}</dt>
                 <dd>{row.value}</dd>
               </div>
@@ -240,11 +248,19 @@ function CounterplayPanel({
             <span>{preview.statusCategories.join(" / ") || "clean"}</span>
           </div>
           <div className="status-pressure-row">
-            {preview.statusPressureLabels.map((status) => (
-              <span className="pressure-chip" key={status}>
-                {status}
-              </span>
-            ))}
+            {preview.statusPressureItems.map((status) => {
+              const tone = getStatusTone(status.category);
+
+              return (
+                <span
+                  aria-label={`${status.label}, ${tone.label}`}
+                  className={`pressure-chip ${tone.className}`}
+                  key={status.statusId}
+                >
+                  {status.label}
+                </span>
+              );
+            })}
           </div>
           <p>{preview.recommendationText}</p>
         </div>
@@ -266,6 +282,7 @@ function StatusChips({
     <div className="status-chip-row" aria-label="Active statuses">
       {chips.map((chip) => (
         <span
+          aria-label={chip.ariaLabel}
           className={`status-chip ${chip.toneClassName} severity-${chip.severity}`}
           key={chip.statusId}
         >

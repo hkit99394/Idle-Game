@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   buildStatusChipViewModels,
-  buildStatusSummaryViewModel
+  buildStatusSummaryViewModel,
+  getStatusTone,
+  statusToneDefinitions
 } from "../../web/statusPresentation";
 import { createStatusDictionary } from "../../core";
 import type { ActiveStatusEffect, StatusEffectDefinition } from "../../core";
@@ -12,6 +14,29 @@ const statusDefinitions = createStatusDictionary(
 );
 
 describe("status presentation", () => {
+  it("maps every configured status category and cleanse to a fixed tone", () => {
+    const configuredCategories = [
+      ...new Set(
+        (statusEffects as StatusEffectDefinition[]).map(
+          (status) => status.category
+        )
+      )
+    ];
+
+    expect(configuredCategories.map((category) => getStatusTone(category))).toEqual([
+      statusToneDefinitions.damage,
+      statusToneDefinitions.recovery,
+      statusToneDefinitions.control,
+      statusToneDefinitions.vulnerability,
+      statusToneDefinitions.backlash
+    ]);
+    expect(getStatusTone("cleanse")).toEqual({
+      role: "cleanse",
+      label: "Cleanse",
+      className: "tone-cleanse"
+    });
+  });
+
   it("sorts active statuses by severity and exposes chip display fields", () => {
     const statuses: ActiveStatusEffect[] = [
       {
@@ -36,30 +61,54 @@ describe("status presentation", () => {
         statusId: "poison",
         label: "Poison",
         category: "damage",
+        categoryLabel: "Damage",
         severity: "high",
+        severityLabel: "High severity",
         toneClassName: "tone-damage",
         remainingLabel: "8s",
-        stacksLabel: "x3"
+        stacksLabel: "x3",
+        ariaLabel: "Poison, Damage, High severity, 8 seconds remaining"
       },
       {
         statusId: "wound",
         label: "Wound",
         category: "recovery",
+        categoryLabel: "Recovery",
         severity: "medium",
+        severityLabel: "Medium severity",
         toneClassName: "tone-recovery",
         remainingLabel: "3s",
-        stacksLabel: null
+        stacksLabel: null,
+        ariaLabel: "Wound, Recovery, Medium severity, 3 seconds remaining"
       },
       {
         statusId: "qi_suppression",
         label: "Qi Suppression",
         category: "control",
+        categoryLabel: "Control",
         severity: "low",
+        severityLabel: "Low severity",
         toneClassName: "tone-control",
         remainingLabel: "2s",
-        stacksLabel: null
+        stacksLabel: null,
+        ariaLabel: "Qi Suppression, Control, Low severity, 2 seconds remaining"
       }
     ]);
+  });
+
+  it("ignores unknown active status ids", () => {
+    expect(
+      buildStatusChipViewModels(
+        [
+          {
+            statusId: "missing_status",
+            remainingSeconds: 5,
+            stacks: 1
+          }
+        ],
+        statusDefinitions
+      )
+    ).toEqual([]);
   });
 
   it("summarizes status damage and cleanses", () => {
@@ -94,21 +143,36 @@ describe("status presentation", () => {
     });
 
     expect(summary.callouts).toEqual([
-      "Iron Fist Disciple took 48 status damage",
-      "Mountain Staff Guardian cleansed 2 status"
+      {
+        id: "status-damage",
+        label: "Iron Fist Disciple took 48 status damage",
+        toneClassName: "tone-damage",
+        ariaLabel:
+          "Damage summary: Iron Fist Disciple took 48 status damage"
+      },
+      {
+        id: "cleanses",
+        label: "Mountain Staff Guardian cleansed 2 status",
+        toneClassName: "tone-cleanse",
+        ariaLabel:
+          "Cleanse summary: Mountain Staff Guardian cleansed 2 status"
+      }
     ]);
     expect(summary.rows).toEqual([
       {
         label: "Status Damage",
-        value: "48 to Iron Fist Disciple"
+        value: "48 to Iron Fist Disciple",
+        toneClassName: "tone-damage"
       },
       {
         label: "Cleanses",
-        value: "2 by Mountain Staff Guardian"
+        value: "2 by Mountain Staff Guardian",
+        toneClassName: "tone-cleanse"
       },
       {
         label: "Debuffs",
-        value: "Poison, Wound"
+        value: "Poison, Wound",
+        toneClassName: "tone-control"
       }
     ]);
   });

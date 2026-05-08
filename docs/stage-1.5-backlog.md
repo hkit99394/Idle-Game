@@ -50,7 +50,7 @@ The recommended theme is **Status Counterplay Automation And Balance**. Stage 1.
 | 31 | Resistance Formula Integration | Completed | Apply status resistance to chance, duration, and tick damage |
 | 32 | Auto Medicine System | Completed | Consume medicine safely during battle and non-battle recovery |
 | 33 | Counterplay Loadout And Preview | Completed | Let players understand and manage medicine/counterplay choices |
-| 34 | Status Visual Language | Not Started | Standardize fixed category colors, severity, and cleanse display |
+| 34 | Status Visual Language | Completed | Standardize fixed category colors, severity, and cleanse display |
 | 35 | Scenario Simulator And Balance Gates | Not Started | Tune Demon Cult with baseline and counterplay scenarios |
 | 36 | Support Identity Decision | Not Started | Decide whether Lotus support is enough or a new hero is needed |
 
@@ -258,6 +258,16 @@ Make statuses instantly readable through fixed category colors and consistent se
 - Unknown status ids are ignored or shown with a safe fallback.
 - Severity sort order remains stable.
 
+### Progress Notes
+
+- Added a shared status tone contract for damage, control, vulnerability, recovery, backlash, and cleanse roles.
+- Added category labels, severity labels, and accessible labels to status chip view models.
+- Updated battle summary callouts and rows to carry tone classes, including a dedicated cleanse tone for cleanse events.
+- Updated stage counterplay previews to expose status pressure items with category metadata.
+- Updated stage pressure chips to use fixed category colors instead of a one-off danger color.
+- Refactored tone CSS to use `--tone-color` and `--tone-bg` variables so chips, callouts, rows, and future tooltips can share the same visual language.
+- Added tests for all configured category tones, cleanse tone, unknown status fallback, summary cleanse tone, and severity sort stability.
+
 ---
 
 ## Epic 35: Scenario Simulator And Balance Gates
@@ -359,7 +369,7 @@ Decide whether Demon Cult counterplay should be carried by existing Lotus suppor
 - [x] Resistance formula integrated and tested.
 - [x] Auto medicine policy implemented and tested.
 - [x] Counterplay preview/loadout planned or implemented.
-- [ ] Status visual language standardized.
+- [x] Status visual language standardized.
 - [ ] Scenario simulator reports baseline and counterplay routes.
 - [ ] Demon Cult support/new hero decision documented.
 - [ ] Stage 1.5 backlog reviewed.

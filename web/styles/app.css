@@ -165,12 +165,13 @@ body {
 
 .pressure-chip {
   padding: 4px 7px;
-  border: 1px solid #d7a8a1;
+  border: 1px solid currentColor;
   border-radius: 999px;
-  background: #fff0ed;
-  color: #8d342d;
+  background: var(--tone-bg, #fff0ed);
+  color: var(--tone-color, #8d342d);
   font-size: 0.74rem;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .stage-preview p {
@@ -301,28 +302,45 @@ h2 {
 }
 
 .tone-damage {
-  color: #a6362c;
-  background: #fff0ed;
+  --tone-color: #a6362c;
+  --tone-bg: #fff0ed;
+  color: var(--tone-color);
+  background: var(--tone-bg);
 }
 
 .tone-control {
-  color: #2d6782;
-  background: #edf7fb;
+  --tone-color: #2d6782;
+  --tone-bg: #edf7fb;
+  color: var(--tone-color);
+  background: var(--tone-bg);
 }
 
 .tone-vulnerability {
-  color: #8a4a15;
-  background: #fff4df;
+  --tone-color: #8a4a15;
+  --tone-bg: #fff4df;
+  color: var(--tone-color);
+  background: var(--tone-bg);
 }
 
 .tone-recovery {
-  color: #6b4ca1;
-  background: #f4efff;
+  --tone-color: #6b4ca1;
+  --tone-bg: #f4efff;
+  color: var(--tone-color);
+  background: var(--tone-bg);
 }
 
 .tone-backlash {
-  color: #75521d;
-  background: #fbf5e6;
+  --tone-color: #75521d;
+  --tone-bg: #fbf5e6;
+  color: var(--tone-color);
+  background: var(--tone-bg);
+}
+
+.tone-cleanse {
+  --tone-color: #2f6f46;
+  --tone-bg: #eef8f0;
+  color: var(--tone-color);
+  background: var(--tone-bg);
 }
 
 .severity-high {
@@ -352,9 +370,9 @@ h2 {
 
 .summary-callout {
   padding: 7px 9px;
-  border-left: 3px solid #2d6f88;
-  background: #f8fbfa;
-  color: #2e453e;
+  border-left: 3px solid var(--tone-color, #2d6f88);
+  background: var(--tone-bg, #f8fbfa);
+  color: var(--tone-color, #2e453e);
   font-size: 0.86rem;
   font-weight: 700;
 }
@@ -375,6 +393,7 @@ h2 {
   gap: 5px;
   min-width: 0;
   padding: 10px;
+  border-left: 3px solid var(--tone-color, transparent);
   background: #fffaf0;
 }
 

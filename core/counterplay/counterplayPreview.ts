@@ -34,6 +34,11 @@ export type MedicineCounterplayViewModel = {
 export type StageCounterplayPreview = {
   stageId: string;
   stageName: string;
+  statusPressureItems: Array<{
+    statusId: string;
+    label: string;
+    category: StatusEffectDefinition["category"];
+  }>;
   statusPressureIds: string[];
   statusPressureLabels: string[];
   statusCategories: StatusEffectDefinition["category"][];
@@ -133,6 +138,11 @@ export function buildStageCounterplayPreview(input: {
   return {
     stageId: input.stage.id,
     stageName: input.stage.name,
+    statusPressureItems: pressureStatuses.map((status) => ({
+      statusId: status.id,
+      label: status.name,
+      category: status.category
+    })),
     statusPressureIds,
     statusPressureLabels: pressureStatuses.map((status) => status.name),
     statusCategories: [
