@@ -1,4 +1,5 @@
 import {
+  assessStageClearTimeTarget,
   calculateUpgradeCost,
   cloneProgress,
   createInitialPlayerProgress,
@@ -11,9 +12,12 @@ import {
   getNextMasteryThreshold,
   purchaseUpgrade,
   resolveStageBattle,
+  scoreStageRewards,
   simulateBattle
 } from "../../core";
 import type {
+  BalanceResultExpectation,
+  BalanceTargetCheck,
   BattleEvent,
   PlayerProgress,
   ResolveStageBattleResult,
@@ -44,6 +48,9 @@ type TrainingCandidate = {
   heroId?: string;
   cost: number;
 };
+
+type BattleSummary = ReturnType<typeof summarizeBattle>;
+type RegionBudgetCheck = BalanceTargetCheck;
 
 function createTrainedBossPlan(data: StaticGameData): TrainingPlanEntry[] {
   return [
@@ -597,7 +604,18 @@ function summarizeBattle(
       enemyIds: stage.enemyTeam.combatantIds,
       enemyFormationSlots: [],
       enemyTypes: enemiesForStage.map((enemy) => enemy.type),
-      reason: result.reason
+      reason: result.reason,
+      clearTimeAssessment: {
+        id: "clear_time",
+        label: "Clear Time",
+        status: "fail" as const,
+        reason: `${stage.id} could not be resolved: ${result.reason}`
+      },
+      budgetReasons: [`${stage.id} could not be resolved: ${result.reason}`],
+      statusApplications: 0,
+      statusDamage: 0,
+      statusIds: [],
+      medicineConsumed: 0
     };
   }
 
@@ -629,6 +647,17 @@ function summarizeBattle(
   const cleanseEvents = result.battle.events.filter(
     (event) => event.type === "cleanse"
   );
+  const statusApplyEvents = result.battle.events.filter(
+    (event): event is Extract<BattleEvent, { type: "status_apply" }> =>
+      event.type === "status_apply" && event.sourceId.startsWith("enemy_")
+  );
+  const statusTickEvents = result.battle.events.filter(
+    (event): event is Extract<BattleEvent, { type: "status_tick" }> =>
+      event.type === "status_tick" && event.targetId.startsWith("player_")
+  );
+  const autoMedicineEvents = result.battle.events.filter(
+    (event) => event.type === "auto_medicine"
+  );
   const targetMet = targetSeconds
     ? result.battle.winner === "player" &&
       isWithinClearTimeTarget(durationSeconds, {
@@ -636,6 +665,21 @@ function summarizeBattle(
         max: targetSeconds[1]
       })
     : null;
+  const clearTimeAssessment = assessStageClearTimeTarget({
+    stageId: stage.id,
+    result:
+      result.battle.winner === "player" && result.stageCleared
+        ? "player_clear"
+        : "enemy_hold",
+    stageCleared: result.stageCleared,
+    durationSeconds,
+    target: targetSeconds
+      ? {
+          min: targetSeconds[0],
+          max: targetSeconds[1]
+        }
+      : null
+  });
 
   return {
     ok: true,
@@ -649,6 +693,9 @@ function summarizeBattle(
     enemyTypes: enemiesForStage.map((enemy) => enemy.type),
     targetSeconds,
     targetMet,
+    clearTimeAssessment,
+    budgetReasons:
+      clearTimeAssessment.status === "fail" ? [clearTimeAssessment.reason] : [],
     winner: result.battle.winner,
     stageCleared: result.stageCleared,
     durationSeconds,
@@ -664,6 +711,16 @@ function summarizeBattle(
       durationSeconds
     ),
     cleanses: cleanseEvents.length,
+    statusApplications: statusApplyEvents.length,
+    statusDamage: Number(
+      statusTickEvents
+        .reduce((total, event) => total + event.outerDamage, 0)
+        .toFixed(2)
+    ),
+    statusIds: [
+      ...new Set(statusApplyEvents.map((event) => event.statusId))
+    ].sort(),
+    medicineConsumed: autoMedicineEvents.length,
     outerHealing: Number(
       (
         result.battle.metrics.playerOuterHealing +
@@ -884,6 +941,447 @@ function buildRecoveryEventSummary(
   );
 }
 
+function getRegion(data: StaticGameData, regionId: string) {
+  const region = data.regions.find((candidate) => candidate.id === regionId);
+
+  if (!region) {
+    throw new Error(`Missing region ${regionId}`);
+  }
+
+  return region;
+}
+
+function formatNumber(value: number): string {
+  return Number.isInteger(value)
+    ? String(value)
+    : value.toFixed(2).replace(/\.?0+$/, "");
+}
+
+function buildRegionStatusSummary(stageResults: BattleSummary[]) {
+  return stageResults.reduce(
+    (summary, stage) => {
+      if (!stage.ok) {
+        return summary;
+      }
+
+      for (const statusId of stage.statusIds) {
+        summary.statusIds.add(statusId);
+      }
+
+      return {
+        applications: summary.applications + stage.statusApplications,
+        damage: Number((summary.damage + stage.statusDamage).toFixed(2)),
+        medicineConsumed: summary.medicineConsumed + stage.medicineConsumed,
+        statusIds: summary.statusIds
+      };
+    },
+    {
+      applications: 0,
+      damage: 0,
+      medicineConsumed: 0,
+      statusIds: new Set<string>()
+    }
+  );
+}
+
+function makeBudgetCheck(
+  id: string,
+  label: string,
+  failures: string[],
+  passReason: string
+): RegionBudgetCheck {
+  return {
+    id,
+    label,
+    status: failures.length > 0 ? "fail" : "pass",
+    reason: failures.length > 0 ? failures.join("; ") : passReason
+  };
+}
+
+function buildClearTimeBudgetCheck(stageResults: BattleSummary[]): RegionBudgetCheck {
+  const evaluatedStages = stageResults.filter(
+    (stage) => stage.ok && stage.targetSeconds !== null
+  );
+  const failures = evaluatedStages
+    .filter((stage) => stage.clearTimeAssessment.status === "fail")
+    .map((stage) => stage.clearTimeAssessment.reason);
+
+  return makeBudgetCheck(
+    "clear_time",
+    "Clear Time",
+    failures,
+    `${evaluatedStages.length} configured stages are within clear-time targets`
+  );
+}
+
+function buildRewardCurveBudgetCheck(
+  data: StaticGameData,
+  report: RegionBalanceReportBase
+): RegionBudgetCheck | null {
+  const target = getRegion(data, report.regionId).balanceTargets?.rewardCurve;
+
+  if (!target?.requireBestFarmRecommendation) {
+    return null;
+  }
+
+  const expectedFarmStage = getRecommendedRegionFarmStage(
+    data,
+    report.progressBeforeBoss,
+    report.regionId
+  );
+  const actualStageId = report.farmRecommendation?.stageId ?? null;
+  const expectedStageId = expectedFarmStage?.id ?? null;
+  const failures =
+    actualStageId === expectedStageId
+      ? []
+      : [
+          `farm recommendation ${actualStageId ?? "none"} does not match best configured farm ${expectedStageId ?? "none"}`
+        ];
+  const score =
+    expectedFarmStage === null
+      ? 0
+      : scoreStageRewards(expectedFarmStage.rewards);
+
+  return makeBudgetCheck(
+    "reward_curve",
+    "Reward Curve",
+    failures,
+    expectedFarmStage
+      ? `${expectedFarmStage.id} is the best farm target at score ${formatNumber(score)}`
+      : "no farm target is expected for this region state"
+  );
+}
+
+function buildStatusPressureBudgetCheck(
+  data: StaticGameData,
+  report: RegionBalanceReportBase
+): RegionBudgetCheck | null {
+  const target = getRegion(data, report.regionId).balanceTargets?.statusPressure;
+
+  if (target === undefined) {
+    return null;
+  }
+
+  const summary = buildRegionStatusSummary(report.stageResults);
+  const failures: string[] = [];
+
+  if (
+    target.minApplications !== undefined &&
+    summary.applications < target.minApplications
+  ) {
+    failures.push(
+      `status applications ${summary.applications} below minimum ${target.minApplications}`
+    );
+  }
+
+  if (
+    target.maxApplications !== undefined &&
+    summary.applications > target.maxApplications
+  ) {
+    failures.push(
+      `status applications ${summary.applications} above maximum ${target.maxApplications}`
+    );
+  }
+
+  if (
+    target.maxExpectedDamage !== undefined &&
+    summary.damage > target.maxExpectedDamage
+  ) {
+    failures.push(
+      `status damage ${formatNumber(summary.damage)} above maximum ${formatNumber(target.maxExpectedDamage)}`
+    );
+  }
+
+  if (
+    target.maxMedicineConsumed !== undefined &&
+    summary.medicineConsumed > target.maxMedicineConsumed
+  ) {
+    failures.push(
+      `medicine consumed ${summary.medicineConsumed} above maximum ${target.maxMedicineConsumed}`
+    );
+  }
+
+  for (const statusId of target.expectedStatusIds ?? []) {
+    if (!summary.statusIds.has(statusId)) {
+      failures.push(`expected status ${statusId} was not applied`);
+    }
+  }
+
+  return makeBudgetCheck(
+    "status_pressure",
+    "Status Pressure",
+    failures,
+    `${summary.applications} applications, ${formatNumber(summary.damage)} damage, ${summary.medicineConsumed} medicine within status budget`
+  );
+}
+
+function buildDefensePressureBudgetCheck(
+  data: StaticGameData,
+  report: RegionBalanceReportBase
+): RegionBudgetCheck | null {
+  const target = getRegion(data, report.regionId).balanceTargets?.defensePressure;
+
+  if (target === undefined) {
+    return null;
+  }
+
+  const events = report.defensiveEvents;
+  const failures: string[] = [];
+
+  if (
+    target.minGuardAbsorbs !== undefined &&
+    events.guardAbsorbs < target.minGuardAbsorbs
+  ) {
+    failures.push(
+      `guard absorbs ${events.guardAbsorbs} below minimum ${target.minGuardAbsorbs}`
+    );
+  }
+
+  if (
+    target.minArmorBreaks !== undefined &&
+    events.armorBreaks < target.minArmorBreaks
+  ) {
+    failures.push(
+      `armor breaks ${events.armorBreaks} below minimum ${target.minArmorBreaks}`
+    );
+  }
+
+  if (
+    target.minDamagePrevented !== undefined &&
+    events.defensiveDamagePrevented < target.minDamagePrevented
+  ) {
+    failures.push(
+      `damage prevented ${formatNumber(events.defensiveDamagePrevented)} below minimum ${formatNumber(target.minDamagePrevented)}`
+    );
+  }
+
+  return makeBudgetCheck(
+    "defense_pressure",
+    "Defense Pressure",
+    failures,
+    `g${events.guardAbsorbs}/a${events.armorBreaks}, ${formatNumber(events.defensiveDamagePrevented)} damage prevented within defense budget`
+  );
+}
+
+function buildHealingPressureBudgetCheck(
+  data: StaticGameData,
+  report: RegionBalanceReportBase
+): RegionBudgetCheck | null {
+  const target = getRegion(data, report.regionId).balanceTargets?.healingPressure;
+
+  if (target === undefined) {
+    return null;
+  }
+
+  const events = report.recoveryEvents;
+  const failures: string[] = [];
+
+  if (target.minHeals !== undefined && events.heals < target.minHeals) {
+    failures.push(`heals ${events.heals} below minimum ${target.minHeals}`);
+  }
+
+  if (
+    target.minOuterHealing !== undefined &&
+    events.outerHealing < target.minOuterHealing
+  ) {
+    failures.push(
+      `Outer healing ${formatNumber(events.outerHealing)} below minimum ${formatNumber(target.minOuterHealing)}`
+    );
+  }
+
+  if (target.minCleanses !== undefined && events.cleanses < target.minCleanses) {
+    failures.push(
+      `cleanses ${events.cleanses} below minimum ${target.minCleanses}`
+    );
+  }
+
+  if (
+    target.maxRecoveryPrevented !== undefined &&
+    events.recoveryPrevented > target.maxRecoveryPrevented
+  ) {
+    failures.push(
+      `recovery denied ${formatNumber(events.recoveryPrevented)} above maximum ${formatNumber(target.maxRecoveryPrevented)}`
+    );
+  }
+
+  return makeBudgetCheck(
+    "healing_pressure",
+    "Healing Pressure",
+    failures,
+    `${events.heals} heals, ${formatNumber(events.outerHealing)} Outer healing, ${events.cleanses} cleanses within healing budget`
+  );
+}
+
+function summaryMatchesExpectedResult(
+  summary: BattleSummary | undefined,
+  expected: BalanceResultExpectation
+): boolean {
+  if (summary === undefined || !summary.ok) {
+    return false;
+  }
+
+  if (expected === "player_clear") {
+    return summary.winner === "player" && summary.stageCleared;
+  }
+
+  return summary.winner === "enemy" && !summary.stageCleared;
+}
+
+function describeSummaryOutcome(summary: BattleSummary | undefined): string {
+  if (summary === undefined) {
+    return "missing";
+  }
+
+  if (!summary.ok) {
+    return `error:${summary.reason}`;
+  }
+
+  return summary.winner === "player" && summary.stageCleared
+    ? "player_clear"
+    : "enemy_hold";
+}
+
+function buildBossGateBudgetCheck(
+  data: StaticGameData,
+  report: RegionBalanceReportBase
+): RegionBudgetCheck | null {
+  const target = getRegion(data, report.regionId).balanceTargets?.bossGate;
+
+  if (target === undefined) {
+    return null;
+  }
+
+  const failures: string[] = [];
+  const baseline = report.bossGate.baseline;
+  const trained = report.bossGate.trained;
+  const farmed = report.bossGate.farmed;
+
+  if (
+    target.baselineResult !== undefined &&
+    !summaryMatchesExpectedResult(baseline, target.baselineResult)
+  ) {
+    failures.push(
+      `baseline expected ${target.baselineResult}, got ${describeSummaryOutcome(baseline)}`
+    );
+  }
+
+  if (
+    target.trainedResult !== undefined &&
+    !summaryMatchesExpectedResult(trained, target.trainedResult)
+  ) {
+    failures.push(
+      `trained expected ${target.trainedResult}, got ${describeSummaryOutcome(trained)}`
+    );
+  }
+
+  if (
+    target.farmedResult !== undefined &&
+    !summaryMatchesExpectedResult(farmed, target.farmedResult)
+  ) {
+    failures.push(
+      `farmed expected ${target.farmedResult}, got ${describeSummaryOutcome(farmed)}`
+    );
+  }
+
+  if (
+    target.maxFarmClears !== undefined &&
+    farmed !== undefined &&
+    "farmClears" in farmed &&
+    farmed.farmClears > target.maxFarmClears
+  ) {
+    failures.push(
+      `farmed clear needs ${farmed.farmClears} farms above maximum ${target.maxFarmClears}`
+    );
+  }
+
+  if (
+    target.maxTrainingCost !== undefined &&
+    farmed !== undefined &&
+    "trainingCost" in farmed &&
+    farmed.trainingCost > target.maxTrainingCost
+  ) {
+    failures.push(
+      `farmed clear training cost ${farmed.trainingCost} above maximum ${target.maxTrainingCost}`
+    );
+  }
+
+  const checkedBoss = farmed ?? trained ?? baseline;
+  if (
+    target.clearTimeSeconds !== undefined &&
+    "durationSeconds" in checkedBoss &&
+    "stageCleared" in checkedBoss &&
+    "winner" in checkedBoss
+  ) {
+    const stageCleared = checkedBoss.stageCleared === true;
+    const durationSeconds = checkedBoss.durationSeconds ?? 0;
+    const clearTimeAssessment = assessStageClearTimeTarget({
+      stageId: checkedBoss.stageId,
+      result:
+        checkedBoss.winner === "player" && stageCleared
+          ? "player_clear"
+          : "enemy_hold",
+      stageCleared,
+      durationSeconds,
+      target: target.clearTimeSeconds
+    });
+
+    if (clearTimeAssessment.status === "fail") {
+      failures.push(clearTimeAssessment.reason);
+    }
+  }
+
+  if (
+    target.maxMedicineConsumed !== undefined &&
+    "medicineConsumed" in checkedBoss &&
+    checkedBoss.medicineConsumed > target.maxMedicineConsumed
+  ) {
+    failures.push(
+      `boss medicine ${checkedBoss.medicineConsumed} above maximum ${target.maxMedicineConsumed}`
+    );
+  }
+
+  if (
+    target.maxStatusDamage !== undefined &&
+    "statusDamage" in checkedBoss &&
+    checkedBoss.statusDamage > target.maxStatusDamage
+  ) {
+    failures.push(
+      `boss status damage ${formatNumber(checkedBoss.statusDamage)} above maximum ${formatNumber(target.maxStatusDamage)}`
+    );
+  }
+
+  return makeBudgetCheck(
+    "boss_gate",
+    "Boss Gate",
+    failures,
+    `boss outcomes match configured gate expectations`
+  );
+}
+
+function buildRegionBudgetChecks(
+  data: StaticGameData,
+  report: RegionBalanceReportBase
+): RegionBudgetCheck[] {
+  return [
+    buildClearTimeBudgetCheck(report.stageResults),
+    buildRewardCurveBudgetCheck(data, report),
+    buildStatusPressureBudgetCheck(data, report),
+    buildDefensePressureBudgetCheck(data, report),
+    buildHealingPressureBudgetCheck(data, report),
+    buildBossGateBudgetCheck(data, report)
+  ].filter((check): check is RegionBudgetCheck => check !== null);
+}
+
+function withRegionBudgetChecks(
+  data: StaticGameData,
+  report: RegionBalanceReportBase
+): RegionBalanceReport {
+  return {
+    ...report,
+    budgetChecks: buildRegionBudgetChecks(data, report)
+  };
+}
+
 function buildRegionStageProgressionReport(
   data: StaticGameData,
   regionId: string,
@@ -972,14 +1470,18 @@ function buildRegionStageProgressionReport(
   };
 }
 
-type RegionBalanceReport = ReturnType<typeof buildRegionStageProgressionReport> & {
+type RegionBalanceReportBase = ReturnType<typeof buildRegionStageProgressionReport> & {
   bossGate: ReturnType<typeof buildRegionStageProgressionReport>["bossGate"] & {
     trained?: ReturnType<typeof summarizeBattle>;
   };
 };
 
+type RegionBalanceReport = RegionBalanceReportBase & {
+  budgetChecks: RegionBudgetCheck[];
+};
+
 type SeededRegionBalanceReport = {
-  report: RegionBalanceReport;
+  report: RegionBalanceReportBase;
   progressAfterRegion: PlayerProgress;
 };
 
@@ -996,18 +1498,18 @@ function buildRegionBalancesInOrder(
     const seededReport = seededReports.get(regionId);
 
     if (seededReport) {
-      regionBalances.push({
+      const seededRegionReport = {
         ...seededReport.report,
         progressAfterRegion: seededReport.progressAfterRegion
-      });
+      };
+      regionBalances.push(withRegionBudgetChecks(data, seededRegionReport));
       nextRegionStartingProgress = seededReport.progressAfterRegion;
       continue;
     }
 
-    const regionBalance = buildRegionStageProgressionReport(
+    const regionBalance = withRegionBudgetChecks(
       data,
-      regionId,
-      nextRegionStartingProgress
+      buildRegionStageProgressionReport(data, regionId, nextRegionStartingProgress)
     );
     regionBalances.push(regionBalance);
     nextRegionStartingProgress = regionBalance.progressAfterRegion;
@@ -1080,7 +1582,7 @@ export function buildGameBalanceReport(data: StaticGameData) {
     trainedBoss.ok && trainedBoss.stageCleared
       ? trainedBoss.progress
       : trainedBossProgress;
-  const bambooRoadRegionReport: RegionBalanceReport = {
+  const bambooRoadRegionReport: RegionBalanceReportBase = {
     ...bambooRoadProgression,
     bossGate: {
       ...bambooRoadProgression.bossGate,

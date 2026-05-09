@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.7 is in progress. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-44 are complete.
+Stage 1.7 is in progress. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-45 are complete.
 
 The recommended theme is **Foundation Hardening**. This is a cleanup and readiness stage, not a new content stage. The goal is to make saves, static data, balance gates, documentation, and release checks reliable before Stage 1.8 expands the combat engine further.
 
@@ -51,7 +51,7 @@ The recommended theme is **Foundation Hardening**. This is a cleanup and readine
 | --- | --- | --- | --- |
 | 43 | Save API And Migration Fixtures | Completed | Harden save load, migration, validation, and offline reward semantics |
 | 44 | Static Data Builder Consolidation | Completed | Make static data loading consistent across app, tools, and tests |
-| 45 | Balance Budget Gates | Not Started | Add shared budget targets and region gate explanations |
+| 45 | Balance Budget Gates | Completed | Add shared budget targets and region gate explanations |
 | 46 | Documentation And Archive Cleanup | Not Started | Update active docs and preserve completed backlog history |
 | 47 | Release Readiness Checklist | Not Started | Define reusable stage closure checks and command gates |
 | 48 | Foundation Regression Coverage | Not Started | Add golden/parity coverage for critical foundation behavior |
@@ -175,6 +175,14 @@ Make balance reports explain why content passes or misses target budgets using s
 ### Progress Notes
 
 - Recent refactors shared more status-pressure logic between combat and balance. Stage 1.7 should turn that into explicit gates and reporting expectations.
+- Expanded `RegionBalanceTargets` with reward, status, defense, healing, and boss-gate budgets, with validation for invalid budget values.
+- Added configured budget targets for Bamboo Road, Mist Valley, Black Iron Fort, Lotus Monastery, and Demon Cult Outpost in `data/regions.json`.
+- Shared clear-time assessment, boss-gate criteria, Demon Cult criteria, and reward scoring through `core/balance/targets.ts`.
+- Updated `npm run simulate` output with a `Region Budget Gates` section that reports pass/fail reasons per region.
+- Added simulated enemy status-pressure metrics so status budgets count enemy-applied statuses and status tick damage against the player.
+- Added tests for budget gate output, validation errors, farm recommendation alignment, and Demon Cult simulated-vs-estimated status-pressure parity.
+- Added `docs/balance-budget-gates.md` to document the budget fields and current known tuning misses.
+- Verified with `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.
 
 ---
 

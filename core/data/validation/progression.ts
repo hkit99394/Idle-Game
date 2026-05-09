@@ -2,6 +2,8 @@ import type { FormationDefinition, RegionDefinition, StageDefinition } from "../
 import { FORMATION_SLOTS, isFormationSlot } from "../../combat";
 import { isRecord } from "./shared";
 
+const BALANCE_RESULT_EXPECTATIONS = ["player_clear", "enemy_hold"] as const;
+
 export function validateClearTimeTargetRange(
   ownerLabel: string,
   value: unknown
@@ -87,7 +89,269 @@ export function validateRegionBalanceTargets(region: RegionDefinition): string[]
     );
   }
 
+  errors.push(...validateRewardCurveTargets(region));
+  errors.push(...validateStatusPressureTargets(region));
+  errors.push(...validateDefensePressureTargets(region));
+  errors.push(...validateHealingPressureTargets(region));
+  errors.push(...validateBossGateTargets(region));
+
   return errors;
+}
+
+function validateRewardCurveTargets(region: RegionDefinition): string[] {
+  const targets = region.balanceTargets?.rewardCurve;
+
+  if (targets === undefined) {
+    return [];
+  }
+
+  if (!isRecord(targets)) {
+    return [`Region ${region.id} balanceTargets.rewardCurve must be an object`];
+  }
+
+  if (
+    targets.requireBestFarmRecommendation !== undefined &&
+    typeof targets.requireBestFarmRecommendation !== "boolean"
+  ) {
+    return [
+      `Region ${region.id} balanceTargets.rewardCurve.requireBestFarmRecommendation must be a boolean`
+    ];
+  }
+
+  return [];
+}
+
+function validateStatusPressureTargets(region: RegionDefinition): string[] {
+  const targets = region.balanceTargets?.statusPressure;
+
+  if (targets === undefined) {
+    return [];
+  }
+
+  if (!isRecord(targets)) {
+    return [`Region ${region.id} balanceTargets.statusPressure must be an object`];
+  }
+
+  const errors: string[] = [];
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.minApplications,
+    `Region ${region.id} balanceTargets.statusPressure.minApplications`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxApplications,
+    `Region ${region.id} balanceTargets.statusPressure.maxApplications`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxExpectedDamage,
+    `Region ${region.id} balanceTargets.statusPressure.maxExpectedDamage`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxMedicineConsumed,
+    `Region ${region.id} balanceTargets.statusPressure.maxMedicineConsumed`
+  );
+
+  if (
+    targets.expectedStatusIds !== undefined &&
+    (!Array.isArray(targets.expectedStatusIds) ||
+      targets.expectedStatusIds.some((statusId) => typeof statusId !== "string"))
+  ) {
+    errors.push(
+      `Region ${region.id} balanceTargets.statusPressure.expectedStatusIds must be an array of strings`
+    );
+  }
+
+  validateMinMaxPair(
+    errors,
+    targets.minApplications,
+    targets.maxApplications,
+    `Region ${region.id} balanceTargets.statusPressure.applications`
+  );
+
+  return errors;
+}
+
+function validateDefensePressureTargets(region: RegionDefinition): string[] {
+  const targets = region.balanceTargets?.defensePressure;
+
+  if (targets === undefined) {
+    return [];
+  }
+
+  if (!isRecord(targets)) {
+    return [`Region ${region.id} balanceTargets.defensePressure must be an object`];
+  }
+
+  const errors: string[] = [];
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.minGuardAbsorbs,
+    `Region ${region.id} balanceTargets.defensePressure.minGuardAbsorbs`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.minArmorBreaks,
+    `Region ${region.id} balanceTargets.defensePressure.minArmorBreaks`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.minDamagePrevented,
+    `Region ${region.id} balanceTargets.defensePressure.minDamagePrevented`
+  );
+
+  return errors;
+}
+
+function validateHealingPressureTargets(region: RegionDefinition): string[] {
+  const targets = region.balanceTargets?.healingPressure;
+
+  if (targets === undefined) {
+    return [];
+  }
+
+  if (!isRecord(targets)) {
+    return [`Region ${region.id} balanceTargets.healingPressure must be an object`];
+  }
+
+  const errors: string[] = [];
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.minHeals,
+    `Region ${region.id} balanceTargets.healingPressure.minHeals`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.minOuterHealing,
+    `Region ${region.id} balanceTargets.healingPressure.minOuterHealing`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.minCleanses,
+    `Region ${region.id} balanceTargets.healingPressure.minCleanses`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxRecoveryPrevented,
+    `Region ${region.id} balanceTargets.healingPressure.maxRecoveryPrevented`
+  );
+
+  return errors;
+}
+
+function validateBossGateTargets(region: RegionDefinition): string[] {
+  const targets = region.balanceTargets?.bossGate;
+
+  if (targets === undefined) {
+    return [];
+  }
+
+  if (!isRecord(targets)) {
+    return [`Region ${region.id} balanceTargets.bossGate must be an object`];
+  }
+
+  const errors: string[] = [];
+  validateOptionalResultExpectation(
+    errors,
+    targets.baselineResult,
+    `Region ${region.id} balanceTargets.bossGate.baselineResult`
+  );
+  validateOptionalResultExpectation(
+    errors,
+    targets.trainedResult,
+    `Region ${region.id} balanceTargets.bossGate.trainedResult`
+  );
+  validateOptionalResultExpectation(
+    errors,
+    targets.farmedResult,
+    `Region ${region.id} balanceTargets.bossGate.farmedResult`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxFarmClears,
+    `Region ${region.id} balanceTargets.bossGate.maxFarmClears`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxTrainingCost,
+    `Region ${region.id} balanceTargets.bossGate.maxTrainingCost`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxMedicineConsumed,
+    `Region ${region.id} balanceTargets.bossGate.maxMedicineConsumed`
+  );
+  validateOptionalNonNegativeNumber(
+    errors,
+    targets.maxStatusDamage,
+    `Region ${region.id} balanceTargets.bossGate.maxStatusDamage`
+  );
+
+  if (targets.clearTimeSeconds !== undefined) {
+    errors.push(
+      ...validateClearTimeTargetRange(
+        `Region ${region.id} balanceTargets.bossGate.clearTimeSeconds`,
+        targets.clearTimeSeconds
+      )
+    );
+  }
+
+  return errors;
+}
+
+function validateOptionalResultExpectation(
+  errors: string[],
+  value: unknown,
+  ownerLabel: string
+): void {
+  if (
+    value !== undefined &&
+    !BALANCE_RESULT_EXPECTATIONS.includes(
+      value as (typeof BALANCE_RESULT_EXPECTATIONS)[number]
+    )
+  ) {
+    errors.push(
+      `${ownerLabel} must be one of ${BALANCE_RESULT_EXPECTATIONS.join(", ")}`
+    );
+  }
+}
+
+function validateOptionalNonNegativeNumber(
+  errors: string[],
+  value: unknown,
+  ownerLabel: string
+): void {
+  if (value === undefined) {
+    return;
+  }
+
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    errors.push(`${ownerLabel} must be a finite number`);
+    return;
+  }
+
+  if (value < 0) {
+    errors.push(`${ownerLabel} must be non-negative`);
+  }
+}
+
+function validateMinMaxPair(
+  errors: string[],
+  minValue: unknown,
+  maxValue: unknown,
+  ownerLabel: string
+): void {
+  if (
+    typeof minValue === "number" &&
+    Number.isFinite(minValue) &&
+    typeof maxValue === "number" &&
+    Number.isFinite(maxValue) &&
+    minValue > maxValue
+  ) {
+    errors.push(`${ownerLabel}.min must be less than or equal to max`);
+  }
 }
 
 export function validateStageEnemyRefs(
