@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.7 is in progress. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-46 are complete.
+Stage 1.7 is in progress. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-47 are complete.
 
 The recommended theme is **Foundation Hardening**. This is a cleanup and readiness stage, not a new content stage. The goal is to make saves, static data, balance gates, documentation, and release checks reliable before Stage 1.8 expands the combat engine further.
 
@@ -53,7 +53,7 @@ The recommended theme is **Foundation Hardening**. This is a cleanup and readine
 | 44 | Static Data Builder Consolidation | Completed | Make static data loading consistent across app, tools, and tests |
 | 45 | Balance Budget Gates | Completed | Add shared budget targets and region gate explanations |
 | 46 | Documentation And Archive Cleanup | Completed | Update active docs and preserve completed backlog history |
-| 47 | Release Readiness Checklist | Not Started | Define reusable stage closure checks and command gates |
+| 47 | Release Readiness Checklist | Completed | Define reusable stage closure checks and command gates |
 | 48 | Foundation Regression Coverage | Not Started | Add golden/parity coverage for critical foundation behavior |
 
 ---
@@ -256,6 +256,10 @@ Create a repeatable closure checklist so future stages finish with consistent re
 ### Progress Notes
 
 - Recent worker/reviewer loops and verification commands provide the template for this checklist.
+- Added `docs/release-readiness-checklist.md` with required verification commands, review expectations, UI/browser smoke rules, save compatibility checks, static-data/balance checks, and docs/archive closure steps.
+- The checklist distinguishes always-required command gates from optional browser smoke that depends on UI changes.
+- Stage closure now has a reusable summary template for future backlog progress notes and final handoffs.
+- Exercised the checklist for this docs-only epic: markdown link/path check passed, browser smoke skipped as not applicable, and `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check` all passed.
 
 ---
 
@@ -300,10 +304,14 @@ Add targeted regression tests for behavior that recent refactors made safer but 
 ## Open Questions
 
 - Should Stage 1.7 add a lightweight `npm run check` script that runs the required readiness commands, or keep commands separate for speed?
+  Decision for Epic 47: keep commands separate for now so slow checks remain explicit. Revisit if repeated closure runs become annoying.
 - Should balance budgets live in JSON data, TypeScript constants, or a CSV-derived file aligned with `docs/balance-template.csv`?
 - Should documentation checks be manual, or should we add a small script to detect missing internal doc paths?
+  Decision for Epic 47: manual markdown link/path checks are enough for Stage 1.7. Add a script later if docs grow further.
 - Should browser smoke be required for Stage 1.7 closure if no UI layout changes are made?
+  Decision for Epic 47: browser smoke is required for UI or web-state changes; docs-only, tooling-only, and pure core refactors can skip it with a note.
 - Should save migration fixtures start from MVP save versions only, or include one fixture per archived stage that changed save shape?
+  Decision from Epic 43: cover supported legacy save versions, then add targeted fixtures whenever a future stage changes save shape.
 
 ## Suggested Implementation Order
 

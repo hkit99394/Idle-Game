@@ -62,6 +62,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
 - Completed backlogs through Stage 1.6 live in `docs/archive`.
+- Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Current Known Balance Notes
 
