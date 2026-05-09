@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.7 is in progress. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-45 are complete.
+Stage 1.7 is in progress. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-46 are complete.
 
 The recommended theme is **Foundation Hardening**. This is a cleanup and readiness stage, not a new content stage. The goal is to make saves, static data, balance gates, documentation, and release checks reliable before Stage 1.8 expands the combat engine further.
 
@@ -52,7 +52,7 @@ The recommended theme is **Foundation Hardening**. This is a cleanup and readine
 | 43 | Save API And Migration Fixtures | Completed | Harden save load, migration, validation, and offline reward semantics |
 | 44 | Static Data Builder Consolidation | Completed | Make static data loading consistent across app, tools, and tests |
 | 45 | Balance Budget Gates | Completed | Add shared budget targets and region gate explanations |
-| 46 | Documentation And Archive Cleanup | Not Started | Update active docs and preserve completed backlog history |
+| 46 | Documentation And Archive Cleanup | Completed | Update active docs and preserve completed backlog history |
 | 47 | Release Readiness Checklist | Not Started | Define reusable stage closure checks and command gates |
 | 48 | Foundation Regression Coverage | Not Started | Add golden/parity coverage for critical foundation behavior |
 
@@ -217,6 +217,12 @@ Make active docs match the current game and keep completed stage history in `doc
 ### Progress Notes
 
 - Stage 1.6 backlog has been moved to `docs/archive/stage-1.6-backlog.md`.
+- Added `docs/current-implemented-systems.md` as the short current-state onboarding doc.
+- Updated `docs/martial-idle-design.md` to point readers to the implemented systems snapshot before older design sections.
+- Marked `docs/analysis-stage.md` and `docs/planning-questions.md` as historical planning artifacts with links to current docs.
+- Expanded `docs/core-engine-boundary.md` with the static-data builder, save-load transaction path, no-browser-dependency rule, and balance/tool boundaries.
+- Updated the Stage 1.7 to 2.2 roadmap so Stage 1.6 archive status and Stage 1.7 progress are current.
+- Verified with markdown link checks, `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.
 
 ---
 

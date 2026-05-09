@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completes the current Lotus support and Demon Cult counterplay slice. The next roadmap should pause before adding another large content layer and make the game easier to balance, extend, test, and eventually move toward backend or PWA support.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). The next roadmap pauses before adding another large content layer and makes the game easier to balance, extend, test, and eventually move toward backend or PWA support.
 
 The recommended sequence is:
 
@@ -27,8 +27,9 @@ The current game has enough combat, progression, save, offline, equipment, medic
 
 - Keep save code consolidated around the current exported save schema.
 - Add future save migrations only through the current save API and migration fixture path.
-- Update README and active docs so implemented regions, systems, and archives are accurate.
-- Move completed Stage 1.6 backlog to archive after review.
+- Update active docs so implemented regions, systems, and archives are accurate.
+- Keep Stage 1.6 historical context linked through `docs/archive/stage-1.6-backlog.md`.
+- Keep a short current-system onboarding page for contributors.
 - Expand the shared balance target data with stricter boss, reward, and pressure budgets.
 - Add balance gate coverage for every configured region.
 - Add a short release-readiness checklist for future stages.
@@ -39,6 +40,13 @@ The current game has enough combat, progression, save, offline, equipment, medic
 - No active docs point to missing or stale backlog paths.
 - Balance reports explain target misses with shared data-driven criteria.
 - `npm test`, `npm run build`, `npm run simulate`, and `npm run support-decision` pass.
+
+### Stage 1.7 Progress Snapshot
+
+- Epic 43 completed the core save-load transaction path and migration fixtures.
+- Epic 44 completed static-data builder consolidation.
+- Epic 45 completed shared balance budget gates.
+- Epic 46 updates active docs and archived-stage references.
 
 ## Stage 1.8: Combat Engine V2
 
