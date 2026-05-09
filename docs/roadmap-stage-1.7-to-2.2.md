@@ -48,6 +48,7 @@ The current game has enough combat, progression, save, offline, equipment, medic
 - Epic 45 completed shared balance budget gates.
 - Epic 46 updates active docs and archived-stage references.
 - Epic 47 adds a reusable release-readiness checklist for future stage closure.
+- Epic 48 adds foundation regression coverage for battle ordering, auto medicine, save replay prevention, static data parity, and balance/status parity.
 
 ## Stage 1.8: Combat Engine V2
 

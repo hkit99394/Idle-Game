@@ -61,6 +61,48 @@ describe("save load transaction", () => {
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
   });
 
+  it("prevents repeated offline rewards when the persisted save is loaded again", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 1_000
+    });
+    const firstLoad = loadSaveTransaction({
+      data: staticData,
+      rawSave: save,
+      nowMs: 61_000
+    });
+
+    expect(firstLoad.ok).toBe(true);
+    if (!firstLoad.ok) {
+      return;
+    }
+
+    const secondLoad = loadSaveTransaction({
+      data: staticData,
+      rawSave: firstLoad.save,
+      nowMs: 61_000
+    });
+
+    expect(secondLoad.ok).toBe(true);
+    if (!secondLoad.ok) {
+      return;
+    }
+
+    expect(firstLoad.offlineRewards?.ok).toBe(true);
+    expect(firstLoad.offlineRewards?.rewards.clears).toBeGreaterThan(0);
+    expect(firstLoad.save.lastOfflineRewardAtMs).toBe(61_000);
+    expect(secondLoad.changed).toBe(false);
+    expect(secondLoad.offlineRewards?.ok).toBe(true);
+    expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
+    expect(secondLoad.save.progress.resources).toEqual(
+      firstLoad.save.progress.resources
+    );
+  });
+
   it("normalizes invalid farm target metadata without changing reward timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 1;

@@ -12,12 +12,17 @@ import { staticData as toolStaticData } from "../../tools/staticData";
 import { staticData as webStaticData } from "../../web/gameData";
 import { staticData as testStaticData } from "../helpers/staticData";
 
-const countKeys = ["regions", "stages", "medicines", "skills"] as const;
-
 function getFixtureCounts(data: StaticGameData) {
   return Object.fromEntries(
-    countKeys.map((key) => [key, data[key].length])
-  ) as Record<(typeof countKeys)[number], number>;
+    staticGameDataPartKeys.map((key) => {
+      const value = data[key];
+
+      return [
+        key,
+        Array.isArray(value) ? value.length : Object.keys(value ?? {}).length
+      ];
+    })
+  ) as Record<(typeof staticGameDataPartKeys)[number], number>;
 }
 
 describe("static data builder", () => {
@@ -30,6 +35,9 @@ describe("static data builder", () => {
     expect(getFixtureCounts(webStaticData)).toEqual(expectedCounts);
     expect(getFixtureCounts(toolStaticData)).toEqual(expectedCounts);
     expect(getFixtureCounts(testStaticData)).toEqual(expectedCounts);
+    expect(Object.keys(expectedCounts).sort()).toEqual(
+      [...staticGameDataPartKeys].sort()
+    );
   });
 
   it("keeps the configured JSON parts aligned with the builder keys", () => {

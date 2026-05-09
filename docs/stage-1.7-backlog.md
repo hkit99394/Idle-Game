@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.7 is in progress. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-47 are complete.
+Stage 1.7 implementation is complete and ready for final review/archive. Stage 1.6 has been archived, and the post-1.6 refactor review found no blocking issues after the worker/reviewer pass. Epics 43-48 are complete.
 
 The recommended theme is **Foundation Hardening**. This is a cleanup and readiness stage, not a new content stage. The goal is to make saves, static data, balance gates, documentation, and release checks reliable before Stage 1.8 expands the combat engine further.
 
@@ -54,7 +54,7 @@ The recommended theme is **Foundation Hardening**. This is a cleanup and readine
 | 45 | Balance Budget Gates | Completed | Add shared budget targets and region gate explanations |
 | 46 | Documentation And Archive Cleanup | Completed | Update active docs and preserve completed backlog history |
 | 47 | Release Readiness Checklist | Completed | Define reusable stage closure checks and command gates |
-| 48 | Foundation Regression Coverage | Not Started | Add golden/parity coverage for critical foundation behavior |
+| 48 | Foundation Regression Coverage | Completed | Add golden/parity coverage for critical foundation behavior |
 
 ---
 
@@ -298,6 +298,14 @@ Add targeted regression tests for behavior that recent refactors made safer but 
 ### Progress Notes
 
 - The post-refactor reviewer called out the lack of full battle event ordering parity and browser visual smoke coverage. This epic covers the code-level part; browser visual smoke can move to Stage 1.9 unless Stage 1.7 changes UI.
+- Added a deterministic auto-medicine battle event ordering trace in `tests/progression/battleResolution.test.ts`.
+- Extracted shared auto-medicine status scenario helpers in `tests/helpers/statusScenarios.ts` so core and web regression tests use the same setup.
+- Added `tests/web/battleEventView.test.ts` for auto-medicine event presentation outside the browser.
+- Added a web command-path regression in `tests/web/gameState.systems.test.ts` proving disabled medicine preferences affect `resolveSelectedStageBattle`.
+- Expanded `tests/data/staticDataBuilder.test.ts` so web, tools, and test consumers stay aligned across every static-data part.
+- Expanded `tests/save/loadTransaction.test.ts` so the raw save-load transaction path proves repeated loads do not duplicate offline rewards.
+- Added a status-heavy balance parity test in `tests/balance/balanceReport.test.ts` comparing report status IDs and damage expectations with actual `resolveStageBattle` events.
+- Verified with `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.
 
 ---
 

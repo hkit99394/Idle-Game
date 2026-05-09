@@ -1,12 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
   buildBalanceReport,
+  createInitialPlayerProgress,
+  defaultAutoMedicinePreferences,
   defaultBalanceScenarioPresets,
   formatBalanceReport,
-  getStageStatusPressureIds
+  getStageStatusPressureIds,
+  resolveStageBattle
 } from "../../core";
 import type { StaticGameData } from "../../core";
 import { staticData } from "../helpers/staticData";
+
+function getUniqueSorted(values: string[]): string[] {
+  return [...new Set(values)].sort();
+}
 
 describe("balance report", () => {
   it("includes every configured region and stage in region order", () => {
@@ -201,6 +208,150 @@ describe("balance report", () => {
     expect(combinedDemonBossStage.statusMetrics.medicineConsumed).toBe(
       report.demonCultBossGate?.medicineConsumed
     );
+  });
+
+  it("keeps status-heavy balance status ids aligned with actual stage battles", () => {
+    const stageId = "balance_status_parity_stage";
+    const heroId = "balance_status_parity_patient";
+    const enemyId = "balance_status_parity_enemy";
+    const skillId = "balance_status_parity_pressure";
+    const data: StaticGameData = {
+      ...staticData,
+      heroes: [
+        ...staticData.heroes,
+        {
+          ...staticData.heroes[0],
+          id: heroId,
+          name: "Balance Status Patient",
+          skillIds: [],
+          baseStats: {
+            ...staticData.heroes[0].baseStats,
+            maxOuterHp: 3000,
+            outerAttack: 0,
+            innerAttack: 0,
+            speed: 0
+          }
+        }
+      ],
+      enemies: [
+        ...staticData.enemies,
+        {
+          ...staticData.enemies[0],
+          id: enemyId,
+          name: "Balance Status Enemy",
+          family: "demon_cult",
+          level: 1,
+          combatRole: "breaker",
+          skillIds: [skillId],
+          baseStats: {
+            ...staticData.enemies[0].baseStats,
+            outerAttack: 0,
+            innerAttack: 0,
+            speed: 100,
+            statusAccuracy: 1
+          }
+        }
+      ],
+      skills: [
+        ...staticData.skills,
+        {
+          id: skillId,
+          name: "Balance Status Pressure",
+          cooldownSeconds: 1,
+          outerMultiplier: 0,
+          innerMultiplier: 0,
+          targetRule: "first_living",
+          effects: [
+            {
+              type: "apply_status",
+              statusId: "poison",
+              chance: 1,
+              durationSeconds: 6,
+              stacks: 1
+            },
+            {
+              type: "apply_status",
+              statusId: "qi_suppression",
+              chance: 1,
+              durationSeconds: 6,
+              stacks: 1
+            }
+          ]
+        }
+      ],
+      regions: [
+        ...staticData.regions,
+        {
+          id: "balance_status_parity_region",
+          name: "Balance Status Parity Region",
+          stageIds: [stageId],
+          unlockCondition: { type: "always" }
+        }
+      ],
+      stages: [
+        ...staticData.stages,
+        {
+          id: stageId,
+          regionId: "balance_status_parity_region",
+          index: 1,
+          name: "Balance Status Parity Stage",
+          enemyTeam: {
+            combatantIds: [enemyId]
+          },
+          isBoss: false,
+          canFarmOffline: false,
+          rewards: {
+            silver: 0,
+            cultivation: 0,
+            combatExperience: 0
+          },
+          nextStageId: null
+        }
+      ]
+    };
+    const report = buildBalanceReport(data);
+    const reportedStage = report.regions
+      .find((region) => region.regionId === "balance_status_parity_region")
+      ?.stages.find((stage) => stage.stageId === stageId);
+    const progress = createInitialPlayerProgress(data);
+    progress.currentStageId = stageId;
+    progress.activeHeroIds = [heroId];
+    progress.formation = { [heroId]: "front" };
+    const actual = resolveStageBattle(data, {
+      progress,
+      stageId,
+      maxDurationSeconds: 10,
+      autoMedicinePreferences: {
+        ...defaultAutoMedicinePreferences,
+        enabled: false
+      }
+    });
+
+    expect(reportedStage).toBeDefined();
+    expect(actual.ok).toBe(true);
+    if (reportedStage === undefined || !actual.ok) {
+      return;
+    }
+
+    const actualStatusIds = getUniqueSorted(
+      actual.battle.events.flatMap((event) =>
+        event.type === "status_apply" ? [event.statusId] : []
+      )
+    );
+    const actualTickDamage = actual.battle.events.reduce(
+      (total, event) =>
+        event.type === "status_tick" ? total + event.outerDamage : total,
+      0
+    );
+
+    expect(reportedStage.statusMetrics.statusIds).toEqual([
+      "poison",
+      "qi_suppression"
+    ]);
+    expect(actualStatusIds).toEqual(reportedStage.statusMetrics.statusIds);
+    expect(reportedStage.statusMetrics.applications).toBeGreaterThan(0);
+    expect(reportedStage.statusMetrics.expectedDamage).toBeGreaterThan(0);
+    expect(actualTickDamage).toBeGreaterThan(0);
   });
 
   it("flags Demon Cult boss clear time outside the acceptable tuning band", () => {
