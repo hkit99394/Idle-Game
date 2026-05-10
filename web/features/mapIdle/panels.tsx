@@ -6,7 +6,7 @@ import type {
   OfflineRewardPreviewView,
   OfflineRewardSummaryView
 } from "../../state/viewModels/offlineTypes";
-import { formatDuration, formatNumber } from "./shared";
+import { formatDuration, formatNumber } from "../shared/ui";
 
 type OfflineSummaryPanelProps = {
   onDismiss: () => void;

@@ -1,4 +1,9 @@
+import { FORMATION_SLOTS } from "../../../core";
 import type { CombatRole, FormationSlot } from "../../../core";
+
+export const PLAYER_FORMATION_SLOT_OPTIONS = FORMATION_SLOTS;
+
+export type PlayerFormationSlotView = FormationSlot;
 
 export type RosterHeroView = {
   heroId: string;
@@ -22,5 +27,5 @@ export type PlayerFormationHeroView = {
   style: string;
   role: string;
   combatRole: CombatRole;
-  formationSlot: FormationSlot;
+  formationSlot: PlayerFormationSlotView;
 };

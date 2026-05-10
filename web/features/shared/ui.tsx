@@ -1,5 +1,3 @@
-import type { SaveDiagnosticsView } from "../../state/viewModels/saveDiagnosticsTypes";
-
 export {
   getBattleResultClass,
   getBattleResultText
@@ -30,34 +28,6 @@ export function formatDuration(seconds: number): string {
   }
 
   return `${Math.max(1, safeSeconds)}s`;
-}
-
-export function formatTimestamp(value: number | null): string {
-  if (value === null) {
-    return "Not saved";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(new Date(value));
-}
-
-export function formatSaveStatus(status: SaveDiagnosticsView["status"]): string {
-  switch (status) {
-    case "ready":
-      return "Ready";
-    case "missing_save":
-      return "Missing save";
-    case "invalid_json":
-      return "Invalid JSON";
-    case "invalid_save":
-      return "Invalid save";
-    case "storage_error":
-      return "Storage error";
-    case "storage_unavailable":
-      return "Storage unavailable";
-  }
 }
 
 function getBarPercent(current: number, max: number): number {

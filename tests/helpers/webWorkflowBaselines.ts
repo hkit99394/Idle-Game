@@ -43,7 +43,7 @@ export const webUiModuleInventory = [
     feature: "battle",
     label: "Battle",
     files: [
-      "web/components/gamePanels/battle.tsx",
+      "web/features/battle/panels.tsx",
       "web/state/viewModels/battle.ts",
       "web/state/viewModels/battleTypes.ts"
     ],
@@ -53,7 +53,7 @@ export const webUiModuleInventory = [
     feature: "map_idle",
     label: "Map and idle",
     files: [
-      "web/components/gamePanels/idleMap.tsx",
+      "web/features/mapIdle/panels.tsx",
       "web/state/offlineRewardSummary.ts",
       "web/state/viewModels/map.ts",
       "web/state/viewModels/mapTypes.ts",
@@ -66,7 +66,7 @@ export const webUiModuleInventory = [
     feature: "roster_formation",
     label: "Roster and formation",
     files: [
-      "web/components/gamePanels/rosterFormation.tsx",
+      "web/features/rosterFormation/panels.tsx",
       "web/state/viewModels/roster.ts",
       "web/state/viewModels/rosterTypes.ts"
     ],
@@ -76,7 +76,7 @@ export const webUiModuleInventory = [
     feature: "equipment_assignments",
     label: "Equipment and assignments",
     files: [
-      "web/components/gamePanels/equipmentAssignment.tsx",
+      "web/features/equipmentAssignments/panels.tsx",
       "web/state/viewModels/assignments.ts",
       "web/state/viewModels/assignmentTypes.ts",
       "web/state/viewModels/equipment.ts",
@@ -88,7 +88,7 @@ export const webUiModuleInventory = [
     feature: "growth_mastery",
     label: "Growth and mastery",
     files: [
-      "web/components/gamePanels/masteryGrowth.tsx",
+      "web/features/growthMastery/panels.tsx",
       "web/state/viewModels/progression.ts",
       "web/state/viewModels/progressionTypes.ts"
     ],
@@ -98,7 +98,7 @@ export const webUiModuleInventory = [
     feature: "counterplay_save",
     label: "Counterplay and save",
     files: [
-      "web/components/gamePanels/counterplaySave.tsx",
+      "web/features/counterplaySave/panels.tsx",
       "web/state/viewModels/counterplay.ts",
       "web/state/viewModels/counterplayTypes.ts",
       "web/state/viewModels/saveDiagnostics.ts",
@@ -111,7 +111,7 @@ export const webUiModuleInventory = [
     feature: "shared_ui",
     label: "Shared UI",
     files: [
-      "web/components/gamePanels/shared.tsx",
+      "web/features/shared/ui.tsx",
       "web/statusPresentation.ts",
       "web/styles/app.css"
     ],

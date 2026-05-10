@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const featureBuilderModules = [
@@ -13,15 +13,15 @@ const featureBuilderModules = [
   "saveDiagnostics"
 ] as const;
 
-const panelModules = [
-  "battle",
-  "counterplaySave",
-  "equipmentAssignment",
-  "idleMap",
-  "masteryGrowth",
-  "rosterFormation",
-  "shared"
-] as const;
+const panelModules = {
+  battle: "features/battle/panels.tsx",
+  counterplaySave: "features/counterplaySave/panels.tsx",
+  equipmentAssignments: "features/equipmentAssignments/panels.tsx",
+  growthMastery: "features/growthMastery/panels.tsx",
+  mapIdle: "features/mapIdle/panels.tsx",
+  rosterFormation: "features/rosterFormation/panels.tsx",
+  shared: "features/shared/ui.tsx"
+} as const;
 
 const featureTypeModules = [
   "assignmentTypes",
@@ -69,7 +69,7 @@ function readFeatureTypeModule(moduleName: string): string {
 
 function readPanelModule(moduleName: string): string {
   return readFileSync(
-    new URL(`../../web/components/gamePanels/${moduleName}.tsx`, import.meta.url),
+    new URL(`../../web/${moduleName}`, import.meta.url),
     "utf8"
   );
 }
@@ -132,6 +132,51 @@ function getFeatureViewTypeModules(): Map<string, string> {
 }
 
 describe("view-model module boundaries", () => {
+  it("keeps feature panel modules on feature-owned paths", () => {
+    const barrelSource = readFileSync(
+      new URL("../../web/components/GamePanels.tsx", import.meta.url),
+      "utf8"
+    );
+    const inventorySource = readFileSync(
+      new URL("../helpers/webWorkflowBaselines.ts", import.meta.url),
+      "utf8"
+    );
+
+    for (const [panelName, panelPath] of Object.entries(panelModules)) {
+      expect(
+        existsSync(new URL(`../../web/${panelPath}`, import.meta.url)),
+        `${panelName} panel path should exist`
+      ).toBe(true);
+      expect(
+        inventorySource,
+        `${panelName} panel path should be recorded in the UI module inventory`
+      ).toContain(`"web/${panelPath}"`);
+    }
+
+    for (const source of [
+      barrelSource,
+      inventorySource,
+      ...Object.values(panelModules).map(readPanelModule)
+    ]) {
+      expect(source).not.toContain("gamePanels/");
+    }
+  });
+
+  it("keeps feature panel modules behind web feature boundaries", () => {
+    for (const [panelName, panelPath] of Object.entries(panelModules)) {
+      const imports = getImportSpecifiers(readPanelModule(panelPath));
+
+      expect(
+        imports.filter((specifier) => specifier.endsWith("/core")),
+        `${panelName} should use feature view types instead of importing core directly`
+      ).toEqual([]);
+      expect(
+        imports.filter((specifier) => specifier.endsWith("state/gameState")),
+        `${panelName} should use feature-local panel inputs instead of importing the global state barrel`
+      ).toEqual([]);
+    }
+  });
+
   it("keeps feature builders from importing sibling feature builders", () => {
     for (const sourceModule of featureBuilderModules) {
       const source = readViewModelModule(sourceModule);
@@ -178,8 +223,8 @@ describe("view-model module boundaries", () => {
   it("keeps panel view type imports on feature-owned type modules", () => {
     const featureViewTypeModules = getFeatureViewTypeModules();
 
-    for (const panelModule of panelModules) {
-      const source = readPanelModule(panelModule);
+    for (const [panelName, panelPath] of Object.entries(panelModules)) {
+      const source = readPanelModule(panelPath);
 
       for (const [typeName, typeModule] of featureViewTypeModules) {
         if (!new RegExp(`\\b${typeName}\\b`).test(source)) {
@@ -188,7 +233,7 @@ describe("view-model module boundaries", () => {
 
         expect(
           source,
-          `${panelModule}.tsx should import ${typeName} from a feature type module`
+          `${panelName} should import ${typeName} from a feature type module`
         ).not.toMatch(
           new RegExp(
             `import\\s+type\\s+\\{[^}]*\\b${typeName}\\b[^}]*\\}\\s+from\\s+["'][^"']*state/gameState["']`,
@@ -198,7 +243,7 @@ describe("view-model module boundaries", () => {
 
         expect(
           source,
-          `${panelModule}.tsx should import ${typeName} from ${typeModule}`
+          `${panelName} should import ${typeName} from ${typeModule}`
         ).toMatch(
           new RegExp(
             `import\\s+type\\s+\\{[^}]*\\b${typeName}\\b[^}]*\\}\\s+from\\s+["'][^"']*state/viewModels/${typeModule}["']`,

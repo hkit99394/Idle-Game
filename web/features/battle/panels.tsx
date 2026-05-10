@@ -9,7 +9,7 @@ import {
   formatFormationSlot,
   formatNumber,
   StatBar
-} from "./shared";
+} from "../shared/ui";
 
 type CombatantCardProps = {
   combatant: BattleCombatantView;

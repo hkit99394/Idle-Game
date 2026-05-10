@@ -31,6 +31,7 @@ textarea {
   font: inherit;
 }
 
+/* App shell and shared layout */
 .app-shell {
   min-height: 100vh;
   background:
@@ -165,6 +166,7 @@ textarea {
   font-size: 0.95rem;
 }
 
+/* Map and idle panels */
 .offline-summary {
   display: grid;
   gap: 12px;
@@ -357,6 +359,7 @@ textarea {
   text-transform: uppercase;
 }
 
+/* Growth and mastery panels */
 .mastery-panel {
   margin-bottom: 20px;
   padding: 16px 0;
@@ -461,6 +464,7 @@ textarea {
   color: #4f3a22;
 }
 
+/* Stage selector */
 .stage-selector {
   margin-bottom: 22px;
   padding: 16px 0;
@@ -614,18 +618,13 @@ textarea {
   line-height: 22px;
 }
 
+/* Shared feature panel chrome */
 .upgrade-panel,
 .skill-upgrade-panel,
 .equipment-panel,
 .style-mastery-panel,
 .roster-panel,
-.assignment-panel {
-  margin-bottom: 22px;
-  padding: 16px 0;
-  border-top: 1px solid #d6cdbc;
-  border-bottom: 1px solid #d6cdbc;
-}
-
+.assignment-panel,
 .formation-panel {
   margin-bottom: 22px;
   padding: 16px 0;
@@ -633,6 +632,7 @@ textarea {
   border-bottom: 1px solid #d6cdbc;
 }
 
+/* Roster and formation panels */
 .formation-panel-heading {
   display: flex;
   flex-wrap: wrap;
@@ -746,6 +746,7 @@ textarea {
   color: #fffaf0;
 }
 
+/* Shared feature panel headings */
 .upgrade-panel-heading,
 .skill-upgrade-heading,
 .equipment-heading,
@@ -1223,6 +1224,7 @@ textarea {
   font-weight: 700;
 }
 
+/* Equipment and assignments panels */
 .equipment-layout {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -1406,6 +1408,7 @@ textarea {
   background: #fff7e9;
 }
 
+/* Battle panels */
 .battle-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
@@ -1873,6 +1876,7 @@ h2 {
   color: #15120e;
 }
 
+/* Counterplay and save panels */
 .counterplay-settings-panel {
   display: grid;
   gap: 14px;
@@ -2115,13 +2119,52 @@ h2 {
   line-height: 24px;
 }
 
+.save-diagnostics-panel {
+  min-width: 0;
+  padding: 0;
+  border-top: 1px solid #e1d8c8;
+  border-bottom: 1px solid #e1d8c8;
+}
+
+.save-diagnostics-panel summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  color: #4d4639;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.save-diagnostics-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.save-diagnostics-panel summary::after {
+  content: "+";
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 12px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #fffaf0;
+  color: #4d4639;
+  flex: 0 0 auto;
+}
+
+.save-diagnostics-panel[open] summary::after {
+  content: "-";
+}
+
 .save-diagnostics-grid {
   display: grid;
   grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
   gap: 8px 12px;
-  padding: 12px 0;
-  border-top: 1px solid #e1d8c8;
-  border-bottom: 1px solid #e1d8c8;
+  padding: 0 0 12px;
 }
 
 .save-diagnostics-grid span {
@@ -2224,6 +2267,7 @@ h2 {
   line-height: 1.45;
 }
 
+/* Responsive panel contracts */
 @media (max-width: 720px) {
   .battle-surface {
     padding: 16px;
@@ -2353,13 +2397,5 @@ h2 {
   .event-row {
     grid-template-columns: 1fr;
     gap: 4px;
-  }
-
-  .counterplay-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .summary-list {
-    grid-template-columns: 1fr;
   }
 }

@@ -2,19 +2,19 @@ export {
   formatNumber,
   getBattleResultClass,
   getBattleResultText
-} from "./gamePanels/shared";
-export { BattleLog, TeamPanel } from "./gamePanels/battle";
-export { FormationPanel, RosterPanel } from "./gamePanels/rosterFormation";
+} from "../features/shared/ui";
+export { BattleLog, TeamPanel } from "../features/battle/panels";
+export { FormationPanel, RosterPanel } from "../features/rosterFormation/panels";
 export {
   MasteryPanel,
   SkillUpgradePanel,
   StyleMasteryPanel,
   UpgradePanel
-} from "./gamePanels/masteryGrowth";
+} from "../features/growthMastery/panels";
 export {
   OfflineFarmPanel,
   OfflineSummaryPanel,
   StageSelectorPanel
-} from "./gamePanels/idleMap";
-export { AssignmentPanel, EquipmentPanel } from "./gamePanels/equipmentAssignment";
-export { CounterplaySettingsPanel, SaveToolsPanel } from "./gamePanels/counterplaySave";
+} from "../features/mapIdle/panels";
+export { AssignmentPanel, EquipmentPanel } from "../features/equipmentAssignments/panels";
+export { CounterplaySettingsPanel, SaveToolsPanel } from "../features/counterplaySave/panels";

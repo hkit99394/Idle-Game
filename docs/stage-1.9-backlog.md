@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.9 is ready to begin. Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md).
+Stage 1.9 is in progress. Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md).
 
 The recommended theme is **UI Modularization**. This is a structure and confidence stage, not a visual redesign stage. The goal is to make the web UI and web state easier to extend for future panels, mobile polish, and strategy features while preserving current gameplay behavior.
 
@@ -51,7 +51,7 @@ The recommended theme is **UI Modularization**. This is a structure and confiden
 | 56 | App Shell Composition And Feature Registry | Complete | Turn `App.tsx` into composition over feature modules |
 | 57 | Web State Command And Reducer Slices | In Progress | Split command handling and reducer logic by domain without changing behavior |
 | 58 | Feature View Models And Types | Complete | Move view-model builders and view types behind feature-owned boundaries |
-| 59 | Panel Modules, Styling, And Mobile Safety | Planned | Finish feature panel ownership and protect narrow viewport layout |
+| 59 | Panel Modules, Styling, And Mobile Safety | Complete | Finish feature panel ownership and protect narrow viewport layout |
 | 60 | UI Docs And Release Readiness | Planned | Document web boundaries, run smoke coverage, and close Stage 1.9 cleanly |
 
 ---
@@ -243,7 +243,12 @@ Finish panel ownership by feature and protect the busiest layouts on desktop and
 
 ### Progress Notes
 
-- Not started.
+- Moved panel modules under feature-owned folders in `web/features/*/panels.tsx`, with `web/components/GamePanels.tsx` kept as the compatibility barrel for app composition.
+- Kept shared formatting, status text helpers, and stat bars in `web/features/shared/ui.tsx`.
+- Grouped the single app stylesheet with feature-owner comments and removed stale narrow-viewport selectors that no longer map to panel markup.
+- Added `tests/web/responsivePanelSmoke.test.ts` to enforce source-level narrow viewport contracts for stage routes, battle layout/log rows, formation, equipment, counterplay, and save tools until a browser screenshot runner exists.
+- Collapsed save diagnostics behind a `Save Diagnostics` details panel, opening it by default only when diagnostics report errors.
+- Ran Codex in-app browser smoke at 1120x900 and 390x900 with screenshots/assertions for the protected selectors, save diagnostics toggle, and console errors; all protected panels were present and no browser console errors were reported.
 
 ---
 
@@ -286,9 +291,8 @@ Close Stage 1.9 with clear web feature boundaries, smoke coverage notes, and rel
 - Should Stage 1.9 introduce an automated browser smoke script, or are manual browser checks acceptable until a stable runner exists?
 - Should `web/state/types.ts` split by feature immediately, or should it first become a barrel over feature type files?
 - Should `useWebGameState` keep one public hook through Stage 1.9, or should feature-specific hooks be introduced after `App.tsx` composition is simplified?
-- Should save diagnostics stay always visible, collapse behind a diagnostics panel, or become dev-only?
 - How much CSS should move with panels versus remain in one app stylesheet until a design-system stage?
-- Which narrow viewport widths should become required smoke checks?
+- Which narrow viewport widths beyond 390px should become required smoke checks?
 
 ## Suggested Implementation Order
 
