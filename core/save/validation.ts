@@ -120,6 +120,13 @@ export function parseSaveData(
 
   return {
     ok: true,
-    save: cloneSaveData(migration.save as SaveData)
+    save: cloneSaveData(migration.save as SaveData),
+    migration: {
+      fromVersion: migration.fromVersion,
+      toVersion: migration.toVersion,
+      migrated: migration.migrated,
+      normalized: migration.normalized,
+      normalizations: migration.normalizations
+    }
   };
 }

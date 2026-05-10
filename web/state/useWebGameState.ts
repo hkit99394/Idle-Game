@@ -97,13 +97,12 @@ import type {
 import {
   getBrowserSaveStorage,
   exportSaveDataFromStorage,
+  formatSaveStorageCommitFailure,
   importSaveDataToStorage,
-  loadSaveDataFromStorage,
-  loadSaveDataWithOfflineRewardsFromStorage,
+  loadSaveDataWithOfflineRewardsFromSave,
   resetSaveDataInStorage,
   saveWebGameStateToStorage,
-  timeTravelOfflineSaveInStorage,
-  WEB_SAVE_STORAGE_KEY,
+  timeTravelOfflineSave,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS
 } from "./saveStorage";
 import type { WebSaveStorage } from "./saveStorage";
@@ -134,6 +133,118 @@ import {
   resolveSelectedStageBattle,
   webGameStateReducer
 } from "./reducer";
+
+type OfflineTimeTravelState = Pick<
+  WebGameState,
+  | "progress"
+  | "autoMedicinePreferences"
+  | "selectedOfflineFarmStageId"
+  | "offlineFarmPreset"
+>;
+
+export type ApplyOfflineTimeTravelResult =
+  | {
+      ok: true;
+      message: string;
+      save: SaveData;
+      offlineSummary: OfflineRewardSummary | null;
+    }
+  | Extract<SaveToolResult, { ok: false }>;
+
+export function applyOfflineTimeTravel(
+  data: StaticGameData,
+  state: OfflineTimeTravelState,
+  storage: WebSaveStorage | null,
+  offlineSeconds = OFFLINE_TIME_TRAVEL_SECONDS,
+  nowMs = Date.now()
+): ApplyOfflineTimeTravelResult {
+  if (!state.selectedOfflineFarmStageId) {
+    return {
+      ok: false,
+      message: "Select an offline farm stage first",
+      errors: []
+    };
+  }
+
+  if (!storage) {
+    return {
+      ok: false,
+      message: "Browser save storage is unavailable",
+      errors: ["Browser save storage is unavailable"]
+    };
+  }
+
+  const saveResult = saveWebGameStateToStorage(data, state, storage, nowMs);
+
+  if (!saveResult.ok) {
+    return {
+      ok: false,
+      message: getSaveToolErrorMessage(saveResult.reason),
+      errors: saveResult.errors
+    };
+  }
+
+  const travelResult = timeTravelOfflineSave(
+    saveResult.save,
+    offlineSeconds,
+    nowMs
+  );
+
+  if (!travelResult.ok) {
+    return {
+      ok: false,
+      message: getSaveToolErrorMessage(travelResult.reason),
+      errors: travelResult.errors
+    };
+  }
+
+  const loadResult = loadSaveDataWithOfflineRewardsFromSave(
+    data,
+    travelResult.save,
+    storage,
+    nowMs,
+    {
+      failedActiveSave: saveResult.save,
+      failedPersistedSave: saveResult.save
+    }
+  );
+
+  if (!loadResult.ok) {
+    return {
+      ok: false,
+      message: getSaveToolErrorMessage(loadResult.reason),
+      errors: loadResult.errors
+    };
+  }
+
+  if (loadResult.commitResult.status === "failed") {
+    const errors = [formatSaveStorageCommitFailure(loadResult.commitResult)];
+
+    return {
+      ok: false,
+      message: getSaveToolErrorMessage("storage_error"),
+      errors
+    };
+  }
+
+  const offlineSummary = createOfflineRewardSummary(
+    loadResult.offlineRewards,
+    loadResult.offlineAssignmentRewards
+  );
+  const activeSave =
+    loadResult.commitResult.status === "not_needed"
+      ? saveResult.save
+      : loadResult.activeSave;
+
+  return {
+    ok: true,
+    message: offlineSummary
+      ? "Offline time travel rewards applied"
+      : "Offline time travel applied with no rewards",
+    save: activeSave,
+    offlineSummary
+  };
+}
 
 export function useWebGameState(data: StaticGameData) {
   const [state, dispatch] = useReducer(
@@ -444,78 +555,30 @@ export function useWebGameState(data: StaticGameData) {
       offlineSeconds = OFFLINE_TIME_TRAVEL_SECONDS
     ): SaveToolResult => {
       const storage = getBrowserSaveStorage();
-
-      if (!state.selectedOfflineFarmStageId) {
-        return {
-          ok: false,
-          message: "Select an offline farm stage first",
-          errors: []
-        };
-      }
-
-      if (!storage) {
-        return {
-          ok: false,
-          message: "Browser save storage is unavailable",
-          errors: ["Browser save storage is unavailable"]
-        };
-      }
-
-      const nowMs = Date.now();
-      const saveResult = saveWebGameStateToStorage(data, state, storage, nowMs);
-
-      if (!saveResult.ok) {
-        return {
-          ok: false,
-          message: getSaveToolErrorMessage(saveResult.reason),
-          errors: saveResult.errors
-        };
-      }
-
-      const travelResult = timeTravelOfflineSaveInStorage(
+      const result = applyOfflineTimeTravel(
         data,
+        state,
         storage,
         offlineSeconds,
-        nowMs
+        Date.now()
       );
 
-      if (!travelResult.ok) {
-        return {
-          ok: false,
-          message: getSaveToolErrorMessage(travelResult.reason),
-          errors: travelResult.errors
-        };
+      if (!result.ok) {
+        return result;
       }
-
-      const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
-        data,
-        storage,
-        nowMs
-      );
-
-      if (!loadResult.ok) {
-        return {
-          ok: false,
-          message: getSaveToolErrorMessage(loadResult.reason),
-          errors: loadResult.errors
-        };
-      }
-
-      const offlineSummary = createOfflineRewardSummary(
-        loadResult.offlineRewards,
-        loadResult.offlineAssignmentRewards
-      );
 
       dispatch({
         type: "replace_state",
-        state: createWebGameStateFromSave(data, loadResult.save, offlineSummary)
+        state: createWebGameStateFromSave(
+          data,
+          result.save,
+          result.offlineSummary
+        )
       });
 
       return {
         ok: true,
-        message: offlineSummary
-          ? "Offline time travel rewards applied"
-          : "Offline time travel applied with no rewards"
+        message: result.message
       };
     },
     [data, state]

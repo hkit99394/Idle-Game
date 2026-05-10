@@ -120,6 +120,20 @@ function formatRegionBossGateLine(region: RegionSummary): string {
   return `- ${region.regionName}: baseline ${formatBossLine(region.bossGate.baseline)}${trained}${farmed}`;
 }
 
+function formatRegionBudgetGateLine(region: RegionSummary): string {
+  const failedChecks = region.budgetChecks.filter(
+    (check) => check.status === "fail"
+  );
+
+  if (failedChecks.length === 0) {
+    return `- ${region.regionName}: pass (${region.budgetChecks.length} checks)`;
+  }
+
+  return `- ${region.regionName}: miss ${failedChecks
+    .map((check) => `${check.label}: ${check.reason}`)
+    .join("; ")}`;
+}
+
 function formatRegionDefensiveEventLine(region: RegionSummary): string {
   const events = region.defensiveEvents;
 
@@ -191,6 +205,9 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     "",
     "Region Boss Gates",
     ...report.regionBalances.map(formatRegionBossGateLine),
+    "",
+    "Region Budget Gates",
+    ...report.regionBalances.map(formatRegionBudgetGateLine),
     "",
     "Region Defensive Events",
     ...report.regionBalances.map(formatRegionDefensiveEventLine),

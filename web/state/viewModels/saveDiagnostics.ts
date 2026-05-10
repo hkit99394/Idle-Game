@@ -7,6 +7,7 @@ import {
   WEB_SAVE_STORAGE_KEY
 } from "../saveStorage";
 import type { SaveDiagnosticsView, WebGameState } from "../types";
+import type { LoadSaveDataFromStorageResult } from "../saveStorage";
 
 export function getSaveToolErrorMessage(reason: string): string {
   switch (reason) {
@@ -36,6 +37,47 @@ function getCurrentRegionHighestClearedStageIndex(
   return currentStage
     ? progress.maps[currentStage.regionId]?.highestClearedStageIndex ?? 0
     : 0;
+}
+
+function getStartupSaveDiagnosticErrors(
+  state: WebGameState,
+  loadResult: Extract<LoadSaveDataFromStorageResult, { ok: true }>
+): string[] {
+  if (
+    state.startupSaveDiagnostics.length === 0 ||
+    state.startupSavePersistence?.commitStatus !== "failed"
+  ) {
+    return [];
+  }
+
+  const attemptedReasons = state.startupSavePersistence.attemptedWriteReasons;
+  const persistedSave = state.startupSavePersistence.persistedSave;
+  const offlineRewardBaselineSave =
+    state.startupSavePersistence.offlineRewardBaselineSave ??
+    persistedSave ??
+    null;
+  const failedOfflineRewardWrite = attemptedReasons.some(
+    (reason) =>
+      reason === "offlineRewardsApplied" ||
+      reason === "offlineAssignmentsApplied"
+  );
+  const failedOfflineRewardWritePending =
+    offlineRewardBaselineSave !== null &&
+    failedOfflineRewardWrite &&
+    loadResult.save.lastOfflineRewardAtMs <=
+      offlineRewardBaselineSave.lastOfflineRewardAtMs;
+  const startupRewriteStillPending =
+    (attemptedReasons.includes("migrated") &&
+      loadResult.migration.migrated) ||
+    (attemptedReasons.includes("normalizedSave") &&
+      !loadResult.migration.migrated &&
+      loadResult.migration.normalized) ||
+    (persistedSave !== null &&
+      !failedOfflineRewardWrite &&
+      loadResult.save.updatedAtMs <= persistedSave.updatedAtMs) ||
+    failedOfflineRewardWritePending;
+
+  return startupRewriteStillPending ? state.startupSaveDiagnostics : [];
 }
 
 export function buildSaveDiagnostics(
@@ -117,11 +159,12 @@ export function buildSaveDiagnostics(
   }
 
   const save = loadResult.save;
+  const errors = getStartupSaveDiagnosticErrors(state, loadResult);
 
   return {
     storageAvailable: true,
     storageKey: WEB_SAVE_STORAGE_KEY,
-    status: "ready",
+    status: errors.length > 0 ? "storage_error" : "ready",
     saveVersion: save.version,
     saveSizeCharacters: rawSave?.length ?? 0,
     createdAtMs: save.createdAtMs,
@@ -135,6 +178,6 @@ export function buildSaveDiagnostics(
       save.progress
     ),
     autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
-    errors: []
+    errors
   };
 }

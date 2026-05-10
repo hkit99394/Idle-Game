@@ -4,121 +4,15 @@ import {
   defaultAutoMedicinePreferences,
   resolveStageBattle
 } from "../../core";
-import type { BaseStats, StaticGameData } from "../../core";
+import type { StaticGameData } from "../../core";
+import {
+  autoMedicinePoisonScenarioIds,
+  createAutoMedicinePoisonProgress,
+  createAutoMedicinePoisonScenarioData,
+  createStatusPressureProgress,
+  createStatusPressureScenarioData
+} from "../helpers/statusScenarios";
 import { staticData } from "../helpers/staticData";
-
-const scenarioStats: BaseStats = {
-  maxOuterHp: 1000,
-  maxInnerQi: 500,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
-  speed: 0,
-  critChance: 0,
-  critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
-  statusAccuracy: 0,
-  statusResistance: 0
-};
-
-function createStatusPressureScenarioData(input: {
-  stageId: string;
-  heroId: string;
-  enemyId: string;
-  skillId: string;
-  medicine: StaticGameData["medicines"][number];
-  statusChance?: number;
-}): StaticGameData {
-  return {
-    ...staticData,
-    heroes: [
-      ...staticData.heroes,
-      {
-        ...staticData.heroes[0],
-        id: input.heroId,
-        name: "Scenario Patient",
-        skillIds: [],
-        baseStats: scenarioStats
-      }
-    ],
-    enemies: [
-      ...staticData.enemies,
-      {
-        ...staticData.enemies[0],
-        id: input.enemyId,
-        name: "Scenario Poisoner",
-        level: 1,
-        skillIds: [input.skillId],
-        baseStats: {
-          ...scenarioStats,
-          speed: 100
-        }
-      }
-    ],
-    skills: [
-      ...staticData.skills,
-      {
-        id: input.skillId,
-        name: "Scenario Poison",
-        cooldownSeconds: 0.1,
-        outerMultiplier: 0,
-        innerMultiplier: 0,
-        targetRule: "first_living",
-        effects: [
-          {
-            type: "apply_status",
-            statusId: "poison",
-            chance: input.statusChance ?? 0.85,
-            durationSeconds: 4,
-            stacks: 1
-          }
-        ]
-      }
-    ],
-    medicines: [
-      ...staticData.medicines.filter(
-        (medicine) => medicine.id !== input.medicine.id
-      ),
-      input.medicine
-    ],
-    stages: [
-      ...staticData.stages,
-      {
-        id: input.stageId,
-        regionId: "bamboo_road",
-        index: 1,
-        name: "Scenario Status Pressure Stage",
-        enemyTeam: {
-          combatantIds: [input.enemyId]
-        },
-        isBoss: false,
-        canFarmOffline: false,
-        rewards: {
-          silver: 0,
-          cultivation: 0,
-          combatExperience: 0
-        },
-        nextStageId: null
-      }
-    ]
-  };
-}
-
-function createStatusPressureProgress(
-  data: StaticGameData,
-  heroId: string,
-  medicineId: string
-) {
-  const progress = createInitialPlayerProgress(data);
-  progress.activeHeroIds = [heroId];
-  progress.formation = { [heroId]: "front" };
-  progress.medicineInventory = { [medicineId]: 1 };
-
-  return progress;
-}
 
 describe("stage battle resolution", () => {
   it("resolves an unlocked stage victory, grants rewards, and advances current stage", () => {
@@ -286,88 +180,13 @@ describe("stage battle resolution", () => {
   });
 
   it("uses configured auto-medicine inventory in actual battles and consumes medicine", () => {
-    const stageId = "scenario_auto_medicine_stage";
-    const heroId = "scenario_auto_medicine_patient";
-    const enemyId = "scenario_auto_medicine_poisoner";
-    const poisonSkillId = "scenario_actual_battle_poison";
-    const data: StaticGameData = {
-      ...staticData,
-      heroes: [
-        ...staticData.heroes,
-        {
-          ...staticData.heroes[0],
-          id: heroId,
-          name: "Scenario Patient",
-          skillIds: [],
-          baseStats: scenarioStats
-        }
-      ],
-      enemies: [
-        ...staticData.enemies,
-        {
-          ...staticData.enemies[0],
-          id: enemyId,
-          name: "Scenario Poisoner",
-          level: 1,
-          skillIds: [poisonSkillId],
-          baseStats: {
-            ...scenarioStats,
-            speed: 100,
-            statusAccuracy: 0.5
-          }
-        }
-      ],
-      skills: [
-        ...staticData.skills,
-        {
-          id: poisonSkillId,
-          name: "Scenario Actual Battle Poison",
-          cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
-          targetRule: "first_living",
-          effects: [
-            {
-              type: "apply_status",
-              statusId: "poison",
-              chance: 1,
-              durationSeconds: 6,
-              stacks: 1
-            }
-          ]
-        }
-      ],
-      stages: [
-        ...staticData.stages,
-        {
-          id: stageId,
-          regionId: "bamboo_road",
-          index: 1,
-          name: "Scenario Auto Medicine Stage",
-          enemyTeam: {
-            combatantIds: [enemyId]
-          },
-          isBoss: false,
-          canFarmOffline: false,
-          rewards: {
-            silver: 0,
-            cultivation: 0,
-            combatExperience: 0
-          },
-          nextStageId: null
-        }
-      ]
-    };
-    const progress = createInitialPlayerProgress(data);
-    progress.activeHeroIds = [heroId];
-    progress.formation = { [heroId]: "front" };
-    progress.medicineInventory = {
-      clear_heart_pill: 1
-    };
+    const data = createAutoMedicinePoisonScenarioData();
+    const progress = createAutoMedicinePoisonProgress(data);
+    const ids = autoMedicinePoisonScenarioIds;
 
     const disabledResult = resolveStageBattle(data, {
       progress,
-      stageId,
+      stageId: ids.stageId,
       maxDurationSeconds: 4.5,
       autoMedicinePreferences: {
         ...defaultAutoMedicinePreferences,
@@ -376,7 +195,7 @@ describe("stage battle resolution", () => {
     });
     const enabledResult = resolveStageBattle(data, {
       progress,
-      stageId,
+      stageId: ids.stageId,
       maxDurationSeconds: 4.5,
       autoMedicinePreferences: defaultAutoMedicinePreferences
     });
@@ -398,7 +217,7 @@ describe("stage battle resolution", () => {
         trigger: "battle_cleanse",
         medicineId: "clear_heart_pill",
         timeSeconds: 1,
-        targetId: "player_scenario_auto_medicine_patient_1",
+        targetId: ids.targetId,
         cleansedStatusIds: ["poison"]
       })
     ]);
@@ -407,13 +226,50 @@ describe("stage battle resolution", () => {
         expect.objectContaining({
           type: "auto_medicine",
           time: 1,
-          targetId: "player_scenario_auto_medicine_patient_1",
+          targetId: ids.targetId,
           trigger: "battle_cleanse",
           medicineId: "clear_heart_pill",
           cleansedStatusIds: ["poison"]
         })
       ])
     );
+    expect(
+      enabledResult.battle.events
+        .filter(
+          (event) =>
+            event.time === 1 &&
+            ["attack", "status_apply", "auto_medicine"].includes(event.type)
+        )
+        .map((event) => ({
+          type: event.type,
+          targetId: "targetId" in event ? event.targetId : null,
+          statusId: "statusId" in event ? event.statusId : null,
+          medicineId: "medicineId" in event ? event.medicineId : null,
+          trigger: event.type === "auto_medicine" ? event.trigger : null
+        }))
+    ).toEqual([
+      {
+        type: "attack",
+        targetId: ids.targetId,
+        statusId: null,
+        medicineId: null,
+        trigger: null
+      },
+      {
+        type: "status_apply",
+        targetId: ids.targetId,
+        statusId: "poison",
+        medicineId: null,
+        trigger: null
+      },
+      {
+        type: "auto_medicine",
+        targetId: ids.targetId,
+        statusId: null,
+        medicineId: "clear_heart_pill",
+        trigger: "battle_cleanse"
+      }
+    ]);
     expect(enabledResult.progress.medicineInventory?.clear_heart_pill).toBeUndefined();
     expect(disabledResult.progress.medicineInventory?.clear_heart_pill).toBe(1);
     expect(enabledResult.battle.finalPlayerTeam[0]?.outerHp).toBeGreaterThan(
@@ -432,6 +288,18 @@ describe("stage battle resolution", () => {
       heroId,
       enemyId,
       skillId,
+      enemyStats: {
+        statusAccuracy: 0
+      },
+      skillCooldownSeconds: 0.1,
+      statusEffects: [
+        {
+          statusId: "poison",
+          chance: 0.85,
+          durationSeconds: 4,
+          stacks: 1
+        }
+      ],
       medicine: {
         id: medicineId,
         name: "Scenario Short Resistance Powder",
@@ -446,7 +314,11 @@ describe("stage battle resolution", () => {
         ]
       }
     });
-    const progress = createStatusPressureProgress(data, heroId, medicineId);
+    const progress = createStatusPressureProgress(data, {
+      stageId,
+      heroId,
+      medicineInventory: { [medicineId]: 1 }
+    });
 
     const result = resolveStageBattle(data, {
       progress,
@@ -504,6 +376,18 @@ describe("stage battle resolution", () => {
       heroId,
       enemyId,
       skillId,
+      enemyStats: {
+        statusAccuracy: 0
+      },
+      skillCooldownSeconds: 0.1,
+      statusEffects: [
+        {
+          statusId: "poison",
+          chance: 0.85,
+          durationSeconds: 4,
+          stacks: 1
+        }
+      ],
       medicine: {
         id: medicineId,
         name: "Scenario Cleanse Resistance Draught",
@@ -523,7 +407,11 @@ describe("stage battle resolution", () => {
         ]
       }
     });
-    const progress = createStatusPressureProgress(data, heroId, medicineId);
+    const progress = createStatusPressureProgress(data, {
+      stageId,
+      heroId,
+      medicineInventory: { [medicineId]: 1 }
+    });
 
     const result = resolveStageBattle(data, {
       progress,
@@ -583,93 +471,46 @@ describe("stage battle resolution", () => {
     const enemyId = "scenario_timed_cleanse_debuffer";
     const skillId = "scenario_timed_inner_break";
     const medicineId = "scenario_timed_cleanse_draught";
-    const data: StaticGameData = {
-      ...staticData,
-      heroes: [
-        ...staticData.heroes,
+    const data = createStatusPressureScenarioData({
+      stageId,
+      heroId,
+      enemyId,
+      skillId,
+      enemyName: "Scenario Debuffer",
+      skillName: "Scenario Timed Inner Break",
+      skillCooldownSeconds: 20,
+      skillEffects: [
         {
-          ...staticData.heroes[0],
-          id: heroId,
-          name: "Scenario Patient",
-          skillIds: [],
-          baseStats: scenarioStats
+          type: "inner_defense_down",
+          value: 0.4,
+          durationSeconds: 6
         }
       ],
-      enemies: [
-        ...staticData.enemies,
-        {
-          ...staticData.enemies[0],
-          id: enemyId,
-          name: "Scenario Debuffer",
-          level: 1,
-          skillIds: [skillId],
-          baseStats: {
-            ...scenarioStats,
-            speed: 100
+      medicine: {
+        id: medicineId,
+        name: "Scenario Timed Cleanse Draught",
+        unlock: { type: "always" },
+        maxCarry: 5,
+        effects: [
+          {
+            type: "cleanse_status",
+            dispelTags: ["debuff"],
+            maxCount: 1
+          },
+          {
+            type: "status_resistance_bonus",
+            value: 0.8,
+            durationSeconds: 1.5
           }
-        }
-      ],
-      skills: [
-        ...staticData.skills,
-        {
-          id: skillId,
-          name: "Scenario Timed Inner Break",
-          cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
-          targetRule: "first_living",
-          effects: [
-            {
-              type: "inner_defense_down",
-              value: 0.4,
-              durationSeconds: 6
-            }
-          ]
-        }
-      ],
-      medicines: [
-        ...staticData.medicines,
-        {
-          id: medicineId,
-          name: "Scenario Timed Cleanse Draught",
-          unlock: { type: "always" },
-          maxCarry: 5,
-          effects: [
-            {
-              type: "cleanse_status",
-              dispelTags: ["debuff"],
-              maxCount: 1
-            },
-            {
-              type: "status_resistance_bonus",
-              value: 0.8,
-              durationSeconds: 1.5
-            }
-          ]
-        }
-      ],
-      stages: [
-        ...staticData.stages,
-        {
-          id: stageId,
-          regionId: "bamboo_road",
-          index: 1,
-          name: "Scenario Timed Cleanse Stage",
-          enemyTeam: {
-            combatantIds: [enemyId]
-          },
-          isBoss: false,
-          canFarmOffline: false,
-          rewards: {
-            silver: 0,
-            cultivation: 0,
-            combatExperience: 0
-          },
-          nextStageId: null
-        }
-      ]
-    };
-    const progress = createStatusPressureProgress(data, heroId, medicineId);
+        ]
+      },
+      stageName: "Scenario Timed Cleanse Stage"
+    });
+    const progress = createStatusPressureProgress(data, {
+      stageId,
+      heroId,
+      medicineInventory: { [medicineId]: 1 }
+    });
 
     const result = resolveStageBattle(data, {
       progress,

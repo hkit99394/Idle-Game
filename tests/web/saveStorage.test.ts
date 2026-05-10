@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   createInitialPlayerProgress,
-  createSaveData
+  createSaveData,
+  SAVE_DATA_VERSION
 } from "../../core";
 import {
   createInitialWebGameStateFromStorage,
+  buildSaveDiagnostics,
   getWebGameViewModel,
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
@@ -13,16 +15,52 @@ import {
 import {
   exportSaveDataFromStorage,
   importSaveDataToStorage,
+  loadSaveDataWithOfflineRewardsFromSave,
   loadSaveDataWithOfflineRewardsFromStorage,
   loadSaveDataFromStorage,
   resetSaveDataInStorage,
   saveWebGameStateToStorage,
-  timeTravelOfflineSaveInStorage,
+  timeTravelOfflineSave,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS,
-  WEB_SAVE_STORAGE_KEY
+  WEB_SAVE_STORAGE_KEY,
+  type WebSaveStorage
 } from "../../web/state/saveStorage";
 import { MemoryStorage } from "../helpers/memoryStorage";
+import { buildSaveVersionFixtures } from "../fixtures/saveVersionFixtures";
 import { staticData } from "../helpers/staticData";
+
+class FailingWriteStorage extends MemoryStorage {
+  failWrites = false;
+
+  override setItem(key: string, value: string): void {
+    if (this.failWrites) {
+      throw new Error("quota exceeded");
+    }
+
+    super.setItem(key, value);
+  }
+}
+
+function withBrowserStorage<T>(storage: WebSaveStorage, callback: () => T): T {
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      localStorage: storage
+    }
+  });
+
+  try {
+    return callback();
+  } finally {
+    if (previousWindow) {
+      Object.defineProperty(globalThis, "window", previousWindow);
+    } else {
+      delete (globalThis as { window?: unknown }).window;
+    }
+  }
+}
 
 describe("web save storage", () => {
   it("falls back to a new game when no save exists", () => {
@@ -65,6 +103,29 @@ describe("web save storage", () => {
     expect(state.selectedStageId).toBe("bamboo_road_3");
     expect(state.selectedOfflineFarmStageId).toBe("bamboo_road_1");
     expect(state.offlineFarmPreset).toBe("silver");
+  });
+
+  it("rewrites migrated legacy saves even when no offline rewards are applied", () => {
+    const storage = new MemoryStorage();
+    const [fixture] = buildSaveVersionFixtures(staticData);
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(fixture.rawSave));
+
+    const state = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      2000
+    );
+    const rewritten = loadSaveDataFromStorage(staticData, storage);
+
+    expect(state.offlineSummary).toBeNull();
+    expect(rewritten.ok).toBe(true);
+    if (!rewritten.ok) {
+      return;
+    }
+    expect(rewritten.save.version).toBe(SAVE_DATA_VERSION);
+    expect(rewritten.save.updatedAtMs).toBe(2000);
+    expect(rewritten.save.lastOfflineRewardAtMs).toBe(2000);
   });
 
   it("persists counterplay settings through save reload", () => {
@@ -165,6 +226,35 @@ describe("web save storage", () => {
       preBattleResistanceMode: "status_heavy",
       disabledMedicineIds: ["clear_heart_pill"]
     });
+  });
+
+  it("normalizes imported offline farm metadata through the core save transaction", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_10",
+      nowMs: 1000
+    });
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(save)
+    );
+    const importedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(importResult.ok).toBe(true);
+    expect(importedSave.ok).toBe(true);
+    if (!importResult.ok || !importedSave.ok) {
+      return;
+    }
+    expect(importResult.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(importedSave.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(importedSave.save.updatedAtMs).toBe(1000);
+    expect(importedSave.save.lastOfflineRewardAtMs).toBe(1000);
   });
 
   it("rejects invalid imports without replacing the current save", () => {
@@ -309,7 +399,7 @@ describe("web save storage", () => {
     expect(currentSave.save.updatedAtMs).toBe(2000);
   });
 
-  it("time travels the stored save for offline farm testing", () => {
+  it("time travels a save candidate for offline farm testing without persisting the backdate", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 1;
@@ -321,37 +411,47 @@ describe("web save storage", () => {
     });
     storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
 
-    const timeTravelResult = timeTravelOfflineSaveInStorage(
-      staticData,
-      storage,
+    const loadedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(loadedSave.ok).toBe(true);
+    if (!loadedSave.ok) {
+      return;
+    }
+
+    const timeTravelResult = timeTravelOfflineSave(
+      loadedSave.save,
       30,
       100_000
     );
-    const backdatedSave = loadSaveDataFromStorage(staticData, storage);
-    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+    const storedAfterTravel = loadSaveDataFromStorage(staticData, storage);
+
+    expect(timeTravelResult.ok).toBe(true);
+    expect(storedAfterTravel.ok).toBe(true);
+    if (!timeTravelResult.ok || !storedAfterTravel.ok) {
+      return;
+    }
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromSave(
       staticData,
+      timeTravelResult.save,
       storage,
       100_000
     );
     const rewardedSave = loadSaveDataFromStorage(staticData, storage);
 
-    expect(timeTravelResult.ok).toBe(true);
-    expect(backdatedSave.ok).toBe(true);
     expect(loadResult.ok).toBe(true);
     expect(rewardedSave.ok).toBe(true);
-    if (
-      !timeTravelResult.ok ||
-      !backdatedSave.ok ||
-      !loadResult.ok ||
-      !rewardedSave.ok
-    ) {
+    if (!loadResult.ok || !rewardedSave.ok) {
       return;
     }
 
     expect(timeTravelResult.traveledSeconds).toBe(30);
-    expect(backdatedSave.save.createdAtMs).toBe(70_000);
-    expect(backdatedSave.save.updatedAtMs).toBe(70_000);
-    expect(backdatedSave.save.lastOfflineRewardAtMs).toBe(70_000);
+    expect(timeTravelResult.save.createdAtMs).toBe(70_000);
+    expect(timeTravelResult.save.updatedAtMs).toBe(70_000);
+    expect(timeTravelResult.save.lastOfflineRewardAtMs).toBe(70_000);
+    expect(storedAfterTravel.save.createdAtMs).toBe(100_000);
+    expect(storedAfterTravel.save.updatedAtMs).toBe(100_000);
+    expect(storedAfterTravel.save.lastOfflineRewardAtMs).toBe(100_000);
     expect(loadResult.offlineRewards?.ok).toBe(true);
     expect(loadResult.offlineRewards?.rewards).toMatchObject({
       offlineSeconds: 30,
@@ -360,8 +460,48 @@ describe("web save storage", () => {
       cultivation: 9,
       combatExperience: 9
     });
+    expect(loadResult.commitResult.status).toBe("written");
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual([
+      "offlineRewardsApplied"
+    ]);
+    expect(loadResult.commitResult.committedWriteReasons).toEqual([
+      "offlineRewardsApplied"
+    ]);
+    expect(loadResult.loadedNormalizedSave.updatedAtMs).toBe(70_000);
+    expect(loadResult.candidateSave.updatedAtMs).toBe(100_000);
+    expect(loadResult.activeSave.updatedAtMs).toBe(100_000);
+    expect(loadResult.persistedSave?.updatedAtMs).toBe(100_000);
     expect(rewardedSave.save.updatedAtMs).toBe(100_000);
     expect(rewardedSave.save.lastOfflineRewardAtMs).toBe(100_000);
+  });
+
+  it("reports when a load does not need a persistence write", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok) {
+      return;
+    }
+    expect(loadResult.commitResult).toEqual({
+      status: "not_needed",
+      attemptedWriteReasons: [],
+      committedWriteReasons: []
+    });
+    expect(loadResult.loadedNormalizedSave).toEqual(loadResult.activeSave);
+    expect(loadResult.persistedSave).toEqual(loadResult.activeSave);
   });
 
   it("applies offline rewards once on load and advances reward timestamps", () => {
@@ -429,6 +569,559 @@ describe("web save storage", () => {
       secondLoadState.progress.maps.bamboo_road.combatExperience
     ).toBeCloseTo(9);
     expect(secondLoadState.offlineSummary).toBeNull();
+  });
+
+  it("preserves attempted write intent when offline reward persistence fails", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 1_000
+    });
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+    storage.failWrites = true;
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+    const stateAfterFailedStartupWrite = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+    const storedAfterFailure = loadSaveDataFromStorage(staticData, storage);
+
+    expect(loadResult.ok).toBe(true);
+    expect(storedAfterFailure.ok).toBe(true);
+    if (!loadResult.ok || !storedAfterFailure.ok) {
+      return;
+    }
+    expect(loadResult.commitResult.status).toBe("failed");
+    if (loadResult.commitResult.status !== "failed") {
+      return;
+    }
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual([
+      "offlineRewardsApplied"
+    ]);
+    expect(loadResult.commitResult.committedWriteReasons).toEqual([]);
+    expect(loadResult.commitResult.errors).toEqual(["quota exceeded"]);
+    expect(loadResult.offlineRewards).toBeNull();
+    expect(loadResult.loadedNormalizedSave.progress.resources.silver).toBe(0);
+    expect(loadResult.candidateSave.progress.resources.silver).toBeGreaterThan(0);
+    expect(loadResult.activeSave.progress.resources.silver).toBe(0);
+    expect(loadResult.persistedSave).toEqual(loadResult.loadedNormalizedSave);
+    expect(stateAfterFailedStartupWrite.startupSaveDiagnostics).toEqual([
+      "Save load write failed after offlineRewardsApplied: quota exceeded"
+    ]);
+    expect(storedAfterFailure.save.lastOfflineRewardAtMs).toBe(1_000);
+  });
+
+  it("keeps unclaimed offline time after a failed reward commit and later ordinary save", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 1_000
+    });
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+    storage.failWrites = true;
+
+    const stateAfterFailedStartupWrite = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+
+    const changedStateBeforeOrdinarySave = webGameStateReducer(
+      staticData,
+      stateAfterFailedStartupWrite,
+      {
+        type: "set_auto_medicine_enabled",
+        enabled: false
+      }
+    );
+
+    storage.failWrites = false;
+    const ordinarySaveResult = saveWebGameStateToStorage(
+      staticData,
+      changedStateBeforeOrdinarySave,
+      storage,
+      45_000
+    );
+    const savedAfterOrdinarySave = loadSaveDataFromStorage(staticData, storage);
+    const recoveredLoadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      61_000
+    );
+
+    expect(stateAfterFailedStartupWrite.offlineSummary).toBeNull();
+    expect(
+      changedStateBeforeOrdinarySave.autoMedicinePreferences.enabled
+    ).toBe(false);
+    expect(ordinarySaveResult.ok).toBe(true);
+    expect(savedAfterOrdinarySave.ok).toBe(true);
+    expect(recoveredLoadResult.ok).toBe(true);
+    if (
+      !ordinarySaveResult.ok ||
+      !savedAfterOrdinarySave.ok ||
+      !recoveredLoadResult.ok
+    ) {
+      return;
+    }
+
+    expect(ordinarySaveResult.save.updatedAtMs).toBe(1_000);
+    expect(ordinarySaveResult.save.lastOfflineRewardAtMs).toBe(1_000);
+    expect(ordinarySaveResult.save.autoMedicinePreferences.enabled).toBe(false);
+    expect(savedAfterOrdinarySave.save.updatedAtMs).toBe(1_000);
+    expect(savedAfterOrdinarySave.save.lastOfflineRewardAtMs).toBe(1_000);
+    expect(savedAfterOrdinarySave.save.autoMedicinePreferences.enabled).toBe(false);
+    expect(recoveredLoadResult.offlineRewards?.ok).toBe(true);
+    expect(recoveredLoadResult.offlineRewards?.rewards).toMatchObject({
+      offlineSeconds: 60,
+      clears: 6,
+      silver: 36,
+      cultivation: 18,
+      combatExperience: 18
+    });
+    expect(recoveredLoadResult.activeSave.updatedAtMs).toBe(61_000);
+    expect(recoveredLoadResult.activeSave.lastOfflineRewardAtMs).toBe(61_000);
+  });
+
+  it("keeps failed offline reward diagnostics after a lossy ordinary save advances only updatedAtMs", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 1_000
+    });
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+    storage.failWrites = true;
+
+    const stateAfterFailedStartupWrite = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+    const changedStateBeforeOrdinarySave = webGameStateReducer(
+      staticData,
+      stateAfterFailedStartupWrite,
+      {
+        type: "set_auto_medicine_enabled",
+        enabled: false
+      }
+    );
+    const lossyOrdinarySave = createSaveData({
+      progress: changedStateBeforeOrdinarySave.progress,
+      autoMedicinePreferences:
+        changedStateBeforeOrdinarySave.autoMedicinePreferences,
+      selectedOfflineFarmStageId:
+        changedStateBeforeOrdinarySave.selectedOfflineFarmStageId,
+      offlineFarmPreset: changedStateBeforeOrdinarySave.offlineFarmPreset,
+      nowMs: 45_000,
+      previousSave: save
+    });
+
+    storage.failWrites = false;
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(lossyOrdinarySave));
+
+    const diagnostics = withBrowserStorage(storage, () =>
+      buildSaveDiagnostics(staticData, changedStateBeforeOrdinarySave)
+    );
+
+    expect(stateAfterFailedStartupWrite.startupSaveDiagnostics).toEqual([
+      "Save load write failed after offlineRewardsApplied: quota exceeded"
+    ]);
+    expect(lossyOrdinarySave.updatedAtMs).toBe(45_000);
+    expect(lossyOrdinarySave.lastOfflineRewardAtMs).toBe(1_000);
+    expect(diagnostics.status).toBe("storage_error");
+    expect(diagnostics.updatedAtMs).toBe(45_000);
+    expect(diagnostics.lastOfflineRewardAtMs).toBe(1_000);
+    expect(diagnostics.errors).toEqual([
+      "Save load write failed after offlineRewardsApplied: quota exceeded"
+    ]);
+  });
+
+  it("keeps migrated offline rewards unclaimed after a failed rewrite and later ordinary save", () => {
+    const storage = new FailingWriteStorage();
+    const [fixture] = buildSaveVersionFixtures(staticData);
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(fixture.rawSave));
+    storage.failWrites = true;
+
+    const stateAfterFailedStartupWrite = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+    const changedStateBeforeOrdinarySave = webGameStateReducer(
+      staticData,
+      stateAfterFailedStartupWrite,
+      {
+        type: "set_auto_medicine_enabled",
+        enabled: false
+      }
+    );
+
+    storage.failWrites = false;
+    const ordinarySaveResult = saveWebGameStateToStorage(
+      staticData,
+      changedStateBeforeOrdinarySave,
+      storage,
+      45_000
+    );
+    const savedAfterOrdinarySave = loadSaveDataFromStorage(staticData, storage);
+    const recoveredLoadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      61_000
+    );
+
+    expect(stateAfterFailedStartupWrite.startupSavePersistence?.commitStatus).toBe(
+      "failed"
+    );
+    expect(
+      stateAfterFailedStartupWrite.startupSavePersistence?.attemptedWriteReasons
+    ).toEqual(["migrated", "offlineRewardsApplied"]);
+    expect(stateAfterFailedStartupWrite.startupSavePersistence?.persistedSave).toBeNull();
+    expect(
+      stateAfterFailedStartupWrite.startupSavePersistence
+        ?.offlineRewardBaselineSave?.lastOfflineRewardAtMs
+    ).toBe(2000);
+    expect(ordinarySaveResult.ok).toBe(true);
+    expect(savedAfterOrdinarySave.ok).toBe(true);
+    expect(recoveredLoadResult.ok).toBe(true);
+    if (
+      !ordinarySaveResult.ok ||
+      !savedAfterOrdinarySave.ok ||
+      !recoveredLoadResult.ok
+    ) {
+      return;
+    }
+
+    expect(ordinarySaveResult.save.version).toBe(SAVE_DATA_VERSION);
+    expect(ordinarySaveResult.save.updatedAtMs).toBe(2000);
+    expect(ordinarySaveResult.save.lastOfflineRewardAtMs).toBe(2000);
+    expect(savedAfterOrdinarySave.save.updatedAtMs).toBe(2000);
+    expect(savedAfterOrdinarySave.save.lastOfflineRewardAtMs).toBe(2000);
+    expect(recoveredLoadResult.offlineRewards?.ok).toBe(true);
+    expect(recoveredLoadResult.activeSave.progress.resources.silver).toBeGreaterThan(
+      savedAfterOrdinarySave.save.progress.resources.silver
+    );
+    expect(recoveredLoadResult.activeSave.lastOfflineRewardAtMs).toBe(61_000);
+  });
+
+  it("keeps normalized offline rewards unclaimed after a failed rewrite and later ordinary save", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 1000
+    });
+    const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(rawSave));
+    storage.failWrites = true;
+
+    const stateAfterFailedStartupWrite = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+    const changedStateBeforeOrdinarySave = webGameStateReducer(
+      staticData,
+      stateAfterFailedStartupWrite,
+      {
+        type: "set_auto_medicine_enabled",
+        enabled: false
+      }
+    );
+
+    storage.failWrites = false;
+    const ordinarySaveResult = saveWebGameStateToStorage(
+      staticData,
+      changedStateBeforeOrdinarySave,
+      storage,
+      45_000
+    );
+    const savedAfterOrdinarySave = loadSaveDataFromStorage(staticData, storage);
+    const recoveredLoadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      61_000
+    );
+
+    expect(stateAfterFailedStartupWrite.startupSavePersistence?.commitStatus).toBe(
+      "failed"
+    );
+    expect(
+      stateAfterFailedStartupWrite.startupSavePersistence?.attemptedWriteReasons
+    ).toEqual(["normalizedSave", "offlineRewardsApplied"]);
+    expect(stateAfterFailedStartupWrite.startupSavePersistence?.persistedSave).toBeNull();
+    expect(
+      stateAfterFailedStartupWrite.startupSavePersistence
+        ?.offlineRewardBaselineSave?.lastOfflineRewardAtMs
+    ).toBe(1000);
+    expect(ordinarySaveResult.ok).toBe(true);
+    expect(savedAfterOrdinarySave.ok).toBe(true);
+    expect(recoveredLoadResult.ok).toBe(true);
+    if (
+      !ordinarySaveResult.ok ||
+      !savedAfterOrdinarySave.ok ||
+      !recoveredLoadResult.ok
+    ) {
+      return;
+    }
+
+    expect(ordinarySaveResult.save.updatedAtMs).toBe(1000);
+    expect(ordinarySaveResult.save.lastOfflineRewardAtMs).toBe(1000);
+    expect(savedAfterOrdinarySave.save.updatedAtMs).toBe(1000);
+    expect(savedAfterOrdinarySave.save.lastOfflineRewardAtMs).toBe(1000);
+    expect(recoveredLoadResult.offlineRewards?.ok).toBe(true);
+    expect(recoveredLoadResult.activeSave.progress.resources.silver).toBeGreaterThan(
+      savedAfterOrdinarySave.save.progress.resources.silver
+    );
+    expect(recoveredLoadResult.activeSave.lastOfflineRewardAtMs).toBe(61_000);
+  });
+
+  it("keeps combined normalized offline reward diagnostics after a lossy ordinary save advances only updatedAtMs", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 1000
+    });
+    const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(rawSave));
+    storage.failWrites = true;
+
+    const stateAfterFailedStartupWrite = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+    const changedStateBeforeOrdinarySave = webGameStateReducer(
+      staticData,
+      stateAfterFailedStartupWrite,
+      {
+        type: "set_auto_medicine_enabled",
+        enabled: false
+      }
+    );
+    const lossyOrdinarySave = createSaveData({
+      progress: changedStateBeforeOrdinarySave.progress,
+      autoMedicinePreferences:
+        changedStateBeforeOrdinarySave.autoMedicinePreferences,
+      selectedOfflineFarmStageId:
+        changedStateBeforeOrdinarySave.selectedOfflineFarmStageId,
+      offlineFarmPreset: changedStateBeforeOrdinarySave.offlineFarmPreset,
+      nowMs: 45_000,
+      previousSave: save
+    });
+
+    storage.failWrites = false;
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(lossyOrdinarySave));
+
+    const diagnostics = withBrowserStorage(storage, () =>
+      buildSaveDiagnostics(staticData, changedStateBeforeOrdinarySave)
+    );
+
+    expect(stateAfterFailedStartupWrite.startupSavePersistence?.persistedSave).toBeNull();
+    expect(
+      stateAfterFailedStartupWrite.startupSavePersistence
+        ?.offlineRewardBaselineSave?.lastOfflineRewardAtMs
+    ).toBe(1000);
+    expect(lossyOrdinarySave.updatedAtMs).toBe(45_000);
+    expect(lossyOrdinarySave.lastOfflineRewardAtMs).toBe(1000);
+    expect(diagnostics.status).toBe("storage_error");
+    expect(diagnostics.updatedAtMs).toBe(45_000);
+    expect(diagnostics.lastOfflineRewardAtMs).toBe(1000);
+    expect(diagnostics.errors).toEqual([
+      "Save load write failed after normalizedSave, offlineRewardsApplied: quota exceeded"
+    ]);
+  });
+
+  it("does not claim a migrated save was persisted when the rewrite fails", () => {
+    const storage = new FailingWriteStorage();
+    const [fixture] = buildSaveVersionFixtures(staticData);
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(fixture.rawSave));
+    storage.failWrites = true;
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      2000
+    );
+    const rawStoredAfterFailure = JSON.parse(
+      storage.getItem(WEB_SAVE_STORAGE_KEY) ?? "{}"
+    ) as { version?: unknown };
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok) {
+      return;
+    }
+    expect(loadResult.commitResult.status).toBe("failed");
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual(["migrated"]);
+    expect(loadResult.migration).toMatchObject({
+      fromVersion: fixture.version,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true
+    });
+    expect(loadResult.loadedNormalizedSave.version).toBe(SAVE_DATA_VERSION);
+    expect(loadResult.candidateSave.version).toBe(SAVE_DATA_VERSION);
+    expect(loadResult.activeSave).toEqual(loadResult.loadedNormalizedSave);
+    expect(loadResult.persistedSave).toBeNull();
+    expect(rawStoredAfterFailure.version).toBe(fixture.version);
+  });
+
+  it("reports failed migrated startup writes as unpersisted in save diagnostics", () => {
+    const storage = new FailingWriteStorage();
+    const [fixture] = buildSaveVersionFixtures(staticData);
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(fixture.rawSave));
+    storage.failWrites = true;
+
+    const state = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      2000
+    );
+    const diagnostics = withBrowserStorage(storage, () =>
+      buildSaveDiagnostics(staticData, state)
+    );
+
+    expect(state.startupSavePersistence?.commitStatus).toBe("failed");
+    expect(state.startupSavePersistence?.persistedSave).toBeNull();
+    expect(diagnostics.status).toBe("storage_error");
+    expect(diagnostics.saveVersion).toBe(SAVE_DATA_VERSION);
+    expect(diagnostics.updatedAtMs).toBe(2000);
+    expect(diagnostics.errors).toEqual([
+      "Save load write failed after migrated: quota exceeded"
+    ]);
+  });
+
+  it("clears stale startup write diagnostics after a later successful save", () => {
+    const storage = new FailingWriteStorage();
+    const [fixture] = buildSaveVersionFixtures(staticData);
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(fixture.rawSave));
+    storage.failWrites = true;
+
+    const state = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      2000
+    );
+
+    storage.failWrites = false;
+    const saveResult = saveWebGameStateToStorage(
+      staticData,
+      state,
+      storage,
+      3000
+    );
+    const diagnostics = withBrowserStorage(storage, () =>
+      buildSaveDiagnostics(staticData, state)
+    );
+
+    expect(state.startupSaveDiagnostics).toEqual([
+      "Save load write failed after migrated: quota exceeded"
+    ]);
+    expect(saveResult.ok).toBe(true);
+    expect(diagnostics.status).toBe("ready");
+    expect(diagnostics.saveVersion).toBe(SAVE_DATA_VERSION);
+    expect(diagnostics.updatedAtMs).toBe(3000);
+    expect(diagnostics.errors).toEqual([]);
+  });
+
+  it("does not claim a normalized current-version save was persisted when the rewrite fails", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(rawSave));
+    storage.failWrites = true;
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+    const rawStoredAfterFailure = JSON.parse(
+      storage.getItem(WEB_SAVE_STORAGE_KEY) ?? "{}"
+    ) as { offlineFarmPreset?: unknown };
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok) {
+      return;
+    }
+    expect(loadResult.commitResult.status).toBe("failed");
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual([
+      "normalizedSave"
+    ]);
+    expect(loadResult.loadedNormalizedSave.offlineFarmPreset).toBe("balanced");
+    expect(loadResult.candidateSave.offlineFarmPreset).toBe("balanced");
+    expect(loadResult.activeSave).toEqual(loadResult.loadedNormalizedSave);
+    expect(loadResult.persistedSave).toBeNull();
+    expect(rawStoredAfterFailure.offlineFarmPreset).toBeUndefined();
+  });
+
+  it("reports failed normalized startup writes as unpersisted in save diagnostics", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(rawSave));
+    storage.failWrites = true;
+
+    const state = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+    const diagnostics = withBrowserStorage(storage, () =>
+      buildSaveDiagnostics(staticData, state)
+    );
+
+    expect(state.startupSavePersistence?.commitStatus).toBe("failed");
+    expect(state.startupSavePersistence?.persistedSave).toBeNull();
+    expect(diagnostics.status).toBe("storage_error");
+    expect(diagnostics.saveVersion).toBe(SAVE_DATA_VERSION);
+    expect(diagnostics.updatedAtMs).toBe(1000);
+    expect(diagnostics.errors).toEqual([
+      "Save load write failed after normalizedSave: quota exceeded"
+    ]);
   });
 
   it("falls back safely from invalid saved offline farm targets", () => {

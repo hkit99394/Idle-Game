@@ -52,10 +52,10 @@ describe("offline reward idempotency", () => {
     expect(firstLoad.offlineRewards?.ok).toBe(true);
     expect(firstLoad.offlineRewards?.rewards.offlineSeconds).toBe(8 * 60 * 60);
     expect(firstLoad.offlineRewards?.rewards.clears).toBe(2880);
-    expect(firstLoad.save.progress.resources.silver).toBeCloseTo(17280);
-    expect(firstLoad.save.progress.resources.cultivation).toBeCloseTo(8640);
+    expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(17280);
+    expect(firstLoad.activeSave.progress.resources.cultivation).toBeCloseTo(8640);
     expect(
-      firstLoad.save.progress.maps.bamboo_road.combatExperience
+      firstLoad.activeSave.progress.maps.bamboo_road.combatExperience
     ).toBeCloseTo(8640);
     expect(savedAfterFirstLoad.save.updatedAtMs).toBe(firstLoadAtMs);
     expect(savedAfterFirstLoad.save.lastOfflineRewardAtMs).toBe(firstLoadAtMs);
@@ -63,10 +63,10 @@ describe("offline reward idempotency", () => {
     expect(secondLoad.offlineRewards?.ok).toBe(true);
     expect(secondLoad.offlineRewards?.rewards.offlineSeconds).toBe(0);
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
-    expect(secondLoad.save.progress.resources.silver).toBeCloseTo(17280);
-    expect(secondLoad.save.progress.resources.cultivation).toBeCloseTo(8640);
+    expect(secondLoad.activeSave.progress.resources.silver).toBeCloseTo(17280);
+    expect(secondLoad.activeSave.progress.resources.cultivation).toBeCloseTo(8640);
     expect(
-      secondLoad.save.progress.maps.bamboo_road.combatExperience
+      secondLoad.activeSave.progress.maps.bamboo_road.combatExperience
     ).toBeCloseTo(8640);
   });
 
@@ -117,13 +117,13 @@ describe("offline reward idempotency", () => {
 
     expect(firstOfflineRewards.stageId).toBe("demon_cult_outpost_6");
     expect(firstOfflineRewards.rewards.clears).toBe(6);
-    expect(firstLoad.save.progress.resources.silver).toBeCloseTo(5832);
-    expect(firstLoad.save.progress.resources.cultivation).toBeCloseTo(2916);
-    expect(firstLoad.save.progress.resources.herbs).toBeCloseTo(180);
-    expect(firstLoad.save.progress.maps.demon_cult_outpost.combatExperience).toBeCloseTo(
+    expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(5832);
+    expect(firstLoad.activeSave.progress.resources.cultivation).toBeCloseTo(2916);
+    expect(firstLoad.activeSave.progress.resources.herbs).toBeCloseTo(180);
+    expect(firstLoad.activeSave.progress.maps.demon_cult_outpost.combatExperience).toBeCloseTo(
       1101.6
     );
-    expect(firstLoad.save.progress.currentStageId).toBe("demon_cult_outpost_7");
+    expect(firstLoad.activeSave.progress.currentStageId).toBe("demon_cult_outpost_7");
 
     const secondOfflineRewards = secondLoad.offlineRewards;
 
@@ -133,9 +133,9 @@ describe("offline reward idempotency", () => {
     }
 
     expect(secondOfflineRewards.rewards.clears).toBe(0);
-    expect(secondLoad.save.progress.resources).toEqual(firstLoad.save.progress.resources);
-    expect(secondLoad.save.progress.maps.demon_cult_outpost).toEqual(
-      firstLoad.save.progress.maps.demon_cult_outpost
+    expect(secondLoad.activeSave.progress.resources).toEqual(firstLoad.activeSave.progress.resources);
+    expect(secondLoad.activeSave.progress.maps.demon_cult_outpost).toEqual(
+      firstLoad.activeSave.progress.maps.demon_cult_outpost
     );
   });
 
@@ -189,11 +189,11 @@ describe("offline reward idempotency", () => {
     expect(
       firstLoad.offlineAssignmentRewards?.rewards.combatExperience
     ).toBeCloseTo(19.2);
-    expect(firstLoad.save.progress.resources.silver).toBeCloseTo(115.2);
-    expect(firstLoad.save.progress.maps.bamboo_road.combatExperience).toBeCloseTo(
+    expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(115.2);
+    expect(firstLoad.activeSave.progress.maps.bamboo_road.combatExperience).toBeCloseTo(
       19.2
     );
-    expect(firstLoad.save.progress.equipment?.inventory.training_wraps).toBe(1);
+    expect(firstLoad.activeSave.progress.equipment?.inventory.training_wraps).toBe(1);
     expect(savedAfterFirstLoad.save.updatedAtMs).toBe(firstLoadAtMs);
     expect(savedAfterFirstLoad.save.lastOfflineRewardAtMs).toBe(firstLoadAtMs);
 
@@ -201,8 +201,8 @@ describe("offline reward idempotency", () => {
       offlineSeconds: 0,
       assignments: []
     });
-    expect(secondLoad.save.progress.resources.silver).toBeCloseTo(115.2);
-    expect(secondLoad.save.progress.equipment?.inventory.training_wraps).toBe(1);
+    expect(secondLoad.activeSave.progress.resources.silver).toBeCloseTo(115.2);
+    expect(secondLoad.activeSave.progress.equipment?.inventory.training_wraps).toBe(1);
   });
 
   it("grants medicine assignment herbs once with the same timestamp guard", () => {
@@ -253,13 +253,13 @@ describe("offline reward idempotency", () => {
     }
 
     expect(firstLoad.offlineAssignmentRewards?.rewards.herbs).toBeCloseTo(86.4);
-    expect(firstLoad.save.progress.resources.herbs).toBeCloseTo(86.4);
-    expect(firstLoad.save.progress.equipment?.inventory.lotus_dew_pill).toBe(1);
+    expect(firstLoad.activeSave.progress.resources.herbs).toBeCloseTo(86.4);
+    expect(firstLoad.activeSave.progress.equipment?.inventory.lotus_dew_pill).toBe(1);
     expect(secondLoad.offlineAssignmentRewards?.rewards).toMatchObject({
       offlineSeconds: 0,
       assignments: []
     });
-    expect(secondLoad.save.progress.resources.herbs).toBeCloseTo(86.4);
-    expect(secondLoad.save.progress.equipment?.inventory.lotus_dew_pill).toBe(1);
+    expect(secondLoad.activeSave.progress.resources.herbs).toBeCloseTo(86.4);
+    expect(secondLoad.activeSave.progress.equipment?.inventory.lotus_dew_pill).toBe(1);
   });
 });

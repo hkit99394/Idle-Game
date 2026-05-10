@@ -1,6 +1,10 @@
 import type { AssignmentDefinition, MartialStyleDefinition, SkillUpgradeDefinition, StaticGameData } from "../types";
 import { COMBAT_ROLES, MARTIAL_STYLE_IDS, isCombatRole, isMartialStyleId } from "../../combat";
-import { BASE_STAT_KEYS, validateUnlockCondition } from "./shared";
+import {
+  BASE_STAT_KEYS,
+  validateUnlockCondition,
+  type StaticDataValidationContext
+} from "./shared";
 import { validateSkillEffect } from "./combat";
 
 const ASSIGNMENT_TYPES = ["patrol", "training_ground"] as const;
@@ -8,13 +12,10 @@ const ASSIGNMENT_DURATION_BUCKETS = ["short", "medium", "long"] as const;
 
 export function validateAssignment(
   assignment: AssignmentDefinition,
-  ids: {
-    heroIds: Set<string>;
-    stageIds: Set<string>;
-    styleIds: Set<string>;
-    regionIds: Set<string>;
-    equipmentIds: Set<string>;
-  }
+  context: Pick<
+    StaticDataValidationContext,
+    "heroIds" | "stageIds" | "styleIds" | "regionIds" | "equipmentIds"
+  >
 ): string[] {
   const errors: string[] = [];
 
@@ -34,7 +35,7 @@ export function validateAssignment(
     ...validateUnlockCondition(
       `Assignment ${assignment.id}`,
       assignment.unlockCondition,
-      ids
+      context
     )
   );
 
@@ -55,7 +56,7 @@ export function validateAssignment(
   }
 
   for (const styleId of assignment.allowedStyles) {
-    if (!ids.styleIds.has(styleId)) {
+    if (!context.styleIds.has(styleId)) {
       errors.push(`Assignment ${assignment.id} references missing style ${styleId}`);
     }
   }
@@ -76,14 +77,14 @@ export function validateAssignment(
     }
   }
 
-  if (rewards.mapRegionId && !ids.regionIds.has(rewards.mapRegionId)) {
+  if (rewards.mapRegionId && !context.regionIds.has(rewards.mapRegionId)) {
     errors.push(
       `Assignment ${assignment.id} references missing reward map ${rewards.mapRegionId}`
     );
   }
 
   for (const reward of rewards.equipmentRewardsPerHour ?? []) {
-    if (!ids.equipmentIds.has(reward.equipmentId)) {
+    if (!context.equipmentIds.has(reward.equipmentId)) {
       errors.push(
         `Assignment ${assignment.id} references missing reward equipment ${reward.equipmentId}`
       );
@@ -112,12 +113,11 @@ export function validateAssignment(
 
 export function validateSkillUpgrade(
   skillUpgrade: SkillUpgradeDefinition,
-  skillIds: Set<string>,
-  statusEffectIds: Set<string>
+  context: Pick<StaticDataValidationContext, "skillIds" | "statusEffectIds">
 ): string[] {
   const errors: string[] = [];
 
-  if (!skillIds.has(skillUpgrade.skillId)) {
+  if (!context.skillIds.has(skillUpgrade.skillId)) {
     errors.push(
       `Skill upgrade ${skillUpgrade.id} references missing skill ${skillUpgrade.skillId}`
     );
@@ -148,7 +148,7 @@ export function validateSkillUpgrade(
         ...validateSkillEffect(
           `Skill upgrade ${skillUpgrade.id} add_skill_effect`,
           effect.effect,
-          statusEffectIds
+          context.statusEffectIds
         )
       );
       continue;
@@ -216,11 +216,7 @@ export function validateUpgrade(upgrade: StaticGameData["upgrades"][number]): st
 
 export function validateMartialStyle(
   style: MartialStyleDefinition,
-  ids: {
-    heroIds: Set<string>;
-    stageIds: Set<string>;
-    styleIds: Set<string>;
-  }
+  context: Pick<StaticDataValidationContext, "heroIds" | "stageIds" | "styleIds">
 ): string[] {
   const errors: string[] = [];
 
@@ -246,7 +242,7 @@ export function validateMartialStyle(
       ...validateUnlockCondition(
         `Style branch ${style.id}.${branch.id}`,
         branch.unlock,
-        ids
+        context
       )
     );
 
