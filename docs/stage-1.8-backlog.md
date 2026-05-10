@@ -47,7 +47,7 @@ The recommended theme is **Combat Engine V2**. This is a refactor stage, not a n
 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 49 | Combat Baselines And Scenario Fixtures | Planned | Lock current battle behavior before moving internals |
+| 49 | Combat Baselines And Scenario Fixtures | In Progress | Lock current battle behavior before moving internals |
 | 50 | Turn Scheduler And Resolution Context | Planned | Extract action timing and combat context setup from the simulator |
 | 51 | Damage Package And Defense Pipeline | Planned | Make damage, Qi Break, prevention, and attribution explicit |
 | 52 | Skill Effect Dispatcher And Status Hooks | Planned | Route effects through handlers instead of central simulator branching |
@@ -85,7 +85,8 @@ Capture the current combat behavior before moving responsibilities out of the si
 
 ### Progress Notes
 
-- Not started.
+- Added `tests/helpers/combatScenarios.ts` with reusable deterministic combat builders and a mixed striker, breaker, support, tank, and status-pressure fixture.
+- Added `tests/combat/combatBaselines.test.ts` to lock opening action order, guard absorption, Qi Break burst timing, and battle-cleanse medicine ordering around status application.
 
 ---
 
