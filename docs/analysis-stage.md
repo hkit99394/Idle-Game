@@ -4,7 +4,7 @@
 
 This is a historical analysis artifact from the original MVP planning stage. It explains why the project chose a TypeScript core library, React/Vite web shell, deterministic combat, local save, and simulator-first balance workflow.
 
-The implemented game has since moved through MVP and Stage 1.1 to Stage 1.7. For current systems, use [Current Implemented Systems](current-implemented-systems.md). For the current engine boundary, use [Core Engine Boundary](core-engine-boundary.md).
+The implemented game has since moved through MVP and Stage 1.1 to Stage 1.8. For current systems, use [Current Implemented Systems](current-implemented-systems.md). For the current engine boundary, use [Core Engine Boundary](core-engine-boundary.md), and for the current combat pipeline use [Combat Engine V2](combat-engine-v2.md).
 
 This document starts the analysis stage for **Path of Jianghu**. It turns the planning decisions into requirements, engine boundaries, simulation rules, data schemas, and the first implementation milestones.
 

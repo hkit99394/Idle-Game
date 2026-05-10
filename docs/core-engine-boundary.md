@@ -7,6 +7,7 @@
 - `core/index.ts` is the stable package-style entry point for web, tools, tests, and future backend callers.
 - `core/combat/index.ts`, `core/data/index.ts`, `core/offline/index.ts`, `core/progression/index.ts`, `core/save/index.ts`, and `core/balance/index.ts` expose focused submodule entry points.
 - `core/combat/index.ts` exposes public combat contracts such as `simulateBattle`, combat data types, status display helpers, scheduler helpers, and battle record helpers. It intentionally keeps some lower-level internals private when public callers should use a higher-level contract instead.
+- Combat Engine V2 internals such as `core/combat/damagePackage.ts`, `core/combat/defensivePipeline.ts`, and `core/combat/effectPipeline.ts` are documented ownership points for contributors, not web/tool import paths.
 - `core/core-balance.ts` is the stable tool-facing balance entry point for simulated balance reports and budget-gate helpers; external tools should use it instead of deep-importing `core/balance/*`.
 - `core/data/staticDataBuilder.ts` owns the canonical static-data builder. `data/staticGameData.ts` is the canonical assembled bundle; web, tools, and tests should use those paths instead of hand-assembling `StaticGameData` objects.
 - `core/save/loadTransaction.ts` owns the preferred save-load transaction path for parsing, migration, validation, offline rewards, timestamp advancement, and farm target normalization.

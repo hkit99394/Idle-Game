@@ -1,6 +1,6 @@
 # Balance Budget Gates
 
-Stage 1.7 adds region-level budget gates to make `npm run simulate` explain tuning misses instead of only printing `ok` or `miss`.
+Region-level budget gates were added in Stage 1.7 to make `npm run simulate` explain tuning misses instead of only printing `ok` or `miss`. Stage 1.8 preserved that budget posture while refactoring combat internals.
 
 ## Configuration
 

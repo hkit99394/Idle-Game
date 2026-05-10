@@ -72,10 +72,11 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
 - Completed backlogs through Stage 1.8 live in `docs/archive`.
+- Stage 1.8 is closed; `docs/stage-1.8-backlog.md` should not exist as an active backlog unless Stage 1.8 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Current Known Balance Notes
 
 - Stage 1.8 preserved the known Stage 1.7 balance-budget posture while refactoring combat internals; some budget misses may be intentional tuning notes rather than code failures.
-- Use `docs/balance-budget-gates.md` for current budget fields and known target misses.
+- Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and known target misses.
 - Stage 1.9 is the next planned cleanup stage and should modularize the web UI around the now-stable combat/progression contracts.

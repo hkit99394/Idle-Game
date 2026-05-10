@@ -4,6 +4,8 @@
 
 Stage 1.8 is complete. Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](stage-1.7-backlog.md).
 
+This file is intentionally archived under `docs/archive`. There should not be an active `docs/stage-1.8-backlog.md` copy after Stage 1.8 closure unless the stage is explicitly reopened.
+
 The recommended theme is **Combat Engine V2**. This is a refactor stage, not a new content stage. The goal is to make combat resolution easier to extend for future skills, statuses, tactics, and formation systems while preserving current battle outcomes unless a balance change is explicitly approved.
 
 ## Decisions Carried Forward
@@ -270,6 +272,7 @@ Close Stage 1.8 with updated docs, clear extension guidance, and the Stage 1.7 r
 - Updated active onboarding, engine-boundary, design, and roadmap docs for the implemented Combat Engine V2 module structure.
 - Added a dedicated Combat Engine V2 contributor guide for scheduler, targeting, damage package, effect dispatcher, status hook, battle recorder, and progression adapter extension points.
 - Ran the release-readiness command set: `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.
+- Ran a manual markdown link/path check and confirmed there is no duplicate active `docs/stage-1.8-backlog.md` backlog.
 - Browser smoke skipped because Epic 54 is docs/closure work and Stage 1.8 did not change visible UI in this epic.
 - No deferred P3s remain from the final reviewer loop.
 - Archived Stage 1.8 after verification passed.
@@ -289,9 +292,9 @@ Close Stage 1.8 with updated docs, clear extension guidance, and the Stage 1.7 r
 
 Stage/Epic: Stage 1.8 / Epic 54
 Scope completed: Combat Engine V2 docs, core boundary updates, roadmap updates, release-readiness checklist, and backlog archival.
-Verification: `npm run typecheck`; `npm test`; `npm run build`; `npm run simulate`; `npm run support-decision`; `git diff --check`.
+Verification: `npm run typecheck`; `npm test`; `npm run build`; `npm run simulate`; `npm run support-decision`; `git diff --check`; manual markdown link/path check.
 Browser smoke: skipped; Epic 54 changed docs and closure notes only.
-Known budget misses or deferred P3s: existing Black Iron Fort clear-time miss and Demon Cult clear-time/status-pressure misses remain documented through the balance report posture; no deferred P3s.
+Known budget misses or deferred P3s: existing Black Iron Fort clear-time miss and Demon Cult clear-time/status-pressure misses remain documented through [Balance Budget Gates](../balance-budget-gates.md) and the balance report posture; no deferred P3s.
 Archive/docs status: active docs point to the archived Stage 1.8 backlog and the dedicated Combat Engine V2 guide.
 Next recommended epic: Stage 1.9 UI modularization.
 

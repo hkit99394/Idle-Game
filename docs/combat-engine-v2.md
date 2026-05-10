@@ -5,9 +5,10 @@ This guide is for new contributors working on the combat engine produced by Stag
 ## Public entry points
 
 - `simulateBattle(staticData, input)` in `core/combat/simulator.ts` is the battle runner. It builds lookups, initializes combatants, runs fixed time steps, and returns winner, duration, events, final teams, metrics, contribution rows, and auto-medicine state.
-- `core/index.ts` exports `core/combat/index.ts`, which re-exports the combat API. Prefer importing combat behavior through the core barrel from app/tests unless a local module needs an internal helper.
-- `createBattleEventRecords`, `createBattleEventRecord`, `BattleEventRecord`, and `BATTLE_EVENT_TYPES` are the public battle event metadata helpers from `core/combat/battleRecorder.ts`.
+- `core/index.ts` exports `core/combat/index.ts`, which re-exports the combat API. Prefer importing combat behavior through the core barrel from web, tools, and tests unless a local combat module needs an internal helper.
+- `createBattleEventRecords`, `createBattleEventRecord`, `BattleEventRecord`, and `BATTLE_EVENT_TYPES` are the public battle event metadata helpers re-exported by `core/combat/index.ts`.
 - Metrics and contribution helpers also live in `battleRecorder.ts`, but they are simulator internals unless a future stage deliberately promotes them through `core/combat/index.ts`.
+- `damagePackage.ts`, `defensivePipeline.ts`, and `effectPipeline.ts` are internal extension points. Edit them when adding combat behavior, but do not import them from web, tools, progression, or balance code.
 - Static data enters as typed `StaticGameData`. The combat engine does not import JSON directly.
 
 ## Pipeline order
@@ -52,7 +53,7 @@ Skill effects start in static data and end in `core/combat/effectPipeline.ts`.
 5. If the effect emits a battle event, extend `BattleEvent` in `core/combat/types.ts`, `BATTLE_EVENT_TYPES` in `battleRecorder.ts`, and `getBattleEventStatusId` in `statusMetadata.ts` when the event carries a status.
 6. Add focused tests under `tests/combat`, plus data validation coverage when the effect can appear in JSON.
 
-Use `selectEffectTarget`/`selectOffensiveEffectTarget` for effect target semantics. Current supported targets are `self`, `target`, `lowest_outer_hp_ally`, `lowest_inner_qi_ally`, and `wounded_or_armor_broken_ally`.
+Inside `effectPipeline.ts`, use the local `selectEffectTarget`/`selectOffensiveEffectTarget` helpers for effect target semantics. Current supported targets are `self`, `target`, `lowest_outer_hp_ally`, `lowest_inner_qi_ally`, and `wounded_or_armor_broken_ally`.
 
 ## Where to add a status hook
 

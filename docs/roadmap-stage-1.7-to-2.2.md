@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). The next roadmap pauses before adding another large content layer and makes the game easier to balance, extend, test, and eventually move toward backend or PWA support.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). The next roadmap focus is Stage 1.9, then content, strategy, and backend/PWA readiness.
 
 The recommended sequence is:
 
@@ -61,7 +61,7 @@ Refactor combat resolution into a cleaner pipeline so new skill effects, advance
 
 ### Why This Matters
 
-The current simulator already handles targeting, damage, Qi Break, protection, guard, armor break, wound, cleanse, regeneration, metrics, and contributions. Stage 2 systems will need more effects, so the engine needs clearer extension points.
+Before Stage 1.8, the simulator already handled targeting, damage, Qi Break, protection, guard, armor break, wound, cleanse, regeneration, metrics, and contributions. Stage 2 systems will need more effects, so the engine needed clearer extension points.
 
 ### Milestones
 
@@ -78,6 +78,15 @@ The current simulator already handles targeting, damage, Qi Break, protection, g
 - Adding a new skill effect mostly means adding an effect handler and validation.
 - Battle summary metrics still match existing UI needs.
 - No browser or tool code enters `core/`.
+
+### Stage 1.8 Progress Snapshot
+
+- Epic 49 completed combat baselines and scenario fixtures.
+- Epic 50 extracted deterministic scheduler helpers and battle runtime setup.
+- Epic 51 routed attack, Qi Break, backlash, guard, protection, and attribution through damage packages.
+- Epic 52 completed the skill effect dispatcher and status hook split.
+- Epic 53 stabilized battle event records, metrics, contribution summaries, and the progression adapter contract.
+- Epic 54 closed the stage with Combat Engine V2 docs, archive cleanup, and release-readiness notes.
 
 ## Stage 1.9: UI Modularization
 

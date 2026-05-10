@@ -71,6 +71,7 @@ Before archiving a stage backlog:
 - Update active roadmap docs if the stage changes future direction.
 - Update onboarding docs if implemented systems changed.
 - Move the completed stage backlog to `docs/archive`.
+- Confirm no duplicate active backlog copy remains at `docs/stage-x.y-backlog.md` after archival unless the stage is intentionally reopened.
 - Confirm active docs link to archived backlog paths only where historical context is useful.
 - Run a markdown link/path check if links changed.
 
