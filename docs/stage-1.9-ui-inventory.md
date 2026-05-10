@@ -1,6 +1,6 @@
 # Stage 1.9 UI Inventory
 
-This inventory captures the current web UI/module shape before Stage 1.9 starts moving files. Keep it lightweight: update it when a feature changes ownership, not for every local helper rename.
+This inventory captures the web UI/module shape after Stage 1.9's feature-boundary work. Keep it lightweight: update it when a feature changes ownership, not for every local helper rename.
 
 ## Current Feature Areas
 
@@ -17,6 +17,7 @@ This inventory captures the current web UI/module shape before Stage 1.9 starts 
 
 ## Baseline Coverage
 
+- `docs/web-ui-architecture.md` is the contributor map for where to add panels, view models, reducer commands, save workflows, styling, and smoke checks.
 - `tests/helpers/webWorkflowBaselines.ts` owns the reusable Stage 1.9 baseline state and module inventory.
 - `tests/web/webWorkflowBaselines.test.ts` checks the current feature domains from one state: selected stage, recent battle, offline summary, roster/formation, equipment, assignment, upgrades/mastery, counterplay, and save diagnostics.
 - `tests/web/gameStateDomains.test.ts` checks the Stage 1.9 web-state command surface: grouped action domains, command action factories, reducer domain behavior, and save reset fallback behavior.
@@ -50,4 +51,4 @@ Until a later stage adds true browser screenshots, use this repeatable manual sm
 - Exercise save export, import, reset-new-game, and offline time travel controls.
 - Check a narrow viewport around 390px wide for stage routes, battle log, roster/formation, equipment, counterplay, and save tools.
 
-If a later stage adds automated browser smoke, record the command here and in `docs/stage-1.9-backlog.md`.
+If a later stage adds automated browser smoke, record the command here and in that stage's active backlog.

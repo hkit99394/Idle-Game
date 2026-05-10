@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.9 is in progress. Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md).
+Stage 1.9 is complete. Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](stage-1.8-backlog.md).
 
 The recommended theme is **UI Modularization**. This is a structure and confidence stage, not a visual redesign stage. The goal is to make the web UI and web state easier to extend for future panels, mobile polish, and strategy features while preserving current gameplay behavior.
 
@@ -49,10 +49,10 @@ The recommended theme is **UI Modularization**. This is a structure and confiden
 | --- | --- | --- | --- |
 | 55 | Web Baselines And Smoke Fixtures | Complete | Lock current web workflows before moving UI and state boundaries |
 | 56 | App Shell Composition And Feature Registry | Complete | Turn `App.tsx` into composition over feature modules |
-| 57 | Web State Command And Reducer Slices | In Progress | Split command handling and reducer logic by domain without changing behavior |
+| 57 | Web State Command And Reducer Slices | Complete | Split command handling and reducer logic by domain without changing behavior |
 | 58 | Feature View Models And Types | Complete | Move view-model builders and view types behind feature-owned boundaries |
 | 59 | Panel Modules, Styling, And Mobile Safety | Complete | Finish feature panel ownership and protect narrow viewport layout |
-| 60 | UI Docs And Release Readiness | Planned | Document web boundaries, run smoke coverage, and close Stage 1.9 cleanly |
+| 60 | UI Docs And Release Readiness | Complete | Document web boundaries, run smoke coverage, and close Stage 1.9 cleanly |
 
 ---
 
@@ -88,7 +88,7 @@ Capture current UI and web-state behavior before moving components, command hand
 
 - Added `tests/helpers/webWorkflowBaselines.ts` with a reusable selected-stage/recent-battle/offline/equipment/assignment/counterplay/save-diagnostics baseline state and current UI module inventory.
 - Added `tests/web/webWorkflowBaselines.test.ts` to protect current feature domains from one state before file moves begin.
-- Added [Stage 1.9 UI Inventory](stage-1.9-ui-inventory.md) with current feature-area ownership, baseline coverage, and manual browser smoke steps.
+- Added [Stage 1.9 UI Inventory](../stage-1.9-ui-inventory.md) with current feature-area ownership, baseline coverage, and manual browser smoke steps.
 - Browser smoke remains manual for now because the repo does not yet include a browser automation dependency or script.
 
 ---
@@ -127,7 +127,7 @@ Reduce `web/App.tsx` to a readable shell that composes feature panels and delega
 - Kept the app panel stack behind a narrow app-shell contract instead of passing the entire web-state hook result through feature composition.
 - Kept `web/App.tsx` focused on static data bootstrapping, the app error boundary, and the unchanged 1200ms auto-run interval.
 - Added `tests/web/appShell.test.ts` for panel order, shell status text, action reason formatting, and save-tool status formatting.
-- Updated [Stage 1.9 UI Inventory](stage-1.9-ui-inventory.md) to include the new app-shell helper files.
+- Updated [Stage 1.9 UI Inventory](../stage-1.9-ui-inventory.md) to include the new app-shell helper files.
 
 ---
 
@@ -282,15 +282,29 @@ Close Stage 1.9 with clear web feature boundaries, smoke coverage notes, and rel
 
 ### Progress Notes
 
-- Not started.
+- Updated [Current Implemented Systems](../current-implemented-systems.md) with the Stage 1.9 web feature module structure and Stage 2.0 as the next focus.
+- Updated [Core Engine Boundary](../core-engine-boundary.md) with the web UI boundary: feature panels consume feature view models and local input shapes while core remains reusable and browser-free.
+- Added [Web UI Architecture](../web-ui-architecture.md) as the contributor map for panels, view models, reducer commands, save workflows, styling, and smoke checks.
+- Updated the roadmap so Stage 1.9 is complete and archived, and Stage 2.0 content pipeline preparation is the recommended next action.
+- Ran release-readiness verification, browser smoke, and review/deep-refactor passes before archiving this backlog.
+
+### Closure Summary
+
+Stage/Epic: Stage 1.9 / Epic 60
+Scope completed: web UI architecture docs, current-system docs, boundary docs, roadmap notes, release-readiness verification, browser smoke recording, and backlog archival.
+Verification: `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, `git diff --check`, and markdown path checks.
+Browser smoke: Codex in-app browser at 1120x900 and 390x900; protected selectors present, save diagnostics toggle verified, screenshots captured, and no browser console errors reported.
+Known budget misses or deferred P3s: existing balance report budget misses remain documented tuning notes; no P1-P3 review findings remain for Stage 1.9 closure.
+Archive/docs status: Stage 1.9 backlog archived to `docs/archive/stage-1.9-backlog.md`; active docs point to the archive for historical context.
+Next recommended epic: prepare the Stage 2.0 content-pipeline backlog.
 
 ---
 
-## Open Questions
+## Deferred Questions For Later Stages
 
-- Should Stage 1.9 introduce an automated browser smoke script, or are manual browser checks acceptable until a stable runner exists?
+- Should a later stage introduce a committed automated browser smoke script, or are Codex/manual browser checks acceptable until a stable runner exists?
 - Should `web/state/types.ts` split by feature immediately, or should it first become a barrel over feature type files?
-- Should `useWebGameState` keep one public hook through Stage 1.9, or should feature-specific hooks be introduced after `App.tsx` composition is simplified?
+- Should `useWebGameState` keep one public hook after Stage 1.9, or should feature-specific hooks be introduced after `App.tsx` composition is simplified?
 - How much CSS should move with panels versus remain in one app stylesheet until a design-system stage?
 - Which narrow viewport widths beyond 390px should become required smoke checks?
 

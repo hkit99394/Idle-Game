@@ -7,7 +7,7 @@ Start with the current contributor docs:
 - [Current Implemented Systems](docs/current-implemented-systems.md)
 - [Core Engine Boundary](docs/core-engine-boundary.md)
 - [Combat Engine V2](docs/combat-engine-v2.md)
-- [Stage 1.9 Backlog](docs/stage-1.9-backlog.md)
+- [Web UI Architecture](docs/web-ui-architecture.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)
@@ -20,6 +20,7 @@ Historical planning and archived backlogs:
 
 - [Planning Questions Before Analysis Stage](docs/planning-questions.md)
 - [Analysis Stage](docs/analysis-stage.md)
+- [Archived Stage 1.9 Backlog](docs/archive/stage-1.9-backlog.md)
 - [Archived Stage 1.8 Backlog](docs/archive/stage-1.8-backlog.md)
 - [Archived Stage 1.7 Backlog](docs/archive/stage-1.7-backlog.md)
 - [Archived Stage 1.6 Backlog](docs/archive/stage-1.6-backlog.md)
