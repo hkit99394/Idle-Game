@@ -3,6 +3,34 @@ import { COMBAT_ROLES, isCombatRole } from "../../combat";
 
 export type EntityWithId = { id: string };
 
+export type StaticDataValidationContext = {
+  heroIds: Set<string>;
+  skillIds: Set<string>;
+  enemyIds: Set<string>;
+  equipmentIds: Set<string>;
+  equipmentSetIds: Set<string>;
+  stageIds: Set<string>;
+  styleIds: Set<string>;
+  regionIds: Set<string>;
+  statusEffectIds: Set<string>;
+};
+
+export function buildStaticDataIndexes(
+  data: StaticGameData
+): StaticDataValidationContext {
+  return {
+    heroIds: new Set(data.heroes.map((hero) => hero.id)),
+    skillIds: new Set(data.skills.map((skill) => skill.id)),
+    enemyIds: new Set(data.enemies.map((enemy) => enemy.id)),
+    equipmentIds: new Set(data.equipment.map((equipment) => equipment.id)),
+    equipmentSetIds: new Set((data.equipmentSets ?? []).map((set) => set.id)),
+    stageIds: new Set(data.stages.map((stage) => stage.id)),
+    styleIds: new Set(data.styles.map((style) => style.id)),
+    regionIds: new Set(data.regions.map((region) => region.id)),
+    statusEffectIds: new Set(data.statusEffects.map((status) => status.id))
+  };
+}
+
 export const BASE_STAT_KEYS = [
   "maxOuterHp",
   "maxInnerQi",
@@ -81,11 +109,7 @@ export function validateCombatRole(ownerLabel: string, role: unknown): string[] 
 export function validateUnlockCondition(
   ownerLabel: string,
   unlock: StaticGameData["regions"][number]["unlockCondition"],
-  ids: {
-    heroIds: Set<string>;
-    stageIds: Set<string>;
-    styleIds: Set<string>;
-  }
+  context: Pick<StaticDataValidationContext, "heroIds" | "stageIds" | "styleIds">
 ): string[] {
   const errors: string[] = [];
 
@@ -94,13 +118,13 @@ export function validateUnlockCondition(
       return errors;
 
     case "stage_cleared":
-      if (!ids.stageIds.has(unlock.stageId)) {
+      if (!context.stageIds.has(unlock.stageId)) {
         errors.push(`${ownerLabel} references missing unlock stage ${unlock.stageId}`);
       }
       return errors;
 
     case "hero_level":
-      if (!ids.heroIds.has(unlock.heroId)) {
+      if (!context.heroIds.has(unlock.heroId)) {
         errors.push(`${ownerLabel} references missing unlock hero ${unlock.heroId}`);
       }
       if (!Number.isInteger(unlock.level) || unlock.level < 1) {
@@ -109,7 +133,7 @@ export function validateUnlockCondition(
       return errors;
 
     case "style_mastery_level":
-      if (!ids.styleIds.has(unlock.styleId)) {
+      if (!context.styleIds.has(unlock.styleId)) {
         errors.push(`${ownerLabel} references missing unlock style ${unlock.styleId}`);
       }
       if (!Number.isInteger(unlock.level) || unlock.level < 1) {

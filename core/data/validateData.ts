@@ -1,5 +1,6 @@
 import type { StaticGameData } from "./types";
 import {
+  buildStaticDataIndexes,
   duplicateIds,
   validateCombatRole,
   validateStats,
@@ -60,42 +61,25 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     }
   }
 
-  const skillIds = new Set(data.skills.map((skill) => skill.id));
-  const heroIds = new Set(data.heroes.map((hero) => hero.id));
-  const enemyIds = new Set(data.enemies.map((enemy) => enemy.id));
-  const equipmentIds = new Set(data.equipment.map((equipment) => equipment.id));
-  const equipmentSetIds = new Set(
-    (data.equipmentSets ?? []).map((set) => set.id)
-  );
-  const stageIds = new Set(data.stages.map((stage) => stage.id));
-  const styleIds = new Set(data.styles.map((style) => style.id));
-  const regionIds = new Set(data.regions.map((region) => region.id));
-  const statusEffectIds = new Set(data.statusEffects.map((status) => status.id));
-  const validationIds = {
-    heroIds,
-    stageIds,
-    styleIds,
-    regionIds,
-    equipmentIds
-  };
+  const validationContext = buildStaticDataIndexes(data);
 
-  errors.push(...validateHeroSkillRefs(data.heroes, skillIds));
-  errors.push(...validateHeroStyleRefs(data.heroes, styleIds));
-  errors.push(...validateEnemySkillRefs(data.enemies, skillIds));
-  errors.push(...validateEnemyStyleRefs(data.enemies, styleIds));
-  errors.push(...validateStageEnemyRefs(data.stages, enemyIds));
-  errors.push(...validateStageEquipmentRefs(data.stages, equipmentIds));
-  errors.push(...validateStageRegionRefs(data.stages, regionIds));
-  errors.push(...validateStageNextRefs(data.stages, stageIds));
-  errors.push(...validateRegionStageRefs(data.regions, stageIds));
+  errors.push(...validateHeroSkillRefs(data.heroes, validationContext));
+  errors.push(...validateHeroStyleRefs(data.heroes, validationContext));
+  errors.push(...validateEnemySkillRefs(data.enemies, validationContext));
+  errors.push(...validateEnemyStyleRefs(data.enemies, validationContext));
+  errors.push(...validateStageEnemyRefs(data.stages, validationContext));
+  errors.push(...validateStageEquipmentRefs(data.stages, validationContext));
+  errors.push(...validateStageRegionRefs(data.stages, validationContext));
+  errors.push(...validateStageNextRefs(data.stages, validationContext));
+  errors.push(...validateRegionStageRefs(data.regions, validationContext));
   errors.push(...validateRegionStageOwnership(data.regions, data.stages));
   for (const region of data.regions) {
-    errors.push(...validateRegionBalanceTargets(region));
+    errors.push(...validateRegionBalanceTargets(region, validationContext));
     errors.push(
       ...validateUnlockCondition(
         `Region ${region.id}`,
         region.unlockCondition,
-        validationIds
+        validationContext
       )
     );
   }
@@ -103,7 +87,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   for (const hero of data.heroes) {
     errors.push(...validateStats(hero.id, hero.baseStats));
     errors.push(...validateCombatRole(`Hero ${hero.id}`, hero.combatRole));
-    errors.push(...validateUnlockCondition(`Hero ${hero.id}`, hero.unlock, validationIds));
+    errors.push(...validateUnlockCondition(`Hero ${hero.id}`, hero.unlock, validationContext));
   }
 
   for (const enemy of data.enemies) {
@@ -112,7 +96,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const skill of data.skills) {
-    errors.push(...validateSkill(skill, statusEffectIds));
+    errors.push(...validateSkill(skill, validationContext));
   }
 
   for (const status of data.statusEffects) {
@@ -120,11 +104,11 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const medicine of data.medicines) {
-    errors.push(...validateMedicine(medicine, stageIds));
+    errors.push(...validateMedicine(medicine, validationContext));
   }
 
   for (const equipment of data.equipment) {
-    errors.push(...validateEquipment(equipment, styleIds, equipmentSetIds));
+    errors.push(...validateEquipment(equipment, validationContext));
   }
 
   for (const set of data.equipmentSets ?? []) {
@@ -132,11 +116,11 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const assignment of data.assignments ?? []) {
-    errors.push(...validateAssignment(assignment, validationIds));
+    errors.push(...validateAssignment(assignment, validationContext));
   }
 
   for (const skillUpgrade of data.skillUpgrades) {
-    errors.push(...validateSkillUpgrade(skillUpgrade, skillIds, statusEffectIds));
+    errors.push(...validateSkillUpgrade(skillUpgrade, validationContext));
   }
 
   for (const stage of data.stages) {
@@ -152,7 +136,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   }
 
   for (const style of data.styles) {
-    errors.push(...validateMartialStyle(style, validationIds));
+    errors.push(...validateMartialStyle(style, validationContext));
   }
 
   const thresholds = data.mastery.thresholds;

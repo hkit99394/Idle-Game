@@ -181,6 +181,7 @@ Make balance reports explain why content passes or misses target budgets using s
 - Updated `npm run simulate` output with a `Region Budget Gates` section that reports pass/fail reasons per region.
 - Added simulated enemy status-pressure metrics so status budgets count enemy-applied statuses and status tick damage against the player.
 - Added tests for budget gate output, validation errors, farm recommendation alignment, and Demon Cult simulated-vs-estimated status-pressure parity.
+- Stage 1.7 deep-review follow-up made save migration persistence explicit on load, moved reusable region budget gate semantics into `core/balance`, broadened shared status scenario helpers, and tightened `expectedStatusIds` validation against configured status effects.
 - Added `docs/balance-budget-gates.md` to document the budget fields and current known tuning misses.
 - Verified with `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.
 

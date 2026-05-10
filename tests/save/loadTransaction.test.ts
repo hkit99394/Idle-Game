@@ -26,7 +26,13 @@ describe("save load transaction", () => {
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
     expect(result.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
     expect(result.save.offlineFarmPreset).toBe("balanced");
-    expect(result.changed).toBe(false);
+    expect(result.changed).toBe(true);
+    expect(result.writeReasons).toEqual(["migrated"]);
+    expect(result.migration).toMatchObject({
+      fromVersion: fixture.version,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true
+    });
   });
 
   it("applies offline rewards in core and advances the saved reward timestamp once", () => {
@@ -45,6 +51,7 @@ describe("save load transaction", () => {
     });
 
     expect(firstLoad.changed).toBe(true);
+    expect(firstLoad.writeReasons).toEqual(["offlineRewardsApplied"]);
     expect(firstLoad.offlineRewards?.ok).toBe(true);
     expect(firstLoad.offlineRewards?.rewards.clears).toBeGreaterThan(0);
     expect(firstLoad.save.updatedAtMs).toBe(31_000);
@@ -57,6 +64,7 @@ describe("save load transaction", () => {
     });
 
     expect(secondLoad.changed).toBe(false);
+    expect(secondLoad.writeReasons).toEqual([]);
     expect(secondLoad.offlineRewards?.ok).toBe(true);
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
   });
@@ -96,6 +104,7 @@ describe("save load transaction", () => {
     expect(firstLoad.offlineRewards?.rewards.clears).toBeGreaterThan(0);
     expect(firstLoad.save.lastOfflineRewardAtMs).toBe(61_000);
     expect(secondLoad.changed).toBe(false);
+    expect(secondLoad.writeReasons).toEqual([]);
     expect(secondLoad.offlineRewards?.ok).toBe(true);
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
     expect(secondLoad.save.progress.resources).toEqual(
@@ -121,11 +130,45 @@ describe("save load transaction", () => {
 
     expect(result.ok).toBe(true);
     expect(result.changed).toBe(true);
+    expect(result.writeReasons).toEqual(["normalizedFarmTarget"]);
     expect(result.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
     expect(result.save.updatedAtMs).toBe(1_000);
     expect(result.save.lastOfflineRewardAtMs).toBe(1_000);
     expect(result.offlineRewards?.ok).toBe(true);
     expect(result.offlineRewards?.rewards.clears).toBe(0);
+  });
+
+  it("reports current-version schema normalization as a write reason", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1_000
+    });
+    const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
+    const result = loadSaveTransaction({
+      data: staticData,
+      rawSave,
+      nowMs: 1_000
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.changed).toBe(true);
+    expect(result.writeReasons).toEqual(["normalizedSave"]);
+    expect(result.migration).toMatchObject({
+      migrated: false,
+      normalized: true,
+      normalizations: [
+        {
+          field: "offlineFarmPreset",
+          reason: "defaulted missing field"
+        }
+      ]
+    });
+    expect(result.save.offlineFarmPreset).toBe("balanced");
   });
 
   it("rejects future save versions before offline rewards are applied", () => {

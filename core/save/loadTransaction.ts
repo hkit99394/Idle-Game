@@ -9,10 +9,11 @@ import {
 import { createSaveData } from "./factory";
 import { parseSaveData } from "./validation";
 import type {
+  ApplySaveLoadTransactionSuccess,
   LoadSaveTransactionResult,
   SaveData,
   SaveLoadTransactionData,
-  SaveLoadTransactionSuccess
+  SaveLoadWriteReason
 } from "./saveTypes";
 
 export function loadSaveTransaction(input: {
@@ -26,18 +27,36 @@ export function loadSaveTransaction(input: {
     return parseResult;
   }
 
-  return applySaveLoadTransaction({
+  const transaction = applySaveLoadTransaction({
     data: input.data,
     save: parseResult.save,
     nowMs: input.nowMs
   });
+
+  return {
+    ...transaction,
+    changed:
+      transaction.changed ||
+      parseResult.migration.migrated ||
+      parseResult.migration.normalized,
+    writeReasons: [
+      ...(parseResult.migration.migrated
+        ? (["migrated"] as SaveLoadWriteReason[])
+        : []),
+      ...(!parseResult.migration.migrated && parseResult.migration.normalized
+        ? (["normalizedSave"] as SaveLoadWriteReason[])
+        : []),
+      ...transaction.writeReasons
+    ],
+    migration: parseResult.migration
+  };
 }
 
 export function applySaveLoadTransaction(input: {
   data: SaveLoadTransactionData;
   save: SaveData;
   nowMs: number;
-}): SaveLoadTransactionSuccess {
+}): ApplySaveLoadTransactionSuccess {
   const rewardTimeMs = Math.max(input.nowMs, input.save.updatedAtMs);
   const offlineFarmPreset = normalizeOfflineFarmPreset(
     input.save.offlineFarmPreset
@@ -71,13 +90,26 @@ export function applySaveLoadTransaction(input: {
   const hasAssignmentRewards =
     offlineAssignmentRewards.rewards.assignments.length > 0;
   const hasRewards = hasFarmRewards || hasAssignmentRewards;
+  const writeReasons: SaveLoadWriteReason[] = [
+    ...(farmTargetChanged
+      ? (["normalizedFarmTarget"] as SaveLoadWriteReason[])
+      : []),
+    ...(presetChanged ? (["normalizedPreset"] as SaveLoadWriteReason[]) : []),
+    ...(hasFarmRewards
+      ? (["offlineRewardsApplied"] as SaveLoadWriteReason[])
+      : []),
+    ...(hasAssignmentRewards
+      ? (["offlineAssignmentsApplied"] as SaveLoadWriteReason[])
+      : [])
+  ];
 
-  if (!hasRewards && !farmTargetChanged && !presetChanged) {
+  if (writeReasons.length === 0) {
     return {
       ok: true,
       save: input.save,
       previousSave: input.save,
       changed: false,
+      writeReasons,
       offlineRewards,
       offlineAssignmentRewards
     };
@@ -99,6 +131,7 @@ export function applySaveLoadTransaction(input: {
     }),
     previousSave: input.save,
     changed: true,
+    writeReasons,
     offlineRewards,
     offlineAssignmentRewards
   };

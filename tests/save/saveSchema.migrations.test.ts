@@ -22,8 +22,12 @@ describe("save schema migrations", () => {
         ok: true,
         fromVersion: fixture.version,
         toVersion: SAVE_DATA_VERSION,
-        migrated: true
+        migrated: true,
+        normalized: fixture.expectedNormalizations.length > 0
       });
+      expect(migration.ok && migration.normalizations, fixture.description).toEqual(
+        fixture.expectedNormalizations
+      );
       expect(validateSaveData(staticData, fixture.rawSave), fixture.description).toEqual(
         []
       );
@@ -54,6 +58,9 @@ describe("save schema migrations", () => {
       });
       expect(result.save.progress.assignments, fixture.description).toEqual(
         expect.any(Object)
+      );
+      expect(result.migration.normalizations, fixture.description).toEqual(
+        fixture.expectedNormalizations
       );
     }
   });

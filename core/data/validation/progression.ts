@@ -1,6 +1,6 @@
 import type { FormationDefinition, RegionDefinition, StageDefinition } from "../types";
 import { FORMATION_SLOTS, isFormationSlot } from "../../combat";
-import { isRecord } from "./shared";
+import { isRecord, type StaticDataValidationContext } from "./shared";
 
 const BALANCE_RESULT_EXPECTATIONS = ["player_clear", "enemy_hold"] as const;
 
@@ -51,7 +51,10 @@ export function validateClearTimeTargetRange(
   return errors;
 }
 
-export function validateRegionBalanceTargets(region: RegionDefinition): string[] {
+export function validateRegionBalanceTargets(
+  region: RegionDefinition,
+  context: Pick<StaticDataValidationContext, "statusEffectIds">
+): string[] {
   const targets = region.balanceTargets;
 
   if (targets === undefined) {
@@ -90,7 +93,7 @@ export function validateRegionBalanceTargets(region: RegionDefinition): string[]
   }
 
   errors.push(...validateRewardCurveTargets(region));
-  errors.push(...validateStatusPressureTargets(region));
+  errors.push(...validateStatusPressureTargets(region, context));
   errors.push(...validateDefensePressureTargets(region));
   errors.push(...validateHealingPressureTargets(region));
   errors.push(...validateBossGateTargets(region));
@@ -121,7 +124,10 @@ function validateRewardCurveTargets(region: RegionDefinition): string[] {
   return [];
 }
 
-function validateStatusPressureTargets(region: RegionDefinition): string[] {
+function validateStatusPressureTargets(
+  region: RegionDefinition,
+  context: Pick<StaticDataValidationContext, "statusEffectIds">
+): string[] {
   const targets = region.balanceTargets?.statusPressure;
 
   if (targets === undefined) {
@@ -154,14 +160,23 @@ function validateStatusPressureTargets(region: RegionDefinition): string[] {
     `Region ${region.id} balanceTargets.statusPressure.maxMedicineConsumed`
   );
 
-  if (
-    targets.expectedStatusIds !== undefined &&
-    (!Array.isArray(targets.expectedStatusIds) ||
-      targets.expectedStatusIds.some((statusId) => typeof statusId !== "string"))
-  ) {
-    errors.push(
-      `Region ${region.id} balanceTargets.statusPressure.expectedStatusIds must be an array of strings`
-    );
+  if (targets.expectedStatusIds !== undefined) {
+    if (
+      !Array.isArray(targets.expectedStatusIds) ||
+      targets.expectedStatusIds.some((statusId) => typeof statusId !== "string")
+    ) {
+      errors.push(
+        `Region ${region.id} balanceTargets.statusPressure.expectedStatusIds must be an array of strings`
+      );
+    } else {
+      for (const statusId of targets.expectedStatusIds) {
+        if (!context.statusEffectIds.has(statusId)) {
+          errors.push(
+            `Region ${region.id} balanceTargets.statusPressure.expectedStatusIds includes unknown status ${statusId}`
+          );
+        }
+      }
+    }
   }
 
   validateMinMaxPair(
@@ -356,22 +371,22 @@ function validateMinMaxPair(
 
 export function validateStageEnemyRefs(
   stages: StageDefinition[],
-  enemyIds: Set<string>
+  context: Pick<StaticDataValidationContext, "enemyIds">
 ): string[] {
   return stages.flatMap((stage) =>
     stage.enemyTeam.combatantIds
-      .filter((enemyId) => !enemyIds.has(enemyId))
+      .filter((enemyId) => !context.enemyIds.has(enemyId))
       .map((enemyId) => `Stage ${stage.id} references missing enemy ${enemyId}`)
   );
 }
 
 export function validateStageEquipmentRefs(
   stages: StageDefinition[],
-  equipmentIds: Set<string>
+  context: Pick<StaticDataValidationContext, "equipmentIds">
 ): string[] {
   return stages.flatMap((stage) =>
     (stage.equipmentDrops ?? []).flatMap((drop) =>
-      equipmentIds.has(drop.equipmentId)
+      context.equipmentIds.has(drop.equipmentId)
         ? []
         : [`Stage ${stage.id} references missing equipment ${drop.equipmentId}`]
     )
@@ -380,10 +395,10 @@ export function validateStageEquipmentRefs(
 
 export function validateStageRegionRefs(
   stages: StageDefinition[],
-  regionIds: Set<string>
+  context: Pick<StaticDataValidationContext, "regionIds">
 ): string[] {
   return stages.flatMap((stage) =>
-    regionIds.has(stage.regionId)
+    context.regionIds.has(stage.regionId)
       ? []
       : [`Stage ${stage.id} references missing region ${stage.regionId}`]
   );
@@ -391,10 +406,10 @@ export function validateStageRegionRefs(
 
 export function validateStageNextRefs(
   stages: StageDefinition[],
-  stageIds: Set<string>
+  context: Pick<StaticDataValidationContext, "stageIds">
 ): string[] {
   return stages.flatMap((stage) =>
-    stage.nextStageId === null || stageIds.has(stage.nextStageId)
+    stage.nextStageId === null || context.stageIds.has(stage.nextStageId)
       ? []
       : [`Stage ${stage.id} references missing next stage ${stage.nextStageId}`]
   );
@@ -402,11 +417,11 @@ export function validateStageNextRefs(
 
 export function validateRegionStageRefs(
   regions: RegionDefinition[],
-  stageIds: Set<string>
+  context: Pick<StaticDataValidationContext, "stageIds">
 ): string[] {
   return regions.flatMap((region) =>
     region.stageIds
-      .filter((stageId) => !stageIds.has(stageId))
+      .filter((stageId) => !context.stageIds.has(stageId))
       .map((stageId) => `Region ${region.id} references missing stage ${stageId}`)
   );
 }

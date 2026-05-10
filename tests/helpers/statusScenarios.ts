@@ -1,5 +1,14 @@
-import { createInitialPlayerProgress } from "../../core";
-import type { BaseStats, PlayerProgress, StaticGameData } from "../../core";
+import { createInitialPlayerProgress, validateStaticGameData } from "../../core";
+import type {
+  BaseStats,
+  EnemyDefinition,
+  MedicineDefinition,
+  PlayerProgress,
+  RegionDefinition,
+  SkillDefinition,
+  StageDefinition,
+  StaticGameData
+} from "../../core";
 import { staticData } from "./staticData";
 
 export const autoMedicinePoisonScenarioIds = {
@@ -27,67 +36,158 @@ const statusScenarioStats: BaseStats = {
   statusResistance: 0
 };
 
-export function createAutoMedicinePoisonScenarioData(
-  baseData: StaticGameData = staticData
-): StaticGameData {
-  const ids = autoMedicinePoisonScenarioIds;
+export type StatusScenarioStatusEffectInput = {
+  statusId: string;
+  chance?: number;
+  durationSeconds?: number;
+  stacks?: number;
+};
 
-  return {
+export type StatusScenarioStageOverrides = Partial<
+  Pick<
+    StageDefinition,
+    "isBoss" | "canFarmOffline" | "rewards" | "equipmentDrops" | "nextStageId"
+  >
+>;
+
+export type CreateStatusPressureScenarioDataInput = {
+  baseData?: StaticGameData;
+  stageId: string;
+  heroId: string;
+  enemyId: string;
+  skillId: string;
+  heroName?: string;
+  enemyName?: string;
+  stageName?: string;
+  skillName?: string;
+  enemyFamily?: EnemyDefinition["family"];
+  enemyType?: EnemyDefinition["type"];
+  enemyCombatRole?: EnemyDefinition["combatRole"];
+  stageRegionId?: string;
+  heroStats?: Partial<BaseStats>;
+  enemyStats?: Partial<BaseStats>;
+  skillCooldownSeconds?: number;
+  skillEffects?: SkillDefinition["effects"];
+  statusEffects?: StatusScenarioStatusEffectInput[];
+  medicine?: MedicineDefinition;
+  stage?: StatusScenarioStageOverrides;
+  region?: Partial<
+    Pick<RegionDefinition, "name" | "unlockCondition" | "balanceTargets">
+  >;
+};
+
+export function createStatusPressureScenarioData(
+  input: CreateStatusPressureScenarioDataInput
+): StaticGameData {
+  const baseData = input.baseData ?? staticData;
+  const statusEffects = input.statusEffects ?? [
+    {
+      statusId: "poison",
+      chance: 0.85,
+      durationSeconds: 4,
+      stacks: 1
+    }
+  ];
+  const medicine = input.medicine;
+  const stageRegionId = input.stageRegionId ?? "bamboo_road";
+  const regions = baseData.regions.some((region) => region.id === stageRegionId)
+    ? baseData.regions.map((region) =>
+        region.id === stageRegionId
+          ? {
+              ...region,
+              ...input.region,
+              stageIds: region.stageIds.includes(input.stageId)
+                ? region.stageIds
+                : [...region.stageIds, input.stageId]
+            }
+          : region
+      )
+    : [
+        ...baseData.regions,
+        {
+          id: stageRegionId,
+          name: input.region?.name ?? "Scenario Status Region",
+          stageIds: [input.stageId],
+          unlockCondition: input.region?.unlockCondition ?? { type: "always" },
+          ...(input.region?.balanceTargets === undefined
+            ? {}
+            : { balanceTargets: input.region.balanceTargets })
+        }
+      ];
+
+  const scenarioData: StaticGameData = {
     ...baseData,
+    regions,
     heroes: [
       ...baseData.heroes,
       {
         ...baseData.heroes[0],
-        id: ids.heroId,
-        name: "Scenario Patient",
+        id: input.heroId,
+        name: input.heroName ?? "Scenario Patient",
         skillIds: [],
-        baseStats: statusScenarioStats
+        baseStats: {
+          ...statusScenarioStats,
+          ...input.heroStats
+        }
       }
     ],
     enemies: [
       ...baseData.enemies,
       {
         ...baseData.enemies[0],
-        id: ids.enemyId,
-        name: "Scenario Poisoner",
+        id: input.enemyId,
+        name: input.enemyName ?? "Scenario Status Enemy",
+        family: input.enemyFamily ?? baseData.enemies[0].family,
+        type: input.enemyType ?? baseData.enemies[0].type,
+        combatRole: input.enemyCombatRole ?? baseData.enemies[0].combatRole,
         level: 1,
-        skillIds: [ids.skillId],
+        skillIds: [input.skillId],
         baseStats: {
           ...statusScenarioStats,
           speed: 100,
-          statusAccuracy: 0.5
+          statusAccuracy: 1,
+          ...input.enemyStats
         }
       }
     ],
     skills: [
       ...baseData.skills,
       {
-        id: ids.skillId,
-        name: "Scenario Actual Battle Poison",
-        cooldownSeconds: 20,
+        id: input.skillId,
+        name: input.skillName ?? "Scenario Status Pressure",
+        cooldownSeconds: input.skillCooldownSeconds ?? 1,
         outerMultiplier: 0,
         innerMultiplier: 0,
         targetRule: "first_living",
-        effects: [
-          {
-            type: "apply_status",
-            statusId: "poison",
-            chance: 1,
-            durationSeconds: 6,
-            stacks: 1
-          }
-        ]
+        effects:
+          input.skillEffects ??
+          statusEffects.map((effect) => ({
+            type: "apply_status" as const,
+            statusId: effect.statusId,
+            chance: effect.chance ?? 1,
+            durationSeconds: effect.durationSeconds ?? 6,
+            stacks: effect.stacks ?? 1
+          }))
       }
     ],
+    medicines:
+      medicine === undefined
+        ? baseData.medicines
+        : [
+            ...baseData.medicines.filter(
+              (candidate) => candidate.id !== medicine.id
+            ),
+            medicine
+          ],
     stages: [
       ...baseData.stages,
       {
-        id: ids.stageId,
-        regionId: "bamboo_road",
+        id: input.stageId,
+        regionId: stageRegionId,
         index: 1,
-        name: "Scenario Auto Medicine Stage",
+        name: input.stageName ?? "Scenario Status Pressure Stage",
         enemyTeam: {
-          combatantIds: [ids.enemyId]
+          combatantIds: [input.enemyId]
         },
         isBoss: false,
         canFarmOffline: false,
@@ -96,10 +196,68 @@ export function createAutoMedicinePoisonScenarioData(
           cultivation: 0,
           combatExperience: 0
         },
-        nextStageId: null
+        nextStageId: null,
+        ...input.stage
       }
     ]
   };
+
+  const validationErrors = validateStaticGameData(scenarioData);
+
+  if (validationErrors.length > 0) {
+    throw new Error(
+      `Invalid status pressure scenario data: ${validationErrors.join("; ")}`
+    );
+  }
+
+  return scenarioData;
+}
+
+export function createStatusPressureProgress(
+  data: StaticGameData,
+  input: {
+    stageId: string;
+    heroId: string;
+    medicineInventory?: PlayerProgress["medicineInventory"];
+  }
+): PlayerProgress {
+  const progress = createInitialPlayerProgress(data);
+
+  progress.currentStageId = input.stageId;
+  progress.activeHeroIds = [input.heroId];
+  progress.formation = { [input.heroId]: "front" };
+  progress.medicineInventory = { ...(input.medicineInventory ?? {}) };
+
+  return progress;
+}
+
+export function createAutoMedicinePoisonScenarioData(
+  baseData: StaticGameData = staticData
+): StaticGameData {
+  const ids = autoMedicinePoisonScenarioIds;
+
+  return createStatusPressureScenarioData({
+    baseData,
+    stageId: ids.stageId,
+    heroId: ids.heroId,
+    enemyId: ids.enemyId,
+    skillId: ids.skillId,
+    enemyName: "Scenario Poisoner",
+    skillName: "Scenario Actual Battle Poison",
+    skillCooldownSeconds: 20,
+    enemyStats: {
+      statusAccuracy: 0.5
+    },
+    statusEffects: [
+      {
+        statusId: "poison",
+        chance: 1,
+        durationSeconds: 6,
+        stacks: 1
+      }
+    ],
+    stageName: "Scenario Auto Medicine Stage"
+  });
 }
 
 export function createAutoMedicinePoisonProgress(
@@ -108,13 +266,11 @@ export function createAutoMedicinePoisonProgress(
     clear_heart_pill: 1
   }
 ): PlayerProgress {
-  const progress = createInitialPlayerProgress(data);
   const ids = autoMedicinePoisonScenarioIds;
 
-  progress.currentStageId = ids.stageId;
-  progress.activeHeroIds = [ids.heroId];
-  progress.formation = { [ids.heroId]: "front" };
-  progress.medicineInventory = { ...(medicineInventory ?? {}) };
-
-  return progress;
+  return createStatusPressureProgress(data, {
+    stageId: ids.stageId,
+    heroId: ids.heroId,
+    medicineInventory
+  });
 }

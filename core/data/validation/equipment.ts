@@ -1,5 +1,5 @@
 import type { EquipmentDefinition, EquipmentEffect, EquipmentSetDefinition } from "../types";
-import { BASE_STAT_KEYS } from "./shared";
+import { BASE_STAT_KEYS, type StaticDataValidationContext } from "./shared";
 
 const EQUIPMENT_SLOTS = ["weapon", "armor", "manual", "medicine"] as const;
 const EQUIPMENT_RARITIES = ["common", "uncommon", "rare"] as const;
@@ -7,8 +7,7 @@ const EQUIPMENT_EFFECT_MODES = ["flat", "multiplier"] as const;
 
 export function validateEquipment(
   equipment: EquipmentDefinition,
-  styleIds: Set<string>,
-  equipmentSetIds: Set<string>
+  context: Pick<StaticDataValidationContext, "styleIds" | "equipmentSetIds">
 ): string[] {
   const errors: string[] = [];
 
@@ -29,12 +28,12 @@ export function validateEquipment(
   }
 
   for (const styleId of equipment.allowedStyles) {
-    if (!styleIds.has(styleId)) {
+    if (!context.styleIds.has(styleId)) {
       errors.push(`Equipment ${equipment.id} references missing style ${styleId}`);
     }
   }
 
-  if (equipment.setId && !equipmentSetIds.has(equipment.setId)) {
+  if (equipment.setId && !context.equipmentSetIds.has(equipment.setId)) {
     errors.push(
       `Equipment ${equipment.id} references missing equipment set ${equipment.setId}`
     );

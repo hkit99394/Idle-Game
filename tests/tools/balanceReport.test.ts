@@ -333,6 +333,37 @@ describe("balance report", () => {
     });
   });
 
+  it("drives budget gates from the real simulated report adapter", () => {
+    const gatedData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === BLACK_IRON_FORT_REGION_ID
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                clearTimeSeconds: region.balanceTargets?.clearTimeSeconds ?? {
+                  normal: { min: 0, max: 30 },
+                  elite: { min: 0, max: 30 }
+                },
+                defensePressure: {
+                  minGuardAbsorbs: 999
+                }
+              }
+            }
+          : region
+      )
+    };
+    const report = buildGameBalanceReport(gatedData);
+    const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
+
+    expect(blackIron.defensiveEvents.guardAbsorbs).toBeGreaterThan(0);
+    expect(getBudgetCheck(blackIron, "defense_pressure")).toMatchObject({
+      status: "fail",
+      reason: expect.stringContaining("guard absorbs")
+    });
+  });
+
   it("keeps Demon Cult simulated status pressure aligned with balance estimates", () => {
     const simulatedReport = buildGameBalanceReport(staticData);
     const estimatedReport = buildBalanceReport(staticData);

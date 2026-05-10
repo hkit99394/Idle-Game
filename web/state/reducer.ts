@@ -94,8 +94,9 @@ import type {
   StaticGameData
 } from "../../core";
 import {
+  formatSaveStorageCommitFailure,
   getBrowserSaveStorage,
-  loadSaveDataWithOfflineRewardsFromStorage,
+  loadSaveDataWithOfflineRewardsFromStorage
 } from "./saveStorage";
 import type { WebSaveStorage } from "./saveStorage";
 import type {
@@ -203,6 +204,8 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     ),
     offlineFarmPreset: DEFAULT_OFFLINE_FARM_PRESET,
     offlineSummary: null,
+    startupSaveDiagnostics: [],
+    startupSavePersistence: null,
     lastBattle: null,
     lastBattleStageId: null,
     lastPurchase: null,
@@ -242,6 +245,8 @@ export function createWebGameStateFromSave(
     ),
     offlineFarmPreset,
     offlineSummary,
+    startupSaveDiagnostics: [],
+    startupSavePersistence: null,
     lastBattle: null,
     lastBattleStageId: null,
     lastPurchase: null,
@@ -268,16 +273,38 @@ export function createInitialWebGameStateFromStorage(
     nowMs
   );
 
-  return loadResult.ok
-    ? createWebGameStateFromSave(
-        data,
-        loadResult.save,
-        createOfflineRewardSummary(
-          loadResult.offlineRewards,
-          loadResult.offlineAssignmentRewards
-        )
-      )
-    : createInitialWebGameState(data);
+  if (!loadResult.ok) {
+    return createInitialWebGameState(data);
+  }
+
+  const state = createWebGameStateFromSave(
+    data,
+    loadResult.activeSave,
+    createOfflineRewardSummary(
+      loadResult.offlineRewards,
+      loadResult.offlineAssignmentRewards
+    )
+  );
+  const stateWithPersistence: WebGameState = {
+    ...state,
+    startupSavePersistence: {
+      persistedSave: loadResult.persistedSave,
+      offlineRewardBaselineSave: loadResult.offlineRewardBaselineSave,
+      commitStatus: loadResult.commitResult.status,
+      attemptedWriteReasons: loadResult.commitResult.attemptedWriteReasons
+    }
+  };
+
+  if (loadResult.commitResult.status !== "failed") {
+    return stateWithPersistence;
+  }
+
+  return {
+    ...stateWithPersistence,
+    startupSaveDiagnostics: [
+      formatSaveStorageCommitFailure(loadResult.commitResult)
+    ]
+  };
 }
 
 export function webGameStateReducer(

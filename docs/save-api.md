@@ -23,9 +23,29 @@ Save loading should be owned by `core/` so web storage, tools, tests, and a futu
 3. Normalize offline farm preset and selected farm target.
 4. Apply offline farm and assignment rewards from `updatedAtMs` to `nowMs`.
 5. Advance `updatedAtMs` and `lastOfflineRewardAtMs` when rewards are granted.
-6. Return whether the save changed so persistence adapters know whether to write it back.
+6. Return `changed` plus ordered `writeReasons` so persistence adapters know both
+   whether to write and why the write is required.
 
 This timestamp update prevents the same offline interval from being granted again on a reload.
+
+`changed` is the broad compatibility flag. New load adapters should prefer
+`writeReasons` because it preserves intent:
+
+- `migrated` means raw storage was an older supported save version.
+- `normalizedSave` means a current-version save was accepted after schema-level
+  defaults or normalization were applied during parse.
+- `normalizedFarmTarget` and `normalizedPreset` mean load-time farm metadata was
+  repaired after parse.
+- `offlineRewardsApplied` and `offlineAssignmentsApplied` mean load granted
+  rewards and advanced reward timestamps.
+
+`parseSaveData` and the raw-save `loadSaveTransaction` path also return
+migration metadata with the source version, target version, migration flag,
+normalization flag, and the list of normalized fields. `applySaveLoadTransaction`
+accepts an already parsed current-schema save, so its success result does not
+include migration metadata. A migrated save can also include normalizations; in
+that case `writeReasons` uses `migrated` as the persistence reason rather than
+adding a separate `normalizedSave` reason.
 
 ## Web Storage Responsibilities
 
@@ -33,10 +53,27 @@ This timestamp update prevents the same offline interval from being granted agai
 
 - Read raw JSON from storage.
 - Call `loadSaveTransaction`, `parseSaveData`, or `createSaveData`.
-- Write the returned `SaveData` back when the core transaction reports changes.
+- Write the candidate `SaveData` back when the core transaction reports
+  `writeReasons`.
+- Preserve migration metadata from raw-load results when returning adapter
+  diagnostics.
 - Convert storage/JSON failures into UI-friendly error reasons.
 
 It should not own migration, offline reward calculation, farm-target normalization, or timestamp rules.
+
+On failed persistence, adapters must keep the concepts separate:
+
+- The loaded normalized save is the current-schema value returned by core after
+  parse, migration, and schema normalization.
+- The candidate save is the value the adapter attempted to persist.
+- The active save is the current-schema value the caller may safely use in
+  memory after the failed write. Web startup uses the loaded normalized save so
+  failed offline reward writes are not applied in memory.
+- The persisted save is only known when the underlying storage still contains a
+  current-schema `SaveData`. If a migration or `normalizedSave` rewrite fails,
+  storage still contains the original raw payload, so adapters should report no
+  current-schema persisted save instead of treating the loaded normalized save
+  as committed.
 
 ## Migration Fixtures
 

@@ -6,6 +6,7 @@ import {
 } from "../../core";
 import type {
   SaveData,
+  SaveNormalization,
   StaticGameData,
   SupportedSaveDataVersion
 } from "../../core";
@@ -15,6 +16,7 @@ export type SaveVersionFixture = {
   version: Exclude<SupportedSaveDataVersion, typeof SAVE_DATA_VERSION>;
   description: string;
   rawSave: unknown;
+  expectedNormalizations: SaveNormalization[];
 };
 
 export function buildSaveVersionFixtures(
@@ -29,6 +31,12 @@ export function buildSaveVersionFixtures(
     version,
     description: `version ${version}`,
     rawSave: createRawSaveForVersion(currentSave, version)
+  })).map((fixture) => ({
+    ...fixture,
+    expectedNormalizations: getExpectedNormalizationsForRawSave(
+      data,
+      fixture.rawSave
+    )
   }));
 }
 
@@ -100,6 +108,191 @@ function createRawSaveForVersion(
   }
 
   return save;
+}
+
+function getExpectedNormalizationsForRawSave(
+  data: StaticGameData,
+  rawSave: unknown
+): SaveNormalization[] {
+  const normalizations: SaveNormalization[] = [];
+  const defaultProgress = createInitialPlayerProgress(data);
+  const raw = isFixtureRecord(rawSave) ? rawSave : {};
+  const progress = isFixtureRecord(raw.progress) ? raw.progress : {};
+  const resources = isFixtureRecord(progress.resources)
+    ? progress.resources
+    : {};
+  const equipment = progress.equipment;
+  const existingHeroes = isFixtureRecord(progress.heroes) ? progress.heroes : {};
+  const existingMaps = isFixtureRecord(progress.maps) ? progress.maps : {};
+
+  for (const [heroId, heroProgress] of Object.entries(existingHeroes)) {
+    if (!isFixtureRecord(heroProgress)) {
+      continue;
+    }
+
+    if (heroProgress.level === undefined) {
+      normalizations.push(missingField(`progress.heroes.${heroId}.level`));
+    }
+
+    if (heroProgress.upgrades === undefined) {
+      normalizations.push(missingField(`progress.heroes.${heroId}.upgrades`));
+    }
+  }
+
+  for (const [regionId, mapProgress] of Object.entries(existingMaps)) {
+    if (!isFixtureRecord(mapProgress)) {
+      continue;
+    }
+
+    if (mapProgress.combatExperience === undefined) {
+      normalizations.push(
+        missingField(`progress.maps.${regionId}.combatExperience`)
+      );
+    }
+
+    if (mapProgress.highestClearedStageIndex === undefined) {
+      normalizations.push(
+        missingField(`progress.maps.${regionId}.highestClearedStageIndex`)
+      );
+    }
+  }
+
+  if (resources.herbs === undefined) {
+    normalizations.push(missingField("progress.resources.herbs"));
+  }
+
+  if (equipment === undefined) {
+    normalizations.push(missingField("progress.equipment"));
+  } else if (isFixtureRecord(equipment)) {
+    if (equipment.inventory === undefined) {
+      normalizations.push(missingField("progress.equipment.inventory"));
+    }
+
+    if (equipment.equipped === undefined) {
+      normalizations.push(missingField("progress.equipment.equipped"));
+    }
+  }
+
+  for (const heroId of Object.keys(defaultProgress.heroes)) {
+    if (!(heroId in existingHeroes)) {
+      normalizations.push(missingField(`progress.heroes.${heroId}`));
+    }
+  }
+
+  for (const regionId of Object.keys(defaultProgress.maps)) {
+    if (!(regionId in existingMaps)) {
+      normalizations.push(missingField(`progress.maps.${regionId}`));
+    }
+  }
+
+  for (const field of [
+    "activeHeroIds",
+    "formation",
+    "styleMastery",
+    "styleBranches",
+    "skillUpgrades",
+    "medicineInventory",
+    "assignments"
+  ] as const) {
+    if (progress[field] === undefined) {
+      normalizations.push(missingField(`progress.${field}`));
+    }
+  }
+
+  normalizations.push(
+    ...getExpectedAutoMedicinePreferenceNormalizations(raw.autoMedicinePreferences)
+  );
+
+  if (raw.selectedOfflineFarmStageId === undefined) {
+    normalizations.push(missingField("selectedOfflineFarmStageId"));
+  }
+
+  if (raw.offlineFarmPreset === undefined) {
+    normalizations.push(missingField("offlineFarmPreset"));
+  }
+
+  return normalizations;
+}
+
+function getExpectedAutoMedicinePreferenceNormalizations(
+  value: unknown
+): SaveNormalization[] {
+  if (!isFixtureRecord(value)) {
+    return [missingField("autoMedicinePreferences")];
+  }
+
+  const normalizations: SaveNormalization[] = [];
+
+  if (value.preBattleResistanceMode === undefined) {
+    normalizations.push(
+      missingField("autoMedicinePreferences.preBattleResistanceMode")
+    );
+  } else if (typeof value.preBattleResistanceMode !== "string") {
+    normalizations.push(
+      invalidField("autoMedicinePreferences.preBattleResistanceMode")
+    );
+  }
+
+  if (value.disabledMedicineIds === undefined) {
+    normalizations.push(
+      missingField("autoMedicinePreferences.disabledMedicineIds")
+    );
+  } else if (!Array.isArray(value.disabledMedicineIds)) {
+    normalizations.push(
+      invalidField("autoMedicinePreferences.disabledMedicineIds")
+    );
+  } else {
+    const stringMedicineIds = value.disabledMedicineIds.filter(
+      (medicineId): medicineId is string => typeof medicineId === "string"
+    );
+
+    if (stringMedicineIds.length !== value.disabledMedicineIds.length) {
+      normalizations.push({
+        field: "autoMedicinePreferences.disabledMedicineIds",
+        reason: "removed non-string entries"
+      });
+    }
+
+    if (new Set(stringMedicineIds).size !== stringMedicineIds.length) {
+      normalizations.push({
+        field: "autoMedicinePreferences.disabledMedicineIds",
+        reason: "deduplicated entries"
+      });
+    }
+  }
+
+  for (const field of [
+    "enabled",
+    "battleCleanseEnabled",
+    "postBattleCleanseEnabled",
+    "preBattleResistanceEnabled"
+  ] as const) {
+    if (value[field] === undefined) {
+      normalizations.push(missingField(`autoMedicinePreferences.${field}`));
+    } else if (typeof value[field] !== "boolean") {
+      normalizations.push(invalidField(`autoMedicinePreferences.${field}`));
+    }
+  }
+
+  return normalizations;
+}
+
+function missingField(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "defaulted missing field"
+  };
+}
+
+function invalidField(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "defaulted invalid field"
+  };
+}
+
+function isFixtureRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function createMvpSaveFixture(version: 1 | 2): unknown {

@@ -326,6 +326,34 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects unknown expected status ids in region balance targets", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "demon_cult_outpost"
+          ? {
+              ...region,
+              balanceTargets: {
+                clearTimeSeconds: region.balanceTargets!.clearTimeSeconds,
+                rewardCurve: region.balanceTargets?.rewardCurve,
+                defensePressure: region.balanceTargets?.defensePressure,
+                healingPressure: region.balanceTargets?.healingPressure,
+                bossGate: region.balanceTargets?.bossGate,
+                statusPressure: {
+                  ...region.balanceTargets?.statusPressure,
+                  expectedStatusIds: ["poison", "missing_status"]
+                }
+              }
+            }
+          : region
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Region demon_cult_outpost balanceTargets.statusPressure.expectedStatusIds includes unknown status missing_status"
+    );
+  });
+
   it("rejects invalid equipment definitions and drop references", () => {
     const invalidData = {
       ...staticData,

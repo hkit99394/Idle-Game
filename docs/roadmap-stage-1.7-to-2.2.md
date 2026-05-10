@@ -2,18 +2,19 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). The next roadmap pauses before adding another large content layer and makes the game easier to balance, extend, test, and eventually move toward backend or PWA support.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). The next roadmap pauses before adding another large content layer and makes the game easier to balance, extend, test, and eventually move toward backend or PWA support.
 
 The recommended sequence is:
 
-1. Stage 1.7: Foundation Hardening
-2. Stage 1.8: Combat Engine V2
-3. Stage 1.9: UI Modularization
-4. Stage 2.0: Content Pipeline
-5. Stage 2.1: Deeper Player Strategy
-6. Stage 2.2: Backend And PWA Readiness
+1. Stage 1.8: Combat Engine V2
+2. Stage 1.9: UI Modularization
+3. Stage 2.0: Content Pipeline
+4. Stage 2.1: Deeper Player Strategy
+5. Stage 2.2: Backend And PWA Readiness
 
 ## Stage 1.7: Foundation Hardening
+
+Status: completed and archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md).
 
 ### Goal
 
@@ -198,4 +199,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare a detailed Stage 1.7 backlog from this roadmap. Stage 1.7 should be treated as a cleanup and readiness stage, not a content expansion stage.
+Prepare a detailed Stage 1.8 backlog from this roadmap. Stage 1.8 should focus on the Combat Engine V2 refactor while preserving current battle outcomes unless a balance change is intentionally approved.

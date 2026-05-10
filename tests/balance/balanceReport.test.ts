@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   buildBalanceReport,
-  createInitialPlayerProgress,
   defaultAutoMedicinePreferences,
   defaultBalanceScenarioPresets,
   formatBalanceReport,
@@ -9,6 +8,10 @@ import {
   resolveStageBattle
 } from "../../core";
 import type { StaticGameData } from "../../core";
+import {
+  createStatusPressureProgress,
+  createStatusPressureScenarioData
+} from "../helpers/statusScenarios";
 import { staticData } from "../helpers/staticData";
 
 function getUniqueSorted(values: string[]): string[] {
@@ -215,108 +218,43 @@ describe("balance report", () => {
     const heroId = "balance_status_parity_patient";
     const enemyId = "balance_status_parity_enemy";
     const skillId = "balance_status_parity_pressure";
-    const data: StaticGameData = {
-      ...staticData,
-      heroes: [
-        ...staticData.heroes,
-        {
-          ...staticData.heroes[0],
-          id: heroId,
-          name: "Balance Status Patient",
-          skillIds: [],
-          baseStats: {
-            ...staticData.heroes[0].baseStats,
-            maxOuterHp: 3000,
-            outerAttack: 0,
-            innerAttack: 0,
-            speed: 0
+    const data = createStatusPressureScenarioData({
+      stageId,
+      heroId,
+      enemyId,
+      skillId,
+      heroName: "Balance Status Patient",
+      enemyName: "Balance Status Enemy",
+      enemyFamily: "demon_cult",
+      enemyCombatRole: "breaker",
+      heroStats: {
+        maxOuterHp: 3000
+      },
+      statusEffects: [{ statusId: "poison" }, { statusId: "qi_suppression" }],
+      stageName: "Balance Status Parity Stage",
+      stageRegionId: "balance_status_parity_region",
+      region: {
+        name: "Balance Status Parity Region",
+        balanceTargets: {
+          clearTimeSeconds: {
+            normal: { min: 0, max: 30 },
+            elite: { min: 0, max: 30 }
+          },
+          statusPressure: {
+            minApplications: 1,
+            expectedStatusIds: ["poison", "qi_suppression"]
           }
         }
-      ],
-      enemies: [
-        ...staticData.enemies,
-        {
-          ...staticData.enemies[0],
-          id: enemyId,
-          name: "Balance Status Enemy",
-          family: "demon_cult",
-          level: 1,
-          combatRole: "breaker",
-          skillIds: [skillId],
-          baseStats: {
-            ...staticData.enemies[0].baseStats,
-            outerAttack: 0,
-            innerAttack: 0,
-            speed: 100,
-            statusAccuracy: 1
-          }
-        }
-      ],
-      skills: [
-        ...staticData.skills,
-        {
-          id: skillId,
-          name: "Balance Status Pressure",
-          cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
-          targetRule: "first_living",
-          effects: [
-            {
-              type: "apply_status",
-              statusId: "poison",
-              chance: 1,
-              durationSeconds: 6,
-              stacks: 1
-            },
-            {
-              type: "apply_status",
-              statusId: "qi_suppression",
-              chance: 1,
-              durationSeconds: 6,
-              stacks: 1
-            }
-          ]
-        }
-      ],
-      regions: [
-        ...staticData.regions,
-        {
-          id: "balance_status_parity_region",
-          name: "Balance Status Parity Region",
-          stageIds: [stageId],
-          unlockCondition: { type: "always" }
-        }
-      ],
-      stages: [
-        ...staticData.stages,
-        {
-          id: stageId,
-          regionId: "balance_status_parity_region",
-          index: 1,
-          name: "Balance Status Parity Stage",
-          enemyTeam: {
-            combatantIds: [enemyId]
-          },
-          isBoss: false,
-          canFarmOffline: false,
-          rewards: {
-            silver: 0,
-            cultivation: 0,
-            combatExperience: 0
-          },
-          nextStageId: null
-        }
-      ]
-    };
+      }
+    });
     const report = buildBalanceReport(data);
     const reportedStage = report.regions
       .find((region) => region.regionId === "balance_status_parity_region")
       ?.stages.find((stage) => stage.stageId === stageId);
-    const progress = createInitialPlayerProgress(data);
-    progress.currentStageId = stageId;
-    progress.activeHeroIds = [heroId];
-    progress.formation = { [heroId]: "front" };
+    const progress = createStatusPressureProgress(data, {
+      stageId,
+      heroId
+    });
     const actual = resolveStageBattle(data, {
       progress,
       stageId,

@@ -6,7 +6,8 @@
 
 - `core/index.ts` is the stable package-style entry point for web, tools, tests, and future backend callers.
 - `core/combat/index.ts`, `core/data/index.ts`, `core/offline/index.ts`, `core/progression/index.ts`, `core/save/index.ts`, and `core/balance/index.ts` expose focused submodule entry points.
-- `core/data/staticData.ts` owns the canonical static-data builder. Web, tools, and tests should use that builder instead of hand-assembling `StaticGameData` objects.
+- `core/core-balance.ts` is the stable tool-facing balance entry point for simulated balance reports and budget-gate helpers; external tools should use it instead of deep-importing `core/balance/*`.
+- `core/data/staticDataBuilder.ts` owns the canonical static-data builder. `data/staticGameData.ts` is the canonical assembled bundle; web, tools, and tests should use those paths instead of hand-assembling `StaticGameData` objects.
 - `core/save/loadTransaction.ts` owns the preferred save-load transaction path for parsing, migration, validation, offline rewards, timestamp advancement, and farm target normalization.
 
 ## Dependency Rules
@@ -36,6 +37,7 @@
 ## Balance And Tooling Boundary
 
 - Balance target definitions and scoring helpers belong in `core/balance`.
+- Tool-facing balance reports should be imported through `core/core-balance.ts` or tool shims, not deep `core/balance/*` paths.
 - CLI formatting, report printing, and developer workflow concerns belong in `tools/`.
 - Balance reports should simulate configured regions from static data order rather than hard-coded region assumptions.
 - Tool-only output formats must not leak back into core combat or progression logic.
