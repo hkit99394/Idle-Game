@@ -1,5 +1,5 @@
-import { defaultBalanceScenarioPresets } from "../../core/core-balance";
-import type { BalanceScenarioPreset } from "../../core/core-balance";
+import { defaultBalanceScenarioPresets } from "../../core/balance/balanceReport";
+import type { BalanceScenarioPreset } from "../../core/balance/balanceReport";
 import type {
   StaticDataForSupportDecision,
   SupportIdentityOptionInput

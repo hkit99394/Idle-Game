@@ -18,18 +18,6 @@
       "clearTimeSeconds": {
         "normal": { "min": 5, "max": 15 },
         "elite": { "min": 20, "max": 40 }
-      },
-      "rewardCurve": {
-        "requireBestFarmRecommendation": true
-      },
-      "statusPressure": {
-        "maxApplications": 15,
-        "maxExpectedDamage": 0,
-        "maxMedicineConsumed": 0
-      },
-      "bossGate": {
-        "baselineResult": "enemy_hold",
-        "trainedResult": "player_clear"
       }
     },
     "unlockCondition": { "type": "always" }
@@ -49,18 +37,6 @@
       "clearTimeSeconds": {
         "normal": { "min": 5, "max": 18 },
         "elite": { "min": 10, "max": 25 }
-      },
-      "rewardCurve": {
-        "requireBestFarmRecommendation": true
-      },
-      "statusPressure": {
-        "maxApplications": 20,
-        "maxExpectedDamage": 200,
-        "maxMedicineConsumed": 0
-      },
-      "bossGate": {
-        "baselineResult": "player_clear",
-        "clearTimeSeconds": { "min": 30, "max": 55 }
       }
     },
     "unlockCondition": {
@@ -84,20 +60,6 @@
       "clearTimeSeconds": {
         "normal": { "min": 12, "max": 55 },
         "elite": { "min": 25, "max": 65 }
-      },
-      "rewardCurve": {
-        "requireBestFarmRecommendation": true
-      },
-      "defensePressure": {
-        "minGuardAbsorbs": 30,
-        "minArmorBreaks": 30,
-        "minDamagePrevented": 300
-      },
-      "bossGate": {
-        "baselineResult": "enemy_hold",
-        "farmedResult": "player_clear",
-        "maxFarmClears": 20,
-        "maxTrainingCost": 7000
       }
     },
     "unlockCondition": {
@@ -121,21 +83,6 @@
       "clearTimeSeconds": {
         "normal": { "min": 18, "max": 60 },
         "elite": { "min": 35, "max": 80 }
-      },
-      "rewardCurve": {
-        "requireBestFarmRecommendation": true
-      },
-      "healingPressure": {
-        "minHeals": 100,
-        "minOuterHealing": 4000,
-        "minCleanses": 1,
-        "maxRecoveryPrevented": 0
-      },
-      "bossGate": {
-        "baselineResult": "enemy_hold",
-        "farmedResult": "player_clear",
-        "maxFarmClears": 10,
-        "maxTrainingCost": 5000
       }
     },
     "unlockCondition": {
@@ -159,20 +106,6 @@
       "clearTimeSeconds": {
         "normal": { "min": 5, "max": 15 },
         "elite": { "min": 20, "max": 40 }
-      },
-      "rewardCurve": {
-        "requireBestFarmRecommendation": true
-      },
-      "statusPressure": {
-        "minApplications": 1,
-        "maxExpectedDamage": 1000,
-        "maxMedicineConsumed": 0
-      },
-      "bossGate": {
-        "baselineResult": "player_clear",
-        "clearTimeSeconds": { "min": 80, "max": 140 },
-        "maxMedicineConsumed": 0,
-        "maxStatusDamage": 1000
       }
     },
     "unlockCondition": {

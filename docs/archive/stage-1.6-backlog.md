@@ -369,4 +369,4 @@ Tune the Demon Cult boss so intended combined counterplay feels like a hard but 
 - [x] Demon Cult boss tuning criteria updated.
 - [x] `npm test`, `npm run build`, `npm run simulate`, and `npm run support-decision` pass.
 - [x] Stage 1.6 backlog reviewed.
-- [x] Stage 1.6 backlog moved to archive after completion.
+- [ ] Stage 1.6 backlog moved to archive after completion.

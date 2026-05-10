@@ -5,255 +5,114 @@ import {
   MIN_SUPPORTED_SAVE_DATA_VERSION,
   SAVE_DATA_VERSION,
   type SaveMigrationData,
-  type SaveMigrationResult,
-  type SaveNormalization
+  type SaveMigrationResult
 } from "./saveTypes";
-import { normalizeAutoMedicinePreferencesWithChanges } from "./autoMedicinePreferences";
+import { normalizeAutoMedicinePreferences } from "./autoMedicinePreferences";
 import { isRecord, isSupportedSaveDataVersion } from "./validationShared";
 
-type NormalizationResult<T> = {
-  value: T;
-  normalizations: SaveNormalization[];
-};
-
-function missingField(field: string): SaveNormalization {
-  return {
-    field,
-    reason: "defaulted missing field"
-  };
-}
-
-function invalidField(field: string): SaveNormalization {
-  return {
-    field,
-    reason: "defaulted invalid field"
-  };
-}
-
-export function normalizeHeroProgressForMigration(
-  value: unknown,
-  path = "progress.heroes.*"
-): NormalizationResult<HeroProgress | unknown> {
+export function normalizeHeroProgressForMigration(value: unknown): HeroProgress | unknown {
   if (!isRecord(value)) {
-    return {
-      value,
-      normalizations: []
-    };
-  }
-
-  const normalizations: SaveNormalization[] = [];
-
-  if (value.level === undefined) {
-    normalizations.push(missingField(`${path}.level`));
-  }
-
-  if (value.upgrades === undefined) {
-    normalizations.push(missingField(`${path}.upgrades`));
+    return value;
   }
 
   return {
-    value: {
-      ...value,
-      level: value.level === undefined ? 1 : value.level,
-      upgrades: value.upgrades === undefined ? {} : value.upgrades
-    },
-    normalizations
+    ...value,
+    level: value.level === undefined ? 1 : value.level,
+    upgrades: value.upgrades === undefined ? {} : value.upgrades
   };
 }
 
-export function normalizeMapProgressForMigration(
-  value: unknown,
-  path = "progress.maps.*"
-): NormalizationResult<MapProgress | unknown> {
+export function normalizeMapProgressForMigration(value: unknown): MapProgress | unknown {
   if (!isRecord(value)) {
-    return {
-      value,
-      normalizations: []
-    };
-  }
-
-  const normalizations: SaveNormalization[] = [];
-
-  if (value.combatExperience === undefined) {
-    normalizations.push(missingField(`${path}.combatExperience`));
-  }
-
-  if (value.highestClearedStageIndex === undefined) {
-    normalizations.push(missingField(`${path}.highestClearedStageIndex`));
+    return value;
   }
 
   return {
-    value: {
-      ...value,
-      combatExperience:
-        value.combatExperience === undefined ? 0 : value.combatExperience,
-      highestClearedStageIndex:
-        value.highestClearedStageIndex === undefined
-          ? 0
-          : value.highestClearedStageIndex
-    },
-    normalizations
+    ...value,
+    combatExperience:
+      value.combatExperience === undefined ? 0 : value.combatExperience,
+    highestClearedStageIndex:
+      value.highestClearedStageIndex === undefined
+        ? 0
+        : value.highestClearedStageIndex
   };
 }
 
-export function normalizeResourcesForMigration(
-  value: unknown,
-  path = "progress.resources"
-): NormalizationResult<ResourceState | unknown> {
+export function normalizeResourcesForMigration(value: unknown): ResourceState | unknown {
   if (!isRecord(value)) {
-    return {
-      value,
-      normalizations: []
-    };
+    return value;
   }
 
-  const normalizations =
-    value.herbs === undefined ? [missingField(`${path}.herbs`)] : [];
-
   return {
-    value: {
-      ...value,
-      herbs: value.herbs === undefined ? 0 : value.herbs
-    },
-    normalizations
+    ...value,
+    herbs: value.herbs === undefined ? 0 : value.herbs
   };
 }
 
 export function normalizeEquipmentProgressForMigration(
-  value: unknown,
-  path = "progress.equipment"
-): NormalizationResult<EquipmentProgress | unknown> {
+  value: unknown
+): EquipmentProgress | unknown {
   if (value === undefined) {
     return {
-      value: {
-        inventory: {},
-        equipped: {}
-      },
-      normalizations: [missingField(path)]
+      inventory: {},
+      equipped: {}
     };
   }
 
   if (!isRecord(value)) {
-    return {
-      value,
-      normalizations: []
-    };
-  }
-
-  const normalizations: SaveNormalization[] = [];
-
-  if (value.inventory === undefined) {
-    normalizations.push(missingField(`${path}.inventory`));
-  }
-
-  if (value.equipped === undefined) {
-    normalizations.push(missingField(`${path}.equipped`));
+    return value;
   }
 
   return {
-    value: {
-      ...value,
-      inventory: value.inventory === undefined ? {} : value.inventory,
-      equipped: value.equipped === undefined ? {} : value.equipped
-    },
-    normalizations
+    ...value,
+    inventory: value.inventory === undefined ? {} : value.inventory,
+    equipped: value.equipped === undefined ? {} : value.equipped
   };
 }
 
 export function normalizeProgressForMigration(
   data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
   value: unknown
-): NormalizationResult<unknown> {
+): unknown {
   if (!isRecord(value)) {
-    return {
-      value,
-      normalizations: []
-    };
+    return value;
   }
 
   const defaultProgress = createInitialPlayerProgress(data);
   const existingHeroes = isRecord(value.heroes) ? value.heroes : {};
   const existingMaps = isRecord(value.maps) ? value.maps : {};
-  const normalizations: SaveNormalization[] = [];
-  const resources = normalizeResourcesForMigration(value.resources);
-  const equipment = normalizeEquipmentProgressForMigration(value.equipment);
-  const heroes = Object.fromEntries(
-    Object.entries(existingHeroes).map(([heroId, progress]) => {
-      const normalized = normalizeHeroProgressForMigration(
-        progress,
-        `progress.heroes.${heroId}`
-      );
-      normalizations.push(...normalized.normalizations);
-
-      return [heroId, normalized.value];
-    })
-  );
-  const maps = Object.fromEntries(
-    Object.entries(existingMaps).map(([regionId, progress]) => {
-      const normalized = normalizeMapProgressForMigration(
-        progress,
-        `progress.maps.${regionId}`
-      );
-      normalizations.push(...normalized.normalizations);
-
-      return [regionId, normalized.value];
-    })
-  );
-
-  normalizations.push(...resources.normalizations, ...equipment.normalizations);
-
-  for (const heroId of Object.keys(defaultProgress.heroes)) {
-    if (!(heroId in existingHeroes)) {
-      normalizations.push(missingField(`progress.heroes.${heroId}`));
-    }
-  }
-
-  for (const regionId of Object.keys(defaultProgress.maps)) {
-    if (!(regionId in existingMaps)) {
-      normalizations.push(missingField(`progress.maps.${regionId}`));
-    }
-  }
-
-  const defaultedTopLevelFields = [
-    "activeHeroIds",
-    "formation",
-    "styleMastery",
-    "styleBranches",
-    "skillUpgrades",
-    "medicineInventory",
-    "assignments"
-  ] as const;
-
-  for (const field of defaultedTopLevelFields) {
-    if (value[field] === undefined) {
-      normalizations.push(missingField(`progress.${field}`));
-    }
-  }
 
   return {
-    value: {
-      ...value,
-      resources: resources.value,
-      heroes: {
-        ...defaultProgress.heroes,
-        ...heroes
-      },
-      sect: value.sect,
-      maps: {
-        ...defaultProgress.maps,
-        ...maps
-      },
-      activeHeroIds: value.activeHeroIds ?? defaultProgress.activeHeroIds,
-      formation: value.formation ?? defaultProgress.formation,
-      styleMastery: value.styleMastery ?? {},
-      styleBranches: value.styleBranches ?? {},
-      skillUpgrades: value.skillUpgrades ?? {},
-      equipment: equipment.value,
-      medicineInventory: value.medicineInventory ?? {},
-      assignments: value.assignments ?? {},
-      currentStageId: value.currentStageId
+    ...value,
+    resources: normalizeResourcesForMigration(value.resources),
+    heroes: {
+      ...defaultProgress.heroes,
+      ...Object.fromEntries(
+        Object.entries(existingHeroes).map(([heroId, progress]) => [
+          heroId,
+          normalizeHeroProgressForMigration(progress)
+        ])
+      )
     },
-    normalizations
+    sect: value.sect,
+    maps: {
+      ...defaultProgress.maps,
+      ...Object.fromEntries(
+        Object.entries(existingMaps).map(([regionId, progress]) => [
+          regionId,
+          normalizeMapProgressForMigration(progress)
+        ])
+      )
+    },
+    activeHeroIds: value.activeHeroIds ?? defaultProgress.activeHeroIds,
+    formation: value.formation ?? defaultProgress.formation,
+    styleMastery: value.styleMastery ?? {},
+    styleBranches: value.styleBranches ?? {},
+    skillUpgrades: value.skillUpgrades ?? {},
+    equipment: normalizeEquipmentProgressForMigration(value.equipment),
+    medicineInventory: value.medicineInventory ?? {},
+    assignments: value.assignments ?? {},
+    currentStageId: value.currentStageId
   };
 }
 
@@ -277,27 +136,13 @@ export function migrateSaveData(
     };
   }
 
-  const progress = normalizeProgressForMigration(data, raw.progress);
-  const autoMedicinePreferences = normalizeAutoMedicinePreferencesWithChanges(
-    raw.autoMedicinePreferences
-  );
-  const normalizations: SaveNormalization[] = [...progress.normalizations];
-
-  normalizations.push(...autoMedicinePreferences.normalizations);
-
-  if (raw.selectedOfflineFarmStageId === undefined) {
-    normalizations.push(missingField("selectedOfflineFarmStageId"));
-  }
-
-  if (raw.offlineFarmPreset === undefined) {
-    normalizations.push(missingField("offlineFarmPreset"));
-  }
-
   const normalizedSave = {
     ...raw,
     version: SAVE_DATA_VERSION,
-    progress: progress.value,
-    autoMedicinePreferences: autoMedicinePreferences.value,
+    progress: normalizeProgressForMigration(data, raw.progress),
+    autoMedicinePreferences: normalizeAutoMedicinePreferences(
+      raw.autoMedicinePreferences
+    ),
     selectedOfflineFarmStageId:
       raw.selectedOfflineFarmStageId === undefined
         ? null
@@ -313,8 +158,6 @@ export function migrateSaveData(
     save: normalizedSave,
     fromVersion: raw.version,
     toVersion: SAVE_DATA_VERSION,
-    migrated: raw.version !== SAVE_DATA_VERSION,
-    normalized: normalizations.length > 0,
-    normalizations
+    migrated: raw.version !== SAVE_DATA_VERSION
   };
 }

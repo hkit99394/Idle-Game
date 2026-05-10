@@ -246,44 +246,11 @@ export type ClearTimeTargetRange = {
   max: number;
 };
 
-export type BalanceResultExpectation = "player_clear" | "enemy_hold";
-
 export type RegionBalanceTargets = {
   clearTimeSeconds: {
     normal: ClearTimeTargetRange;
     elite: ClearTimeTargetRange;
     boss?: ClearTimeTargetRange;
-  };
-  rewardCurve?: {
-    requireBestFarmRecommendation?: boolean;
-  };
-  statusPressure?: {
-    minApplications?: number;
-    maxApplications?: number;
-    maxExpectedDamage?: number;
-    maxMedicineConsumed?: number;
-    expectedStatusIds?: string[];
-  };
-  defensePressure?: {
-    minGuardAbsorbs?: number;
-    minArmorBreaks?: number;
-    minDamagePrevented?: number;
-  };
-  healingPressure?: {
-    minHeals?: number;
-    minOuterHealing?: number;
-    minCleanses?: number;
-    maxRecoveryPrevented?: number;
-  };
-  bossGate?: {
-    baselineResult?: BalanceResultExpectation;
-    trainedResult?: BalanceResultExpectation;
-    farmedResult?: BalanceResultExpectation;
-    maxFarmClears?: number;
-    maxTrainingCost?: number;
-    clearTimeSeconds?: ClearTimeTargetRange;
-    maxMedicineConsumed?: number;
-    maxStatusDamage?: number;
   };
 };
 

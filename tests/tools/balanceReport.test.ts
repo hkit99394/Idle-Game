@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBalanceReport, type StaticGameData } from "../../core";
+import type { StaticGameData } from "../../core";
 import {
   BAMBOO_ROAD_REGION_ID,
   BLACK_IRON_FORT_REGION_ID,
@@ -296,113 +296,6 @@ describe("balance report", () => {
     expect(
       report.regionBalances.every((region) => region.masteryMilestone !== null)
     ).toBe(true);
-    expect(
-      report.regionBalances.every((region) => region.budgetChecks.length > 0)
-    ).toBe(true);
-  });
-
-  it("reports configured budget gates with actionable miss reasons", () => {
-    const report = buildGameBalanceReport(staticData);
-    const bamboo = getRegionReport(report, BAMBOO_ROAD_REGION_ID);
-    const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
-    const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
-    const demonCult = getRegionReport(report, "demon_cult_outpost");
-
-    expect(getBudgetCheck(bamboo, "reward_curve")).toMatchObject({
-      status: "pass",
-      reason: expect.stringContaining("bamboo_road_8")
-    });
-    expect(getBudgetCheck(bamboo, "boss_gate")).toMatchObject({
-      status: "pass"
-    });
-    expect(getBudgetCheck(blackIron, "defense_pressure")).toMatchObject({
-      status: "pass",
-      reason: expect.stringContaining("damage prevented")
-    });
-    expect(getBudgetCheck(blackIron, "clear_time")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("black_iron_fort_4")
-    });
-    expect(getBudgetCheck(lotus, "healing_pressure")).toMatchObject({
-      status: "pass",
-      reason: expect.stringContaining("heals")
-    });
-    expect(getBudgetCheck(demonCult, "status_pressure")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("status damage")
-    });
-  });
-
-  it("drives budget gates from the real simulated report adapter", () => {
-    const gatedData: StaticGameData = {
-      ...staticData,
-      regions: staticData.regions.map((region) =>
-        region.id === BLACK_IRON_FORT_REGION_ID
-          ? {
-              ...region,
-              balanceTargets: {
-                ...region.balanceTargets,
-                clearTimeSeconds: region.balanceTargets?.clearTimeSeconds ?? {
-                  normal: { min: 0, max: 30 },
-                  elite: { min: 0, max: 30 }
-                },
-                defensePressure: {
-                  minGuardAbsorbs: 999
-                }
-              }
-            }
-          : region
-      )
-    };
-    const report = buildGameBalanceReport(gatedData);
-    const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
-
-    expect(blackIron.defensiveEvents.guardAbsorbs).toBeGreaterThan(0);
-    expect(getBudgetCheck(blackIron, "defense_pressure")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("guard absorbs")
-    });
-  });
-
-  it("keeps Demon Cult simulated status pressure aligned with balance estimates", () => {
-    const simulatedReport = buildGameBalanceReport(staticData);
-    const estimatedReport = buildBalanceReport(staticData);
-    const simulatedDemonCult = getRegionReport(
-      simulatedReport,
-      "demon_cult_outpost"
-    );
-    const estimatedDemonCult = estimatedReport.regions.find(
-      (region) => region.regionId === "demon_cult_outpost"
-    );
-
-    expect(estimatedDemonCult).toBeDefined();
-    if (!estimatedDemonCult) {
-      return;
-    }
-
-    const simulatedStatusIds = [
-      ...new Set(
-        simulatedDemonCult.stageResults.flatMap((stage) =>
-          stage.ok ? stage.statusIds : []
-        )
-      )
-    ].sort();
-    const estimatedStatusIds = [
-      ...new Set(
-        estimatedDemonCult.stages.flatMap(
-          (stage) => stage.statusMetrics.statusIds
-        )
-      )
-    ].sort();
-
-    expect(simulatedStatusIds.length).toBeGreaterThan(0);
-    expect(estimatedStatusIds).toEqual(
-      expect.arrayContaining(simulatedStatusIds)
-    );
-    expect(getBudgetCheck(simulatedDemonCult, "status_pressure")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("status damage")
-    });
   });
 
   it("formats a compact human-readable report", () => {
@@ -420,9 +313,6 @@ describe("balance report", () => {
     expect(formatted).toContain("Region Farm Recommendations");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Boss Gates");
-    expect(formatted).toContain("Region Budget Gates");
-    expect(formatted).toContain("black_iron_fort_4 clear time");
-    expect(formatted).toContain("Status Pressure");
     expect(formatted).toContain("Region Defensive Events");
     expect(formatted).toContain("Region Recovery Events");
     expect(formatted).toContain("defense");
@@ -471,31 +361,3 @@ describe("balance report", () => {
     );
   });
 });
-
-function getRegionReport(
-  report: ReturnType<typeof buildGameBalanceReport>,
-  regionId: string
-) {
-  const region = report.regionBalances.find(
-    (candidate) => candidate.regionId === regionId
-  );
-
-  if (!region) {
-    throw new Error(`Missing region ${regionId}`);
-  }
-
-  return region;
-}
-
-function getBudgetCheck(
-  region: ReturnType<typeof getRegionReport>,
-  checkId: string
-) {
-  const check = region.budgetChecks.find((candidate) => candidate.id === checkId);
-
-  if (!check) {
-    throw new Error(`Missing budget check ${checkId}`);
-  }
-
-  return check;
-}

@@ -26,7 +26,6 @@ import type {
   PurchaseUpgradeResult,
   ResolveStageBattleResult,
   SaveData,
-  SaveLoadWriteReason,
   SelectStyleBranchInput,
   SelectStyleBranchResult,
   SetActiveHeroTeamInput,
@@ -44,8 +43,6 @@ export type WebGameState = {
   selectedOfflineFarmStageId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
   offlineSummary: OfflineRewardSummary | null;
-  startupSaveDiagnostics: string[];
-  startupSavePersistence: StartupSavePersistence | null;
   lastBattle: ResolveStageBattleResult | null;
   lastBattleStageId: string | null;
   lastPurchase: PurchaseUpgradeResult | null;
@@ -54,13 +51,6 @@ export type WebGameState = {
   lastStyleBranchAction: SelectStyleBranchResult | null;
   lastActiveTeamAction: SetActiveHeroTeamResult | null;
   lastAssignmentAction: SetAssignmentHeroesResult | null;
-};
-
-export type StartupSavePersistence = {
-  persistedSave: SaveData | null;
-  offlineRewardBaselineSave?: SaveData | null;
-  commitStatus: "not_needed" | "written" | "failed";
-  attemptedWriteReasons: SaveLoadWriteReason[];
 };
 
 export type WebGameAction =

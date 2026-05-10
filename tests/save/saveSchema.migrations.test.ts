@@ -8,63 +8,10 @@ import {
   SAVE_DATA_VERSION,
   validateSaveData
 } from "../../core";
-import { buildSaveVersionFixtures } from "../fixtures/saveVersionFixtures";
 import { stage12SaveFixture } from "../fixtures/stage12Save";
 import { staticData } from "../helpers/staticData";
 
 describe("save schema migrations", () => {
-  it("migrates every supported legacy save fixture through the current schema", () => {
-    for (const fixture of buildSaveVersionFixtures(staticData)) {
-      const migration = migrateSaveData(staticData, fixture.rawSave);
-      const result = parseSaveData(staticData, fixture.rawSave);
-
-      expect(migration, fixture.description).toMatchObject({
-        ok: true,
-        fromVersion: fixture.version,
-        toVersion: SAVE_DATA_VERSION,
-        migrated: true,
-        normalized: fixture.expectedNormalizations.length > 0
-      });
-      expect(migration.ok && migration.normalizations, fixture.description).toEqual(
-        fixture.expectedNormalizations
-      );
-      expect(validateSaveData(staticData, fixture.rawSave), fixture.description).toEqual(
-        []
-      );
-      expect(result.ok, fixture.description).toBe(true);
-      if (!result.ok) {
-        continue;
-      }
-
-      expect(result.save.version, fixture.description).toBe(SAVE_DATA_VERSION);
-      expect(result.save.updatedAtMs, fixture.description).toBeGreaterThanOrEqual(
-        result.save.createdAtMs
-      );
-      expect(
-        result.save.lastOfflineRewardAtMs,
-        fixture.description
-      ).toBeGreaterThanOrEqual(result.save.createdAtMs);
-      expect(result.save.offlineFarmPreset, fixture.description).toBe("balanced");
-      expect(result.save.autoMedicinePreferences.preBattleResistanceMode).toBe(
-        "boss_and_elite"
-      );
-      expect(
-        result.save.progress.resources.herbs,
-        fixture.description
-      ).toBeGreaterThanOrEqual(0);
-      expect(result.save.progress.equipment, fixture.description).toMatchObject({
-        inventory: expect.any(Object),
-        equipped: expect.any(Object)
-      });
-      expect(result.save.progress.assignments, fixture.description).toEqual(
-        expect.any(Object)
-      );
-      expect(result.migration.normalizations, fixture.description).toEqual(
-        fixture.expectedNormalizations
-      );
-    }
-  });
-
   it("migrates Stage 1.1 saves into Stage 1.2 defaults", () => {
     const progress = createInitialPlayerProgress(staticData);
     const stageOneOneSave = {

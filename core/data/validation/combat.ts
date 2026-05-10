@@ -1,7 +1,7 @@
 import type { EnemyDefinition, HeroDefinition, MedicineDefinition, SkillDefinition, StatusEffectDefinition } from "../types";
 import { SKILL_EFFECT_TYPES } from "../types";
 import { TARGET_RULES, isTargetRule } from "../../combat";
-import { validateStats, type StaticDataValidationContext } from "./shared";
+import { validateStats } from "./shared";
 
 const statusCategories = new Set([
   "damage",
@@ -51,21 +51,21 @@ const TIMED_SKILL_EFFECT_TYPES = [
 
 export function validateHeroSkillRefs(
   heroes: HeroDefinition[],
-  context: Pick<StaticDataValidationContext, "skillIds">
+  skillIds: Set<string>
 ): string[] {
   return heroes.flatMap((hero) =>
     hero.skillIds
-      .filter((skillId) => !context.skillIds.has(skillId))
+      .filter((skillId) => !skillIds.has(skillId))
       .map((skillId) => `Hero ${hero.id} references missing skill ${skillId}`)
   );
 }
 
 export function validateHeroStyleRefs(
   heroes: HeroDefinition[],
-  context: Pick<StaticDataValidationContext, "styleIds">
+  styleIds: Set<string>
 ): string[] {
   return heroes.flatMap((hero) =>
-    context.styleIds.has(hero.style)
+    styleIds.has(hero.style)
       ? []
       : [`Hero ${hero.id} references missing style ${hero.style}`]
   );
@@ -73,21 +73,21 @@ export function validateHeroStyleRefs(
 
 export function validateEnemySkillRefs(
   enemies: EnemyDefinition[],
-  context: Pick<StaticDataValidationContext, "skillIds">
+  skillIds: Set<string>
 ): string[] {
   return enemies.flatMap((enemy) =>
     enemy.skillIds
-      .filter((skillId) => !context.skillIds.has(skillId))
+      .filter((skillId) => !skillIds.has(skillId))
       .map((skillId) => `Enemy ${enemy.id} references missing skill ${skillId}`)
   );
 }
 
 export function validateEnemyStyleRefs(
   enemies: EnemyDefinition[],
-  context: Pick<StaticDataValidationContext, "styleIds">
+  styleIds: Set<string>
 ): string[] {
   return enemies.flatMap((enemy) =>
-    context.styleIds.has(enemy.style)
+    styleIds.has(enemy.style)
       ? []
       : [`Enemy ${enemy.id} references missing style ${enemy.style}`]
   );
@@ -177,7 +177,7 @@ export function validateSkillEffect(
 
 export function validateSkill(
   skill: SkillDefinition,
-  context: Pick<StaticDataValidationContext, "statusEffectIds">
+  statusEffectIds: Set<string>
 ): string[] {
   const errors: string[] = [];
 
@@ -196,13 +196,7 @@ export function validateSkill(
   }
 
   for (const effect of skill.effects) {
-    errors.push(
-      ...validateSkillEffect(
-        `Skill ${skill.id}`,
-        effect,
-        context.statusEffectIds
-      )
-    );
+    errors.push(...validateSkillEffect(`Skill ${skill.id}`, effect, statusEffectIds));
   }
 
   return errors;
@@ -266,7 +260,7 @@ export function validateStatusEffect(status: StatusEffectDefinition): string[] {
 
 export function validateMedicine(
   medicine: MedicineDefinition,
-  context: Pick<StaticDataValidationContext, "stageIds">
+  stageIds: Set<string>
 ): string[] {
   const errors: string[] = [];
 
@@ -276,7 +270,7 @@ export function validateMedicine(
 
   if (
     medicine.unlock.type === "stage_cleared" &&
-    !context.stageIds.has(medicine.unlock.stageId)
+    !stageIds.has(medicine.unlock.stageId)
   ) {
     errors.push(
       `Medicine ${medicine.id} references missing unlock stage ${medicine.unlock.stageId}`

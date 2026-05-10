@@ -279,27 +279,6 @@ describe("static game data validation", () => {
                   normal: { min: 20, max: 10 },
                   elite: { min: -1, max: 40 },
                   boss: { min: 0, max: "fast" }
-                },
-                rewardCurve: {
-                  requireBestFarmRecommendation: "yes"
-                },
-                statusPressure: {
-                  minApplications: 3,
-                  maxApplications: 2,
-                  maxExpectedDamage: -1,
-                  maxMedicineConsumed: "none",
-                  expectedStatusIds: ["poison", 7]
-                },
-                defensePressure: {
-                  minGuardAbsorbs: -1
-                },
-                healingPressure: {
-                  minHeals: -1
-                },
-                bossGate: {
-                  baselineResult: "sometimes",
-                  maxFarmClears: -1,
-                  clearTimeSeconds: { min: 90, max: 80 }
                 }
               }
             }
@@ -311,46 +290,8 @@ describe("static game data validation", () => {
       expect.arrayContaining([
         "Region bamboo_road balanceTargets.clearTimeSeconds.normal.min must be less than or equal to max",
         "Region bamboo_road balanceTargets.clearTimeSeconds.elite.min must be non-negative",
-        "Region bamboo_road balanceTargets.clearTimeSeconds.boss.max must be a finite number",
-        "Region bamboo_road balanceTargets.rewardCurve.requireBestFarmRecommendation must be a boolean",
-        "Region bamboo_road balanceTargets.statusPressure.applications.min must be less than or equal to max",
-        "Region bamboo_road balanceTargets.statusPressure.maxExpectedDamage must be non-negative",
-        "Region bamboo_road balanceTargets.statusPressure.maxMedicineConsumed must be a finite number",
-        "Region bamboo_road balanceTargets.statusPressure.expectedStatusIds must be an array of strings",
-        "Region bamboo_road balanceTargets.defensePressure.minGuardAbsorbs must be non-negative",
-        "Region bamboo_road balanceTargets.healingPressure.minHeals must be non-negative",
-        "Region bamboo_road balanceTargets.bossGate.baselineResult must be one of player_clear, enemy_hold",
-        "Region bamboo_road balanceTargets.bossGate.maxFarmClears must be non-negative",
-        "Region bamboo_road balanceTargets.bossGate.clearTimeSeconds.min must be less than or equal to max"
+        "Region bamboo_road balanceTargets.clearTimeSeconds.boss.max must be a finite number"
       ])
-    );
-  });
-
-  it("rejects unknown expected status ids in region balance targets", () => {
-    const invalidData: StaticGameData = {
-      ...staticData,
-      regions: staticData.regions.map((region) =>
-        region.id === "demon_cult_outpost"
-          ? {
-              ...region,
-              balanceTargets: {
-                clearTimeSeconds: region.balanceTargets!.clearTimeSeconds,
-                rewardCurve: region.balanceTargets?.rewardCurve,
-                defensePressure: region.balanceTargets?.defensePressure,
-                healingPressure: region.balanceTargets?.healingPressure,
-                bossGate: region.balanceTargets?.bossGate,
-                statusPressure: {
-                  ...region.balanceTargets?.statusPressure,
-                  expectedStatusIds: ["poison", "missing_status"]
-                }
-              }
-            }
-          : region
-      )
-    };
-
-    expect(validateStaticGameData(invalidData)).toContain(
-      "Region demon_cult_outpost balanceTargets.statusPressure.expectedStatusIds includes unknown status missing_status"
     );
   });
 

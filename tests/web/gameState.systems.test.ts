@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { defaultAutoMedicinePreferences } from "../../core";
 import {
   createInitialWebGameState,
   equipGameEquipment,
@@ -12,11 +11,6 @@ import {
   setGameAssignmentHeroes,
   webGameStateReducer
 } from "../../web/state/gameState";
-import {
-  autoMedicinePoisonScenarioIds,
-  createAutoMedicinePoisonProgress,
-  createAutoMedicinePoisonScenarioData
-} from "../helpers/statusScenarios";
 import { staticData } from "../helpers/staticData";
 
 describe("web game state systems", () => {
@@ -335,80 +329,6 @@ describe("web game state systems", () => {
       autoUseEnabled: false,
       autoUseLabel: "Auto Off",
       canToggle: true
-    });
-  });
-
-  it("applies auto-medicine preferences through the selected battle command path", () => {
-    const data = createAutoMedicinePoisonScenarioData();
-    const ids = autoMedicinePoisonScenarioIds;
-    const state = createInitialWebGameState(data);
-    const readyState = webGameStateReducer(data, state, {
-      type: "replace_progress",
-      progress: createAutoMedicinePoisonProgress(data)
-    });
-    const selectedState = webGameStateReducer(data, readyState, {
-      type: "select_stage",
-      stageId: ids.stageId
-    });
-    const enabledState = resolveSelectedStageBattle(data, selectedState);
-    const disabledPreferenceState = webGameStateReducer(data, selectedState, {
-      type: "set_medicine_auto_use",
-      medicineId: "clear_heart_pill",
-      enabled: false
-    });
-    const disabledState = resolveSelectedStageBattle(
-      data,
-      disabledPreferenceState
-    );
-
-    expect(selectedState.autoMedicinePreferences).toEqual(
-      defaultAutoMedicinePreferences
-    );
-    expect(enabledState.lastBattle?.ok).toBe(true);
-    expect(disabledState.lastBattle?.ok).toBe(true);
-    if (!enabledState.lastBattle?.ok || !disabledState.lastBattle?.ok) {
-      return;
-    }
-
-    expect(
-      enabledState.lastBattle.battle.events.some(
-        (event) => event.type === "auto_medicine"
-      )
-    ).toBe(true);
-    expect(
-      disabledState.lastBattle.battle.events.some(
-        (event) => event.type === "auto_medicine"
-      )
-    ).toBe(false);
-    expect(
-      disabledState.lastBattle.battle.events.some(
-        (event) => event.type === "status_tick"
-      )
-    ).toBe(true);
-    expect(
-      enabledState.progress.medicineInventory?.clear_heart_pill
-    ).toBeUndefined();
-    expect(disabledState.progress.medicineInventory?.clear_heart_pill).toBe(1);
-
-    const enabledViewModel = getWebGameViewModel(data, enabledState);
-    const autoMedicineEvent = enabledViewModel.battleEvents.find(
-      (event) => event.category === "auto_medicine"
-    );
-
-    expect(autoMedicineEvent).toMatchObject({
-      category: "auto_medicine",
-      headline: "Scenario Patient (Front) uses Clear Heart Pill",
-      detail: "Battle cleanse · removes Poison",
-      badges: [
-        {
-          label: "Auto Medicine",
-          tone: "neutral"
-        },
-        {
-          label: "Poison",
-          tone: "danger"
-        }
-      ]
     });
   });
 

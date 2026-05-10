@@ -1,22 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   buildBalanceReport,
-  defaultAutoMedicinePreferences,
   defaultBalanceScenarioPresets,
   formatBalanceReport,
-  getStageStatusPressureIds,
-  resolveStageBattle
+  getStageStatusPressureIds
 } from "../../core";
 import type { StaticGameData } from "../../core";
-import {
-  createStatusPressureProgress,
-  createStatusPressureScenarioData
-} from "../helpers/statusScenarios";
 import { staticData } from "../helpers/staticData";
-
-function getUniqueSorted(values: string[]): string[] {
-  return [...new Set(values)].sort();
-}
 
 describe("balance report", () => {
   it("includes every configured region and stage in region order", () => {
@@ -211,85 +201,6 @@ describe("balance report", () => {
     expect(combinedDemonBossStage.statusMetrics.medicineConsumed).toBe(
       report.demonCultBossGate?.medicineConsumed
     );
-  });
-
-  it("keeps status-heavy balance status ids aligned with actual stage battles", () => {
-    const stageId = "balance_status_parity_stage";
-    const heroId = "balance_status_parity_patient";
-    const enemyId = "balance_status_parity_enemy";
-    const skillId = "balance_status_parity_pressure";
-    const data = createStatusPressureScenarioData({
-      stageId,
-      heroId,
-      enemyId,
-      skillId,
-      heroName: "Balance Status Patient",
-      enemyName: "Balance Status Enemy",
-      enemyFamily: "demon_cult",
-      enemyCombatRole: "breaker",
-      heroStats: {
-        maxOuterHp: 3000
-      },
-      statusEffects: [{ statusId: "poison" }, { statusId: "qi_suppression" }],
-      stageName: "Balance Status Parity Stage",
-      stageRegionId: "balance_status_parity_region",
-      region: {
-        name: "Balance Status Parity Region",
-        balanceTargets: {
-          clearTimeSeconds: {
-            normal: { min: 0, max: 30 },
-            elite: { min: 0, max: 30 }
-          },
-          statusPressure: {
-            minApplications: 1,
-            expectedStatusIds: ["poison", "qi_suppression"]
-          }
-        }
-      }
-    });
-    const report = buildBalanceReport(data);
-    const reportedStage = report.regions
-      .find((region) => region.regionId === "balance_status_parity_region")
-      ?.stages.find((stage) => stage.stageId === stageId);
-    const progress = createStatusPressureProgress(data, {
-      stageId,
-      heroId
-    });
-    const actual = resolveStageBattle(data, {
-      progress,
-      stageId,
-      maxDurationSeconds: 10,
-      autoMedicinePreferences: {
-        ...defaultAutoMedicinePreferences,
-        enabled: false
-      }
-    });
-
-    expect(reportedStage).toBeDefined();
-    expect(actual.ok).toBe(true);
-    if (reportedStage === undefined || !actual.ok) {
-      return;
-    }
-
-    const actualStatusIds = getUniqueSorted(
-      actual.battle.events.flatMap((event) =>
-        event.type === "status_apply" ? [event.statusId] : []
-      )
-    );
-    const actualTickDamage = actual.battle.events.reduce(
-      (total, event) =>
-        event.type === "status_tick" ? total + event.outerDamage : total,
-      0
-    );
-
-    expect(reportedStage.statusMetrics.statusIds).toEqual([
-      "poison",
-      "qi_suppression"
-    ]);
-    expect(actualStatusIds).toEqual(reportedStage.statusMetrics.statusIds);
-    expect(reportedStage.statusMetrics.applications).toBeGreaterThan(0);
-    expect(reportedStage.statusMetrics.expectedDamage).toBeGreaterThan(0);
-    expect(actualTickDamage).toBeGreaterThan(0);
   });
 
   it("flags Demon Cult boss clear time outside the acceptable tuning band", () => {

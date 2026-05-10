@@ -1,11 +1,5 @@
 # Planning Questions Before Analysis Stage
 
-## Current Status Note
-
-This is a historical planning artifact. The questions here were resolved enough to start MVP implementation and should not be read as the current feature backlog.
-
-The current implementation snapshot is [Current Implemented Systems](current-implemented-systems.md), and completed stage backlogs through Stage 1.6 are archived under [docs/archive](archive/).
-
 This document captures the remaining planning decisions before moving into the analysis stage.
 
 The goal of the planning stage is not to answer every future design question. The goal is to define enough direction that the analysis stage can turn the idea into requirements, data models, combat simulations, technical architecture, and prototype tasks.

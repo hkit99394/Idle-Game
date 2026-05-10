@@ -51,7 +51,6 @@ export type ParseSaveDataResult =
   | {
       ok: true;
       save: SaveData;
-      migration: SaveMigrationMetadata;
     }
   | {
       ok: false;
@@ -59,32 +58,16 @@ export type ParseSaveDataResult =
       errors: string[];
     };
 
-export type SaveLoadWriteReason =
-  | "migrated"
-  | "normalizedSave"
-  | "normalizedFarmTarget"
-  | "normalizedPreset"
-  | "offlineRewardsApplied"
-  | "offlineAssignmentsApplied";
-
-export type SaveLoadTransactionBaseSuccess = {
+export type SaveLoadTransactionSuccess = {
   ok: true;
   save: SaveData;
-  previousSave: SaveData;
   changed: boolean;
-  writeReasons: SaveLoadWriteReason[];
   offlineRewards: ApplyOfflineRewardsResult | null;
   offlineAssignmentRewards: ApplyOfflineAssignmentRewardsResult | null;
 };
 
-export type ApplySaveLoadTransactionSuccess = SaveLoadTransactionBaseSuccess;
-
-export type RawSaveLoadTransactionSuccess = SaveLoadTransactionBaseSuccess & {
-  migration: SaveMigrationMetadata;
-};
-
 export type LoadSaveTransactionResult =
-  | RawSaveLoadTransactionSuccess
+  | SaveLoadTransactionSuccess
   | Extract<ParseSaveDataResult, { ok: false }>;
 
 export type SaveMigrationResult =
@@ -94,26 +77,11 @@ export type SaveMigrationResult =
       fromVersion: SupportedSaveDataVersion;
       toVersion: typeof SAVE_DATA_VERSION;
       migrated: boolean;
-      normalized: boolean;
-      normalizations: SaveNormalization[];
     }
   | {
       ok: false;
       errors: string[];
     };
-
-export type SaveNormalization = {
-  field: string;
-  reason: string;
-};
-
-export type SaveMigrationMetadata = {
-  fromVersion: SupportedSaveDataVersion;
-  toVersion: typeof SAVE_DATA_VERSION;
-  migrated: boolean;
-  normalized: boolean;
-  normalizations: SaveNormalization[];
-};
 
 export type UnknownRecord = Record<string, unknown>;
 export type SaveMigrationData = Pick<StaticGameData, "heroes" | "regions" | "stages">;

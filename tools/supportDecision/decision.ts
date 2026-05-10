@@ -1,12 +1,12 @@
 import {
   buildBalanceReport,
   defaultBalanceScenarioPresets
-} from "../../core/core-balance";
+} from "../../core/balance/balanceReport";
 import type {
   BalanceGateRating,
   BalanceReport,
   BalanceScenarioPreset
-} from "../../core/core-balance";
+} from "../../core/balance/balanceReport";
 import { calculateEffectiveStatusResistance, type BaseStats } from "../../core/combat";
 import type { HeroDefinition, StaticGameData } from "../../core/data";
 

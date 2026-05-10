@@ -1,11 +1,5 @@
 # Martial Idle RPG Design, Roadmap, and Formula Draft
 
-## Current Implementation Note
-
-This document began as the full design draft. The current implementation has advanced beyond the original MVP plan: enemy teams, formations, CP, levels, equipment, assignments, medicine, Demon Cult status pressure, and Lotus support counterplay are now implemented.
-
-For quick onboarding, read [Current Implemented Systems](current-implemented-systems.md) first. The sections below remain useful for design intent, formulas, and roadmap context, but older MVP examples may describe where the project started rather than the current game surface.
-
 ## 1. Working Summary
 
 Working title: **Path of Jianghu**
