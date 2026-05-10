@@ -1,8 +1,8 @@
 # Content Pipeline Inventory
 
-Stage 2.0 starts from the content pipeline that already exists: JSON content is assembled into `StaticGameData`, validated by core rules, then exercised by simulation and balance reports. This audit records the current surface before later Stage 2.0 epics tighten validation, reports, and export tooling.
+Stage 2.0 closed with a content pipeline where JSON content is assembled into `StaticGameData`, validated by core rules, then exercised by simulation, balance reports, compact JSON exports, and generated CSV review output. This inventory records the current authoring surface and remaining tuning debt.
 
-Epic 61 does not change tuning or behavior. Known misses below are recorded as tuning debt so stricter gates can be introduced intentionally.
+Known misses below are recorded as tuning debt so future tuning passes can handle them intentionally.
 
 ## Current Authoring Contract
 
@@ -18,9 +18,9 @@ Epic 61 does not change tuning or behavior. Known misses below are recorded as t
 
 | Source | Field | Count | Current automated coverage | Manual or report-only gap |
 | --- | --- | ---: | --- | --- |
-| [data/regions.json](../data/regions.json) | `regions` | 5 | Duplicate ids, unlock references, stage references, stage ownership, required `balanceTargets`, stage-derived budget fields, unsupported budget keys, and explicit budget exceptions. | Reward and difficulty quality still depend on report review until Epics 63 and 64. |
-| [data/stages.json](../data/stages.json) | `stages` | 37 | Duplicate ids, region/enemy/equipment/next-stage references, boss offline-farm guard, non-negative rewards, drop quantity, and enemy formation slot/index checks. | Reward progression, difficulty progression, and farm-target quality are mostly report review. |
-| [data/enemies.json](../data/enemies.json) | `enemies` | 26 | Duplicate ids, skill/style references, base stats, level integer, and combat role checks. | Enemy family intent, stage role fit, and difficulty curve are simulation/manual review. |
+| [data/regions.json](../data/regions.json) | `regions` | 5 | Duplicate ids, unlock references, stage references, stage ownership, required `balanceTargets`, stage-derived budget fields, unsupported budget keys, and explicit budget exceptions. | Reward and difficulty quality are protected by validation plus balance report/export review. |
+| [data/stages.json](../data/stages.json) | `stages` | 37 | Duplicate ids, region/enemy/equipment/next-stage references, boss offline-farm guard, non-negative rewards, drop quantity, and enemy formation slot/index checks. | Reward progression, difficulty progression, and farm-target quality are reviewed through validation, reports, and generated exports. |
+| [data/enemies.json](../data/enemies.json) | `enemies` | 26 | Duplicate ids, skill/style references, base stats, level integer, and combat role checks. | Enemy family intent, stage role fit, and difficulty curve are reviewed through simulation output. |
 | [data/heroes.json](../data/heroes.json) | `heroes` | 5 | Duplicate ids, skill/style references, base stats, combat role, and unlock references. | Roster composition, CP curve, and `passiveIds` are not tied to a passive catalog yet. |
 | [data/skills.json](../data/skills.json) | `skills` | 28 | Duplicate ids, cooldown/multiplier ranges, target rules, skill effect types, status refs, chance, stacks, duration, and effect targets. | Skill power identity and cross-skill progression are only visible through combat and balance reports. |
 | [data/statusEffects.json](../data/statusEffects.json) | `statusEffects` | 5 | Duplicate ids, category, duration, stacks, stack policy, dispel tags, tick interval, and effect keys. | Status-pressure severity is judged through simulation budgets. |
@@ -84,13 +84,14 @@ The current simulator output keeps these misses visible:
 | Demon Cult Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
 | Demon Cult Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
-These are not accepted silent noise. They are allowed only because the active backlog names them before stricter Stage 2.0 gates land.
+These are not accepted silent noise. They are allowed only because the archived Stage 2.0 backlog names them as deferred tuning debt.
 
-## Manual Gaps For Stage 2.0
+## Stage 2.0 Closure Notes
 
 - Epic 62 defined the required budget fields for normal, elite, boss, and farmable stages.
 - Epic 62 added readable `boss_clear_time_target` exceptions for current boss clear-time deferrals.
 - Epic 63 turned unmarked reward/farm regressions into validation failures and added farm recommendation reasons to reports.
 - Epic 64 added difficulty-trend, spike, and boss-gate assumption reporting before any retune.
 - Epic 65 added compact JSON and generated CSV review exports while keeping `docs/balance-template.csv` as a hand-authored reference template.
-- Epic 66 should fold the final content author checklist back into contributor docs.
+- Epic 66 folded the final [Content Authoring Checklist](content-authoring-checklist.md) back into contributor docs and archived the Stage 2.0 backlog.
+- The remaining manual gap is tuning judgment: current Black Iron Fort and Demon Cult misses stay visible in reports until a later balance pass retunes or explicitly reclassifies them.

@@ -4,7 +4,7 @@
 
 This is a historical planning artifact. The questions here were resolved enough to start MVP implementation and should not be read as the current feature backlog.
 
-The current implementation snapshot is [Current Implemented Systems](current-implemented-systems.md), and completed stage backlogs through Stage 1.9 are archived under [docs/archive](archive/).
+The current implementation snapshot is [Current Implemented Systems](current-implemented-systems.md), and completed stage backlogs through Stage 2.0 are archived under [docs/archive](archive/).
 
 This document captures the remaining planning decisions before moving into the analysis stage.
 

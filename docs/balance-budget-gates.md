@@ -2,7 +2,7 @@
 
 Region-level budget gates were added in Stage 1.7 to make `npm run simulate` explain tuning misses instead of only printing `ok` or `miss`. Stage 1.8 preserved that budget posture while refactoring combat internals.
 
-Stage 2.0 tracks the current authoring surface and known tuning debt in [Content Pipeline Inventory](content-pipeline-inventory.md) while tightening the static validation contract for future content.
+Stage 2.0 tracks the current authoring surface and known tuning debt in [Content Pipeline Inventory](content-pipeline-inventory.md) while tightening the static validation contract for future content. Use [Content Authoring Checklist](content-authoring-checklist.md) for the practical region-addition workflow.
 
 ## Configuration
 
@@ -127,3 +127,5 @@ npm run --silent simulate -- --csv
 ```
 
 The CSV is a generated stage-row export. [Balance Template CSV](balance-template.csv) remains a hand-authored reference template for planning fields and notes, not the generated review artifact.
+
+For a complete region-readiness pass, follow [Content Authoring Checklist](content-authoring-checklist.md) after reviewing these budget sections.
