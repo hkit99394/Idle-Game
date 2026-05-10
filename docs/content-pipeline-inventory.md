@@ -18,7 +18,7 @@ Epic 61 does not change tuning or behavior. Known misses below are recorded as t
 
 | Source | Field | Count | Current automated coverage | Manual or report-only gap |
 | --- | --- | ---: | --- | --- |
-| [data/regions.json](../data/regions.json) | `regions` | 5 | Duplicate ids, unlock references, stage references, stage ownership, and `balanceTargets` shape. | Required budget completeness and explicit exceptions are still Stage 2.0 work. |
+| [data/regions.json](../data/regions.json) | `regions` | 5 | Duplicate ids, unlock references, stage references, stage ownership, required `balanceTargets`, stage-derived budget fields, unsupported budget keys, and explicit budget exceptions. | Reward and difficulty quality still depend on report review until Epics 63 and 64. |
 | [data/stages.json](../data/stages.json) | `stages` | 37 | Duplicate ids, region/enemy/equipment/next-stage references, boss offline-farm guard, non-negative rewards, drop quantity, and enemy formation slot/index checks. | Reward progression, difficulty progression, and farm-target quality are mostly report review. |
 | [data/enemies.json](../data/enemies.json) | `enemies` | 26 | Duplicate ids, skill/style references, base stats, level integer, and combat role checks. | Enemy family intent, stage role fit, and difficulty curve are simulation/manual review. |
 | [data/heroes.json](../data/heroes.json) | `heroes` | 5 | Duplicate ids, skill/style references, base stats, combat role, and unlock references. | Roster composition, CP curve, and `passiveIds` are not tied to a passive catalog yet. |
@@ -65,6 +65,7 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `defensePressure`;
 - `healingPressure`;
 - `bossGate`.
+- `budgetExceptions`.
 
 `npm run simulate -- --json` returns the same report data in machine-readable form, but Stage 2.0 has not yet stabilized a spreadsheet-friendly export contract.
 
@@ -85,8 +86,8 @@ These are not accepted silent noise. They are allowed only because the active ba
 
 ## Manual Gaps For Stage 2.0
 
-- Epic 62 should decide which budget fields are required by normal, elite, boss, and farmable stages.
-- Epic 62 should add readable exception data if current regions intentionally omit a target.
+- Epic 62 defined the required budget fields for normal, elite, boss, and farmable stages.
+- Epic 62 added readable `boss_clear_time_target` exceptions for current boss clear-time deferrals.
 - Epic 63 should turn reward/farm regressions into validation or report failures with actionable reasons.
 - Epic 64 should improve difficulty-trend, spike, and boss-gate reporting before any retune.
 - Epic 65 should decide whether JSON-only output is enough or whether a generated CSV/spreadsheet export is required.

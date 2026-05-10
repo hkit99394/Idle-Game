@@ -74,7 +74,15 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   errors.push(...validateRegionStageRefs(data.regions, validationContext));
   errors.push(...validateRegionStageOwnership(data.regions, data.stages));
   for (const region of data.regions) {
-    errors.push(...validateRegionBalanceTargets(region, validationContext));
+    errors.push(
+      ...validateRegionBalanceTargets(
+        region,
+        validationContext,
+        data.stages,
+        data.enemies,
+        data.skills
+      )
+    );
     errors.push(
       ...validateUnlockCondition(
         `Region ${region.id}`,

@@ -57,7 +57,7 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 61 | Content Pipeline Baselines And Schema Audit | Complete | Inventory current data, budget fields, validation coverage, and authoring pain points |
-| 62 | Region And Stage Budget Validation | Planned | Turn content-budget expectations into stricter validation and tests |
+| 62 | Region And Stage Budget Validation | Complete | Turn content-budget expectations into stricter validation and tests |
 | 63 | Reward Curve And Farm Recommendation Gates | Planned | Prevent accidental reward/farm regression when adding stages |
 | 64 | Difficulty Curve And Boss Gate Reports | Planned | Make stage difficulty, boss gates, and known misses easier to review |
 | 65 | Balance Export And Authoring Tooling | Planned | Produce review-friendly JSON/CSV outputs and repeatable author workflows |
@@ -130,7 +130,10 @@ Make budget expectations explicit enough that new region or stage data fails ear
 
 ### Progress Notes
 
-- Not started.
+- Added stage-derived `balanceTargets` validation so regions cannot omit normal, elite, farmable, status-pressure, or boss-gate guidance silently.
+- Added unsupported-field and contradiction checks for budget sections, boss gates, reward-curve gates, and pressure budgets.
+- Added explicit `boss_clear_time_target` budget exceptions for current Bamboo Road, Black Iron Fort, and Lotus Monastery boss timing deferrals.
+- Updated [Balance Budget Gates](balance-budget-gates.md) with the stricter contract and exception format.
 
 ---
 

@@ -248,6 +248,12 @@ export type ClearTimeTargetRange = {
 
 export type BalanceResultExpectation = "player_clear" | "enemy_hold";
 
+export type RegionBudgetException = {
+  type: "boss_clear_time_target";
+  stageId: string;
+  reason: string;
+};
+
 export type RegionBalanceTargets = {
   clearTimeSeconds: {
     normal: ClearTimeTargetRange;
@@ -285,6 +291,7 @@ export type RegionBalanceTargets = {
     maxMedicineConsumed?: number;
     maxStatusDamage?: number;
   };
+  budgetExceptions?: RegionBudgetException[];
 };
 
 export type RegionDefinition = {
