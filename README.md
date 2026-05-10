@@ -6,9 +6,10 @@ Start with the main design draft:
 
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
-- [Stage 1.8 Backlog](docs/stage-1.8-backlog.md)
+- [Combat Engine V2](docs/combat-engine-v2.md)
 - [Planning Questions Before Analysis Stage](docs/planning-questions.md)
 - [Analysis Stage](docs/analysis-stage.md)
+- [Archived Stage 1.8 Backlog](docs/archive/stage-1.8-backlog.md)
 - [Archived Stage 1.7 Backlog](docs/archive/stage-1.7-backlog.md)
 - [Archived Stage 1.6 Backlog](docs/archive/stage-1.6-backlog.md)
 - [Archived Stage 1.2 Backlog](docs/archive/stage-1.2-backlog.md)

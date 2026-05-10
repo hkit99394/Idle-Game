@@ -149,6 +149,21 @@ Style bonuses based on position
 
 This keeps the first build simple while leaving room for later formation strategy.
 
+### 4.5 Current Combat Engine Pipeline
+
+The implemented Stage 1.8 combat engine keeps `simulateBattle` as the public battle entry point, but the internals now move through named modules:
+
+1. Progression builds player and enemy teams, then calls `simulateBattle`.
+2. `scheduler.ts` picks deterministic action times and reschedules living combatants.
+3. `targeting.ts` selects the offensive target from the skill target rule.
+4. `damagePackage.ts` creates an attack package, applies guard/protection mitigation through the defensive pipeline, commits HP/Inner Qi changes, then records damage and contribution metrics.
+5. Qi Break burst and backlash are committed through damage packages so they share attribution and safety checks with normal attacks.
+6. `effectPipeline.ts` dispatches post-attack timed/status effects and recovery effects such as heal, regeneration, and cleanse.
+7. `statusEffects.ts`, `cleansePolicy.ts`, and auto-medicine modules advance status ticks, resistance, cleanse, and medicine counterplay.
+8. `battleRecorder.ts` finalizes metrics, contribution summaries, defeat events, and stable battle event record metadata for web and tooling consumers.
+
+For contributor-facing extension guidance, use [Combat Engine V2](combat-engine-v2.md). New Stage 2.1 tactics or formation bonuses should plug into these extension points instead of growing the simulator loop directly.
+
 ## 5. Hero Styles
 
 | Style | Main Target | Combat Role | Example Effects |

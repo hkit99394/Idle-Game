@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 1.8 is ready to begin. Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md).
+Stage 1.8 is complete. Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](stage-1.7-backlog.md).
 
 The recommended theme is **Combat Engine V2**. This is a refactor stage, not a new content stage. The goal is to make combat resolution easier to extend for future skills, statuses, tactics, and formation systems while preserving current battle outcomes unless a balance change is explicitly approved.
 
@@ -47,12 +47,12 @@ The recommended theme is **Combat Engine V2**. This is a refactor stage, not a n
 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 49 | Combat Baselines And Scenario Fixtures | In Progress | Lock current battle behavior before moving internals |
-| 50 | Turn Scheduler And Resolution Context | In Progress | Extract action timing and combat context setup from the simulator |
-| 51 | Damage Package And Defense Pipeline | In Progress | Make damage, Qi Break, prevention, and attribution explicit |
-| 52 | Skill Effect Dispatcher And Status Hooks | In Progress | Route effects through handlers instead of central simulator branching |
-| 53 | Battle Recorder And Progression Adapter Contract | In Progress | Keep summaries, metrics, and `resolveStageBattle` stable through the refactor |
-| 54 | Combat Docs And Release Readiness | Planned | Document extension points, verify boundaries, and close Stage 1.8 cleanly |
+| 49 | Combat Baselines And Scenario Fixtures | Complete | Lock current battle behavior before moving internals |
+| 50 | Turn Scheduler And Resolution Context | Complete | Extract action timing and combat context setup from the simulator |
+| 51 | Damage Package And Defense Pipeline | Complete | Make damage, Qi Break, prevention, and attribution explicit |
+| 52 | Skill Effect Dispatcher And Status Hooks | Complete | Route effects through handlers instead of central simulator branching |
+| 53 | Battle Recorder And Progression Adapter Contract | Complete | Keep summaries, metrics, and `resolveStageBattle` stable through the refactor |
+| 54 | Combat Docs And Release Readiness | Complete | Document extension points, verify boundaries, and close Stage 1.8 cleanly |
 
 ---
 
@@ -267,18 +267,33 @@ Close Stage 1.8 with updated docs, clear extension guidance, and the Stage 1.7 r
 
 ### Progress Notes
 
-- Not started.
+- Updated active onboarding, engine-boundary, design, and roadmap docs for the implemented Combat Engine V2 module structure.
+- Added a dedicated Combat Engine V2 contributor guide for scheduler, targeting, damage package, effect dispatcher, status hook, battle recorder, and progression adapter extension points.
+- Ran the release-readiness command set: `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.
+- Browser smoke skipped because Epic 54 is docs/closure work and Stage 1.8 did not change visible UI in this epic.
+- No deferred P3s remain from the final reviewer loop.
+- Archived Stage 1.8 after verification passed.
 
 ---
 
-## Open Questions
+## Closure Decisions
 
-- Which battles should become strict golden traces, and which should use tolerant metric assertions?
-- Should the scheduler remain a simple deterministic scan or move to an explicit priority queue?
-- Should damage packages be exported as public combat types or stay internal until Stage 2.1 needs them?
-- Should the skill effect dispatcher use a handler map, a discriminated switch per pipeline phase, or small typed helper modules?
-- How much event payload stability should Stage 1.8 guarantee for Stage 1.9 UI work?
-- Should `npm run simulate -- --json` snapshots become part of Stage 1.8 regression coverage, or are targeted balance tests enough?
+- Representative deterministic combat traces are strict where action order and event timing matter, while balance reports stay tolerant and data-driven.
+- The scheduler remains a simple deterministic scan until a future strategy layer proves that a priority queue is worth the complexity.
+- Damage packages stay as focused combat internals for now; future public exposure should happen only when Stage 2.1 tactics need it.
+- The skill effect dispatcher uses typed handler maps split by pipeline phase.
+- Stage 1.8 guarantees stable battle event metadata through `BattleEventRecord`; raw event payload stability remains tied to combat feature needs.
+- Targeted balance and combat tests remain the regression contract. `npm run simulate -- --json` snapshots are deferred until report churn justifies snapshot maintenance.
+
+## Closure Summary
+
+Stage/Epic: Stage 1.8 / Epic 54
+Scope completed: Combat Engine V2 docs, core boundary updates, roadmap updates, release-readiness checklist, and backlog archival.
+Verification: `npm run typecheck`; `npm test`; `npm run build`; `npm run simulate`; `npm run support-decision`; `git diff --check`.
+Browser smoke: skipped; Epic 54 changed docs and closure notes only.
+Known budget misses or deferred P3s: existing Black Iron Fort clear-time miss and Demon Cult clear-time/status-pressure misses remain documented through the balance report posture; no deferred P3s.
+Archive/docs status: active docs point to the archived Stage 1.8 backlog and the dedicated Combat Engine V2 guide.
+Next recommended epic: Stage 1.9 UI modularization.
 
 ## Suggested Implementation Order
 
