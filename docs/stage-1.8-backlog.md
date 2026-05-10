@@ -49,7 +49,7 @@ The recommended theme is **Combat Engine V2**. This is a refactor stage, not a n
 | --- | --- | --- | --- |
 | 49 | Combat Baselines And Scenario Fixtures | In Progress | Lock current battle behavior before moving internals |
 | 50 | Turn Scheduler And Resolution Context | In Progress | Extract action timing and combat context setup from the simulator |
-| 51 | Damage Package And Defense Pipeline | Planned | Make damage, Qi Break, prevention, and attribution explicit |
+| 51 | Damage Package And Defense Pipeline | In Progress | Make damage, Qi Break, prevention, and attribution explicit |
 | 52 | Skill Effect Dispatcher And Status Hooks | Planned | Route effects through handlers instead of central simulator branching |
 | 53 | Battle Recorder And Progression Adapter Contract | Planned | Keep summaries, metrics, and `resolveStageBattle` stable through the refactor |
 | 54 | Combat Docs And Release Readiness | Planned | Document extension points, verify boundaries, and close Stage 1.8 cleanly |
@@ -155,7 +155,11 @@ Make damage resolution explicit enough to support future mechanics without threa
 
 ### Progress Notes
 
-- Not started.
+- Added `core/combat/damagePackage.ts` for attack damage package creation, guard/protection mitigation, target mutation, attack event recording, and damage attribution while leaving formulas unchanged.
+- Updated `simulateBattle` to route skill attack targeting and damage through the package helper before timed effects, Qi Break checks, and backlash.
+- Added package source, target, and intended-target mismatch guards so event history cannot silently drift from the combatants used for HP mutation, mitigation, and contribution state.
+- Routed Qi Break burst and backlash damage through package helpers while preserving existing event and metric recording.
+- Added `tests/combat/damagePackage.test.ts` for family/vulnerability/armor-break package math, Qi-broken scaling, protector retargeting, guarded/protected attribution, mismatch rejection, Qi Break burst packages, and backlash packages.
 
 ---
 
