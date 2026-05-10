@@ -10,7 +10,7 @@ import {
   resolveStageBattle
 } from "../progression";
 import {
-  getBattleEventStatusId,
+  createBattleEventRecord,
   simulateBattle,
   type BattleEvent
 } from "../combat";
@@ -548,7 +548,7 @@ function calculateWoundUptimeSeconds(
   const intervalsByTarget = new Map<string, Array<[number, number]>>();
 
   for (const event of events) {
-    if (event.type !== "wound" || getBattleEventStatusId(event) !== "wound") {
+    if (event.type !== "wound" || getRecordedStatusId(event) !== "wound") {
       continue;
     }
 
@@ -597,6 +597,10 @@ function calculateWoundUptimeSeconds(
   return Number(total.toFixed(2));
 }
 
+function getRecordedStatusId(event: BattleEvent): string | null {
+  return createBattleEventRecord(event, 0).statusId;
+}
+
 function summarizeBattle(
   data: StaticGameData,
   stage: StageDefinition,
@@ -626,16 +630,16 @@ function summarizeBattle(
   const durationSeconds = Number(result.battle.durationSeconds.toFixed(2));
   const guardEvents = result.battle.events.filter(
     (event) =>
-      event.type === "guard_absorb" && getBattleEventStatusId(event) === "guard"
+      event.type === "guard_absorb" && getRecordedStatusId(event) === "guard"
   );
   const protectEvents = result.battle.events.filter(
     (event) =>
-      event.type === "protect" && getBattleEventStatusId(event) === "protection"
+      event.type === "protect" && getRecordedStatusId(event) === "protection"
   );
   const armorBreakEvents = result.battle.events.filter(
     (event) =>
       event.type === "armor_break" &&
-      getBattleEventStatusId(event) === "armor_break"
+      getRecordedStatusId(event) === "armor_break"
   );
   const healEvents = result.battle.events.filter(
     (event) => event.type === "heal"
@@ -643,10 +647,10 @@ function summarizeBattle(
   const regenerationTickEvents = result.battle.events.filter(
     (event) =>
       event.type === "regeneration_tick" &&
-      getBattleEventStatusId(event) === "regeneration"
+      getRecordedStatusId(event) === "regeneration"
   );
   const woundEvents = result.battle.events.filter(
-    (event) => event.type === "wound" && getBattleEventStatusId(event) === "wound"
+    (event) => event.type === "wound" && getRecordedStatusId(event) === "wound"
   );
   const cleanseEvents = result.battle.events.filter(
     (event) => event.type === "cleanse"

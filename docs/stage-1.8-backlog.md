@@ -51,7 +51,7 @@ The recommended theme is **Combat Engine V2**. This is a refactor stage, not a n
 | 50 | Turn Scheduler And Resolution Context | In Progress | Extract action timing and combat context setup from the simulator |
 | 51 | Damage Package And Defense Pipeline | In Progress | Make damage, Qi Break, prevention, and attribution explicit |
 | 52 | Skill Effect Dispatcher And Status Hooks | In Progress | Route effects through handlers instead of central simulator branching |
-| 53 | Battle Recorder And Progression Adapter Contract | Planned | Keep summaries, metrics, and `resolveStageBattle` stable through the refactor |
+| 53 | Battle Recorder And Progression Adapter Contract | In Progress | Keep summaries, metrics, and `resolveStageBattle` stable through the refactor |
 | 54 | Combat Docs And Release Readiness | Planned | Document extension points, verify boundaries, and close Stage 1.8 cleanly |
 
 ---
@@ -232,7 +232,9 @@ Keep combat summaries, metrics, and progression rewards stable while internals a
 
 ### Progress Notes
 
-- Not started.
+- Added battle event record helpers in `core/combat/battleRecorder.ts` for stable event ids, categories, status ids, and timestamps consumed by web battle logs.
+- Updated web battle event views to use recorder-owned event record metadata while keeping headline/detail presentation in the web layer.
+- Added recorder contract coverage for every `BattleEvent` type and progression adapter parity coverage for rewards, mastery arrays, equipment drops, battle metrics, contributions, and event records.
 
 ---
 

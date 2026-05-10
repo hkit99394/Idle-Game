@@ -2,8 +2,8 @@ import type {
   ActiveMasterySummary,
   ApplyOfflineAssignmentRewardsResult,
   AutoMedicinePreferences,
-  BattleEvent,
   BattleContribution,
+  BattleEventRecord,
   CombatantInstanceDefinition,
   CombatantState,
   CombatRole,
@@ -181,27 +181,7 @@ export type BattleCombatantView = {
   isDefeated: boolean;
 };
 
-export type BattleEventCategory =
-  | "attack"
-  | "armor_break"
-  | "qi_break"
-  | "qi_recover"
-  | "backlash"
-  | "guard"
-  | "guard_absorb"
-  | "protect"
-  | "heal"
-  | "wound"
-  | "speed_down"
-  | "inner_defense_down"
-  | "status_apply"
-  | "status_tick"
-  | "status_expire"
-  | "regeneration"
-  | "regeneration_tick"
-  | "cleanse"
-  | "auto_medicine"
-  | "defeat";
+export type BattleEventCategory = BattleEventRecord["category"];
 
 export type BattleEventBadgeTone =
   | "skill"
@@ -216,11 +196,12 @@ export type BattleEventBadgeView = {
   tone: BattleEventBadgeTone;
 };
 
-export type BattleEventView = {
-  id: string;
-  category: BattleEventCategory;
-  statusId: string | null;
-  timeSeconds: number;
+type BattleEventRecordView = Pick<
+  BattleEventRecord,
+  "id" | "category" | "statusId" | "timeSeconds"
+>;
+
+export type BattleEventView = BattleEventRecordView & {
   timeLabel: string;
   headline: string;
   detail: string;

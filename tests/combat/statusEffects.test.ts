@@ -3,11 +3,11 @@ import {
   applyStatusEffect,
   cleanseCombatantStatuses,
   clearCleanseableStatusEffects,
+  createBattleEventRecord,
   createStatusDictionary,
   createTimedStatusEffect,
   expireStatusEffects,
   getActiveStatusEffect,
-  getBattleEventStatusId,
   setStatusEffect
 } from "../../core";
 import type {
@@ -199,7 +199,7 @@ describe("status effects", () => {
     expect(target.guard).toMatchObject({ id: "guard" });
   });
 
-  it("exposes shared status ids for noisy event grouping", () => {
+  it("records shared status ids for noisy event grouping", () => {
     const guardAbsorb: BattleEvent = {
       type: "guard_absorb",
       time: 1,
@@ -227,9 +227,9 @@ describe("status effects", () => {
       innerDamage: 0
     };
 
-    expect(getBattleEventStatusId(guardAbsorb)).toBe("guard");
-    expect(getBattleEventStatusId(cleanse)).toBe("wound");
-    expect(getBattleEventStatusId(attack)).toBeNull();
+    expect(createBattleEventRecord(guardAbsorb, 0).statusId).toBe("guard");
+    expect(createBattleEventRecord(cleanse, 1).statusId).toBe("wound");
+    expect(createBattleEventRecord(attack, 2).statusId).toBeNull();
   });
 
   it("uses one cleanse priority across mixed timed and data-driven statuses", () => {

@@ -4,7 +4,62 @@ import type {
   BattleMetrics,
   CombatantState
 } from "./types";
+import { getBattleEventStatusId } from "./statusMetadata";
 import { isLiving } from "./targeting";
+
+export type BattleEventCategory = BattleEvent["type"];
+
+export type BattleEventRecord = {
+  id: string;
+  index: number;
+  category: BattleEventCategory;
+  type: BattleEvent["type"];
+  statusId: string | null;
+  timeSeconds: number;
+};
+
+export const BATTLE_EVENT_TYPES = [
+  "attack",
+  "guard",
+  "guard_absorb",
+  "protect",
+  "armor_break",
+  "wound",
+  "speed_down",
+  "inner_defense_down",
+  "status_apply",
+  "status_tick",
+  "status_expire",
+  "regeneration",
+  "regeneration_tick",
+  "cleanse",
+  "auto_medicine",
+  "qi_break",
+  "qi_recover",
+  "backlash",
+  "heal",
+  "defeat"
+] as const satisfies readonly BattleEvent["type"][];
+
+export function createBattleEventRecord(
+  event: BattleEvent,
+  index: number
+): BattleEventRecord {
+  return {
+    id: `${index}-${event.type}-${event.time}`,
+    index,
+    category: event.type,
+    type: event.type,
+    statusId: getBattleEventStatusId(event),
+    timeSeconds: event.time
+  };
+}
+
+export function createBattleEventRecords(
+  events: BattleEvent[]
+): BattleEventRecord[] {
+  return events.map(createBattleEventRecord);
+}
 
 export function createInitialMetrics(): BattleMetrics {
   return {

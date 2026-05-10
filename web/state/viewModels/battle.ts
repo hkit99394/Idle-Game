@@ -3,8 +3,8 @@ import {
   buildPlayerTeamForStage,
   calculateCombatPower,
   calculateSkillSupportCombatPower,
+  createBattleEventRecord,
   deriveStats,
-  getBattleEventStatusId,
   getStatusDisplayName,
   getDefaultFormationSlot,
   getStageById,
@@ -204,7 +204,7 @@ function formatAttackDetail(
 
 type BattleEventDetail = Pick<
   BattleEventView,
-  "category" | "headline" | "detail" | "badges"
+  "headline" | "detail" | "badges"
 >;
 
 type BattleEventPresentationContext = {
@@ -226,7 +226,6 @@ function buildStatusApplyEventDetail(
   const statusName = getStatusName(context.data, event.statusId);
 
   return {
-    category: "status_apply",
     headline: `${source} applies ${statusName} to ${target}`,
     detail:
       `${getSkillName(context.data, event.skillId)} applies ${event.stacks} stack(s) for ` +
@@ -252,7 +251,6 @@ function buildStatusTickEventDetail(
   const statusName = getStatusName(context.data, event.statusId);
 
   return {
-    category: "status_tick",
     headline: `${target} suffers ${statusName}`,
     detail: `${formatBattleNumber(event.outerDamage)} Outer damage from ${statusName}`,
     badges: [
@@ -276,7 +274,6 @@ function buildStatusExpireEventDetail(
   const statusName = getStatusName(context.data, event.statusId);
 
   return {
-    category: "status_expire",
     headline: `${statusName} fades from ${target}`,
     detail: `${target} is no longer affected by ${statusName}`,
     badges: [
@@ -299,7 +296,6 @@ function buildCleanseEventDetail(
     .join(", ");
 
   return {
-    category: "cleanse",
     headline:
       source === target
         ? `${target} cleanses pressure`
@@ -341,7 +337,6 @@ function buildAutoMedicineEventDetail(
   ].filter(Boolean);
 
   return {
-    category: "auto_medicine",
     headline: `${target} uses ${medicineName}`,
     detail: `${formatAutoMedicineTrigger(event.trigger)} · ${
       details.length > 0 ? details.join(" · ") : "no immediate effect"
@@ -430,7 +425,6 @@ function buildBattleEventDetail(
           : null;
 
       return {
-        category: "attack",
         headline: intendedTarget
           ? `${source} attacks ${intendedTarget}`
           : `${source} attacks ${target}`,
@@ -464,7 +458,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "guard",
         headline: `${target} raises guard`,
         detail:
           `${getSkillName(data, event.skillId)} reduces incoming Outer damage by ` +
@@ -486,7 +479,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "guard_absorb",
         headline: `${target}'s guard absorbs the strike`,
         detail:
           `${getSkillName(data, event.skillId)} prevents ` +
@@ -511,7 +503,6 @@ function buildBattleEventDetail(
       const prevented = event.outerDamagePrevented + event.innerDamagePrevented;
 
       return {
-        category: "protect",
         headline: `${protector} protects ${protectedTarget}`,
         detail:
           `${getSkillName(data, event.skillId)} intercepts ${attacker} and prevents ` +
@@ -534,7 +525,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "armor_break",
         headline: `${source} breaks ${target}'s armor`,
         detail:
           `${getSkillName(data, event.skillId)} reduces guard and Outer Defense by ` +
@@ -557,7 +547,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "qi_break",
         headline: `${target} suffers Qi Break`,
         detail:
           `${source} drops Inner Qi to zero, bursts ` +
@@ -585,7 +574,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "qi_recover",
         headline: `${target} restores Inner Qi`,
         detail: `Inner Qi returns to ${formatBattleNumber(event.innerQi)}`,
         badges: [
@@ -601,7 +589,6 @@ function buildBattleEventDetail(
       const source = getName(names, event.sourceId);
 
       return {
-        category: "backlash",
         headline: `${source} suffers backlash`,
         detail: `${formatBattleNumber(event.damage)} Outer damage while Qi Broken`,
         badges: [
@@ -637,7 +624,6 @@ function buildBattleEventDetail(
       ].filter(Boolean);
 
       return {
-        category: "heal",
         headline:
           source === target
             ? `${target} restores balance`
@@ -668,7 +654,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "wound",
         headline: `${source} wounds ${target}`,
         detail:
           `${getSkillName(data, event.skillId)} reduces recovery by ` +
@@ -691,7 +676,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "speed_down",
         headline: `${source} slows ${target}`,
         detail:
           `${getSkillName(data, event.skillId)} reduces speed by ` +
@@ -714,7 +698,6 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        category: "inner_defense_down",
         headline: `${source} weakens ${target}'s Inner Defense`,
         detail:
           `${getSkillName(data, event.skillId)} reduces Inner Defense by ` +
@@ -732,75 +715,12 @@ function buildBattleEventDetail(
       };
     }
 
-    case "status_apply": {
-      const source = getName(names, event.sourceId);
-      const target = getName(names, event.targetId);
-      const statusName = getStatusName(data, event.statusId);
-
-      return {
-        category: "status_apply",
-        headline: `${source} applies ${statusName} to ${target}`,
-        detail:
-          `${getSkillName(data, event.skillId)} applies ${event.stacks} stack(s) for ` +
-          `${formatBattleSeconds(event.durationSeconds)}`,
-        badges: [
-          {
-            label: statusName,
-            tone: "danger"
-          },
-          {
-            label: `${formatBattlePercent(event.chance)} chance`,
-            tone: "neutral"
-          }
-        ]
-      };
-    }
-
-    case "status_tick": {
-      const target = getName(names, event.targetId);
-      const statusName = getStatusName(data, event.statusId);
-
-      return {
-        category: "status_tick",
-        headline: `${target} suffers ${statusName}`,
-        detail: `${formatBattleNumber(event.outerDamage)} Outer damage from ${statusName}`,
-        badges: [
-          {
-            label: statusName,
-            tone: "danger"
-          },
-          {
-            label: `${formatBattleNumber(event.outerDamage)} Outer HP`,
-            tone: "outer"
-          }
-        ]
-      };
-    }
-
-    case "status_expire": {
-      const target = getName(names, event.targetId);
-      const statusName = getStatusName(data, event.statusId);
-
-      return {
-        category: "status_expire",
-        headline: `${statusName} fades from ${target}`,
-        detail: `${target} is no longer affected by ${statusName}`,
-        badges: [
-          {
-            label: statusName,
-            tone: "neutral"
-          }
-        ]
-      };
-    }
-
     case "regeneration": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
       const barLabel = event.restores === "outer" ? "Outer HP" : "Inner Qi";
 
       return {
-        category: "regeneration",
         headline:
           source === target
             ? `${target} starts regeneration`
@@ -841,7 +761,6 @@ function buildBattleEventDetail(
       ].filter(Boolean);
 
       return {
-        category: "regeneration_tick",
         headline: `${target} regenerates`,
         detail:
           detail.length > 0
@@ -864,89 +783,11 @@ function buildBattleEventDetail(
       };
     }
 
-    case "cleanse": {
-      const source = getName(names, event.sourceId);
-      const target = getName(names, event.targetId);
-      const statuses = event.statusesRemoved
-        .map((status) => getStatusName(data, status))
-        .join(", ");
-
-      return {
-        category: "cleanse",
-        headline:
-          source === target
-            ? `${target} cleanses pressure`
-            : `${source} cleanses ${target}`,
-        detail: `${getSkillName(data, event.skillId)} removes ${statuses}`,
-        badges: [
-          {
-            label: "Cleanse",
-            tone: "neutral"
-          },
-          {
-            label: statuses,
-            tone: "danger"
-          }
-        ]
-      };
-    }
-
-    case "auto_medicine": {
-      const target = event.targetId ? getName(names, event.targetId) : "the party";
-      const medicineName = getMedicineName(data, event.medicineId);
-      const statuses = event.cleansedStatusIds.map((status) =>
-        getStatusName(data, status)
-      );
-      const details = [
-        statuses.length > 0 ? `removes ${statuses.join(", ")}` : null,
-        event.statusResistanceBonus > 0
-          ? `adds ${formatBattlePercent(
-              event.statusResistanceBonus
-            )} Status Resistance for ${formatBattleSeconds(
-              event.statusResistanceDurationSeconds
-            )}`
-          : null
-      ].filter(Boolean);
-
-      return {
-        category: "auto_medicine",
-        headline: `${target} uses ${medicineName}`,
-        detail: `${formatAutoMedicineTrigger(event.trigger)} · ${
-          details.length > 0 ? details.join(" · ") : "no immediate effect"
-        }`,
-        badges: [
-          {
-            label: "Auto Medicine",
-            tone: "neutral"
-          },
-          ...(statuses.length > 0
-            ? [
-                {
-                  label: statuses.join(", "),
-                  tone: "danger" as const
-                }
-              ]
-            : []),
-          ...(event.statusResistanceBonus > 0
-            ? [
-                {
-                  label: `${formatBattlePercent(
-                    event.statusResistanceBonus
-                  )} resistance`,
-                  tone: "qi" as const
-                }
-              ]
-            : [])
-        ]
-      };
-    }
-
     case "defeat": {
       const target = getName(names, event.targetId);
       const defeatedSide = event.team === "player" ? "disciple" : "enemy";
 
       return {
-        category: "defeat",
         headline: `${target} is defeated`,
         detail: `A ${defeatedSide} combatant falls`,
         badges: [
@@ -962,6 +803,8 @@ function buildBattleEventDetail(
       };
     }
   }
+
+  throw new Error(`Unhandled battle event type: ${event.type}`);
 }
 
 export function buildBattleEventViews(
@@ -975,14 +818,16 @@ export function buildBattleEventViews(
   const names = buildCombatantNameLookup(lastBattle.battle);
 
   return lastBattle.battle.events.map((event, index) => {
+    const record = createBattleEventRecord(event, index);
     const detail = buildBattleEventDetail(data, event, names);
 
     return {
-      id: `${index}-${event.type}-${event.time}`,
-      statusId: getBattleEventStatusId(event),
-      timeSeconds: event.time,
-      timeLabel: formatBattleSeconds(event.time),
-      ...detail
+      ...detail,
+      id: record.id,
+      category: record.category,
+      statusId: record.statusId,
+      timeSeconds: record.timeSeconds,
+      timeLabel: formatBattleSeconds(record.timeSeconds)
     };
   });
 }
