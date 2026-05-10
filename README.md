@@ -8,6 +8,7 @@ Start with the current contributor docs:
 - [Core Engine Boundary](docs/core-engine-boundary.md)
 - [Combat Engine V2](docs/combat-engine-v2.md)
 - [Web UI Architecture](docs/web-ui-architecture.md)
+- [Stage 2.0 Backlog](docs/stage-2.0-backlog.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)

@@ -88,4 +88,4 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 
 - Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
 - Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and known target misses.
-- Stage 2.0 should focus on content pipeline validation and authoring support now that the web UI is modularized.
+- Stage 2.0 is active at [Stage 2.0 Backlog](stage-2.0-backlog.md) and focuses on content pipeline validation and authoring support now that the web UI is modularized.

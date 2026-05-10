@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare the Stage 2.0 content-pipeline backlog: define the content budget schema, validation coverage, balance export shape, and authoring checklist before adding more regions.
+Begin Epic 61 in the [Stage 2.0 Backlog](stage-2.0-backlog.md): audit the current content pipeline, budget schema, validation coverage, balance export shape, and authoring checklist before adding more regions.
