@@ -79,4 +79,4 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 
 - Stage 1.8 preserved the known Stage 1.7 balance-budget posture while refactoring combat internals; some budget misses may be intentional tuning notes rather than code failures.
 - Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and known target misses.
-- Stage 1.9 is the next planned cleanup stage and should modularize the web UI around the now-stable combat/progression contracts.
+- Stage 1.9 is active at [Stage 1.9 Backlog](stage-1.9-backlog.md) and should modularize the web UI around the now-stable combat/progression contracts.

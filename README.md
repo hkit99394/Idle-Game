@@ -7,6 +7,7 @@ Start with the current contributor docs:
 - [Current Implemented Systems](docs/current-implemented-systems.md)
 - [Core Engine Boundary](docs/core-engine-boundary.md)
 - [Combat Engine V2](docs/combat-engine-v2.md)
+- [Stage 1.9 Backlog](docs/stage-1.9-backlog.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)

@@ -90,7 +90,7 @@ Before Stage 1.8, the simulator already handled targeting, damage, Qi Break, pro
 
 ## Stage 1.9: UI Modularization
 
-Status: recommended next stage.
+Status: active backlog prepared at [Stage 1.9 Backlog](stage-1.9-backlog.md).
 
 ### Goal
 
@@ -214,4 +214,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare Stage 1.9: split the web UI and web state into feature modules while preserving the Stage 1.8 combat/progression contracts.
+Begin Epic 55 in the [Stage 1.9 Backlog](stage-1.9-backlog.md): lock current web workflows and smoke fixtures before moving UI and state boundaries.
