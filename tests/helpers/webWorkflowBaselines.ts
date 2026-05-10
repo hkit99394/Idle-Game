@@ -26,14 +26,17 @@ export const webUiModuleInventory = [
       "web/app/AppPanels.tsx",
       "web/app/statusText.ts",
       "web/app/useSaveTools.ts",
-      "web/components/GamePanels.tsx"
+      "web/components/GamePanels.tsx",
+      "web/state/viewModel.ts",
+      "web/state/viewModels/webGameViewModel.ts"
     ],
     workflows: [
       "startup",
       "auto_run_loop",
       "panel_composition",
       "status_labels",
-      "save_tool_local_state"
+      "save_tool_local_state",
+      "view_model_assembly"
     ]
   },
   {
@@ -41,7 +44,8 @@ export const webUiModuleInventory = [
     label: "Battle",
     files: [
       "web/components/gamePanels/battle.tsx",
-      "web/state/viewModels/battle.ts"
+      "web/state/viewModels/battle.ts",
+      "web/state/viewModels/battleTypes.ts"
     ],
     workflows: ["battle_status", "team_cards", "battle_log", "battle_summary"]
   },
@@ -50,15 +54,22 @@ export const webUiModuleInventory = [
     label: "Map and idle",
     files: [
       "web/components/gamePanels/idleMap.tsx",
+      "web/state/offlineRewardSummary.ts",
       "web/state/viewModels/map.ts",
-      "web/state/viewModels/offline.ts"
+      "web/state/viewModels/mapTypes.ts",
+      "web/state/viewModels/offline.ts",
+      "web/state/viewModels/offlineTypes.ts"
     ],
     workflows: ["stage_selection", "offline_farm_target", "offline_summary"]
   },
   {
     feature: "roster_formation",
     label: "Roster and formation",
-    files: ["web/components/gamePanels/rosterFormation.tsx"],
+    files: [
+      "web/components/gamePanels/rosterFormation.tsx",
+      "web/state/viewModels/roster.ts",
+      "web/state/viewModels/rosterTypes.ts"
+    ],
     workflows: ["active_team", "formation_slots"]
   },
   {
@@ -66,7 +77,10 @@ export const webUiModuleInventory = [
     label: "Equipment and assignments",
     files: [
       "web/components/gamePanels/equipmentAssignment.tsx",
-      "web/state/viewModels/equipment.ts"
+      "web/state/viewModels/assignments.ts",
+      "web/state/viewModels/assignmentTypes.ts",
+      "web/state/viewModels/equipment.ts",
+      "web/state/viewModels/equipmentTypes.ts"
     ],
     workflows: ["equipment_inventory", "hero_equipment", "assignments"]
   },
@@ -75,7 +89,8 @@ export const webUiModuleInventory = [
     label: "Growth and mastery",
     files: [
       "web/components/gamePanels/masteryGrowth.tsx",
-      "web/state/viewModels/progression.ts"
+      "web/state/viewModels/progression.ts",
+      "web/state/viewModels/progressionTypes.ts"
     ],
     workflows: ["upgrades", "skill_upgrades", "mastery", "style_mastery"]
   },
@@ -85,7 +100,9 @@ export const webUiModuleInventory = [
     files: [
       "web/components/gamePanels/counterplaySave.tsx",
       "web/state/viewModels/counterplay.ts",
+      "web/state/viewModels/counterplayTypes.ts",
       "web/state/viewModels/saveDiagnostics.ts",
+      "web/state/viewModels/saveDiagnosticsTypes.ts",
       "web/state/saveStorage.ts"
     ],
     workflows: ["counterplay_settings", "save_tools", "diagnostics"]

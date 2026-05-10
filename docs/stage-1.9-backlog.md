@@ -50,7 +50,7 @@ The recommended theme is **UI Modularization**. This is a structure and confiden
 | 55 | Web Baselines And Smoke Fixtures | Complete | Lock current web workflows before moving UI and state boundaries |
 | 56 | App Shell Composition And Feature Registry | Complete | Turn `App.tsx` into composition over feature modules |
 | 57 | Web State Command And Reducer Slices | In Progress | Split command handling and reducer logic by domain without changing behavior |
-| 58 | Feature View Models And Types | Planned | Move view-model builders and view types behind feature-owned boundaries |
+| 58 | Feature View Models And Types | Complete | Move view-model builders and view types behind feature-owned boundaries |
 | 59 | Panel Modules, Styling, And Mobile Safety | Planned | Finish feature panel ownership and protect narrow viewport layout |
 | 60 | UI Docs And Release Readiness | Planned | Document web boundaries, run smoke coverage, and close Stage 1.9 cleanly |
 
@@ -200,7 +200,17 @@ Move view-model builders and feature view types behind clear feature-owned bound
 
 ### Progress Notes
 
-- Not started.
+- Added feature-owned view type modules under `web/state/viewModels/*Types.ts`, with `web/state/types.ts` kept as the stable state and compatibility barrel for existing `gameState` imports.
+- Kept `OfflineRewardSummary` in a neutral state-owned module at `web/state/offlineRewardSummary.ts` while the offline view model owns only the display extension.
+- Moved assignment view assembly into `web/state/viewModels/assignments.ts` so the equipment/assignment ownership documented in the Stage 1.9 inventory matches the builder boundary.
+- Moved roster view assembly into `web/state/viewModels/roster.ts` so roster/formation ownership has both local types and a local builder.
+- Moved formation view types and formation view assembly into the roster feature boundary while battle still supplies combatant display state.
+- Moved battle-specific final-combatant display assembly into the battle view-model builder and kept `web/state/viewModels/webGameViewModel.ts` focused on wiring feature outputs.
+- Stopped re-exporting feature view types from the state compatibility barrel; panels now import feature view types from their feature-owned type modules.
+- Added `tests/web/viewModelBoundaries.test.ts` to prevent feature-owned view-model builders from importing sibling feature builders directly.
+- Added `web/state/viewModels/webGameViewModel.ts` for feature-oriented view-model assembly and reduced `web/state/viewModel.ts` to the public wrapper/re-export surface.
+- Added `tests/web/viewModelAssembler.test.ts` to guard the public `getWebGameViewModel` wrapper against the feature assembler and sample battle, map, offline, equipment, and counterplay outputs.
+- Updated the Stage 1.9 UI inventory and baseline helper so the new feature type and assembler files are documented by ownership area.
 
 ---
 

@@ -1,11 +1,11 @@
 import type { KeyboardEvent } from "react";
+import type { StageOptionView } from "../../state/viewModels/mapTypes";
 import type {
   OfflineFarmPresetView,
   OfflineFarmRecommendationView,
   OfflineRewardPreviewView,
-  OfflineRewardSummaryView,
-  StageOptionView
-} from "../../state/gameState";
+  OfflineRewardSummaryView
+} from "../../state/viewModels/offlineTypes";
 import { formatDuration, formatNumber } from "./shared";
 
 type OfflineSummaryPanelProps = {

@@ -1,10 +1,8 @@
 import type { ChangeEvent } from "react";
 import type { PreBattleResistanceMode } from "../../../core";
 import { OFFLINE_TIME_TRAVEL_SECONDS } from "../../state/constants";
-import type {
-  CounterplaySettingsView,
-  SaveDiagnosticsView
-} from "../../state/gameState";
+import type { CounterplaySettingsView } from "../../state/viewModels/counterplayTypes";
+import type { SaveDiagnosticsView } from "../../state/viewModels/saveDiagnosticsTypes";
 import {
   formatDuration,
   formatNumber,

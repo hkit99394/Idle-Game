@@ -11,9 +11,9 @@ import type {
   OfflineFarmPresetView,
   OfflineFarmRecommendationView,
   OfflineRewardPreviewView,
-  OfflineRewardSummary,
   OfflineRewardSummaryView
-} from "../types";
+} from "./offlineTypes";
+import type { OfflineRewardSummary } from "../offlineRewardSummary";
 
 function formatStatName(stat: string): string {
   return stat.replace(/[A-Z]/g, (match) => ` ${match}`).replace(/^./, (match) =>

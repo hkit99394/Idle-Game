@@ -3,7 +3,7 @@ import type {
   BattleEventBadgeView,
   BattleEventView,
   BattleSummaryView
-} from "../../state/gameState";
+} from "../../state/viewModels/battleTypes";
 import {
   formatCombatRole,
   formatFormationSlot,

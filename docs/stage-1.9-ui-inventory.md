@@ -6,13 +6,13 @@ This inventory captures the current web UI/module shape before Stage 1.9 starts 
 
 | Feature Area | Current Files | Protected Workflows |
 | --- | --- | --- |
-| App shell | `web/App.tsx`, `web/app/AppPanels.tsx`, `web/app/statusText.ts`, `web/app/useSaveTools.ts`, `web/components/GamePanels.tsx` | Startup, auto-run loop, panel composition, status labels, save tool local state |
-| Battle | `web/components/gamePanels/battle.tsx`, `web/state/viewModels/battle.ts` | Battle status, team cards, battle log, battle summary |
-| Map and idle | `web/components/gamePanels/idleMap.tsx`, `web/state/viewModels/map.ts`, `web/state/viewModels/offline.ts` | Stage selection, offline farm target, offline summary |
-| Roster and formation | `web/components/gamePanels/rosterFormation.tsx` | Active team, formation slots |
-| Equipment and assignments | `web/components/gamePanels/equipmentAssignment.tsx`, `web/state/viewModels/equipment.ts` | Equipment inventory, hero equipment, assignments |
-| Growth and mastery | `web/components/gamePanels/masteryGrowth.tsx`, `web/state/viewModels/progression.ts` | Upgrades, skill upgrades, mastery, style mastery |
-| Counterplay and save | `web/components/gamePanels/counterplaySave.tsx`, `web/state/viewModels/counterplay.ts`, `web/state/viewModels/saveDiagnostics.ts`, `web/state/saveStorage.ts` | Counterplay settings, save tools, diagnostics |
+| App shell | `web/App.tsx`, `web/app/AppPanels.tsx`, `web/app/statusText.ts`, `web/app/useSaveTools.ts`, `web/components/GamePanels.tsx`, `web/state/viewModel.ts`, `web/state/viewModels/webGameViewModel.ts` | Startup, auto-run loop, panel composition, status labels, save tool local state, view model assembly |
+| Battle | `web/components/gamePanels/battle.tsx`, `web/state/viewModels/battle.ts`, `web/state/viewModels/battleTypes.ts` | Battle status, team cards, battle log, battle summary |
+| Map and idle | `web/components/gamePanels/idleMap.tsx`, `web/state/offlineRewardSummary.ts`, `web/state/viewModels/map.ts`, `web/state/viewModels/mapTypes.ts`, `web/state/viewModels/offline.ts`, `web/state/viewModels/offlineTypes.ts` | Stage selection, offline farm target, offline summary |
+| Roster and formation | `web/components/gamePanels/rosterFormation.tsx`, `web/state/viewModels/roster.ts`, `web/state/viewModels/rosterTypes.ts` | Active team, formation slots |
+| Equipment and assignments | `web/components/gamePanels/equipmentAssignment.tsx`, `web/state/viewModels/assignments.ts`, `web/state/viewModels/assignmentTypes.ts`, `web/state/viewModels/equipment.ts`, `web/state/viewModels/equipmentTypes.ts` | Equipment inventory, hero equipment, assignments |
+| Growth and mastery | `web/components/gamePanels/masteryGrowth.tsx`, `web/state/viewModels/progression.ts`, `web/state/viewModels/progressionTypes.ts` | Upgrades, skill upgrades, mastery, style mastery |
+| Counterplay and save | `web/components/gamePanels/counterplaySave.tsx`, `web/state/viewModels/counterplay.ts`, `web/state/viewModels/counterplayTypes.ts`, `web/state/viewModels/saveDiagnostics.ts`, `web/state/viewModels/saveDiagnosticsTypes.ts`, `web/state/saveStorage.ts` | Counterplay settings, save tools, diagnostics |
 | Shared UI | `web/components/gamePanels/shared.tsx`, `web/statusPresentation.ts`, `web/styles/app.css` | Formatting, status presentation, layout |
 
 ## Baseline Coverage
@@ -20,6 +20,8 @@ This inventory captures the current web UI/module shape before Stage 1.9 starts 
 - `tests/helpers/webWorkflowBaselines.ts` owns the reusable Stage 1.9 baseline state and module inventory.
 - `tests/web/webWorkflowBaselines.test.ts` checks the current feature domains from one state: selected stage, recent battle, offline summary, roster/formation, equipment, assignment, upgrades/mastery, counterplay, and save diagnostics.
 - `tests/web/gameStateDomains.test.ts` checks the Stage 1.9 web-state command surface: grouped action domains, command action factories, reducer domain behavior, and save reset fallback behavior.
+- `tests/web/viewModelAssembler.test.ts` checks that the stable public `getWebGameViewModel` wrapper stays aligned with the feature-oriented assembler and representative feature outputs.
+- `tests/web/viewModelBoundaries.test.ts` checks that feature-owned view-model builders do not import sibling feature builders directly.
 - Existing web tests still protect deeper command paths:
   - `tests/web/gameState.progression.test.ts`
   - `tests/web/gameState.idle.test.ts`

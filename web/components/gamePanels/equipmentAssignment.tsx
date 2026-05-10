@@ -1,10 +1,12 @@
 import type {
-  AssignmentView,
   EquipGameEquipmentInput,
-  EquipmentInventoryItemView,
-  HeroEquipmentView,
   SetGameAssignmentHeroesInput
 } from "../../state/gameState";
+import type { AssignmentView } from "../../state/viewModels/assignmentTypes";
+import type {
+  EquipmentInventoryItemView,
+  HeroEquipmentView
+} from "../../state/viewModels/equipmentTypes";
 import { formatNumber } from "./shared";
 
 type EquipmentPanelProps = {

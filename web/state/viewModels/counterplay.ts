@@ -10,7 +10,8 @@ import {
   PRE_BATTLE_RESISTANCE_MODES
 } from "../../../core";
 import type { StaticGameData } from "../../../core";
-import type { CounterplaySettingsView, WebGameState } from "../types";
+import type { WebGameState } from "../types";
+import type { CounterplaySettingsView } from "./counterplayTypes";
 
 export function buildCounterplaySettingsView(
   data: StaticGameData,

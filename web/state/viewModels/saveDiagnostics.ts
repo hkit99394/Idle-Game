@@ -6,7 +6,8 @@ import {
   WEB_SAVE_AUTOSAVE_INTERVAL_MS,
   WEB_SAVE_STORAGE_KEY
 } from "../saveStorage";
-import type { SaveDiagnosticsView, WebGameState } from "../types";
+import type { WebGameState } from "../types";
+import type { SaveDiagnosticsView } from "./saveDiagnosticsTypes";
 import type { LoadSaveDataFromStorageResult } from "../saveStorage";
 
 function getCurrentRegionHighestClearedStageIndex(

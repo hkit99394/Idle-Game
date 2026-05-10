@@ -1,12 +1,14 @@
 import type {
-  MasteryPanelView,
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
-  SelectGameStyleBranchInput,
+  SelectGameStyleBranchInput
+} from "../../state/gameState";
+import type {
+  MasteryPanelView,
   SkillUpgradeView,
   StyleMasteryView,
   UpgradeView
-} from "../../state/gameState";
+} from "../../state/viewModels/progressionTypes";
 import { formatNumber, formatSignedPercent } from "./shared";
 
 type MasteryPanelProps = {

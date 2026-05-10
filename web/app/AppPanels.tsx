@@ -27,12 +27,12 @@ import type {
   EquipGameEquipmentInput,
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
-  SaveDiagnosticsView,
   SelectGameStyleBranchInput,
   SetGameActiveHeroTeamInput,
   SetGameAssignmentHeroesInput,
   WebGameViewModel
 } from "../state/gameState";
+import type { SaveDiagnosticsView } from "../state/viewModels/saveDiagnosticsTypes";
 import { buildAppStatusText } from "./statusText";
 import type { AppStatusText } from "./statusText";
 import type { SaveToolControls } from "./useSaveTools";

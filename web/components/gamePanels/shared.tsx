@@ -1,4 +1,4 @@
-import type { SaveDiagnosticsView } from "../../state/gameState";
+import type { SaveDiagnosticsView } from "../../state/viewModels/saveDiagnosticsTypes";
 
 export {
   getBattleResultClass,

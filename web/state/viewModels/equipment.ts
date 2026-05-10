@@ -6,7 +6,7 @@ import {
   isHeroUnlocked
 } from "../../../core";
 import type { EquipmentSlot, PlayerProgress, StaticGameData } from "../../../core";
-import type { EquipmentInventoryItemView, HeroEquipmentView } from "../types";
+import type { EquipmentInventoryItemView, HeroEquipmentView } from "./equipmentTypes";
 
 function formatStatName(stat: string): string {
   return stat.replace(/[A-Z]/g, (match) => ` ${match}`).replace(/^./, (match) =>

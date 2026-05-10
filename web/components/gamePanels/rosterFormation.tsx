@@ -1,10 +1,10 @@
 import { FORMATION_SLOTS } from "../../../core";
 import type { FormationSlot } from "../../../core";
+import type { SetGameActiveHeroTeamInput } from "../../state/gameState";
 import type {
   PlayerFormationHeroView,
-  RosterHeroView,
-  SetGameActiveHeroTeamInput
-} from "../../state/gameState";
+  RosterHeroView
+} from "../../state/viewModels/rosterTypes";
 import { formatCombatRole, formatFormationSlot, formatNumber } from "./shared";
 
 type RosterPanelProps = {
