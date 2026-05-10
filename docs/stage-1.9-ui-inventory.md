@@ -19,6 +19,7 @@ This inventory captures the current web UI/module shape before Stage 1.9 starts 
 
 - `tests/helpers/webWorkflowBaselines.ts` owns the reusable Stage 1.9 baseline state and module inventory.
 - `tests/web/webWorkflowBaselines.test.ts` checks the current feature domains from one state: selected stage, recent battle, offline summary, roster/formation, equipment, assignment, upgrades/mastery, counterplay, and save diagnostics.
+- `tests/web/gameStateDomains.test.ts` checks the Stage 1.9 web-state command surface: grouped action domains, command action factories, reducer domain behavior, and save reset fallback behavior.
 - Existing web tests still protect deeper command paths:
   - `tests/web/gameState.progression.test.ts`
   - `tests/web/gameState.idle.test.ts`

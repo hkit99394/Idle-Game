@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  applyOfflineTimeTravel,
-  createInitialWebGameState
-} from "../../web/state/gameState";
+import { createInitialWebGameState } from "../../web/state/gameState";
+import { applyOfflineTimeTravel } from "../../web/state/saveToolCommands";
 import {
   loadSaveDataFromStorage,
   WEB_SAVE_STORAGE_KEY

@@ -34,10 +34,7 @@ import {
   buildUpgradeViews
 } from "./viewModels/progression";
 
-export {
-  buildSaveDiagnostics,
-  getSaveToolErrorMessage
-} from "./viewModels/saveDiagnostics";
+export { buildSaveDiagnostics } from "./viewModels/saveDiagnostics";
 
 export function getWebGameViewModel(
   data: StaticGameData,

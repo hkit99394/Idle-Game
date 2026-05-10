@@ -47,9 +47,9 @@ The recommended theme is **UI Modularization**. This is a structure and confiden
 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 55 | Web Baselines And Smoke Fixtures | In Progress | Lock current web workflows before moving UI and state boundaries |
-| 56 | App Shell Composition And Feature Registry | In Progress | Turn `App.tsx` into composition over feature modules |
-| 57 | Web State Command And Reducer Slices | Planned | Split command handling and reducer logic by domain without changing behavior |
+| 55 | Web Baselines And Smoke Fixtures | Complete | Lock current web workflows before moving UI and state boundaries |
+| 56 | App Shell Composition And Feature Registry | Complete | Turn `App.tsx` into composition over feature modules |
+| 57 | Web State Command And Reducer Slices | In Progress | Split command handling and reducer logic by domain without changing behavior |
 | 58 | Feature View Models And Types | Planned | Move view-model builders and view types behind feature-owned boundaries |
 | 59 | Panel Modules, Styling, And Mobile Safety | Planned | Finish feature panel ownership and protect narrow viewport layout |
 | 60 | UI Docs And Release Readiness | Planned | Document web boundaries, run smoke coverage, and close Stage 1.9 cleanly |
@@ -161,7 +161,12 @@ Make web state transitions easier to scan by splitting action definitions, reduc
 
 ### Progress Notes
 
-- Not started.
+- Added `web/state/actions.ts` to group `WebGameAction` by stage/idle, progression, equipment, roster/formation, assignments, counterplay, and save-state domains from one action-type-to-domain map.
+- Added `web/state/reducerBranches.ts` so reducer domain branches own their local transition logic while `web/state/reducer.ts` remains the public state factory/reducer surface.
+- Added `web/state/commandActions.ts`, `web/state/useWebGameCommandDomains.ts`, and `web/state/useWebGameCommands.ts` so the React hook keeps the same public return shape while command action creation is split by workflow/domain.
+- Added `web/state/saveToolCommands.ts` and `web/state/saveToolMessages.ts` for export/import/reset/offline time-travel save side effects, preserving existing save tool result messages without loading the view-model assembler.
+- Kept `web/state/gameState.ts` as the stable public barrel while the new action, command, and save-command seams stay directly imported by focused tests.
+- Added `tests/web/gameStateDomains.test.ts` to cover action-domain grouping, command action factories, reducer behavior for locked stages/purchases/equipment/assignments/counterplay, and the reset save command fallback.
 
 ---
 
