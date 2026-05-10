@@ -48,7 +48,7 @@ The recommended theme is **UI Modularization**. This is a structure and confiden
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 55 | Web Baselines And Smoke Fixtures | In Progress | Lock current web workflows before moving UI and state boundaries |
-| 56 | App Shell Composition And Feature Registry | Planned | Turn `App.tsx` into composition over feature modules |
+| 56 | App Shell Composition And Feature Registry | In Progress | Turn `App.tsx` into composition over feature modules |
 | 57 | Web State Command And Reducer Slices | Planned | Split command handling and reducer logic by domain without changing behavior |
 | 58 | Feature View Models And Types | Planned | Move view-model builders and view types behind feature-owned boundaries |
 | 59 | Panel Modules, Styling, And Mobile Safety | Planned | Finish feature panel ownership and protect narrow viewport layout |
@@ -122,7 +122,12 @@ Reduce `web/App.tsx` to a readable shell that composes feature panels and delega
 
 ### Progress Notes
 
-- Not started.
+- Moved panel assembly into `web/app/AppPanels.tsx` with a single ordered feature panel descriptor list while preserving the current visible panel sequence.
+- Moved top-level status label derivation into `web/app/statusText.ts`, save-tool local input/status state into `web/app/useSaveTools.ts`, and pure battle result presentation into `web/statusPresentation.ts`.
+- Kept the app panel stack behind a narrow app-shell contract instead of passing the entire web-state hook result through feature composition.
+- Kept `web/App.tsx` focused on static data bootstrapping, the app error boundary, and the unchanged 1200ms auto-run interval.
+- Added `tests/web/appShell.test.ts` for panel order, shell status text, action reason formatting, and save-tool status formatting.
+- Updated [Stage 1.9 UI Inventory](stage-1.9-ui-inventory.md) to include the new app-shell helper files.
 
 ---
 

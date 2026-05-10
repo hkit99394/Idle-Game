@@ -144,3 +144,5 @@ export function getWebGameViewModel(
     lastAssignmentAction: state.lastAssignmentAction
   };
 }
+
+export type WebGameViewModel = ReturnType<typeof getWebGameViewModel>;

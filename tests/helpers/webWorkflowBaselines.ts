@@ -21,8 +21,20 @@ export const webUiModuleInventory = [
   {
     feature: "app_shell",
     label: "App shell",
-    files: ["web/App.tsx", "web/components/GamePanels.tsx"],
-    workflows: ["startup", "auto_run_loop", "panel_composition"]
+    files: [
+      "web/App.tsx",
+      "web/app/AppPanels.tsx",
+      "web/app/statusText.ts",
+      "web/app/useSaveTools.ts",
+      "web/components/GamePanels.tsx"
+    ],
+    workflows: [
+      "startup",
+      "auto_run_loop",
+      "panel_composition",
+      "status_labels",
+      "save_tool_local_state"
+    ]
   },
   {
     feature: "battle",

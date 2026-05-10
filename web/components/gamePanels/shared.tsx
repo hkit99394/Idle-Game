@@ -1,5 +1,9 @@
-import type { ResolveStageBattleResult } from "../../../core";
 import type { SaveDiagnosticsView } from "../../state/gameState";
+
+export {
+  getBattleResultClass,
+  getBattleResultText
+} from "../../statusPresentation";
 
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -62,50 +66,6 @@ function getBarPercent(current: number, max: number): number {
   }
 
   return Math.max(0, Math.min(100, (current / max) * 100));
-}
-
-export function getBattleResultText(
-  lastBattle: ResolveStageBattleResult | null,
-  stageName: string
-): string {
-  if (!lastBattle) {
-    return "Ready";
-  }
-
-  if (!lastBattle.ok) {
-    switch (lastBattle.reason) {
-      case "locked_stage":
-        return `${stageName} is locked`;
-      case "missing_enemy":
-        return "Enemy data missing";
-      case "missing_stage":
-        return "Stage data missing";
-    }
-  }
-
-  if (lastBattle.stageCleared) {
-    return `Victory - ${stageName} cleared`;
-  }
-
-  return lastBattle.battle.winner === "timeout"
-    ? `Stalemate - ${stageName} held`
-    : `Defeat - ${stageName} held`;
-}
-
-export function getBattleResultClass(lastBattle: ResolveStageBattleResult | null): string {
-  if (!lastBattle) {
-    return "";
-  }
-
-  if (!lastBattle.ok) {
-    return "blocked";
-  }
-
-  if (lastBattle.stageCleared) {
-    return "victory";
-  }
-
-  return lastBattle.battle.winner === "timeout" ? "stalemate" : "defeat";
 }
 
 type BarProps = {

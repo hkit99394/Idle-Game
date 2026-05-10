@@ -1,5 +1,6 @@
 import type {
   ActiveStatusEffect,
+  ResolveStageBattleResult,
   StatusAdvanceEvent,
   StatusCategory,
   StatusEffectDefinition
@@ -93,6 +94,52 @@ export const statusToneDefinitions: Record<
 
 export function getStatusTone(role: StatusToneRole): StatusToneDefinition {
   return statusToneDefinitions[role];
+}
+
+export function getBattleResultText(
+  lastBattle: ResolveStageBattleResult | null,
+  stageName: string
+): string {
+  if (!lastBattle) {
+    return "Ready";
+  }
+
+  if (!lastBattle.ok) {
+    switch (lastBattle.reason) {
+      case "locked_stage":
+        return `${stageName} is locked`;
+      case "missing_enemy":
+        return "Enemy data missing";
+      case "missing_stage":
+        return "Stage data missing";
+    }
+  }
+
+  if (lastBattle.stageCleared) {
+    return `Victory - ${stageName} cleared`;
+  }
+
+  return lastBattle.battle.winner === "timeout"
+    ? `Stalemate - ${stageName} held`
+    : `Defeat - ${stageName} held`;
+}
+
+export function getBattleResultClass(
+  lastBattle: ResolveStageBattleResult | null
+): string {
+  if (!lastBattle) {
+    return "";
+  }
+
+  if (!lastBattle.ok) {
+    return "blocked";
+  }
+
+  if (lastBattle.stageCleared) {
+    return "victory";
+  }
+
+  return lastBattle.battle.winner === "timeout" ? "stalemate" : "defeat";
 }
 
 export function buildStatusChipViewModels(

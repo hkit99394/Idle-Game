@@ -6,7 +6,7 @@ This inventory captures the current web UI/module shape before Stage 1.9 starts 
 
 | Feature Area | Current Files | Protected Workflows |
 | --- | --- | --- |
-| App shell | `web/App.tsx`, `web/components/GamePanels.tsx` | Startup, auto-run loop, panel composition |
+| App shell | `web/App.tsx`, `web/app/AppPanels.tsx`, `web/app/statusText.ts`, `web/app/useSaveTools.ts`, `web/components/GamePanels.tsx` | Startup, auto-run loop, panel composition, status labels, save tool local state |
 | Battle | `web/components/gamePanels/battle.tsx`, `web/state/viewModels/battle.ts` | Battle status, team cards, battle log, battle summary |
 | Map and idle | `web/components/gamePanels/idleMap.tsx`, `web/state/viewModels/map.ts`, `web/state/viewModels/offline.ts` | Stage selection, offline farm target, offline summary |
 | Roster and formation | `web/components/gamePanels/rosterFormation.tsx` | Active team, formation slots |
