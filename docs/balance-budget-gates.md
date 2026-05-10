@@ -98,11 +98,32 @@ npm run simulate
 
 Review `Region Difficulty Curve`, `Region Boss Gate Assumptions`, and `Region Budget Gates` together. A failed budget is acceptable only when the stage backlog records it as known tuning debt. Otherwise, treat the failure as a balance regression.
 
-For machine-readable checks, run:
+For the full debug JSON used by low-level checks, run:
 
 ```sh
-npm run simulate -- --json
+npm run --silent simulate -- --json
 ```
 
 Each region includes `budgetChecks` with `id`, `label`, `status`, and `reason`.
 Each region also includes `difficultyCurve` and `bossGateAssumptions` for authoring tools that need stage-level issue lines or boss-gate tuning inputs.
+
+For stable authoring JSON, run:
+
+```sh
+npm run --silent simulate -- --export-json
+```
+
+This compact export has `schemaVersion: 1` and four top-level tables:
+
+- `regions` for region totals, farm recommendations, mastery milestones, and pressure summaries.
+- `stages` for stage timing, rewards, farm recommendation markers, difficulty issues, difficulty spikes, and pressure fields.
+- `budgetChecks` for one row per configured region budget check.
+- `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
+
+For spreadsheet review, run:
+
+```sh
+npm run --silent simulate -- --csv
+```
+
+The CSV is a generated stage-row export. [Balance Template CSV](balance-template.csv) remains a hand-authored reference template for planning fields and notes, not the generated review artifact.

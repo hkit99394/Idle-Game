@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { buildBalanceReport, type StaticGameData } from "../../core";
 import {
+  BALANCE_STAGE_EXPORT_CSV_HEADERS,
   BAMBOO_ROAD_REGION_ID,
   BLACK_IRON_FORT_REGION_ID,
   LOTUS_MONASTERY_REGION_ID,
   MIST_VALLEY_REGION_ID,
+  buildBalanceAuthoringExport,
   buildGameBalanceReport,
+  formatBalanceStageExportCsv,
   formatBalanceReport
 } from "../../tools/balanceReport";
 import { staticData } from "../helpers/staticData";
@@ -459,6 +462,73 @@ describe("balance report", () => {
     });
   });
 
+  it("builds stable authoring exports for JSON and CSV review", () => {
+    const report = buildGameBalanceReport(staticData);
+    const exportReport = buildBalanceAuthoringExport(report);
+    const blackIronStage = exportReport.stages.find(
+      (stage) => stage.stageId === "black_iron_fort_4"
+    );
+    const demonCultSpike = exportReport.stages.find(
+      (stage) => stage.stageId === "demon_cult_outpost_3"
+    );
+    const blackIronFarm = exportReport.stages.find(
+      (stage) => stage.stageId === "black_iron_fort_6"
+    );
+    const blackIronBossGate = exportReport.bossGateAssumptions.find(
+      (assumption) =>
+        assumption.regionId === BLACK_IRON_FORT_REGION_ID &&
+        assumption.scenario === "farmed"
+    );
+    const demonCultStatusCheck = exportReport.budgetChecks.find(
+      (check) =>
+        check.regionId === "demon_cult_outpost" &&
+        check.checkId === "status_pressure"
+    );
+    const csv = formatBalanceStageExportCsv(report);
+    const csvLines = csv.split("\n");
+
+    expect(exportReport.schemaVersion).toBe(1);
+    expect(exportReport.regions.map((region) => region.regionId)).toEqual(
+      staticData.regions.map((region) => region.id)
+    );
+    expect(exportReport.stages.map((stage) => stage.stageId)).toEqual(
+      staticData.regions.flatMap((region) => region.stageIds)
+    );
+    expect(blackIronStage).toMatchObject({
+      regionId: BLACK_IRON_FORT_REGION_ID,
+      targetStatus: "fail",
+      difficultyIssue: expect.stringContaining("below"),
+      pressure: {
+        armorBreaks: expect.any(Number)
+      }
+    });
+    expect(demonCultSpike).toMatchObject({
+      targetStatus: "fail",
+      difficultySpikeStatus: "fail",
+      difficultySpikeReason: expect.stringContaining("clear time")
+    });
+    expect(blackIronFarm).toMatchObject({
+      farmRecommendation: true,
+      farmScore: 940,
+      farmReason: expect.stringContaining("weighted score")
+    });
+    expect(blackIronBossGate).toMatchObject({
+      result: "player_clear",
+      farmStageId: "black_iron_fort_6",
+      farmClears: expect.any(Number),
+      trainingCost: expect.any(Number)
+    });
+    expect(demonCultStatusCheck).toMatchObject({
+      status: "fail",
+      reason: expect.stringContaining("status damage")
+    });
+    expect(csvLines[0]).toBe(BALANCE_STAGE_EXPORT_CSV_HEADERS.join(","));
+    expect(csvLines).toHaveLength(staticData.stages.length + 1);
+    expect(csv).toContain("demon_cult_outpost_3");
+    expect(csv).toContain("difficulty_spike_status");
+    expect(csv).toContain("black_iron_fort_6");
+  });
+
   it("drives budget gates from the real simulated report adapter", () => {
     const gatedData: StaticGameData = {
       ...staticData,
@@ -569,6 +639,8 @@ describe("balance report", () => {
     expect(formatted).toContain("Training economy:");
     expect(formatted).toContain("Formation Targeting");
     expect(formatted).toContain("npm run simulate -- --json");
+    expect(formatted).toContain("--export-json");
+    expect(formatted).toContain("--csv");
   });
 
   it("fails loudly when the Bamboo Road region references a missing stage", () => {

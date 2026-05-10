@@ -317,6 +317,6 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     `- Trained: ${formatBossLine(balance.bossGate.trained)}`,
     `- Training economy: ${trainingLine}`,
     "",
-    "Run `npm run simulate -- --json` for full metrics."
+    "Run `npm run simulate -- --json` for full metrics, or `npm run --silent simulate -- --export-json` / `--csv` for clean export stdout."
   ].join("\n");
 }

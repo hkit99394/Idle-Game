@@ -19,7 +19,7 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 ## Decisions Carried Forward
 
 - Preserve current combat outcomes, save behavior, web workflows, and known balance-budget posture unless a task explicitly approves a tuning change.
-- Treat `StaticGameData`, `validateStaticGameData`, `simulateBattle`, and `npm run simulate -- --json` as the current content authoring contract.
+- Treat `StaticGameData`, `validateStaticGameData`, `simulateBattle`, `npm run simulate -- --json`, `npm run --silent simulate -- --export-json`, and `npm run --silent simulate -- --csv` as the current content authoring contract.
 - Keep authored content in data files and validation logic in core data/balance modules.
 - Keep `core/` free of browser, React, local storage, and CLI formatting dependencies.
 - Prefer validation and report improvements before adding more regions or systems.
@@ -60,7 +60,7 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 | 62 | Region And Stage Budget Validation | Complete | Turn content-budget expectations into stricter validation and tests |
 | 63 | Reward Curve And Farm Recommendation Gates | Complete | Prevent accidental reward/farm regression when adding stages |
 | 64 | Difficulty Curve And Boss Gate Reports | Complete | Make stage difficulty, boss gates, and known misses easier to review |
-| 65 | Balance Export And Authoring Tooling | Planned | Produce review-friendly JSON/CSV outputs and repeatable author workflows |
+| 65 | Balance Export And Authoring Tooling | Complete | Produce review-friendly JSON/CSV outputs and repeatable author workflows |
 | 66 | Content Docs And Stage 2.0 Readiness | Planned | Close the stage with contributor docs, release checks, and archive cleanup |
 
 ---
@@ -239,7 +239,11 @@ Make balance output easier to review outside the terminal.
 
 ### Progress Notes
 
-- Not started.
+- Added `buildBalanceAuthoringExport` as a stable schema-versioned export with region, stage, budget-check, and boss-gate-assumption tables.
+- Added `formatBalanceStageExportCsv` and `npm run simulate -- --csv` for spreadsheet-friendly stage rows.
+- Added `npm run --silent simulate -- --export-json` for compact authoring JSON while preserving existing terminal and full `--json` output.
+- Kept [Balance Template CSV](balance-template.csv) as a hand-authored reference template rather than generated output; generated review data now comes from the simulator CSV.
+- Added export shape and CSV header tests so downstream review fields do not drift casually.
 
 ---
 
@@ -280,8 +284,8 @@ Close Stage 2.0 with clear content authoring docs, release verification, and nex
 ## Open Questions
 
 - Epic 64 answer: known Black Iron Fort and Demon Cult misses are deferred tuning debt for a later balance pass, not silent noise. Epic 64 improved report visibility instead of retuning content.
-- Should balance export use CSV, JSON-only, or both?
-- Should `docs/balance-template.csv` remain hand-maintained or become generated from current data?
+- Epic 65 answer: balance export uses both compact JSON and CSV. Full `--json` remains a debug dump; `--export-json` and `--csv` are the stable authoring outputs, with `npm run --silent` recommended when redirecting or parsing stdout.
+- Epic 65 answer: `docs/balance-template.csv` remains a hand-authored reference template, not generated output.
 - How strict should reward-curve validation be for intentional difficulty or reward dips?
 - Should Stage 2.0 include a small sample content change to prove the pipeline, or avoid new content until Stage 2.1/2.2 planning is clearer?
 

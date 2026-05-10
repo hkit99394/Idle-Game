@@ -69,7 +69,7 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the same report data in machine-readable form, but Stage 2.0 has not yet stabilized a spreadsheet-friendly export contract.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often.
 
 ## Known Budget Debt
 
@@ -92,5 +92,5 @@ These are not accepted silent noise. They are allowed only because the active ba
 - Epic 62 added readable `boss_clear_time_target` exceptions for current boss clear-time deferrals.
 - Epic 63 turned unmarked reward/farm regressions into validation failures and added farm recommendation reasons to reports.
 - Epic 64 added difficulty-trend, spike, and boss-gate assumption reporting before any retune.
-- Epic 65 should decide whether JSON-only output is enough or whether a generated CSV/spreadsheet export is required.
+- Epic 65 added compact JSON and generated CSV review exports while keeping `docs/balance-template.csv` as a hand-authored reference template.
 - Epic 66 should fold the final content author checklist back into contributor docs.
