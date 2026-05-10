@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 1.9. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 2.0. Older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -70,6 +70,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Saves are versioned local JSON with export, import, reset-new-game, diagnostics, migration fixtures, and strict validation.
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
+- The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
 - Completed backlogs through Stage 1.9 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
@@ -87,5 +88,5 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 ## Current Known Balance Notes
 
 - Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
-- Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and known target misses.
+- Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and [Content Pipeline Inventory](content-pipeline-inventory.md) for current validation coverage, manual gaps, and known target misses.
 - Stage 2.0 is active at [Stage 2.0 Backlog](stage-2.0-backlog.md) and focuses on content pipeline validation and authoring support now that the web UI is modularized.

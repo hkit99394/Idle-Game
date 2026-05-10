@@ -13,6 +13,7 @@ Start with the current contributor docs:
 - [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)
 - [Static Data](docs/static-data.md)
+- [Content Pipeline Inventory](docs/content-pipeline-inventory.md)
 - [Balance Budget Gates](docs/balance-budget-gates.md)
 - [Balance Template CSV](docs/balance-template.csv)
 - [Release Readiness Checklist](docs/release-readiness-checklist.md)

@@ -14,6 +14,8 @@ The builder only assembles and types the JSON bundle. Static reference checks st
 
 Use validation in tests, release checks, and tools that need to fail loudly when configured data is inconsistent. `tests/data/staticDataBuilder.test.ts` confirms the canonical bundle validates cleanly and that representative missing references are caught by validation.
 
+For the current file-by-file content inventory and validation ownership map, see [Content Pipeline Inventory](content-pipeline-inventory.md).
+
 ## Adding A Static Data File
 
 When adding a new configured JSON file:

@@ -2,6 +2,8 @@
 
 Region-level budget gates were added in Stage 1.7 to make `npm run simulate` explain tuning misses instead of only printing `ok` or `miss`. Stage 1.8 preserved that budget posture while refactoring combat internals.
 
+Stage 2.0 tracks the current authoring surface and known tuning debt in [Content Pipeline Inventory](content-pipeline-inventory.md) before adding stricter content-pipeline gates.
+
 ## Configuration
 
 Budgets live in each region's `balanceTargets` entry in `data/regions.json`.

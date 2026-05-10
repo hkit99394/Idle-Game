@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.0 is ready to begin. Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md).
+Stage 2.0 is active. Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md).
 
 ## Stage Numbering Decision
 
@@ -56,7 +56,7 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 61 | Content Pipeline Baselines And Schema Audit | Planned | Inventory current data, budget fields, validation coverage, and authoring pain points |
+| 61 | Content Pipeline Baselines And Schema Audit | Complete | Inventory current data, budget fields, validation coverage, and authoring pain points |
 | 62 | Region And Stage Budget Validation | Planned | Turn content-budget expectations into stricter validation and tests |
 | 63 | Reward Curve And Farm Recommendation Gates | Planned | Prevent accidental reward/farm regression when adding stages |
 | 64 | Difficulty Curve And Boss Gate Reports | Planned | Make stage difficulty, boss gates, and known misses easier to review |
@@ -94,7 +94,10 @@ Capture the current content authoring surface before changing validation or repo
 
 ### Progress Notes
 
-- Not started.
+- Added [Content Pipeline Inventory](content-pipeline-inventory.md) with the current JSON data inventory, `StaticGameData` field mapping, validation ownership map, report-only gaps, and Stage 2.0 handoffs.
+- Confirmed `npm run simulate` still reports the known Black Iron Fort and Demon Cult budget misses.
+- Classified current budget misses as tuning debt for Stage 2.0, not accepted silent report noise.
+- No behavior or tuning changes were made for this epic.
 
 ---
 
@@ -266,7 +269,7 @@ Close Stage 2.0 with clear content authoring docs, release verification, and nex
 
 ## Open Questions
 
-- Should known Stage 1.9 budget misses be fixed in Stage 2.0 or documented as accepted tuning debt until a dedicated balance pass?
+- Epic 61 answer: known Stage 1.9 budget misses are documented as Stage 2.0 tuning debt until Epic 64 decides whether to retune or record explicit exceptions.
 - Should balance export use CSV, JSON-only, or both?
 - Should `docs/balance-template.csv` remain hand-maintained or become generated from current data?
 - How strict should reward-curve validation be for intentional difficulty or reward dips?
