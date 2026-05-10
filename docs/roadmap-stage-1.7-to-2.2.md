@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). The next roadmap focus is Stage 1.9, then content, strategy, and backend/PWA readiness.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). The next roadmap focus is Stage 2.0 content pipeline, then strategy, and backend/PWA readiness.
 
 The recommended sequence is:
 
@@ -90,7 +90,7 @@ Before Stage 1.8, the simulator already handled targeting, damage, Qi Break, pro
 
 ## Stage 1.9: UI Modularization
 
-Status: recommended next stage.
+Status: completed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md).
 
 ### Goal
 
@@ -102,13 +102,13 @@ The current web state and app shell are functional, but large. Splitting by feat
 
 ### Milestones
 
-- Split web view models by feature: battle, map, roster, formation, equipment, upgrades, assignments, counterplay, save tools.
-- Split React panels into feature folders with local components and view-model types.
-- Keep core state transitions testable without rendering React.
-- Use `BattleEventRecord` and the existing progression result contracts as the stable combat/UI boundary while moving web battle presentation into feature modules.
-- Add browser smoke coverage for continuous fighting, stage selection, save import/export, reset, and counterplay settings.
-- Add mobile layout checks for the busiest panels.
-- Decide whether debug tools should stay visible, collapse behind a diagnostics panel, or be dev-only.
+- Completed: split web view models by feature: battle, map, roster, formation, equipment, upgrades, assignments, counterplay, and save tools.
+- Completed: split React panels into feature folders with local components and view-model types.
+- Completed: kept core state transitions testable without rendering React through domain action, reducer, command, and save-tool tests.
+- Completed: used `BattleEventRecord` and existing progression result contracts as the stable combat/UI boundary while moving web battle presentation into feature modules.
+- Completed: recorded browser smoke coverage for continuous fighting, stage selection, save tools, counterplay settings, and 390px narrow viewport checks.
+- Completed: added static responsive smoke contracts for the busiest panels.
+- Completed: collapsed save diagnostics behind a `Save Diagnostics` panel that opens automatically for errors.
 
 ### Exit Criteria
 
@@ -116,6 +116,15 @@ The current web state and app shell are functional, but large. Splitting by feat
 - `web/state/gameState.ts` no longer owns every view model.
 - Main idle loop and save tools are covered by smoke tests.
 - UI remains mobile-safe at narrow widths.
+
+### Stage 1.9 Progress Snapshot
+
+- Epic 55 completed web workflow baselines, module inventory, and manual smoke notes.
+- Epic 56 moved app panel composition and shell status/save helpers out of `web/App.tsx`.
+- Epic 57 split web actions, reducer branches, hook commands, and save-tool commands by domain.
+- Epic 58 moved feature view-model builders and view types behind feature-owned boundaries.
+- Epic 59 moved panels into `web/features/*`, grouped styling ownership, collapsed diagnostics, and added responsive smoke coverage.
+- Epic 60 closed the stage with web UI architecture docs, release-readiness verification, browser smoke results, and archive cleanup.
 
 ## Stage 2.0: Content Pipeline
 
@@ -214,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare Stage 1.9: split the web UI and web state into feature modules while preserving the Stage 1.8 combat/progression contracts.
+Begin Epic 61 in the [Stage 2.0 Backlog](stage-2.0-backlog.md): audit the current content pipeline, budget schema, validation coverage, balance export shape, and authoring checklist before adding more regions.

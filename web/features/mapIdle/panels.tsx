@@ -1,12 +1,12 @@
 import type { KeyboardEvent } from "react";
+import type { StageOptionView } from "../../state/viewModels/mapTypes";
 import type {
   OfflineFarmPresetView,
   OfflineFarmRecommendationView,
   OfflineRewardPreviewView,
-  OfflineRewardSummaryView,
-  StageOptionView
-} from "../../state/gameState";
-import { formatDuration, formatNumber } from "./shared";
+  OfflineRewardSummaryView
+} from "../../state/viewModels/offlineTypes";
+import { formatDuration, formatNumber } from "../shared/ui";
 
 type OfflineSummaryPanelProps = {
   onDismiss: () => void;

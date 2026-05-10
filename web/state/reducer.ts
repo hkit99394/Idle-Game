@@ -1,97 +1,25 @@
 import {
-  buildEnemyTeamForStage,
-  buildPlayerTeamForStage,
-  ACTIVE_TEAM_SIZE,
-  buildMedicineCounterplayViewModels,
-  buildStageCounterplayPreview,
-  calculateCombatPower,
-  calculateSkillUpgradeCost,
-  calculateUpgradeCost,
   createInitialPlayerProgress,
   DEFAULT_OFFLINE_FARM_PRESET,
   defaultAutoMedicinePreferences,
-  deriveStats,
-  equipHeroEquipment as equipCoreHeroEquipment,
-  EQUIPMENT_SLOTS,
-  getMedicineAutoUseLabel,
-  getPreBattleResistanceModeLabel,
-  getDefaultFormationSlot,
-  getAvailableEquipmentCopyCount,
-  getActiveMasterySummaryForStage,
-  getActiveEquipmentSetBonuses,
-  getHeroAssignmentId,
-  getActiveHeroIds,
-  getEquipmentInventoryCount,
-  getOfflineFarmPresetPolicy,
-  getRecommendedOfflineFarmStage,
-  getStageById,
-  getSkillUpgradeLevel,
-  getStyleMasteryExperience,
-  getStyleMasteryLevel,
-  getUpgradeLevel,
-  hasClearedStage,
-  isAutoMedicineUnlocked,
-  isOfflineFarmStageUnlocked,
-  isAssignmentUnlocked,
-  isHeroUnlocked,
-  isHeroEligibleForAssignment,
-  isPreBattleResistanceMode,
-  isStageUnlocked,
-  isStyleBranchUnlocked,
-  normalizeOfflineFarmPreset,
-  OFFLINE_FARM_PRESET_POLICIES,
-  PRE_BATTLE_RESISTANCE_MODES,
-  previewOfflineRewards,
-  purchaseSkillUpgrade as purchaseCoreSkillUpgrade,
-  purchaseUpgrade as purchaseCoreUpgrade,
-  resolveStageBattle,
-  scaleStatsForLevel,
-  selectStyleBranch as selectCoreStyleBranch,
-  setMedicineAutoUsePreference,
-  setActiveHeroTeam as setCoreActiveHeroTeam,
-  setAssignmentHeroes as setCoreAssignmentHeroes,
-  setPlayerFormationSlot,
-  setOfflineFarmStageTarget,
-  STYLE_MASTERY_EXPERIENCE_PER_LEVEL
+  normalizeOfflineFarmPreset
 } from "../../core";
 import type {
-  ActiveMasterySummary,
   ApplyOfflineAssignmentRewardsResult,
-  AutoMedicinePreferences,
-  BattleEvent,
-  BattleContribution,
-  CombatantInstanceDefinition,
-  CombatantState,
-  CombatRole,
-  DerivedStats,
-  FormationSlot,
-  EquipHeroEquipmentInput,
-  EquipHeroEquipmentResult,
-  EquipmentRarity,
-  EquipmentSlot,
-  MasteryBonus,
-  OfflineFarmPreset,
-  TeamId,
-  MedicineCounterplayViewModel,
-  PlayerProgress,
-  PreBattleResistanceMode,
   ApplyOfflineRewardsResult,
-  PurchaseSkillUpgradeInput,
-  PurchaseSkillUpgradeResult,
-  PurchaseUpgradeInput,
-  PurchaseUpgradeResult,
-  ResolveStageBattleResult,
   SaveData,
-  SelectStyleBranchInput,
-  SelectStyleBranchResult,
-  SetActiveHeroTeamInput,
-  SetActiveHeroTeamResult,
-  SetAssignmentHeroesInput,
-  SetAssignmentHeroesResult,
-  StageCounterplayPreview,
-  StatusEffectId,
   StaticGameData
 } from "../../core";
+import type { WebGameAction } from "./actions";
+import {
+  createActiveTeamUpdateResolvedAction,
+  createAssignmentUpdateResolvedAction,
+  createBattleResolvedAction,
+  createEquipmentEquipResolvedAction,
+  createPurchaseResolvedAction,
+  createSkillPurchaseResolvedAction,
+  createStyleBranchSelectResolvedAction
+} from "./commandActions";
 import {
   formatSaveStorageCommitFailure,
   getBrowserSaveStorage,
@@ -103,40 +31,26 @@ import type {
   OfflineRewardSummary,
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
-  SaveToolResult,
   SelectGameStyleBranchInput,
   SetGameActiveHeroTeamInput,
   SetGameAssignmentHeroesInput,
-  WebGameAction,
   WebGameState
 } from "./types";
-function getDefaultFarmStageId(
-  data: StaticGameData,
-  progress: PlayerProgress,
-  preset: OfflineFarmPreset = DEFAULT_OFFLINE_FARM_PRESET
-): string | null {
-  return setOfflineFarmStageTarget(data, progress, null, preset);
-}
+import {
+  getDefaultFarmStageId,
+  normalizeFarmStageId,
+  normalizeSelectedStageId,
+  reduceAssignmentAction,
+  reduceCounterplayAction,
+  reduceEquipmentAction,
+  reduceProgressionAction,
+  reduceRosterFormationAction,
+  reduceSaveStateAction,
+  reduceStageIdleAction
+} from "./reducerBranches";
 
-function normalizeFarmStageId(
-  data: StaticGameData,
-  progress: PlayerProgress,
-  selectedStageId: string | null,
-  preset: OfflineFarmPreset
-): string | null {
-  return setOfflineFarmStageTarget(data, progress, selectedStageId, preset);
-}
-
-function normalizeSelectedStageId(
-  data: StaticGameData,
-  progress: PlayerProgress,
-  selectedStageId: string
-): string {
-  const selectedStage = getStageById(data, selectedStageId);
-
-  return selectedStage && isStageUnlocked(data, progress, selectedStage)
-    ? selectedStage.id
-    : progress.currentStageId;
+function assertUnhandledWebGameAction(action: never): never {
+  throw new Error(`Unhandled web game action: ${JSON.stringify(action)}`);
 }
 
 export function createOfflineRewardSummary(
@@ -312,302 +226,38 @@ export function webGameStateReducer(
   action: WebGameAction
 ): WebGameState {
   switch (action.type) {
-    case "select_stage": {
-      const selectedStageId = normalizeSelectedStageId(
-        data,
-        state.progress,
-        action.stageId
-      );
-
-      return {
-        ...state,
-        selectedStageId,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
-          data,
-          state.progress,
-          selectedStageId,
-          state.offlineFarmPreset
-        )
-      };
-    }
-
+    case "select_stage":
     case "select_offline_farm_stage":
-      return {
-        ...state,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
-          data,
-          state.progress,
-          action.stageId,
-          state.offlineFarmPreset
-        )
-      };
+    case "set_offline_farm_preset":
+    case "battle_resolved":
+    case "dismiss_offline_summary":
+      return reduceStageIdleAction(data, state, action);
 
-    case "set_offline_farm_preset": {
-      const preset = normalizeOfflineFarmPreset(action.preset);
+    case "purchase_resolved":
+    case "skill_purchase_resolved":
+    case "style_branch_select_resolved":
+      return reduceProgressionAction(data, state, action);
 
-      return {
-        ...state,
-        offlineFarmPreset: preset,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
-          data,
-          state.progress,
-          null,
-          preset
-        )
-      };
-    }
+    case "equipment_equip_resolved":
+      return reduceEquipmentAction(state, action);
+
+    case "set_hero_formation_slot":
+    case "active_team_update_resolved":
+      return reduceRosterFormationAction(data, state, action);
+
+    case "assignment_update_resolved":
+      return reduceAssignmentAction(state, action);
 
     case "set_auto_medicine_enabled":
-      return {
-        ...state,
-        autoMedicinePreferences: {
-          ...state.autoMedicinePreferences,
-          enabled: action.enabled
-        }
-      };
-
-    case "set_medicine_auto_use": {
-      const medicineExists = data.medicines.some(
-        (medicine) => medicine.id === action.medicineId
-      );
-
-      if (!medicineExists) {
-        return state;
-      }
-
-      return {
-        ...state,
-        autoMedicinePreferences: setMedicineAutoUsePreference(
-          state.autoMedicinePreferences,
-          action.medicineId,
-          action.enabled
-        )
-      };
-    }
-
+    case "set_medicine_auto_use":
     case "set_pre_battle_resistance_mode":
-      if (!isPreBattleResistanceMode(action.mode)) {
-        return state;
-      }
-
-      return {
-        ...state,
-        autoMedicinePreferences: {
-          ...state.autoMedicinePreferences,
-          preBattleResistanceMode: action.mode
-        }
-      };
-
-    case "set_hero_formation_slot": {
-      const result = setPlayerFormationSlot(
-        data,
-        state.progress,
-        action.heroId,
-        action.slot
-      );
-
-      if (!result.ok) {
-        return state;
-      }
-
-      return {
-        ...state,
-        progress: result.progress,
-        lastBattle: null,
-        lastBattleStageId: null,
-        lastPurchase: null,
-        lastSkillPurchase: null,
-        lastEquipmentAction: null,
-        lastStyleBranchAction: null,
-        lastActiveTeamAction: null,
-        lastAssignmentAction: null
-      };
-    }
-
-    case "style_branch_select_resolved": {
-      const nextProgress = action.result.ok
-        ? action.result.progress
-        : state.progress;
-
-      return {
-        ...state,
-        progress: nextProgress,
-        lastStyleBranchAction: action.result,
-        lastEquipmentAction: null,
-        lastSkillPurchase: null,
-        lastPurchase: null,
-        lastBattle: null,
-        lastBattleStageId: null,
-        lastActiveTeamAction: null,
-        lastAssignmentAction: null
-      };
-    }
-
-    case "active_team_update_resolved": {
-      const nextProgress = action.result.ok
-        ? action.result.progress
-        : state.progress;
-
-      return {
-        ...state,
-        progress: nextProgress,
-        lastActiveTeamAction: action.result,
-        lastAssignmentAction: null,
-        lastStyleBranchAction: null,
-        lastEquipmentAction: null,
-        lastSkillPurchase: null,
-        lastPurchase: null,
-        lastBattle: null,
-        lastBattleStageId: null
-      };
-    }
-
-    case "assignment_update_resolved": {
-      const nextProgress = action.result.ok
-        ? action.result.progress
-        : state.progress;
-
-      return {
-        ...state,
-        progress: nextProgress,
-        lastAssignmentAction: action.result,
-        lastStyleBranchAction: null,
-        lastEquipmentAction: null,
-        lastSkillPurchase: null,
-        lastPurchase: null,
-        lastBattle: null,
-        lastBattleStageId: null,
-        lastActiveTeamAction: null
-      };
-    }
-
-    case "battle_resolved": {
-      const nextProgress = action.result.ok
-        ? action.result.progress
-        : state.progress;
-      const selectedStageId = state.selectedStageId;
-
-      return {
-        ...state,
-        progress: nextProgress,
-        selectedStageId: normalizeSelectedStageId(
-          data,
-          nextProgress,
-          selectedStageId
-        ),
-        selectedOfflineFarmStageId: normalizeFarmStageId(
-          data,
-          nextProgress,
-          selectedStageId,
-          state.offlineFarmPreset
-        ),
-        lastBattle: action.result,
-        lastBattleStageId: action.stageId,
-        lastPurchase: null,
-        lastSkillPurchase: null,
-        lastEquipmentAction: null,
-        lastStyleBranchAction: null,
-        lastActiveTeamAction: null,
-        lastAssignmentAction: null
-      };
-    }
-
-    case "purchase_resolved": {
-      const nextProgress = action.result.ok
-        ? action.result.progress
-        : state.progress;
-
-      return {
-        ...state,
-        progress: nextProgress,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
-          data,
-          nextProgress,
-          state.selectedOfflineFarmStageId,
-          state.offlineFarmPreset
-        ),
-        lastPurchase: action.result,
-        lastSkillPurchase: null,
-        lastEquipmentAction: null,
-        lastStyleBranchAction: null,
-        lastBattle: null,
-        lastBattleStageId: null,
-        lastActiveTeamAction: null,
-        lastAssignmentAction: null
-      };
-    }
-
-    case "skill_purchase_resolved": {
-      const nextProgress = action.result.ok
-        ? action.result.progress
-        : state.progress;
-
-      return {
-        ...state,
-        progress: nextProgress,
-        lastSkillPurchase: action.result,
-        lastPurchase: null,
-        lastEquipmentAction: null,
-        lastStyleBranchAction: null,
-        lastBattle: null,
-        lastBattleStageId: null,
-        lastActiveTeamAction: null,
-        lastAssignmentAction: null
-      };
-    }
-
-    case "equipment_equip_resolved": {
-      const nextProgress = action.result.ok
-        ? action.result.progress
-        : state.progress;
-
-      return {
-        ...state,
-        progress: nextProgress,
-        lastEquipmentAction: action.result,
-        lastStyleBranchAction: null,
-        lastSkillPurchase: null,
-        lastPurchase: null,
-        lastBattle: null,
-        lastBattleStageId: null,
-        lastActiveTeamAction: null,
-        lastAssignmentAction: null
-      };
-    }
+      return reduceCounterplayAction(data, state, action);
 
     case "replace_progress":
-      return {
-        ...state,
-        progress: action.progress,
-        selectedStageId: normalizeSelectedStageId(
-          data,
-          action.progress,
-          state.selectedStageId
-        ),
-        selectedOfflineFarmStageId: normalizeFarmStageId(
-          data,
-          action.progress,
-          state.selectedOfflineFarmStageId,
-          state.offlineFarmPreset
-        ),
-        lastBattle: null,
-        lastBattleStageId: null,
-        lastPurchase: null,
-        lastSkillPurchase: null,
-        lastEquipmentAction: null,
-        lastStyleBranchAction: null,
-        lastActiveTeamAction: null,
-        lastAssignmentAction: null
-      };
-
     case "replace_state":
-      return action.state;
-
-    case "dismiss_offline_summary":
-      return {
-        ...state,
-        offlineSummary: null
-      };
+      return reduceSaveStateAction(data, state, action);
+    default:
+      return assertUnhandledWebGameAction(action);
   }
 }
 
@@ -615,18 +265,11 @@ export function resolveSelectedStageBattle(
   data: StaticGameData,
   state: WebGameState
 ): WebGameState {
-  const result = resolveStageBattle(data, {
-    progress: state.progress,
-    stageId: state.selectedStageId,
-    maxDurationSeconds: 180,
-    autoMedicinePreferences: state.autoMedicinePreferences
-  });
-
-  return webGameStateReducer(data, state, {
-    type: "battle_resolved",
-    stageId: state.selectedStageId,
-    result
-  });
+  return webGameStateReducer(
+    data,
+    state,
+    createBattleResolvedAction(data, state)
+  );
 }
 
 export function purchaseGameUpgrade(
@@ -634,15 +277,11 @@ export function purchaseGameUpgrade(
   state: WebGameState,
   input: PurchaseGameUpgradeInput
 ): WebGameState {
-  const result = purchaseCoreUpgrade(data.upgrades, {
-    progress: state.progress,
-    ...input
-  });
-
-  return webGameStateReducer(data, state, {
-    type: "purchase_resolved",
-    result
-  });
+  return webGameStateReducer(
+    data,
+    state,
+    createPurchaseResolvedAction(data, state, input)
+  );
 }
 
 export function purchaseGameSkillUpgrade(
@@ -650,15 +289,11 @@ export function purchaseGameSkillUpgrade(
   state: WebGameState,
   input: PurchaseGameSkillUpgradeInput
 ): WebGameState {
-  const result = purchaseCoreSkillUpgrade(data.skillUpgrades, {
-    progress: state.progress,
-    ...input
-  });
-
-  return webGameStateReducer(data, state, {
-    type: "skill_purchase_resolved",
-    result
-  });
+  return webGameStateReducer(
+    data,
+    state,
+    createSkillPurchaseResolvedAction(data, state, input)
+  );
 }
 
 export function equipGameEquipment(
@@ -666,15 +301,11 @@ export function equipGameEquipment(
   state: WebGameState,
   input: EquipGameEquipmentInput
 ): WebGameState {
-  const result = equipCoreHeroEquipment(data, {
-    progress: state.progress,
-    ...input
-  });
-
-  return webGameStateReducer(data, state, {
-    type: "equipment_equip_resolved",
-    result
-  });
+  return webGameStateReducer(
+    data,
+    state,
+    createEquipmentEquipResolvedAction(data, state, input)
+  );
 }
 
 export function selectGameStyleBranch(
@@ -682,15 +313,11 @@ export function selectGameStyleBranch(
   state: WebGameState,
   input: SelectGameStyleBranchInput
 ): WebGameState {
-  const result = selectCoreStyleBranch(data, {
-    progress: state.progress,
-    ...input
-  });
-
-  return webGameStateReducer(data, state, {
-    type: "style_branch_select_resolved",
-    result
-  });
+  return webGameStateReducer(
+    data,
+    state,
+    createStyleBranchSelectResolvedAction(data, state, input)
+  );
 }
 
 export function setGameAssignmentHeroes(
@@ -698,15 +325,11 @@ export function setGameAssignmentHeroes(
   state: WebGameState,
   input: SetGameAssignmentHeroesInput
 ): WebGameState {
-  const result = setCoreAssignmentHeroes(data, {
-    progress: state.progress,
-    ...input
-  });
-
-  return webGameStateReducer(data, state, {
-    type: "assignment_update_resolved",
-    result
-  });
+  return webGameStateReducer(
+    data,
+    state,
+    createAssignmentUpdateResolvedAction(data, state, input)
+  );
 }
 
 export function setGameActiveHeroTeam(
@@ -714,13 +337,9 @@ export function setGameActiveHeroTeam(
   state: WebGameState,
   input: SetGameActiveHeroTeamInput
 ): WebGameState {
-  const result = setCoreActiveHeroTeam(data, {
-    progress: state.progress,
-    ...input
-  });
-
-  return webGameStateReducer(data, state, {
-    type: "active_team_update_resolved",
-    result
-  });
+  return webGameStateReducer(
+    data,
+    state,
+    createActiveTeamUpdateResolvedAction(data, state, input)
+  );
 }

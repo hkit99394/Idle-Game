@@ -1,21 +1,13 @@
 import {
-  ACTIVE_TEAM_SIZE,
-  calculateCombatPower,
   calculateSkillUpgradeCost,
   calculateUpgradeCost,
-  deriveStats,
-  getActiveHeroIds,
-  getHeroAssignmentId,
   getSkillUpgradeLevel,
   getStageById,
   getStyleMasteryExperience,
   getStyleMasteryLevel,
   getUpgradeLevel,
-  isAssignmentUnlocked,
-  isHeroEligibleForAssignment,
   isHeroUnlocked,
   isStyleBranchUnlocked,
-  scaleStatsForLevel,
   STYLE_MASTERY_EXPERIENCE_PER_LEVEL
 } from "../../../core";
 import type {
@@ -25,22 +17,13 @@ import type {
   StaticGameData
 } from "../../../core";
 import type {
-  AssignmentView,
   MasteryPanelView,
   MasteryRankTone,
   MasteryRankView,
-  RosterHeroView,
   SkillUpgradeView,
   StyleMasteryView,
   UpgradeView
-} from "../types";
-import { calculateSkillSupportCombatPower } from "./battle";
-
-function formatBattleNumber(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    maximumFractionDigits: 0
-  }).format(Math.max(0, value));
-}
+} from "./progressionTypes";
 
 function formatStatName(stat: string): string {
   return stat.replace(/[A-Z]/g, (match) => ` ${match}`).replace(/^./, (match) =>
@@ -326,200 +309,6 @@ function formatStyleBranchEffect(
     case "stat_multiplier":
       return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
   }
-}
-
-function formatAssignmentRequirement(
-  data: StaticGameData,
-  assignment: NonNullable<StaticGameData["assignments"]>[number]
-): string {
-  const unlock = assignment.unlockCondition;
-
-  switch (unlock.type) {
-    case "always":
-      return "Available";
-    case "stage_cleared":
-      return `Clear ${
-        getStageById(data, unlock.stageId)?.name ?? unlock.stageId
-      }`;
-    case "hero_level":
-      return `${
-        data.heroes.find((hero) => hero.id === unlock.heroId)?.name ??
-        unlock.heroId
-      } level ${unlock.level}`;
-    case "style_mastery_level":
-      return `${
-        data.styles.find((style) => style.id === unlock.styleId)?.name ??
-        unlock.styleId
-      } mastery ${unlock.level}`;
-  }
-}
-
-function formatHeroUnlockRequirement(
-  data: StaticGameData,
-  hero: StaticGameData["heroes"][number]
-): string {
-  const unlock = hero.unlock;
-
-  switch (unlock.type) {
-    case "always":
-      return "Available";
-    case "stage_cleared":
-      return `Clear ${
-        getStageById(data, unlock.stageId)?.name ?? unlock.stageId
-      }`;
-    case "hero_level":
-      return `${
-        data.heroes.find((candidate) => candidate.id === unlock.heroId)?.name ??
-        unlock.heroId
-      } level ${unlock.level}`;
-    case "style_mastery_level":
-      return `${
-        data.styles.find((style) => style.id === unlock.styleId)?.name ??
-        unlock.styleId
-      } mastery ${unlock.level}`;
-  }
-}
-
-function calculateRosterHeroCombatPower(
-  data: StaticGameData,
-  progress: PlayerProgress,
-  hero: StaticGameData["heroes"][number]
-): number {
-  const level = progress.heroes[hero.id]?.level ?? 1;
-  const stats = deriveStats(scaleStatsForLevel(hero.baseStats, level));
-
-  return Math.round(
-    calculateCombatPower(stats) +
-      calculateSkillSupportCombatPower(data, hero.skillIds, stats)
-  );
-}
-
-export function buildRosterHeroViews(
-  data: StaticGameData,
-  progress: PlayerProgress
-): RosterHeroView[] {
-  const activeHeroIds = getActiveHeroIds(data, progress);
-  const activeHeroIdSet = new Set(activeHeroIds);
-  const assignmentNameById = new Map(
-    (data.assignments ?? []).map((assignment) => [assignment.id, assignment.name])
-  );
-
-  return data.heroes.map((hero) => {
-    const unlocked = isHeroUnlocked(data, progress, hero);
-    const active = activeHeroIdSet.has(hero.id);
-    const assignedAssignmentId = getHeroAssignmentId(progress, hero.id);
-
-    return {
-      heroId: hero.id,
-      name: hero.name,
-      style: hero.style,
-      role: hero.role,
-      combatRole: hero.combatRole,
-      level: progress.heroes[hero.id]?.level ?? 1,
-      combatPower: calculateRosterHeroCombatPower(data, progress, hero),
-      unlocked,
-      active,
-      canActivate:
-        unlocked && !active && activeHeroIds.length < ACTIVE_TEAM_SIZE,
-      canDeactivate: active && activeHeroIds.length > 1,
-      lockReason: unlocked ? null : formatHeroUnlockRequirement(data, hero),
-      assignedAssignmentName: assignedAssignmentId
-        ? assignmentNameById.get(assignedAssignmentId) ?? assignedAssignmentId
-        : null
-    };
-  });
-}
-
-function buildAssignmentRewardSummary(
-  data: StaticGameData,
-  assignment: NonNullable<StaticGameData["assignments"]>[number]
-): string[] {
-  const rewards = assignment.rewardProfile;
-  const equipmentNames = new Map(
-    data.equipment.map((equipment) => [equipment.id, equipment.name])
-  );
-  const details: string[] = [];
-
-  if (rewards.silverPerHour) {
-    details.push(`${formatBattleNumber(rewards.silverPerHour)} silver/hour`);
-  }
-
-  if (rewards.cultivationPerHour) {
-    details.push(
-      `${formatBattleNumber(rewards.cultivationPerHour)} cultivation/hour`
-    );
-  }
-
-  if (rewards.herbsPerHour) {
-    details.push(`${formatBattleNumber(rewards.herbsPerHour)} herbs/hour`);
-  }
-
-  if (rewards.combatExperiencePerHour) {
-    details.push(
-      `${formatBattleNumber(rewards.combatExperiencePerHour)} Combat XP/hour`
-    );
-  }
-
-  if (rewards.styleMasteryExperiencePerHour) {
-    details.push(
-      `${formatBattleNumber(
-        rewards.styleMasteryExperiencePerHour
-      )} style mastery/hour`
-    );
-  }
-
-  for (const reward of rewards.equipmentRewardsPerHour ?? []) {
-    details.push(
-      `${reward.quantityPerHour}/hour ${
-        equipmentNames.get(reward.equipmentId) ?? reward.equipmentId
-      }`
-    );
-  }
-
-  return details;
-}
-
-export function buildAssignmentViews(
-  data: StaticGameData,
-  progress: PlayerProgress
-): AssignmentView[] {
-  const assignmentNameById = new Map(
-    (data.assignments ?? []).map((assignment) => [assignment.id, assignment.name])
-  );
-
-  return (data.assignments ?? []).map((assignment) => {
-    const unlocked = isAssignmentUnlocked(data, progress, assignment);
-    const assignedHeroIds =
-      progress.assignments?.[assignment.id]?.heroIds ?? [];
-
-    return {
-      assignmentId: assignment.id,
-      name: assignment.name,
-      type: assignment.type,
-      durationBucket: assignment.durationBucket,
-      unlocked,
-      lockReason: unlocked
-        ? null
-        : formatAssignmentRequirement(data, assignment),
-      assignedHeroIds,
-      rewardSummary: buildAssignmentRewardSummary(data, assignment),
-      heroOptions: getUnlockedHeroDefinitions(data, progress).map((hero) => {
-        const assignedAssignmentId = getHeroAssignmentId(progress, hero.id);
-
-        return {
-          heroId: hero.id,
-          name: hero.name,
-          style: hero.style,
-          role: hero.combatRole,
-          eligible: isHeroEligibleForAssignment(assignment, hero),
-          assignedHere: assignedAssignmentId === assignment.id,
-          assignedAssignmentName: assignedAssignmentId
-            ? assignmentNameById.get(assignedAssignmentId) ?? assignedAssignmentId
-            : null
-        };
-      })
-    };
-  });
 }
 
 export function buildStyleMasteryViews(

@@ -1,21 +1,47 @@
+import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
-import type { PreBattleResistanceMode } from "../../../core";
 import { OFFLINE_TIME_TRAVEL_SECONDS } from "../../state/constants";
-import type {
-  CounterplaySettingsView,
-  SaveDiagnosticsView
-} from "../../state/gameState";
+import type { CounterplaySettingsView } from "../../state/viewModels/counterplayTypes";
+import type { SaveDiagnosticsView } from "../../state/viewModels/saveDiagnosticsTypes";
 import {
   formatDuration,
-  formatNumber,
-  formatSaveStatus,
-  formatTimestamp
-} from "./shared";
+  formatNumber
+} from "../shared/ui";
+
+function formatTimestamp(value: number | null): string {
+  if (value === null) {
+    return "Not saved";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(value));
+}
+
+function formatSaveStatus(status: SaveDiagnosticsView["status"]): string {
+  switch (status) {
+    case "ready":
+      return "Ready";
+    case "missing_save":
+      return "Missing save";
+    case "invalid_json":
+      return "Invalid JSON";
+    case "invalid_save":
+      return "Invalid save";
+    case "storage_error":
+      return "Storage error";
+    case "storage_unavailable":
+      return "Storage unavailable";
+  }
+}
 
 type CounterplaySettingsPanelProps = {
   onSetAutoMedicineEnabled: (enabled: boolean) => void;
   onSetMedicineAutoUse: (medicineId: string, enabled: boolean) => void;
-  onSetPreBattleResistanceMode: (mode: PreBattleResistanceMode) => void;
+  onSetPreBattleResistanceMode: (
+    mode: CounterplaySettingsView["resistanceMode"]
+  ) => void;
   settings: CounterplaySettingsView;
 };
 
@@ -30,7 +56,9 @@ export function CounterplaySettingsPanel({
   }
 
   function handleResistanceModeChange(event: ChangeEvent<HTMLSelectElement>) {
-    onSetPreBattleResistanceMode(event.target.value as PreBattleResistanceMode);
+    onSetPreBattleResistanceMode(
+      event.target.value as CounterplaySettingsView["resistanceMode"]
+    );
   }
 
   const pressureItems = settings.stagePreview?.statusPressureItems ?? [];
@@ -152,6 +180,16 @@ export function SaveToolsPanel({
   onTimeTravelOfflineFarm,
   status
 }: SaveToolsPanelProps) {
+  const [diagnosticsExpanded, setDiagnosticsExpanded] = useState(
+    () => diagnostics.errors.length > 0
+  );
+
+  useEffect(() => {
+    if (diagnostics.errors.length > 0) {
+      setDiagnosticsExpanded(true);
+    }
+  }, [diagnostics.errors.length]);
+
   function handleImportTextChange(event: ChangeEvent<HTMLTextAreaElement>) {
     onImportTextChange(event.target.value);
   }
@@ -161,39 +199,46 @@ export function SaveToolsPanel({
       <div className="save-tools-heading">
         <div>
           <span className="label">Save</span>
-          <h2>Diagnostics</h2>
+          <h2>Save Tools</h2>
         </div>
         <span>{formatSaveStatus(diagnostics.status)}</span>
       </div>
-      <div className="save-diagnostics-grid">
-        <span>Key</span>
-        <strong>{diagnostics.storageKey}</strong>
-        <span>Version</span>
-        <strong>{diagnostics.saveVersion ?? "-"}</strong>
-        <span>Updated</span>
-        <strong>{formatTimestamp(diagnostics.updatedAtMs)}</strong>
-        <span>Offline checkpoint</span>
-        <strong>{formatTimestamp(diagnostics.lastOfflineRewardAtMs)}</strong>
-        <span>Current stage</span>
-        <strong>{diagnostics.currentStageId}</strong>
-        <span>Farm stage</span>
-        <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
-        <span>Farm preset</span>
-        <strong>{diagnostics.offlineFarmPreset}</strong>
-        <span>Highest clear</span>
-        <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
-        <span>Save size</span>
-        <strong>{formatNumber(diagnostics.saveSizeCharacters)} chars</strong>
-        <span>Autosave</span>
-        <strong>{formatDuration(diagnostics.autosaveIntervalMs / 1000)}</strong>
-      </div>
-      {diagnostics.errors.length > 0 ? (
-        <div className="save-errors">
-          {diagnostics.errors.map((error) => (
-            <span key={error}>{error}</span>
-          ))}
+      <details
+        className="save-diagnostics-panel"
+        open={diagnosticsExpanded}
+        onToggle={(event) => setDiagnosticsExpanded(event.currentTarget.open)}
+      >
+        <summary>Save Diagnostics</summary>
+        <div className="save-diagnostics-grid">
+          <span>Key</span>
+          <strong>{diagnostics.storageKey}</strong>
+          <span>Version</span>
+          <strong>{diagnostics.saveVersion ?? "-"}</strong>
+          <span>Updated</span>
+          <strong>{formatTimestamp(diagnostics.updatedAtMs)}</strong>
+          <span>Offline checkpoint</span>
+          <strong>{formatTimestamp(diagnostics.lastOfflineRewardAtMs)}</strong>
+          <span>Current stage</span>
+          <strong>{diagnostics.currentStageId}</strong>
+          <span>Farm stage</span>
+          <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
+          <span>Farm preset</span>
+          <strong>{diagnostics.offlineFarmPreset}</strong>
+          <span>Highest clear</span>
+          <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
+          <span>Save size</span>
+          <strong>{formatNumber(diagnostics.saveSizeCharacters)} chars</strong>
+          <span>Autosave</span>
+          <strong>{formatDuration(diagnostics.autosaveIntervalMs / 1000)}</strong>
         </div>
-      ) : null}
+        {diagnostics.errors.length > 0 ? (
+          <div className="save-errors">
+            {diagnostics.errors.map((error) => (
+              <span key={error}>{error}</span>
+            ))}
+          </div>
+        ) : null}
+      </details>
       <div className="save-actions">
         <button
           type="button"

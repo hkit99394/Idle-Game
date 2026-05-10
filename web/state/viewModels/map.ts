@@ -5,7 +5,7 @@ import {
   isStageUnlocked
 } from "../../../core";
 import type { PlayerProgress, StaticGameData } from "../../../core";
-import type { StageOptionView } from "../types";
+import type { StageOptionView } from "./mapTypes";
 
 export function buildStageOptions(
   data: StaticGameData,

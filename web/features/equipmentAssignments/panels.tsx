@@ -1,16 +1,24 @@
+import type { AssignmentView } from "../../state/viewModels/assignmentTypes";
 import type {
-  AssignmentView,
-  EquipGameEquipmentInput,
   EquipmentInventoryItemView,
-  HeroEquipmentView,
-  SetGameAssignmentHeroesInput
-} from "../../state/gameState";
-import { formatNumber } from "./shared";
+  HeroEquipmentView
+} from "../../state/viewModels/equipmentTypes";
+import { formatNumber } from "../shared/ui";
+
+type EquipPanelEquipmentInput = {
+  equipmentId: string;
+  heroId: string;
+};
+
+type SetAssignmentPanelHeroesInput = {
+  assignmentId: string;
+  heroIds: string[];
+};
 
 type EquipmentPanelProps = {
   heroes: HeroEquipmentView[];
   inventory: EquipmentInventoryItemView[];
-  onEquip: (input: EquipGameEquipmentInput) => void;
+  onEquip: (input: EquipPanelEquipmentInput) => void;
   status: string;
 };
 
@@ -141,7 +149,7 @@ export function EquipmentPanel({
 
 type AssignmentPanelProps = {
   assignments: AssignmentView[];
-  onSetAssignment: (input: SetGameAssignmentHeroesInput) => void;
+  onSetAssignment: (input: SetAssignmentPanelHeroesInput) => void;
   status: string;
 };
 

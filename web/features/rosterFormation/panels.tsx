@@ -1,16 +1,19 @@
-import { FORMATION_SLOTS } from "../../../core";
-import type { FormationSlot } from "../../../core";
+import { PLAYER_FORMATION_SLOT_OPTIONS } from "../../state/viewModels/rosterTypes";
 import type {
   PlayerFormationHeroView,
-  RosterHeroView,
-  SetGameActiveHeroTeamInput
-} from "../../state/gameState";
-import { formatCombatRole, formatFormationSlot, formatNumber } from "./shared";
+  PlayerFormationSlotView,
+  RosterHeroView
+} from "../../state/viewModels/rosterTypes";
+import { formatCombatRole, formatFormationSlot, formatNumber } from "../shared/ui";
+
+type SetRosterActiveTeamInput = {
+  heroIds: string[];
+};
 
 type RosterPanelProps = {
   activeTeamSize: number;
   heroes: RosterHeroView[];
-  onSetActiveTeam: (input: SetGameActiveHeroTeamInput) => void;
+  onSetActiveTeam: (input: SetRosterActiveTeamInput) => void;
   status: string;
 };
 
@@ -91,7 +94,7 @@ export function RosterPanel({
 
 type FormationPanelProps = {
   heroes: PlayerFormationHeroView[];
-  onSetFormation: (heroId: string, slot: FormationSlot) => void;
+  onSetFormation: (heroId: string, slot: PlayerFormationSlotView) => void;
 };
 
 export function FormationPanel({ heroes, onSetFormation }: FormationPanelProps) {
@@ -105,7 +108,7 @@ export function FormationPanel({ heroes, onSetFormation }: FormationPanelProps) 
         <span>{heroes.length} heroes</span>
       </div>
       <div className="formation-slots">
-        {FORMATION_SLOTS.map((slot) => {
+        {PLAYER_FORMATION_SLOT_OPTIONS.map((slot) => {
           const heroesInSlot = heroes.filter(
             (hero) => hero.formationSlot === slot
           );
@@ -134,7 +137,7 @@ export function FormationPanel({ heroes, onSetFormation }: FormationPanelProps) 
               </span>
             </div>
             <div className="formation-buttons" role="group" aria-label={`${hero.name} position`}>
-              {FORMATION_SLOTS.map((slot) => (
+              {PLAYER_FORMATION_SLOT_OPTIONS.map((slot) => (
                 <button
                   key={slot}
                   type="button"

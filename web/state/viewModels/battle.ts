@@ -25,13 +25,79 @@ import type {
 } from "../../../core";
 import type {
   BattleCombatantView,
-  BattleEventBadgeTone,
   BattleEventView,
-  BattleSummaryView,
-  PlayerFormationHeroView
-} from "../types";
+  BattleSummaryView
+} from "./battleTypes";
 
 export { calculateSkillSupportCombatPower };
+
+type StageView = ReturnType<typeof getStageById>;
+
+type BattleFeatureViewInput = {
+  progress: PlayerProgress;
+  selectedStage: StageView;
+  selectedStageId: string;
+  lastBattle: ResolveStageBattleResult | null;
+  lastBattleStage: StageView;
+  lastBattleStageId: string | null;
+};
+
+function getVisibleBattleResult(input: BattleFeatureViewInput) {
+  const successfulLastBattle = input.lastBattle?.ok ? input.lastBattle : null;
+  const showFinalCombatants =
+    successfulLastBattle !== null &&
+    input.lastBattleStageId === input.selectedStageId;
+
+  return {
+    finalPlayerTeam: showFinalCombatants
+      ? successfulLastBattle.battle.finalPlayerTeam
+      : undefined,
+    finalEnemyTeam: showFinalCombatants
+      ? successfulLastBattle.battle.finalEnemyTeam
+      : undefined,
+    battleContributions: showFinalCombatants
+      ? successfulLastBattle.battle.contributions
+      : undefined
+  };
+}
+
+export function buildBattleFeatureView(
+  data: StaticGameData,
+  input: BattleFeatureViewInput
+) {
+  const { finalPlayerTeam, finalEnemyTeam, battleContributions } =
+    getVisibleBattleResult(input);
+  const playerCombatants = input.selectedStage
+    ? buildPlayerCombatantViews(
+        data,
+        input.progress,
+        input.selectedStage.id,
+        finalPlayerTeam,
+        battleContributions
+      )
+    : [];
+  const enemyCombatants = input.selectedStage
+    ? buildEnemyCombatantViews(
+        data,
+        input.selectedStage.id,
+        finalEnemyTeam,
+        battleContributions
+      )
+    : [];
+
+  return {
+    playerCombatants,
+    enemyCombatants,
+    enemyTeamLabel: buildEnemyTeamLabel(data, input.selectedStage),
+    lastBattle: input.lastBattle,
+    lastBattleStage: input.lastBattleStage,
+    battleEvents: buildBattleEventViews(data, input.lastBattle),
+    battleSummary: buildBattleSummary(
+      input.lastBattle,
+      input.lastBattleStage?.name ?? null
+    )
+  };
+}
 
 function getPreviewInstanceId(
   team: TeamId,
@@ -1126,19 +1192,6 @@ export function buildPlayerCombatantViews(
       contributionByInstanceId.get(instanceId)
     );
   });
-}
-
-export function buildPlayerFormationViews(
-  playerCombatants: BattleCombatantView[]
-): PlayerFormationHeroView[] {
-  return playerCombatants.map((combatant) => ({
-    heroId: combatant.definitionId,
-    name: combatant.name,
-    style: combatant.style,
-    role: combatant.role,
-    combatRole: combatant.combatRole,
-    formationSlot: combatant.formationSlot
-  }));
 }
 
 export function buildEnemyCombatantViews(

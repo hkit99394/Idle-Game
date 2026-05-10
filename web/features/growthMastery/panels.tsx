@@ -1,13 +1,24 @@
 import type {
   MasteryPanelView,
-  PurchaseGameSkillUpgradeInput,
-  PurchaseGameUpgradeInput,
-  SelectGameStyleBranchInput,
   SkillUpgradeView,
   StyleMasteryView,
   UpgradeView
-} from "../../state/gameState";
-import { formatNumber, formatSignedPercent } from "./shared";
+} from "../../state/viewModels/progressionTypes";
+import { formatNumber, formatSignedPercent } from "../shared/ui";
+
+type PurchaseUpgradePanelInput = {
+  heroId?: string;
+  upgradeId: string;
+};
+
+type PurchaseSkillUpgradePanelInput = {
+  skillUpgradeId: string;
+};
+
+type SelectStyleBranchPanelInput = {
+  branchId: string;
+  styleId: string;
+};
 
 type MasteryPanelProps = {
   mastery: MasteryPanelView | null;
@@ -84,7 +95,7 @@ export function MasteryPanel({ mastery }: MasteryPanelProps) {
 }
 
 type UpgradePanelProps = {
-  onPurchase: (input: PurchaseGameUpgradeInput) => void;
+  onPurchase: (input: PurchaseUpgradePanelInput) => void;
   silver: number;
   status: string;
   upgrades: UpgradeView[];
@@ -152,7 +163,7 @@ export function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePa
 }
 
 type StyleMasteryPanelProps = {
-  onSelectBranch: (input: SelectGameStyleBranchInput) => void;
+  onSelectBranch: (input: SelectStyleBranchPanelInput) => void;
   styles: StyleMasteryView[];
   status: string;
 };
@@ -235,7 +246,7 @@ export function StyleMasteryPanel({
 
 type SkillUpgradePanelProps = {
   cultivation: number;
-  onPurchase: (input: PurchaseGameSkillUpgradeInput) => void;
+  onPurchase: (input: PurchaseSkillUpgradePanelInput) => void;
   skillUpgrades: SkillUpgradeView[];
   status: string;
 };

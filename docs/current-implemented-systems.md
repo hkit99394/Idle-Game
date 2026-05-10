@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 1.8. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 1.9. Older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -71,12 +71,21 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
-- Completed backlogs through Stage 1.8 live in `docs/archive`.
-- Stage 1.8 is closed; `docs/stage-1.8-backlog.md` should not exist as an active backlog unless Stage 1.8 is explicitly reopened.
+- Completed backlogs through Stage 1.9 live in `docs/archive`.
+- Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
+
+## Web UI And State Modules
+
+- The web app shell is split across `web/App.tsx`, `web/app/AppPanels.tsx`, `web/app/statusText.ts`, and `web/app/useSaveTools.ts`.
+- React panels live under `web/features/*/panels.tsx` by feature: battle, map/idle, roster/formation, equipment/assignments, growth/mastery, counterplay/save, and shared display helpers.
+- `web/components/GamePanels.tsx` is a small compatibility barrel over feature panels. New panel logic should go in `web/features/*`.
+- Feature view-model builders and feature view types live under `web/state/viewModels/*` and `*Types.ts`, with `web/state/viewModels/webGameViewModel.ts` assembling the full web view model.
+- Web actions, command factories, reducer branches, hook commands, and save-tool commands are split by domain under `web/state/`.
+- The current contributor map for panel, view model, reducer, save, style, and smoke-check ownership is [Web UI Architecture](web-ui-architecture.md).
 
 ## Current Known Balance Notes
 
-- Stage 1.8 preserved the known Stage 1.7 balance-budget posture while refactoring combat internals; some budget misses may be intentional tuning notes rather than code failures.
+- Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
 - Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and known target misses.
-- Stage 1.9 is the next planned cleanup stage and should modularize the web UI around the now-stable combat/progression contracts.
+- Stage 2.0 is active at [Stage 2.0 Backlog](stage-2.0-backlog.md) and focuses on content pipeline validation and authoring support now that the web UI is modularized.

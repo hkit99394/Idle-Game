@@ -3,13 +3,13 @@ import type {
   BattleEventBadgeView,
   BattleEventView,
   BattleSummaryView
-} from "../../state/gameState";
+} from "../../state/viewModels/battleTypes";
 import {
   formatCombatRole,
   formatFormationSlot,
   formatNumber,
   StatBar
-} from "./shared";
+} from "../shared/ui";
 
 type CombatantCardProps = {
   combatant: BattleCombatantView;

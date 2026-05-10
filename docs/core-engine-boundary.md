@@ -19,6 +19,7 @@
 - Core modules must not use browser runtime APIs such as `window`, `document`, `localStorage`, or `sessionStorage`.
 - Core modules must not rely on Vite-only globals or React runtime behavior.
 - Web save/storage code owns browser persistence. Core save code owns schema, migration, validation, cloning, normalization, and offline reward semantics.
+- Web feature panels should consume feature view-model types from `web/state/viewModels/*Types.ts` or feature-local input shapes instead of importing `core/` contracts directly.
 - Tools may import from `core/`, `data/`, and their own `tools/` helpers, but reusable rules should move back into `core/`.
 - Tests should prefer core entry points and the canonical static-data builder so fixture behavior matches web/tool behavior.
 
@@ -47,6 +48,15 @@
 - Status behavior belongs in `statusEffects.ts`, `statusMetadata.ts`, and `cleansePolicy.ts`; public consumers should use battle record helpers for event status metadata instead of deriving status ids from raw events.
 - Stable battle event metadata for web and tools is exposed through `BattleEventRecord`, `createBattleEventRecord`, and `createBattleEventRecords`.
 - Tests may deep-import focused combat helpers when they are asserting module behavior, but web, tools, and progression should prefer public core entry points.
+
+## Web UI Boundary
+
+- `web/App.tsx` owns bootstrapping and the public web-state hook; panel ordering lives in `web/app/AppPanels.tsx`.
+- Feature panels live in `web/features/*/panels.tsx` and receive assembled view models plus command callbacks from the app shell.
+- Feature display data should be built in `web/state/viewModels/*` and assembled by `web/state/viewModels/webGameViewModel.ts`.
+- Web reducer actions, command factories, reducer branches, hook command domains, and save-tool commands live under `web/state/` and remain browser/UI adapters around core progression and save contracts.
+- `web/components/GamePanels.tsx` is a compatibility barrel only. New feature UI should not be implemented there.
+- See [Web UI Architecture](web-ui-architecture.md) for the current contributor map.
 
 ## Balance And Tooling Boundary
 
