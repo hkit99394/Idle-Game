@@ -22,7 +22,6 @@ import {
   getHeroAssignmentId,
   getActiveHeroIds,
   getEquipmentInventoryCount,
-  getBattleEventStatusId,
   getOfflineFarmPresetPolicy,
   getRecommendedOfflineFarmStage,
   getStageById,

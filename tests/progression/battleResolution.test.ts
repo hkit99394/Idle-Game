@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  createBattleEventRecords,
   createInitialPlayerProgress,
   defaultAutoMedicinePreferences,
+  getEquipmentInventoryCount,
   resolveStageBattle
 } from "../../core";
 import type { StaticGameData } from "../../core";
@@ -42,6 +44,54 @@ describe("stage battle resolution", () => {
     expect(result.progress.resources.cultivation).toBe(5);
     expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
     expect(result.progress.currentStageId).toBe("bamboo_road_2");
+  });
+
+  it("preserves battle, reward, mastery, and equipment adapter fields on stage clear", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+
+    const result = resolveStageBattle(staticData, {
+      progress,
+      stageId: "bamboo_road_2",
+      maxDurationSeconds: 60
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.stageCleared).toBe(true);
+    expect(result.rewards).toEqual({
+      silver: 14,
+      cultivation: 7,
+      herbs: 0,
+      combatExperience: 5
+    });
+    expect(result.equipmentRewards).toEqual([
+      {
+        equipmentId: "training_wraps",
+        quantity: 1
+      }
+    ]);
+    expect(getEquipmentInventoryCount(result.progress, "training_wraps")).toBe(1);
+    expect(result.masteryRanksBefore).toEqual([]);
+    expect(result.masteryRanksAfter).toEqual([]);
+    expect(result.newlyReachedMasteryRanks).toEqual([]);
+    expect(result.battle.metrics.playerOuterDamage).toBeGreaterThan(0);
+    expect(result.battle.contributions[0]).toMatchObject({
+      instanceId: expect.stringMatching(/^player_/),
+      outerDamageDealt: expect.any(Number),
+      innerDamageDealt: expect.any(Number),
+      qiBreakBurstDamageDealt: expect.any(Number),
+      survived: expect.any(Boolean)
+    });
+    expect(createBattleEventRecords(result.battle.events)[0]).toMatchObject({
+      index: 0,
+      category: "attack",
+      statusId: null
+    });
   });
 
   it("rejects locked stage attempts without changing progress", () => {

@@ -18,14 +18,8 @@ import type {
   StaticGameData
 } from "../data/types";
 import {
-  calculateAttackInterval,
-  calculateInnerDamage,
   calculateInnerRecovery,
-  calculateOuterDamage,
-  calculateQiBreakBacklashDamage,
-  calculateQiBreakBurst,
   calculateQiBreakRecovery,
-  clamp,
   defaultCombatFormulaConstants,
   deriveStats,
   scaleStatsForLevel
@@ -36,11 +30,10 @@ import {
   advanceStatusEffects,
   createStatusDictionary,
   expireStatusEffects,
-  getActiveStatusEffectValue,
   getCombatantStatusResistance,
   getStatusCombatModifiers
 } from "./statusEffects";
-import { hasLivingTeamMember, isLiving, selectTarget } from "./targeting";
+import { hasLivingTeamMember, isLiving } from "./targeting";
 
 import {
   createInitialContributions,
@@ -48,16 +41,19 @@ import {
   finalizeContributions,
   finalizeMetrics,
   markDefeated,
-  recordBacklash,
-  recordDamage,
-  recordQiBreak
+  recordDamage
 } from "./battleRecorder";
 import {
-  applyGuardReduction,
-  applyProtectionReduction,
-  findProtector,
-  getEffectiveTargetStats
-} from "./defensivePipeline";
+  applyDamagePackageMitigation,
+  commitBacklashDamagePackage,
+  commitDamagePackage,
+  commitQiBreakDamagePackage,
+  createAttackDamagePackage,
+  createBacklashDamagePackage,
+  createQiBreakBacklashDamagePackage,
+  createQiBreakDamagePackage,
+  resolveAttackDamageTargets
+} from "./damagePackage";
 import {
   applyRecoverySkillEffects,
   applyTimedSkillEffects,
@@ -67,6 +63,11 @@ import {
   applyAutoCleanseMedicine,
   applyAutoPreBattleResistanceMedicine
 } from "./autoMedicine/application";
+import {
+  canCombatantActAt,
+  getInitialActionTime,
+  scheduleNextAction
+} from "./scheduler";
 import type { AutoMedicineUseSummary } from "./autoMedicine/types";
 
 const BASIC_SKILL_ID = "basic_strike";
@@ -204,7 +205,7 @@ function createCombatantState(
     damageMultipliersByFamily: instance.damageMultipliersByFamily ?? {},
     skillUpgradeLevels: instance.skillUpgradeLevels ?? {},
     skillIds: definition.skillIds,
-    nextActionAt: calculateAttackInterval(stats.speed, constants),
+    nextActionAt: getInitialActionTime(stats.speed, constants),
     skillCooldowns: Object.fromEntries(definition.skillIds.map((skillId) => [skillId, 0])),
     isQiBroken: false,
     qiBreakEndsAt: null,
@@ -220,17 +221,6 @@ function createCombatantState(
     regeneration: null,
     defeatedAt: null
   };
-}
-
-function getEffectiveActionSpeed(combatant: CombatantState, time: number): number {
-  const speedReduction = getActiveStatusEffectValue(
-    combatant,
-    "speed_down",
-    time,
-    (value) => clamp(value, 0, 0.9)
-  );
-
-  return combatant.stats.speed * (1 - speedReduction);
 }
 
 function createCombatants(
@@ -474,29 +464,20 @@ function applyQiBreakIfNeeded(
     return;
   }
 
-  target.innerQi = 0;
-  target.isQiBroken = true;
-  target.qiBreakEndsAt = time + constants.qiBreakDurationSeconds;
-
-  const burst = calculateQiBreakBurst(
-    {
-      targetMaxOuterHp: target.maxOuterHp,
-      attackerBreakPower: attacker.stats.breakPower,
-      targetBreakResist: target.stats.breakResist
-    },
-    constants
-  );
-
-  target.outerHp -= burst.damage;
-  recordQiBreak(metrics, contributions, attacker, target, burst.damage);
-  events.push({
-    type: "qi_break",
+  const damagePackage = createQiBreakDamagePackage({
+    attacker,
+    target,
     time,
-    sourceId: attacker.instanceId,
-    targetId: target.instanceId,
-    burstDamage: burst.damage,
-    burstPercent: burst.percent,
-    endsAt: target.qiBreakEndsAt
+    constants
+  });
+  commitQiBreakDamagePackage({
+    damagePackage,
+    attacker,
+    target,
+    time,
+    metrics,
+    contributions,
+    events
   });
   markDefeated(target, time, events);
 }
@@ -642,87 +623,48 @@ function executeAction(
   contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): void {
-  if (!isLiving(attacker) || time < attacker.nextActionAt) {
+  if (!canCombatantActAt(attacker, time)) {
     return;
   }
 
   const skill = chooseSkill(lookup, attacker, time);
-  const intendedTarget = selectTarget(combatants, attacker.team, skill.targetRule);
+  const damageTargets = resolveAttackDamageTargets({
+    combatants,
+    attacker,
+    skill,
+    time
+  });
 
-  if (!intendedTarget) {
+  if (!damageTargets) {
     return;
   }
 
-  const protector = findProtector(combatants, intendedTarget, time);
-  const target = protector ?? intendedTarget;
-  const effectiveTargetStats = getEffectiveTargetStats(target, time);
-  const targetStatusModifiers = getStatusCombatModifiers(
-    target.activeStatuses,
-    lookup.statusDefinitions
-  );
-  let outerDamage = calculateOuterDamage(
-    {
-      attacker: attacker.stats,
-      target: effectiveTargetStats,
-      skillMultiplier: skill.outerMultiplier,
-      targetIsQiBroken: target.isQiBroken
-    },
-    constants
-  ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0)) *
-    targetStatusModifiers.outerDamageTakenMultiplier;
-  let innerDamage = calculateInnerDamage(
-    {
-      attacker: attacker.stats,
-      target: effectiveTargetStats,
-      skillMultiplier: skill.innerMultiplier,
-      targetIsQiBroken: target.isQiBroken
-    },
-    constants
-  ) * (1 + (target.family ? attacker.damageMultipliersByFamily[target.family] ?? 0 : 0));
-
-  outerDamage = applyGuardReduction(
-    target,
-    outerDamage,
-    time,
-    metrics,
-    contributions,
-    events
-  );
-
-  const protectedDamage = applyProtectionReduction(
-    protector,
-    intendedTarget,
+  const target = damageTargets.damageTarget;
+  const damagePackage = createAttackDamagePackage({
     attacker,
-    outerDamage,
-    innerDamage,
+    targets: damageTargets,
+    skill,
+    time,
+    constants,
+    statusDefinitions: lookup.statusDefinitions
+  });
+  const mitigatedDamagePackage = applyDamagePackageMitigation({
+    damagePackage,
+    attacker,
+    targets: damageTargets,
     time,
     metrics,
     contributions,
     events
-  );
-  outerDamage = protectedDamage.outerDamage;
-  innerDamage = protectedDamage.innerDamage;
-
-  target.outerHp = Math.max(0, target.outerHp - outerDamage);
-  target.innerQi = Math.max(0, target.innerQi - innerDamage);
-
-  if (innerDamage > 0) {
-    target.lastInnerDamageAt = time;
-  }
-
-  recordDamage(metrics, contributions, attacker, target, outerDamage, innerDamage);
-  events.push({
-    type: "attack",
+  });
+  commitDamagePackage({
+    damagePackage: mitigatedDamagePackage,
+    attacker,
+    targets: damageTargets,
     time,
-    sourceId: attacker.instanceId,
-    targetId: target.instanceId,
-    skillId: skill.id,
-    outerDamage,
-    innerDamage,
-    intendedTargetId:
-      target.instanceId === intendedTarget.instanceId
-        ? undefined
-        : intendedTarget.instanceId
+    metrics,
+    contributions,
+    events
   });
 
   applyTimedSkillEffects(
@@ -759,14 +701,17 @@ function executeAction(
   markDefeated(target, time, events);
 
   if (attacker.isQiBroken && isLiving(attacker)) {
-    const backlashDamage = calculateQiBreakBacklashDamage(attacker.maxOuterHp, constants);
-    attacker.outerHp -= backlashDamage;
-    recordBacklash(metrics, contributions, attacker, backlashDamage);
-    events.push({
-      type: "backlash",
+    const backlashPackage = createQiBreakBacklashDamagePackage({
+      target: attacker,
+      constants
+    });
+    commitBacklashDamagePackage({
+      damagePackage: backlashPackage,
+      target: attacker,
       time,
-      sourceId: attacker.instanceId,
-      damage: backlashDamage
+      metrics,
+      contributions,
+      events
     });
     markDefeated(attacker, time, events);
   }
@@ -779,13 +724,17 @@ function executeAction(
     attacker.maxOuterHp * attackerStatusModifiers.attackBacklashOuterHpPercent;
 
   if (statusBacklashDamage > 0 && isLiving(attacker)) {
-    attacker.outerHp -= statusBacklashDamage;
-    recordBacklash(metrics, contributions, attacker, statusBacklashDamage);
-    events.push({
-      type: "backlash",
+    const backlashPackage = createBacklashDamagePackage({
+      target: attacker,
+      outerDamage: statusBacklashDamage
+    });
+    commitBacklashDamagePackage({
+      damagePackage: backlashPackage,
+      target: attacker,
       time,
-      sourceId: attacker.instanceId,
-      damage: statusBacklashDamage
+      metrics,
+      contributions,
+      events
     });
     markDefeated(attacker, time, events);
   }
@@ -794,8 +743,11 @@ function executeAction(
     attacker.skillCooldowns[skill.id] = time + skill.cooldownSeconds;
   }
 
-  attacker.nextActionAt =
-    time + calculateAttackInterval(getEffectiveActionSpeed(attacker, time), constants);
+  scheduleNextAction({
+    combatant: attacker,
+    time,
+    constants
+  });
 }
 
 function getWinner(combatants: CombatantState[]): TeamId | null {

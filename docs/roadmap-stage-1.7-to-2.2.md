@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). The next roadmap pauses before adding another large content layer and makes the game easier to balance, extend, test, and eventually move toward backend or PWA support.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). The next roadmap focus is Stage 1.9, then content, strategy, and backend/PWA readiness.
 
 The recommended sequence is:
 
@@ -53,22 +53,24 @@ The current game has enough combat, progression, save, offline, equipment, medic
 
 ## Stage 1.8: Combat Engine V2
 
+Status: completed and archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md).
+
 ### Goal
 
 Refactor combat resolution into a cleaner pipeline so new skill effects, advanced statuses, and richer formations can be added without turning the simulator into one large fragile function.
 
 ### Why This Matters
 
-The current simulator already handles targeting, damage, Qi Break, protection, guard, armor break, wound, cleanse, regeneration, metrics, and contributions. Stage 2 systems will need more effects, so the engine needs clearer extension points.
+Before Stage 1.8, the simulator already handled targeting, damage, Qi Break, protection, guard, armor break, wound, cleanse, regeneration, metrics, and contributions. Stage 2 systems will need more effects, so the engine needed clearer extension points.
 
 ### Milestones
 
-- Split combat into action scheduling, target selection, damage calculation, effect application, status ticking, and metric recording.
-- Introduce a damage package model for Outer damage, Inner damage, Qi Break burst, backlash, protection, and prevention.
-- Create a skill effect dispatcher so new effect types do not require editing the main action loop.
-- Add golden battle trace tests for representative fights.
-- Add deterministic scenario fixtures for tank, breaker, striker, support, and status-heavy encounters.
-- Preserve current battle outcomes unless a balance change is intentionally approved.
+- Completed: split combat into action scheduling, target selection, damage calculation, effect application, status ticking, and metric recording.
+- Completed: introduced a damage package model for Outer damage, Inner damage, Qi Break burst, backlash, protection, and prevention.
+- Completed: created a skill effect dispatcher so new effect types do not require editing the main action loop.
+- Completed: added golden battle trace tests for representative fights.
+- Completed: added deterministic scenario fixtures for tank, breaker, striker, support, and status-heavy encounters.
+- Completed: preserved current battle outcomes unless a balance change is intentionally approved.
 
 ### Exit Criteria
 
@@ -77,7 +79,18 @@ The current simulator already handles targeting, damage, Qi Break, protection, g
 - Battle summary metrics still match existing UI needs.
 - No browser or tool code enters `core/`.
 
+### Stage 1.8 Progress Snapshot
+
+- Epic 49 completed combat baselines and scenario fixtures.
+- Epic 50 extracted deterministic scheduler helpers and battle runtime setup.
+- Epic 51 routed attack, Qi Break, backlash, guard, protection, and attribution through damage packages.
+- Epic 52 completed the skill effect dispatcher and status hook split.
+- Epic 53 stabilized battle event records, metrics, contribution summaries, and the progression adapter contract.
+- Epic 54 closed the stage with Combat Engine V2 docs, archive cleanup, and release-readiness notes.
+
 ## Stage 1.9: UI Modularization
+
+Status: recommended next stage.
 
 ### Goal
 
@@ -92,6 +105,7 @@ The current web state and app shell are functional, but large. Splitting by feat
 - Split web view models by feature: battle, map, roster, formation, equipment, upgrades, assignments, counterplay, save tools.
 - Split React panels into feature folders with local components and view-model types.
 - Keep core state transitions testable without rendering React.
+- Use `BattleEventRecord` and the existing progression result contracts as the stable combat/UI boundary while moving web battle presentation into feature modules.
 - Add browser smoke coverage for continuous fighting, stage selection, save import/export, reset, and counterplay settings.
 - Add mobile layout checks for the busiest panels.
 - Decide whether debug tools should stay visible, collapse behind a diagnostics panel, or be dev-only.
@@ -149,6 +163,7 @@ Add meaningful strategic choices now that the technical foundation can support t
 - Choose one strategic layer as the main Stage 2.1 feature, preferably tactics or formation bonuses.
 - Add data schema and validation for the selected layer.
 - Add core tests proving choices change combat outcomes.
+- Route new combat behavior through the Stage 1.8 extension points in [Combat Engine V2](combat-engine-v2.md): scheduler rules, targeting rules, damage packages, effect handlers, or status hooks.
 - Add UI that makes the choice understandable without heavy explanation text.
 - Update balance tooling so new strategy can be measured.
 
@@ -199,4 +214,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare a detailed Stage 1.8 backlog from this roadmap. Stage 1.8 should focus on the Combat Engine V2 refactor while preserving current battle outcomes unless a balance change is intentionally approved.
+Prepare Stage 1.9: split the web UI and web state into feature modules while preserving the Stage 1.8 combat/progression contracts.

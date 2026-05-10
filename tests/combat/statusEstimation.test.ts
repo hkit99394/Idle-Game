@@ -51,7 +51,7 @@ describe("status estimation helpers", () => {
       targetStatusResistance: targetStats.statusResistance
     });
     const expectedDuration = calculateStatusDuration(
-      effect.durationSeconds ?? definition.durationSeconds,
+      effect.durationSeconds,
       targetStats.statusResistance
     );
     const expectedDamage =

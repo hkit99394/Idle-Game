@@ -21,9 +21,7 @@ import type {
 } from "./types";
 import {
   CLEANSEABLE_STATUS_EFFECT_IDS,
-  STATUS_EFFECT_IDS,
-  getBattleEventStatusId,
-  getStatusEffectFieldName
+  STATUS_EFFECT_IDS
 } from "./statusMetadata";
 
 export const defaultStatusResistanceFormulaConstants: StatusResistanceFormulaConstants = {
@@ -523,8 +521,6 @@ export function clearCleanseableStatusEffects(
 
   return removed;
 }
-
-export { getBattleEventStatusId, getStatusEffectFieldName };
 
 function createActiveStatus(
   definition: StatusEffectDefinition,

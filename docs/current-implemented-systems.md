@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 1.7. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 1.8. Older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -20,6 +20,16 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Current combat roles are tank, breaker, striker, and support.
 - Implemented effect families include direct Outer/Inner damage, healing, regeneration, guard, protect, armor break, wound, cleanse, speed down, inner defense down, and status application.
 - Battle summaries track practical carry signals such as damage dealt, Qi breaks, protection, healing, status damage, cleanse activity, medicine use, and contribution metrics.
+- Stage 1.8 split the combat engine into named core modules:
+  - `core/combat/scheduler.ts` owns deterministic action timing and speed-down-adjusted rescheduling.
+  - `core/combat/targeting.ts` owns target selection rules.
+  - `core/combat/damagePackage.ts` owns attack, Qi Break, and backlash damage packages plus guard/protection mitigation commits.
+  - `core/combat/effectPipeline.ts` owns skill-effect dispatch for timed status, data status, recovery, regeneration, and cleanse behavior.
+  - `core/combat/statusEffects.ts`, `statusMetadata.ts`, and `cleansePolicy.ts` own timed/data-driven status application, ticking, resistance, and cleanse metadata.
+  - `core/combat/autoMedicine/` owns battle cleanse and pre-battle resistance medicine automation.
+  - `core/combat/battleRecorder.ts` owns metrics, contributions, defeat records, and stable `BattleEventRecord` metadata for web and tooling consumers.
+- `simulateBattle` remains the orchestration entry point. `resolveStageBattle` remains the progression adapter that builds teams, calls combat, and applies rewards.
+- New combat work should start from [Combat Engine V2](combat-engine-v2.md), which maps extension points for skill effects, statuses, damage/defense behavior, scheduler rules, and battle event contracts.
 
 ## Progression And Content
 
@@ -61,11 +71,12 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
-- Completed backlogs through Stage 1.6 live in `docs/archive`.
+- Completed backlogs through Stage 1.8 live in `docs/archive`.
+- Stage 1.8 is closed; `docs/stage-1.8-backlog.md` should not exist as an active backlog unless Stage 1.8 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Current Known Balance Notes
 
-- Stage 1.7 tightened balance reporting, but some budget misses may be intentional tuning notes rather than code failures.
-- Use `docs/balance-budget-gates.md` for current budget fields and known target misses.
-- Stage 1.8 is planned as Combat Engine V2 before adding a larger new strategy layer.
+- Stage 1.8 preserved the known Stage 1.7 balance-budget posture while refactoring combat internals; some budget misses may be intentional tuning notes rather than code failures.
+- Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and known target misses.
+- Stage 1.9 is the next planned cleanup stage and should modularize the web UI around the now-stable combat/progression contracts.

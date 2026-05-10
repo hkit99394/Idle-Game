@@ -2,17 +2,32 @@
 
 An idle martial arts RPG concept built around separate **Outer Art** and **Inner Art** combat.
 
-Start with the main design draft:
+Start with the current contributor docs:
 
+- [Current Implemented Systems](docs/current-implemented-systems.md)
+- [Core Engine Boundary](docs/core-engine-boundary.md)
+- [Combat Engine V2](docs/combat-engine-v2.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
+- [Save API](docs/save-api.md)
+- [Static Data](docs/static-data.md)
+- [Balance Budget Gates](docs/balance-budget-gates.md)
+- [Balance Template CSV](docs/balance-template.csv)
+- [Release Readiness Checklist](docs/release-readiness-checklist.md)
+
+Historical planning and archived backlogs:
+
 - [Planning Questions Before Analysis Stage](docs/planning-questions.md)
 - [Analysis Stage](docs/analysis-stage.md)
-- [Stage 1.6 Backlog](docs/stage-1.6-backlog.md)
+- [Archived Stage 1.8 Backlog](docs/archive/stage-1.8-backlog.md)
+- [Archived Stage 1.7 Backlog](docs/archive/stage-1.7-backlog.md)
+- [Archived Stage 1.6 Backlog](docs/archive/stage-1.6-backlog.md)
+- [Archived Stage 1.5 Backlog](docs/archive/stage-1.5-backlog.md)
+- [Archived Stage 1.4 Backlog](docs/archive/stage-1.4-backlog.md)
+- [Archived Stage 1.3 Backlog](docs/archive/stage-1.3-backlog.md)
 - [Archived Stage 1.2 Backlog](docs/archive/stage-1.2-backlog.md)
 - [Archived Stage 1.1 Backlog](docs/archive/stage-1.1-backlog.md)
 - [Archived MVP Backlog](docs/archive/mvp-backlog.md)
-- [Balance Template CSV](docs/balance-template.csv)
 
 ## Current Prototype
 

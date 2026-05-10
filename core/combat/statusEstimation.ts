@@ -29,8 +29,7 @@ export function estimateStatusApplication(input: {
     attackerStatusAccuracy: input.attackerStats.statusAccuracy,
     targetStatusResistance: input.targetStats.statusResistance
   });
-  const durationSeconds =
-    input.effect.durationSeconds ?? input.definition.durationSeconds;
+  const durationSeconds = input.effect.durationSeconds;
   const resistedDurationSeconds = calculateStatusDuration(
     durationSeconds,
     input.targetStats.statusResistance
