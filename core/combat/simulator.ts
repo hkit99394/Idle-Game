@@ -25,7 +25,6 @@ import {
   calculateQiBreakBacklashDamage,
   calculateQiBreakBurst,
   calculateQiBreakRecovery,
-  clamp,
   defaultCombatFormulaConstants,
   deriveStats,
   scaleStatsForLevel
@@ -36,7 +35,6 @@ import {
   advanceStatusEffects,
   createStatusDictionary,
   expireStatusEffects,
-  getActiveStatusEffectValue,
   getCombatantStatusResistance,
   getStatusCombatModifiers
 } from "./statusEffects";
@@ -67,6 +65,11 @@ import {
   applyAutoCleanseMedicine,
   applyAutoPreBattleResistanceMedicine
 } from "./autoMedicine/application";
+import {
+  canCombatantActAt,
+  getInitialActionTime,
+  scheduleNextAction
+} from "./scheduler";
 import type { AutoMedicineUseSummary } from "./autoMedicine/types";
 
 const BASIC_SKILL_ID = "basic_strike";
@@ -204,7 +207,7 @@ function createCombatantState(
     damageMultipliersByFamily: instance.damageMultipliersByFamily ?? {},
     skillUpgradeLevels: instance.skillUpgradeLevels ?? {},
     skillIds: definition.skillIds,
-    nextActionAt: calculateAttackInterval(stats.speed, constants),
+    nextActionAt: getInitialActionTime(stats.speed, constants),
     skillCooldowns: Object.fromEntries(definition.skillIds.map((skillId) => [skillId, 0])),
     isQiBroken: false,
     qiBreakEndsAt: null,
@@ -220,17 +223,6 @@ function createCombatantState(
     regeneration: null,
     defeatedAt: null
   };
-}
-
-function getEffectiveActionSpeed(combatant: CombatantState, time: number): number {
-  const speedReduction = getActiveStatusEffectValue(
-    combatant,
-    "speed_down",
-    time,
-    (value) => clamp(value, 0, 0.9)
-  );
-
-  return combatant.stats.speed * (1 - speedReduction);
 }
 
 function createCombatants(
@@ -642,7 +634,7 @@ function executeAction(
   contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): void {
-  if (!isLiving(attacker) || time < attacker.nextActionAt) {
+  if (!canCombatantActAt(attacker, time)) {
     return;
   }
 
@@ -794,8 +786,11 @@ function executeAction(
     attacker.skillCooldowns[skill.id] = time + skill.cooldownSeconds;
   }
 
-  attacker.nextActionAt =
-    time + calculateAttackInterval(getEffectiveActionSpeed(attacker, time), constants);
+  scheduleNextAction({
+    combatant: attacker,
+    time,
+    constants
+  });
 }
 
 function getWinner(combatants: CombatantState[]): TeamId | null {

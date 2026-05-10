@@ -48,7 +48,7 @@ The recommended theme is **Combat Engine V2**. This is a refactor stage, not a n
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 49 | Combat Baselines And Scenario Fixtures | In Progress | Lock current battle behavior before moving internals |
-| 50 | Turn Scheduler And Resolution Context | Planned | Extract action timing and combat context setup from the simulator |
+| 50 | Turn Scheduler And Resolution Context | In Progress | Extract action timing and combat context setup from the simulator |
 | 51 | Damage Package And Defense Pipeline | Planned | Make damage, Qi Break, prevention, and attribution explicit |
 | 52 | Skill Effect Dispatcher And Status Hooks | Planned | Route effects through handlers instead of central simulator branching |
 | 53 | Battle Recorder And Progression Adapter Contract | Planned | Keep summaries, metrics, and `resolveStageBattle` stable through the refactor |
@@ -119,7 +119,9 @@ Separate combat setup and action scheduling from per-action resolution so the si
 
 ### Progress Notes
 
-- Not started.
+- Added `core/combat/scheduler.ts` for initial action timing, readiness checks, speed-down-adjusted action speed, and next-action scheduling.
+- Updated `simulateBattle` to use scheduler helpers for combatant initialization, action readiness, and action rescheduling without changing the public API.
+- Added `tests/combat/scheduler.test.ts` for initial/next action timing, defeated combatant readiness, and clamped speed-down behavior.
 
 ---
 
