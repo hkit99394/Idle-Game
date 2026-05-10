@@ -58,10 +58,14 @@ type TrainingCandidate = {
 
 type BattleSummary = ReturnType<typeof summarizeBattle>;
 type BattleSummaryWithBudgetExtras = BattleSummary & {
+  farmStageId?: string | null;
   farmClears?: number;
   trainingCost?: number;
 };
 type RegionBudgetCheck = BalanceTargetCheck;
+
+const DIFFICULTY_SPIKE_MIN_DELTA_SECONDS = 10;
+const DIFFICULTY_SPIKE_MIN_RATIO = 1.35;
 
 function createTrainedBossPlan(data: StaticGameData): TrainingPlanEntry[] {
   return [
@@ -892,6 +896,134 @@ function buildRecoveryEventSummary(
   return buildRegionPressureMetrics(stageResults).healingPressure;
 }
 
+function buildRegionDifficultyCurve(stageResults: BattleSummary[]) {
+  const stages = stageResults.map((stage) => {
+    if (!stage.ok) {
+      return {
+        stageId: stage.stageId,
+        result: "unresolved" as const,
+        durationSeconds: null,
+        targetSeconds: stage.targetSeconds,
+        targetStatus: "unresolved" as const,
+        reason: `${stage.stageId} could not be resolved: ${stage.reason ?? "unknown"}`
+      };
+    }
+
+    return {
+      stageId: stage.stageId,
+      result: stage.result,
+      durationSeconds: stage.durationSeconds,
+      targetSeconds: stage.targetSeconds,
+      targetStatus: stage.targetSeconds
+        ? stage.targetMet
+          ? ("pass" as const)
+          : ("fail" as const)
+        : ("untargeted" as const),
+      reason: stage.clearTimeAssessment.reason
+    };
+  });
+  const clearStages = stages.filter(
+    (stage): stage is typeof stage & {
+      result: "player_clear";
+      durationSeconds: number;
+    } => stage.result === "player_clear" && stage.durationSeconds !== null
+  );
+  const maxClearStage = clearStages.reduce<
+    (typeof clearStages)[number] | null
+  >(
+    (maxStage, stage) =>
+      !maxStage || stage.durationSeconds > maxStage.durationSeconds
+        ? stage
+        : maxStage,
+    null
+  );
+  const issues = stages
+    .filter(
+      (stage) =>
+        stage.targetStatus === "fail" || stage.targetStatus === "unresolved"
+    )
+    .map((stage) => ({
+      stageId: stage.stageId,
+      status: "fail" as const,
+      reason: stage.reason
+    }));
+  const spikes: Array<{
+    stageId: string;
+    previousStageId: string;
+    status: "watch" | "fail";
+    durationDeltaSeconds: number;
+    ratio: number;
+    reason: string;
+  }> = [];
+  let previousClear: BattleSummary | null = null;
+
+  for (const stage of stageResults) {
+    if (
+      !stage.ok ||
+      stage.result !== "player_clear" ||
+      stage.targetSeconds === null
+    ) {
+      continue;
+    }
+
+    if (
+      previousClear?.ok &&
+      previousClear.result === "player_clear" &&
+      previousClear.targetSeconds !== null
+    ) {
+      const durationDeltaSeconds = Number(
+        (stage.durationSeconds - previousClear.durationSeconds).toFixed(2)
+      );
+      const ratio = Number(
+        (stage.durationSeconds / previousClear.durationSeconds).toFixed(2)
+      );
+
+      if (
+        durationDeltaSeconds >= DIFFICULTY_SPIKE_MIN_DELTA_SECONDS &&
+        ratio >= DIFFICULTY_SPIKE_MIN_RATIO
+      ) {
+        const status =
+          stage.clearTimeAssessment.status === "fail" ? "fail" : "watch";
+        const reason =
+          `${stage.stageId} is ${formatNumber(durationDeltaSeconds)}s slower ` +
+          `than ${previousClear.stageId} (${formatNumber(ratio)}x clear time)` +
+          (status === "fail"
+            ? `; ${stage.clearTimeAssessment.reason}`
+            : "");
+
+        spikes.push({
+          stageId: stage.stageId,
+          previousStageId: previousClear.stageId,
+          status,
+          durationDeltaSeconds,
+          ratio,
+          reason
+        });
+      }
+    }
+
+    previousClear = stage;
+  }
+
+  return {
+    summary: {
+      clearCount: clearStages.length,
+      holdCount: stages.filter((stage) => stage.result === "enemy_hold").length,
+      unresolvedCount: stages.filter((stage) => stage.result === "unresolved")
+        .length,
+      firstClearStageId: clearStages[0]?.stageId ?? null,
+      firstClearSeconds: clearStages[0]?.durationSeconds ?? null,
+      lastClearStageId: clearStages.at(-1)?.stageId ?? null,
+      lastClearSeconds: clearStages.at(-1)?.durationSeconds ?? null,
+      maxClearStageId: maxClearStage?.stageId ?? null,
+      maxClearSeconds: maxClearStage?.durationSeconds ?? null
+    },
+    stages,
+    issues,
+    spikes
+  };
+}
+
 function getRegion(data: StaticGameData, regionId: string) {
   const region = data.regions.find((candidate) => candidate.id === regionId);
 
@@ -987,12 +1119,83 @@ function buildRegionBudgetChecks(
   }));
 }
 
+function buildBossGateAssumption(
+  scenario: "baseline" | "trained" | "farmed",
+  summary: BattleSummaryWithBudgetExtras | undefined
+) {
+  if (!summary) {
+    return null;
+  }
+
+  const farmClears = summary.farmClears ?? null;
+  const farmStageId = summary.farmStageId ?? null;
+  const trainingCost = summary.trainingCost ?? null;
+
+  if (!summary.ok) {
+    return {
+      scenario,
+      ok: false as const,
+      stageId: summary.stageId,
+      result: "unresolved" as const,
+      durationSeconds: null,
+      targetSeconds: summary.targetSeconds,
+      targetMet: null,
+      medicineConsumed: summary.medicineConsumed,
+      statusDamage: summary.statusDamage,
+      farmClears,
+      farmStageId,
+      trainingCost,
+      reason: `${scenario} ${summary.stageId} could not be resolved: ${summary.reason ?? "unknown"}`
+    };
+  }
+
+  const farmReason =
+    farmClears === null
+      ? ""
+      : ` after ${farmClears} ${farmStageId ?? "region"} farms`;
+  const trainingReason =
+    trainingCost === null ? "" : ` and ${formatNumber(trainingCost)} silver training`;
+  const reason =
+    `${scenario} ${summary.stageId} ${summary.result} in ` +
+    `${formatNumber(summary.durationSeconds)}s with ` +
+    `${summary.medicineConsumed} medicine and ` +
+    `${formatNumber(summary.statusDamage)} status damage${farmReason}${trainingReason}`;
+
+  return {
+    scenario,
+    ok: true as const,
+    stageId: summary.stageId,
+    result: summary.result,
+    stageCleared: summary.stageCleared,
+    durationSeconds: summary.durationSeconds,
+    targetSeconds: summary.targetSeconds,
+    targetMet: summary.targetMet,
+    medicineConsumed: summary.medicineConsumed,
+    statusDamage: summary.statusDamage,
+    farmClears,
+    farmStageId,
+    trainingCost,
+    reason
+  };
+}
+
+function buildBossGateAssumptions(
+  bossGate: RegionBalanceReportBase["bossGate"]
+) {
+  return [
+    buildBossGateAssumption("baseline", bossGate.baseline),
+    buildBossGateAssumption("trained", bossGate.trained),
+    buildBossGateAssumption("farmed", bossGate.farmed)
+  ].filter((assumption) => assumption !== null);
+}
+
 function withRegionBudgetChecks(
   data: StaticGameData,
   report: RegionBalanceReportBase
 ): RegionBalanceReport {
   return {
     ...report,
+    bossGateAssumptions: buildBossGateAssumptions(report.bossGate),
     budgetChecks: buildRegionBudgetChecks(data, report)
   };
 }
@@ -1071,6 +1274,7 @@ function buildRegionStageProgressionReport(
             }
           : undefined
     },
+    difficultyCurve: buildRegionDifficultyCurve(stageResults),
     farmRecommendation,
     masteryMilestone: buildRegionMasteryMilestone(
       data,
@@ -1087,11 +1291,12 @@ function buildRegionStageProgressionReport(
 
 type RegionBalanceReportBase = ReturnType<typeof buildRegionStageProgressionReport> & {
   bossGate: ReturnType<typeof buildRegionStageProgressionReport>["bossGate"] & {
-    trained?: ReturnType<typeof summarizeBattle>;
+    trained?: BattleSummaryWithBudgetExtras;
   };
 };
 
 type RegionBalanceReport = RegionBalanceReportBase & {
+  bossGateAssumptions: ReturnType<typeof buildBossGateAssumptions>;
   budgetChecks: RegionBudgetCheck[];
 };
 
@@ -1197,11 +1402,21 @@ export function buildGameBalanceReport(data: StaticGameData) {
     trainedBoss.ok && trainedBoss.stageCleared
       ? trainedBoss.progress
       : trainedBossProgress;
+  const trainedBossSummary: BattleSummaryWithBudgetExtras = {
+    ...summarizeBattle(data, bossStage, trainedBoss),
+    ...(trainingEconomy.ok
+      ? {
+          farmStageId: trainingEconomy.farmStageId,
+          farmClears: trainingEconomy.farmClears,
+          trainingCost: trainingEconomy.trainingCost
+        }
+      : {})
+  };
   const bambooRoadRegionReport: RegionBalanceReportBase = {
     ...bambooRoadProgression,
     bossGate: {
       ...bambooRoadProgression.bossGate,
-      trained: summarizeBattle(data, bossStage, trainedBoss)
+      trained: trainedBossSummary
     }
   };
   const seededRegionReports = new Map<string, SeededRegionBalanceReport>([
@@ -1250,7 +1465,7 @@ export function buildGameBalanceReport(data: StaticGameData) {
       stageResults,
       bossGate: {
         baseline: summarizeBattle(data, bossStage, baselineBoss),
-        trained: summarizeBattle(data, bossStage, trainedBoss),
+        trained: trainedBossSummary,
         training: TRAINED_BOSS_UPGRADES,
         economy: {
           planCost: getTrainingPlanCost(

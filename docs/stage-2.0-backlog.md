@@ -59,7 +59,7 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 | 61 | Content Pipeline Baselines And Schema Audit | Complete | Inventory current data, budget fields, validation coverage, and authoring pain points |
 | 62 | Region And Stage Budget Validation | Complete | Turn content-budget expectations into stricter validation and tests |
 | 63 | Reward Curve And Farm Recommendation Gates | Complete | Prevent accidental reward/farm regression when adding stages |
-| 64 | Difficulty Curve And Boss Gate Reports | Planned | Make stage difficulty, boss gates, and known misses easier to review |
+| 64 | Difficulty Curve And Boss Gate Reports | Complete | Make stage difficulty, boss gates, and known misses easier to review |
 | 65 | Balance Export And Authoring Tooling | Planned | Produce review-friendly JSON/CSV outputs and repeatable author workflows |
 | 66 | Content Docs And Stage 2.0 Readiness | Planned | Close the stage with contributor docs, release checks, and archive cleanup |
 
@@ -202,7 +202,11 @@ Make stage difficulty, elite spikes, and boss gates easier to inspect before add
 
 ### Progress Notes
 
-- Not started.
+- Added `difficultyCurve` summaries to the simulated balance report with clear-count trend data, target misses, and spike reasons.
+- Added `bossGateAssumptions` to region balance reports so baseline, trained, and farmed outcomes show medicine, status damage, farm clears, and training cost.
+- Added `Region Difficulty Curve` and `Region Boss Gate Assumptions` to `npm run simulate`.
+- Kept the current Black Iron Fort and Demon Cult misses as deferred tuning debt, now with clearer report lines and docs.
+- Added balance report tests for difficulty issue shape, spike reasons, boss-gate assumption fields, and formatted output.
 
 ---
 
@@ -275,7 +279,7 @@ Close Stage 2.0 with clear content authoring docs, release verification, and nex
 
 ## Open Questions
 
-- Epic 61 answer: known Stage 1.9 budget misses are documented as Stage 2.0 tuning debt until Epic 64 decides whether to retune or record explicit exceptions.
+- Epic 64 answer: known Black Iron Fort and Demon Cult misses are deferred tuning debt for a later balance pass, not silent noise. Epic 64 improved report visibility instead of retuning content.
 - Should balance export use CSV, JSON-only, or both?
 - Should `docs/balance-template.csv` remain hand-maintained or become generated from current data?
 - How strict should reward-curve validation be for intentional difficulty or reward dips?

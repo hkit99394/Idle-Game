@@ -71,9 +71,22 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 
 - Bamboo Road should pass tutorial timing, recommend the best farm stage, and keep the boss blocked until trained.
 - Mist Valley should pass timing and status-pressure budgets while clearing its boss baseline.
-- Black Iron Fort should exercise defense mechanics and require farmed/trained counterplay for the boss. The current report intentionally calls out `black_iron_fort_4` as below its elite clear-time band, and the boss clear-time target is an explicit Epic 64 deferral.
-- Lotus Monastery should exercise healing and cleanse mechanics and then clear through farmed support growth. The boss clear-time target is an explicit Epic 64 deferral.
+- Black Iron Fort should exercise defense mechanics and require farmed/trained counterplay for the boss. The current report intentionally calls out `black_iron_fort_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
+- Lotus Monastery should exercise healing and cleanse mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
 - Demon Cult Outpost should show status-heavy pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
+
+## Reading Report Sections
+
+`npm run simulate` includes a `Region Difficulty Curve` section before the boss-gate summaries. Each region line reports the clear trend, hold/unresolved counts, target issues, and detected spikes. `issues` are target failures that should be fixed or explicitly tracked. `spikes` are large clear-time jumps between targeted player clears; `fail` spikes also miss their configured target, while `watch` spikes are useful tuning handles that still fit the target band.
+
+The `Region Boss Gate Assumptions` section expands each evaluated boss scenario:
+
+- `baseline` is the immediate boss attempt before extra farming or training.
+- `trained` is an explicit training-plan attempt, currently used by Bamboo Road.
+- `farmed` is the region farm-and-affordable-training attempt used when a later boss blocks progression.
+- `medicine`, `status damage`, `farms`, and `training` show the counterplay assumptions behind the result.
+
+Use the assumptions section when a boss gate passes technically but feels suspicious: a clear with high training cost, high status damage, or unexpected medicine use is still a tuning signal.
 
 ## Release Use
 
@@ -83,7 +96,7 @@ Run:
 npm run simulate
 ```
 
-Review the `Region Budget Gates` section. A failed budget is acceptable only when the stage backlog records it as known tuning debt. Otherwise, treat the failure as a balance regression.
+Review `Region Difficulty Curve`, `Region Boss Gate Assumptions`, and `Region Budget Gates` together. A failed budget is acceptable only when the stage backlog records it as known tuning debt. Otherwise, treat the failure as a balance regression.
 
 For machine-readable checks, run:
 
@@ -92,3 +105,4 @@ npm run simulate -- --json
 ```
 
 Each region includes `budgetChecks` with `id`, `label`, `status`, and `reason`.
+Each region also includes `difficultyCurve` and `bossGateAssumptions` for authoring tools that need stage-level issue lines or boss-gate tuning inputs.

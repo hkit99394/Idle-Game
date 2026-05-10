@@ -53,7 +53,9 @@ Epic 61 does not change tuning or behavior. Known misses below are recorded as t
 - stage results, clear times, formations, rewards, and target bands;
 - region farm recommendations;
 - mastery milestones;
+- difficulty-curve summaries with trend counts, target misses, and spike reasons;
 - boss gates for baseline, trained, or farmed states;
+- boss-gate assumptions with medicine use, status damage, farm clears, and training cost;
 - defense and recovery event summaries;
 - `Region Budget Gates` with pass/fail reasons from [core/balance/regionBudgetGates.ts](../core/balance/regionBudgetGates.ts).
 
@@ -75,12 +77,12 @@ The current simulator output keeps these misses visible:
 
 | Region | Current miss | Stage 2.0 disposition |
 | --- | --- | --- |
-| Black Iron Fort | `black_iron_fort_4` clears in `23.4s`, below the configured `25-65s` elite target. | Tuning debt for Epic 64 unless Epic 62 decides an explicit exception is better. |
-| Demon Cult Outpost | `demon_cult_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Tuning debt for Epic 64. |
-| Demon Cult Outpost | `demon_cult_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Tuning debt for Epic 64. |
-| Demon Cult Outpost | `demon_cult_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Tuning debt for Epic 64. |
-| Demon Cult Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Tuning debt for Epic 64. |
-| Demon Cult Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Tuning debt for Epic 64. |
+| Black Iron Fort | `black_iron_fort_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Demon Cult Outpost | `demon_cult_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Demon Cult Outpost | `demon_cult_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Demon Cult Outpost | `demon_cult_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Demon Cult Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Demon Cult Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
 These are not accepted silent noise. They are allowed only because the active backlog names them before stricter Stage 2.0 gates land.
 
@@ -89,6 +91,6 @@ These are not accepted silent noise. They are allowed only because the active ba
 - Epic 62 defined the required budget fields for normal, elite, boss, and farmable stages.
 - Epic 62 added readable `boss_clear_time_target` exceptions for current boss clear-time deferrals.
 - Epic 63 turned unmarked reward/farm regressions into validation failures and added farm recommendation reasons to reports.
-- Epic 64 should improve difficulty-trend, spike, and boss-gate reporting before any retune.
+- Epic 64 added difficulty-trend, spike, and boss-gate assumption reporting before any retune.
 - Epic 65 should decide whether JSON-only output is enough or whether a generated CSV/spreadsheet export is required.
 - Epic 66 should fold the final content author checklist back into contributor docs.

@@ -377,6 +377,88 @@ describe("balance report", () => {
     });
   });
 
+  it("summarizes difficulty curve issues and boss gate assumptions", () => {
+    const report = buildGameBalanceReport(staticData);
+    const bamboo = getRegionReport(report, BAMBOO_ROAD_REGION_ID);
+    const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
+    const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
+    const demonCult = getRegionReport(report, "demon_cult_outpost");
+
+    expect(blackIron.difficultyCurve.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stageId: "black_iron_fort_4",
+          reason: expect.stringContaining("below")
+        })
+      ])
+    );
+    expect(demonCult.difficultyCurve.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stageId: "demon_cult_outpost_1",
+          reason: expect.stringContaining("above")
+        }),
+        expect.objectContaining({
+          stageId: "demon_cult_outpost_4",
+          reason: expect.stringContaining("above")
+        })
+      ])
+    );
+    expect(demonCult.difficultyCurve.spikes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stageId: "demon_cult_outpost_3",
+          previousStageId: "demon_cult_outpost_2",
+          status: "fail",
+          reason: expect.stringContaining("clear time")
+        })
+      ])
+    );
+    expect(lotus.difficultyCurve.spikes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          stageId: "lotus_monastery_3",
+          status: "watch"
+        })
+      ])
+    );
+    expect(
+      bamboo.bossGateAssumptions.find(
+        (assumption) => assumption.scenario === "trained"
+      )
+    ).toMatchObject({
+      ok: true,
+      result: "player_clear",
+      farmStageId: "bamboo_road_8",
+      farmClears: expect.any(Number),
+      trainingCost: expect.any(Number),
+      medicineConsumed: expect.any(Number),
+      statusDamage: expect.any(Number),
+      reason: expect.stringContaining("training")
+    });
+    expect(
+      blackIron.bossGateAssumptions.find(
+        (assumption) => assumption.scenario === "farmed"
+      )
+    ).toMatchObject({
+      ok: true,
+      result: "player_clear",
+      farmStageId: "black_iron_fort_6",
+      trainingCost: expect.any(Number),
+      reason: expect.stringContaining("status damage")
+    });
+    expect(
+      demonCult.bossGateAssumptions.find(
+        (assumption) => assumption.scenario === "baseline"
+      )
+    ).toMatchObject({
+      ok: true,
+      result: "player_clear",
+      statusDamage: expect.any(Number),
+      reason: expect.stringContaining("medicine")
+    });
+  });
+
   it("drives budget gates from the real simulated report adapter", () => {
     const gatedData: StaticGameData = {
       ...staticData,
@@ -465,7 +547,15 @@ describe("balance report", () => {
     expect(formatted).toContain("score 157");
     expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
     expect(formatted).toContain("Region Mastery Milestones");
+    expect(formatted).toContain("Region Difficulty Curve");
+    expect(formatted).toContain("issues black_iron_fort_4");
+    expect(formatted).toContain("spikes fail demon_cult_outpost_3");
     expect(formatted).toContain("Region Boss Gates");
+    expect(formatted).toContain("Region Boss Gate Assumptions");
+    expect(formatted).toContain("trained player_clear");
+    expect(formatted).toContain("medicine");
+    expect(formatted).toContain("status damage");
+    expect(formatted).toContain("training");
     expect(formatted).toContain("Region Budget Gates");
     expect(formatted).toContain("black_iron_fort_4 clear time");
     expect(formatted).toContain("Status Pressure");
