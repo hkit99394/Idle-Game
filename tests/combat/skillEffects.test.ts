@@ -9,7 +9,8 @@ import type {
 } from "../../core";
 import {
   COMBAT_SKILL_EFFECT_HANDLERS,
-  NON_COMBAT_SKILL_EFFECT_TYPES
+  NON_COMBAT_SKILL_EFFECT_TYPES,
+  SKILL_EFFECT_DISPATCHERS
 } from "../../core/combat/effectPipeline";
 import { staticData } from "../helpers/staticData";
 
@@ -86,8 +87,28 @@ describe("skill effect combat coverage", () => {
       ...Object.keys(COMBAT_SKILL_EFFECT_HANDLERS),
       ...NON_COMBAT_SKILL_EFFECT_TYPES
     ]);
+    const postAttackEffectTypes = Object.keys(SKILL_EFFECT_DISPATCHERS.post_attack);
+    const recoveryEffectTypes = Object.keys(SKILL_EFFECT_DISPATCHERS.recovery);
+    const dispatchedEffectTypes = new Set([
+      ...postAttackEffectTypes,
+      ...recoveryEffectTypes
+    ]);
 
     expect([...coveredEffectTypes].sort()).toEqual([...SKILL_EFFECT_TYPES].sort());
+    expect([...dispatchedEffectTypes].sort()).toEqual([...SKILL_EFFECT_TYPES].sort());
+    expect(
+      postAttackEffectTypes.filter((effectType) =>
+        recoveryEffectTypes.includes(effectType)
+      )
+    ).toEqual([]);
+
+    for (const [effectType, handlerKind] of Object.entries(
+      COMBAT_SKILL_EFFECT_HANDLERS
+    )) {
+      const dispatchStage = handlerKind === "recovery" ? "recovery" : "post_attack";
+
+      expect(SKILL_EFFECT_DISPATCHERS[dispatchStage]).toHaveProperty(effectType);
+    }
   });
 
   it("speed_down reduces the target's future action count", () => {

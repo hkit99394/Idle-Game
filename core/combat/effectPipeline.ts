@@ -49,6 +49,48 @@ export const COMBAT_SKILL_EFFECT_HANDLERS = {
 
 export const NON_COMBAT_SKILL_EFFECT_TYPES = [] as const satisfies readonly SkillEffectType[];
 
+export type SkillEffectDispatchStage = "post_attack" | "recovery";
+
+export type SkillEffectResolutionContext = {
+  combatants: CombatantState[];
+  statusDefinitions: Record<string, StatusEffectDefinition>;
+  attacker: CombatantState;
+  offensiveTarget: CombatantState;
+  skill: SkillDefinition;
+  time: number;
+  metrics: BattleMetrics;
+  contributions: Map<string, BattleContribution>;
+  events: BattleEvent[];
+};
+
+type SkillEffectForType<T extends SkillEffectType> = SkillEffect & { type: T };
+
+export type SkillEffectHandler<T extends SkillEffectType> = (
+  effect: SkillEffectForType<T>,
+  context: SkillEffectResolutionContext
+) => void;
+
+export type SkillEffectHandlerRegistry = {
+  [T in SkillEffectType]?: SkillEffectHandler<T>;
+};
+
+function dispatchSkillEffects(
+  context: SkillEffectResolutionContext,
+  handlers: SkillEffectHandlerRegistry
+): void {
+  for (const effect of context.skill.effects) {
+    const handler = handlers[effect.type] as
+      | ((effect: SkillEffect, context: SkillEffectResolutionContext) => void)
+      | undefined;
+
+    handler?.(effect, context);
+  }
+}
+
+function getDirectEffectValue(effect: SkillEffect): number {
+  return "value" in effect ? effect.value : 0;
+}
+
 function getWoundReduction(target: CombatantState, time: number): number {
   return getActiveStatusEffectValue(
     target,
@@ -471,6 +513,219 @@ function applyDataStatusEffect(
   });
 }
 
+function applyGuardEffect(
+  effect: SkillEffectForType<"guard">,
+  context: SkillEffectResolutionContext
+): void {
+  const durationSeconds = effect.durationSeconds ?? 0;
+
+  if (durationSeconds <= 0) {
+    return;
+  }
+
+  const value = clampDefensiveEffectValue(getDirectEffectValue(effect));
+  const endsAt = context.time + durationSeconds;
+
+  setStatusEffect(
+    context.attacker,
+    createTimedStatusEffect({
+      id: "guard",
+      value,
+      sourceId: context.attacker.instanceId,
+      targetId: context.attacker.instanceId,
+      skillId: context.skill.id,
+      appliedAt: context.time,
+      durationSeconds
+    })
+  );
+  context.events.push({
+    type: "guard",
+    time: context.time,
+    sourceId: context.attacker.instanceId,
+    targetId: context.attacker.instanceId,
+    skillId: context.skill.id,
+    statusId: "guard",
+    reduction: value,
+    endsAt
+  });
+}
+
+function applyProtectEffect(
+  effect: SkillEffectForType<"protect">,
+  context: SkillEffectResolutionContext
+): void {
+  const durationSeconds = effect.durationSeconds ?? 0;
+
+  if (durationSeconds <= 0) {
+    return;
+  }
+
+  const value = clampDefensiveEffectValue(getDirectEffectValue(effect));
+
+  setStatusEffect(
+    context.attacker,
+    createTimedStatusEffect({
+      id: "protection",
+      value,
+      sourceId: context.attacker.instanceId,
+      targetId: context.attacker.instanceId,
+      skillId: context.skill.id,
+      appliedAt: context.time,
+      durationSeconds
+    })
+  );
+}
+
+function applyArmorBreakEffect(
+  effect: SkillEffectForType<"armor_break">,
+  context: SkillEffectResolutionContext
+): void {
+  const durationSeconds = effect.durationSeconds ?? 0;
+
+  if (durationSeconds <= 0) {
+    return;
+  }
+
+  const effectTarget = selectOffensiveEffectTarget(
+    context.combatants,
+    context.attacker,
+    context.offensiveTarget,
+    effect,
+    context.time
+  );
+
+  if (!isLiving(effectTarget)) {
+    return;
+  }
+
+  const value = clampDefensiveEffectValue(getDirectEffectValue(effect));
+  const endsAt = context.time + durationSeconds;
+
+  setStatusEffect(
+    effectTarget,
+    createTimedStatusEffect({
+      id: "armor_break",
+      value,
+      sourceId: context.attacker.instanceId,
+      targetId: effectTarget.instanceId,
+      skillId: context.skill.id,
+      appliedAt: context.time,
+      durationSeconds
+    })
+  );
+
+  if (context.attacker.team === "player") {
+    context.metrics.armorBreaksTriggeredByPlayer += 1;
+  } else {
+    context.metrics.armorBreaksTriggeredByEnemy += 1;
+  }
+
+  const attackerContribution = context.contributions.get(context.attacker.instanceId);
+
+  if (attackerContribution) {
+    attackerContribution.armorBreaksApplied += 1;
+  }
+
+  context.events.push({
+    type: "armor_break",
+    time: context.time,
+    sourceId: context.attacker.instanceId,
+    targetId: effectTarget.instanceId,
+    skillId: context.skill.id,
+    statusId: "armor_break",
+    reduction: value,
+    endsAt
+  });
+}
+
+function applyWoundEffect(
+  effect: SkillEffectForType<"wound">,
+  context: SkillEffectResolutionContext
+): void {
+  const durationSeconds = effect.durationSeconds ?? 0;
+
+  if (durationSeconds <= 0) {
+    return;
+  }
+
+  const value = clampRecoveryEffectValue(getDirectEffectValue(effect));
+  const effectTarget = selectOffensiveEffectTarget(
+    context.combatants,
+    context.attacker,
+    context.offensiveTarget,
+    effect,
+    context.time
+  );
+
+  if (value <= 0) {
+    return;
+  }
+
+  recordWound(
+    context.attacker,
+    effectTarget,
+    context.skill,
+    value,
+    context.time + durationSeconds,
+    context.time,
+    context.metrics,
+    context.contributions,
+    context.events
+  );
+}
+
+function applyTimedDebuffEffect(
+  effect:
+    | SkillEffectForType<"speed_down">
+    | SkillEffectForType<"inner_defense_down">,
+  context: SkillEffectResolutionContext
+): void {
+  applyTimedDebuff(
+    context.combatants,
+    context.attacker,
+    context.offensiveTarget,
+    context.skill,
+    {
+      type: effect.type,
+      value: getDirectEffectValue(effect),
+      durationSeconds: effect.durationSeconds,
+      target: effect.target
+    },
+    context.time,
+    context.events
+  );
+}
+
+function applyDataStatusEffectHandler(
+  effect: SkillEffectForType<"apply_status">,
+  context: SkillEffectResolutionContext
+): void {
+  if (effect.durationSeconds <= 0) {
+    return;
+  }
+
+  applyDataStatusEffect(
+    context.combatants,
+    context.statusDefinitions,
+    context.attacker,
+    context.offensiveTarget,
+    context.skill,
+    effect,
+    context.time,
+    context.events
+  );
+}
+
+export const POST_ATTACK_SKILL_EFFECT_HANDLERS = {
+  guard: applyGuardEffect,
+  protect: applyProtectEffect,
+  armor_break: applyArmorBreakEffect,
+  wound: applyWoundEffect,
+  speed_down: applyTimedDebuffEffect,
+  inner_defense_down: applyTimedDebuffEffect,
+  apply_status: applyDataStatusEffectHandler
+} as const satisfies SkillEffectHandlerRegistry;
+
 export function applyTimedSkillEffects(
   combatants: CombatantState[],
   statusDefinitions: Record<string, StatusEffectDefinition>,
@@ -482,175 +737,20 @@ export function applyTimedSkillEffects(
   contributions: Map<string, BattleContribution>,
   events: BattleEvent[]
 ): void {
-  for (const effect of skill.effects) {
-    const durationSeconds = effect.durationSeconds ?? 0;
-
-    if (durationSeconds <= 0) {
-      continue;
-    }
-
-    const endsAt = time + durationSeconds;
-
-    switch (effect.type) {
-      case "guard": {
-        const value = clampDefensiveEffectValue(effect.value);
-
-        setStatusEffect(
-          attacker,
-          createTimedStatusEffect({
-            id: "guard",
-            value,
-            sourceId: attacker.instanceId,
-            targetId: attacker.instanceId,
-            skillId: skill.id,
-            appliedAt: time,
-            durationSeconds
-          })
-        );
-        events.push({
-          type: "guard",
-          time,
-          sourceId: attacker.instanceId,
-          targetId: attacker.instanceId,
-          skillId: skill.id,
-          statusId: "guard",
-          reduction: value,
-          endsAt
-        });
-        break;
-      }
-
-      case "protect": {
-        const value = clampDefensiveEffectValue(effect.value);
-
-        setStatusEffect(
-          attacker,
-          createTimedStatusEffect({
-            id: "protection",
-            value,
-            sourceId: attacker.instanceId,
-            targetId: attacker.instanceId,
-            skillId: skill.id,
-            appliedAt: time,
-            durationSeconds
-          })
-        );
-        break;
-      }
-
-      case "armor_break": {
-        const effectTarget = selectOffensiveEffectTarget(
-          combatants,
-          attacker,
-          target,
-          effect,
-          time
-        );
-
-        if (!isLiving(effectTarget)) {
-          break;
-        }
-
-        const value = clampDefensiveEffectValue(effect.value);
-
-        setStatusEffect(
-          effectTarget,
-          createTimedStatusEffect({
-            id: "armor_break",
-            value,
-            sourceId: attacker.instanceId,
-            targetId: effectTarget.instanceId,
-            skillId: skill.id,
-            appliedAt: time,
-            durationSeconds
-          })
-        );
-
-        if (attacker.team === "player") {
-          metrics.armorBreaksTriggeredByPlayer += 1;
-        } else {
-          metrics.armorBreaksTriggeredByEnemy += 1;
-        }
-
-        const attackerContribution = contributions.get(attacker.instanceId);
-
-        if (attackerContribution) {
-          attackerContribution.armorBreaksApplied += 1;
-        }
-
-        events.push({
-          type: "armor_break",
-          time,
-          sourceId: attacker.instanceId,
-          targetId: effectTarget.instanceId,
-          skillId: skill.id,
-          statusId: "armor_break",
-          reduction: value,
-          endsAt
-        });
-        break;
-      }
-
-      case "wound": {
-        const value = clampRecoveryEffectValue(effect.value);
-        const effectTarget = selectOffensiveEffectTarget(
-          combatants,
-          attacker,
-          target,
-          effect,
-          time
-        );
-
-        if (value <= 0) {
-          break;
-        }
-
-        recordWound(
-          attacker,
-          effectTarget,
-          skill,
-          value,
-          endsAt,
-          time,
-          metrics,
-          contributions,
-          events
-        );
-        break;
-      }
-
-      case "speed_down":
-      case "inner_defense_down":
-        applyTimedDebuff(
-          combatants,
-          attacker,
-          target,
-          skill,
-          {
-            type: effect.type,
-            value: effect.value,
-            durationSeconds: effect.durationSeconds,
-            target: effect.target
-          },
-          time,
-          events
-        );
-        break;
-
-      case "apply_status":
-        applyDataStatusEffect(
-          combatants,
-          statusDefinitions,
-          attacker,
-          target,
-          skill,
-          effect,
-          time,
-          events
-        );
-        break;
-    }
-  }
+  dispatchSkillEffects(
+    {
+      combatants,
+      statusDefinitions,
+      attacker,
+      offensiveTarget: target,
+      skill,
+      time,
+      metrics,
+      contributions,
+      events
+    },
+    POST_ATTACK_SKILL_EFFECT_HANDLERS
+  );
 }
 
 function applyCleanseEffect(
@@ -773,6 +873,99 @@ function applyRegenerationEffect(
   });
 }
 
+function applyHealEffect(
+  effect:
+    | SkillEffectForType<"outer_heal_percent">
+    | SkillEffectForType<"inner_heal_percent">,
+  context: SkillEffectResolutionContext
+): void {
+  const value = clampRecoveryEffectValue(getDirectEffectValue(effect));
+
+  if (value <= 0) {
+    return;
+  }
+
+  const target = selectEffectTarget(
+    context.combatants,
+    context.attacker,
+    context.offensiveTarget,
+    effect,
+    context.time
+  );
+
+  if (!isLiving(target)) {
+    return;
+  }
+
+  const result = applyRecoveryToTarget(
+    context.attacker,
+    target,
+    effect.type === "outer_heal_percent" ? target.maxOuterHp * value : 0,
+    effect.type === "inner_heal_percent" ? target.maxInnerQi * value : 0,
+    context.statusDefinitions,
+    context.time,
+    context.metrics,
+    context.contributions
+  );
+
+  context.events.push({
+    type: "heal",
+    time: context.time,
+    sourceId: context.attacker.instanceId,
+    targetId: target.instanceId,
+    skillId: context.skill.id,
+    ...result
+  });
+}
+
+function applyRegenerationSkillEffect(
+  effect:
+    | SkillEffectForType<"outer_regeneration_percent">
+    | SkillEffectForType<"inner_regeneration_percent">,
+  context: SkillEffectResolutionContext
+): void {
+  applyRegenerationEffect(
+    context.combatants,
+    context.attacker,
+    context.offensiveTarget,
+    context.skill,
+    { ...effect, value: getDirectEffectValue(effect) },
+    context.time,
+    context.events
+  );
+}
+
+function applyCleanseSkillEffect(
+  effect: SkillEffectForType<"cleanse">,
+  context: SkillEffectResolutionContext
+): void {
+  applyCleanseEffect(
+    context.combatants,
+    context.statusDefinitions,
+    context.attacker,
+    context.offensiveTarget,
+    context.skill,
+    { ...effect, value: getDirectEffectValue(effect) },
+    context.time,
+    context.metrics,
+    context.contributions,
+    context.events
+  );
+}
+
+export const RECOVERY_SKILL_EFFECT_HANDLERS = {
+  outer_heal_percent: applyHealEffect,
+  inner_heal_percent: applyHealEffect,
+  outer_regeneration_percent: applyRegenerationSkillEffect,
+  inner_regeneration_percent: applyRegenerationSkillEffect,
+  cleanse: applyCleanseSkillEffect
+} as const satisfies SkillEffectHandlerRegistry;
+
+export const SKILL_EFFECT_DISPATCHERS = {
+  post_attack: POST_ATTACK_SKILL_EFFECT_HANDLERS,
+  recovery: RECOVERY_SKILL_EFFECT_HANDLERS
+} as const satisfies Record<SkillEffectDispatchStage, SkillEffectHandlerRegistry>;
+
 export function applyRecoverySkillEffects(
   combatants: CombatantState[],
   statusDefinitions: Record<string, StatusEffectDefinition>,
@@ -788,79 +981,20 @@ export function applyRecoverySkillEffects(
     return;
   }
 
-  for (const effect of skill.effects) {
-    switch (effect.type) {
-      case "outer_heal_percent":
-      case "inner_heal_percent": {
-        const value = clampRecoveryEffectValue(effect.value);
-
-        if (value <= 0) {
-          break;
-        }
-
-        const target = selectEffectTarget(
-          combatants,
-          attacker,
-          offensiveTarget,
-          effect,
-          time
-        );
-
-        if (!isLiving(target)) {
-          break;
-        }
-
-        const result = applyRecoveryToTarget(
-          attacker,
-          target,
-          effect.type === "outer_heal_percent" ? target.maxOuterHp * value : 0,
-          effect.type === "inner_heal_percent" ? target.maxInnerQi * value : 0,
-          statusDefinitions,
-          time,
-          metrics,
-          contributions
-        );
-
-        events.push({
-          type: "heal",
-          time,
-          sourceId: attacker.instanceId,
-          targetId: target.instanceId,
-          skillId: skill.id,
-          ...result
-        });
-        break;
-      }
-
-      case "outer_regeneration_percent":
-      case "inner_regeneration_percent":
-        applyRegenerationEffect(
-          combatants,
-          attacker,
-          offensiveTarget,
-          skill,
-          effect,
-          time,
-          events
-        );
-        break;
-
-      case "cleanse":
-        applyCleanseEffect(
-          combatants,
-          statusDefinitions,
-          attacker,
-          offensiveTarget,
-          skill,
-          effect,
-          time,
-          metrics,
-          contributions,
-          events
-        );
-        break;
-    }
-  }
+  dispatchSkillEffects(
+    {
+      combatants,
+      statusDefinitions,
+      attacker,
+      offensiveTarget,
+      skill,
+      time,
+      metrics,
+      contributions,
+      events
+    },
+    RECOVERY_SKILL_EFFECT_HANDLERS
+  );
 }
 
 export function tickRegeneration(

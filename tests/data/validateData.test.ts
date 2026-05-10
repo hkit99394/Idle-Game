@@ -179,6 +179,39 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects malformed data-driven skill effects", () => {
+    const invalidData = {
+      ...staticData,
+      skills: staticData.skills.map((skill) =>
+        skill.id === "iron_fist_combo"
+          ? {
+              ...skill,
+              effects: [
+                {
+                  type: "apply_status",
+                  statusId: "missing_status",
+                  chance: 2,
+                  durationSeconds: 0,
+                  stacks: 0,
+                  target: "lowest_hp"
+                }
+              ]
+            }
+          : skill
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Skill iron_fist_combo effect apply_status references missing status missing_status",
+        "Skill iron_fist_combo effect apply_status chance must be 0-1",
+        "Skill iron_fist_combo effect apply_status stacks must be positive",
+        "Skill iron_fist_combo effect apply_status target must be one of self, target, lowest_outer_hp_ally, lowest_inner_qi_ally, wounded_or_armor_broken_ally",
+        "Skill iron_fist_combo effect apply_status durationSeconds must be a positive number"
+      ])
+    );
+  });
+
   it("rejects invalid style branch effects", () => {
     const invalidData = {
       ...staticData,

@@ -50,7 +50,7 @@ The recommended theme is **Combat Engine V2**. This is a refactor stage, not a n
 | 49 | Combat Baselines And Scenario Fixtures | In Progress | Lock current battle behavior before moving internals |
 | 50 | Turn Scheduler And Resolution Context | In Progress | Extract action timing and combat context setup from the simulator |
 | 51 | Damage Package And Defense Pipeline | In Progress | Make damage, Qi Break, prevention, and attribution explicit |
-| 52 | Skill Effect Dispatcher And Status Hooks | Planned | Route effects through handlers instead of central simulator branching |
+| 52 | Skill Effect Dispatcher And Status Hooks | In Progress | Route effects through handlers instead of central simulator branching |
 | 53 | Battle Recorder And Progression Adapter Contract | Planned | Keep summaries, metrics, and `resolveStageBattle` stable through the refactor |
 | 54 | Combat Docs And Release Readiness | Planned | Document extension points, verify boundaries, and close Stage 1.8 cleanly |
 
@@ -194,7 +194,11 @@ Move skill effect application behind handler registration or dispatch helpers so
 
 ### Progress Notes
 
-- Not started.
+- Added post-attack and recovery skill effect dispatcher registries in `core/combat/effectPipeline.ts`, replacing the central effect-type switches for guard/protect/armor break/wound/debuff/status and heal/regeneration/cleanse effects.
+- Tightened dispatcher registries so each handler is typed to its registered effect key and timed/status duration gates live with the relevant handlers.
+- Kept dispatcher coverage aligned with `SKILL_EFFECT_TYPES` through `tests/combat/skillEffects.test.ts`, including a disjointness check so effects cannot be registered in multiple stages.
+- Aligned `apply_status` to the validated runtime contract by making skill-effect duration required in the core data type and status estimation helper.
+- Added static-data validation coverage for malformed `apply_status` skill effects, including missing statuses, invalid chance/stacks, invalid targets, and missing positive duration.
 
 ---
 

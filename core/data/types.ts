@@ -51,7 +51,7 @@ export type ApplyStatusSkillEffect = {
   type: "apply_status";
   statusId: string;
   chance: number;
-  durationSeconds?: number;
+  durationSeconds: number;
   stacks?: number;
   target?: SkillEffectTarget;
 };
