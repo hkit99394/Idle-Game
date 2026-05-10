@@ -53,6 +53,8 @@ The current game has enough combat, progression, save, offline, equipment, medic
 
 ## Stage 1.8: Combat Engine V2
 
+Status: active backlog prepared at [Stage 1.8 Backlog](stage-1.8-backlog.md).
+
 ### Goal
 
 Refactor combat resolution into a cleaner pipeline so new skill effects, advanced statuses, and richer formations can be added without turning the simulator into one large fragile function.
@@ -199,4 +201,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare a detailed Stage 1.8 backlog from this roadmap. Stage 1.8 should focus on the Combat Engine V2 refactor while preserving current battle outcomes unless a balance change is intentionally approved.
+Begin Epic 49 in the [Stage 1.8 Backlog](stage-1.8-backlog.md): lock combat baselines and deterministic scenario fixtures before moving simulator internals.
