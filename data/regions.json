@@ -20,7 +20,25 @@
         "elite": { "min": 20, "max": 40 }
       },
       "rewardCurve": {
-        "requireBestFarmRecommendation": true
+        "requireBestFarmRecommendation": true,
+        "allowedRegressions": [
+          {
+            "stageId": "bamboo_road_6",
+            "metrics": [
+              "farmScore",
+              "silver",
+              "cultivation",
+              "combatExperience",
+              "mastery"
+            ],
+            "reason": "Normal stage after the first elite spike intentionally returns to lower tutorial rewards."
+          },
+          {
+            "stageId": "bamboo_road_9",
+            "metrics": ["farmScore", "combatExperience", "mastery"],
+            "reason": "Pre-boss normal stage trades lower Combat XP and mastery yield for higher silver and cultivation."
+          }
+        ]
       },
       "statusPressure": {
         "maxApplications": 15,

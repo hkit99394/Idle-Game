@@ -58,7 +58,7 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 | --- | --- | --- | --- |
 | 61 | Content Pipeline Baselines And Schema Audit | Complete | Inventory current data, budget fields, validation coverage, and authoring pain points |
 | 62 | Region And Stage Budget Validation | Complete | Turn content-budget expectations into stricter validation and tests |
-| 63 | Reward Curve And Farm Recommendation Gates | Planned | Prevent accidental reward/farm regression when adding stages |
+| 63 | Reward Curve And Farm Recommendation Gates | Complete | Prevent accidental reward/farm regression when adding stages |
 | 64 | Difficulty Curve And Boss Gate Reports | Planned | Make stage difficulty, boss gates, and known misses easier to review |
 | 65 | Balance Export And Authoring Tooling | Planned | Produce review-friendly JSON/CSV outputs and repeatable author workflows |
 | 66 | Content Docs And Stage 2.0 Readiness | Planned | Close the stage with contributor docs, release checks, and archive cleanup |
@@ -166,7 +166,10 @@ Prevent accidental reward regressions and make farm recommendations more explain
 
 ### Progress Notes
 
-- Not started.
+- Added farm reward curve validation for weighted farm score, silver, cultivation, herbs, Combat XP, and mastery yield.
+- Added reasoned `rewardCurve.allowedRegressions` entries for the intentional Bamboo Road reward dips.
+- Added farm recommendation score breakdowns, priority, and reasons to balance report JSON/text output.
+- Updated [Balance Template CSV](balance-template.csv) with farm score and recommendation reason columns.
 
 ---
 

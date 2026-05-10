@@ -248,6 +248,20 @@ export type ClearTimeTargetRange = {
 
 export type BalanceResultExpectation = "player_clear" | "enemy_hold";
 
+export type RewardCurveRegressionMetric =
+  | "farmScore"
+  | "silver"
+  | "cultivation"
+  | "herbs"
+  | "combatExperience"
+  | "mastery";
+
+export type RewardCurveRegressionAllowance = {
+  stageId: string;
+  metrics: RewardCurveRegressionMetric[];
+  reason: string;
+};
+
 export type RegionBudgetException = {
   type: "boss_clear_time_target";
   stageId: string;
@@ -262,6 +276,7 @@ export type RegionBalanceTargets = {
   };
   rewardCurve?: {
     requireBestFarmRecommendation?: boolean;
+    allowedRegressions?: RewardCurveRegressionAllowance[];
   };
   statusPressure?: {
     minApplications?: number;

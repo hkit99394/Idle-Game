@@ -87,6 +87,17 @@ describe("balance report", () => {
       )
     ).toBeGreaterThan(0);
     expect(demonCult.farmRecommendation?.stageId).toBe("demon_cult_outpost_6");
+    expect(demonCult.farmRecommendation).toMatchObject({
+      score: 4159,
+      scoreBreakdown: {
+        combatExperience: 1224,
+        silver: 1620,
+        cultivation: 1215,
+        herbs: 100,
+        total: 4159
+      },
+      reason: expect.stringContaining("highest weighted farm score")
+    });
     expect(demonCult.bossGate).toMatchObject({
       stageId: "demon_cult_outpost_7"
     });
@@ -335,6 +346,7 @@ describe("balance report", () => {
     expect(text).toContain("Scenario Summary");
     expect(text).toContain("combined");
     expect(text).toContain("demon_cult_outpost_7");
+    expect(text).toContain("highest weighted farm score");
     expect(report.totals.statusApplications).toBeGreaterThan(0);
     const json = JSON.parse(JSON.stringify(report));
 
@@ -346,6 +358,12 @@ describe("balance report", () => {
     });
     expect(json.totals).toMatchObject({
       stages: staticData.stages.length
+    });
+    expect(json.regions[0].farmRecommendation).toMatchObject({
+      scoreBreakdown: {
+        total: expect.any(Number)
+      },
+      reason: expect.any(String)
     });
   });
 });

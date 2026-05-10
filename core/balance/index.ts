@@ -47,10 +47,12 @@ export {
   defaultDemonCultBossGateCriteria,
   defaultFarmScoreWeights,
   getStageClearTimeTargetRange,
+  getStageRewardScoreBreakdown,
   isWithinClearTimeTarget,
   scoreStageRewards,
   type BalanceTargetCheck,
   type BalanceTargetCheckStatus,
   type StageClearTimeAssessmentInput,
-  type StageClearTimeTargetInput
+  type StageClearTimeTargetInput,
+  type StageRewardScoreBreakdown
 } from "./targets";

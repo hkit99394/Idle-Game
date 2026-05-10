@@ -62,7 +62,7 @@ export function formatBalanceReport(report: BalanceReport): string {
 
       if (region.farmRecommendation !== null) {
         lines.push(
-          `farm ${region.farmRecommendation.stageId} score ${formatNumber(region.farmRecommendation.score)}`
+          `farm ${region.farmRecommendation.stageId} score ${formatNumber(region.farmRecommendation.score)} (${region.farmRecommendation.reason})`
         );
       }
 

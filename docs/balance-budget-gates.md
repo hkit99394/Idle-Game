@@ -10,6 +10,7 @@ Budgets live in each region's required `balanceTargets` entry in `data/regions.j
 
 - `clearTimeSeconds`: stage clear-time bands for normal, elite, and optional boss stages.
 - `rewardCurve.requireBestFarmRecommendation`: checks the reported farm target against the shared farm recommendation policy.
+- `rewardCurve.allowedRegressions`: records intentional farm reward dips by stage, metric, and reason.
 - `statusPressure`: checks enemy-applied status applications, player status tick damage, and medicine consumption.
 - `defensePressure`: checks guard, armor break, and damage-prevention expectations for defensive regions.
 - `healingPressure`: checks healing, cleanse, and recovery-denial expectations for sustain regions.
@@ -35,9 +36,22 @@ Unsupported budget fields fail static validation. Pressure sections are optional
 Contradictory budgets fail validation:
 
 - `rewardCurve.requireBestFarmRecommendation: true` is invalid when the region has no farmable stages.
+- Later farmable stages cannot regress on weighted farm score, silver, cultivation, herbs, Combat XP, or mastery yield unless the exact stage and metric are listed in `rewardCurve.allowedRegressions`.
 - `bossGate.maxFarmClears` and `bossGate.maxTrainingCost` require `bossGate.farmedResult`.
 - `bossGate.clearTimeSeconds` requires at least one boss result to expect `player_clear`.
 - `min` values cannot exceed `max` values, and all numeric budget limits must be finite and non-negative where applicable.
+
+Use `rewardCurve.allowedRegressions` for reward dips that are part of the authored curve:
+
+```json
+{
+  "stageId": "bamboo_road_9",
+  "metrics": ["farmScore", "combatExperience", "mastery"],
+  "reason": "Pre-boss normal stage trades lower Combat XP and mastery yield for higher silver and cultivation."
+}
+```
+
+Regression allowances must reference farmable non-boss stages, use supported metrics, include a reason, and match a real regression. Stale allowances fail validation.
 
 Use `budgetExceptions` only for named deferrals that should remain visible in data:
 

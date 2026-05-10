@@ -84,8 +84,16 @@ function formatRegionFarmLine(region: RegionSummary): string {
   }
 
   const rewards = formatReward(region.farmRecommendation.rewards);
+  const score =
+    "score" in region.farmRecommendation
+      ? `, score ${formatNumber(region.farmRecommendation.score)}`
+      : "";
+  const reason =
+    "reason" in region.farmRecommendation
+      ? `, ${region.farmRecommendation.reason}`
+      : "";
 
-  return `- ${region.regionName}: ${region.farmRecommendation.stageId} (${rewards})`;
+  return `- ${region.regionName}: ${region.farmRecommendation.stageId} (${rewards}${score}${reason})`;
 }
 
 function formatRegionMasteryLine(region: RegionSummary): string {

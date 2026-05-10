@@ -60,7 +60,7 @@ Epic 61 does not change tuning or behavior. Known misses below are recorded as t
 The region target schema currently lives in `balanceTargets` inside [data/regions.json](../data/regions.json):
 
 - `clearTimeSeconds.normal`, `clearTimeSeconds.elite`, and optional `clearTimeSeconds.boss`;
-- `rewardCurve.requireBestFarmRecommendation`;
+- `rewardCurve.requireBestFarmRecommendation` and `rewardCurve.allowedRegressions`;
 - `statusPressure`;
 - `defensePressure`;
 - `healingPressure`;
@@ -88,7 +88,7 @@ These are not accepted silent noise. They are allowed only because the active ba
 
 - Epic 62 defined the required budget fields for normal, elite, boss, and farmable stages.
 - Epic 62 added readable `boss_clear_time_target` exceptions for current boss clear-time deferrals.
-- Epic 63 should turn reward/farm regressions into validation or report failures with actionable reasons.
+- Epic 63 turned unmarked reward/farm regressions into validation failures and added farm recommendation reasons to reports.
 - Epic 64 should improve difficulty-trend, spike, and boss-gate reporting before any retune.
 - Epic 65 should decide whether JSON-only output is enough or whether a generated CSV/spreadsheet export is required.
 - Epic 66 should fold the final content author checklist back into contributor docs.

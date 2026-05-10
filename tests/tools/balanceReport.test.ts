@@ -26,7 +26,17 @@ describe("balance report", () => {
       report.bambooRoadBalance.stageResults.map((stage) => stage.stageId)
     ).toEqual(bambooRoad.stageIds);
     expect(report.bambooRoadBalance.farmRecommendation).toMatchObject({
-      stageId: "bamboo_road_8"
+      stageId: "bamboo_road_8",
+      score: 157,
+      scoreBreakdown: {
+        combatExperience: 80,
+        silver: 44,
+        cultivation: 33,
+        herbs: 0,
+        total: 157
+      },
+      rewardPriority: ["combatExperience", "silver", "cultivation"],
+      reason: expect.stringContaining("weighted score 157")
     });
     expect(report.bambooRoadBalance.masteryMilestone).toMatchObject({
       threshold: 100,
@@ -87,12 +97,46 @@ describe("balance report", () => {
       stageId: "mist_valley_6"
     });
     expect(mistValleyBalance.farmRecommendation).toMatchObject({
-      stageId: "mist_valley_5"
+      stageId: "mist_valley_5",
+      reason: expect.stringContaining("combatExperience")
     });
     expect(mistValleyBalance.bossGate.baseline).toMatchObject({
       stageId: "mist_valley_6",
       ok: true,
       winner: "player"
+    });
+  });
+
+  it("excludes boss and non-farmable stages from farm recommendations", () => {
+    const data = {
+      ...staticData,
+      stages: staticData.stages.map((stage) => {
+        if (stage.id === "bamboo_road_8") {
+          return {
+            ...stage,
+            canFarmOffline: false
+          };
+        }
+
+        if (stage.id === "bamboo_road_10") {
+          return {
+            ...stage,
+            canFarmOffline: true,
+            rewards: {
+              silver: 9999,
+              cultivation: 9999,
+              combatExperience: 9999
+            }
+          };
+        }
+
+        return stage;
+      })
+    } as StaticGameData;
+    const report = buildGameBalanceReport(data);
+
+    expect(report.bambooRoadBalance.farmRecommendation).toMatchObject({
+      stageId: "bamboo_road_5"
     });
   });
 
@@ -418,6 +462,8 @@ describe("balance report", () => {
     expect(formatted).toContain("mist_valley_6");
     expect(formatted).toContain("bamboo_road_10");
     expect(formatted).toContain("Region Farm Recommendations");
+    expect(formatted).toContain("score 157");
+    expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Boss Gates");
     expect(formatted).toContain("Region Budget Gates");

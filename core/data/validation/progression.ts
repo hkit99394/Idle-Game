@@ -2,6 +2,7 @@ import type {
   EnemyDefinition,
   FormationDefinition,
   RegionDefinition,
+  StageRewards,
   SkillDefinition,
   StageDefinition
 } from "../types";
@@ -20,7 +21,29 @@ const BALANCE_TARGET_KEYS = [
 ] as const;
 const CLEAR_TIME_TARGET_KEYS = ["normal", "elite", "boss"] as const;
 const CLEAR_TIME_RANGE_KEYS = ["min", "max"] as const;
-const REWARD_CURVE_TARGET_KEYS = ["requireBestFarmRecommendation"] as const;
+const REWARD_CURVE_TARGET_KEYS = [
+  "requireBestFarmRecommendation",
+  "allowedRegressions"
+] as const;
+const REWARD_CURVE_REGRESSION_KEYS = [
+  "stageId",
+  "metrics",
+  "reason"
+] as const;
+const REWARD_CURVE_REGRESSION_METRICS = [
+  "farmScore",
+  "silver",
+  "cultivation",
+  "herbs",
+  "combatExperience",
+  "mastery"
+] as const;
+const REWARD_CURVE_SCORE_WEIGHTS = {
+  combatExperience: 4,
+  silver: 1,
+  cultivation: 1.5,
+  herbs: 2
+} as const satisfies Record<keyof StageRewards, number>;
 const STATUS_PRESSURE_TARGET_KEYS = [
   "minApplications",
   "maxApplications",
@@ -58,6 +81,15 @@ type RegionBudgetComposition = {
   hasFarmableStages: boolean;
   hasEnemyStatusPressure: boolean;
   bossStageIds: string[];
+  farmableStages: StageDefinition[];
+};
+
+type RewardCurveRegression = {
+  stageId: string;
+  previousStageId: string;
+  metric: (typeof REWARD_CURVE_REGRESSION_METRICS)[number];
+  value: number;
+  previousValue: number;
 };
 
 export function validateClearTimeTargetRange(
@@ -271,7 +303,126 @@ function validateRewardCurveTargets(
     );
   }
 
+  const regressions = getRewardCurveRegressions(composition.farmableStages);
+  const allowedRegressionKeys = getAllowedRewardRegressionKeys(
+    region,
+    targets,
+    composition,
+    regressions,
+    errors
+  );
+
+  for (const regression of regressions) {
+    if (allowedRegressionKeys.has(getRewardRegressionKey(regression))) {
+      continue;
+    }
+
+    errors.push(
+      `Region ${region.id} rewardCurve stage ${regression.stageId} ${formatRewardMetric(regression.metric)} ${formatNumber(regression.value)} is below previous farm stage ${regression.previousStageId} value ${formatNumber(regression.previousValue)}; add an allowedRegressions entry if intentional`
+    );
+  }
+
   return errors;
+}
+
+function getAllowedRewardRegressionKeys(
+  region: RegionDefinition,
+  targets: Record<string, unknown>,
+  composition: RegionBudgetComposition,
+  regressions: RewardCurveRegression[],
+  errors: string[]
+): Set<string> {
+  const allowedRegressions = targets.allowedRegressions;
+  const allowedKeys = new Set<string>();
+
+  if (allowedRegressions === undefined) {
+    return allowedKeys;
+  }
+
+  if (!Array.isArray(allowedRegressions)) {
+    errors.push(
+      `Region ${region.id} balanceTargets.rewardCurve.allowedRegressions must be an array`
+    );
+    return allowedKeys;
+  }
+
+  const farmableStageIds = new Set(
+    composition.farmableStages.map((stage) => stage.id)
+  );
+  const regressionKeys = new Set(regressions.map(getRewardRegressionKey));
+  const seenKeys = new Set<string>();
+
+  for (const [index, allowance] of allowedRegressions.entries()) {
+    const ownerLabel = `Region ${region.id} balanceTargets.rewardCurve.allowedRegressions[${index}]`;
+
+    if (!isRecord(allowance)) {
+      errors.push(`${ownerLabel} must be an object`);
+      continue;
+    }
+
+    errors.push(
+      ...validateAllowedKeys(ownerLabel, allowance, REWARD_CURVE_REGRESSION_KEYS)
+    );
+
+    if (typeof allowance.stageId !== "string" || allowance.stageId.length === 0) {
+      errors.push(`${ownerLabel}.stageId must be a non-empty string`);
+    } else if (!farmableStageIds.has(allowance.stageId)) {
+      errors.push(
+        `${ownerLabel}.stageId ${allowance.stageId} must reference a farmable non-boss stage in region ${region.id}`
+      );
+    }
+
+    if (typeof allowance.reason !== "string" || allowance.reason.trim().length === 0) {
+      errors.push(`${ownerLabel}.reason must be a non-empty string`);
+    }
+
+    if (!Array.isArray(allowance.metrics) || allowance.metrics.length === 0) {
+      errors.push(`${ownerLabel}.metrics must be a non-empty array`);
+      continue;
+    }
+
+    const seenMetrics = new Set<string>();
+    for (const metric of allowance.metrics) {
+      const metricValue = String(metric);
+
+      if (
+        !REWARD_CURVE_REGRESSION_METRICS.includes(
+          metricValue as (typeof REWARD_CURVE_REGRESSION_METRICS)[number]
+        )
+      ) {
+        errors.push(
+          `${ownerLabel}.metrics includes unsupported metric ${String(metric)}`
+        );
+        continue;
+      }
+
+      if (seenMetrics.has(metricValue)) {
+        errors.push(`${ownerLabel}.metrics duplicates ${metricValue}`);
+      }
+      seenMetrics.add(metricValue);
+
+      if (typeof allowance.stageId !== "string" || allowance.stageId.length === 0) {
+        continue;
+      }
+
+      const key = `${allowance.stageId}:${metricValue}`;
+      if (seenKeys.has(key)) {
+        errors.push(`${ownerLabel} duplicates ${metricValue} regression for ${allowance.stageId}`);
+      }
+      seenKeys.add(key);
+
+      if (!regressionKeys.has(key)) {
+        errors.push(
+          `${ownerLabel} allows ${formatRewardMetric(metricValue)} regression for ${allowance.stageId}, but no such regression exists`
+        );
+        continue;
+      }
+
+      allowedKeys.add(key);
+    }
+  }
+
+  return allowedKeys;
 }
 
 function validateStatusPressureTargets(
@@ -725,6 +876,88 @@ function validateAtLeastOneKnownKey(
   errors.push(`${ownerLabel} must define at least one budget field`);
 }
 
+function getRewardCurveRegressions(
+  farmableStages: StageDefinition[]
+): RewardCurveRegression[] {
+  const regressions: RewardCurveRegression[] = [];
+
+  for (let index = 1; index < farmableStages.length; index += 1) {
+    const previousStage = farmableStages[index - 1];
+    const stage = farmableStages[index];
+    const comparisons: Array<{
+      metric: RewardCurveRegression["metric"];
+      value: number;
+      previousValue: number;
+    }> = [
+      {
+        metric: "farmScore",
+        value: scoreFarmRewards(stage.rewards),
+        previousValue: scoreFarmRewards(previousStage.rewards)
+      },
+      {
+        metric: "silver",
+        value: stage.rewards.silver,
+        previousValue: previousStage.rewards.silver
+      },
+      {
+        metric: "cultivation",
+        value: stage.rewards.cultivation,
+        previousValue: previousStage.rewards.cultivation
+      },
+      {
+        metric: "herbs",
+        value: stage.rewards.herbs ?? 0,
+        previousValue: previousStage.rewards.herbs ?? 0
+      },
+      {
+        metric: "combatExperience",
+        value: stage.rewards.combatExperience,
+        previousValue: previousStage.rewards.combatExperience
+      },
+      {
+        metric: "mastery",
+        value: stage.rewards.combatExperience,
+        previousValue: previousStage.rewards.combatExperience
+      }
+    ];
+
+    for (const comparison of comparisons) {
+      if (comparison.value < comparison.previousValue) {
+        regressions.push({
+          stageId: stage.id,
+          previousStageId: previousStage.id,
+          ...comparison
+        });
+      }
+    }
+  }
+
+  return regressions;
+}
+
+function scoreFarmRewards(rewards: StageRewards): number {
+  return (
+    rewards.combatExperience * REWARD_CURVE_SCORE_WEIGHTS.combatExperience +
+    rewards.silver * REWARD_CURVE_SCORE_WEIGHTS.silver +
+    rewards.cultivation * REWARD_CURVE_SCORE_WEIGHTS.cultivation +
+    (rewards.herbs ?? 0) * REWARD_CURVE_SCORE_WEIGHTS.herbs
+  );
+}
+
+function getRewardRegressionKey(regression: RewardCurveRegression): string {
+  return `${regression.stageId}:${regression.metric}`;
+}
+
+function formatRewardMetric(metric: string): string {
+  return metric === "farmScore" ? "farm score" : metric;
+}
+
+function formatNumber(value: number): string {
+  return Number.isInteger(value)
+    ? String(value)
+    : value.toFixed(2).replace(/\.?0+$/, "");
+}
+
 function buildRegionBudgetComposition(
   region: RegionDefinition,
   stages: StageDefinition[],
@@ -739,7 +972,8 @@ function buildRegionBudgetComposition(
     hasEliteStages: false,
     hasFarmableStages: false,
     hasEnemyStatusPressure: false,
-    bossStageIds: []
+    bossStageIds: [],
+    farmableStages: []
   };
 
   for (const stageId of region.stageIds) {
@@ -765,6 +999,7 @@ function buildRegionBudgetComposition(
 
     if (stage.canFarmOffline && !stage.isBoss) {
       composition.hasFarmableStages = true;
+      composition.farmableStages.push(stage);
     }
 
     if (

@@ -510,6 +510,77 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects unallowed farm reward curve regressions", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "bamboo_road"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                rewardCurve: {
+                  requireBestFarmRecommendation: true
+                }
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region bamboo_road rewardCurve stage bamboo_road_6 farm score 84.5 is below previous farm stage bamboo_road_5 value 136; add an allowedRegressions entry if intentional",
+        "Region bamboo_road rewardCurve stage bamboo_road_6 combatExperience 8 is below previous farm stage bamboo_road_5 value 20; add an allowedRegressions entry if intentional",
+        "Region bamboo_road rewardCurve stage bamboo_road_9 mastery 10 is below previous farm stage bamboo_road_8 value 20; add an allowedRegressions entry if intentional"
+      ])
+    );
+  });
+
+  it("rejects invalid farm reward regression allowances", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "mist_valley"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                rewardCurve: {
+                  ...region.balanceTargets?.rewardCurve,
+                  allowedRegressions: [
+                    {
+                      stageId: "mist_valley_2",
+                      metrics: ["farmScore", "farmScore", "prestige"],
+                      reason: "",
+                      extra: true
+                    },
+                    {
+                      stageId: "mist_valley_6",
+                      metrics: ["silver"],
+                      reason: "Bosses are not farmable."
+                    }
+                  ]
+                }
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].extra is not supported",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].reason must be a non-empty string",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0] allows farm score regression for mist_valley_2, but no such regression exists",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].metrics duplicates farmScore",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].metrics includes unsupported metric prestige",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[1].stageId mist_valley_6 must reference a farmable non-boss stage in region mist_valley",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[1] allows silver regression for mist_valley_6, but no such regression exists"
+      ])
+    );
+  });
+
   it("rejects unknown expected status ids in region balance targets", () => {
     const invalidData: StaticGameData = {
       ...staticData,

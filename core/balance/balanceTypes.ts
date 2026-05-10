@@ -1,5 +1,6 @@
 import type { BaseStats } from "../combat";
 import type { ClearTimeTargetRange, StageDefinition } from "../data";
+import type { StageRewardScoreBreakdown } from "./targets";
 
 export type BalanceResult = "player_clear" | "enemy_hold";
 export type BalanceScenarioId =
@@ -74,6 +75,8 @@ export type RegionBalanceReport = {
   farmRecommendation: {
     stageId: string;
     score: number;
+    scoreBreakdown: StageRewardScoreBreakdown;
+    reason: string;
   } | null;
   bossGate: {
     stageId: string;

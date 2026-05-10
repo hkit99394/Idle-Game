@@ -141,18 +141,45 @@ export const defaultFarmScoreWeights = {
   herbs: 2
 } as const satisfies Record<keyof StageRewards, number>;
 
+export type StageRewardScoreBreakdown = {
+  combatExperience: number;
+  silver: number;
+  cultivation: number;
+  herbs: number;
+  total: number;
+};
+
+export function getStageRewardScoreBreakdown(
+  rewards: Pick<
+    StageRewards,
+    "combatExperience" | "silver" | "cultivation" | "herbs"
+  >
+): StageRewardScoreBreakdown {
+  const breakdown = {
+    combatExperience:
+      rewards.combatExperience * defaultFarmScoreWeights.combatExperience,
+    silver: rewards.silver * defaultFarmScoreWeights.silver,
+    cultivation: rewards.cultivation * defaultFarmScoreWeights.cultivation,
+    herbs: (rewards.herbs ?? 0) * defaultFarmScoreWeights.herbs
+  };
+
+  return {
+    ...breakdown,
+    total:
+      breakdown.combatExperience +
+      breakdown.silver +
+      breakdown.cultivation +
+      breakdown.herbs
+  };
+}
+
 export function scoreStageRewards(
   rewards: Pick<
     StageRewards,
     "combatExperience" | "silver" | "cultivation" | "herbs"
   >
 ): number {
-  return (
-    rewards.combatExperience * defaultFarmScoreWeights.combatExperience +
-    rewards.silver * defaultFarmScoreWeights.silver +
-    rewards.cultivation * defaultFarmScoreWeights.cultivation +
-    (rewards.herbs ?? 0) * defaultFarmScoreWeights.herbs
-  );
+  return getStageRewardScoreBreakdown(rewards).total;
 }
 
 function formatNumber(value: number): string {

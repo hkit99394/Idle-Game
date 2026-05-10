@@ -3,6 +3,7 @@ import {
   cloneProgress,
   createInitialPlayerProgress,
   getRecommendedOfflineFarmStage,
+  OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY,
   getUpgradeLevel,
   isBetterOfflineFarmStage,
   getNextMasteryThreshold,
@@ -18,6 +19,7 @@ import type { StaticGameData, StageDefinition } from "../data";
 import {
   assessStageClearTimeTarget,
   getStageClearTimeTargetRange,
+  getStageRewardScoreBreakdown,
   isWithinClearTimeTarget,
   scoreStageRewards,
   type BalanceTargetCheck
@@ -237,9 +239,15 @@ function buildRegionFarmRecommendation(
     return null;
   }
 
+  const score = scoreStageRewards(farmStage.rewards);
+
   return {
     stageId: farmStage.id,
-    rewards: farmStage.rewards
+    rewards: farmStage.rewards,
+    score,
+    scoreBreakdown: getStageRewardScoreBreakdown(farmStage.rewards),
+    rewardPriority: [...OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY],
+    reason: `best cleared farm by ${OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY.join(" > ")} priority; weighted score ${formatNumber(score)}`
   };
 }
 

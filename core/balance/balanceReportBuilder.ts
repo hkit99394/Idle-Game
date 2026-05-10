@@ -14,6 +14,7 @@ import {
   assessStageClearTimeTarget,
   defaultBossGateCriteria,
   defaultDemonCultBossGateCriteria,
+  getStageRewardScoreBreakdown,
   getStageClearTimeTargetRange,
   scoreStageRewards
 } from "./targets";
@@ -569,7 +570,9 @@ function getFarmRecommendation(
 
   return {
     stageId: bestStage.stageId,
-    score: getFarmScore(bestStage)
+    score: getFarmScore(bestStage),
+    scoreBreakdown: getStageRewardScoreBreakdown(bestStage.rewards),
+    reason: `highest weighted farm score among ${farmStages.length} farmable stages`
   };
 }
 
