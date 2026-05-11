@@ -82,7 +82,7 @@ Stage 2.1 adds opt-in tactic comparison exports without changing the default rep
 
 The current simulator output keeps these misses visible:
 
-| Region | Current miss | Stage 2.0 disposition |
+| Region | Current miss | Disposition through Stage 2.1 |
 | --- | --- | --- |
 | Black Iron Fort | `black_iron_fort_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
 | Demon Cult Outpost | `demon_cult_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
@@ -91,7 +91,7 @@ The current simulator output keeps these misses visible:
 | Demon Cult Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
 | Demon Cult Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
-These are not accepted silent noise. They are allowed only because the archived Stage 2.0 backlog names them as deferred tuning debt.
+These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
 
 ## Stage 2.1 Tactic Comparison Notes
 

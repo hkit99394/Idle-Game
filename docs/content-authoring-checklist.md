@@ -52,7 +52,7 @@ Every region needs `balanceTargets` in [regions.json](../data/regions.json):
 - `bossGate` with baseline, trained, or farmed result expectations.
 - `budgetExceptions` only for explicit, named deferrals that should stay visible in data.
 
-Do not accept a new budget miss silently. Either fix the content, add a reasoned exception where validation supports it, or record the miss as tuning debt in the active backlog or roadmap.
+Do not accept a new budget miss silently. Either fix the content, add a reasoned exception where validation supports it, or record the miss as tuning debt in the active release authority: [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), configured `balanceTargets`, and simulator budget output should agree on the accepted miss.
 
 ## Report Review
 

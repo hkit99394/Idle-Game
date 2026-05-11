@@ -96,7 +96,7 @@ Run:
 npm run simulate
 ```
 
-Review `Region Difficulty Curve`, `Region Boss Gate Assumptions`, and `Region Budget Gates` together. A failed budget is acceptable only when the stage backlog records it as known tuning debt. Otherwise, treat the failure as a balance regression.
+Review `Region Difficulty Curve`, `Region Boss Gate Assumptions`, and `Region Budget Gates` together. Use active sources as the release authority for known tuning debt: [Content Pipeline Inventory](content-pipeline-inventory.md), this budget-gates guide, configured `balanceTargets`, and the simulator budget output must agree on the accepted miss. Archived backlogs are historical closure evidence only; they do not authorize a current release exception by themselves. Otherwise, treat the failure as a balance regression.
 
 For the full debug JSON used by low-level checks, run:
 

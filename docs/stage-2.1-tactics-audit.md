@@ -30,7 +30,7 @@ Tactic definitions are authored as static data in `data/tactics.json`, assembled
 | `sustain` | Long Breath | Win longer fights through recovery and safer status pressure. | Recovery, resistance, and auto-medicine posture emphasis. |
 | `boss_burst` | Boss Burst | Focus elite or boss-like threats for a decisive clear attempt. | High-CP target priority with a small opening or boss-pressure damage emphasis. |
 
-These names are intentionally player-readable but not final UI copy. Epic 68 can adjust names while preserving the ids if the content feels too wordy.
+These names are the implemented Stage 2.1 MVP copy. Future copy tuning should preserve the ids unless a save migration also updates persisted selections.
 
 ## Behavior Boundaries
 
@@ -41,22 +41,24 @@ These names are intentionally player-readable but not final UI copy. Epic 68 can
 - Tactics should not create new real-time player input during battle.
 - Tactics should not hide existing budget misses. Black Iron Fort and Demon Cult misses remain visible unless a later epic intentionally retunes them.
 
-## Touchpoint Map
+## Current Ownership And Extension Map
 
-| Surface | Current owner | Stage 2.1 touchpoint |
+Stage 2.1 tactics are now live. This map records the current owning surfaces and the expected extension path for future tactic work.
+
+| Surface | Current ownership | Extension contract |
 | --- | --- | --- |
-| Static data | `data/*`, `data/staticGameData.ts`, `core/data/staticDataBuilder.ts`, `core/data/types.ts` | Add `data/tactics.json`, `StaticGameData.tactics`, tactic field types, builder key, and data export. |
-| Validation | `core/data/validateData.ts`, `core/data/validation/combat.ts`, `tests/data/*` | Validate duplicate ids, one default balanced tactic, player-facing name, supported target rules, modifier ranges, and contradictory fields. |
-| Combat input | `core/combat/types.ts`, `core/combat/simulator.ts` | Add optional tactic input to `SimulateBattleInput`, resolve missing input to balanced, and expose the applied tactic id in `BattleResult` or report metadata. |
-| Targeting | `core/combat/targeting.ts`, `core/combat/damagePackage.ts` | Apply tactic target-rule overrides before `selectTarget` without changing the underlying skill definition. |
-| Damage and defense | `core/combat/damagePackage.ts`, `core/combat/defensivePipeline.ts` | Apply small player-side tactic multipliers at package creation or mitigation, keeping mutation in existing package/mitigation commits. |
-| Recovery and status | `core/combat/effectPipeline.ts`, `core/combat/statusEffects.ts`, `core/combat/autoMedicine/*` | Apply sustain/protection posture through recovery, resistance, cleanse, or medicine policy inputs where the owning behavior already lives. |
-| Metrics and events | `core/combat/battleRecorder.ts`, `web/state/viewModels/battle.ts` | Add tactic metadata and, if needed, contribution fields that explain tactic impact without changing battle replay semantics casually. |
-| Progression adapter | `core/progression/types.ts`, `core/progression/battleResolution.ts` | `resolveStageBattle` now sources the selected tactic from `PlayerProgress.selectedTacticId` when no explicit tactic input is supplied. |
+| Static data | `data/tactics.json`, `data/staticGameData.ts`, `core/data/staticDataBuilder.ts`, `core/data/types.ts` | `data/tactics.json` is the canonical tactic catalog, assembled into `StaticGameData.tactics` and shared through the static data builder. New tactic fields travel through the content type, builder assembly, and data export together. |
+| Validation | `core/data/validateData.ts`, `core/data/validation/combat.ts`, `tests/data/*` | Validation owns duplicate ids, the single balanced default, player-facing copy requirements, supported target rules, modifier ranges, and contradictory fields. New behavior fields need validation and representative failure tests before use. |
+| Combat input | `core/combat/types.ts`, `core/combat/simulator.ts` | Battle simulation accepts an optional tactic input, falls back to balanced when missing, and exposes the applied tactic id through result/report metadata. |
+| Targeting | `core/combat/targeting.ts`, `core/combat/damagePackage.ts` | Tactic target-rule overrides resolve at runtime before `selectTarget`; skill definitions stay unchanged. |
+| Damage and defense | `core/combat/damagePackage.ts`, `core/combat/defensivePipeline.ts` | Player-side tactic multipliers belong in package creation or mitigation, keeping combat mutation inside the existing damage/defense commits. |
+| Recovery and status | `core/combat/effectPipeline.ts`, `core/combat/statusEffects.ts`, `core/combat/autoMedicine/*` | Sustain and protection posture changes belong where recovery, resistance, cleanse, or medicine policy already resolves. |
+| Metrics and events | `core/combat/battleRecorder.ts`, `web/state/viewModels/battle.ts` | Tactic metadata and contribution fields should explain tactic impact while preserving battle replay semantics. |
+| Progression adapter | `core/progression/types.ts`, `core/progression/battleResolution.ts` | `resolveStageBattle` sources the selected tactic from `PlayerProgress.selectedTacticId` when no explicit tactic input is supplied. |
 | Save loading | `core/save/*`, `tests/save/*`, `web/state/saveStorage.ts` | Save schema v10 persists `selectedTacticId`, migrates missing tactics to `balanced`, validates imported tactic ids, and normalizes invalid ids. |
-| Web state | `web/state/actions.ts`, `commandActions.ts`, `reducerBranches.ts`, `useWebGameCommandDomains.ts`, `viewModels/*` | The strategy action domain, tactic command factory, reducer branch, hook command, and tactic view-model builder set and expose `selectedTacticId`. |
-| Web UI | `web/app/AppPanels.tsx`, `web/features/*`, `web/styles/app.css` | The compact Strategy panel shows selectable tactic presets and selected state near roster/formation without adding a large explanatory page. |
-| Balance report | `core/balance/simulatedBalanceReport.ts`, `tools/balance/*`, `tools/simulateBattle.ts` | Preserve default balanced report output. Add opt-in tactic comparison export/report rows instead of multiplying every existing table by tactic. |
+| Web state | `web/state/actions.ts`, `commandActions.ts`, `reducerBranches.ts`, `useWebGameCommandDomains.ts`, `viewModels/*` | The strategy action domain, tactic command factory, reducer branch, hook command, and tactic view-model builder own selected-tactic state flow. |
+| Web UI | `web/app/AppPanels.tsx`, `web/features/*`, `web/styles/app.css` | The compact Strategy panel owns selectable tactic presets and selected state near roster/formation. |
+| Balance report | `core/balance/simulatedBalanceReport.ts`, `tools/balance/*`, `tools/simulateBattle.ts` | Default balanced report output remains the release gate. Opt-in tactic comparison exports/reports own tactic-specific rows. |
 
 ## Save And UI Decision
 
@@ -84,14 +86,14 @@ Epic 71 added opt-in tactic comparison outputs rather than changing every defaul
 
 Comparison rows include tactic id, tactic name, region id, stage id, result, baseline result, duration, target status, budget shift, status damage, medicine consumed, guard/protection/healing pressure, and contribution deltas.
 
-## Epic 68 Schema Handoff
+## Historical Epic 68 Schema Handoff
 
-Epic 68 added the static data contract, not combat behavior:
+This section is retained as closure history, not active implementation guidance. Epic 68 covered the static data contract before combat behavior shipped:
 
-1. Add tactic data types and `StaticGameData.tactics`.
-2. Add `data/tactics.json` with the six MVP ids above and `balanced` marked as the default.
-3. Add validation for ids, labels, default count, target-rule references, range checks, and contradictory fields.
-4. Add tests that prove valid tactics pass and invalid tactics fail with actionable messages.
-5. Update docs only enough to explain the schema; deeper behavior docs belong after Epic 69.
+1. Tactic data types and `StaticGameData.tactics`.
+2. `data/tactics.json` with the six MVP ids above and `balanced` marked as the default.
+3. Validation for ids, labels, default count, target-rule references, range checks, and contradictory fields.
+4. Tests proving valid tactics pass and invalid tactics fail with actionable messages.
+5. Minimal schema documentation before Epic 69 documented deeper behavior.
 
 The static-data contract now exists in [tactics.json](../data/tactics.json), `StaticGameData.tactics`, and `validateStaticGameData`. Epic 69 activated the combat behavior through runtime tactic inputs, and Epic 70 completed persistence and web selection.
