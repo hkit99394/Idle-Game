@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 1.9. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 2.0. Older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -9,6 +9,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - The rules engine lives in `core/` and is reused by web state, tests, balance tools, and future backend callers.
 - `core/` has no browser dependency. Browser persistence stays in `web/`, while save parsing, migration, validation, offline reward semantics, and normalization stay in `core/save`.
 - Static game data is assembled through the canonical static-data builder before validation and simulation.
+- Stage 2.0 completed the content pipeline pass: region budgets, reward-curve validation, difficulty/boss-gate reporting, authoring exports, and content readiness docs.
 
 ## Combat
 
@@ -70,9 +71,13 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Saves are versioned local JSON with export, import, reset-new-game, diagnostics, migration fixtures, and strict validation.
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
+- Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json` and spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`.
+- The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
+- The practical checklist for adding or changing regions is [Content Authoring Checklist](content-authoring-checklist.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
-- Completed backlogs through Stage 1.9 live in `docs/archive`.
+- Completed backlogs through Stage 2.0 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
+- Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules
@@ -87,5 +92,6 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 ## Current Known Balance Notes
 
 - Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
-- Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and known target misses.
-- Stage 2.0 is active at [Stage 2.0 Backlog](stage-2.0-backlog.md) and focuses on content pipeline validation and authoring support now that the web UI is modularized.
+- Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and [Content Pipeline Inventory](content-pipeline-inventory.md) for current validation coverage, manual gaps, and known target misses.
+- Stage 2.0 kept current content playable while making future region authoring safer. Known Black Iron Fort and Demon Cult tuning misses remain documented debt, not silent report noise.
+- The recommended next roadmap focus is Stage 2.1 strategy work, using the Stage 2.0 content pipeline before adding larger content slices.

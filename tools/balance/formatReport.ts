@@ -84,8 +84,16 @@ function formatRegionFarmLine(region: RegionSummary): string {
   }
 
   const rewards = formatReward(region.farmRecommendation.rewards);
+  const score =
+    "score" in region.farmRecommendation
+      ? `, score ${formatNumber(region.farmRecommendation.score)}`
+      : "";
+  const reason =
+    "reason" in region.farmRecommendation
+      ? `, ${region.farmRecommendation.reason}`
+      : "";
 
-  return `- ${region.regionName}: ${region.farmRecommendation.stageId} (${rewards})`;
+  return `- ${region.regionName}: ${region.farmRecommendation.stageId} (${rewards}${score}${reason})`;
 }
 
 function formatRegionMasteryLine(region: RegionSummary): string {
@@ -118,6 +126,78 @@ function formatRegionBossGateLine(region: RegionSummary): string {
     : "";
 
   return `- ${region.regionName}: baseline ${formatBossLine(region.bossGate.baseline)}${trained}${farmed}`;
+}
+
+function formatRegionDifficultyLine(region: RegionSummary): string {
+  const curve = region.difficultyCurve;
+  const summary = curve.summary;
+  const trend =
+    summary.firstClearStageId && summary.lastClearStageId
+      ? `${summary.clearCount} clears from ${summary.firstClearStageId} ${formatNumber(
+          summary.firstClearSeconds ?? 0
+        )}s to ${summary.lastClearStageId} ${formatNumber(
+          summary.lastClearSeconds ?? 0
+        )}s, max ${summary.maxClearStageId} ${formatNumber(
+          summary.maxClearSeconds ?? 0
+        )}s`
+      : "no player clears";
+  const resultCounts = [
+    `${summary.holdCount} holds`,
+    `${summary.unresolvedCount} unresolved`
+  ].join(", ");
+  const issues =
+    curve.issues.length === 0
+      ? "none"
+      : curve.issues
+          .map((issue) => `${issue.stageId}: ${issue.reason}`)
+          .join("; ");
+  const spikes =
+    curve.spikes.length === 0
+      ? "none"
+      : curve.spikes
+          .map(
+            (spike) =>
+              `${spike.status} ${spike.stageId} +${formatNumber(
+                spike.durationDeltaSeconds
+              )}s vs ${spike.previousStageId} (${formatNumber(
+                spike.ratio
+              )}x)`
+          )
+          .join("; ");
+
+  return `- ${region.regionName}: trend ${trend}; results ${resultCounts}; issues ${issues}; spikes ${spikes}`;
+}
+
+function formatRegionBossGateAssumptionLine(region: RegionSummary): string {
+  const assumptions = region.bossGateAssumptions.map((assumption) => {
+    const result = assumption.ok
+      ? `${assumption.result} in ${formatNumber(assumption.durationSeconds)}s`
+      : `unresolved (${assumption.reason})`;
+    const target = assumption.targetSeconds
+      ? `, target ${assumption.targetSeconds[0]}-${assumption.targetSeconds[1]}s ${
+          assumption.targetMet ? "ok" : "miss"
+        }`
+      : "";
+    const farms =
+      assumption.farmClears === null
+        ? ""
+        : `, farms ${assumption.farmClears} ${
+            assumption.farmStageId ?? "region"
+          }`;
+    const training =
+      assumption.trainingCost === null
+        ? ", training n/a"
+        : `, training ${formatNumber(assumption.trainingCost)} silver`;
+
+    return (
+      `${assumption.scenario} ${result}${target}, ` +
+      `medicine ${assumption.medicineConsumed}, ` +
+      `status damage ${formatNumber(assumption.statusDamage)}` +
+      `${farms}${training}`
+    );
+  });
+
+  return `- ${region.regionName}: ${assumptions.join("; ")}`;
 }
 
 function formatRegionBudgetGateLine(region: RegionSummary): string {
@@ -203,8 +283,14 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     "Region Mastery Milestones",
     ...report.regionBalances.map(formatRegionMasteryLine),
     "",
+    "Region Difficulty Curve",
+    ...report.regionBalances.map(formatRegionDifficultyLine),
+    "",
     "Region Boss Gates",
     ...report.regionBalances.map(formatRegionBossGateLine),
+    "",
+    "Region Boss Gate Assumptions",
+    ...report.regionBalances.map(formatRegionBossGateAssumptionLine),
     "",
     "Region Budget Gates",
     ...report.regionBalances.map(formatRegionBudgetGateLine),
@@ -231,6 +317,6 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     `- Trained: ${formatBossLine(balance.bossGate.trained)}`,
     `- Training economy: ${trainingLine}`,
     "",
-    "Run `npm run simulate -- --json` for full metrics."
+    "Run `npm run simulate -- --json` for full metrics, or `npm run --silent simulate -- --export-json` / `--csv` for clean export stdout."
   ].join("\n");
 }

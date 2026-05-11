@@ -20,7 +20,25 @@
         "elite": { "min": 20, "max": 40 }
       },
       "rewardCurve": {
-        "requireBestFarmRecommendation": true
+        "requireBestFarmRecommendation": true,
+        "allowedRegressions": [
+          {
+            "stageId": "bamboo_road_6",
+            "metrics": [
+              "farmScore",
+              "silver",
+              "cultivation",
+              "combatExperience",
+              "mastery"
+            ],
+            "reason": "Normal stage after the first elite spike intentionally returns to lower tutorial rewards."
+          },
+          {
+            "stageId": "bamboo_road_9",
+            "metrics": ["farmScore", "combatExperience", "mastery"],
+            "reason": "Pre-boss normal stage trades lower Combat XP and mastery yield for higher silver and cultivation."
+          }
+        ]
       },
       "statusPressure": {
         "maxApplications": 15,
@@ -30,7 +48,14 @@
       "bossGate": {
         "baselineResult": "enemy_hold",
         "trainedResult": "player_clear"
-      }
+      },
+      "budgetExceptions": [
+        {
+          "type": "boss_clear_time_target",
+          "stageId": "bamboo_road_10",
+          "reason": "Training-gate clear timing is deferred until Epic 64 adds boss difficulty report tuning."
+        }
+      ]
     },
     "unlockCondition": { "type": "always" }
   },
@@ -98,7 +123,14 @@
         "farmedResult": "player_clear",
         "maxFarmClears": 20,
         "maxTrainingCost": 7000
-      }
+      },
+      "budgetExceptions": [
+        {
+          "type": "boss_clear_time_target",
+          "stageId": "black_iron_fort_7",
+          "reason": "Farmed counterplay timing remains tuning debt until Epic 64 reviews boss gate reports."
+        }
+      ]
     },
     "unlockCondition": {
       "type": "stage_cleared",
@@ -136,7 +168,14 @@
         "farmedResult": "player_clear",
         "maxFarmClears": 10,
         "maxTrainingCost": 5000
-      }
+      },
+      "budgetExceptions": [
+        {
+          "type": "boss_clear_time_target",
+          "stageId": "lotus_monastery_7",
+          "reason": "Farmed support timing remains tuning debt until Epic 64 reviews boss gate reports."
+        }
+      ]
     },
     "unlockCondition": {
       "type": "stage_cleared",

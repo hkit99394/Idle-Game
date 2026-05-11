@@ -359,6 +359,228 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects missing required region budget guidance", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "bamboo_road"
+          ? {
+              ...region,
+              balanceTargets: {}
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region bamboo_road balanceTargets.clearTimeSeconds must be an object",
+        "Region bamboo_road balanceTargets.rewardCurve.requireBestFarmRecommendation must be true because region has farmable stages",
+        "Region bamboo_road balanceTargets.statusPressure is required because region enemies apply status effects",
+        "Region bamboo_road balanceTargets.bossGate is required because region has boss stages"
+      ])
+    );
+  });
+
+  it("requires explicit budget exceptions for deferred boss clear-time targets", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "black_iron_fort"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                budgetExceptions: []
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Region black_iron_fort boss stage black_iron_fort_7 requires balanceTargets.bossGate.clearTimeSeconds, balanceTargets.clearTimeSeconds.boss, or a boss_clear_time_target budget exception because a boss result is expected to clear"
+    );
+  });
+
+  it("rejects unsupported and contradictory region budget fields", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "demon_cult_outpost"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                extraBudget: true,
+                clearTimeSeconds: {
+                  ...region.balanceTargets?.clearTimeSeconds,
+                  normal: {
+                    ...region.balanceTargets?.clearTimeSeconds.normal,
+                    average: 9
+                  },
+                  quick: { min: 1, max: 3 }
+                },
+                rewardCurve: {
+                  ...region.balanceTargets?.rewardCurve,
+                  allowRegression: true
+                },
+                statusPressure: {},
+                bossGate: {
+                  baselineResult: "enemy_hold",
+                  maxFarmClears: 5,
+                  clearTimeSeconds: { min: 80, max: 140 }
+                }
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region demon_cult_outpost balanceTargets.extraBudget is not supported",
+        "Region demon_cult_outpost balanceTargets.clearTimeSeconds.quick is not supported",
+        "Region demon_cult_outpost balanceTargets.clearTimeSeconds.normal.average is not supported",
+        "Region demon_cult_outpost balanceTargets.rewardCurve.allowRegression is not supported",
+        "Region demon_cult_outpost balanceTargets.statusPressure must define at least one budget field",
+        "Region demon_cult_outpost balanceTargets.bossGate.maxFarmClears requires farmedResult",
+        "Region demon_cult_outpost balanceTargets.bossGate.clearTimeSeconds requires at least one player_clear boss result"
+      ])
+    );
+  });
+
+  it("rejects invalid region budget exceptions", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "mist_valley"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                budgetExceptions: [
+                  {
+                    type: "boss_clear_time_target",
+                    stageId: "mist_valley_6",
+                    reason: "Already has a boss clear-time target."
+                  },
+                  {
+                    type: "boss_clear_time_target",
+                    stageId: "missing_stage",
+                    reason: ""
+                  },
+                  {
+                    type: "unknown_exception",
+                    stageId: "mist_valley_6",
+                    reason: "Unsupported exception type."
+                  }
+                ]
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region mist_valley balanceTargets.budgetExceptions[0] is redundant because a boss clear-time target is configured",
+        "Region mist_valley balanceTargets.budgetExceptions[1].reason must be a non-empty string",
+        "Region mist_valley balanceTargets.budgetExceptions[1].stageId missing_stage must reference a boss stage in region mist_valley",
+        "Region mist_valley balanceTargets.budgetExceptions[2].type must be one of boss_clear_time_target"
+      ])
+    );
+  });
+
+  it("rejects farm recommendation gates when a region has no farmable stages", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      stages: staticData.stages.map((stage) =>
+        stage.regionId === "mist_valley"
+          ? {
+              ...stage,
+              canFarmOffline: false
+            }
+          : stage
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toContain(
+      "Region mist_valley balanceTargets.rewardCurve.requireBestFarmRecommendation cannot be true because region has no farmable stages"
+    );
+  });
+
+  it("rejects unallowed farm reward curve regressions", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "bamboo_road"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                rewardCurve: {
+                  requireBestFarmRecommendation: true
+                }
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region bamboo_road rewardCurve stage bamboo_road_6 farm score 84.5 is below previous farm stage bamboo_road_5 value 136; add an allowedRegressions entry if intentional",
+        "Region bamboo_road rewardCurve stage bamboo_road_6 combatExperience 8 is below previous farm stage bamboo_road_5 value 20; add an allowedRegressions entry if intentional",
+        "Region bamboo_road rewardCurve stage bamboo_road_9 mastery 10 is below previous farm stage bamboo_road_8 value 20; add an allowedRegressions entry if intentional"
+      ])
+    );
+  });
+
+  it("rejects invalid farm reward regression allowances", () => {
+    const invalidData = {
+      ...staticData,
+      regions: staticData.regions.map((region) =>
+        region.id === "mist_valley"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                rewardCurve: {
+                  ...region.balanceTargets?.rewardCurve,
+                  allowedRegressions: [
+                    {
+                      stageId: "mist_valley_2",
+                      metrics: ["farmScore", "farmScore", "prestige"],
+                      reason: "",
+                      extra: true
+                    },
+                    {
+                      stageId: "mist_valley_6",
+                      metrics: ["silver"],
+                      reason: "Bosses are not farmable."
+                    }
+                  ]
+                }
+              }
+            }
+          : region
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].extra is not supported",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].reason must be a non-empty string",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0] allows farm score regression for mist_valley_2, but no such regression exists",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].metrics duplicates farmScore",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].metrics includes unsupported metric prestige",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[1].stageId mist_valley_6 must reference a farmable non-boss stage in region mist_valley",
+        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[1] allows silver regression for mist_valley_6, but no such regression exists"
+      ])
+    );
+  });
+
   it("rejects unknown expected status ids in region balance targets", () => {
     const invalidData: StaticGameData = {
       ...staticData,

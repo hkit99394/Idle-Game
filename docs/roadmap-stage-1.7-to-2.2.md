@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). The next roadmap focus is Stage 2.0 content pipeline, then strategy, and backend/PWA readiness.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). The next roadmap focus is Stage 2.1 player strategy, then backend/PWA readiness.
 
 The recommended sequence is:
 
@@ -130,27 +130,27 @@ The current web state and app shell are functional, but large. Splitting by feat
 
 ### Goal
 
-Make new regions, enemies, skills, rewards, and balance budgets easier to author and validate.
+Completed: make new regions, enemies, skills, rewards, and balance budgets easier to author and validate.
 
 ### Why This Matters
 
-The game can now support more regions, but content tuning is still partly manual. Before adding several more maps, the project needs stronger content rules and tooling.
+The game can support more regions, and Stage 2.0 made the content pipeline safer before adding several more maps. New content should now move through the documented checklist, static validation, balance reports, compact JSON export, and CSV review output.
 
 ### Milestones
 
-- Add region and stage budget data for expected clear-time range, reward curve, status pressure, defense pressure, healing pressure, and boss gate criteria.
-- Validate reward progression so later farm stages do not accidentally become worse than earlier farm stages unless intentionally marked.
-- Validate stage difficulty curve by region.
-- Extend `npm run simulate` to report every region against configured budgets.
-- Add a JSON balance export intended for spreadsheet or chart review.
-- Add a content readiness checklist for new regions.
+- Completed: add region and stage budget data for expected clear-time range, reward curve, status pressure, defense pressure, healing pressure, and boss gate criteria.
+- Completed: validate reward progression so later farm stages do not accidentally become worse than earlier farm stages unless intentionally marked.
+- Completed: validate stage difficulty curve by region.
+- Completed: extend `npm run simulate` to report every region against configured budgets.
+- Completed: add compact JSON and CSV balance exports intended for spreadsheet or chart review.
+- Completed: add a content readiness checklist for new regions.
 
 ### Exit Criteria
 
-- New region data can be checked automatically before UI work begins.
-- Normal, elite, and boss stages each have clear budget expectations.
-- Balance misses are visible as actionable report lines.
-- Content authors can tune data without reading core combat code.
+- Completed: new region data has a documented authoring checklist before UI work begins.
+- Completed: normal, elite, boss, farm, pressure, and boss-gate budgets are validated or explicitly deferred.
+- Completed: balance misses, difficulty spikes, boss assumptions, farm recommendation reasons, and reward regressions are visible as report/export lines.
+- Completed: content authors can tune data through `npm run simulate`, compact JSON, and CSV exports without reading core combat code.
 
 ## Stage 2.1: Deeper Player Strategy
 
@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Begin Epic 61 in the [Stage 2.0 Backlog](stage-2.0-backlog.md): audit the current content pipeline, budget schema, validation coverage, balance export shape, and authoring checklist before adding more regions.
+Prepare the Stage 2.1 backlog around the first deeper strategy layer. Prefer tactics or formation bonuses, and keep the Stage 2.0 [Content Authoring Checklist](content-authoring-checklist.md) in the loop before adding larger content slices.

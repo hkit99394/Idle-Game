@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.0 is ready to begin. Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md).
+Stage 2.0 is complete and archived. Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](stage-1.9-backlog.md).
 
 ## Stage Numbering Decision
 
@@ -19,7 +19,7 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 ## Decisions Carried Forward
 
 - Preserve current combat outcomes, save behavior, web workflows, and known balance-budget posture unless a task explicitly approves a tuning change.
-- Treat `StaticGameData`, `validateStaticGameData`, `simulateBattle`, and `npm run simulate -- --json` as the current content authoring contract.
+- Treat `StaticGameData`, `validateStaticGameData`, `simulateBattle`, `npm run simulate -- --json`, `npm run --silent simulate -- --export-json`, and `npm run --silent simulate -- --csv` as the current content authoring contract.
 - Keep authored content in data files and validation logic in core data/balance modules.
 - Keep `core/` free of browser, React, local storage, and CLI formatting dependencies.
 - Prefer validation and report improvements before adding more regions or systems.
@@ -56,12 +56,12 @@ The recommended theme is **Content Pipeline**. The goal is to make new regions, 
 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 61 | Content Pipeline Baselines And Schema Audit | Planned | Inventory current data, budget fields, validation coverage, and authoring pain points |
-| 62 | Region And Stage Budget Validation | Planned | Turn content-budget expectations into stricter validation and tests |
-| 63 | Reward Curve And Farm Recommendation Gates | Planned | Prevent accidental reward/farm regression when adding stages |
-| 64 | Difficulty Curve And Boss Gate Reports | Planned | Make stage difficulty, boss gates, and known misses easier to review |
-| 65 | Balance Export And Authoring Tooling | Planned | Produce review-friendly JSON/CSV outputs and repeatable author workflows |
-| 66 | Content Docs And Stage 2.0 Readiness | Planned | Close the stage with contributor docs, release checks, and archive cleanup |
+| 61 | Content Pipeline Baselines And Schema Audit | Complete | Inventory current data, budget fields, validation coverage, and authoring pain points |
+| 62 | Region And Stage Budget Validation | Complete | Turn content-budget expectations into stricter validation and tests |
+| 63 | Reward Curve And Farm Recommendation Gates | Complete | Prevent accidental reward/farm regression when adding stages |
+| 64 | Difficulty Curve And Boss Gate Reports | Complete | Make stage difficulty, boss gates, and known misses easier to review |
+| 65 | Balance Export And Authoring Tooling | Complete | Produce review-friendly JSON/CSV outputs and repeatable author workflows |
+| 66 | Content Docs And Stage 2.0 Readiness | Complete | Close the stage with contributor docs, release checks, and archive cleanup |
 
 ---
 
@@ -94,7 +94,10 @@ Capture the current content authoring surface before changing validation or repo
 
 ### Progress Notes
 
-- Not started.
+- Added [Content Pipeline Inventory](../content-pipeline-inventory.md) with the current JSON data inventory, `StaticGameData` field mapping, validation ownership map, report-only gaps, and Stage 2.0 handoffs.
+- Confirmed `npm run simulate` still reports the known Black Iron Fort and Demon Cult budget misses.
+- Classified current budget misses as tuning debt for Stage 2.0, not accepted silent report noise.
+- No behavior or tuning changes were made for this epic.
 
 ---
 
@@ -127,7 +130,10 @@ Make budget expectations explicit enough that new region or stage data fails ear
 
 ### Progress Notes
 
-- Not started.
+- Added stage-derived `balanceTargets` validation so regions cannot omit normal, elite, farmable, status-pressure, or boss-gate guidance silently.
+- Added unsupported-field and contradiction checks for budget sections, boss gates, reward-curve gates, and pressure budgets.
+- Added explicit `boss_clear_time_target` budget exceptions for current Bamboo Road, Black Iron Fort, and Lotus Monastery boss timing deferrals.
+- Updated [Balance Budget Gates](../balance-budget-gates.md) with the stricter contract and exception format.
 
 ---
 
@@ -160,7 +166,10 @@ Prevent accidental reward regressions and make farm recommendations more explain
 
 ### Progress Notes
 
-- Not started.
+- Added farm reward curve validation for weighted farm score, silver, cultivation, herbs, Combat XP, and mastery yield.
+- Added reasoned `rewardCurve.allowedRegressions` entries for the intentional Bamboo Road reward dips.
+- Added farm recommendation score breakdowns, priority, and reasons to balance report JSON/text output.
+- Updated [Balance Template CSV](../balance-template.csv) with farm score and recommendation reason columns.
 
 ---
 
@@ -193,7 +202,11 @@ Make stage difficulty, elite spikes, and boss gates easier to inspect before add
 
 ### Progress Notes
 
-- Not started.
+- Added `difficultyCurve` summaries to the simulated balance report with clear-count trend data, target misses, and spike reasons.
+- Added `bossGateAssumptions` to region balance reports so baseline, trained, and farmed outcomes show medicine, status damage, farm clears, and training cost.
+- Added `Region Difficulty Curve` and `Region Boss Gate Assumptions` to `npm run simulate`.
+- Kept the current Black Iron Fort and Demon Cult misses as deferred tuning debt, now with clearer report lines and docs.
+- Added balance report tests for difficulty issue shape, spike reasons, boss-gate assumption fields, and formatted output.
 
 ---
 
@@ -226,7 +239,11 @@ Make balance output easier to review outside the terminal.
 
 ### Progress Notes
 
-- Not started.
+- Added `buildBalanceAuthoringExport` as a stable schema-versioned export with region, stage, budget-check, and boss-gate-assumption tables.
+- Added `formatBalanceStageExportCsv` and `npm run simulate -- --csv` for spreadsheet-friendly stage rows.
+- Added `npm run --silent simulate -- --export-json` for compact authoring JSON while preserving existing terminal and full `--json` output.
+- Kept [Balance Template CSV](../balance-template.csv) as a hand-authored reference template rather than generated output; generated review data now comes from the simulator CSV.
+- Added export shape and CSV header tests so downstream review fields do not drift casually.
 
 ---
 
@@ -260,17 +277,23 @@ Close Stage 2.0 with clear content authoring docs, release verification, and nex
 
 ### Progress Notes
 
-- Not started.
+- Added [Content Authoring Checklist](../content-authoring-checklist.md) for adding regions, stages, enemies, skills, rewards, budget gates, report review, and required verification.
+- Updated [Current Implemented Systems](../current-implemented-systems.md), [Static Data Loading](../static-data.md), and [Balance Budget Gates](../balance-budget-gates.md) with the final Stage 2.0 content pipeline workflow.
+- Updated the roadmap so Stage 2.0 is complete and Stage 2.1 strategy planning is the recommended next action.
+- Kept current Black Iron Fort and Demon Cult misses as deferred tuning debt; no sample content was added during Stage 2.0.
+- Browser smoke skipped as not applicable because Epic 66 changed docs and balance tooling only, with no visible UI changes.
+- Verification passed: `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run simulate -- --json`, `npm run --silent simulate -- --export-json`, `npm run --silent simulate -- --csv`, `npm run support-decision`, `git diff --check`, and markdown path checks.
+- Release-readiness outcome: simulator output still reports the documented Black Iron Fort and Demon Cult tuning misses; active docs and the archived backlog record them as deferred tuning debt, and markdown path checks confirmed all relative links resolve.
 
 ---
 
 ## Open Questions
 
-- Should known Stage 1.9 budget misses be fixed in Stage 2.0 or documented as accepted tuning debt until a dedicated balance pass?
-- Should balance export use CSV, JSON-only, or both?
-- Should `docs/balance-template.csv` remain hand-maintained or become generated from current data?
-- How strict should reward-curve validation be for intentional difficulty or reward dips?
-- Should Stage 2.0 include a small sample content change to prove the pipeline, or avoid new content until Stage 2.1/2.2 planning is clearer?
+- Epic 64 answer: known Black Iron Fort and Demon Cult misses are deferred tuning debt for a later balance pass, not silent noise. Epic 64 improved report visibility instead of retuning content.
+- Epic 65 answer: balance export uses both compact JSON and CSV. Full `--json` remains a debug dump; `--export-json` and `--csv` are the stable authoring outputs, with `npm run --silent` recommended when redirecting or parsing stdout.
+- Epic 65 answer: `docs/balance-template.csv` remains a hand-authored reference template, not generated output.
+- Epic 66 answer: reward-curve validation is strict by default; intentional dips must stay explicit through `rewardCurve.allowedRegressions`.
+- Epic 66 answer: Stage 2.0 should not include a sample content slice. The stage closes on safer authoring workflow and tooling, and larger content/strategy choices should start from Stage 2.1 planning.
 
 ## Suggested Implementation Order
 
