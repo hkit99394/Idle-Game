@@ -72,6 +72,12 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 
 `npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often.
 
+Stage 2.1 adds opt-in tactic comparison exports without changing the default report or Stage 2.0 export shapes:
+
+- `npm run --silent simulate -- --tactics-json` returns stable rows for every configured stage and tactic.
+- `npm run --silent simulate -- --tactics-csv` returns the same rows for spreadsheet review.
+- Tactic rows include baseline result, result changes, duration deltas, target-status changes, `budgetShift`, pressure metrics, and contribution metric deltas.
+
 ## Known Budget Debt
 
 The current simulator output keeps these misses visible:
@@ -86,6 +92,14 @@ The current simulator output keeps these misses visible:
 | Demon Cult Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
 These are not accepted silent noise. They are allowed only because the archived Stage 2.0 backlog names them as deferred tuning debt.
+
+## Stage 2.1 Tactic Comparison Notes
+
+Epic 71 did not retune content. The tactic comparison export keeps known debt visible and adds row-level shift labels:
+
+- `demon_cult_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `inner_pressure` or `boss_burst`, marked as `budgetShift: improved_existing_miss`.
+- `demon_cult_outpost_7` is untargeted by clear-time budgets, but `inner_pressure` and `boss_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
+- `sustain` preserves the Demon Cult boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
 
 ## Stage 2.0 Closure Notes
 

@@ -56,7 +56,7 @@ Stage 2.1 should start with tactic presets rather than a full formation-bonus sy
 | 68 | Tactic Preset Schema And Validation | Complete | Add typed tactic data/config, defaulting, validation, and focused tests |
 | 69 | Combat Tactics Engine Integration | Complete | Apply tactic behavior through core combat extension points with deterministic tests |
 | 70 | Tactics UI And Save Workflow | Complete | Let players select tactics, persist choices, and see tactic effects in the web app |
-| 71 | Strategy Balance Reports And Tuning Review | Planned | Compare tactic outcomes across regions and document or fix tactic-driven budget shifts |
+| 71 | Strategy Balance Reports And Tuning Review | Complete | Compare tactic outcomes across regions and document or fix tactic-driven budget shifts |
 | 72 | Strategy Docs And Stage 2.1 Readiness | Planned | Close the stage with docs, verification, browser smoke notes, and archive cleanup |
 
 ---
@@ -246,7 +246,11 @@ Make tactic outcomes visible enough to tune without hand-running one-off battles
 
 ### Progress Notes
 
-- Not started.
+- Added opt-in tactic comparison tooling through `npm run --silent simulate -- --tactics-json` and `npm run --silent simulate -- --tactics-csv` while leaving default report, compact JSON, and stage CSV outputs unchanged.
+- Tactic comparison rows cover every configured stage for every tactic and include baseline result, result changes, duration deltas, target-status changes, pressure metrics, and contribution metric deltas.
+- Added budget-shift labels so existing target misses can be distinguished from improved misses and new tactic regressions.
+- Documented the Stage 2.1 tactic review commands and the current notable tactic shifts without retuning existing Black Iron Fort or Demon Cult debt.
+- Verification passed: `npm test -- tests/tools/balanceReport.test.ts`, `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, `npm run --silent simulate -- --export-json`, `npm run --silent simulate -- --csv`, `npm run --silent simulate -- --tactics-json`, and `npm run --silent simulate -- --tactics-csv`.
 
 ---
 

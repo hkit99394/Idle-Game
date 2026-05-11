@@ -76,13 +76,13 @@ npm run --silent simulate -- --export-json
 npm run --silent simulate -- --csv
 ```
 
-Epic 71 should add opt-in tactic comparison outputs rather than changing every default table:
+Epic 71 added opt-in tactic comparison outputs rather than changing every default table:
 
 - `npm run --silent simulate -- --tactics-json` for stable comparison rows.
 - `npm run --silent simulate -- --tactics-csv` for spreadsheet review.
 - A concise terminal tactic comparison can be added only if it stays readable and does not bury the existing budget-gate report.
 
-Comparison rows should include tactic id, tactic name, region id, stage id, result, duration, target status, status damage, medicine consumed, guard/protection/healing pressure, and contribution deltas where available.
+Comparison rows include tactic id, tactic name, region id, stage id, result, baseline result, duration, target status, budget shift, status damage, medicine consumed, guard/protection/healing pressure, and contribution deltas.
 
 ## Epic 68 Schema Handoff
 

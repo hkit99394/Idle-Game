@@ -72,7 +72,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Saves are versioned local JSON with export, import, reset-new-game, diagnostics, migration fixtures, and strict validation.
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
-- Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json` and spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`.
+- Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json`, spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`, and opt-in tactic comparison rows through `npm run --silent simulate -- --tactics-json` or `--tactics-csv`.
 - The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
 - The practical checklist for adding or changing regions is [Content Authoring Checklist](content-authoring-checklist.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.

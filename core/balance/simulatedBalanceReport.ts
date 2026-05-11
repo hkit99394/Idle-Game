@@ -2,6 +2,7 @@ import {
   calculateUpgradeCost,
   cloneProgress,
   createInitialPlayerProgress,
+  getDefaultSelectedTacticId,
   getRecommendedOfflineFarmStage,
   OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY,
   getUpgradeLevel,
@@ -57,6 +58,7 @@ type TrainingCandidate = {
 };
 
 type BattleSummary = ReturnType<typeof summarizeBattle>;
+type TacticComparisonBattleSummary = ReturnType<typeof summarizeBattle>;
 type BattleSummaryWithBudgetExtras = BattleSummary & {
   farmStageId?: string | null;
   farmClears?: number;
@@ -66,6 +68,10 @@ type RegionBudgetCheck = BalanceTargetCheck;
 
 const DIFFICULTY_SPIKE_MIN_DELTA_SECONDS = 10;
 const DIFFICULTY_SPIKE_MIN_RATIO = 1.35;
+
+function roundBalanceNumber(value: number): number {
+  return Number(value.toFixed(2));
+}
 
 function createTrainedBossPlan(data: StaticGameData): TrainingPlanEntry[] {
   return [
@@ -639,7 +645,7 @@ function summarizeBattle(
     };
   }
 
-  const durationSeconds = Number(result.battle.durationSeconds.toFixed(2));
+  const durationSeconds = roundBalanceNumber(result.battle.durationSeconds);
   const guardEvents = result.battle.events.filter(
     (event) =>
       event.type === "guard_absorb" && getRecordedStatusId(event) === "guard"
@@ -736,58 +742,55 @@ function summarizeBattle(
     ),
     cleanses: cleanseEvents.length,
     statusApplications: statusApplyEvents.length,
-    statusDamage: Number(
+    statusDamage: roundBalanceNumber(
       statusTickEvents
         .reduce((total, event) => total + event.outerDamage, 0)
-        .toFixed(2)
     ),
     statusIds: [
       ...new Set(statusApplyEvents.map((event) => event.statusId))
     ].sort(),
     medicineConsumed: autoMedicineEvents.length,
-    outerHealing: Number(
-      (
-        result.battle.metrics.playerOuterHealing +
+    outerHealing: roundBalanceNumber(
+      result.battle.metrics.playerOuterHealing +
         result.battle.metrics.enemyOuterHealing
-      ).toFixed(2)
     ),
-    innerQiRestored: Number(
-      (
-        result.battle.metrics.playerInnerQiRestored +
+    innerQiRestored: roundBalanceNumber(
+      result.battle.metrics.playerInnerQiRestored +
         result.battle.metrics.enemyInnerQiRestored
-      ).toFixed(2)
     ),
-    overhealing: Number(
-      (
-        result.battle.metrics.playerOverhealing +
+    overhealing: roundBalanceNumber(
+      result.battle.metrics.playerOverhealing +
         result.battle.metrics.enemyOverhealing
-      ).toFixed(2)
     ),
-    recoveryPrevented: Number(
-      (
-        result.battle.metrics.recoveryPreventedByPlayer +
+    recoveryPrevented: roundBalanceNumber(
+      result.battle.metrics.recoveryPreventedByPlayer +
         result.battle.metrics.recoveryPreventedByEnemy
-      ).toFixed(2)
     ),
-    recoveryPreventedByPlayer: Number(
-      result.battle.metrics.recoveryPreventedByPlayer.toFixed(2)
+    recoveryPreventedByPlayer: roundBalanceNumber(
+      result.battle.metrics.recoveryPreventedByPlayer
     ),
-    recoveryPreventedByEnemy: Number(
-      result.battle.metrics.recoveryPreventedByEnemy.toFixed(2)
+    recoveryPreventedByEnemy: roundBalanceNumber(
+      result.battle.metrics.recoveryPreventedByEnemy
     ),
-    defensiveDamagePrevented: Number(
-      (
-        result.battle.metrics.guardDamagePreventedByPlayer +
+    defensiveDamagePrevented: roundBalanceNumber(
+      result.battle.metrics.guardDamagePreventedByPlayer +
         result.battle.metrics.guardDamagePreventedByEnemy +
         result.battle.metrics.protectionDamagePreventedByPlayer +
         result.battle.metrics.protectionDamagePreventedByEnemy
-      ).toFixed(2)
     ),
     metrics: {
-      playerOuterDamage: Number(result.battle.metrics.playerOuterDamage.toFixed(2)),
-      playerInnerDamage: Number(result.battle.metrics.playerInnerDamage.toFixed(2)),
-      playerEffectiveDps: Number(result.battle.metrics.playerEffectiveDps.toFixed(2)),
-      enemyEffectiveDps: Number(result.battle.metrics.enemyEffectiveDps.toFixed(2))
+      playerOuterDamage: roundBalanceNumber(
+        result.battle.metrics.playerOuterDamage
+      ),
+      playerInnerDamage: roundBalanceNumber(
+        result.battle.metrics.playerInnerDamage
+      ),
+      playerEffectiveDps: roundBalanceNumber(
+        result.battle.metrics.playerEffectiveDps
+      ),
+      enemyEffectiveDps: roundBalanceNumber(
+        result.battle.metrics.enemyEffectiveDps
+      )
     },
     rewards: result.rewards,
     currentStageId: result.progress.currentStageId,
@@ -1513,7 +1516,373 @@ export function buildGameBalanceReport(data: StaticGameData) {
   };
 }
 
+function getTacticComparisonTargetStatus(
+  summary: TacticComparisonBattleSummary
+): "pass" | "fail" | "untargeted" | "unresolved" {
+  if (!summary.ok) {
+    return "unresolved";
+  }
+
+  if (!summary.targetSeconds) {
+    return "untargeted";
+  }
+
+  return summary.targetMet ? "pass" : "fail";
+}
+
+function getTacticComparisonResult(
+  summary: TacticComparisonBattleSummary
+): "player_clear" | "enemy_hold" | "unresolved" {
+  return summary.ok ? summary.result : "unresolved";
+}
+
+function getTacticComparisonNumberDelta(
+  value: number | null,
+  baseline: number | null
+): number | null {
+  return value === null || baseline === null
+    ? null
+    : roundBalanceNumber(value - baseline);
+}
+
+function getTacticComparisonTargetStatusChange(
+  targetStatus: ReturnType<typeof getTacticComparisonTargetStatus>,
+  baselineTargetStatus: ReturnType<typeof getTacticComparisonTargetStatus>
+): "same" | "improved" | "regressed" | "changed" {
+  if (targetStatus === baselineTargetStatus) {
+    return "same";
+  }
+
+  const statusRank = {
+    unresolved: 0,
+    fail: 1,
+    untargeted: 2,
+    pass: 3
+  } as const satisfies Record<
+    ReturnType<typeof getTacticComparisonTargetStatus>,
+    number
+  >;
+
+  if (statusRank[targetStatus] > statusRank[baselineTargetStatus]) {
+    return "improved";
+  }
+
+  if (statusRank[targetStatus] < statusRank[baselineTargetStatus]) {
+    return "regressed";
+  }
+
+  return "changed";
+}
+
+function getTacticComparisonBudgetShift(
+  targetStatus: ReturnType<typeof getTacticComparisonTargetStatus>,
+  baselineTargetStatus: ReturnType<typeof getTacticComparisonTargetStatus>,
+  result: ReturnType<typeof getTacticComparisonResult>,
+  baselineResult: ReturnType<typeof getTacticComparisonResult>
+):
+  | "unchanged"
+  | "preserved_existing_miss"
+  | "improved_existing_miss"
+  | "new_miss"
+  | "changed" {
+  if (result !== baselineResult) {
+    if (baselineResult === "player_clear" && result !== "player_clear") {
+      return "new_miss";
+    }
+
+    if (baselineResult !== "player_clear" && result === "player_clear") {
+      return "improved_existing_miss";
+    }
+  }
+
+  if (targetStatus === baselineTargetStatus) {
+    return targetStatus === "fail" || targetStatus === "unresolved"
+      ? "preserved_existing_miss"
+      : "unchanged";
+  }
+
+  if (
+    (baselineTargetStatus === "fail" ||
+      baselineTargetStatus === "unresolved") &&
+    targetStatus === "pass"
+  ) {
+    return "improved_existing_miss";
+  }
+
+  if (
+    baselineTargetStatus === "pass" &&
+    (targetStatus === "fail" || targetStatus === "unresolved")
+  ) {
+    return "new_miss";
+  }
+
+  return "changed";
+}
+
+function getTacticComparisonPressure(summary: TacticComparisonBattleSummary) {
+  return {
+    statusApplications: summary.statusApplications,
+    statusDamage: summary.statusDamage,
+    medicineConsumed: summary.medicineConsumed,
+    guardAbsorbs: summary.ok ? summary.guardAbsorbs : null,
+    protections: summary.ok ? summary.protections : null,
+    armorBreaks: summary.ok ? summary.armorBreaks : null,
+    heals: summary.ok ? summary.heals : null,
+    cleanses: summary.ok ? summary.cleanses : null,
+    defensiveDamagePrevented: summary.ok
+      ? summary.defensiveDamagePrevented
+      : null,
+    recoveryPrevented: summary.ok ? summary.recoveryPrevented : null
+  };
+}
+
+function getTacticComparisonMetrics(summary: TacticComparisonBattleSummary) {
+  return {
+    playerOuterDamage: summary.ok ? summary.metrics.playerOuterDamage : null,
+    playerInnerDamage: summary.ok ? summary.metrics.playerInnerDamage : null,
+    playerEffectiveDps: summary.ok ? summary.metrics.playerEffectiveDps : null,
+    enemyEffectiveDps: summary.ok ? summary.metrics.enemyEffectiveDps : null
+  };
+}
+
+function buildTacticComparisonRow({
+  baselineSummary,
+  regionName,
+  regionId,
+  stage,
+  summary,
+  tactic,
+  defaultTacticId
+}: {
+  baselineSummary: TacticComparisonBattleSummary;
+  regionName: string;
+  regionId: string;
+  stage: StageDefinition;
+  summary: TacticComparisonBattleSummary;
+  tactic: StaticGameData["tactics"][number];
+  defaultTacticId: string;
+}) {
+  const targetStatus = getTacticComparisonTargetStatus(summary);
+  const baselineTargetStatus =
+    getTacticComparisonTargetStatus(baselineSummary);
+  const result = getTacticComparisonResult(summary);
+  const baselineResult = getTacticComparisonResult(baselineSummary);
+  const durationSeconds = summary.ok ? summary.durationSeconds : null;
+  const baselineDurationSeconds = baselineSummary.ok
+    ? baselineSummary.durationSeconds
+    : null;
+  const pressure = getTacticComparisonPressure(summary);
+  const baselinePressure = getTacticComparisonPressure(baselineSummary);
+  const metrics = getTacticComparisonMetrics(summary);
+  const baselineMetrics = getTacticComparisonMetrics(baselineSummary);
+
+  return {
+    regionId,
+    regionName,
+    stageId: stage.id,
+    stageName: stage.name,
+    stageIndex: stage.index,
+    tacticId: tactic.id,
+    tacticName: tactic.name,
+    isDefaultTactic: tactic.id === defaultTacticId,
+    behaviorFlags: [...tactic.behaviorFlags],
+    baselineTacticId: defaultTacticId,
+    result,
+    baselineResult,
+    resultChanged: result !== baselineResult,
+    durationSeconds,
+    baselineDurationSeconds,
+    durationDeltaSeconds: getTacticComparisonNumberDelta(
+      durationSeconds,
+      baselineDurationSeconds
+    ),
+    targetMinSeconds: summary.targetSeconds?.[0] ?? null,
+    targetMaxSeconds: summary.targetSeconds?.[1] ?? null,
+    targetStatus,
+    baselineTargetStatus,
+    targetStatusChange: getTacticComparisonTargetStatusChange(
+      targetStatus,
+      baselineTargetStatus
+    ),
+    budgetShift: getTacticComparisonBudgetShift(
+      targetStatus,
+      baselineTargetStatus,
+      result,
+      baselineResult
+    ),
+    clearTimeReason: summary.ok
+      ? summary.clearTimeAssessment.reason
+      : summary.reason ?? "unknown",
+    baselineClearTimeReason: baselineSummary.ok
+      ? baselineSummary.clearTimeAssessment.reason
+      : baselineSummary.reason ?? "unknown",
+    pressure,
+    pressureDeltas: {
+      statusApplications:
+        pressure.statusApplications - baselinePressure.statusApplications,
+      statusDamage: getTacticComparisonNumberDelta(
+        pressure.statusDamage,
+        baselinePressure.statusDamage
+      ),
+      medicineConsumed:
+        pressure.medicineConsumed - baselinePressure.medicineConsumed,
+      guardAbsorbs: getTacticComparisonNumberDelta(
+        pressure.guardAbsorbs,
+        baselinePressure.guardAbsorbs
+      ),
+      protections: getTacticComparisonNumberDelta(
+        pressure.protections,
+        baselinePressure.protections
+      ),
+      armorBreaks: getTacticComparisonNumberDelta(
+        pressure.armorBreaks,
+        baselinePressure.armorBreaks
+      ),
+      heals: getTacticComparisonNumberDelta(pressure.heals, baselinePressure.heals),
+      cleanses: getTacticComparisonNumberDelta(
+        pressure.cleanses,
+        baselinePressure.cleanses
+      ),
+      defensiveDamagePrevented: getTacticComparisonNumberDelta(
+        pressure.defensiveDamagePrevented,
+        baselinePressure.defensiveDamagePrevented
+      ),
+      recoveryPrevented: getTacticComparisonNumberDelta(
+        pressure.recoveryPrevented,
+        baselinePressure.recoveryPrevented
+      )
+    },
+    contributionMetrics: metrics,
+    contributionDeltas: {
+      playerOuterDamage: getTacticComparisonNumberDelta(
+        metrics.playerOuterDamage,
+        baselineMetrics.playerOuterDamage
+      ),
+      playerInnerDamage: getTacticComparisonNumberDelta(
+        metrics.playerInnerDamage,
+        baselineMetrics.playerInnerDamage
+      ),
+      playerEffectiveDps: getTacticComparisonNumberDelta(
+        metrics.playerEffectiveDps,
+        baselineMetrics.playerEffectiveDps
+      ),
+      enemyEffectiveDps: getTacticComparisonNumberDelta(
+        metrics.enemyEffectiveDps,
+        baselineMetrics.enemyEffectiveDps
+      )
+    }
+  };
+}
+
+function buildRegionTacticComparisonRows(
+  data: StaticGameData,
+  region: GameBalanceReport["regionBalances"][number],
+  startingProgress: PlayerProgress,
+  defaultTacticId: string
+) {
+  const stageIds = getRegionStageIds(data, region.regionId);
+  let progress = cloneProgress(startingProgress);
+  const rows: ReturnType<typeof buildTacticComparisonRow>[] = [];
+
+  for (const stageId of stageIds) {
+    const stage = getStage(data, stageId);
+    const tacticResults = data.tactics.map((tactic) => {
+      const result = resolveStageBattle(data, {
+        progress,
+        stageId,
+        tacticId: tactic.id,
+        maxDurationSeconds: 180
+      });
+
+      return {
+        tactic,
+        result,
+        summary: summarizeBattle(data, stage, result)
+      };
+    });
+    const baseline = tacticResults.find(
+      (result) => result.tactic.id === defaultTacticId
+    );
+
+    if (!baseline) {
+      throw new Error(
+        `Default tactic ${defaultTacticId} is not configured for tactic comparison`
+      );
+    }
+
+    rows.push(
+      ...tacticResults.map((result) =>
+        buildTacticComparisonRow({
+          baselineSummary: baseline.summary,
+          regionName: region.regionName,
+          regionId: region.regionId,
+          stage,
+          summary: result.summary,
+          tactic: result.tactic,
+          defaultTacticId
+        })
+      )
+    );
+
+    if (baseline.result.ok && baseline.result.stageCleared) {
+      progress = baseline.result.progress;
+    }
+  }
+
+  return rows;
+}
+
+export function buildTacticComparisonReport(data: StaticGameData) {
+  if (data.tactics.length === 0) {
+    throw new Error("No tactics configured for tactic comparison");
+  }
+
+  const defaultTacticId = getDefaultSelectedTacticId(data);
+  const baselineReport = buildGameBalanceReport(data);
+  let regionStartingProgress = createInitialPlayerProgress(data);
+  const rows: ReturnType<typeof buildTacticComparisonRow>[] = [];
+  const regions: Array<{
+    regionId: string;
+    regionName: string;
+    stageCount: number;
+    rowCount: number;
+  }> = [];
+
+  for (const region of baselineReport.regionBalances) {
+    const regionRows = buildRegionTacticComparisonRows(
+      data,
+      region,
+      regionStartingProgress,
+      defaultTacticId
+    );
+
+    rows.push(...regionRows);
+    regions.push({
+      regionId: region.regionId,
+      regionName: region.regionName,
+      stageCount: region.stageResults.length,
+      rowCount: regionRows.length
+    });
+    regionStartingProgress = cloneProgress(region.progressAfterRegion);
+  }
+
+  return {
+    defaultTacticId,
+    tactics: data.tactics.map((tactic) => ({
+      tacticId: tactic.id,
+      tacticName: tactic.name,
+      isDefault: tactic.id === defaultTacticId,
+      behaviorFlags: [...tactic.behaviorFlags],
+      targetPriorities: tactic.targetPriorities ? [...tactic.targetPriorities] : [],
+      modifiers: tactic.modifiers.map((modifier) => ({ ...modifier }))
+    })),
+    regions,
+    rows
+  };
+}
+
 export const buildBambooRoadBalanceReport = buildGameBalanceReport;
 
 export type GameBalanceReport = ReturnType<typeof buildGameBalanceReport>;
 export type BambooRoadBalanceReport = GameBalanceReport;
+export type TacticComparisonReport = ReturnType<typeof buildTacticComparisonReport>;

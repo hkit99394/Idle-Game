@@ -6,10 +6,14 @@ import {
   BLACK_IRON_FORT_REGION_ID,
   LOTUS_MONASTERY_REGION_ID,
   MIST_VALLEY_REGION_ID,
+  TACTIC_COMPARISON_CSV_HEADERS,
   buildBalanceAuthoringExport,
   buildGameBalanceReport,
+  buildTacticComparisonExport,
+  buildTacticComparisonReport,
   formatBalanceStageExportCsv,
-  formatBalanceReport
+  formatBalanceReport,
+  formatTacticComparisonCsv
 } from "../../tools/balanceReport";
 import { staticData } from "../helpers/staticData";
 
@@ -527,6 +531,95 @@ describe("balance report", () => {
     expect(csv).toContain("demon_cult_outpost_3");
     expect(csv).toContain("difficulty_spike_status");
     expect(csv).toContain("black_iron_fort_6");
+  });
+
+  it("builds opt-in tactic comparison exports for JSON and CSV review", () => {
+    const report = buildTacticComparisonReport(staticData);
+    const exportReport = buildTacticComparisonExport(report);
+    const csv = formatTacticComparisonCsv(report);
+    const csvLines = csv.split("\n");
+    const balancedBamboo = exportReport.rows.find(
+      (row) =>
+        row.stageId === "bamboo_road_1" && row.tacticId === "balanced"
+    );
+    const outerBamboo = exportReport.rows.find(
+      (row) =>
+        row.stageId === "bamboo_road_1" && row.tacticId === "outer_pressure"
+    );
+    const innerDemonCult = exportReport.rows.find(
+      (row) =>
+        row.stageId === "demon_cult_outpost_3" &&
+        row.tacticId === "inner_pressure"
+    );
+    const sustainDemonBoss = exportReport.rows.find(
+      (row) =>
+        row.stageId === "demon_cult_outpost_7" && row.tacticId === "sustain"
+    );
+    const bossBurstDemonBoss = exportReport.rows.find(
+      (row) =>
+        row.stageId === "demon_cult_outpost_7" &&
+        row.tacticId === "boss_burst"
+    );
+
+    expect(exportReport.schemaVersion).toBe(1);
+    expect(exportReport.defaultTacticId).toBe("balanced");
+    expect(exportReport.tactics.map((tactic) => tactic.tacticId)).toEqual(
+      staticData.tactics.map((tactic) => tactic.id)
+    );
+    expect(exportReport.regions.map((region) => region.regionId)).toEqual(
+      staticData.regions.map((region) => region.id)
+    );
+    expect(exportReport.rows).toHaveLength(
+      staticData.stages.length * staticData.tactics.length
+    );
+    expect(balancedBamboo).toMatchObject({
+      isDefaultTactic: true,
+      baselineTacticId: "balanced",
+      durationDeltaSeconds: 0,
+      pressureDeltas: {
+        statusDamage: 0
+      },
+      contributionDeltas: {
+        playerOuterDamage: 0,
+        playerInnerDamage: 0
+      }
+    });
+    expect(outerBamboo).toMatchObject({
+      result: "player_clear",
+      baselineResult: "player_clear",
+      durationDeltaSeconds: -1,
+      targetStatus: "pass",
+      contributionDeltas: {
+        playerEffectiveDps: expect.any(Number)
+      }
+    });
+    expect(innerDemonCult).toMatchObject({
+      baselineTargetStatus: "fail",
+      targetStatus: "pass",
+      targetStatusChange: "improved",
+      budgetShift: "improved_existing_miss",
+      pressureDeltas: {
+        statusDamage: expect.any(Number)
+      }
+    });
+    expect(sustainDemonBoss).toMatchObject({
+      result: "player_clear",
+      pressureDeltas: {
+        statusDamage: expect.any(Number)
+      }
+    });
+    expect(sustainDemonBoss?.pressureDeltas.statusDamage ?? 0).toBeLessThan(0);
+    expect(bossBurstDemonBoss).toMatchObject({
+      baselineResult: "player_clear",
+      result: "enemy_hold",
+      resultChanged: true,
+      budgetShift: "new_miss"
+    });
+    expect(csvLines[0]).toBe(TACTIC_COMPARISON_CSV_HEADERS.join(","));
+    expect(csvLines).toHaveLength(exportReport.rows.length + 1);
+    expect(csv).toContain("outer_pressure");
+    expect(csv).toContain("improved_existing_miss");
+    expect(csv).toContain("new_miss");
   });
 
   it("drives budget gates from the real simulated report adapter", () => {

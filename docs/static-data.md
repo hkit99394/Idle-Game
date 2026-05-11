@@ -24,7 +24,7 @@ When adding or changing playable content:
 2. Add or update static validation for new references, ranges, invariants, reward rules, and budget rules.
 3. Add focused tests for new validation behavior.
 4. Run `npm run simulate` to review timing, farm recommendations, difficulty spikes, boss gates, and budget checks.
-5. Use `npm run --silent simulate -- --export-json` for compact authoring rows or `npm run --silent simulate -- --csv` for spreadsheet review.
+5. Use `npm run --silent simulate -- --export-json` for compact authoring rows, `npm run --silent simulate -- --csv` for spreadsheet review, and `npm run --silent simulate -- --tactics-json` or `--tactics-csv` when tactic outcomes may change.
 6. Document any intentional budget miss as an explicit exception or tracked tuning debt.
 
 Do not bypass `StaticGameData` or import raw JSON directly from web, tools, or tests. The builder, validation entry point, simulator, and exports are the shared authoring contract.
