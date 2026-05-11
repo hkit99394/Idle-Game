@@ -55,7 +55,7 @@ Stage 2.1 should start with tactic presets rather than a full formation-bonus sy
 | 67 | Strategy Surface Audit And Tactics Decision | Complete | Choose the tactic MVP, map extension points, and define expected player-facing outcomes |
 | 68 | Tactic Preset Schema And Validation | Complete | Add typed tactic data/config, defaulting, validation, and focused tests |
 | 69 | Combat Tactics Engine Integration | Complete | Apply tactic behavior through core combat extension points with deterministic tests |
-| 70 | Tactics UI And Save Workflow | Planned | Let players select tactics, persist choices, and see tactic effects in the web app |
+| 70 | Tactics UI And Save Workflow | Complete | Let players select tactics, persist choices, and see tactic effects in the web app |
 | 71 | Strategy Balance Reports And Tuning Review | Planned | Compare tactic outcomes across regions and document or fix tactic-driven budget shifts |
 | 72 | Strategy Docs And Stage 2.1 Readiness | Planned | Close the stage with docs, verification, browser smoke notes, and archive cleanup |
 
@@ -208,7 +208,11 @@ Let players choose a tactic, persist it safely, and see enough feedback to under
 
 ### Progress Notes
 
-- Not started.
+- Added `PlayerProgress.selectedTacticId` with `balanced` defaults in new progress, cloned progress, save migration, import/export normalization, and validation.
+- Added tactic selection helpers, the strategy action domain, reducer/command/hook plumbing, and battle resolution fallback from saved progress into combat.
+- Added tactic view models and a compact Strategy panel so players can select global tactics from the existing app surface without a new explanatory page.
+- Battle summaries now include the tactic used for the most recent battle through `BattleResult.playerTactic`.
+- Added save migration/normalization coverage, web command/reducer/view-model coverage, UI boundary and responsive source smoke coverage, and Stage 1.9 UI inventory entries for the strategy feature.
 
 ---
 

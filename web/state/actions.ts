@@ -8,6 +8,7 @@ import type {
   PurchaseUpgradeResult,
   ResolveStageBattleResult,
   SelectStyleBranchResult,
+  SelectTacticResult,
   SetActiveHeroTeamResult,
   SetAssignmentHeroesResult
 } from "../../core";
@@ -48,6 +49,11 @@ export type ProgressionAction =
       type: "style_branch_select_resolved";
       result: SelectStyleBranchResult;
     };
+
+export type StrategyAction = {
+  type: "tactic_select_resolved";
+  result: SelectTacticResult;
+};
 
 export type EquipmentAction = {
   type: "equipment_equip_resolved";
@@ -97,6 +103,7 @@ export type SaveStateAction =
 
 export type WebGameAction =
   | StageIdleAction
+  | StrategyAction
   | ProgressionAction
   | EquipmentAction
   | RosterFormationAction
@@ -121,7 +128,8 @@ export const webGameActionTypeDomains = {
   set_offline_farm_preset: "stage_idle",
   set_pre_battle_resistance_mode: "counterplay",
   skill_purchase_resolved: "progression",
-  style_branch_select_resolved: "progression"
+  style_branch_select_resolved: "progression",
+  tactic_select_resolved: "strategy"
 } as const satisfies Record<WebGameAction["type"], string>;
 
 export type WebGameActionDomain =
@@ -138,6 +146,7 @@ function createActionDomainTypes(): Record<
     progression: [],
     roster_formation: [],
     save_state: [],
+    strategy: [],
     stage_idle: []
   };
 

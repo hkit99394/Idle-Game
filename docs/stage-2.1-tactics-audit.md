@@ -6,7 +6,7 @@ Stage 2.1 should implement **global tactic presets** as the first deeper player 
 
 The player-facing version should add one selected tactic to player progress, default missing or invalid values to `balanced`, and pass that tactic from `resolveStageBattle` into `simulateBattle`. The balanced tactic must be behaviorally neutral so existing saves, reports, and content baselines stay comparable until a player or test selects a non-default tactic.
 
-Epic 69 introduced the combat side first as a transient `tacticId` on `SimulateBattleInput` and `ResolveStageBattleInput`, plus `BattleResult.playerTactic` metadata. Epic 70 should promote that selection into `PlayerProgress.selectedTacticId`, save normalization, import/export, and the web selector.
+Epic 69 introduced the combat side first as a transient `tacticId` on `SimulateBattleInput` and `ResolveStageBattleInput`, plus `BattleResult.playerTactic` metadata. Epic 70 promoted that selection into `PlayerProgress.selectedTacticId`, save normalization, import/export, progression battle fallback, and the web selector.
 
 Tactic definitions should be authored as static data, preferably `data/tactics.json`, then assembled into `StaticGameData` and validated with the rest of content. Tactics are player-facing authored content, not hidden combat constants, and should be reviewable by the same content pipeline that Stage 2.0 established.
 
@@ -52,19 +52,19 @@ These names are intentionally player-readable but not final UI copy. Epic 68 can
 | Damage and defense | `core/combat/damagePackage.ts`, `core/combat/defensivePipeline.ts` | Apply small player-side tactic multipliers at package creation or mitigation, keeping mutation in existing package/mitigation commits. |
 | Recovery and status | `core/combat/effectPipeline.ts`, `core/combat/statusEffects.ts`, `core/combat/autoMedicine/*` | Apply sustain/protection posture through recovery, resistance, cleanse, or medicine policy inputs where the owning behavior already lives. |
 | Metrics and events | `core/combat/battleRecorder.ts`, `web/state/viewModels/battle.ts` | Add tactic metadata and, if needed, contribution fields that explain tactic impact without changing battle replay semantics casually. |
-| Progression adapter | `core/progression/types.ts`, `core/progression/battleResolution.ts` | Pass the selected tactic into `simulateBattle` during `resolveStageBattle`; Epic 70 should source it from `PlayerProgress.selectedTacticId`. |
-| Save loading | `core/save/*`, `tests/save/*`, `web/state/saveStorage.ts` | Bump save schema when the persisted field lands, migrate missing tactic to `balanced`, validate imported tactic ids, and normalize invalid ids. |
-| Web state | `web/state/actions.ts`, `commandActions.ts`, `reducerBranches.ts`, `useWebGameCommandDomains.ts`, `viewModels/*` | Add a strategy action domain or a small strategy feature module that sets `selectedTacticId` and persists through the existing save path. |
-| Web UI | `web/app/AppPanels.tsx`, `web/features/*`, `web/styles/app.css` | Add a compact tactic selector near roster/formation or battle prep. Use segmented controls or buttons with clear selected state; avoid a large explanatory page. |
+| Progression adapter | `core/progression/types.ts`, `core/progression/battleResolution.ts` | `resolveStageBattle` now sources the selected tactic from `PlayerProgress.selectedTacticId` when no explicit tactic input is supplied. |
+| Save loading | `core/save/*`, `tests/save/*`, `web/state/saveStorage.ts` | Save schema v10 persists `selectedTacticId`, migrates missing tactics to `balanced`, validates imported tactic ids, and normalizes invalid ids. |
+| Web state | `web/state/actions.ts`, `commandActions.ts`, `reducerBranches.ts`, `useWebGameCommandDomains.ts`, `viewModels/*` | The strategy action domain, tactic command factory, reducer branch, hook command, and tactic view-model builder set and expose `selectedTacticId`. |
+| Web UI | `web/app/AppPanels.tsx`, `web/features/*`, `web/styles/app.css` | The compact Strategy panel shows selectable tactic presets and selected state near roster/formation without adding a large explanatory page. |
 | Balance report | `core/balance/simulatedBalanceReport.ts`, `tools/balance/*`, `tools/simulateBattle.ts` | Preserve default balanced report output. Add opt-in tactic comparison export/report rows instead of multiplying every existing table by tactic. |
 
 ## Save And UI Decision
 
-The player-facing implementation should use one **global selected tactic** stored on `PlayerProgress` as `selectedTacticId`.
+The player-facing implementation uses one **global selected tactic** stored on `PlayerProgress` as `selectedTacticId`.
 
 Per-stage, per-region, or saved combat-plan tactics would be more expressive, but they add routing, UI, and import/export complexity before tactics prove their value. Global selection is enough for the first player-facing strategy choice and matches current global systems such as active team, formation, style branches, skill upgrades, and auto-medicine preferences.
 
-The smallest visible UI should be a compact tactic selector in the existing battle-prep area. It should show the selected tactic near the active team/formation or selected stage context, and the battle summary should include the tactic used for the most recent battle once combat integration lands.
+The visible UI is a compact tactic selector in the existing app panel flow. It shows the selected tactic alongside the preset choices, and the battle summary includes the tactic used for the most recent battle through `BattleResult.playerTactic`.
 
 ## Balance Output Decision
 
@@ -94,4 +94,4 @@ Epic 68 added the static data contract, not combat behavior:
 4. Add tests that prove valid tactics pass and invalid tactics fail with actionable messages.
 5. Update docs only enough to explain the schema; deeper behavior docs belong after Epic 69.
 
-The static-data contract now exists in [tactics.json](../data/tactics.json), `StaticGameData.tactics`, and `validateStaticGameData`. Epic 69 then activated the combat behavior through runtime tactic inputs while leaving save/UI persistence for Epic 70.
+The static-data contract now exists in [tactics.json](../data/tactics.json), `StaticGameData.tactics`, and `validateStaticGameData`. Epic 69 activated the combat behavior through runtime tactic inputs, and Epic 70 completed persistence and web selection.

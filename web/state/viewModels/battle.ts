@@ -1107,6 +1107,7 @@ export function buildBattleSummary(
       battle.durationSeconds
     )}`,
     details: [
+      `Tactic: ${battle.playerTactic.name}.`,
       `Disciples dealt ${formatBattleNumber(
         battle.metrics.playerOuterDamage
       )} Outer, ${formatBattleNumber(

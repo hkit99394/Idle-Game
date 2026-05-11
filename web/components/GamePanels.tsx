@@ -5,6 +5,7 @@ export {
 } from "../features/shared/ui";
 export { BattleLog, TeamPanel } from "../features/battle/panels";
 export { FormationPanel, RosterPanel } from "../features/rosterFormation/panels";
+export { TacticsPanel } from "../features/strategy/panels";
 export {
   MasteryPanel,
   SkillUpgradePanel,

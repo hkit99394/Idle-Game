@@ -38,7 +38,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage access is gated by configured region/stage progress. Boss clearing is online play; offline farming uses cleared farmable stages.
 - Selecting a map/stage starts continuous fighting or farming behavior without a separate Fight or Set Farm button.
 - The player stays on the selected stage after battle instead of being forced to the latest unlocked stage.
-- Stage 2.1 tactic preset definitions are present in static data and validation, and core combat can apply a transient selected tactic during battle resolution. Save selection and UI are not active yet.
+- Stage 2.1 tactic preset definitions are present in static data and validation. Players can select one global saved tactic, and stage battle resolution uses it when no explicit tactic override is supplied.
 - Heroes gain levels from accumulated Combat XP. Level requirements increase by level, and enemy definitions also carry level data.
 - CP is calculated from hero stats, level, equipment, formation, and other active bonuses, then shown as a quick strength indicator.
 - Map mastery and style mastery grant staged bonuses from repeated play and assignment rewards.
@@ -85,7 +85,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 ## Web UI And State Modules
 
 - The web app shell is split across `web/App.tsx`, `web/app/AppPanels.tsx`, `web/app/statusText.ts`, and `web/app/useSaveTools.ts`.
-- React panels live under `web/features/*/panels.tsx` by feature: battle, map/idle, roster/formation, equipment/assignments, growth/mastery, counterplay/save, and shared display helpers.
+- React panels live under `web/features/*/panels.tsx` by feature: battle, map/idle, roster/formation, strategy, equipment/assignments, growth/mastery, counterplay/save, and shared display helpers.
 - `web/components/GamePanels.tsx` is a small compatibility barrel over feature panels. New panel logic should go in `web/features/*`.
 - Feature view-model builders and feature view types live under `web/state/viewModels/*` and `*Types.ts`, with `web/state/viewModels/webGameViewModel.ts` assembling the full web view model.
 - Web actions, command factories, reducer branches, hook commands, and save-tool commands are split by domain under `web/state/`.

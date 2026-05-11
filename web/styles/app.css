@@ -625,6 +625,7 @@ textarea {
 .style-mastery-panel,
 .roster-panel,
 .assignment-panel,
+.tactics-panel,
 .formation-panel {
   margin-bottom: 22px;
   padding: 16px 0;
@@ -633,7 +634,8 @@ textarea {
 }
 
 /* Roster and formation panels */
-.formation-panel-heading {
+.formation-panel-heading,
+.tactics-heading {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 18px;
@@ -642,14 +644,103 @@ textarea {
   margin-bottom: 12px;
 }
 
-.formation-panel-heading h2 {
+.formation-panel-heading h2,
+.tactics-heading h2 {
   overflow-wrap: anywhere;
   margin: 0;
 }
 
-.formation-panel-heading > span {
+.formation-panel-heading > span,
+.tactics-heading > span {
   color: #4d4639;
   font-weight: 800;
+}
+
+.tactics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+
+.tactic-option {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  min-height: 154px;
+  padding: 12px;
+  border: 1px solid #d6cdbc;
+  border-radius: 8px;
+  background: #fffaf0;
+  color: #4d4639;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tactic-option:hover,
+.tactic-option:focus-visible {
+  border-color: #2e5f63;
+  outline: none;
+}
+
+.tactic-option.selected {
+  border-color: #2e5f63;
+  background: #f1f8f2;
+}
+
+.tactic-option-heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.tactic-option-heading strong,
+.tactic-option-heading em,
+.tactic-description,
+.tactic-tags span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.tactic-option-heading em {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #2e5f63;
+  border-radius: 999px;
+  background: #2e5f63;
+  color: #fffaf0;
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 22px;
+}
+
+.tactic-description {
+  color: #6d6354;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.tactic-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-self: end;
+}
+
+.tactic-tags span {
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid #c7bbab;
+  border-radius: 999px;
+  background: #f0ebe1;
+  color: #4d4639;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 22px;
+  text-transform: capitalize;
 }
 
 .formation-slots {
@@ -2311,6 +2402,10 @@ h2 {
   }
 
   .formation-slots {
+    grid-template-columns: 1fr;
+  }
+
+  .tactics-grid {
     grid-template-columns: 1fr;
   }
 

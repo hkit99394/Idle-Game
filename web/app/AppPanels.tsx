@@ -19,6 +19,7 @@ import {
   SkillUpgradePanel,
   StageSelectorPanel,
   StyleMasteryPanel,
+  TacticsPanel,
   TeamPanel,
   UpgradePanel,
   formatNumber
@@ -28,6 +29,7 @@ import type {
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
   SelectGameStyleBranchInput,
+  SelectGameTacticInput,
   SetGameActiveHeroTeamInput,
   SetGameAssignmentHeroesInput,
   WebGameViewModel
@@ -46,6 +48,7 @@ export type AppFeaturePanelId =
   | "mastery"
   | "stage_selector"
   | "formation"
+  | "tactics"
   | "style_mastery"
   | "upgrades"
   | "skill_upgrades"
@@ -62,6 +65,7 @@ type AppPanelGameContext = {
   saveDiagnostics: SaveDiagnosticsView;
   selectStage: (stageId: string) => void;
   selectStyleBranch: (input: SelectGameStyleBranchInput) => void;
+  selectTactic: (input: SelectGameTacticInput) => void;
   setActiveHeroTeam: (input: SetGameActiveHeroTeamInput) => void;
   setAssignmentHeroes: (input: SetGameAssignmentHeroesInput) => void;
   setAutoMedicineEnabled: (enabled: boolean) => void;
@@ -155,6 +159,15 @@ export const appFeaturePanels: readonly AppFeaturePanelDescriptor[] = [
       <FormationPanel
         heroes={game.viewModel.playerFormation}
         onSetFormation={game.setHeroFormation}
+      />
+    )
+  },
+  {
+    id: "tactics",
+    render: ({ game }) => (
+      <TacticsPanel
+        onSelectTactic={(tacticId) => game.selectTactic({ tacticId })}
+        tactics={game.viewModel.tactics}
       />
     )
   },

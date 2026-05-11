@@ -65,6 +65,78 @@ describe("save schema validation", () => {
     });
   });
 
+  it("normalizes missing or invalid selected tactics to balanced", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress: {
+        ...progress,
+        selectedTacticId: "outer_pressure"
+      },
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const missingTacticSave = {
+      ...save,
+      version: 9,
+      progress: {
+        ...save.progress,
+        selectedTacticId: undefined
+      }
+    };
+    const invalidTacticSave = {
+      ...save,
+      progress: {
+        ...save.progress,
+        selectedTacticId: "missing_tactic"
+      }
+    };
+
+    expect(parseSaveData(staticData, save)).toMatchObject({
+      ok: true,
+      save: {
+        progress: {
+          selectedTacticId: "outer_pressure"
+        }
+      }
+    });
+    expect(parseSaveData(staticData, missingTacticSave)).toMatchObject({
+      ok: true,
+      save: {
+        version: SAVE_DATA_VERSION,
+        progress: {
+          selectedTacticId: "balanced"
+        }
+      },
+      migration: {
+        normalized: true,
+        normalizations: expect.arrayContaining([
+          {
+            field: "progress.selectedTacticId",
+            reason: "defaulted missing field"
+          }
+        ])
+      }
+    });
+    expect(parseSaveData(staticData, invalidTacticSave)).toMatchObject({
+      ok: true,
+      save: {
+        progress: {
+          selectedTacticId: "balanced"
+        }
+      },
+      migration: {
+        normalized: true,
+        normalizations: expect.arrayContaining([
+          {
+            field: "progress.selectedTacticId",
+            reason: "defaulted invalid field"
+          }
+        ])
+      }
+    });
+    expect(validateSaveData(staticData, invalidTacticSave)).toEqual([]);
+  });
+
   it("fails safely for malformed saves", () => {
     const result = parseSaveData(staticData, {
       version: SAVE_DATA_VERSION,

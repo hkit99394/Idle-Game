@@ -140,6 +140,7 @@ describe("web workflow baselines", () => {
       "battle",
       "map_idle",
       "roster_formation",
+      "strategy",
       "equipment_assignments",
       "growth_mastery",
       "counterplay_save",

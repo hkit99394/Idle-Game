@@ -8,6 +8,7 @@ import {
   useProgressionCommands,
   useRosterFormationCommands,
   useSaveToolCommands,
+  useStrategyCommands,
   useStageIdleCommands
 } from "./useWebGameCommandDomains";
 import type { WebGameState } from "./types";
@@ -36,6 +37,11 @@ export function useWebGameCommands({
     }
   });
   const progressionCommands = useProgressionCommands({
+    data,
+    dispatchAndPersist,
+    progress: state.progress
+  });
+  const strategyCommands = useStrategyCommands({
     data,
     dispatchAndPersist,
     progress: state.progress
@@ -72,6 +78,7 @@ export function useWebGameCommands({
   return {
     ...stageIdleCommands,
     ...progressionCommands,
+    ...strategyCommands,
     ...equipmentCommands,
     ...rosterFormationCommands,
     ...assignmentCommands,

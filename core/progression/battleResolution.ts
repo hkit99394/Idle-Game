@@ -24,6 +24,7 @@ import {
   deriveHeroStatsFromProgress
 } from "./upgrades";
 import { getSkillUpgradeLevelsForBattle } from "./skillUpgrades";
+import { getSelectedTacticId } from "./tactics";
 import type {
   BuildEnemyTeamResult,
   BuildPlayerTeamResult,
@@ -264,7 +265,7 @@ export function resolveStageBattle(
   const battle = simulateBattle(data, {
     playerTeam: playerTeam.team,
     enemyTeam: enemyTeam.team,
-    tacticId: input.tacticId,
+    tacticId: input.tacticId ?? getSelectedTacticId(data, input.progress),
     maxDurationSeconds: input.maxDurationSeconds,
     autoMedicine: {
       medicines: data.medicines,

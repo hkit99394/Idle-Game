@@ -26,6 +26,7 @@ describe("save schema factory", () => {
     expect(save.version).toBe(SAVE_DATA_VERSION);
     expect(save.progress.resources.silver).toBe(42);
     expect(save.progress.currentStageId).toBe("bamboo_road_1");
+    expect(save.progress.selectedTacticId).toBe("balanced");
     expect(save.autoMedicinePreferences).toEqual({
       enabled: true,
       battleCleanseEnabled: true,
@@ -145,6 +146,7 @@ describe("save schema factory", () => {
       iron_fist_disciple: "front"
     });
     expect(result.save.progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
+    expect(result.save.progress.selectedTacticId).toBe("balanced");
     expect(result.save.progress.styleMastery).toEqual({});
     expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.skillUpgrades).toEqual({});

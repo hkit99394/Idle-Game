@@ -14,5 +14,6 @@ export * from "./skillUpgrades";
 export * from "./stages";
 export * from "./styleMastery";
 export * from "./supportGrowth";
+export * from "./tactics";
 export * from "./types";
 export * from "./upgrades";

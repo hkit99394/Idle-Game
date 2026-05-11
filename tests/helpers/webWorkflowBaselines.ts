@@ -73,6 +73,16 @@ export const webUiModuleInventory = [
     workflows: ["active_team", "formation_slots"]
   },
   {
+    feature: "strategy",
+    label: "Strategy",
+    files: [
+      "web/features/strategy/panels.tsx",
+      "web/state/viewModels/tactics.ts",
+      "web/state/viewModels/tacticsTypes.ts"
+    ],
+    workflows: ["tactic_selection"]
+  },
+  {
     feature: "equipment_assignments",
     label: "Equipment and assignments",
     files: [

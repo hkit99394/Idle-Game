@@ -10,7 +10,8 @@ const featureBuilderModules = [
   "offline",
   "progression",
   "roster",
-  "saveDiagnostics"
+  "saveDiagnostics",
+  "tactics"
 ] as const;
 
 const panelModules = {
@@ -20,6 +21,7 @@ const panelModules = {
   growthMastery: "features/growthMastery/panels.tsx",
   mapIdle: "features/mapIdle/panels.tsx",
   rosterFormation: "features/rosterFormation/panels.tsx",
+  strategy: "features/strategy/panels.tsx",
   shared: "features/shared/ui.tsx"
 } as const;
 
@@ -32,7 +34,8 @@ const featureTypeModules = [
   "offlineTypes",
   "progressionTypes",
   "rosterTypes",
-  "saveDiagnosticsTypes"
+  "saveDiagnosticsTypes",
+  "tacticsTypes"
 ] as const;
 
 const publicStateBarrelModules = ["gameState", "types", "viewModel"] as const;
