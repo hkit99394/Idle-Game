@@ -54,7 +54,7 @@ Stage 2.2 should focus on boundaries and readiness rather than provider-specific
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 73 | Headless Engine Boundary Audit | Complete | Inventory current core entry points and define backend-safe caller contracts |
-| 74 | Server-Safe Core Import Contract | Planned | Make backend/worker import expectations explicit and covered by tests |
+| 74 | Server-Safe Core Import Contract | Complete | Make backend/worker import expectations explicit and covered by tests |
 | 75 | Save Migration And Cloud-Save Contract | Planned | Harden save compatibility and design cloud-save payload/conflict rules |
 | 76 | PWA Install And Offline Shell | Planned | Add install/offline readiness while protecting local save behavior |
 | 77 | Online Boss Transport Decision | Planned | Decide whether online boss play needs polling, turn/result submission, or WebSocket |
@@ -130,7 +130,10 @@ Prove that approved core entry points can be imported outside the web app withou
 
 ### Progress Notes
 
-- Not started.
+- Extended [tests/core/engineBoundary.test.ts](../tests/core/engineBoundary.test.ts) with a Node-like runtime import smoke for `core/index.ts`, focused `core/*/index.ts` modules, and `core/core-balance.ts`.
+- Expanded the boundary scan so `core/` fails if it imports web/tool code, React, Vite/test runtime code, browser APIs, wall-clock time, or ambient randomness.
+- Added a web/data/tool import guard that allows only approved core entry points from production callers; test-only deep imports remain available for focused module assertions.
+- Kept `package.json` unchanged while the project remains private. Docs plus boundary tests are the current import guidance; package export maps can be revisited if core becomes a published/shared package.
 
 ---
 
@@ -274,7 +277,7 @@ Close Stage 2.2 with accurate backend/PWA docs, release verification, browser sm
 ## Open Questions
 
 - Epic 73: Answered in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md). Use `core/index.ts`, focused `core/*/index.ts` modules, and `core/core-balance.ts`; promote any lower-level helper before backend use.
-- Epic 74: Is documentation plus tests enough for server-safe imports while the package is private, or should `package.json` expose internal export guidance?
+- Epic 74: Answered. Documentation plus boundary tests are enough while the package is private; add `package.json` export maps only if core becomes a published or separately consumed package.
 - Epic 75: Should cloud save store raw save JSON only, or a wrapped envelope containing raw save plus checksum and migration metadata?
 - Epic 75: What conflict policy should win when local and cloud saves both changed offline?
 - Epic 76: Should service worker caching ship in this stage, or should Stage 2.2 only define the manifest/offline-shell contract?

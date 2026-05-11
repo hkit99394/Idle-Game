@@ -71,8 +71,8 @@ Static data source selection stays outside `core/`. Backends and workers can cho
 ## Public Entry Points To Consider Next
 
 - A small `core/progression` command facade may be useful if backend callers need replayable command envelopes. Today the public core functions are backend-safe, but web action names and reducer branches are not a headless API.
-- Epic 74 should add import-boundary tests for `core/index.ts`, focused `core/*/index.ts` modules, and `core/core-balance.ts`.
-- Epic 74 should add a Node-like import smoke test that fails if approved core surfaces pull browser, React, Vite, web, or tool dependencies.
+- Epic 74 added import-boundary tests for `core/index.ts`, focused `core/*/index.ts` modules, and `core/core-balance.ts`.
+- Epic 74 added a Node-like import smoke test that fails if approved core surfaces pull browser, React, Vite, web, or tool dependencies.
 - Epic 75 should define the cloud-save envelope around `SaveData`, including account id, save slot id, checksum, created timestamp, updated timestamp, conflict policy, and migration metadata expectations.
 - If a future backend needs lower-level combat helpers currently used only by tests, promote those helpers through `core/combat/index.ts` before importing internals from service code.
 
@@ -87,9 +87,9 @@ Static data source selection stays outside `core/`. Backends and workers can cho
 
 ## Epic 74 Handoff
 
-Epic 74 should turn this audit into mechanical guarantees:
+Epic 74 turns this audit into mechanical guarantees:
 
-- Import-smoke all approved entry points in a Node-like test.
-- Add a dependency scan that fails on browser, React, Vite, `web/`, and `tools/` imports from approved core entry points.
-- Keep existing behavior unchanged while guarding the boundary.
-- Record any export guidance decision in `package.json` or docs while the package remains private.
+- `tests/core/engineBoundary.test.ts` import-smokes all approved entry points in a Node-like test runtime.
+- The same test fails on browser, React, Vite/test runtime, `web/`, `tools/`, wall-clock, and ambient-random dependencies in `core/`.
+- Web, data, and tool callers are guarded to use approved core entry points rather than backend-unsafe deep imports.
+- `package.json` remains unchanged while the package is private; docs and tests are the current import guidance.

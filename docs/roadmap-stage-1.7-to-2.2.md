@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Begin Epic 74 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): convert the headless engine audit into server-safe import tests before implementing backend, cloud-save, PWA, or online boss features.
+Begin Epic 75 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): harden save migration coverage and define the cloud-save payload/conflict contract on top of the now-guarded headless core boundary.
