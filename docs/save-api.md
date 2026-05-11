@@ -13,6 +13,7 @@ Save loading should be owned by `core/` so web storage, tools, tests, and a futu
 | Load a save and apply offline rewards | `loadSaveTransaction` | Preferred load path for web startup, future backend load, and tests that need full load semantics. |
 | Apply load semantics to an already parsed save | `applySaveLoadTransaction` | Use when the caller already has validated `SaveData`. Normalizes farm metadata and applies offline rewards. |
 | Validate user-supplied save data for diagnostics | `validateSaveData` | Returns validation strings. Runtime load should prefer `parseSaveData` or `loadSaveTransaction`. |
+| Wrap and load cloud saves | `createCloudSaveEnvelope`, `loadCloudSaveEnvelopeTransaction` | Cloud envelopes add account, slot, checksum, and conflict metadata around current `SaveData`; see [Cloud Save Contract](cloud-save-contract.md). |
 
 ## Load Semantics
 
@@ -89,3 +90,5 @@ When a save version is added, add or update the migration fixture path before ch
 ## Import And Future Versions
 
 Imported saves with unsupported future versions must fail validation. The game should not try to downgrade future saves or grant offline rewards to invalid imports.
+
+Cloud envelopes follow the same rule: `saveVersion` must match the current `SAVE_DATA_VERSION`, and `rawSave` still routes through core load validation before rewards or normalization are accepted.

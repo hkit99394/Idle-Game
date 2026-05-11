@@ -6,6 +6,7 @@ import {
   MVP_PLAYER_HERO_IDS,
   parseSaveData,
   SAVE_DATA_VERSION,
+  SUPPORTED_SAVE_DATA_VERSIONS,
   validateSaveData
 } from "../../core";
 import { buildSaveVersionFixtures } from "../fixtures/saveVersionFixtures";
@@ -13,6 +14,18 @@ import { stage12SaveFixture } from "../fixtures/stage12Save";
 import { staticData } from "../helpers/staticData";
 
 describe("save schema migrations", () => {
+  it("has one migration fixture for every supported legacy save version", () => {
+    const fixtureVersions = buildSaveVersionFixtures(staticData).map(
+      (fixture) => fixture.version
+    );
+    const legacyVersions = SUPPORTED_SAVE_DATA_VERSIONS.filter(
+      (version) => version !== SAVE_DATA_VERSION
+    );
+
+    expect(fixtureVersions).toEqual(legacyVersions);
+    expect(new Set(fixtureVersions).size).toBe(fixtureVersions.length);
+  });
+
   it("migrates every supported legacy save fixture through the current schema", () => {
     for (const fixture of buildSaveVersionFixtures(staticData)) {
       const migration = migrateSaveData(staticData, fixture.rawSave);

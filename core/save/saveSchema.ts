@@ -1,5 +1,6 @@
 export * from "./saveTypes";
 export * from "./autoMedicinePreferences";
+export * from "./cloudSave";
 export * from "./factory";
 export * from "./loadTransaction";
 export * from "./migrations";

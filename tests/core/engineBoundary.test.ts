@@ -230,6 +230,8 @@ describe("core engine boundary", () => {
         load: () => import("../../core"),
         expectedExports: [
           "buildGameBalanceReport",
+          "createCloudSaveEnvelope",
+          "decideCloudSaveConflict",
           "loadSaveTransaction",
           "resolveStageBattle",
           "simulateBattle",
@@ -294,7 +296,10 @@ describe("core engine boundary", () => {
         load: () => import("../../core/save"),
         expectedExports: [
           "applySaveLoadTransaction",
+          "createCloudSaveEnvelope",
           "createSaveData",
+          "decideCloudSaveConflict",
+          "loadCloudSaveEnvelopeTransaction",
           "loadSaveTransaction",
           "parseSaveData"
         ]

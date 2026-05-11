@@ -112,6 +112,50 @@ describe("save load transaction", () => {
     );
   });
 
+  it("applies offline assignment rewards in core and advances timestamps once", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.assignments = {
+      bamboo_road_patrol: {
+        heroIds: ["iron_fist_disciple"]
+      }
+    };
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1_000
+    });
+    const firstLoad = applySaveLoadTransaction({
+      data: staticData,
+      save,
+      nowMs: 3_601_000
+    });
+
+    expect(firstLoad.changed).toBe(true);
+    expect(firstLoad.writeReasons).toEqual(["offlineAssignmentsApplied"]);
+    expect(firstLoad.offlineAssignmentRewards?.rewards.assignments).toEqual([
+      expect.objectContaining({
+        assignmentId: "bamboo_road_patrol",
+        heroIds: ["iron_fist_disciple"]
+      })
+    ]);
+    expect(firstLoad.offlineAssignmentRewards?.rewards.silver).toBeGreaterThan(0);
+    expect(firstLoad.save.updatedAtMs).toBe(3_601_000);
+    expect(firstLoad.save.lastOfflineRewardAtMs).toBe(3_601_000);
+
+    const secondLoad = applySaveLoadTransaction({
+      data: staticData,
+      save: firstLoad.save,
+      nowMs: 3_601_000
+    });
+
+    expect(secondLoad.changed).toBe(false);
+    expect(secondLoad.writeReasons).toEqual([]);
+    expect(secondLoad.offlineAssignmentRewards?.rewards.assignments).toEqual([]);
+    expect(secondLoad.save.progress.resources).toEqual(
+      firstLoad.save.progress.resources
+    );
+  });
+
   it("normalizes invalid farm target metadata without changing reward timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 1;

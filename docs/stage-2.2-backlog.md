@@ -55,7 +55,7 @@ Stage 2.2 should focus on boundaries and readiness rather than provider-specific
 | --- | --- | --- | --- |
 | 73 | Headless Engine Boundary Audit | Complete | Inventory current core entry points and define backend-safe caller contracts |
 | 74 | Server-Safe Core Import Contract | Complete | Make backend/worker import expectations explicit and covered by tests |
-| 75 | Save Migration And Cloud-Save Contract | Planned | Harden save compatibility and design cloud-save payload/conflict rules |
+| 75 | Save Migration And Cloud-Save Contract | Complete | Harden save compatibility and design cloud-save payload/conflict rules |
 | 76 | PWA Install And Offline Shell | Planned | Add install/offline readiness while protecting local save behavior |
 | 77 | Online Boss Transport Decision | Planned | Decide whether online boss play needs polling, turn/result submission, or WebSocket |
 | 78 | Backend/PWA Docs And Stage 2.2 Readiness | Planned | Close the stage with updated docs, verification, and archive cleanup |
@@ -168,7 +168,11 @@ Make save compatibility and cloud-save semantics explicit enough that a later ba
 
 ### Progress Notes
 
-- Not started.
+- Added pure core cloud-save helpers in `core/save/cloudSave.ts`: `createCloudSaveEnvelope`, `validateCloudSaveEnvelope`, `parseCloudSaveEnvelope`, `loadCloudSaveEnvelopeTransaction`, and `decideCloudSaveConflict`.
+- Documented the wrapped cloud payload, load flow, conflict policy, and adapter/backend responsibilities in [Cloud Save Contract](cloud-save-contract.md).
+- Added cloud-save contract tests covering envelope validation, future-version rejection, cloud load routing through `loadSaveTransaction`, local-newer, cloud-newer, equal-timestamp checksum mismatch, both-changed offline, and failed-write retry decisions.
+- Added a migration fixture coverage test proving every legacy value in `SUPPORTED_SAVE_DATA_VERSIONS` has one fixture.
+- Added load transaction coverage for offline assignment rewards and timestamp advancement/idempotency.
 
 ---
 
@@ -278,8 +282,8 @@ Close Stage 2.2 with accurate backend/PWA docs, release verification, browser sm
 
 - Epic 73: Answered in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md). Use `core/index.ts`, focused `core/*/index.ts` modules, and `core/core-balance.ts`; promote any lower-level helper before backend use.
 - Epic 74: Answered. Documentation plus boundary tests are enough while the package is private; add `package.json` export maps only if core becomes a published or separately consumed package.
-- Epic 75: Should cloud save store raw save JSON only, or a wrapped envelope containing raw save plus checksum and migration metadata?
-- Epic 75: What conflict policy should win when local and cloud saves both changed offline?
+- Epic 75: Answered in [Cloud Save Contract](cloud-save-contract.md). Cloud save should store a wrapped envelope containing current raw save data, account id, slot id, checksum, timestamps, and optional migration metadata.
+- Epic 75: Answered in [Cloud Save Contract](cloud-save-contract.md). Matching checksums are no-op, one-sided changes sync automatically, timestamp fallback handles local-newer/cloud-newer, and both-changed or equal-timestamp checksum mismatches require manual conflict handling.
 - Epic 76: Should service worker caching ship in this stage, or should Stage 2.2 only define the manifest/offline-shell contract?
 - Epic 77: Is the first online boss model asynchronous result submission, polling-based shared progress, or real-time WebSocket state?
 

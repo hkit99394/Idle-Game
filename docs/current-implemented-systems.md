@@ -73,6 +73,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 ## Save, Tools, And Validation
 
 - Saves are versioned local JSON with export, import, reset-new-game, diagnostics, migration fixtures, and strict validation.
+- Cloud-save readiness is a wrapped envelope contract over current `SaveData`; see [Cloud Save Contract](cloud-save-contract.md).
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
 - Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json`, spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`, and opt-in tactic comparison rows through `npm run --silent simulate -- --tactics-json` or `--tactics-csv`.
