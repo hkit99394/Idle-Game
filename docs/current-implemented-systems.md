@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 2.0. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 2.1 planning. Older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -78,6 +78,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Completed backlogs through Stage 2.0 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
+- Stage 2.1 is active at [Stage 2.1 Backlog](stage-2.1-backlog.md) and focuses on tactic presets as the first deeper player strategy layer.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules
@@ -94,4 +95,4 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
 - Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and [Content Pipeline Inventory](content-pipeline-inventory.md) for current validation coverage, manual gaps, and known target misses.
 - Stage 2.0 kept current content playable while making future region authoring safer. Known Black Iron Fort and Demon Cult tuning misses remain documented debt, not silent report noise.
-- The recommended next roadmap focus is Stage 2.1 strategy work, using the Stage 2.0 content pipeline before adding larger content slices.
+- The active Stage 2.1 roadmap focus is tactic presets and strategy visibility, using the Stage 2.0 content pipeline before adding larger content slices.

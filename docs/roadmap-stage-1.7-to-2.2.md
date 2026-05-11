@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). The next roadmap focus is Stage 2.1 player strategy, then backend/PWA readiness.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). Stage 2.1 is active at [Stage 2.1 Backlog](stage-2.1-backlog.md), with tactic presets as the first deeper player strategy layer. Backend/PWA readiness follows after strategy.
 
 The recommended sequence is:
 
@@ -156,7 +156,7 @@ The game can support more regions, and Stage 2.0 made the content pipeline safer
 
 ### Goal
 
-Add meaningful strategic choices now that the technical foundation can support them.
+Add meaningful strategic choices now that the technical foundation can support them. Stage 2.1 starts with tactic presets and keeps formation bonuses as a later expansion unless the tactics audit proves they are needed.
 
 ### Candidate Features
 
@@ -169,7 +169,7 @@ Add meaningful strategic choices now that the technical foundation can support t
 
 ### Milestones
 
-- Choose one strategic layer as the main Stage 2.1 feature, preferably tactics or formation bonuses.
+- Choose one strategic layer as the main Stage 2.1 feature. The active backlog starts with tactic presets.
 - Add data schema and validation for the selected layer.
 - Add core tests proving choices change combat outcomes.
 - Route new combat behavior through the Stage 1.8 extension points in [Combat Engine V2](combat-engine-v2.md): scheduler rules, targeting rules, damage packages, effect handlers, or status hooks.
@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare the Stage 2.1 backlog around the first deeper strategy layer. Prefer tactics or formation bonuses, and keep the Stage 2.0 [Content Authoring Checklist](content-authoring-checklist.md) in the loop before adding larger content slices.
+Begin Epic 68 in the [Stage 2.1 Backlog](stage-2.1-backlog.md): add the tactic preset schema and validation using the decisions recorded in [Stage 2.1 Tactics Audit](stage-2.1-tactics-audit.md).

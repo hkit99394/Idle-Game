@@ -1,0 +1,93 @@
+# Stage 2.1 Tactics Audit
+
+## Decision
+
+Stage 2.1 should implement **global tactic presets** as the first deeper player strategy layer.
+
+The first version should add one selected tactic to player progress, default missing or invalid values to `balanced`, and pass that tactic from `resolveStageBattle` into `simulateBattle`. The balanced tactic must be behaviorally neutral so existing saves, reports, and content baselines stay comparable until a player or test selects a non-default tactic.
+
+Tactic definitions should be authored as static data, preferably `data/tactics.json`, then assembled into `StaticGameData` and validated with the rest of content. Tactics are player-facing authored content, not hidden combat constants, and should be reviewable by the same content pipeline that Stage 2.0 established.
+
+## Candidate Comparison
+
+| Candidate | Player value | Implementation shape | Decision |
+| --- | --- | --- | --- |
+| Tactic presets | Clear pre-battle choice that can change targeting, damage emphasis, sustain, or protection without new content. | Small static-data schema, one saved selection, combat modifiers through existing extension points, compact UI. | Chosen for Stage 2.1. |
+| Formation bonuses | Strong martial-fantasy layer, especially once slot/style synergies matter. | Requires slot/style bonus schema, balance retune, and more UI explanation on top of current formation controls. | Defer until tactics reveal which slot/style incentives matter. |
+| Manual battle actions | High agency during boss fights. | Requires real-time or queued controls, battle timing UI, stronger input state, and likely mobile-specific interaction work. | Out of scope for Stage 2.1. |
+| Skill branch decisions | Strong long-term build identity. | Larger progression/content system touching unlocks, costs, branch balance, and skill documentation. | Keep as later growth content; do not block tactics. |
+
+## MVP Tactic Set
+
+| Id | Player name | Intent | Primary behavior lane |
+| --- | --- | --- | --- |
+| `balanced` | Balanced Form | Preserve current combat behavior and provide the default for existing saves. | No targeting, damage, scheduler, recovery, or medicine changes. |
+| `outer_pressure` | Crushing Blows | Finish wounded targets and convert damage into faster Outer HP clears. | Targeting override toward `weakest_hp`; modest Outer damage emphasis. |
+| `inner_pressure` | Meridian Break | Break dangerous enemies and exploit Qi Break windows. | Targeting override toward high-priority enemies and `inner_broken`; modest Inner damage or break-pressure emphasis. |
+| `guard_support` | Guard The Healer | Keep support/backline heroes alive during pressure fights. | Protection/guard/recovery targeting and mitigation emphasis. |
+| `sustain` | Long Breath | Win longer fights through recovery and safer status pressure. | Recovery, resistance, and auto-medicine posture emphasis. |
+| `boss_burst` | Boss Burst | Focus elite or boss-like threats for a decisive clear attempt. | High-CP target priority with a small opening or boss-pressure damage emphasis. |
+
+These names are intentionally player-readable but not final UI copy. Epic 68 can adjust names while preserving the ids if the content feels too wordy.
+
+## Behavior Boundaries
+
+- `balanced` is the compatibility baseline and should not rewrite skill target rules, stats, cooldowns, auto-medicine settings, or battle events.
+- Tactics should affect only the player team in the first implementation. Enemy tactics are out of scope.
+- Tactics should not mutate skill definitions at load time. Resolve tactic effects at battle runtime so data remains stable and reports can compare tactics cleanly.
+- Tactics may override a selected skill's effective target rule, apply small damage/recovery/protection multipliers, or alter auto-medicine policy inputs, but each field must be explicit in the tactic schema.
+- Tactics should not create new real-time player input during battle.
+- Tactics should not hide existing budget misses. Black Iron Fort and Demon Cult misses remain visible unless a later epic intentionally retunes them.
+
+## Touchpoint Map
+
+| Surface | Current owner | Stage 2.1 touchpoint |
+| --- | --- | --- |
+| Static data | `data/*`, `data/staticGameData.ts`, `core/data/staticDataBuilder.ts`, `core/data/types.ts` | Add `data/tactics.json`, `StaticGameData.tactics`, tactic field types, builder key, and data export. |
+| Validation | `core/data/validateData.ts`, `core/data/validation/combat.ts`, `tests/data/*` | Validate duplicate ids, one default balanced tactic, player-facing name, supported target rules, modifier ranges, and contradictory fields. |
+| Combat input | `core/combat/types.ts`, `core/combat/simulator.ts` | Add optional tactic input to `SimulateBattleInput`, resolve missing input to balanced, and expose the applied tactic id in `BattleResult` or report metadata. |
+| Targeting | `core/combat/targeting.ts`, `core/combat/damagePackage.ts` | Apply tactic target-rule overrides before `selectTarget` without changing the underlying skill definition. |
+| Damage and defense | `core/combat/damagePackage.ts`, `core/combat/defensivePipeline.ts` | Apply small player-side tactic multipliers at package creation or mitigation, keeping mutation in existing package/mitigation commits. |
+| Recovery and status | `core/combat/effectPipeline.ts`, `core/combat/statusEffects.ts`, `core/combat/autoMedicine/*` | Apply sustain/protection posture through recovery, resistance, cleanse, or medicine policy inputs where the owning behavior already lives. |
+| Metrics and events | `core/combat/battleRecorder.ts`, `web/state/viewModels/battle.ts` | Add tactic metadata and, if needed, contribution fields that explain tactic impact without changing battle replay semantics casually. |
+| Progression adapter | `core/progression/types.ts`, `core/progression/battleResolution.ts` | Add `selectedTacticId` to `PlayerProgress`; pass the selected tactic into `simulateBattle` during `resolveStageBattle`. |
+| Save loading | `core/save/*`, `tests/save/*`, `web/state/saveStorage.ts` | Bump save schema when the persisted field lands, migrate missing tactic to `balanced`, validate imported tactic ids, and normalize invalid ids. |
+| Web state | `web/state/actions.ts`, `commandActions.ts`, `reducerBranches.ts`, `useWebGameCommandDomains.ts`, `viewModels/*` | Add a strategy action domain or a small strategy feature module that sets `selectedTacticId` and persists through the existing save path. |
+| Web UI | `web/app/AppPanels.tsx`, `web/features/*`, `web/styles/app.css` | Add a compact tactic selector near roster/formation or battle prep. Use segmented controls or buttons with clear selected state; avoid a large explanatory page. |
+| Balance report | `core/balance/simulatedBalanceReport.ts`, `tools/balance/*`, `tools/simulateBattle.ts` | Preserve default balanced report output. Add opt-in tactic comparison export/report rows instead of multiplying every existing table by tactic. |
+
+## Save And UI Decision
+
+The first implementation should use one **global selected tactic** stored on `PlayerProgress` as `selectedTacticId`.
+
+Per-stage, per-region, or saved combat-plan tactics would be more expressive, but they add routing, UI, and import/export complexity before tactics prove their value. Global selection is enough for the first player-facing strategy choice and matches current global systems such as active team, formation, style branches, skill upgrades, and auto-medicine preferences.
+
+The smallest visible UI should be a compact tactic selector in the existing battle-prep area. It should show the selected tactic near the active team/formation or selected stage context, and the battle summary should include the tactic used for the most recent battle once combat integration lands.
+
+## Balance Output Decision
+
+Preserve the Stage 2.0 default outputs:
+
+```sh
+npm run simulate
+npm run --silent simulate -- --export-json
+npm run --silent simulate -- --csv
+```
+
+Epic 71 should add opt-in tactic comparison outputs rather than changing every default table:
+
+- `npm run --silent simulate -- --tactics-json` for stable comparison rows.
+- `npm run --silent simulate -- --tactics-csv` for spreadsheet review.
+- A concise terminal tactic comparison can be added only if it stays readable and does not bury the existing budget-gate report.
+
+Comparison rows should include tactic id, tactic name, region id, stage id, result, duration, target status, status damage, medicine consumed, guard/protection/healing pressure, and contribution deltas where available.
+
+## Epic 68 Handoff
+
+Epic 68 should start by adding the static data contract, not combat behavior:
+
+1. Add tactic data types and `StaticGameData.tactics`.
+2. Add `data/tactics.json` with the six MVP ids above and `balanced` marked as the default.
+3. Add validation for ids, labels, default count, target-rule references, range checks, and contradictory fields.
+4. Add tests that prove valid tactics pass and invalid tactics fail with actionable messages.
+5. Update docs only enough to explain the schema; deeper behavior docs belong after Epic 69.
