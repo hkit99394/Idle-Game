@@ -69,3 +69,5 @@
 ## Backend Readiness
 
 The backend can reuse battle simulation, progression, offline rewards, save migration, and static data validation by importing from `core/index.ts`. Account storage, cloud sync, authentication, and websocket delivery should wrap the engine instead of moving browser or server concerns into `core/`.
+
+The approved headless workflows, adapter boundaries, and missing public entry points for Stage 2.2 are tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).

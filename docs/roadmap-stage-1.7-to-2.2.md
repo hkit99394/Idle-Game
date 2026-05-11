@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). Stage 2.1 completed tactic presets as the first deeper player strategy layer and is archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md). Backend/PWA readiness follows after strategy.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). Stage 2.1 completed tactic presets as the first deeper player strategy layer and is archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md). Stage 2.2 is active at [Stage 2.2 Backlog](stage-2.2-backlog.md), focused on backend/PWA readiness.
 
 The recommended sequence is:
 
@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Prepare the Stage 2.2 backlog for backend and PWA readiness. Start from the existing Stage 2.2 goals above: headless core API boundaries, save migration/cloud-save shape, PWA install basics, and online boss scope decisions.
+Begin Epic 74 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): convert the headless engine audit into server-safe import tests before implementing backend, cloud-save, PWA, or online boss features.
