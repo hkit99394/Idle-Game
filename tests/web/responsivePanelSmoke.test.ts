@@ -16,7 +16,8 @@ const featurePanelSources = {
   counterplaySave: readFeaturePanel("counterplaySave"),
   equipmentAssignments: readFeaturePanel("equipmentAssignments"),
   mapIdle: readFeaturePanel("mapIdle"),
-  rosterFormation: readFeaturePanel("rosterFormation")
+  rosterFormation: readFeaturePanel("rosterFormation"),
+  strategy: readFeaturePanel("strategy")
 } as const;
 
 function readFeaturePanel(featureName: string): string {
@@ -100,6 +101,12 @@ describe("responsive panel smoke contracts", () => {
     );
     expectDeclaration(
       tabletBlock,
+      ".tactics-grid",
+      "grid-template-columns",
+      "1fr"
+    );
+    expectDeclaration(
+      tabletBlock,
       ".equipment-layout",
       "grid-template-columns",
       "1fr"
@@ -151,6 +158,7 @@ describe("responsive panel smoke contracts", () => {
     expectDeclaration(cssSource, "body", "overflow-x", "hidden");
     expectDeclaration(cssSource, ".stage-card", "min-width", "0");
     expectDeclaration(cssSource, ".roster-card", "min-width", "0");
+    expectDeclaration(cssSource, ".tactic-option", "min-width", "0");
     expectDeclaration(cssSource, ".combatant-card", "min-width", "0");
     expectDeclaration(cssSource, ".save-diagnostics-panel", "min-width", "0");
     expectDeclaration(
@@ -194,6 +202,7 @@ describe("responsive panel smoke contracts", () => {
     expect(featurePanelSources.rosterFormation).toContain(
       'className="formation-slots"'
     );
+    expect(featurePanelSources.strategy).toContain('className="tactics-grid"');
     expect(featurePanelSources.equipmentAssignments).toContain(
       'className="equipment-layout"'
     );

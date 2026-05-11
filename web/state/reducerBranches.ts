@@ -20,6 +20,7 @@ import type {
   ProgressionAction,
   RosterFormationAction,
   SaveStateAction,
+  StrategyAction,
   StageIdleAction
 } from "./actions";
 import type { WebGameState } from "./types";
@@ -65,6 +66,7 @@ function clearTransientActionState(
     lastSkillPurchase: null,
     lastEquipmentAction: null,
     lastStyleBranchAction: null,
+    lastTacticAction: null,
     lastActiveTeamAction: null,
     lastAssignmentAction: null,
     ...overrides
@@ -212,6 +214,20 @@ export function reduceEquipmentAction(
   return clearTransientActionState(state, {
     progress: nextProgress,
     lastEquipmentAction: action.result
+  });
+}
+
+export function reduceStrategyAction(
+  state: WebGameState,
+  action: StrategyAction
+): WebGameState {
+  const nextProgress = action.result.ok
+    ? action.result.progress
+    : state.progress;
+
+  return clearTransientActionState(state, {
+    progress: nextProgress,
+    lastTacticAction: action.result
   });
 }
 

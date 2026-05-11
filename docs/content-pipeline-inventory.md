@@ -23,6 +23,7 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 | [data/enemies.json](../data/enemies.json) | `enemies` | 26 | Duplicate ids, skill/style references, base stats, level integer, and combat role checks. | Enemy family intent, stage role fit, and difficulty curve are reviewed through simulation output. |
 | [data/heroes.json](../data/heroes.json) | `heroes` | 5 | Duplicate ids, skill/style references, base stats, combat role, and unlock references. | Roster composition, CP curve, and `passiveIds` are not tied to a passive catalog yet. |
 | [data/skills.json](../data/skills.json) | `skills` | 28 | Duplicate ids, cooldown/multiplier ranges, target rules, skill effect types, status refs, chance, stacks, duration, and effect targets. | Skill power identity and cross-skill progression are only visible through combat and balance reports. |
+| [data/tactics.json](../data/tactics.json) | `tactics` | 6 | Duplicate ids, balanced default, names, descriptions, behavior flags, target priorities, modifier types/ranges, and contradictory fields. | Combat behavior is reviewed through tactic tests and opt-in tactic comparison exports; player selection persists through save migration and web state. |
 | [data/statusEffects.json](../data/statusEffects.json) | `statusEffects` | 5 | Duplicate ids, category, duration, stacks, stack policy, dispel tags, tick interval, and effect keys. | Status-pressure severity is judged through simulation budgets. |
 | [data/medicines.json](../data/medicines.json) | `medicines` | 3 | Duplicate ids, stage unlock refs, max carry, effect type, cleanse tags, max count, resistance value, and duration. | Auto-use policy, inventory pressure, and expected medicine spend are report-driven. |
 | [data/equipment.json](../data/equipment.json) | `equipment` | 14 | Duplicate ids, slot, rarity, allowed styles, set refs, effects, and affixes. | Drop economy, CP value, and set/item pacing are not strict validation gates. |
@@ -39,7 +40,7 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 | Area | Validation owner | Protected content |
 | --- | --- | --- |
 | Shared ids and references | [core/data/validateData.ts](../core/data/validateData.ts), [core/data/validation/shared.ts](../core/data/validation/shared.ts) | Duplicate ids, lookup indexes, base stats, combat roles, and unlock conditions. |
-| Combat content | [core/data/validation/combat.ts](../core/data/validation/combat.ts) | Hero/enemy skill and style refs, enemy levels, skills, status effects, and medicines. |
+| Combat content | [core/data/validation/combat.ts](../core/data/validation/combat.ts) | Hero/enemy skill and style refs, enemy levels, skills, tactics, status effects, and medicines. |
 | Progression content | [core/data/validation/progression.ts](../core/data/validation/progression.ts) | Region-stage links, stage refs, stage rewards/drops, enemy formations, formations, and region balance-target shape. |
 | Growth content | [core/data/validation/growth.ts](../core/data/validation/growth.ts) | Assignments, upgrades, skill upgrades, style definitions, and added skill effects. |
 | Equipment content | [core/data/validation/equipment.ts](../core/data/validation/equipment.ts) | Equipment slots, rarity, style/set refs, item effects, affixes, and set bonuses. |
@@ -71,11 +72,17 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 
 `npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often.
 
+Stage 2.1 adds opt-in tactic comparison exports without changing the default report or Stage 2.0 export shapes:
+
+- `npm run --silent simulate -- --tactics-json` returns stable rows for every configured stage and tactic.
+- `npm run --silent simulate -- --tactics-csv` returns the same rows for spreadsheet review.
+- Tactic rows include baseline result, result changes, duration deltas, target-status changes, `budgetShift`, pressure metrics, and contribution metric deltas.
+
 ## Known Budget Debt
 
 The current simulator output keeps these misses visible:
 
-| Region | Current miss | Stage 2.0 disposition |
+| Region | Current miss | Disposition through Stage 2.1 |
 | --- | --- | --- |
 | Black Iron Fort | `black_iron_fort_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
 | Demon Cult Outpost | `demon_cult_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
@@ -84,7 +91,15 @@ The current simulator output keeps these misses visible:
 | Demon Cult Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
 | Demon Cult Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
-These are not accepted silent noise. They are allowed only because the archived Stage 2.0 backlog names them as deferred tuning debt.
+These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
+
+## Stage 2.1 Tactic Comparison Notes
+
+Epic 71 did not retune content. The tactic comparison export keeps known debt visible and adds row-level shift labels:
+
+- `demon_cult_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `inner_pressure` or `boss_burst`, marked as `budgetShift: improved_existing_miss`.
+- `demon_cult_outpost_7` is untargeted by clear-time budgets, but `inner_pressure` and `boss_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
+- `sustain` preserves the Demon Cult boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
 
 ## Stage 2.0 Closure Notes
 

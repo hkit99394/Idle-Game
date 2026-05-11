@@ -45,6 +45,9 @@ describe("save schema migrations", () => {
         fixture.description
       ).toBeGreaterThanOrEqual(result.save.createdAtMs);
       expect(result.save.offlineFarmPreset, fixture.description).toBe("balanced");
+      expect(result.save.progress.selectedTacticId, fixture.description).toBe(
+        "balanced"
+      );
       expect(result.save.autoMedicinePreferences.preBattleResistanceMode).toBe(
         "boss_and_elite"
       );

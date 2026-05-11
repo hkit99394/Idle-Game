@@ -73,6 +73,7 @@ function createRawSaveForVersion(
   if (version <= 2) {
     delete save.autoMedicinePreferences;
     delete save.offlineFarmPreset;
+    delete save.progress.selectedTacticId;
     delete save.progress.resources.herbs;
     delete save.progress.activeHeroIds;
     delete save.progress.formation;
@@ -105,6 +106,10 @@ function createRawSaveForVersion(
     delete save.progress.assignments;
   } else if (version <= 8) {
     delete save.autoMedicinePreferences;
+  }
+
+  if (version <= 9) {
+    delete save.progress.selectedTacticId;
   }
 
   return save;
@@ -171,6 +176,10 @@ function getExpectedNormalizationsForRawSave(
     if (equipment.equipped === undefined) {
       normalizations.push(missingField("progress.equipment.equipped"));
     }
+  }
+
+  if (progress.selectedTacticId === undefined) {
+    normalizations.push(missingField("progress.selectedTacticId"));
   }
 
   for (const heroId of Object.keys(defaultProgress.heroes)) {

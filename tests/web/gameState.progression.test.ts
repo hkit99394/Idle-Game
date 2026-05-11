@@ -6,6 +6,7 @@ import {
   purchaseGameSkillUpgrade,
   purchaseGameUpgrade,
   resolveSelectedStageBattle,
+  selectGameTactic,
   selectGameStyleBranch,
   setGameActiveHeroTeam,
   setGameAssignmentHeroes,
@@ -22,6 +23,7 @@ describe("web game state progression", () => {
     expect(state.selectedStageId).toBe("bamboo_road_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
     expect(state.offlineFarmPreset).toBe("balanced");
+    expect(state.progress.selectedTacticId).toBe("balanced");
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
     expect(viewModel.selectedStageRegionName).toBe("Bamboo Road");
@@ -32,6 +34,23 @@ describe("web game state progression", () => {
       id: "balanced",
       isSelected: true,
       rewardPriority: ["Combat XP", "Silver", "Cultivation"]
+    });
+    expect(viewModel.tactics).toHaveLength(staticData.tactics.length);
+    expect(viewModel.tactics[0]).toMatchObject({
+      tacticId: "balanced",
+      name: "Balanced Form",
+      selected: true,
+      modifierSummary: []
+    });
+    expect(
+      viewModel.tactics.find((tactic) => tactic.tacticId === "outer_pressure")
+    ).toMatchObject({
+      selected: false,
+      behaviorTags: ["targeting", "damage"],
+      modifierSummary: expect.arrayContaining([
+        "Targets weakest hp",
+        "+8% Outer damage"
+      ])
     });
     expect(viewModel.offlineFarmRecommendation).toMatchObject({
       stageId: null,
@@ -334,6 +353,42 @@ describe("web game state progression", () => {
         (combatant) => combatant.definitionId === "white_crane_swordsman"
       )?.formationSlot
     ).toBe("front");
+  });
+
+  it("selects tactics and applies them to stage battles", () => {
+    const state = createInitialWebGameState(staticData);
+    const selectedState = selectGameTactic(staticData, state, {
+      tacticId: "outer_pressure"
+    });
+    const invalidState = selectGameTactic(staticData, selectedState, {
+      tacticId: "missing_tactic"
+    });
+    const battleState = resolveSelectedStageBattle(staticData, selectedState);
+    const viewModel = getWebGameViewModel(staticData, battleState);
+
+    expect(selectedState.lastTacticAction).toMatchObject({
+      ok: true,
+      tacticId: "outer_pressure"
+    });
+    expect(selectedState.progress.selectedTacticId).toBe("outer_pressure");
+    expect(
+      getWebGameViewModel(staticData, selectedState).tactics.find(
+        (tactic) => tactic.tacticId === "outer_pressure"
+      )
+    ).toMatchObject({
+      selected: true
+    });
+    expect(invalidState.progress.selectedTacticId).toBe("outer_pressure");
+    expect(invalidState.lastTacticAction).toMatchObject({
+      ok: false,
+      reason: "missing_tactic"
+    });
+    expect(battleState.lastBattle?.ok).toBe(true);
+    if (!battleState.lastBattle?.ok) {
+      return;
+    }
+    expect(battleState.lastBattle.battle.playerTactic.id).toBe("outer_pressure");
+    expect(viewModel.battleSummary?.details[0]).toBe("Tactic: Crushing Blows.");
   });
 
   it("selects an unlocked Lotus support hero for the active team", () => {

@@ -26,6 +26,7 @@ import {
   buildUpgradeViews
 } from "./progression";
 import { buildPlayerFormationViews, buildRosterHeroViews } from "./roster";
+import { buildTacticPresetViews } from "./tactics";
 
 function getSelectedStageContext(data: StaticGameData, state: WebGameState) {
   const selectedStage = getStageById(data, state.selectedStageId);
@@ -127,6 +128,7 @@ export function buildWebGameViewModel(
     selectedStage,
     selectedStageRegionName,
     selectedOfflineFarmStage,
+    tactics: buildTacticPresetViews(data, state.progress),
     ...buildMapIdleFeatureView(data, state),
     ...buildEquipmentAndGrowthFeatureView(data, state, activeMasterySummary),
     playerFormation: buildPlayerFormationViews(battleView.playerCombatants),

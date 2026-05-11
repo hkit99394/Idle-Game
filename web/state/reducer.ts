@@ -18,7 +18,8 @@ import {
   createEquipmentEquipResolvedAction,
   createPurchaseResolvedAction,
   createSkillPurchaseResolvedAction,
-  createStyleBranchSelectResolvedAction
+  createStyleBranchSelectResolvedAction,
+  createTacticSelectResolvedAction
 } from "./commandActions";
 import {
   formatSaveStorageCommitFailure,
@@ -32,6 +33,7 @@ import type {
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
   SelectGameStyleBranchInput,
+  SelectGameTacticInput,
   SetGameActiveHeroTeamInput,
   SetGameAssignmentHeroesInput,
   WebGameState
@@ -46,6 +48,7 @@ import {
   reduceProgressionAction,
   reduceRosterFormationAction,
   reduceSaveStateAction,
+  reduceStrategyAction,
   reduceStageIdleAction
 } from "./reducerBranches";
 
@@ -125,6 +128,7 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
     lastSkillPurchase: null,
     lastEquipmentAction: null,
     lastStyleBranchAction: null,
+    lastTacticAction: null,
     lastActiveTeamAction: null,
     lastAssignmentAction: null
   };
@@ -166,6 +170,7 @@ export function createWebGameStateFromSave(
     lastSkillPurchase: null,
     lastEquipmentAction: null,
     lastStyleBranchAction: null,
+    lastTacticAction: null,
     lastActiveTeamAction: null,
     lastAssignmentAction: null
   };
@@ -237,6 +242,9 @@ export function webGameStateReducer(
     case "skill_purchase_resolved":
     case "style_branch_select_resolved":
       return reduceProgressionAction(data, state, action);
+
+    case "tactic_select_resolved":
+      return reduceStrategyAction(state, action);
 
     case "equipment_equip_resolved":
       return reduceEquipmentAction(state, action);
@@ -317,6 +325,18 @@ export function selectGameStyleBranch(
     data,
     state,
     createStyleBranchSelectResolvedAction(data, state, input)
+  );
+}
+
+export function selectGameTactic(
+  data: StaticGameData,
+  state: WebGameState,
+  input: SelectGameTacticInput
+): WebGameState {
+  return webGameStateReducer(
+    data,
+    state,
+    createTacticSelectResolvedAction(data, state, input)
   );
 }
 

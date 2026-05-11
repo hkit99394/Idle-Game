@@ -24,10 +24,22 @@ When adding or changing playable content:
 2. Add or update static validation for new references, ranges, invariants, reward rules, and budget rules.
 3. Add focused tests for new validation behavior.
 4. Run `npm run simulate` to review timing, farm recommendations, difficulty spikes, boss gates, and budget checks.
-5. Use `npm run --silent simulate -- --export-json` for compact authoring rows or `npm run --silent simulate -- --csv` for spreadsheet review.
+5. Use `npm run --silent simulate -- --export-json` for compact authoring rows, `npm run --silent simulate -- --csv` for spreadsheet review, and `npm run --silent simulate -- --tactics-json` or `--tactics-csv` when tactic outcomes may change.
 6. Document any intentional budget miss as an explicit exception or tracked tuning debt.
 
 Do not bypass `StaticGameData` or import raw JSON directly from web, tools, or tests. The builder, validation entry point, simulator, and exports are the shared authoring contract.
+
+## Tactic Presets
+
+Stage 2.1 tactic presets live in [tactics.json](../data/tactics.json) and are part of the canonical `StaticGameData` bundle.
+
+- `balanced` must be the single default tactic and must not define behavior flags, target priorities, or modifiers.
+- Non-default tactics must define behavior flags such as `targeting`, `damage`, `defense`, `recovery`, or `medicine`.
+- `targetPriorities` must use supported combat target rules.
+- `modifiers` must use supported tactic modifier types and validated value ranges.
+- A tactic cannot declare a behavior flag without the matching target priority or modifier.
+
+Stage 2.1 completed the full tactic flow: static schema and validation, runtime combat behavior, saved selection, web UI, and tactic comparison exports.
 
 ## Adding A Static Data File
 

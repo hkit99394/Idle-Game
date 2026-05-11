@@ -47,6 +47,7 @@ export type PlayerProgress = {
   heroes: Record<string, HeroProgress>;
   sect: SectProgress;
   maps: Record<string, MapProgress>;
+  selectedTacticId?: string;
   activeHeroIds?: string[];
   formation?: Record<string, FormationSlot>;
   styleMastery?: Record<string, StyleMasteryProgress>;
@@ -207,9 +208,28 @@ export type BuildEnemyTeamResult =
 export type ResolveStageBattleInput = {
   progress: PlayerProgress;
   stageId: string;
+  tacticId?: string;
   maxDurationSeconds?: number;
   autoMedicinePreferences?: AutoMedicinePreferences;
 };
+
+export type SelectTacticInput = {
+  progress: PlayerProgress;
+  tacticId: string;
+};
+
+export type SelectTacticResult =
+  | {
+      ok: true;
+      progress: PlayerProgress;
+      tacticId: string;
+    }
+  | {
+      ok: false;
+      reason: "missing_tactic";
+      progress: PlayerProgress;
+      tacticId: string;
+    };
 
 export type ResolveStageBattleResult =
   | {

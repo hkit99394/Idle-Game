@@ -148,6 +148,44 @@ export type SkillDefinition = {
   effects: SkillEffect[];
 };
 
+export const TACTIC_BEHAVIOR_FLAGS = [
+  "targeting",
+  "damage",
+  "defense",
+  "recovery",
+  "medicine"
+] as const;
+
+export type TacticBehaviorFlag = (typeof TACTIC_BEHAVIOR_FLAGS)[number];
+
+export const TACTIC_MODIFIER_TYPES = [
+  "outer_damage_multiplier",
+  "inner_damage_multiplier",
+  "break_power_multiplier",
+  "boss_damage_multiplier",
+  "guard_multiplier",
+  "protection_multiplier",
+  "healing_multiplier",
+  "status_resistance_bonus"
+] as const;
+
+export type TacticModifierType = (typeof TACTIC_MODIFIER_TYPES)[number];
+
+export type TacticModifier = {
+  type: TacticModifierType;
+  value: number;
+};
+
+export type TacticPresetDefinition = {
+  id: string;
+  name: string;
+  description: string;
+  isDefault?: boolean;
+  behaviorFlags: TacticBehaviorFlag[];
+  targetPriorities?: TargetRule[];
+  modifiers: TacticModifier[];
+};
+
 export type SkillUpgradeEffect =
   | {
       type: "cooldown_seconds";
@@ -396,6 +434,7 @@ export type UpgradeDefinition = {
 export type StaticGameData = {
   heroes: HeroDefinition[];
   skills: SkillDefinition[];
+  tactics: TacticPresetDefinition[];
   enemies: EnemyDefinition[];
   equipment: EquipmentDefinition[];
   equipmentSets?: EquipmentSetDefinition[];

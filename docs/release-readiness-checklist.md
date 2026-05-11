@@ -59,7 +59,7 @@ Use this section whenever regions, stages, enemies, skills, equipment, medicines
 - Assemble data through the canonical static-data builder.
 - Validate static data before trusting new content.
 - Confirm new regions or stages are covered by `npm run simulate`.
-- Document any intentional budget misses in `docs/balance-budget-gates.md`.
+- Document any intentional budget misses in the active release authority: `docs/content-pipeline-inventory.md`, `docs/balance-budget-gates.md`, configured `balanceTargets`, and simulator budget output should agree on the accepted miss.
 - Check farm recommendations, reward curves, and boss gates when rewards or region order changes.
 
 ## Documentation And Archive

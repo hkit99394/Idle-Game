@@ -162,7 +162,7 @@ The implemented Stage 1.8 combat engine keeps `simulateBattle` as the public bat
 7. `statusEffects.ts`, `cleansePolicy.ts`, and auto-medicine modules advance status ticks, resistance, cleanse, and medicine counterplay.
 8. `battleRecorder.ts` finalizes metrics, contribution summaries, defeat events, and stable battle event record metadata for web and tooling consumers.
 
-For contributor-facing extension guidance, use [Combat Engine V2](combat-engine-v2.md). New Stage 2.1 tactics or formation bonuses should plug into these extension points instead of growing the simulator loop directly.
+For contributor-facing extension guidance, use [Combat Engine V2](combat-engine-v2.md). Implemented tactic presets and future formation bonuses should plug into these extension points instead of growing the simulator loop directly.
 
 ## 5. Hero Styles
 

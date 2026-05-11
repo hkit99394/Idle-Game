@@ -9,7 +9,8 @@ import {
   isAssignmentUnlocked,
   isHeroEligibleForAssignment,
   isHeroUnlocked,
-  isStageUnlocked
+  isStageUnlocked,
+  isKnownTacticId
 } from "../progression";
 import type {
   AssignmentProgress,
@@ -609,6 +610,23 @@ export function validateActiveHeroIds(
   return true;
 }
 
+export function validateSelectedTacticId(
+  data: Pick<StaticGameData, "tactics">,
+  value: unknown,
+  errors: string[]
+): value is PlayerProgress["selectedTacticId"] {
+  if (value === undefined) {
+    return true;
+  }
+
+  if (!isKnownTacticId(data, value)) {
+    errors.push("progress.selectedTacticId must reference an existing tactic");
+    return false;
+  }
+
+  return true;
+}
+
 export function validateCurrentStage(
   data: Pick<StaticGameData, "regions" | "stages">,
   progress: PlayerProgress,
@@ -641,6 +659,7 @@ export function validateProgress(
   validateHeroes(data, value.heroes, errors);
   validateSect(value.sect, errors);
   validateMaps(data, value.maps, errors);
+  validateSelectedTacticId(data, value.selectedTacticId, errors);
   validateActiveHeroIds(data, value as PlayerProgress, value.activeHeroIds, errors);
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);

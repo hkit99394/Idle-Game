@@ -19,6 +19,7 @@ Feature panels live beside their feature name and import feature-owned view type
 | Battle | `web/features/battle/panels.tsx` | `web/state/viewModels/battle.ts`, `battleTypes.ts` |
 | Map and idle | `web/features/mapIdle/panels.tsx` | `map.ts`, `mapTypes.ts`, `offline.ts`, `offlineTypes.ts` |
 | Roster and formation | `web/features/rosterFormation/panels.tsx` | `roster.ts`, `rosterTypes.ts` |
+| Strategy | `web/features/strategy/panels.tsx` | `tactics.ts`, `tacticsTypes.ts` |
 | Equipment and assignments | `web/features/equipmentAssignments/panels.tsx` | `equipment.ts`, `equipmentTypes.ts`, `assignments.ts`, `assignmentTypes.ts` |
 | Growth and mastery | `web/features/growthMastery/panels.tsx` | `progression.ts`, `progressionTypes.ts` |
 | Counterplay and save | `web/features/counterplaySave/panels.tsx` | `counterplay.ts`, `counterplayTypes.ts`, `saveDiagnostics.ts`, `saveDiagnosticsTypes.ts` |
@@ -37,7 +38,7 @@ Boundary tests in `tests/web/viewModelBoundaries.test.ts` guard sibling feature 
 
 ## Commands, Reducers, And Saves
 
-- `web/state/actions.ts` groups `WebGameAction` by stage/idle, progression, equipment, roster/formation, assignments, counterplay, and save-state domains.
+- `web/state/actions.ts` groups `WebGameAction` by stage/idle, progression, equipment, roster/formation, strategy, assignments, counterplay, and save-state domains.
 - `web/state/commandActions.ts` owns action factory helpers.
 - `web/state/reducerBranches.ts` owns domain transition logic while `web/state/reducer.ts` remains the public reducer surface.
 - `web/state/useWebGameCommandDomains.ts` and `useWebGameCommands.ts` keep hook commands grouped by workflow while preserving the public hook shape.
@@ -47,6 +48,6 @@ Boundary tests in `tests/web/viewModelBoundaries.test.ts` guard sibling feature 
 ## Styling And Smoke Coverage
 
 - `web/styles/app.css` remains the single app stylesheet for now, grouped with feature-owner comments and a responsive contract section.
-- `tests/web/responsivePanelSmoke.test.ts` checks narrow viewport CSS contracts and protected panel selectors for stage routes, battle log rows, roster/formation, equipment, counterplay, and save tools.
+- `tests/web/responsivePanelSmoke.test.ts` checks narrow viewport CSS contracts and protected panel selectors for stage routes, battle log rows, roster/formation, strategy, equipment, counterplay, and save tools.
 - `docs/stage-1.9-ui-inventory.md` records the current UI ownership table, baseline tests, and browser smoke notes.
 - Browser smoke for visible UI changes should follow `docs/release-readiness-checklist.md`. Stage 1.9 closure used Codex in-app browser smoke at 1120x900 and 390x900.

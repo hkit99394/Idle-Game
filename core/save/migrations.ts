@@ -1,5 +1,9 @@
 import type { StaticGameData } from "../data";
-import { createInitialPlayerProgress, DEFAULT_OFFLINE_FARM_PRESET } from "../progression";
+import {
+  createInitialPlayerProgress,
+  DEFAULT_OFFLINE_FARM_PRESET,
+  normalizeSelectedTacticId
+} from "../progression";
 import type { EquipmentProgress, HeroProgress, MapProgress, ResourceState } from "../progression";
 import {
   MIN_SUPPORTED_SAVE_DATA_VERSION,
@@ -161,7 +165,7 @@ export function normalizeEquipmentProgressForMigration(
 }
 
 export function normalizeProgressForMigration(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages">,
+  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "tactics">,
   value: unknown
 ): NormalizationResult<unknown> {
   if (!isRecord(value)) {
@@ -201,6 +205,17 @@ export function normalizeProgressForMigration(
   );
 
   normalizations.push(...resources.normalizations, ...equipment.normalizations);
+
+  const selectedTacticId = normalizeSelectedTacticId(
+    data,
+    value.selectedTacticId
+  );
+
+  if (value.selectedTacticId === undefined) {
+    normalizations.push(missingField("progress.selectedTacticId"));
+  } else if (value.selectedTacticId !== selectedTacticId) {
+    normalizations.push(invalidField("progress.selectedTacticId"));
+  }
 
   for (const heroId of Object.keys(defaultProgress.heroes)) {
     if (!(heroId in existingHeroes)) {
@@ -243,6 +258,7 @@ export function normalizeProgressForMigration(
         ...defaultProgress.maps,
         ...maps
       },
+      selectedTacticId,
       activeHeroIds: value.activeHeroIds ?? defaultProgress.activeHeroIds,
       formation: value.formation ?? defaultProgress.formation,
       styleMastery: value.styleMastery ?? {},

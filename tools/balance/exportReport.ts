@@ -1,4 +1,7 @@
-import type { GameBalanceReport } from "./progressionReport";
+import type {
+  GameBalanceReport,
+  TacticComparisonReport
+} from "./progressionReport";
 
 type RegionSummary = GameBalanceReport["regionBalances"][number];
 type StageSummary = RegionSummary["stageResults"][number];
@@ -41,7 +44,64 @@ export const BALANCE_STAGE_EXPORT_CSV_HEADERS = [
   "recovery_prevented"
 ] as const;
 
+export const TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION = 1;
+
+export const TACTIC_COMPARISON_CSV_HEADERS = [
+  "tactic_id",
+  "tactic_name",
+  "is_default_tactic",
+  "behavior_flags",
+  "region_id",
+  "region_name",
+  "stage_id",
+  "stage_name",
+  "stage_index",
+  "result",
+  "baseline_result",
+  "result_changed",
+  "duration_seconds",
+  "baseline_duration_seconds",
+  "duration_delta_seconds",
+  "target_min_seconds",
+  "target_max_seconds",
+  "target_status",
+  "baseline_target_status",
+  "target_status_change",
+  "budget_shift",
+  "clear_time_reason",
+  "baseline_clear_time_reason",
+  "status_applications",
+  "status_applications_delta",
+  "status_damage",
+  "status_damage_delta",
+  "medicine_consumed",
+  "medicine_consumed_delta",
+  "guard_absorbs",
+  "guard_absorbs_delta",
+  "protections",
+  "protections_delta",
+  "armor_breaks",
+  "armor_breaks_delta",
+  "heals",
+  "heals_delta",
+  "cleanses",
+  "cleanses_delta",
+  "defensive_damage_prevented",
+  "defensive_damage_prevented_delta",
+  "recovery_prevented",
+  "recovery_prevented_delta",
+  "player_outer_damage",
+  "player_outer_damage_delta",
+  "player_inner_damage",
+  "player_inner_damage_delta",
+  "player_effective_dps",
+  "player_effective_dps_delta",
+  "enemy_effective_dps",
+  "enemy_effective_dps_delta"
+] as const;
+
 type BalanceStageExportRow = ReturnType<typeof buildStageExportRow>;
+type TacticComparisonRow = TacticComparisonReport["rows"][number];
 
 function toExportNumber(value: number | null | undefined): number | null {
   if (value === null || value === undefined) {
@@ -221,6 +281,16 @@ function buildBossGateExport(region: RegionSummary) {
   }));
 }
 
+export function buildTacticComparisonExport(report: TacticComparisonReport) {
+  return {
+    schemaVersion: TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION,
+    defaultTacticId: report.defaultTacticId,
+    tactics: report.tactics,
+    regions: report.regions,
+    rows: report.rows
+  };
+}
+
 export function buildBalanceAuthoringExport(report: GameBalanceReport) {
   const regions = report.regionBalances.map(buildRegionExport);
   const stages = report.regionBalances.flatMap((region) =>
@@ -296,6 +366,76 @@ export function formatBalanceStageExportCsv(report: GameBalanceReport): string {
     BALANCE_STAGE_EXPORT_CSV_HEADERS.join(","),
     ...exportReport.stages.map((row) =>
       stageRowToCsvCells(row).map(toCsvCell).join(",")
+    )
+  ];
+
+  return lines.join("\n");
+}
+
+function tacticComparisonRowToCsvCells(row: TacticComparisonRow): unknown[] {
+  return [
+    row.tacticId,
+    row.tacticName,
+    row.isDefaultTactic,
+    row.behaviorFlags,
+    row.regionId,
+    row.regionName,
+    row.stageId,
+    row.stageName,
+    row.stageIndex,
+    row.result,
+    row.baselineResult,
+    row.resultChanged,
+    row.durationSeconds,
+    row.baselineDurationSeconds,
+    row.durationDeltaSeconds,
+    row.targetMinSeconds,
+    row.targetMaxSeconds,
+    row.targetStatus,
+    row.baselineTargetStatus,
+    row.targetStatusChange,
+    row.budgetShift,
+    row.clearTimeReason,
+    row.baselineClearTimeReason,
+    row.pressure.statusApplications,
+    row.pressureDeltas.statusApplications,
+    row.pressure.statusDamage,
+    row.pressureDeltas.statusDamage,
+    row.pressure.medicineConsumed,
+    row.pressureDeltas.medicineConsumed,
+    row.pressure.guardAbsorbs,
+    row.pressureDeltas.guardAbsorbs,
+    row.pressure.protections,
+    row.pressureDeltas.protections,
+    row.pressure.armorBreaks,
+    row.pressureDeltas.armorBreaks,
+    row.pressure.heals,
+    row.pressureDeltas.heals,
+    row.pressure.cleanses,
+    row.pressureDeltas.cleanses,
+    row.pressure.defensiveDamagePrevented,
+    row.pressureDeltas.defensiveDamagePrevented,
+    row.pressure.recoveryPrevented,
+    row.pressureDeltas.recoveryPrevented,
+    row.contributionMetrics.playerOuterDamage,
+    row.contributionDeltas.playerOuterDamage,
+    row.contributionMetrics.playerInnerDamage,
+    row.contributionDeltas.playerInnerDamage,
+    row.contributionMetrics.playerEffectiveDps,
+    row.contributionDeltas.playerEffectiveDps,
+    row.contributionMetrics.enemyEffectiveDps,
+    row.contributionDeltas.enemyEffectiveDps
+  ];
+}
+
+export function formatTacticComparisonCsv(
+  report: TacticComparisonReport
+): string {
+  const exportReport = buildTacticComparisonExport(report);
+  const lines = [
+    TACTIC_COMPARISON_CSV_HEADERS.join(","),
+    ...exportReport.rows.map((row) =>
+      tacticComparisonRowToCsvCells(row).map(toCsvCell).join(",")
     )
   ];
 

@@ -22,7 +22,8 @@ import {
   createSetOfflineFarmPresetAction,
   createSetPreBattleResistanceModeAction,
   createSkillPurchaseResolvedAction,
-  createStyleBranchSelectResolvedAction
+  createStyleBranchSelectResolvedAction,
+  createTacticSelectResolvedAction
 } from "./commandActions";
 import {
   exportBrowserSave,
@@ -36,6 +37,7 @@ import type {
   PurchaseGameUpgradeInput,
   SaveToolResult,
   SelectGameStyleBranchInput,
+  SelectGameTacticInput,
   SetGameActiveHeroTeamInput,
   SetGameAssignmentHeroesInput,
   WebGameState
@@ -135,6 +137,29 @@ export function useProgressionCommands({
     purchaseSkillUpgrade,
     purchaseUpgrade,
     selectStyleBranch
+  };
+}
+
+export function useStrategyCommands({
+  data,
+  dispatchAndPersist,
+  progress
+}: {
+  data: StaticGameData;
+  dispatchAndPersist: DispatchAndPersist;
+  progress: WebGameState["progress"];
+}) {
+  const selectTactic = useCallback(
+    (input: SelectGameTacticInput) => {
+      dispatchAndPersist(
+        createTacticSelectResolvedAction(data, { progress }, input)
+      );
+    },
+    [data, dispatchAndPersist, progress]
+  );
+
+  return {
+    selectTactic
   };
 }
 

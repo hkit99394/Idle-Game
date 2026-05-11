@@ -4,6 +4,7 @@ import type {
   StaticGameData
 } from "../data";
 import type { HeroProgress, PlayerProgress } from "./types";
+import { DEFAULT_TACTIC_ID } from "../combat/tactics";
 import { createDefaultPlayerFormation } from "./playerFormationDefaults";
 import { createDefaultActiveHeroIds } from "./playerRosterDefaults";
 
@@ -43,6 +44,7 @@ export function createInitialPlayerProgress(
         }
       ])
     ),
+    selectedTacticId: DEFAULT_TACTIC_ID,
     activeHeroIds: createDefaultActiveHeroIds(heroIds),
     formation: createDefaultPlayerFormation(heroIds),
     styleMastery: {},
@@ -85,6 +87,7 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
         }
       ])
     ),
+    selectedTacticId: progress.selectedTacticId ?? DEFAULT_TACTIC_ID,
     activeHeroIds: progress.activeHeroIds
       ? [...progress.activeHeroIds]
       : undefined,

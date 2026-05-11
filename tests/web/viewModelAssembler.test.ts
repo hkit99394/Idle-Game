@@ -29,5 +29,8 @@ describe("web game view-model assembler", () => {
     expect(featureViewModel.counterplaySettings.resistanceMode).toBe(
       "status_heavy"
     );
+    expect(
+      featureViewModel.tactics.some((tactic) => tactic.selected)
+    ).toBe(true);
   });
 });

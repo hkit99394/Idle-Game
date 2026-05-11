@@ -21,6 +21,7 @@ describe("app shell helpers", () => {
       "mastery",
       "stage_selector",
       "formation",
+      "tactics",
       "style_mastery",
       "upgrades",
       "skill_upgrades",

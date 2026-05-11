@@ -1,4 +1,4 @@
-import type { SkillDefinition } from "../data/types";
+import type { SkillDefinition, TacticPresetDefinition } from "../data/types";
 import {
   calculateQiBreakBacklashDamage,
   calculateQiBreakBurst,
@@ -17,7 +17,11 @@ import {
   getEffectiveTargetStats
 } from "./defensivePipeline";
 import { getStatusCombatModifiers } from "./statusEffects";
-import { selectTarget } from "./targeting";
+import { selectTargetByPriorityRules } from "./targeting";
+import {
+  getPlayerTacticModifierValue,
+  getTacticTargetRules
+} from "./tactics";
 import type {
   BattleContribution,
   BattleEvent,
@@ -73,10 +77,17 @@ export function resolveAttackDamageTargets(input: {
   attacker: CombatantState;
   skill: SkillDefinition;
   time: number;
+  tactic?: TacticPresetDefinition | null;
 }): AttackDamageTargetContext | null {
-  const intendedTarget = selectTarget(
+  const targetRules = getTacticTargetRules(
+    input.tactic,
+    input.attacker,
+    input.skill.targetRule
+  );
+  const intendedTarget = selectTargetByPriorityRules(
     input.combatants,
     input.attacker.team,
+    targetRules,
     input.skill.targetRule
   );
 
@@ -141,6 +152,7 @@ export function createAttackDamagePackage(input: {
   time: number;
   constants: CombatFormulaConstants;
   statusDefinitions: Record<string, StatusEffectDefinition>;
+  tactic?: TacticPresetDefinition | null;
 }): AttackDamagePackage {
   const target = input.targets.damageTarget;
   const effectiveTargetStats = getEffectiveTargetStats(target, input.time);
@@ -153,6 +165,29 @@ export function createAttackDamagePackage(input: {
     (target.family
       ? input.attacker.damageMultipliersByFamily[target.family] ?? 0
       : 0);
+  const bossDamageMultiplier =
+    target.enemyType === "boss"
+      ? getPlayerTacticModifierValue(
+          input.tactic,
+          input.attacker,
+          "boss_damage_multiplier",
+          1
+        )
+      : 1;
+  const outerTacticMultiplier =
+    getPlayerTacticModifierValue(
+      input.tactic,
+      input.attacker,
+      "outer_damage_multiplier",
+      1
+    ) * bossDamageMultiplier;
+  const innerTacticMultiplier =
+    getPlayerTacticModifierValue(
+      input.tactic,
+      input.attacker,
+      "inner_damage_multiplier",
+      1
+    ) * bossDamageMultiplier;
   const outerDamage =
     calculateOuterDamage(
       {
@@ -164,6 +199,7 @@ export function createAttackDamagePackage(input: {
       input.constants
     ) *
     familyMultiplier *
+    outerTacticMultiplier *
     targetStatusModifiers.outerDamageTakenMultiplier;
   const innerDamage =
     calculateInnerDamage(
@@ -174,7 +210,9 @@ export function createAttackDamagePackage(input: {
         targetIsQiBroken: target.isQiBroken
       },
       input.constants
-    ) * familyMultiplier;
+    ) *
+    familyMultiplier *
+    innerTacticMultiplier;
 
   return {
     kind: "attack",
@@ -286,11 +324,20 @@ export function createQiBreakDamagePackage(input: {
   target: CombatantState;
   time: number;
   constants: CombatFormulaConstants;
+  tactic?: TacticPresetDefinition | null;
 }): QiBreakDamagePackage {
+  const attackerBreakPower =
+    input.attacker.stats.breakPower *
+    getPlayerTacticModifierValue(
+      input.tactic,
+      input.attacker,
+      "break_power_multiplier",
+      1
+    );
   const burst = calculateQiBreakBurst(
     {
       targetMaxOuterHp: input.target.maxOuterHp,
-      attackerBreakPower: input.attacker.stats.breakPower,
+      attackerBreakPower,
       targetBreakResist: input.target.stats.breakResist
     },
     input.constants

@@ -13,12 +13,14 @@ import skills from "./skills.json" with { type: "json" };
 import stages from "./stages.json" with { type: "json" };
 import statusEffects from "./statusEffects.json" with { type: "json" };
 import styles from "./styles.json" with { type: "json" };
+import tactics from "./tactics.json" with { type: "json" };
 import upgrades from "./upgrades.json" with { type: "json" };
 
 export const staticGameDataParts = {
   assignments,
   heroes,
   skills,
+  tactics,
   enemies,
   equipment,
   equipmentSets,

@@ -274,6 +274,7 @@ export type CombatantState = {
   formationSlot: FormationSlot;
   combatRole: CombatRole;
   family?: string;
+  enemyType?: EnemyDefinition["type"];
   name: string;
   team: TeamId;
   outerHp: number;
@@ -554,6 +555,7 @@ export type BattleContribution = {
 export type SimulateBattleInput = {
   playerTeam: TeamInstance;
   enemyTeam: TeamInstance;
+  tacticId?: string;
   maxDurationSeconds?: number;
   stepSeconds?: number;
   constants?: CombatFormulaConstants;
@@ -573,6 +575,7 @@ export type BattleAutoMedicineInput = {
 export type BattleResult = {
   winner: TeamId | "timeout";
   durationSeconds: number;
+  playerTactic: BattleTacticSummary;
   events: BattleEvent[];
   finalPlayerTeam: CombatantState[];
   finalEnemyTeam: CombatantState[];
@@ -582,4 +585,10 @@ export type BattleResult = {
     inventory: Record<string, number | undefined>;
     uses: AutoMedicineUseSummary[];
   };
+};
+
+export type BattleTacticSummary = {
+  id: string;
+  name: string;
+  isDefault: boolean;
 };

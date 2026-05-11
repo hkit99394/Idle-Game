@@ -13,7 +13,8 @@ import {
   createPurchaseResolvedAction,
   createReplaceProgressAction,
   createSelectStageAction,
-  createSetMedicineAutoUseAction
+  createSetMedicineAutoUseAction,
+  createTacticSelectResolvedAction
 } from "../../web/state/commandActions";
 import { resetBrowserSave } from "../../web/state/saveToolCommands";
 import { staticData } from "../helpers/staticData";
@@ -38,6 +39,9 @@ describe("web game state domains", () => {
         "style_branch_select_resolved"
       ])
     );
+    expect(webGameActionDomainTypes.strategy).toEqual([
+      "tactic_select_resolved"
+    ]);
     expect(webGameActionDomainTypes.equipment).toEqual([
       "equipment_equip_resolved"
     ]);
@@ -127,6 +131,13 @@ describe("web game state domains", () => {
       state,
       createSetMedicineAutoUseAction("clear_heart_pill", false)
     );
+    const tacticState = webGameStateReducer(
+      staticData,
+      state,
+      createTacticSelectResolvedAction(staticData, state, {
+        tacticId: "sustain"
+      })
+    );
 
     expect(lockedStageState.selectedStageId).toBe(state.selectedStageId);
     expect(purchasedState.lastPurchase?.ok).toBe(true);
@@ -142,6 +153,7 @@ describe("web game state domains", () => {
     expect(counterplayState.autoMedicinePreferences.disabledMedicineIds).toEqual([
       "clear_heart_pill"
     ]);
+    expect(tacticState.progress.selectedTacticId).toBe("sustain");
   });
 
   it("keeps save/reset helpers behind the save command surface", () => {

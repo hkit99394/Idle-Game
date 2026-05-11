@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 2.0. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 2.1 closure. Older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -10,6 +10,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - `core/` has no browser dependency. Browser persistence stays in `web/`, while save parsing, migration, validation, offline reward semantics, and normalization stay in `core/save`.
 - Static game data is assembled through the canonical static-data builder before validation and simulation.
 - Stage 2.0 completed the content pipeline pass: region budgets, reward-curve validation, difficulty/boss-gate reporting, authoring exports, and content readiness docs.
+- Stage 2.1 completed tactic presets as the first deeper player strategy layer.
 
 ## Combat
 
@@ -38,6 +39,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage access is gated by configured region/stage progress. Boss clearing is online play; offline farming uses cleared farmable stages.
 - Selecting a map/stage starts continuous fighting or farming behavior without a separate Fight or Set Farm button.
 - The player stays on the selected stage after battle instead of being forced to the latest unlocked stage.
+- Stage 2.1 tactic presets are authored in static data, validated with the content bundle, applied by core combat, saved as one global `selectedTacticId`, surfaced in the Strategy panel, and reported in recent battle summaries.
 - Heroes gain levels from accumulated Combat XP. Level requirements increase by level, and enemy definitions also carry level data.
 - CP is calculated from hero stats, level, equipment, formation, and other active bonuses, then shown as a quick strength indicator.
 - Map mastery and style mastery grant staged bonuses from repeated play and assignment rewards.
@@ -71,19 +73,20 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Saves are versioned local JSON with export, import, reset-new-game, diagnostics, migration fixtures, and strict validation.
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
-- Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json` and spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`.
+- Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json`, spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`, and opt-in tactic comparison rows through `npm run --silent simulate -- --tactics-json` or `--tactics-csv`.
 - The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
 - The practical checklist for adding or changing regions is [Content Authoring Checklist](content-authoring-checklist.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
-- Completed backlogs through Stage 2.0 live in `docs/archive`.
+- Completed backlogs through Stage 2.1 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
+- Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules
 
 - The web app shell is split across `web/App.tsx`, `web/app/AppPanels.tsx`, `web/app/statusText.ts`, and `web/app/useSaveTools.ts`.
-- React panels live under `web/features/*/panels.tsx` by feature: battle, map/idle, roster/formation, equipment/assignments, growth/mastery, counterplay/save, and shared display helpers.
+- React panels live under `web/features/*/panels.tsx` by feature: battle, map/idle, roster/formation, strategy, equipment/assignments, growth/mastery, counterplay/save, and shared display helpers.
 - `web/components/GamePanels.tsx` is a small compatibility barrel over feature panels. New panel logic should go in `web/features/*`.
 - Feature view-model builders and feature view types live under `web/state/viewModels/*` and `*Types.ts`, with `web/state/viewModels/webGameViewModel.ts` assembling the full web view model.
 - Web actions, command factories, reducer branches, hook commands, and save-tool commands are split by domain under `web/state/`.
@@ -94,4 +97,4 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
 - Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and [Content Pipeline Inventory](content-pipeline-inventory.md) for current validation coverage, manual gaps, and known target misses.
 - Stage 2.0 kept current content playable while making future region authoring safer. Known Black Iron Fort and Demon Cult tuning misses remain documented debt, not silent report noise.
-- The recommended next roadmap focus is Stage 2.1 strategy work, using the Stage 2.0 content pipeline before adding larger content slices.
+- Stage 2.1 added tactic presets and strategy visibility without retuning known Black Iron Fort or Demon Cult budget debt. Stage 2.2 planning can now focus on backend and PWA readiness.

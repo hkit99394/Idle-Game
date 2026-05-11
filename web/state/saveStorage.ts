@@ -33,6 +33,7 @@ type SaveSchemaData = Pick<
   | "equipment"
   | "assignments"
   | "medicines"
+  | "tactics"
 >;
 
 type OfflineSaveData = SaveSchemaData & Pick<StaticGameData, "mastery">;

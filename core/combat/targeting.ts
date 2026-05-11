@@ -50,23 +50,19 @@ function compareFormationPriority(
   return slotDifference || first.encounterOrder - second.encounterOrder;
 }
 
+type TargetCandidate = { combatant: CombatantState; encounterOrder: number };
+
 function selectFirstLivingByFormation(
   candidates: Array<{ combatant: CombatantState; encounterOrder: number }>
 ): CombatantState | null {
   return [...candidates].sort(compareFormationPriority)[0]?.combatant ?? null;
 }
 
-export function selectTarget(
-  combatants: CombatantState[],
-  attackerTeam: TeamId,
-  targetRule: TargetRule
+function selectTargetFromCandidates(
+  candidates: TargetCandidate[],
+  targetRule: TargetRule,
+  fallbackToFirstLiving: boolean
 ): CombatantState | null {
-  const candidates = getLivingOpponents(combatants, attackerTeam);
-
-  if (candidates.length === 0) {
-    return null;
-  }
-
   switch (targetRule) {
     case "first_living":
       return selectFirstLivingByFormation(candidates);
@@ -98,9 +94,48 @@ export function selectTarget(
         .filter((candidate) => candidate.combatant.isQiBroken)
         .sort(compareFormationPriority)[0]?.combatant;
 
-      return brokenTarget ?? selectFirstLivingByFormation(candidates);
+      return brokenTarget ?? (
+        fallbackToFirstLiving ? selectFirstLivingByFormation(candidates) : null
+      );
     }
   }
+}
+
+export function selectTarget(
+  combatants: CombatantState[],
+  attackerTeam: TeamId,
+  targetRule: TargetRule
+): CombatantState | null {
+  const candidates = getLivingOpponents(combatants, attackerTeam);
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  return selectTargetFromCandidates(candidates, targetRule, true);
+}
+
+export function selectTargetByPriorityRules(
+  combatants: CombatantState[],
+  attackerTeam: TeamId,
+  targetRules: TargetRule[],
+  fallbackRule: TargetRule
+): CombatantState | null {
+  const candidates = getLivingOpponents(combatants, attackerTeam);
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  for (const targetRule of targetRules) {
+    const target = selectTargetFromCandidates(candidates, targetRule, false);
+
+    if (target) {
+      return target;
+    }
+  }
+
+  return selectTargetFromCandidates(candidates, fallbackRule, true);
 }
 
 export function hasLivingTeamMember(

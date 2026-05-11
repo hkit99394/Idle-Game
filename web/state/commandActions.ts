@@ -3,6 +3,7 @@ import {
   purchaseSkillUpgrade as purchaseCoreSkillUpgrade,
   purchaseUpgrade as purchaseCoreUpgrade,
   resolveStageBattle,
+  selectPlayerTactic,
   selectStyleBranch as selectCoreStyleBranch,
   setActiveHeroTeam as setCoreActiveHeroTeam,
   setAssignmentHeroes as setCoreAssignmentHeroes
@@ -20,6 +21,7 @@ import type {
   PurchaseGameSkillUpgradeInput,
   PurchaseGameUpgradeInput,
   SelectGameStyleBranchInput,
+  SelectGameTacticInput,
   SetGameActiveHeroTeamInput,
   SetGameAssignmentHeroesInput,
   WebGameState
@@ -194,6 +196,20 @@ export function createStyleBranchSelectResolvedAction(
   return {
     type: "style_branch_select_resolved",
     result: selectCoreStyleBranch(data, {
+      progress: state.progress,
+      ...input
+    })
+  };
+}
+
+export function createTacticSelectResolvedAction(
+  data: StaticGameData,
+  state: ProgressCommandState,
+  input: SelectGameTacticInput
+): ActionOf<"tactic_select_resolved"> {
+  return {
+    type: "tactic_select_resolved",
+    result: selectPlayerTactic(data, {
       progress: state.progress,
       ...input
     })

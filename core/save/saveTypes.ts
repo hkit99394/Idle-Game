@@ -9,7 +9,7 @@ import type {
   PlayerProgress
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 9 as const;
+export const SAVE_DATA_VERSION = 10 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
@@ -20,6 +20,7 @@ export const SUPPORTED_SAVE_DATA_VERSIONS = [
   6,
   7,
   8,
+  9,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -116,7 +117,10 @@ export type SaveMigrationMetadata = {
 };
 
 export type UnknownRecord = Record<string, unknown>;
-export type SaveMigrationData = Pick<StaticGameData, "heroes" | "regions" | "stages">;
+export type SaveMigrationData = Pick<
+  StaticGameData,
+  "heroes" | "regions" | "stages" | "tactics"
+>;
 export type SaveValidationData = Pick<
   StaticGameData,
   | "heroes"
@@ -127,6 +131,7 @@ export type SaveValidationData = Pick<
   | "equipment"
   | "assignments"
   | "medicines"
+  | "tactics"
 >;
 export type SaveLoadTransactionData = SaveValidationData &
   Pick<StaticGameData, "mastery">;

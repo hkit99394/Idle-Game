@@ -52,7 +52,7 @@ Every region needs `balanceTargets` in [regions.json](../data/regions.json):
 - `bossGate` with baseline, trained, or farmed result expectations.
 - `budgetExceptions` only for explicit, named deferrals that should stay visible in data.
 
-Do not accept a new budget miss silently. Either fix the content, add a reasoned exception where validation supports it, or record the miss as tuning debt in the active backlog or roadmap.
+Do not accept a new budget miss silently. Either fix the content, add a reasoned exception where validation supports it, or record the miss as tuning debt in the active release authority: [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), configured `balanceTargets`, and simulator budget output should agree on the accepted miss.
 
 ## Report Review
 
@@ -62,6 +62,8 @@ Run these commands from the repository root:
 npm run simulate
 npm run --silent simulate -- --export-json
 npm run --silent simulate -- --csv
+npm run --silent simulate -- --tactics-json
+npm run --silent simulate -- --tactics-csv
 ```
 
 Review:
@@ -71,6 +73,7 @@ Review:
 - `Region Budget Gates` for pass/fail reasons.
 - The compact JSON export when comparing region, stage, budget, or boss-gate rows in tools.
 - The generated CSV when reviewing stage rows in a spreadsheet.
+- Tactic comparison JSON/CSV when reviewing tactic-driven target-status shifts, pressure deltas, or contribution deltas.
 
 [Balance Template CSV](balance-template.csv) remains a hand-authored planning reference. Use generated CSV output for current simulator truth.
 

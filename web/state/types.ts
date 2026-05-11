@@ -13,6 +13,8 @@ import type {
   SaveLoadWriteReason,
   SelectStyleBranchInput,
   SelectStyleBranchResult,
+  SelectTacticInput,
+  SelectTacticResult,
   SetActiveHeroTeamInput,
   SetActiveHeroTeamResult,
   SetAssignmentHeroesInput,
@@ -37,6 +39,7 @@ export type WebGameState = {
   lastSkillPurchase: PurchaseSkillUpgradeResult | null;
   lastEquipmentAction: EquipHeroEquipmentResult | null;
   lastStyleBranchAction: SelectStyleBranchResult | null;
+  lastTacticAction: SelectTacticResult | null;
   lastActiveTeamAction: SetActiveHeroTeamResult | null;
   lastAssignmentAction: SetAssignmentHeroesResult | null;
 };
@@ -58,6 +61,7 @@ export type SelectGameStyleBranchInput = Omit<
   SelectStyleBranchInput,
   "progress"
 >;
+export type SelectGameTacticInput = Omit<SelectTacticInput, "progress">;
 export type SetGameAssignmentHeroesInput = Omit<
   SetAssignmentHeroesInput,
   "progress"

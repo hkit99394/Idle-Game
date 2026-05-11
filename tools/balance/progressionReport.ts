@@ -6,6 +6,8 @@ export {
   TRAINED_BOSS_UPGRADES,
   buildBambooRoadBalanceReport,
   buildGameBalanceReport,
+  buildTacticComparisonReport,
   type BambooRoadBalanceReport,
-  type GameBalanceReport
+  type GameBalanceReport,
+  type TacticComparisonReport
 } from "../../core/core-balance";

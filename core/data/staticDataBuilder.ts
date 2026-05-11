@@ -4,6 +4,7 @@ export const staticGameDataPartKeys = [
   "assignments",
   "heroes",
   "skills",
+  "tactics",
   "enemies",
   "equipment",
   "equipmentSets",
