@@ -1,7 +1,24 @@
-import type { EnemyDefinition, HeroDefinition, MedicineDefinition, SkillDefinition, StatusEffectDefinition } from "../types";
-import { SKILL_EFFECT_TYPES } from "../types";
+import type {
+  EnemyDefinition,
+  HeroDefinition,
+  MedicineDefinition,
+  SkillDefinition,
+  StatusEffectDefinition,
+  TacticBehaviorFlag,
+  TacticModifierType,
+  TacticPresetDefinition
+} from "../types";
+import {
+  SKILL_EFFECT_TYPES,
+  TACTIC_BEHAVIOR_FLAGS,
+  TACTIC_MODIFIER_TYPES
+} from "../types";
 import { TARGET_RULES, isTargetRule } from "../../combat";
-import { validateStats, type StaticDataValidationContext } from "./shared";
+import {
+  isRecord,
+  validateStats,
+  type StaticDataValidationContext
+} from "./shared";
 
 const statusCategories = new Set([
   "damage",
@@ -30,6 +47,27 @@ const medicineEffectTypes = new Set([
   "cleanse_status",
   "status_resistance_bonus"
 ]);
+const tacticBehaviorFlags = new Set(TACTIC_BEHAVIOR_FLAGS);
+const tacticModifierTypes = new Set(TACTIC_MODIFIER_TYPES);
+const tacticMultiplierModifierTypes = new Set<TacticModifierType>([
+  "outer_damage_multiplier",
+  "inner_damage_multiplier",
+  "break_power_multiplier",
+  "boss_damage_multiplier",
+  "guard_multiplier",
+  "protection_multiplier",
+  "healing_multiplier"
+]);
+const tacticModifierBehaviorFlags = {
+  outer_damage_multiplier: "damage",
+  inner_damage_multiplier: "damage",
+  break_power_multiplier: "damage",
+  boss_damage_multiplier: "damage",
+  guard_multiplier: "defense",
+  protection_multiplier: "defense",
+  healing_multiplier: "recovery",
+  status_resistance_bonus: "medicine"
+} as const satisfies Record<TacticModifierType, TacticBehaviorFlag>;
 
 const SKILL_EFFECT_TARGETS = [
   "self",
@@ -203,6 +241,283 @@ export function validateSkill(
         context.statusEffectIds
       )
     );
+  }
+
+  return errors;
+}
+
+function tacticLabel(tactic: TacticPresetDefinition): string {
+  return typeof tactic.id === "string" && tactic.id.length > 0
+    ? `Tactic ${tactic.id}`
+    : "Tactic";
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function validateTacticBehaviorFlags(
+  tactic: TacticPresetDefinition
+): {
+  errors: string[];
+  flags: Set<TacticBehaviorFlag>;
+  rawCount: number;
+} {
+  const label = tacticLabel(tactic);
+  const errors: string[] = [];
+  const flags = new Set<TacticBehaviorFlag>();
+  const seen = new Set<string>();
+
+  if (!Array.isArray(tactic.behaviorFlags)) {
+    return {
+      errors: [`${label} behaviorFlags must be an array`],
+      flags,
+      rawCount: 0
+    };
+  }
+
+  for (const flag of tactic.behaviorFlags) {
+    if (typeof flag !== "string" || !tacticBehaviorFlags.has(flag as TacticBehaviorFlag)) {
+      errors.push(`${label} behaviorFlags includes unsupported flag ${String(flag)}`);
+      continue;
+    }
+
+    if (seen.has(flag)) {
+      errors.push(`${label} behaviorFlags duplicates ${flag}`);
+    }
+
+    seen.add(flag);
+    flags.add(flag as TacticBehaviorFlag);
+  }
+
+  return {
+    errors,
+    flags,
+    rawCount: tactic.behaviorFlags.length
+  };
+}
+
+function validateTacticTargetPriorities(
+  tactic: TacticPresetDefinition
+): {
+  errors: string[];
+  count: number;
+} {
+  const label = tacticLabel(tactic);
+  const errors: string[] = [];
+  const priorities = tactic.targetPriorities;
+  const seen = new Set<string>();
+
+  if (priorities === undefined) {
+    return { errors, count: 0 };
+  }
+
+  if (!Array.isArray(priorities)) {
+    return {
+      errors: [`${label} targetPriorities must be an array`],
+      count: 0
+    };
+  }
+
+  if (priorities.length === 0) {
+    errors.push(`${label} targetPriorities must define at least one target rule when present`);
+  }
+
+  for (const targetRule of priorities) {
+    if (!isTargetRule(targetRule)) {
+      errors.push(
+        `${label} targetPriorities includes unsupported target rule ${String(targetRule)}`
+      );
+      continue;
+    }
+
+    if (seen.has(targetRule)) {
+      errors.push(`${label} targetPriorities duplicates ${targetRule}`);
+    }
+
+    seen.add(targetRule);
+  }
+
+  return {
+    errors,
+    count: priorities.length
+  };
+}
+
+function validateTacticModifierValue(
+  label: string,
+  type: TacticModifierType,
+  value: unknown
+): string[] {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return [`${label} modifier ${type} value must be a finite number`];
+  }
+
+  if (tacticMultiplierModifierTypes.has(type) && (value < 0.5 || value > 1.5)) {
+    return [`${label} modifier ${type} value must be between 0.5 and 1.5`];
+  }
+
+  if (type === "status_resistance_bonus" && (value < 0 || value > 0.5)) {
+    return [`${label} modifier ${type} value must be between 0 and 0.5`];
+  }
+
+  return [];
+}
+
+function validateTacticModifiers(
+  tactic: TacticPresetDefinition,
+  flags: Set<TacticBehaviorFlag>
+): {
+  errors: string[];
+  count: number;
+  modifierFlags: Set<TacticBehaviorFlag>;
+} {
+  const label = tacticLabel(tactic);
+  const errors: string[] = [];
+  const modifierFlags = new Set<TacticBehaviorFlag>();
+  const seen = new Set<string>();
+
+  if (!Array.isArray(tactic.modifiers)) {
+    return {
+      errors: [`${label} modifiers must be an array`],
+      count: 0,
+      modifierFlags
+    };
+  }
+
+  for (const [index, modifier] of tactic.modifiers.entries()) {
+    if (!isRecord(modifier)) {
+      errors.push(`${label} modifiers[${index}] must be an object`);
+      continue;
+    }
+
+    const type = modifier.type;
+
+    if (
+      typeof type !== "string" ||
+      !tacticModifierTypes.has(type as TacticModifierType)
+    ) {
+      errors.push(`${label} modifier ${String(type)} must be supported`);
+      continue;
+    }
+
+    const modifierType = type as TacticModifierType;
+    const requiredFlag = tacticModifierBehaviorFlags[modifierType];
+
+    if (seen.has(modifierType)) {
+      errors.push(`${label} modifiers duplicates ${modifierType}`);
+    }
+
+    seen.add(modifierType);
+    modifierFlags.add(requiredFlag);
+    errors.push(...validateTacticModifierValue(label, modifierType, modifier.value));
+
+    if (!flags.has(requiredFlag)) {
+      errors.push(
+        `${label} modifier ${modifierType} requires behavior flag ${requiredFlag}`
+      );
+    }
+  }
+
+  return {
+    errors,
+    count: tactic.modifiers.length,
+    modifierFlags
+  };
+}
+
+export function validateTacticPreset(tactic: TacticPresetDefinition): string[] {
+  const label = tacticLabel(tactic);
+  const errors: string[] = [];
+
+  if (!isNonEmptyString(tactic.id)) {
+    errors.push(`${label} id must be a non-empty string`);
+  }
+
+  if (!isNonEmptyString(tactic.name)) {
+    errors.push(`${label} must define a name`);
+  }
+
+  if (!isNonEmptyString(tactic.description)) {
+    errors.push(`${label} must define a description`);
+  }
+
+  if (tactic.isDefault !== undefined && typeof tactic.isDefault !== "boolean") {
+    errors.push(`${label} isDefault must be a boolean`);
+  }
+
+  const behavior = validateTacticBehaviorFlags(tactic);
+  const targeting = validateTacticTargetPriorities(tactic);
+  const modifiers = validateTacticModifiers(tactic, behavior.flags);
+
+  errors.push(...behavior.errors, ...targeting.errors, ...modifiers.errors);
+
+  const isDefault = tactic.isDefault === true;
+
+  if (isDefault) {
+    if (behavior.rawCount > 0) {
+      errors.push(`${label} is the default tactic and must not define behavior flags`);
+    }
+
+    if (targeting.count > 0) {
+      errors.push(`${label} is the default tactic and must not define target priorities`);
+    }
+
+    if (modifiers.count > 0) {
+      errors.push(`${label} is the default tactic and must not define modifiers`);
+    }
+
+    return errors;
+  }
+
+  if (Array.isArray(tactic.behaviorFlags) && behavior.flags.size === 0) {
+    errors.push(`${label} must define at least one behavior flag`);
+  }
+
+  if (targeting.count > 0 && !behavior.flags.has("targeting")) {
+    errors.push(`${label} targetPriorities requires behavior flag targeting`);
+  }
+
+  if (behavior.flags.has("targeting") && targeting.count === 0) {
+    errors.push(`${label} behavior flag targeting requires targetPriorities`);
+  }
+
+  for (const flag of behavior.flags) {
+    if (flag === "targeting") {
+      continue;
+    }
+
+    if (!modifiers.modifierFlags.has(flag)) {
+      errors.push(`${label} behavior flag ${flag} requires at least one matching modifier`);
+    }
+  }
+
+  if (targeting.count === 0 && modifiers.count === 0) {
+    errors.push(`${label} must define target priorities or modifiers`);
+  }
+
+  return errors;
+}
+
+export function validateTacticPresets(tactics: TacticPresetDefinition[]): string[] {
+  const errors: string[] = [];
+  const defaultTactics = tactics.filter((tactic) => tactic.isDefault === true);
+  const balanced = tactics.find((tactic) => tactic.id === "balanced");
+
+  if (defaultTactics.length !== 1) {
+    errors.push("Tactics must define exactly one default preset");
+  } else if (defaultTactics[0].id !== "balanced") {
+    errors.push("Default tactic must be balanced");
+  }
+
+  if (balanced === undefined) {
+    errors.push("Tactics must include balanced default preset");
+  } else if (balanced.isDefault !== true) {
+    errors.push("Tactic balanced must be marked as the default preset");
+  }
+
+  for (const tactic of tactics) {
+    errors.push(...validateTacticPreset(tactic));
   }
 
   return errors;

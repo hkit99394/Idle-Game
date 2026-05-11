@@ -15,7 +15,8 @@ import {
   validateHeroStyleRefs,
   validateMedicine,
   validateSkill,
-  validateStatusEffect
+  validateStatusEffect,
+  validateTacticPresets
 } from "./validation/combat";
 import {
   validateAssignment,
@@ -42,6 +43,7 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     ["assignment", data.assignments ?? []],
     ["hero", data.heroes],
     ["skill", data.skills],
+    ["tactic", data.tactics],
     ["enemy", data.enemies],
     ["equipment", data.equipment],
     ["equipment set", data.equipmentSets ?? []],
@@ -106,6 +108,8 @@ export function validateStaticGameData(data: StaticGameData): string[] {
   for (const skill of data.skills) {
     errors.push(...validateSkill(skill, validationContext));
   }
+
+  errors.push(...validateTacticPresets(data.tactics));
 
   for (const status of data.statusEffects) {
     errors.push(...validateStatusEffect(status));

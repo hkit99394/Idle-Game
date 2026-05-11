@@ -23,6 +23,7 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 | [data/enemies.json](../data/enemies.json) | `enemies` | 26 | Duplicate ids, skill/style references, base stats, level integer, and combat role checks. | Enemy family intent, stage role fit, and difficulty curve are reviewed through simulation output. |
 | [data/heroes.json](../data/heroes.json) | `heroes` | 5 | Duplicate ids, skill/style references, base stats, combat role, and unlock references. | Roster composition, CP curve, and `passiveIds` are not tied to a passive catalog yet. |
 | [data/skills.json](../data/skills.json) | `skills` | 28 | Duplicate ids, cooldown/multiplier ranges, target rules, skill effect types, status refs, chance, stacks, duration, and effect targets. | Skill power identity and cross-skill progression are only visible through combat and balance reports. |
+| [data/tactics.json](../data/tactics.json) | `tactics` | 6 | Duplicate ids, balanced default, names, descriptions, behavior flags, target priorities, modifier types/ranges, and contradictory fields. | Combat behavior, UI selection, save persistence, and tactic balance comparison land in later Stage 2.1 epics. |
 | [data/statusEffects.json](../data/statusEffects.json) | `statusEffects` | 5 | Duplicate ids, category, duration, stacks, stack policy, dispel tags, tick interval, and effect keys. | Status-pressure severity is judged through simulation budgets. |
 | [data/medicines.json](../data/medicines.json) | `medicines` | 3 | Duplicate ids, stage unlock refs, max carry, effect type, cleanse tags, max count, resistance value, and duration. | Auto-use policy, inventory pressure, and expected medicine spend are report-driven. |
 | [data/equipment.json](../data/equipment.json) | `equipment` | 14 | Duplicate ids, slot, rarity, allowed styles, set refs, effects, and affixes. | Drop economy, CP value, and set/item pacing are not strict validation gates. |
@@ -39,7 +40,7 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 | Area | Validation owner | Protected content |
 | --- | --- | --- |
 | Shared ids and references | [core/data/validateData.ts](../core/data/validateData.ts), [core/data/validation/shared.ts](../core/data/validation/shared.ts) | Duplicate ids, lookup indexes, base stats, combat roles, and unlock conditions. |
-| Combat content | [core/data/validation/combat.ts](../core/data/validation/combat.ts) | Hero/enemy skill and style refs, enemy levels, skills, status effects, and medicines. |
+| Combat content | [core/data/validation/combat.ts](../core/data/validation/combat.ts) | Hero/enemy skill and style refs, enemy levels, skills, tactics, status effects, and medicines. |
 | Progression content | [core/data/validation/progression.ts](../core/data/validation/progression.ts) | Region-stage links, stage refs, stage rewards/drops, enemy formations, formations, and region balance-target shape. |
 | Growth content | [core/data/validation/growth.ts](../core/data/validation/growth.ts) | Assignments, upgrades, skill upgrades, style definitions, and added skill effects. |
 | Equipment content | [core/data/validation/equipment.ts](../core/data/validation/equipment.ts) | Equipment slots, rarity, style/set refs, item effects, affixes, and set bonuses. |

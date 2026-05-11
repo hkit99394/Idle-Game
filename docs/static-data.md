@@ -29,6 +29,18 @@ When adding or changing playable content:
 
 Do not bypass `StaticGameData` or import raw JSON directly from web, tools, or tests. The builder, validation entry point, simulator, and exports are the shared authoring contract.
 
+## Tactic Presets
+
+Stage 2.1 tactic presets live in [tactics.json](../data/tactics.json) and are part of the canonical `StaticGameData` bundle.
+
+- `balanced` must be the single default tactic and must not define behavior flags, target priorities, or modifiers.
+- Non-default tactics must define behavior flags such as `targeting`, `damage`, `defense`, `recovery`, or `medicine`.
+- `targetPriorities` must use supported combat target rules.
+- `modifiers` must use supported tactic modifier types and validated value ranges.
+- A tactic cannot declare a behavior flag without the matching target priority or modifier.
+
+Epic 68 only adds the schema and validation contract. Combat behavior, save selection, UI, and tactic balance exports are owned by later Stage 2.1 epics.
+
 ## Adding A Static Data File
 
 When adding a new configured JSON file:

@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Begin Epic 68 in the [Stage 2.1 Backlog](stage-2.1-backlog.md): add the tactic preset schema and validation using the decisions recorded in [Stage 2.1 Tactics Audit](stage-2.1-tactics-audit.md).
+Begin Epic 69 in the [Stage 2.1 Backlog](stage-2.1-backlog.md): thread the selected tactic into combat resolution and make non-default tactics affect deterministic battle outcomes.

@@ -53,7 +53,7 @@ Stage 2.1 should start with tactic presets rather than a full formation-bonus sy
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 67 | Strategy Surface Audit And Tactics Decision | Complete | Choose the tactic MVP, map extension points, and define expected player-facing outcomes |
-| 68 | Tactic Preset Schema And Validation | Planned | Add typed tactic data/config, defaulting, validation, and focused tests |
+| 68 | Tactic Preset Schema And Validation | Complete | Add typed tactic data/config, defaulting, validation, and focused tests |
 | 69 | Combat Tactics Engine Integration | Planned | Apply tactic behavior through core combat extension points with deterministic tests |
 | 70 | Tactics UI And Save Workflow | Planned | Let players select tactics, persist choices, and see tactic effects in the web app |
 | 71 | Strategy Balance Reports And Tuning Review | Planned | Compare tactic outcomes across regions and document or fix tactic-driven budget shifts |
@@ -129,7 +129,12 @@ Add a safe data/config contract for tactic presets before combat behavior depend
 
 ### Progress Notes
 
-- Not started.
+- Added [tactics.json](../data/tactics.json) with the six MVP tactic presets and `balanced` as the no-op default.
+- Added tactic preset types to `StaticGameData`, wired `tactics` through the canonical bundle, and kept web/tools/tests on the shared static-data path.
+- Added static validation for the balanced default, behavior flags, target priorities, modifier types and ranges, duplicate tactic fields, and contradictory tactic fields.
+- Added focused validation tests for malformed defaults, unsupported fields, invalid ranges, and contradictory tactic definitions.
+- Updated static-data and content inventory docs with the tactic preset authoring contract.
+- Verification passed: `npm test -- tests/data/validateData.test.ts tests/data/staticDataBuilder.test.ts`, `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `git diff --check`, and markdown path checks.
 
 ---
 
@@ -276,6 +281,7 @@ Close Stage 2.1 with clear strategy docs, release verification, and next-stage r
 - Epic 67 answer: tactics should be authored as static content data in `data/tactics.json`, assembled into `StaticGameData.tactics`, and validated with the rest of content.
 - Epic 67 answer: tactic selection should be one global `PlayerProgress.selectedTacticId` for the first implementation.
 - Epic 67 answer: tactic comparison should be opt-in through new tactic JSON/CSV exports so the default Stage 2.0 report/export commands remain stable.
+- Epic 68 answer: the tactic schema is data-only for now. Combat behavior, save selection, UI, and tactic comparison exports start in Epics 69-71.
 
 ## Suggested Implementation Order
 

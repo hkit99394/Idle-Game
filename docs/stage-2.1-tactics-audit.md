@@ -82,12 +82,14 @@ Epic 71 should add opt-in tactic comparison outputs rather than changing every d
 
 Comparison rows should include tactic id, tactic name, region id, stage id, result, duration, target status, status damage, medicine consumed, guard/protection/healing pressure, and contribution deltas where available.
 
-## Epic 68 Handoff
+## Epic 68 Schema Handoff
 
-Epic 68 should start by adding the static data contract, not combat behavior:
+Epic 68 added the static data contract, not combat behavior:
 
 1. Add tactic data types and `StaticGameData.tactics`.
 2. Add `data/tactics.json` with the six MVP ids above and `balanced` marked as the default.
 3. Add validation for ids, labels, default count, target-rule references, range checks, and contradictory fields.
 4. Add tests that prove valid tactics pass and invalid tactics fail with actionable messages.
 5. Update docs only enough to explain the schema; deeper behavior docs belong after Epic 69.
+
+The static-data contract now exists in [tactics.json](../data/tactics.json), `StaticGameData.tactics`, and `validateStaticGameData`. Combat behavior remains intentionally unimplemented until Epic 69.

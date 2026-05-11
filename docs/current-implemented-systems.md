@@ -38,6 +38,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage access is gated by configured region/stage progress. Boss clearing is online play; offline farming uses cleared farmable stages.
 - Selecting a map/stage starts continuous fighting or farming behavior without a separate Fight or Set Farm button.
 - The player stays on the selected stage after battle instead of being forced to the latest unlocked stage.
+- Stage 2.1 tactic preset definitions are present in static data and validation, but tactic combat behavior, save selection, and UI are not active yet.
 - Heroes gain levels from accumulated Combat XP. Level requirements increase by level, and enemy definitions also carry level data.
 - CP is calculated from hero stats, level, equipment, formation, and other active bonuses, then shown as a quick strength indicator.
 - Map mastery and style mastery grant staged bonuses from repeated play and assignment rewards.

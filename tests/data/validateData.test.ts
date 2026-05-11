@@ -212,6 +212,102 @@ describe("static game data validation", () => {
     );
   });
 
+  it("rejects invalid tactic preset defaults and fields", () => {
+    const invalidData = {
+      ...staticData,
+      tactics: [
+        ...staticData.tactics.map((tactic) =>
+          tactic.id === "balanced" ? { ...tactic, isDefault: false } : tactic
+        ),
+        {
+          id: "broken_tactic",
+          name: "",
+          description: "",
+          isDefault: "yes",
+          behaviorFlags: ["targeting", "targeting", "burst"],
+          targetPriorities: ["nearest", "weakest_hp", "weakest_hp"],
+          modifiers: [
+            {
+              type: "outer_damage_multiplier",
+              value: 2.5
+            },
+            {
+              type: "status_resistance_bonus",
+              value: 0.8
+            },
+            {
+              type: "unknown_modifier",
+              value: 1
+            },
+            {
+              type: "healing_multiplier",
+              value: Number.NaN
+            }
+          ]
+        }
+      ]
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Tactics must define exactly one default preset",
+        "Tactic balanced must be marked as the default preset",
+        "Tactic broken_tactic must define a name",
+        "Tactic broken_tactic must define a description",
+        "Tactic broken_tactic isDefault must be a boolean",
+        "Tactic broken_tactic behaviorFlags duplicates targeting",
+        "Tactic broken_tactic behaviorFlags includes unsupported flag burst",
+        "Tactic broken_tactic targetPriorities includes unsupported target rule nearest",
+        "Tactic broken_tactic targetPriorities duplicates weakest_hp",
+        "Tactic broken_tactic modifier outer_damage_multiplier value must be between 0.5 and 1.5",
+        "Tactic broken_tactic modifier outer_damage_multiplier requires behavior flag damage",
+        "Tactic broken_tactic modifier status_resistance_bonus value must be between 0 and 0.5",
+        "Tactic broken_tactic modifier status_resistance_bonus requires behavior flag medicine",
+        "Tactic broken_tactic modifier unknown_modifier must be supported",
+        "Tactic broken_tactic modifier healing_multiplier value must be a finite number",
+        "Tactic broken_tactic modifier healing_multiplier requires behavior flag recovery"
+      ])
+    );
+  });
+
+  it("rejects contradictory tactic preset fields", () => {
+    const invalidData = {
+      ...staticData,
+      tactics: staticData.tactics.map((tactic) =>
+        tactic.id === "outer_pressure"
+          ? {
+              ...tactic,
+              behaviorFlags: ["damage"],
+              targetPriorities: ["weakest_hp"],
+              modifiers: []
+            }
+          : tactic.id === "balanced"
+            ? {
+                ...tactic,
+                behaviorFlags: ["targeting"],
+                targetPriorities: ["first_living"],
+                modifiers: [
+                  {
+                    type: "outer_damage_multiplier",
+                    value: 1.05
+                  }
+                ]
+              }
+            : tactic
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Tactic balanced is the default tactic and must not define behavior flags",
+        "Tactic balanced is the default tactic and must not define target priorities",
+        "Tactic balanced is the default tactic and must not define modifiers",
+        "Tactic outer_pressure targetPriorities requires behavior flag targeting",
+        "Tactic outer_pressure behavior flag damage requires at least one matching modifier"
+      ])
+    );
+  });
+
   it("rejects invalid style branch effects", () => {
     const invalidData = {
       ...staticData,
