@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.2 is active. Stage 2.1 completed tactic presets and strategy visibility and is archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md).
+Stage 2.2 is active. Epics 73-77 are complete and Epic 78 remains planned. Stage 2.1 completed tactic presets and strategy visibility and is archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md).
 
 ## Theme
 
@@ -57,7 +57,7 @@ Stage 2.2 should focus on boundaries and readiness rather than provider-specific
 | 74 | Server-Safe Core Import Contract | Complete | Make backend/worker import expectations explicit and covered by tests |
 | 75 | Save Migration And Cloud-Save Contract | Complete | Harden save compatibility and design cloud-save payload/conflict rules |
 | 76 | PWA Install And Offline Shell | Complete | Add install/offline readiness while protecting local save behavior |
-| 77 | Online Boss Transport Decision | Planned | Decide whether online boss play needs polling, turn/result submission, or WebSocket |
+| 77 | Online Boss Transport Decision | Complete | Decide whether online boss play needs polling, turn/result submission, or WebSocket |
 | 78 | Backend/PWA Docs And Stage 2.2 Readiness | Planned | Close the stage with updated docs, verification, and archive cleanup |
 
 ---
@@ -245,7 +245,11 @@ Decide the minimum transport model for optional online boss play before implemen
 
 ### Progress Notes
 
-- Not started.
+- Completed the online boss transport decision in [Online Boss Transport Decision](online-boss-transport-decision.md).
+- Chose HTTP attempt submission plus lightweight polling for the first asynchronous event boss, with server-side deterministic simulation as the authoritative result source.
+- Deferred WebSocket until live shared combat, chat, real-time boss HP animation, or another low-latency shared-state requirement exists.
+- Defined the future request/result envelope: account/session identity, save slot/version/checksum/timestamp, event/boss ids, idempotent attempt id, challenge seed, team snapshot, authoritative battle summary, reward grant, leaderboard contribution, and event revision.
+- Recorded trust assumptions separately from transport mechanics: client preview results are diagnostics only; shared progress, ranked placement, and rewards must come from persisted server-simulated attempts.
 
 ---
 
@@ -290,7 +294,7 @@ Close Stage 2.2 with accurate backend/PWA docs, release verification, browser sm
 - Epic 75: Answered in [Cloud Save Contract](cloud-save-contract.md). Cloud save should store a wrapped envelope containing current raw save data, account id, slot id, checksum, timestamps, and optional migration metadata.
 - Epic 75: Answered in [Cloud Save Contract](cloud-save-contract.md). Matching checksums are no-op, one-sided changes sync automatically, timestamp fallback handles local-newer/cloud-newer, and both-changed or equal-timestamp checksum mismatches require manual conflict handling.
 - Epic 76: Answered in [PWA Readiness](pwa-readiness.md). Service-worker caching ships in this stage as a conservative app-shell/static-asset cache that ignores `/api/` and never touches local save storage.
-- Epic 77: Is the first online boss model asynchronous result submission, polling-based shared progress, or real-time WebSocket state?
+- Epic 77: Answered in [Online Boss Transport Decision](online-boss-transport-decision.md). The first online boss model is asynchronous HTTP attempt submission plus polling, with server-side deterministic simulation; WebSocket is deferred until live shared state is required.
 
 ## Suggested Implementation Order
 

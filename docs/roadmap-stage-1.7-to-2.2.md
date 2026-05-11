@@ -200,7 +200,7 @@ The local web prototype should prove the loop and strategy first. Backend work b
 - Add save migration fixtures for every supported save version.
 - Add PWA install basics: manifest, icons, offline shell, and safe local save behavior.
 - Design a cloud-save model: account id, save slot, version, checksum, updated timestamp, conflict policy.
-- Decide whether online boss play needs polling, WebSocket, or turn/result submission.
+- Decide whether online boss play needs polling, WebSocket, or turn/result submission. Stage 2.2 chose HTTP attempt submission plus lightweight polling with server-side deterministic simulation for the first prototype.
 - Keep WebSocket optional unless live shared combat, chat, or real-time boss state is introduced.
 
 ### Exit Criteria
@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Begin Epic 77 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): decide the online boss transport model now that headless core, save/cloud, and PWA shell boundaries are documented and guarded.
+Begin Epic 78 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): close backend/PWA readiness docs now that headless core, cloud save, PWA, and online boss transport decisions are documented.

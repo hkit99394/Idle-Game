@@ -15,6 +15,7 @@ Start with the current contributor docs:
 - [Save API](docs/save-api.md)
 - [Cloud Save Contract](docs/cloud-save-contract.md)
 - [PWA Readiness](docs/pwa-readiness.md)
+- [Online Boss Transport Decision](docs/online-boss-transport-decision.md)
 - [Static Data](docs/static-data.md)
 - [Content Pipeline Inventory](docs/content-pipeline-inventory.md)
 - [Balance Budget Gates](docs/balance-budget-gates.md)

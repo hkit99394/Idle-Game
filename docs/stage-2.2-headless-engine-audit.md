@@ -81,7 +81,7 @@ Static data source selection stays outside `core/`. Backends and workers can cho
 - Deterministic time: offline farm and assignment rewards depend on `updatedAtMs`, `lastOfflineRewardAtMs`, and caller-provided `nowMs`; one load operation should use one timestamp.
 - Offline reward replay: core advances reward timestamps in the candidate save when rewards are granted, but persistence failure handling is adapter responsibility.
 - Save conflict handling: local/cloud comparisons need a wrapped cloud-save contract before any sync implementation can safely merge or overwrite saves.
-- Trust boundary: online boss or leaderboard systems should not trust client-submitted battle results until Epic 77 defines whether simulation is server-authoritative or result-submission based.
+- Trust boundary: online boss or leaderboard systems should not trust client-submitted battle results. Epic 77 chose HTTP attempt submission plus polling with server-side deterministic simulation; see [Online Boss Transport Decision](online-boss-transport-decision.md).
 - CPU placement: battle simulation and balance reports are pure but can be heavier than simple validation; workers or backends should choose scheduling and timeout policy outside `core/`.
 - Deep imports: backend code should not depend on internals that tests currently import for focused assertions. Promote missing APIs before use.
 
