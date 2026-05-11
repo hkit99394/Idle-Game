@@ -54,7 +54,7 @@ Stage 2.1 should start with tactic presets rather than a full formation-bonus sy
 | --- | --- | --- | --- |
 | 67 | Strategy Surface Audit And Tactics Decision | Complete | Choose the tactic MVP, map extension points, and define expected player-facing outcomes |
 | 68 | Tactic Preset Schema And Validation | Complete | Add typed tactic data/config, defaulting, validation, and focused tests |
-| 69 | Combat Tactics Engine Integration | Planned | Apply tactic behavior through core combat extension points with deterministic tests |
+| 69 | Combat Tactics Engine Integration | Complete | Apply tactic behavior through core combat extension points with deterministic tests |
 | 70 | Tactics UI And Save Workflow | Planned | Let players select tactics, persist choices, and see tactic effects in the web app |
 | 71 | Strategy Balance Reports And Tuning Review | Planned | Compare tactic outcomes across regions and document or fix tactic-driven budget shifts |
 | 72 | Strategy Docs And Stage 2.1 Readiness | Planned | Close the stage with docs, verification, browser smoke notes, and archive cleanup |
@@ -168,7 +168,12 @@ Make tactic choices affect deterministic combat outcomes through the existing co
 
 ### Progress Notes
 
-- Not started.
+- Added runtime tactic resolution through `SimulateBattleInput.tacticId` and `ResolveStageBattleInput.tacticId`, defaulting missing or unknown ids to the validated `balanced` tactic.
+- Added `BattleResult.playerTactic` metadata so web, progression, and future reports can explain which tactic powered a battle without parsing save state.
+- Applied player-side tactic modifiers through existing combat lanes: target priorities, Outer/Inner/boss damage, Qi Break break power, guard/protection values, healing/regeneration values, and status resistance.
+- Kept `balanced` behavior neutral; focused tests compare implicit, explicit, and unknown tactic ids for identical combat output.
+- Added deterministic core tests for normal, elite, boss, defensive/support, healing, status-resistance, and stage-resolution tactic paths.
+- Verification passed: `npm test -- tests/combat/tactics.test.ts`, `npm test -- tests/combat tests/progression tests/data`, `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, `git diff --check`, and changed-doc markdown link checks.
 
 ---
 

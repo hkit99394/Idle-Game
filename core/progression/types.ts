@@ -207,6 +207,7 @@ export type BuildEnemyTeamResult =
 export type ResolveStageBattleInput = {
   progress: PlayerProgress;
   stageId: string;
+  tacticId?: string;
   maxDurationSeconds?: number;
   autoMedicinePreferences?: AutoMedicinePreferences;
 };

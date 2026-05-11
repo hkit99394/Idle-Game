@@ -27,4 +27,5 @@ export {
 } from "./statusMetadata";
 export * from "./styles";
 export * from "./targeting";
+export * from "./tactics";
 export * from "./types";

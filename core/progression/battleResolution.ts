@@ -264,6 +264,7 @@ export function resolveStageBattle(
   const battle = simulateBattle(data, {
     playerTeam: playerTeam.team,
     enemyTeam: enemyTeam.team,
+    tacticId: input.tacticId,
     maxDurationSeconds: input.maxDurationSeconds,
     autoMedicine: {
       medicines: data.medicines,

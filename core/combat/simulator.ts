@@ -15,7 +15,8 @@ import type {
   HeroDefinition,
   SkillUpgradeDefinition,
   SkillDefinition,
-  StaticGameData
+  StaticGameData,
+  TacticPresetDefinition
 } from "../data/types";
 import {
   calculateInnerRecovery,
@@ -69,6 +70,11 @@ import {
   scheduleNextAction
 } from "./scheduler";
 import type { AutoMedicineUseSummary } from "./autoMedicine/types";
+import {
+  createBattleTacticSummary,
+  getPlayerTacticModifierValue,
+  resolvePlayerTactic
+} from "./tactics";
 
 const BASIC_SKILL_ID = "basic_strike";
 type DefinitionLookup = {
@@ -173,7 +179,8 @@ function createCombatantState(
   team: TeamId,
   instance: CombatantInstanceDefinition,
   index: number,
-  constants: CombatFormulaConstants
+  constants: CombatFormulaConstants,
+  playerTactic: TacticPresetDefinition
 ): CombatantState {
   const definition = getDefinition(lookup, instance);
   const definitionLevel =
@@ -181,11 +188,26 @@ function createCombatantState(
       ? (definition as EnemyDefinition).level
       : 1;
   const level = instance.level ?? definitionLevel ?? 1;
-  const stats = deriveStats(
+  const baseStats = deriveStats(
     instance.statsOverride ?? scaleStatsForLevel(definition.baseStats, level)
   );
+  const statusResistanceBonus = getPlayerTacticModifierValue(
+    playerTactic,
+    { team },
+    "status_resistance_bonus",
+    0
+  );
+  const stats =
+    statusResistanceBonus > 0
+      ? {
+          ...baseStats,
+          statusResistance: baseStats.statusResistance + statusResistanceBonus
+        }
+      : baseStats;
   const instanceId = instance.instanceId ?? `${team}_${definition.id}_${index + 1}`;
   const family = instance.kind === "enemy" ? (definition as EnemyDefinition).family : undefined;
+  const enemyType =
+    instance.kind === "enemy" ? (definition as EnemyDefinition).type : undefined;
 
   return {
     instanceId,
@@ -195,6 +217,7 @@ function createCombatantState(
     formationSlot: instance.formationSlot ?? getDefaultFormationSlot(index),
     combatRole: definition.combatRole,
     family,
+    enemyType,
     name: definition.name,
     team,
     outerHp: stats.maxOuterHp,
@@ -226,13 +249,28 @@ function createCombatantState(
 function createCombatants(
   lookup: DefinitionLookup,
   input: SimulateBattleInput,
-  constants: CombatFormulaConstants
+  constants: CombatFormulaConstants,
+  playerTactic: TacticPresetDefinition
 ): CombatantState[] {
   const playerCombatants = input.playerTeam.combatants.map((combatant, index) =>
-    createCombatantState(lookup, input.playerTeam.id, combatant, index, constants)
+    createCombatantState(
+      lookup,
+      input.playerTeam.id,
+      combatant,
+      index,
+      constants,
+      playerTactic
+    )
   );
   const enemyCombatants = input.enemyTeam.combatants.map((combatant, index) =>
-    createCombatantState(lookup, input.enemyTeam.id, combatant, index, constants)
+    createCombatantState(
+      lookup,
+      input.enemyTeam.id,
+      combatant,
+      index,
+      constants,
+      playerTactic
+    )
   );
 
   return [...playerCombatants, ...enemyCombatants];
@@ -250,6 +288,7 @@ type BattleRuntime = {
   maxDurationSeconds: number;
   stepSeconds: number;
   combatants: CombatantState[];
+  playerTactic: TacticPresetDefinition;
   events: BattleEvent[];
   metrics: BattleMetrics;
   contributions: Map<string, BattleContribution>;
@@ -300,12 +339,13 @@ function createBattleRuntime(
 ): BattleRuntime {
   const constants = input.constants ?? defaultCombatFormulaConstants;
   const lookup = createLookup(staticData);
+  const playerTactic = resolvePlayerTactic(staticData, input.tacticId);
   const preBattleAutoMedicine = applyPreBattleAutoMedicine(
     staticData,
     input,
     lookup.statusDefinitions
   );
-  const combatants = createCombatants(lookup, input, constants);
+  const combatants = createCombatants(lookup, input, constants, playerTactic);
   const runtime: BattleRuntime = {
     input,
     lookup,
@@ -313,6 +353,7 @@ function createBattleRuntime(
     maxDurationSeconds: input.maxDurationSeconds ?? 180,
     stepSeconds: input.stepSeconds ?? 0.1,
     combatants,
+    playerTactic,
     events: [],
     metrics: createInitialMetrics(),
     contributions: createInitialContributions(combatants),
@@ -458,7 +499,8 @@ function applyQiBreakIfNeeded(
   constants: CombatFormulaConstants,
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
+  events: BattleEvent[],
+  playerTactic: TacticPresetDefinition
 ): void {
   if (target.innerQi > 0 || target.isQiBroken || !isLiving(target)) {
     return;
@@ -468,7 +510,8 @@ function applyQiBreakIfNeeded(
     attacker,
     target,
     time,
-    constants
+    constants,
+    tactic: playerTactic
   });
   commitQiBreakDamagePackage({
     damagePackage,
@@ -621,7 +664,8 @@ function executeAction(
   constants: CombatFormulaConstants,
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
+  events: BattleEvent[],
+  playerTactic: TacticPresetDefinition
 ): void {
   if (!canCombatantActAt(attacker, time)) {
     return;
@@ -632,7 +676,8 @@ function executeAction(
     combatants,
     attacker,
     skill,
-    time
+    time,
+    tactic: playerTactic
   });
 
   if (!damageTargets) {
@@ -646,7 +691,8 @@ function executeAction(
     skill,
     time,
     constants,
-    statusDefinitions: lookup.statusDefinitions
+    statusDefinitions: lookup.statusDefinitions,
+    tactic: playerTactic
   });
   const mitigatedDamagePackage = applyDamagePackageMitigation({
     damagePackage,
@@ -676,7 +722,8 @@ function executeAction(
     time,
     metrics,
     contributions,
-    events
+    events,
+    playerTactic
   );
   applyRecoverySkillEffects(
     combatants,
@@ -687,7 +734,8 @@ function executeAction(
     time,
     metrics,
     contributions,
-    events
+    events,
+    playerTactic
   );
   applyQiBreakIfNeeded(
     attacker,
@@ -696,7 +744,8 @@ function executeAction(
     constants,
     metrics,
     contributions,
-    events
+    events,
+    playerTactic
   );
   markDefeated(target, time, events);
 
@@ -816,7 +865,8 @@ function executeActionPhase(
       runtime.constants,
       runtime.metrics,
       runtime.contributions,
-      runtime.events
+      runtime.events,
+      runtime.playerTactic
     );
     applyBattleCleanseAutoMedicine(
       runtime.input,
@@ -866,6 +916,7 @@ export function simulateBattle(
   return {
     winner,
     durationSeconds,
+    playerTactic: createBattleTacticSummary(runtime.playerTactic),
     events: runtime.events,
     finalPlayerTeam: runtime.combatants.filter(
       (combatant) => combatant.team === "player"

@@ -9,7 +9,8 @@ import type {
 import type {
   SkillDefinition,
   SkillEffect,
-  SkillEffectType
+  SkillEffectType,
+  TacticPresetDefinition
 } from "../data/types";
 import { clampDefensiveEffectValue, clampRecoveryEffectValue } from "./defensivePipeline";
 import {
@@ -28,6 +29,7 @@ import {
   hasCleanseableCombatantStatus
 } from "./cleansePolicy";
 import { isLiving } from "./targeting";
+import { getPlayerTacticModifierValue } from "./tactics";
 
 const RECOVERY_TICK_INTERVAL_SECONDS = 1;
 const SKILL_CLEANSE_DISPEL_TAGS: StatusDispelTag[] = ["debuff"];
@@ -61,6 +63,7 @@ export type SkillEffectResolutionContext = {
   metrics: BattleMetrics;
   contributions: Map<string, BattleContribution>;
   events: BattleEvent[];
+  tactic?: TacticPresetDefinition | null;
 };
 
 type SkillEffectForType<T extends SkillEffectType> = SkillEffect & { type: T };
@@ -523,7 +526,15 @@ function applyGuardEffect(
     return;
   }
 
-  const value = clampDefensiveEffectValue(getDirectEffectValue(effect));
+  const value = clampDefensiveEffectValue(
+    getDirectEffectValue(effect) *
+      getPlayerTacticModifierValue(
+        context.tactic,
+        context.attacker,
+        "guard_multiplier",
+        1
+      )
+  );
   const endsAt = context.time + durationSeconds;
 
   setStatusEffect(
@@ -560,7 +571,15 @@ function applyProtectEffect(
     return;
   }
 
-  const value = clampDefensiveEffectValue(getDirectEffectValue(effect));
+  const value = clampDefensiveEffectValue(
+    getDirectEffectValue(effect) *
+      getPlayerTacticModifierValue(
+        context.tactic,
+        context.attacker,
+        "protection_multiplier",
+        1
+      )
+  );
 
   setStatusEffect(
     context.attacker,
@@ -735,7 +754,8 @@ export function applyTimedSkillEffects(
   time: number,
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
+  events: BattleEvent[],
+  tactic?: TacticPresetDefinition | null
 ): void {
   dispatchSkillEffects(
     {
@@ -747,7 +767,8 @@ export function applyTimedSkillEffects(
       time,
       metrics,
       contributions,
-      events
+      events,
+      tactic
     },
     POST_ATTACK_SKILL_EFFECT_HANDLERS
   );
@@ -900,8 +921,26 @@ function applyHealEffect(
   const result = applyRecoveryToTarget(
     context.attacker,
     target,
-    effect.type === "outer_heal_percent" ? target.maxOuterHp * value : 0,
-    effect.type === "inner_heal_percent" ? target.maxInnerQi * value : 0,
+    effect.type === "outer_heal_percent"
+      ? target.maxOuterHp *
+          value *
+          getPlayerTacticModifierValue(
+            context.tactic,
+            context.attacker,
+            "healing_multiplier",
+            1
+          )
+      : 0,
+    effect.type === "inner_heal_percent"
+      ? target.maxInnerQi *
+          value *
+          getPlayerTacticModifierValue(
+            context.tactic,
+            context.attacker,
+            "healing_multiplier",
+            1
+          )
+      : 0,
     context.statusDefinitions,
     context.time,
     context.metrics,
@@ -929,7 +968,17 @@ function applyRegenerationSkillEffect(
     context.attacker,
     context.offensiveTarget,
     context.skill,
-    { ...effect, value: getDirectEffectValue(effect) },
+    {
+      ...effect,
+      value:
+        getDirectEffectValue(effect) *
+        getPlayerTacticModifierValue(
+          context.tactic,
+          context.attacker,
+          "healing_multiplier",
+          1
+        )
+    },
     context.time,
     context.events
   );
@@ -975,7 +1024,8 @@ export function applyRecoverySkillEffects(
   time: number,
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>,
-  events: BattleEvent[]
+  events: BattleEvent[],
+  tactic?: TacticPresetDefinition | null
 ): void {
   if (!isLiving(attacker)) {
     return;
@@ -991,7 +1041,8 @@ export function applyRecoverySkillEffects(
       time,
       metrics,
       contributions,
-      events
+      events,
+      tactic
     },
     RECOVERY_SKILL_EFFECT_HANDLERS
   );
