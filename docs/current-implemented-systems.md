@@ -13,6 +13,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage 2.1 completed tactic presets as the first deeper player strategy layer.
 - Stage 2.2 is active and focuses on backend-safe core boundaries, cloud-save contracts, PWA readiness, and online boss scope decisions.
 - The Stage 2.2 headless engine contract is tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).
+- PWA install/offline shell behavior is tracked in [PWA Readiness](pwa-readiness.md).
 
 ## Combat
 
@@ -74,6 +75,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 
 - Saves are versioned local JSON with export, import, reset-new-game, diagnostics, migration fixtures, and strict validation.
 - Cloud-save readiness is a wrapped envelope contract over current `SaveData`; see [Cloud Save Contract](cloud-save-contract.md).
+- PWA shell caching is limited to app-shell/static assets and deliberately excludes local save storage and future `/api/` calls.
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
 - Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json`, spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`, and opt-in tactic comparison rows through `npm run --silent simulate -- --tactics-json` or `--tactics-csv`.

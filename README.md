@@ -14,6 +14,7 @@ Start with the current contributor docs:
 - [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)
 - [Cloud Save Contract](docs/cloud-save-contract.md)
+- [PWA Readiness](docs/pwa-readiness.md)
 - [Static Data](docs/static-data.md)
 - [Content Pipeline Inventory](docs/content-pipeline-inventory.md)
 - [Balance Budget Gates](docs/balance-budget-gates.md)

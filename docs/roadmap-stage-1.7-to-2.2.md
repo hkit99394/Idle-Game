@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Begin Epic 76 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): add or scope PWA install/offline shell behavior while preserving the now-documented local and cloud save contracts.
+Begin Epic 77 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): decide the online boss transport model now that headless core, save/cloud, and PWA shell boundaries are documented and guarded.

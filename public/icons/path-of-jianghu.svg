@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Path of Jianghu icon</title>
+  <desc id="desc">A mountain path and sect gate seal for the Path of Jianghu app.</desc>
+  <rect width="512" height="512" rx="112" fill="#16231f"/>
+  <circle cx="256" cy="256" r="198" fill="#f4efe2"/>
+  <path d="M101 330c40-70 82-126 127-169 13-12 34-12 48 0 50 45 94 101 135 169H101Z" fill="#2f6f64"/>
+  <path d="M153 326c34-48 66-85 96-111 6-5 16-5 22 0 31 27 62 64 95 111H153Z" fill="#8a4f2c"/>
+  <path d="M225 326c13-41 21-77 25-108h22c4 31 12 67 25 108h-72Z" fill="#f4efe2"/>
+  <path d="M145 352h222v31H145v-31Z" fill="#16231f"/>
+  <path d="M174 280h37v72h-37v-72Zm127 0h37v72h-37v-72Z" fill="#16231f"/>
+  <path d="M139 252h234l-30 39H169l-30-39Z" fill="#b6452c"/>
+  <path d="M179 231h154v31H179v-31Z" fill="#16231f"/>
+  <path d="M218 123c13-18 25-30 38-37 13 7 25 19 38 37-13-5-26-7-38-7s-25 2-38 7Z" fill="#b6452c"/>
+</svg>

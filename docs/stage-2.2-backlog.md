@@ -56,7 +56,7 @@ Stage 2.2 should focus on boundaries and readiness rather than provider-specific
 | 73 | Headless Engine Boundary Audit | Complete | Inventory current core entry points and define backend-safe caller contracts |
 | 74 | Server-Safe Core Import Contract | Complete | Make backend/worker import expectations explicit and covered by tests |
 | 75 | Save Migration And Cloud-Save Contract | Complete | Harden save compatibility and design cloud-save payload/conflict rules |
-| 76 | PWA Install And Offline Shell | Planned | Add install/offline readiness while protecting local save behavior |
+| 76 | PWA Install And Offline Shell | Complete | Add install/offline readiness while protecting local save behavior |
 | 77 | Online Boss Transport Decision | Planned | Decide whether online boss play needs polling, turn/result submission, or WebSocket |
 | 78 | Backend/PWA Docs And Stage 2.2 Readiness | Planned | Close the stage with updated docs, verification, and archive cleanup |
 
@@ -206,7 +206,12 @@ Make the web app installable and safer to use offline while preserving current l
 
 ### Progress Notes
 
-- Not started.
+- Added install metadata in `index.html` and `public/manifest.webmanifest`, plus the maskable app icon at `public/icons/path-of-jianghu.svg`.
+- Added `public/service-worker.js` with a same-origin `GET`-only app-shell cache, network-first navigations, cache-first static assets, and explicit `/api/` exclusion for future backend/cloud-save calls.
+- Added production secure/local service-worker registration in `web/pwa.ts` and wired it from `web/main.tsx` after the first render.
+- Added source-level PWA coverage in [tests/web/pwa.test.ts](../tests/web/pwa.test.ts) for manifest fields, icon existence, HTML links, service-worker save safety, secure/local gating, and load-event registration.
+- Documented the PWA cache strategy and local-save safety rules in [PWA Readiness](pwa-readiness.md).
+- Verified the production build copies the manifest, service worker, and icon into `dist/`; local HTTP smoke served the app shell, manifest, service worker, and icon from the Vite dev server.
 
 ---
 
@@ -284,7 +289,7 @@ Close Stage 2.2 with accurate backend/PWA docs, release verification, browser sm
 - Epic 74: Answered. Documentation plus boundary tests are enough while the package is private; add `package.json` export maps only if core becomes a published or separately consumed package.
 - Epic 75: Answered in [Cloud Save Contract](cloud-save-contract.md). Cloud save should store a wrapped envelope containing current raw save data, account id, slot id, checksum, timestamps, and optional migration metadata.
 - Epic 75: Answered in [Cloud Save Contract](cloud-save-contract.md). Matching checksums are no-op, one-sided changes sync automatically, timestamp fallback handles local-newer/cloud-newer, and both-changed or equal-timestamp checksum mismatches require manual conflict handling.
-- Epic 76: Should service worker caching ship in this stage, or should Stage 2.2 only define the manifest/offline-shell contract?
+- Epic 76: Answered in [PWA Readiness](pwa-readiness.md). Service-worker caching ships in this stage as a conservative app-shell/static-asset cache that ignores `/api/` and never touches local save storage.
 - Epic 77: Is the first online boss model asynchronous result submission, polling-based shared progress, or real-time WebSocket state?
 
 ## Suggested Implementation Order
