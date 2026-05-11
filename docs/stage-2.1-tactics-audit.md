@@ -2,13 +2,13 @@
 
 ## Decision
 
-Stage 2.1 should implement **global tactic presets** as the first deeper player strategy layer.
+Stage 2.1 implemented **global tactic presets** as the first deeper player strategy layer.
 
-The player-facing version should add one selected tactic to player progress, default missing or invalid values to `balanced`, and pass that tactic from `resolveStageBattle` into `simulateBattle`. The balanced tactic must be behaviorally neutral so existing saves, reports, and content baselines stay comparable until a player or test selects a non-default tactic.
+The player-facing version stores one selected tactic in player progress, defaults missing or invalid values to `balanced`, and passes that tactic from `resolveStageBattle` into `simulateBattle`. The balanced tactic is behaviorally neutral so existing saves, reports, and content baselines stay comparable until a player or test selects a non-default tactic.
 
 Epic 69 introduced the combat side first as a transient `tacticId` on `SimulateBattleInput` and `ResolveStageBattleInput`, plus `BattleResult.playerTactic` metadata. Epic 70 promoted that selection into `PlayerProgress.selectedTacticId`, save normalization, import/export, progression battle fallback, and the web selector.
 
-Tactic definitions should be authored as static data, preferably `data/tactics.json`, then assembled into `StaticGameData` and validated with the rest of content. Tactics are player-facing authored content, not hidden combat constants, and should be reviewable by the same content pipeline that Stage 2.0 established.
+Tactic definitions are authored as static data in `data/tactics.json`, assembled into `StaticGameData`, and validated with the rest of content. Tactics are player-facing authored content, not hidden combat constants, and are reviewable through the same content pipeline that Stage 2.0 established.
 
 ## Candidate Comparison
 

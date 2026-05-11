@@ -39,7 +39,7 @@ Stage 2.1 tactic presets live in [tactics.json](../data/tactics.json) and are pa
 - `modifiers` must use supported tactic modifier types and validated value ranges.
 - A tactic cannot declare a behavior flag without the matching target priority or modifier.
 
-Epic 68 only adds the schema and validation contract. Combat behavior, save selection, UI, and tactic balance exports are owned by later Stage 2.1 epics.
+Stage 2.1 completed the full tactic flow: static schema and validation, runtime combat behavior, saved selection, web UI, and tactic comparison exports.
 
 ## Adding A Static Data File
 

@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.1 is active. Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md).
+Stage 2.1 is complete and archived. Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](stage-2.0-backlog.md).
 
 ## Theme
 
@@ -15,8 +15,8 @@ Stage 2.1 should start with tactic presets rather than a full formation-bonus sy
 - Preserve current combat outcomes for the default tactic as much as practical.
 - Default existing and imported saves to a balanced tactic if no tactic choice exists yet.
 - Keep tactic behavior in `core/` and data/config modules; web code should select and display tactics, not own combat rules.
-- Route combat behavior through the Stage 1.8 extension points documented in [Combat Engine V2](combat-engine-v2.md).
-- Use the Stage 2.0 content pipeline for review: validation, simulator output, compact JSON export, CSV output, and [Content Authoring Checklist](content-authoring-checklist.md).
+- Route combat behavior through the Stage 1.8 extension points documented in [Combat Engine V2](../combat-engine-v2.md).
+- Use the Stage 2.0 content pipeline for review: validation, simulator output, compact JSON export, CSV output, and [Content Authoring Checklist](../content-authoring-checklist.md).
 - Keep known Black Iron Fort and Demon Cult budget misses visible as tuning debt unless a Stage 2.1 epic intentionally retunes them.
 - Keep Stage 2.2 backend, PWA, cloud save, account, and online boss work out of scope.
 
@@ -57,7 +57,7 @@ Stage 2.1 should start with tactic presets rather than a full formation-bonus sy
 | 69 | Combat Tactics Engine Integration | Complete | Apply tactic behavior through core combat extension points with deterministic tests |
 | 70 | Tactics UI And Save Workflow | Complete | Let players select tactics, persist choices, and see tactic effects in the web app |
 | 71 | Strategy Balance Reports And Tuning Review | Complete | Compare tactic outcomes across regions and document or fix tactic-driven budget shifts |
-| 72 | Strategy Docs And Stage 2.1 Readiness | Planned | Close the stage with docs, verification, browser smoke notes, and archive cleanup |
+| 72 | Strategy Docs And Stage 2.1 Readiness | Complete | Close the stage with docs, verification, browser smoke notes, and archive cleanup |
 
 ---
 
@@ -90,7 +90,7 @@ Choose the first deeper strategy layer and document how it will fit the current 
 
 ### Progress Notes
 
-- Added [Stage 2.1 Tactics Audit](stage-2.1-tactics-audit.md) with the candidate comparison, tactic MVP decision, behavior boundaries, touchpoint map, save/UI decision, balance-output decision, and Epic 68 handoff.
+- Added [Stage 2.1 Tactics Audit](../stage-2.1-tactics-audit.md) with the candidate comparison, tactic MVP decision, behavior boundaries, touchpoint map, save/UI decision, balance-output decision, and Epic 68 handoff.
 - Chose global tactic presets as the first Stage 2.1 strategy layer. Formation bonuses, manual battle actions, and skill branch content stay deferred.
 - Chose the MVP tactic ids: `balanced`, `outer_pressure`, `inner_pressure`, `guard_support`, `sustain`, and `boss_burst`.
 - Chose static data as the tactic definition home, with `data/tactics.json` feeding `StaticGameData.tactics`.
@@ -129,7 +129,7 @@ Add a safe data/config contract for tactic presets before combat behavior depend
 
 ### Progress Notes
 
-- Added [tactics.json](../data/tactics.json) with the six MVP tactic presets and `balanced` as the no-op default.
+- Added [tactics.json](../../data/tactics.json) with the six MVP tactic presets and `balanced` as the no-op default.
 - Added tactic preset types to `StaticGameData`, wired `tactics` through the canonical bundle, and kept web/tools/tests on the shared static-data path.
 - Added static validation for the balanced default, behavior flags, target priorities, modifier types and ranges, duplicate tactic fields, and contradictory tactic fields.
 - Added focused validation tests for malformed defaults, unsupported fields, invalid ranges, and contradictory tactic definitions.
@@ -262,9 +262,9 @@ Close Stage 2.1 with clear strategy docs, release verification, and next-stage r
 
 ### Tasks
 
-- Update [Current Implemented Systems](current-implemented-systems.md) with final tactic behavior.
-- Update [Combat Engine V2](combat-engine-v2.md) if new extension points or event contracts are added.
-- Update [Content Authoring Checklist](content-authoring-checklist.md) if tactic review becomes part of content readiness.
+- Update [Current Implemented Systems](../current-implemented-systems.md) with final tactic behavior.
+- Update [Combat Engine V2](../combat-engine-v2.md) if new extension points or event contracts are added.
+- Update [Content Authoring Checklist](../content-authoring-checklist.md) if tactic review becomes part of content readiness.
 - Update roadmap notes if Stage 2.1 changes Stage 2.2 scope.
 - Run the release-readiness checklist, including browser smoke for tactic UI.
 - Archive this backlog only after all epics are complete and verification passes.
@@ -284,7 +284,13 @@ Close Stage 2.1 with clear strategy docs, release verification, and next-stage r
 
 ### Progress Notes
 
-- Not started.
+- Updated [Current Implemented Systems](../current-implemented-systems.md), [Static Data](../static-data.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Stage 2.1 Tactics Audit](../stage-2.1-tactics-audit.md), and [Roadmap Stage 1.7 To 2.2](../roadmap-stage-1.7-to-2.2.md) so tactics are described in completed-stage language across engine, data, UI/save, and balance-review surfaces.
+- Confirmed no new Combat Engine V2 extension contract was required for Epic 72; Stage 2.1 reused the documented combat extension lanes already updated by earlier epics.
+- Preserved the known Black Iron Fort and Demon Cult budget debt as visible tuning debt instead of making a broad Stage 2.1 retune. `npm run simulate` still reports the expected Black Iron Fort clear-time miss and Demon Cult clear-time/status-pressure misses.
+- Verified tactic comparison exports report tactic ids, baseline results, result changes, duration deltas, target-status changes, pressure deltas, contribution deltas, and budget-shift labels.
+- Browser smoke outcome: Vite served the app locally at `http://127.0.0.1:5174/`, but the Codex in-app browser pane was unavailable in this session and direct Playwright was not installed, so interactive click-through smoke is recorded as a deferred P3 rerun item. Existing web state/view-model/responsive tests still cover the tactic selector and `Tactic: Crushing Blows.` battle-summary path.
+- Archived the completed Stage 2.1 backlog at `docs/archive/stage-2.1-backlog.md`. Active docs now point at the archive path and Stage 2.2 can start from backend/PWA readiness planning.
+- Verification passed: `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, `npm run --silent simulate -- --export-json`, `npm run --silent simulate -- --csv`, `npm run --silent simulate -- --tactics-json`, and `npm run --silent simulate -- --tactics-csv`.
 
 ---
 
