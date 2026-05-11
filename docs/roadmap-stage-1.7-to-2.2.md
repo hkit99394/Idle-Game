@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). Stage 2.1 completed tactic presets as the first deeper player strategy layer and is archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md). Stage 2.2 is active at [Stage 2.2 Backlog](stage-2.2-backlog.md), focused on backend/PWA readiness.
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). Stage 2.1 completed tactic presets as the first deeper player strategy layer and is archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md). Stage 2.2 completed backend/PWA readiness and is archived at [Stage 2.2 Backlog](archive/stage-2.2-backlog.md).
 
 The recommended sequence is:
 
@@ -219,8 +219,8 @@ The local web prototype should prove the loop and strategy first. Backend work b
 | 1.9 | UI Modularization | Maintainable web feature structure |
 | 2.0 | Content Pipeline | Faster and safer region creation |
 | 2.1 | Deeper Player Strategy | More meaningful player choices |
-| 2.2 | Backend And PWA Readiness | Path toward cloud save and mobile install |
+| 2.2 | Backend And PWA Readiness | Closed path toward cloud save and mobile install |
 
 ## Recommended Next Action
 
-Begin Epic 78 in the [Stage 2.2 Backlog](stage-2.2-backlog.md): close backend/PWA readiness docs now that headless core, cloud save, PWA, and online boss transport decisions are documented.
+Stage 2.2 is complete and archived in [Stage 2.2 Backlog](archive/stage-2.2-backlog.md). Prepare the Stage 2.3 backlog around backend adapter prototypes: local account/save routes, cloud-save conflict UI, online boss mock endpoints, and PWA/browser smoke automation.

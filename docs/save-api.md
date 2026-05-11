@@ -92,3 +92,7 @@ When a save version is added, add or update the migration fixture path before ch
 Imported saves with unsupported future versions must fail validation. The game should not try to downgrade future saves or grant offline rewards to invalid imports.
 
 Cloud envelopes follow the same rule: `saveVersion` must match the current `SAVE_DATA_VERSION`, and `rawSave` still routes through core load validation before rewards or normalization are accepted.
+
+## Backend And Online Boss Notes
+
+Backend save adapters should compare account, slot, checksum, and timestamp metadata before accepting cloud writes or online boss attempts. Competitive online boss attempts should use the save metadata and team snapshot only as input to server-side deterministic simulation; client-submitted battle results are diagnostics, not authoritative rewards or leaderboard state. See [Cloud Save Contract](cloud-save-contract.md) and [Online Boss Transport Decision](online-boss-transport-decision.md).

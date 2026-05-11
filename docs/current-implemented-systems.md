@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation as of Stage 2.2 planning. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Jianghu implementation after Stage 2.2 closure. Older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -11,7 +11,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Static game data is assembled through the canonical static-data builder before validation and simulation.
 - Stage 2.0 completed the content pipeline pass: region budgets, reward-curve validation, difficulty/boss-gate reporting, authoring exports, and content readiness docs.
 - Stage 2.1 completed tactic presets as the first deeper player strategy layer.
-- Stage 2.2 is active and focuses on backend-safe core boundaries, cloud-save contracts, PWA readiness, and online boss scope decisions.
+- Stage 2.2 completed backend-safe core boundaries, cloud-save contracts, PWA readiness, and online boss scope decisions.
 - The Stage 2.2 headless engine contract is tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).
 - PWA install/offline shell behavior is tracked in [PWA Readiness](pwa-readiness.md).
 - The first online boss transport decision is HTTP attempt submission plus lightweight polling, with server-side deterministic simulation; see [Online Boss Transport Decision](online-boss-transport-decision.md).
@@ -88,7 +88,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
-- Stage 2.2 is active at [Stage 2.2 Backlog](stage-2.2-backlog.md) and focuses on backend/PWA readiness.
+- Stage 2.2 is closed and archived at [Stage 2.2 Backlog](archive/stage-2.2-backlog.md); `docs/stage-2.2-backlog.md` should not exist as an active backlog unless Stage 2.2 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules
@@ -105,4 +105,4 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
 - Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and [Content Pipeline Inventory](content-pipeline-inventory.md) for current validation coverage, manual gaps, and known target misses.
 - Stage 2.0 kept current content playable while making future region authoring safer. Known Black Iron Fort and Demon Cult tuning misses remain documented debt, not silent report noise.
-- Stage 2.1 added tactic presets and strategy visibility without retuning known Black Iron Fort or Demon Cult budget debt. Stage 2.2 can now focus on backend and PWA readiness without mixing in content retunes.
+- Stage 2.1 added tactic presets and strategy visibility without retuning known Black Iron Fort or Demon Cult budget debt. Stage 2.2 completed backend and PWA readiness without mixing in content retunes.

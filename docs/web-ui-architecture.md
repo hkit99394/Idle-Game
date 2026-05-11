@@ -45,9 +45,17 @@ Boundary tests in `tests/web/viewModelBoundaries.test.ts` guard sibling feature 
 - `web/state/saveToolCommands.ts` and `saveToolMessages.ts` own export, import, reset, and offline time-travel side effects and messages.
 - `web/state/saveStorage.ts` remains the browser persistence adapter. Core save parsing, migration, validation, offline rewards, and timestamp advancement stay under `core/save`.
 
+## PWA And Backend Adapters
+
+- `web/pwa.ts` owns production service-worker registration after the first app render and should stay separate from save startup.
+- `public/manifest.webmanifest`, `public/service-worker.js`, and `public/icons/path-of-jianghu.svg` own install metadata and app-shell caching.
+- The service worker must keep future `/api/` cloud-save, online boss, auth, and backend calls out of the app-shell cache.
+- Future online/backend UI should call web adapters that translate browser state into core-safe envelopes; React panels should not import transport clients directly.
+
 ## Styling And Smoke Coverage
 
 - `web/styles/app.css` remains the single app stylesheet for now, grouped with feature-owner comments and a responsive contract section.
 - `tests/web/responsivePanelSmoke.test.ts` checks narrow viewport CSS contracts and protected panel selectors for stage routes, battle log rows, roster/formation, strategy, equipment, counterplay, and save tools.
+- `tests/web/pwa.test.ts` checks manifest fields, icon existence, HTML links, service-worker save safety, secure/local registration gating, and load-event registration.
 - `docs/stage-1.9-ui-inventory.md` records the current UI ownership table, baseline tests, and browser smoke notes.
 - Browser smoke for visible UI changes should follow `docs/release-readiness-checklist.md`. Stage 1.9 closure used Codex in-app browser smoke at 1120x900 and 390x900.

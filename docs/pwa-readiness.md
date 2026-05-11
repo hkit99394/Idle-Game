@@ -49,3 +49,9 @@ Save safety rules:
 Source-level coverage lives in `tests/web/pwa.test.ts` and checks manifest fields, icon existence, shell HTML links, service-worker save-safety constraints, secure/local registration gating, and load-event registration.
 
 Runtime smoke for a release should load the built app once, confirm the manifest and service worker are visible in browser dev tools, reload to verify local save persistence, then verify that a second no-time-elapsed reload does not duplicate offline rewards.
+
+## Stage 2.2 Closure Smoke
+
+Stage 2.2 closure served the production build with Vite preview at `http://127.0.0.1:4175/` and confirmed the built shell, manifest, service worker, and maskable SVG icon were reachable. The service-worker source still excludes `/api/` requests from shell caching.
+
+Interactive browser smoke was not required for Epic 78 because the closure epic changed docs only. Source-level PWA tests and the production preview smoke covered the installed app artifacts.

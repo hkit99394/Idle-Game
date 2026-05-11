@@ -73,3 +73,5 @@ The backend can reuse battle simulation, progression, offline rewards, save migr
 The approved headless workflows, adapter boundaries, and missing public entry points for Stage 2.2 are tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).
 
 Server-safe import expectations are guarded by `tests/core/engineBoundary.test.ts`, including runtime imports of approved entry points and source scans for browser, React, Vite, web, tool, wall-clock, and ambient-random dependencies.
+
+Cloud-save adapters should wrap current `SaveData` with the account/slot/checksum envelope described in [Cloud Save Contract](cloud-save-contract.md). Online boss adapters should follow [Online Boss Transport Decision](online-boss-transport-decision.md): HTTP attempt submission plus polling, with server-side deterministic simulation as the authoritative result source.
