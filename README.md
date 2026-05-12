@@ -2,7 +2,7 @@
 
 An idle cyber-sect RPG concept built around separate **Kinetic Art** and **Cognitive Art** combat.
 
-Path of Neon is the new product direction for the project formerly called Path of Jianghu. The current runtime still contains legacy Path of Jianghu names while the retheme is planned and migrated safely.
+Path of Neon is the new product direction for the project formerly called Path of Jianghu. Some internal ids and save fields still contain legacy Path of Jianghu names until the dedicated internal-id migration finishes.
 
 Start with the current contributor docs:
 

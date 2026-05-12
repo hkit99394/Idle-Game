@@ -70,7 +70,7 @@ Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
 | 89.2 | Shared Alias Map Helper Foundation | Complete | Add reusable alias-map shape and tests without migrating static ids |
 | 89.3 | Browser Save Key Migration | Complete | Add dual-read/copy behavior for old and new save keys |
 | 89.4 | PWA Cache And Icon Path Migration | Complete | Rename cache/icon runtime identity with installed-PWA compatibility |
-| 89.5 | Package And Tooling Identity Rename | Planned | Rename package/tool display identity while keeping reports/builds coherent |
+| 89.5 | Package And Tooling Identity Rename | Complete | Rename package/tool display identity while keeping reports/builds coherent |
 | 89.6 | Product/Storage Compatibility Hardening | Planned | Prove old saves, new saves, PWA caches, docs, and stale scans are safe |
 
 ---
@@ -342,6 +342,20 @@ Rename package and tooling display identity to Path of Neon without breaking loc
 - `npm run simulate`.
 - `npm run support-decision`.
 - Stale runtime-name scan.
+
+### Implementation Decisions
+
+- `package.json` now uses `path-of-neon` as the package identity.
+- `package-lock.json` root metadata and package metadata now use `path-of-neon`.
+- Report columns, static ids, save payload fields, and compatibility aliases remain unchanged for later internal-id slices.
+- No lockfile regeneration was needed because this slice only changed package metadata and did not change dependency constraints.
+
+### Progress Notes
+
+- Updated the retheme compatibility guard so package metadata is expected to be `path-of-neon`.
+- Updated active onboarding/current-state docs to distinguish the completed package/storage runtime migration from the remaining legacy internal ids and save fields.
+- Confirmed command-line report headers already use Path of Neon while preserving existing report field names.
+- Stale `path-of-jianghu` hits outside archive are now limited to planned migration history, explicit runtime aliases, legacy compatibility keys/assets, and compatibility tests/docs.
 
 ---
 

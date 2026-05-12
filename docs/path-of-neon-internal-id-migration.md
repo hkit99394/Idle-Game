@@ -17,7 +17,7 @@ Stage 2.3 completed the display-safe retheme without changing compatibility keys
 - Product shell, manifest display metadata, live web copy, static display names, and visual identity now say Path of Neon.
 - Static ids still use legacy keys such as `bamboo_road`, `demon_cult_outpost`, `iron_fist_disciple`, `balanced`, and `qi_suppression`.
 - Persisted save fields still use legacy keys such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, and `selectedOfflineFarmStageId`.
-- The browser save key now uses `path-of-neon.save.v1` while still reading/copying the legacy `path-of-jianghu.save.v1` key. The PWA shell now uses `path-of-neon-shell-v1` and `/icons/path-of-neon.svg` while still cleaning old `path-of-jianghu-shell-*` caches and retaining `/icons/path-of-jianghu.svg` for installed-PWA compatibility. The package name still uses `path-of-jianghu`.
+- The browser save key now uses `path-of-neon.save.v1` while still reading/copying the legacy `path-of-jianghu.save.v1` key. The PWA shell now uses `path-of-neon-shell-v1` and `/icons/path-of-neon.svg` while still cleaning old `path-of-jianghu-shell-*` caches and retaining `/icons/path-of-jianghu.svg` for installed-PWA compatibility. The package name now uses `path-of-neon`.
 - Epic 87 added guard tests for these keys, so the later migration should update those tests intentionally rather than bypassing them.
 
 ## Scope

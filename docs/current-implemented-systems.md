@@ -14,7 +14,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.2 completed backend-safe core boundaries, cloud-save contracts, PWA readiness, and online boss scope decisions.
 - Path of Neon is the active product/theme direction. The retheme plan is documented in [Path Of Neon Theme Bible](path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
 - The retheme is intended to become deeper than copy replacement: [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) is the selected first mechanic contract, with district heat, augment loadouts, network operations, countermeasure economy, and AI raid events deferred.
-- Existing internal ids, save fields, and browser storage keys remain legacy-compatible until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them.
+- Existing internal ids and save fields remain legacy-compatible until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them. Browser storage now uses the Path of Neon key with legacy-key read/copy support.
 - The Stage 2.2 headless engine contract is tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).
 - PWA install/offline shell behavior is tracked in [PWA Readiness](pwa-readiness.md).
 - The first online boss transport decision is HTTP attempt submission plus lightweight polling, with server-side deterministic simulation; see [Online Boss Transport Decision](online-boss-transport-decision.md).

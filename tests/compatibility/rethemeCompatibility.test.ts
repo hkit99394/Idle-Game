@@ -53,7 +53,7 @@ function ids(collection: readonly { id: string }[] | undefined): string[] {
   return (collection ?? []).map((entry) => entry.id);
 }
 
-describe("Stage 2.3 retheme compatibility keys", () => {
+describe("Path of Neon retheme compatibility keys", () => {
   it("keeps static data ids stable until the dedicated id migration", () => {
     expect({
       assignments: ids(staticGameData.assignments),
@@ -260,7 +260,7 @@ describe("Stage 2.3 retheme compatibility keys", () => {
       nowMs: 1_000
     });
 
-    expect(packageMetadata.name).toBe("path-of-jianghu");
+    expect(packageMetadata.name).toBe("path-of-neon");
     expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-neon.save.v1");
     expect(LEGACY_WEB_SAVE_STORAGE_KEY).toBe("path-of-jianghu.save.v1");
     expect(Object.keys(save.progress.resources)).toEqual([
