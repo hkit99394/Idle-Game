@@ -70,7 +70,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | 84 | District And Faction Display Retheme | Complete | Retheme static data names/descriptions while preserving ids and mechanics |
 | 85 | Neon-Native System Prototype Decision | Complete | Choose one small gameplay prototype and define its contract |
 | 86 | Visual Identity Pass | Complete | Add Path of Neon palette, icon identity, and responsive/browser smoke notes |
-| 87 | Compatibility Hardening | Planned | Prove saves, ids, PWA assets, tests, reports, and docs survived the retheme |
+| 87 | Compatibility Hardening | Complete | Prove saves, ids, PWA assets, tests, reports, and docs survived the retheme |
 | 88 | Internal Id Migration Contract | Planned | Prepare the later alias-map, save-version, storage-key, and cache migration plan |
 
 ---
@@ -414,6 +414,16 @@ Prove that the display retheme did not break old saves, exported saves, static i
 - Markdown path/link check.
 - `git diff --check`.
 
+### Progress Notes
+
+- Added a retheme compatibility guard that snapshots static ids and confirms save resource fields, the browser storage key, package name, PWA cache name/prefix, and retained icon path stay on legacy compatibility keys until the dedicated migration.
+- Added a live-surface stale product-name scan for `Path of Jianghu` and `Neon Jianghu` across app/runtime assets while leaving archived historical docs alone.
+- Added an active-doc markdown local-link check that skips `docs/archive` history and verifies current docs point to existing repo paths.
+- Save fixtures, migrations, import/export, reset, offline rewards, offline time travel, load transactions, static data validation, PWA shell behavior, and docs links all passed.
+- `npm run simulate` still exposes known tuning debt by stable ids: `black_iron_fort_4` clear-time miss plus Redline clear-time and status-pressure misses.
+- `npm run support-decision` still recommends the Lotus/support counterplay direction and keeps the Redline near-clear gate visible.
+- Verification passed: save/offline focused tests, static/PWA/docs/compatibility focused tests, `npm run simulate`, `npm run support-decision`, `npm run build`, full `npm test` (65 files, 387 tests), and `git diff --check`.
+
 ---
 
 ## Epic 88: Internal Id Migration Contract
@@ -448,7 +458,6 @@ Prepare the later internal-id migration without doing the full rename inside the
 
 - Which UI diagnostics should keep literal legacy schema terms visible?
 - What is the smallest Cognitive Intrusion contract that proves the new theme without forcing a save schema migration?
-- Which stale-name scans should ignore archived docs by default?
 
 ## Suggested Implementation Order
 
