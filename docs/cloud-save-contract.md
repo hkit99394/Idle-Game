@@ -6,6 +6,8 @@ Stage 2.2 defines cloud save as a wrapper around the existing core save API. The
 
 No production account provider, database, or sync transport is required by this contract.
 
+Theme note: Path of Neon display names do not rename cloud-save envelope fields by default. Persisted save fields and envelope keys remain literal compatibility contracts unless a later migration changes them.
+
 ## Core Entry Points
 
 | Use Case | API | Notes |

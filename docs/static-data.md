@@ -29,6 +29,12 @@ When adding or changing playable content:
 
 Do not bypass `StaticGameData` or import raw JSON directly from web, tools, or tests. The builder, validation entry point, simulator, and exports are the shared authoring contract.
 
+## Path Of Neon Retheme Rule
+
+The Path of Neon retheme may change player-facing `name`, description, role, and flavor fields before static ids migrate. Treat every JSON `id` and every save/static reference ending in `Id` as a compatibility key used by saves, reports, tests, and future backend payloads until the dedicated internal-id migration lands. This includes region, stage, hero, enemy, skill, style, equipment, equipment set, assignment, medicine, status, and tactic ids.
+
+Internal id migration is now planned in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md). Until that plan is implemented, use [Path Of Neon Terminology Map](path-of-neon-terminology-map.md) for display language and preserve legacy ids.
+
 ## Tactic Presets
 
 Stage 2.1 tactic presets live in [tactics.json](../data/tactics.json) and are part of the canonical `StaticGameData` bundle.

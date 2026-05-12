@@ -4,6 +4,8 @@
 
 Save loading should be owned by `core/` so web storage, tools, tests, and a future backend use the same migration, validation, normalization, offline reward, and timestamp behavior.
 
+Theme note: Path of Neon display terms do not rename save schema fields during the display-safe retheme. Persisted fields such as `silver`, `cultivation`, `herbs`, `sect`, `outerHp`, and `innerQi` remain compatibility contracts until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them with a save-version bump and fixture coverage.
+
 ## Preferred Core Entry Points
 
 | Use Case | API | Notes |
@@ -61,6 +63,8 @@ adding a separate `normalizedSave` reason.
 - Convert storage/JSON failures into UI-friendly error reasons.
 
 It should not own migration, offline reward calculation, farm-target normalization, or timestamp rules.
+
+The current browser storage key is `path-of-jianghu.save.v1`. A Path of Neon product-shell rename must either keep reading that key or add a tested dual-read/write migration before writing to any new key.
 
 On failed persistence, adapters must keep the concepts separate:
 

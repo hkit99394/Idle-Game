@@ -1,6 +1,6 @@
 # Current Implemented Systems
 
-This is the quick onboarding snapshot for the current Path of Jianghu implementation after Stage 2.2 closure. Older planning docs are still useful for intent, but this page is the short current-state reference.
+This is the quick onboarding snapshot for the current Path of Neon implementation after Stage 2.2 closure. The project was previously called Path of Jianghu; older planning docs are still useful for intent, but this page is the short current-state reference.
 
 ## Platform And Boundaries
 
@@ -12,6 +12,9 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Stage 2.0 completed the content pipeline pass: region budgets, reward-curve validation, difficulty/boss-gate reporting, authoring exports, and content readiness docs.
 - Stage 2.1 completed tactic presets as the first deeper player strategy layer.
 - Stage 2.2 completed backend-safe core boundaries, cloud-save contracts, PWA readiness, and online boss scope decisions.
+- Path of Neon is the active product/theme direction. The retheme plan is documented in [Path Of Neon Theme Bible](path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
+- The retheme is intended to become deeper than copy replacement: likely future systems include district heat, cognitive intrusion, augment loadouts, network operations, countermeasure economy, and AI raid events.
+- Existing internal ids, save fields, and browser storage keys remain legacy-compatible until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them.
 - The Stage 2.2 headless engine contract is tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).
 - PWA install/offline shell behavior is tracked in [PWA Readiness](pwa-readiness.md).
 - The first online boss transport decision is HTTP attempt submission plus lightweight polling, with server-side deterministic simulation; see [Online Boss Transport Decision](online-boss-transport-decision.md).
@@ -81,6 +84,7 @@ This is the quick onboarding snapshot for the current Path of Jianghu implementa
 - Imported map progress is bounded to configured regions and stage counts.
 - The balance report simulates every configured region in region order and checks data-driven budget gates.
 - Balance tooling also exposes compact authoring exports through `npm run --silent simulate -- --export-json`, spreadsheet-ready stage rows through `npm run --silent simulate -- --csv`, and opt-in tactic comparison rows through `npm run --silent simulate -- --tactics-json` or `--tactics-csv`.
+- The recommended long-form stage, power, economy, and milestone timing model is tracked in [Progression Pacing Roadmap](progression-pacing-roadmap.md). It is planning guidance, not an implemented balance change.
 - The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
 - The practical checklist for adding or changing regions is [Content Authoring Checklist](content-authoring-checklist.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.

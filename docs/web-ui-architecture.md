@@ -52,6 +52,13 @@ Boundary tests in `tests/web/viewModelBoundaries.test.ts` guard sibling feature 
 - The service worker must keep future `/api/` cloud-save, online boss, auth, and backend calls out of the app-shell cache.
 - Future online/backend UI should call web adapters that translate browser state into core-safe envelopes; React panels should not import transport clients directly.
 
+## Path Of Neon Display Terms
+
+- The retheme should introduce a small display vocabulary or formatter path before broad UI copy replacement.
+- Repeated terms such as Credits, Resonance, Body Integrity, Context Stability, AI Overload, Context Rebuild, Districts, Operations, and Countermeasures should be centralized or consistently formatted.
+- React panels and view models should change player-facing labels without renaming reducer actions, save fields, static ids, or core event contracts.
+- Concept terms for unimplemented mechanics, such as District Heat, Trace, Firewall, Calibration Debt, or AI Raid, should not appear in player-facing UI until those systems exist.
+
 ## Styling And Smoke Coverage
 
 - `web/styles/app.css` remains the single app stylesheet for now, grouped with feature-owner comments and a responsive contract section.

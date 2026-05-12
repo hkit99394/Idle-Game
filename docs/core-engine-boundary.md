@@ -1,6 +1,8 @@
 # Core Engine Boundary
 
-`core/` is the reusable game engine boundary for Path of Jianghu.
+`core/` is the reusable game engine boundary for Path of Neon, formerly Path of Jianghu.
+
+Theme note: the Path of Neon retheme changes player-facing language before internal contract names. Core types, save fields, static ids, event names, and tests may retain legacy terms such as `outerHp`, `innerQi`, `cultivation`, and `sect` until a dedicated migration changes them.
 
 ## Entry Points
 

@@ -28,6 +28,8 @@ The current icon is an SVG with `purpose: "any maskable"`. If app stores or plat
 
 The service worker does not read or write `localStorage`, `sessionStorage`, IndexedDB, save export text, import text, or cloud-save payloads.
 
+When the product shell changes from Path of Jianghu to Path of Neon, any new cache prefix must still clean old `path-of-jianghu-shell-*` caches during activation. Keep this covered in `tests/web/pwa.test.ts` before shipping the visible rename.
+
 ## Registration
 
 `web/pwa.ts` registers `/service-worker.js` only for production builds on HTTPS or localhost. Registration waits for the window `load` event so the first render and save startup path run normally.

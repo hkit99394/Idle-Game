@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](archive/stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md). Stage 2.1 completed tactic presets as the first deeper player strategy layer and is archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md). Stage 2.2 completed backend/PWA readiness and is archived at [Stage 2.2 Backlog](archive/stage-2.2-backlog.md).
+Stage 1.6 completed the Lotus support and Demon Cult counterplay slice and is archived at [Stage 1.6 Backlog](stage-1.6-backlog.md). Stage 1.7 completed foundation hardening and is archived at [Stage 1.7 Backlog](stage-1.7-backlog.md). Stage 1.8 completed Combat Engine V2 and is archived at [Stage 1.8 Backlog](stage-1.8-backlog.md). Stage 1.9 completed UI modularization and is archived at [Stage 1.9 Backlog](stage-1.9-backlog.md). Stage 2.0 completed the content pipeline and is archived at [Stage 2.0 Backlog](stage-2.0-backlog.md). Stage 2.1 completed tactic presets as the first deeper player strategy layer and is archived at [Stage 2.1 Backlog](stage-2.1-backlog.md). Stage 2.2 completed backend/PWA readiness and is archived at [Stage 2.2 Backlog](stage-2.2-backlog.md).
 
 The recommended sequence is:
 
@@ -14,7 +14,7 @@ The recommended sequence is:
 
 ## Stage 1.7: Foundation Hardening
 
-Status: completed and archived at [Stage 1.7 Backlog](archive/stage-1.7-backlog.md).
+Status: completed and archived at [Stage 1.7 Backlog](stage-1.7-backlog.md).
 
 ### Goal
 
@@ -53,7 +53,7 @@ The current game has enough combat, progression, save, offline, equipment, medic
 
 ## Stage 1.8: Combat Engine V2
 
-Status: completed and archived at [Stage 1.8 Backlog](archive/stage-1.8-backlog.md).
+Status: completed and archived at [Stage 1.8 Backlog](stage-1.8-backlog.md).
 
 ### Goal
 
@@ -90,7 +90,7 @@ Before Stage 1.8, the simulator already handled targeting, damage, Qi Break, pro
 
 ## Stage 1.9: UI Modularization
 
-Status: completed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md).
+Status: completed and archived at [Stage 1.9 Backlog](stage-1.9-backlog.md).
 
 ### Goal
 
@@ -172,7 +172,7 @@ Completed: add meaningful strategic choices now that the technical foundation ca
 - Completed: choose tactic presets as the main Stage 2.1 feature.
 - Completed: add data schema and validation for tactic presets.
 - Completed: add core tests proving tactic choices change combat outcomes.
-- Completed: route tactic behavior through Stage 1.8 combat extension points in [Combat Engine V2](combat-engine-v2.md): targeting, damage packages, recovery/status resistance, and related metric surfaces.
+- Completed: route tactic behavior through Stage 1.8 combat extension points in [Combat Engine V2](../combat-engine-v2.md): targeting, damage packages, recovery/status resistance, and related metric surfaces.
 - Completed: add compact UI that makes the choice understandable without a large explanatory page.
 - Completed: update balance tooling so tactic outcomes can be measured through opt-in JSON and CSV exports.
 
@@ -223,4 +223,4 @@ The local web prototype should prove the loop and strategy first. Backend work b
 
 ## Recommended Next Action
 
-Stage 2.2 is complete and archived in [Stage 2.2 Backlog](archive/stage-2.2-backlog.md). Prepare the Stage 2.3 backlog around backend adapter prototypes: local account/save routes, cloud-save conflict UI, online boss mock endpoints, and PWA/browser smoke automation.
+Stage 2.2 is complete and archived in [Stage 2.2 Backlog](stage-2.2-backlog.md). Prepare the Stage 2.3 backlog around backend adapter prototypes: local account/save routes, cloud-save conflict UI, online boss mock endpoints, and PWA/browser smoke automation.
