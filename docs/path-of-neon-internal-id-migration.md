@@ -92,6 +92,20 @@ Data migration needs alias maps for:
 
 Do not migrate all of these in one blind text replacement. Start with region/stage ids, then migrate combat/content ids in smaller slices once display names are final.
 
+Approved display-family targets for style ids after the Stage 2.3 taxonomy decision:
+
+| Current id | Display family | Likely future id |
+| --- | --- | --- |
+| `fist` | Impact Style | `impact` |
+| `palm` | Pulse Style | `pulse` |
+| `leg` | Vector Style | `vector` |
+| `sword` | Edge Style | `edge` |
+| `blade` | Rend Style | `rend` |
+| `staff` | Brace Style | `brace` |
+| `hidden_weapons` | Ghostware Style | `ghostware` |
+
+These are target directions for the later migration only. Stage 2.3 copy may use the display family names, but `styleId`, `styleMastery`, `styleBranches`, equipment `allowedStyles`, branch unlocks, save fixtures, and tests must keep legacy ids until alias maps and save migration fixtures exist.
+
 ### 3. Save Schema Fields
 
 Persisted save fields should migrate after static ids.

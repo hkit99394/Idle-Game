@@ -64,7 +64,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | --- | --- | --- | --- |
 | 79 | Path Of Neon Theme And Systems Contract | Complete | Confirm active theme docs, terminology, compatibility rules, and prototype direction |
 | 80 | Product Shell Display Rename | Complete | Rename public product-shell display copy while preserving compatibility keys |
-| 81 | Style Taxonomy Decision | Planned | Choose cyber-native style names and mappings before style-bearing copy changes |
+| 81 | Style Taxonomy Decision | Complete | Choose cyber-native style names and mappings before style-bearing copy changes |
 | 82 | Theme Vocabulary Layer | Planned | Centralize repeated display terms or make them consistently testable |
 | 83 | UI Copy Retheme | Planned | Update web surfaces to Path of Neon terminology without renaming internals |
 | 84 | District And Faction Display Retheme | Planned | Retheme static data names/descriptions while preserving ids and mechanics |
@@ -179,6 +179,15 @@ Choose cyber-native display names and mappings for current and planned style ide
 
 - Markdown path/link check.
 - `git diff --check`.
+
+### Progress Notes
+
+- Reviewed current style-bearing data in `data/styles.json`, `data/heroes.json`, `data/skills.json`, `data/equipment.json`, and the core style/role contracts.
+- Chose style families rather than role-forward labels: Fist -> Impact, Palm -> Pulse, Leg -> Vector, Sword -> Edge, Blade -> Rend, Staff -> Brace, and Hidden Weapons -> Ghostware.
+- Preserved combat roles as a separate taxonomy: Anchor, Breacher, Striker, and Stabilizer describe team jobs, not style families.
+- Updated [Path Of Neon Theme Bible](path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), and [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) with the approved mapping and migration guardrails.
+- Deferred all `styleId`, `styleMastery`, `styleBranches`, equipment `allowedStyles`, branch id, save fixture, and test id renames to the internal-id migration.
+- Verification passed: markdown link/path check, stale unresolved-style-decision scan, and `git diff --check`.
 
 ---
 
@@ -395,7 +404,6 @@ Prepare the later internal-id migration without doing the full rename inside the
 
 ## Open Questions
 
-- Which final display names should replace Fist, Palm, Sword, Staff, Blade, and hidden-weapon identity?
 - Does product-shell icon artwork change in Stage 2.3, or only icon metadata?
 - Which UI diagnostics should keep literal legacy schema terms visible?
 - What is the smallest Cognitive Intrusion contract that proves the new theme without forcing a save schema migration?

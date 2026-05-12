@@ -147,10 +147,13 @@ Avoid:
 | Medicine | Countermeasures / stims | Keep internal `medicine` until equipment-slot migration. |
 | Weapon | Weapon | Can stay direct. |
 | Armor | Plating / armor | Use "plating" for cyber sets. |
-| Fist | Needs style naming pass | Do not lock to Impact yet; preserve role clarity and old-style mapping. |
-| Palm | Needs style naming pass | Do not lock to Pulse yet; preserve role clarity and old-style mapping. |
-| Sword | Needs style naming pass | Do not lock to Edge yet; preserve role clarity and old-style mapping. |
-| Staff | Needs style naming pass | Do not lock to Ward/Brace yet; preserve guardian/support readability. |
+| Fist | Impact Style | Kinetic body pressure. Keep old Fist lineage in flavor when useful. |
+| Palm | Pulse Style | Cognitive/context pressure and support channels. Keep old Palm lineage in flavor when useful. |
+| Leg | Vector Style | Speed, positioning, and route control. Keep old Leg lineage in flavor when useful. |
+| Sword | Edge Style | Hybrid precision, dueling, and overload exploitation. Keep old Sword lineage in flavor when useful. |
+| Blade | Rend Style | Heavy Kinetic burst, trauma, and cleave pressure. Keep Blade lineage visible for weapon flavor. |
+| Staff | Brace Style | Guard, intercept, control, and stabilization. Keep Staff lineage in flavor when useful. |
+| Hidden Weapons | Ghostware Style | Covert needles, delayed pressure, status, and weak-point attacks. |
 | Guard | Guard | Keep for clarity. |
 | Protect | Intercept / protect | "Protect" is clear in compact UI. |
 | Armor Break | Plating Break | Display rename. |
@@ -192,10 +195,28 @@ Cards, dashboards, and repeated controls should stay dense and readable. The gam
 - Do not rewrite archived backlogs. They are historical records of the Path of Jianghu era.
 - Any future data rename must distinguish `id` stability from `name` display changes.
 
+## Style Taxonomy
+
+Stage 2.3 uses **style families** as the player-facing layer and keeps legacy martial style ids as compatibility keys. The family names should feel like cyber-sect protocol lineages, not combat roles. Roles such as Anchor, Breacher, Striker, and Stabilizer describe what a combatant does in a team; style families describe how they express power.
+
+| Legacy Style | Display Family | Combat Read |
+| --- | --- | --- |
+| Fist | Impact Style | Kinetic body pressure, bruising, plating breaks, and durable close work. |
+| Palm | Pulse Style | Cognitive/context pressure, overload setup, recovery channels, and Lotus stabilization. |
+| Leg | Vector Style | Speed, positioning, pursuit, evasion, and route-control techniques. |
+| Sword | Edge Style | Hybrid precision, dueling, crit windows, and AI Overload exploitation. |
+| Blade | Rend Style | Heavy Kinetic burst, trauma, cleave, and Redline/Foundry pressure. |
+| Staff | Brace Style | Guard, intercept, control, front-line stability, and protection. |
+| Hidden Weapons | Ghostware Style | Needles, covert payloads, delayed pressure, status, and weak-point attacks. |
+
+Use old martial terms as lineage flavor rather than primary UI taxonomy when space allows: "Impact Style: Iron Fist lineage" is clearer than erasing Fist everywhere or exposing only `fist`. Do not rename `styleId`, static style ids, saved style mastery keys, equipment `allowedStyles`, branch ids, or tests until the internal-id migration handles aliases and fixtures.
+
+Style mastery should display as **Protocol Mastery** when the surrounding UI is fully rethemed. If a panel needs both layers during transition, write it as "Protocol Mastery (Impact / Fist lineage)" rather than inventing separate mastery systems.
+
 ## Stage 2.3 Contract Handoff
 
 Use [Stage 2.3 Backlog](stage-2.3-backlog.md) as the active implementation plan for this theme contract. Epics 79-88 cover the display-safe pivot; later migration work belongs in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) unless the stage is explicitly reopened.
 
-Epic 81 owns the unresolved style taxonomy. Do not finalize broad Fist, Palm, Sword, Staff, Blade, hidden-weapon, style-mastery, skill, or equipment copy until that decision records whether old styles remain visible as lineage terms, become protocol families, or move to role-forward labels.
+Epic 81 completed the initial style taxonomy. Broad style-bearing copy should use the style-family display names above, keep old martial terms as lineage flavor where useful, and avoid role-forward labels as style replacements.
 
 Epic 85 owns the first neon-native prototype decision. The current recommendation is still Cognitive Intrusion first, with District Heat second, because Cognitive Intrusion reuses existing Context Stability, AI Overload, status, targeting, and simulator surfaces with the smallest likely save impact.

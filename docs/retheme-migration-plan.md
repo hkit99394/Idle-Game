@@ -269,11 +269,13 @@ Acceptance:
 
 - Use **Path of Neon** as the product/world identity. Do not use "Neon Jianghu" as player-facing or lore-facing terminology.
 - Use **Combat Data** as the main UI term for Combat XP. Technical docs may still refer to `combatExperience` when describing schema or save fields.
-- Do not lock the style rename to Impact/Pulse/Edge/Ward yet. Treat style naming as a dedicated design pass so each style has a cyber-native identity, readable combat role, and compatible old-style mapping.
+- Stage 2.3 Epic 81 chose style-family display names: Impact, Pulse, Vector, Edge, Rend, Brace, and Ghostware. Treat old martial style terms as lineage flavor and keep style ids stable until the internal-id migration.
 - Use **Redline** as the hostile Demon Cult direction. `Redline Outpost` and `Redline Cult` are the current best display candidates; `Null Context` can remain a doctrine/status flavor, not the main faction name.
 - Prototype **Cognitive Intrusion** first, with **District Heat** as the preferred second neon-native system.
 - Migrate internal ids through a dedicated compatibility phase. Display names can change first; ids and persisted fields should change only after alias maps, save-version migration, storage-key migration, and fixture coverage are ready.
 
-## Remaining Style Naming Work
+## Style Naming Decision
 
-The style rename needs a focused design pass instead of a simple one-word replacement. The pass should decide whether old styles remain visible as martial roots, become protocol families, or become role-forward labels. It should preserve readability for current Fist, Palm, Sword, Staff, Blade, and future hidden-weapon identities while making the names feel native to Path of Neon.
+Epic 81 completed the focused style naming pass. Use **Impact**, **Pulse**, **Vector**, **Edge**, **Rend**, **Brace**, and **Ghostware** as display families for Fist, Palm, Leg, Sword, Blade, Staff, and Hidden Weapons. Old martial terms may remain as lineage flavor, especially in hero, skill, branch, and equipment copy, but role labels such as Anchor, Breacher, Striker, and Stabilizer should not replace style names.
+
+The later internal-id migration can target `impact`, `pulse`, `vector`, `edge`, `rend`, `brace`, and `ghostware` ids after alias maps, save-version migration, storage-key migration, and fixture coverage are ready.
