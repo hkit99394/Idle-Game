@@ -9,7 +9,7 @@ import type {
   PlayerProgress
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 10 as const;
+export const SAVE_DATA_VERSION = 11 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
@@ -21,6 +21,7 @@ export const SUPPORTED_SAVE_DATA_VERSIONS = [
   7,
   8,
   9,
+  10,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =

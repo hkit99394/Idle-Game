@@ -1,5 +1,11 @@
 import type { StaticGameData } from "../data";
 import {
+  getLegacyRegionId,
+  normalizeRegionId,
+  normalizeRegionMapKeys,
+  normalizeStageId
+} from "../compatibility";
+import {
   createInitialPlayerProgress,
   DEFAULT_OFFLINE_FARM_PRESET,
   normalizeSelectedTacticId
@@ -31,6 +37,20 @@ function invalidField(field: string): SaveNormalization {
   return {
     field,
     reason: "defaulted invalid field"
+  };
+}
+
+function migratedRegionId(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "migrated legacy region id"
+  };
+}
+
+function migratedStageId(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "migrated legacy stage id"
   };
 }
 
@@ -166,7 +186,8 @@ export function normalizeEquipmentProgressForMigration(
 
 export function normalizeProgressForMigration(
   data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "tactics">,
-  value: unknown
+  value: unknown,
+  options: { migrateRegionStageIds?: boolean } = {}
 ): NormalizationResult<unknown> {
   if (!isRecord(value)) {
     return {
@@ -176,8 +197,17 @@ export function normalizeProgressForMigration(
   }
 
   const defaultProgress = createInitialPlayerProgress(data);
-  const existingHeroes = isRecord(value.heroes) ? value.heroes : {};
   const existingMaps = isRecord(value.maps) ? value.maps : {};
+  const shouldMigrateRegionStageIds = options.migrateRegionStageIds === true;
+  const usesCanonicalRegionIds =
+    shouldMigrateRegionStageIds ||
+    Object.keys(existingMaps).some(
+      (regionId) => getLegacyRegionId(regionId) !== regionId
+    );
+  const defaultMaps = usesCanonicalRegionIds
+    ? normalizeRegionMapKeys(defaultProgress.maps).map
+    : defaultProgress.maps;
+  const existingHeroes = isRecord(value.heroes) ? value.heroes : {};
   const normalizations: SaveNormalization[] = [];
   const resources = normalizeResourcesForMigration(value.resources);
   const equipment = normalizeEquipmentProgressForMigration(value.equipment);
@@ -192,17 +222,35 @@ export function normalizeProgressForMigration(
       return [heroId, normalized.value];
     })
   );
-  const maps = Object.fromEntries(
-    Object.entries(existingMaps).map(([regionId, progress]) => {
-      const normalized = normalizeMapProgressForMigration(
-        progress,
-        `progress.maps.${regionId}`
-      );
-      normalizations.push(...normalized.normalizations);
+  const maps: Record<string, unknown> = {};
+  const deferredLegacyMaps: Array<readonly [string, unknown]> = [];
 
-      return [regionId, normalized.value];
-    })
-  );
+  for (const [regionId, progress] of Object.entries(existingMaps)) {
+    const normalized = normalizeMapProgressForMigration(
+      progress,
+      `progress.maps.${regionId}`
+    );
+    normalizations.push(...normalized.normalizations);
+
+    if (
+      shouldMigrateRegionStageIds &&
+      normalizeRegionId(regionId) !== regionId
+    ) {
+      deferredLegacyMaps.push([regionId, normalized.value]);
+      continue;
+    }
+
+    maps[regionId] = normalized.value;
+  }
+
+  for (const [legacyRegionId, progress] of deferredLegacyMaps) {
+    const targetRegionId = normalizeRegionId(legacyRegionId);
+    normalizations.push(migratedRegionId(`progress.maps.${legacyRegionId}`));
+
+    if (!Object.hasOwn(maps, targetRegionId)) {
+      maps[targetRegionId] = progress;
+    }
+  }
 
   normalizations.push(...resources.normalizations, ...equipment.normalizations);
 
@@ -223,8 +271,8 @@ export function normalizeProgressForMigration(
     }
   }
 
-  for (const regionId of Object.keys(defaultProgress.maps)) {
-    if (!(regionId in existingMaps)) {
+  for (const regionId of Object.keys(defaultMaps)) {
+    if (!(regionId in maps)) {
       normalizations.push(missingField(`progress.maps.${regionId}`));
     }
   }
@@ -245,6 +293,19 @@ export function normalizeProgressForMigration(
     }
   }
 
+  const currentStageId =
+    shouldMigrateRegionStageIds && typeof value.currentStageId === "string"
+      ? normalizeStageId(value.currentStageId)
+      : value.currentStageId;
+
+  if (
+    shouldMigrateRegionStageIds &&
+    typeof value.currentStageId === "string" &&
+    currentStageId !== value.currentStageId
+  ) {
+    normalizations.push(migratedStageId("progress.currentStageId"));
+  }
+
   return {
     value: {
       ...value,
@@ -255,7 +316,7 @@ export function normalizeProgressForMigration(
       },
       sect: value.sect,
       maps: {
-        ...defaultProgress.maps,
+        ...defaultMaps,
         ...maps
       },
       selectedTacticId,
@@ -267,7 +328,7 @@ export function normalizeProgressForMigration(
       equipment: equipment.value,
       medicineInventory: value.medicineInventory ?? {},
       assignments: value.assignments ?? {},
-      currentStageId: value.currentStageId
+      currentStageId
     },
     normalizations
   };
@@ -293,7 +354,10 @@ export function migrateSaveData(
     };
   }
 
-  const progress = normalizeProgressForMigration(data, raw.progress);
+  const shouldMigrateRegionStageIds = raw.version < SAVE_DATA_VERSION;
+  const progress = normalizeProgressForMigration(data, raw.progress, {
+    migrateRegionStageIds: shouldMigrateRegionStageIds
+  });
   const autoMedicinePreferences = normalizeAutoMedicinePreferencesWithChanges(
     raw.autoMedicinePreferences
   );
@@ -309,15 +373,29 @@ export function migrateSaveData(
     normalizations.push(missingField("offlineFarmPreset"));
   }
 
+  const selectedOfflineFarmStageId =
+    raw.selectedOfflineFarmStageId === undefined
+      ? null
+      : raw.selectedOfflineFarmStageId;
+  const normalizedSelectedOfflineFarmStageId =
+    shouldMigrateRegionStageIds && typeof selectedOfflineFarmStageId === "string"
+      ? normalizeStageId(selectedOfflineFarmStageId)
+      : selectedOfflineFarmStageId;
+
+  if (
+    shouldMigrateRegionStageIds &&
+    typeof selectedOfflineFarmStageId === "string" &&
+    normalizedSelectedOfflineFarmStageId !== selectedOfflineFarmStageId
+  ) {
+    normalizations.push(migratedStageId("selectedOfflineFarmStageId"));
+  }
+
   const normalizedSave = {
     ...raw,
     version: SAVE_DATA_VERSION,
     progress: progress.value,
     autoMedicinePreferences: autoMedicinePreferences.value,
-    selectedOfflineFarmStageId:
-      raw.selectedOfflineFarmStageId === undefined
-        ? null
-        : raw.selectedOfflineFarmStageId,
+    selectedOfflineFarmStageId: normalizedSelectedOfflineFarmStageId,
     offlineFarmPreset:
       raw.offlineFarmPreset === undefined
         ? DEFAULT_OFFLINE_FARM_PRESET

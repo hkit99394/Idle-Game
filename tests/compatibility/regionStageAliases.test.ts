@@ -6,6 +6,11 @@ import {
   REGION_STAGE_ALIAS_INDEX,
   STAGE_ALIASES,
   STAGE_ALIAS_INDEX,
+  areStageIdsEquivalent,
+  getLegacyRegionId,
+  getLegacyStageId,
+  getRegionIdAliases,
+  getStageIdAliases,
   normalizeRegionId,
   normalizeRegionMapKeys,
   normalizeStageId
@@ -108,6 +113,29 @@ describe("region and stage compatibility aliases", () => {
     expect(normalizeStageId("mist_valley_6")).toBe("veil_district_6");
     expect(normalizeStageId("veil_district_6")).toBe("veil_district_6");
     expect(normalizeStageId("missing_stage")).toBe("missing_stage");
+  });
+
+  it("resolves reverse aliases and equivalent id sets", () => {
+    expect(getLegacyRegionId("greenline_approach")).toBe("bamboo_road");
+    expect(getLegacyRegionId("bamboo_road")).toBe("bamboo_road");
+    expect(getRegionIdAliases("greenline_approach")).toEqual([
+      "greenline_approach",
+      "bamboo_road"
+    ]);
+
+    expect(getLegacyStageId("redline_outpost_7")).toBe(
+      "demon_cult_outpost_7"
+    );
+    expect(getStageIdAliases("demon_cult_outpost_7")).toEqual([
+      "redline_outpost_7",
+      "demon_cult_outpost_7"
+    ]);
+    expect(areStageIdsEquivalent("lotus_monastery_7", "lotus_clinic_7")).toBe(
+      true
+    );
+    expect(areStageIdsEquivalent("lotus_monastery_7", "lotus_clinic_6")).toBe(
+      false
+    );
   });
 
   it("normalizes region-keyed maps and reports collisions", () => {

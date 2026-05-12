@@ -8,7 +8,7 @@ import {
   getReachedMasteryBonuses,
   getReachedMasteryRanks
 } from "./mastery";
-import { getStageById } from "./stages";
+import { getRegionMapProgress, getStageById } from "./stages";
 
 export type ActiveMasterySummary = {
   stageId: string;
@@ -66,7 +66,8 @@ export function getActiveMasterySummaryForStage(
     };
   }
 
-  const combatExperience = progress.maps[stage.regionId]?.combatExperience ?? 0;
+  const combatExperience =
+    getRegionMapProgress(progress.maps, stage.regionId)?.combatExperience ?? 0;
   const enemyFamilyDamageMultiplier = getEnemyFamilyDamageMultiplier(
     combatExperience,
     data.mastery.thresholds

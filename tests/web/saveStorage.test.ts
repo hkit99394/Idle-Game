@@ -139,6 +139,55 @@ describe("web save storage", () => {
     );
   });
 
+  it("migrates legacy-key saves through the region/stage id migration", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 123;
+    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.currentStageId = "bamboo_road_3";
+    const save = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: "bamboo_road_1",
+        nowMs: 1000
+      }),
+      version: 10
+    };
+
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+    const copiedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok || !copiedSave.ok) {
+      return;
+    }
+    expect(loadResult.commitResult.status).toBe("written");
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual([
+      "migrated",
+      "storageKeyMigrated"
+    ]);
+    expect(copiedSave.storageKey).toBe(WEB_SAVE_STORAGE_KEY);
+    expect(copiedSave.save.progress.maps.greenline_approach).toEqual({
+      combatExperience: 0,
+      highestClearedStageIndex: 2
+    });
+    expect(copiedSave.save.progress.currentStageId).toBe(
+      "greenline_approach_3"
+    );
+    expect(copiedSave.save.selectedOfflineFarmStageId).toBe(
+      "greenline_approach_1"
+    );
+    expect(storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY)).toBe(
+      JSON.stringify(save)
+    );
+  });
+
   it("prefers the canonical key when both canonical and legacy saves exist", () => {
     const storage = new MemoryStorage();
     const canonicalProgress = createInitialPlayerProgress(staticData);

@@ -146,7 +146,7 @@ describe("save schema migrations", () => {
       level: 1,
       upgrades: {}
     });
-    expect(result.save.progress.maps.lotus_monastery).toEqual({
+    expect(result.save.progress.maps.lotus_clinic).toEqual({
       combatExperience: 0,
       highestClearedStageIndex: 0
     });
@@ -164,7 +164,137 @@ describe("save schema migrations", () => {
     });
     expect(result.save.progress.equipment?.inventory.lotus_dew_pill).toBeUndefined();
     expect(result.save.progress.assignments?.lotus_medicine_pavilion).toBeUndefined();
-    expect(result.save.selectedOfflineFarmStageId).toBe("black_iron_fort_6");
+    expect(result.save.selectedOfflineFarmStageId).toBe("black_iron_foundry_6");
+  });
+
+  it("migrates legacy region map keys and stage ids to Path of Neon ids", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road = {
+      combatExperience: 40,
+      highestClearedStageIndex: 2
+    };
+    progress.currentStageId = "bamboo_road_3";
+    const save = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: "bamboo_road_1",
+        nowMs: 1000
+      }),
+      version: 10
+    };
+    const result = parseSaveData(staticData, save);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.maps.greenline_approach).toEqual({
+      combatExperience: 40,
+      highestClearedStageIndex: 2
+    });
+    expect(result.save.progress.maps.bamboo_road).toBeUndefined();
+    expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
+    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(result.migration.normalizations).toEqual(
+      expect.arrayContaining([
+        {
+          field: "progress.maps.bamboo_road",
+          reason: "migrated legacy region id"
+        },
+        {
+          field: "progress.currentStageId",
+          reason: "migrated legacy stage id"
+        },
+        {
+          field: "selectedOfflineFarmStageId",
+          reason: "migrated legacy stage id"
+        }
+      ])
+    );
+  });
+
+  it("preserves canonical map entries when legacy and canonical keys collide", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: null,
+        nowMs: 1000
+      }),
+      version: 10,
+      progress: {
+        ...progress,
+        maps: {
+          greenline_approach: {
+            combatExperience: 80,
+            highestClearedStageIndex: 3
+          },
+          bamboo_road: {
+            combatExperience: 12,
+            highestClearedStageIndex: 1
+          }
+        },
+        currentStageId: "greenline_approach_3"
+      }
+    };
+    const result = parseSaveData(staticData, save);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.progress.maps.greenline_approach).toEqual({
+      combatExperience: 80,
+      highestClearedStageIndex: 3
+    });
+    expect(result.save.progress.maps.bamboo_road).toBeUndefined();
+  });
+
+  it("rejects unmapped old region and stage ids after migration", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const unknownRegionSave = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: null,
+        nowMs: 1000
+      }),
+      version: 10,
+      progress: {
+        ...progress,
+        maps: {
+          ...progress.maps,
+          old_missing_region: {
+            combatExperience: 0,
+            highestClearedStageIndex: 1
+          }
+        },
+        currentStageId: "old_missing_region_1"
+      }
+    };
+    const unknownStageSave = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: null,
+        nowMs: 1000
+      }),
+      version: 10,
+      progress: {
+        ...progress,
+        currentStageId: "old_missing_region_1"
+      }
+    };
+
+    expect(validateSaveData(staticData, unknownRegionSave)).toContain(
+      "progress.maps.old_missing_region must reference an existing region"
+    );
+    expect(validateSaveData(staticData, unknownStageSave)).toEqual(
+      expect.arrayContaining([
+        "progress.currentStageId must reference an existing stage"
+      ])
+    );
   });
 
   it("accepts old saves without an offline farm preset and rejects invalid presets", () => {

@@ -132,12 +132,64 @@ function normalizeAliasId(
   return index.getByLegacyId(id)?.targetId ?? id;
 }
 
+function getLegacyAliasId(
+  index: ReturnType<typeof buildCompatibilityAliasIndex<RegionStageAliasEntry>>,
+  id: string
+): string {
+  return index.getByTargetId(id)?.legacyId ?? id;
+}
+
 export function normalizeRegionId(regionId: string): string {
   return normalizeAliasId(REGION_ALIAS_INDEX, regionId);
 }
 
+export function getLegacyRegionId(regionId: string): string {
+  return getLegacyAliasId(REGION_ALIAS_INDEX, regionId);
+}
+
+export function getRegionIdAliases(regionId: string): readonly string[] {
+  const legacyEntry = REGION_ALIAS_INDEX.getByLegacyId(regionId);
+  const targetEntry = REGION_ALIAS_INDEX.getByTargetId(regionId);
+
+  if (legacyEntry) {
+    return [legacyEntry.targetId, legacyEntry.legacyId];
+  }
+
+  if (targetEntry) {
+    return [targetEntry.targetId, targetEntry.legacyId];
+  }
+
+  return [regionId];
+}
+
 export function normalizeStageId(stageId: string): string {
   return normalizeAliasId(STAGE_ALIAS_INDEX, stageId);
+}
+
+export function getLegacyStageId(stageId: string): string {
+  return getLegacyAliasId(STAGE_ALIAS_INDEX, stageId);
+}
+
+export function getStageIdAliases(stageId: string): readonly string[] {
+  const legacyEntry = STAGE_ALIAS_INDEX.getByLegacyId(stageId);
+  const targetEntry = STAGE_ALIAS_INDEX.getByTargetId(stageId);
+
+  if (legacyEntry) {
+    return [legacyEntry.targetId, legacyEntry.legacyId];
+  }
+
+  if (targetEntry) {
+    return [targetEntry.targetId, targetEntry.legacyId];
+  }
+
+  return [stageId];
+}
+
+export function areStageIdsEquivalent(
+  leftStageId: string,
+  rightStageId: string
+): boolean {
+  return normalizeStageId(leftStageId) === normalizeStageId(rightStageId);
 }
 
 export function normalizeRegionMapKeys<Value>(

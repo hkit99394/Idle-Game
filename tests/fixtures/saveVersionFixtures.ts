@@ -1,6 +1,9 @@
 import {
   createInitialPlayerProgress,
   createSaveData,
+  normalizeRegionId,
+  normalizeRegionMapKeys,
+  normalizeStageId,
   SAVE_DATA_VERSION,
   SUPPORTED_SAVE_DATA_VERSIONS
 } from "../../core";
@@ -122,6 +125,11 @@ function getExpectedNormalizationsForRawSave(
   const normalizations: SaveNormalization[] = [];
   const defaultProgress = createInitialPlayerProgress(data);
   const raw = isFixtureRecord(rawSave) ? rawSave : {};
+  const shouldMigrateRegionStageIds =
+    typeof raw.version === "number" && raw.version < SAVE_DATA_VERSION;
+  const defaultMaps = shouldMigrateRegionStageIds
+    ? normalizeRegionMapKeys(defaultProgress.maps).map
+    : defaultProgress.maps;
   const progress = isFixtureRecord(raw.progress) ? raw.progress : {};
   const resources = isFixtureRecord(progress.resources)
     ? progress.resources
@@ -129,6 +137,7 @@ function getExpectedNormalizationsForRawSave(
   const equipment = progress.equipment;
   const existingHeroes = isFixtureRecord(progress.heroes) ? progress.heroes : {};
   const existingMaps = isFixtureRecord(progress.maps) ? progress.maps : {};
+  const normalizedMapIds = new Set<string>();
 
   for (const [heroId, heroProgress] of Object.entries(existingHeroes)) {
     if (!isFixtureRecord(heroProgress)) {
@@ -145,6 +154,11 @@ function getExpectedNormalizationsForRawSave(
   }
 
   for (const [regionId, mapProgress] of Object.entries(existingMaps)) {
+    const normalizedRegionId = shouldMigrateRegionStageIds
+      ? normalizeRegionId(regionId)
+      : regionId;
+    normalizedMapIds.add(normalizedRegionId);
+
     if (!isFixtureRecord(mapProgress)) {
       continue;
     }
@@ -159,6 +173,14 @@ function getExpectedNormalizationsForRawSave(
       normalizations.push(
         missingField(`progress.maps.${regionId}.highestClearedStageIndex`)
       );
+    }
+  }
+
+  if (shouldMigrateRegionStageIds) {
+    for (const regionId of Object.keys(existingMaps)) {
+      if (normalizeRegionId(regionId) !== regionId) {
+        normalizations.push(migratedRegionId(`progress.maps.${regionId}`));
+      }
     }
   }
 
@@ -188,8 +210,8 @@ function getExpectedNormalizationsForRawSave(
     }
   }
 
-  for (const regionId of Object.keys(defaultProgress.maps)) {
-    if (!(regionId in existingMaps)) {
+  for (const regionId of Object.keys(defaultMaps)) {
+    if (!normalizedMapIds.has(regionId)) {
       normalizations.push(missingField(`progress.maps.${regionId}`));
     }
   }
@@ -208,6 +230,14 @@ function getExpectedNormalizationsForRawSave(
     }
   }
 
+  if (
+    shouldMigrateRegionStageIds &&
+    typeof progress.currentStageId === "string" &&
+    normalizeStageId(progress.currentStageId) !== progress.currentStageId
+  ) {
+    normalizations.push(migratedStageId("progress.currentStageId"));
+  }
+
   normalizations.push(
     ...getExpectedAutoMedicinePreferenceNormalizations(raw.autoMedicinePreferences)
   );
@@ -218,6 +248,15 @@ function getExpectedNormalizationsForRawSave(
 
   if (raw.offlineFarmPreset === undefined) {
     normalizations.push(missingField("offlineFarmPreset"));
+  }
+
+  if (
+    shouldMigrateRegionStageIds &&
+    typeof raw.selectedOfflineFarmStageId === "string" &&
+    normalizeStageId(raw.selectedOfflineFarmStageId) !==
+      raw.selectedOfflineFarmStageId
+  ) {
+    normalizations.push(migratedStageId("selectedOfflineFarmStageId"));
   }
 
   return normalizations;
@@ -297,6 +336,20 @@ function invalidField(field: string): SaveNormalization {
   return {
     field,
     reason: "defaulted invalid field"
+  };
+}
+
+function migratedRegionId(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "migrated legacy region id"
+  };
+}
+
+function migratedStageId(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "migrated legacy stage id"
   };
 }
 

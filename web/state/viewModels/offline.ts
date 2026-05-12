@@ -1,4 +1,5 @@
 import {
+  areStageIdsEquivalent,
   getOfflineFarmPresetPolicy,
   getRecommendedOfflineFarmStage,
   getStageById,
@@ -100,7 +101,9 @@ export function buildOfflineFarmRecommendationView(
     description: policy.description,
     rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
     herbsPerClear: recommendedStage.rewards.herbs ?? 0,
-    isSelected: recommendedStage.id === selectedOfflineFarmStageId
+    isSelected: selectedOfflineFarmStageId
+      ? areStageIdsEquivalent(recommendedStage.id, selectedOfflineFarmStageId)
+      : false
   };
 }
 

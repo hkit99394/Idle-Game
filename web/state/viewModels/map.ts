@@ -1,4 +1,5 @@
 import {
+  areStageIdsEquivalent,
   getStageById,
   hasClearedStage,
   isOfflineFarmStageUnlocked,
@@ -59,8 +60,10 @@ export function buildStageOptions(
       isBoss: stage.isBoss,
       isUnlocked,
       isCleared,
-      isSelectedStage: stage.id === selectedStageId,
-      isSelectedOfflineFarmStage: stage.id === selectedOfflineFarmStageId,
+      isSelectedStage: areStageIdsEquivalent(stage.id, selectedStageId),
+      isSelectedOfflineFarmStage: selectedOfflineFarmStageId
+        ? areStageIdsEquivalent(stage.id, selectedOfflineFarmStageId)
+        : false,
       canSelectStage: isUnlocked,
       canSelectOfflineFarm,
       rewards: stage.rewards

@@ -1,5 +1,6 @@
 import type { MartialStyleDefinition, StaticGameData } from "../data";
 import { cloneProgress } from "./progress";
+import { getStageById, hasClearedStage } from "./stages";
 import type {
   PlayerProgress,
   SelectStyleBranchInput,
@@ -85,13 +86,9 @@ export function isStyleBranchUnlocked(
       return true;
 
     case "stage_cleared": {
-      const stage = data.stages.find(
-        (candidate) => candidate.id === unlock.stageId
-      );
+      const stage = getStageById(data, unlock.stageId);
 
-      return stage
-        ? (progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0) >= stage.index
-        : false;
+      return stage ? hasClearedStage(progress, stage) : false;
     }
 
     case "hero_level":

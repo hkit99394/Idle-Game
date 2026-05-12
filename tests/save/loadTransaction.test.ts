@@ -24,7 +24,7 @@ describe("save load transaction", () => {
     }
 
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
-    expect(result.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(result.save.offlineFarmPreset).toBe("balanced");
     expect(result.changed).toBe(true);
     expect(result.writeReasons).toEqual(["migrated"]);
@@ -109,6 +109,59 @@ describe("save load transaction", () => {
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
     expect(secondLoad.save.progress.resources).toEqual(
       firstLoad.save.progress.resources
+    );
+  });
+
+  it("keeps migrated offline rewards idempotent when region ids change", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+
+    const save = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: "bamboo_road_1",
+        nowMs: 1_000
+      }),
+      version: 10
+    };
+    const firstLoad = loadSaveTransaction({
+      data: staticData,
+      rawSave: save,
+      nowMs: 61_000
+    });
+
+    expect(firstLoad.ok).toBe(true);
+    if (!firstLoad.ok) {
+      return;
+    }
+
+    const secondLoad = loadSaveTransaction({
+      data: staticData,
+      rawSave: firstLoad.save,
+      nowMs: 61_000
+    });
+
+    expect(secondLoad.ok).toBe(true);
+    if (!secondLoad.ok) {
+      return;
+    }
+
+    expect(firstLoad.save.progress.maps.greenline_approach.combatExperience).toBeGreaterThan(
+      0
+    );
+    expect(firstLoad.save.progress.currentStageId).toBe("greenline_approach_2");
+    expect(firstLoad.save.selectedOfflineFarmStageId).toBe(
+      "greenline_approach_1"
+    );
+    expect(firstLoad.offlineRewards?.ok).toBe(true);
+    expect(firstLoad.offlineRewards?.rewards.clears).toBeGreaterThan(0);
+    expect(secondLoad.changed).toBe(false);
+    expect(secondLoad.writeReasons).toEqual([]);
+    expect(secondLoad.offlineRewards?.ok).toBe(true);
+    expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
+    expect(secondLoad.save.progress.maps.greenline_approach).toEqual(
+      firstLoad.save.progress.maps.greenline_approach
     );
   });
 

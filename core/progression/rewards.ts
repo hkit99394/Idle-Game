@@ -7,8 +7,10 @@ import {
   getReachedMasteryRanks
 } from "./mastery";
 import {
+  getRegionMapProgress,
   getStageById,
-  isStageUnlocked
+  isStageUnlocked,
+  setRegionMapProgress
 } from "./stages";
 import {
   addStyleMasteryExperience
@@ -38,16 +40,20 @@ export function applyStageClearRewards(
   }
 
   const nextProgress = cloneProgress(input.progress);
-  const mapProgress = nextProgress.maps[stage.regionId] ?? {
+  const mapProgress = getRegionMapProgress(
+    nextProgress.maps,
+    stage.regionId
+  ) ?? {
     combatExperience: 0,
     highestClearedStageIndex: 0
   };
+  const mapCombatExperience = mapProgress.combatExperience ?? 0;
   const masteryRanksBefore = getReachedMasteryRanks(
-    mapProgress.combatExperience,
+    mapCombatExperience,
     data.mastery.thresholds
   );
   const rewardMultiplier = 1 + getMapRewardMultiplier(
-    mapProgress.combatExperience,
+    mapCombatExperience,
     data.mastery.thresholds
   );
   const silver = stage.rewards.silver * rewardMultiplier;
@@ -64,13 +70,13 @@ export function applyStageClearRewards(
   );
 
   const updatedMapProgress = {
-    combatExperience: mapProgress.combatExperience + combatExperience,
+    combatExperience: mapCombatExperience + combatExperience,
     highestClearedStageIndex: Math.max(
       mapProgress.highestClearedStageIndex,
       stage.index
     )
   };
-  nextProgress.maps[stage.regionId] = updatedMapProgress;
+  setRegionMapProgress(nextProgress, stage.regionId, updatedMapProgress);
   addStyleMasteryExperience(
     nextProgress,
     data.heroes.map((hero) => hero.style),

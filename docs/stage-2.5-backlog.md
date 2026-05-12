@@ -86,7 +86,7 @@ Stage 2.5 implements Epic 90 from the retheme migration plan as focused slices.
 | --- | --- | --- | --- |
 | 90.1 | Region/Stage Migration Preflight | Complete | Inventory region/stage references, fixtures, reports, and tests before edits |
 | 90.2 | Region/Stage Alias Data | Complete | Add explicit aliases and validation coverage without changing canonical ids |
-| 90.3 | Save Version And Id Migration | Planned | Bump save version and migrate old region/stage ids in saves/imports/browser storage |
+| 90.3 | Save Version And Id Migration | Complete | Bump save version and migrate old region/stage ids in saves/imports/browser storage |
 | 90.4 | Static Data Region/Stage Rename | Planned | Rename canonical region/stage ids and all static references |
 | 90.5 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
 | 90.6 | Region/Stage Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
@@ -244,6 +244,21 @@ Migrate old region/stage ids in persisted saves without changing unrelated save 
 - Browser storage migration tests combining legacy storage key and legacy region/stage ids.
 - Offline reward idempotency tests.
 - Save diagnostics tests.
+
+### Implementation Decisions
+
+- `SAVE_DATA_VERSION` is now `11`; version `10` is the immediately previous legacy save version.
+- Save migration canonicalizes pre-11 `progress.maps` keys, `progress.currentStageId`, and `selectedOfflineFarmStageId` values through the Stage 2.5 alias table.
+- Canonical map keys win if an imported save contains both legacy and canonical keys for the same district.
+- Runtime progression, validation, offline rewards, assignment rewards, mastery summaries, save diagnostics, and web selection views now resolve both legacy and canonical region/stage ids during the transition.
+- Fresh new-game progress still follows the current static-data ids until Slice 90.4 renames canonical static data. Saves produced by migration/load/import are emitted with canonical region/stage id values.
+
+### Progress Notes
+
+- Added reverse alias/equivalence helpers for region and stage ids.
+- Added save migration coverage for old region map keys, current-stage ids, farm-stage ids, collision handling, unmapped legacy ids, old browser storage keys, and offline reward idempotency.
+- Confirmed old `path-of-jianghu.save.v1` browser saves copy forward to `path-of-neon.save.v1` while also applying the Stage 2.5 id migration.
+- Confirmed `npm run typecheck`, focused migration/browser-storage tests, full `npm test`, `npm run build`, and `git diff --check` pass.
 
 ---
 
