@@ -116,7 +116,7 @@ describe("combat simulator", () => {
     expect(
       result.contributions.some(
         (contribution) =>
-          contribution.name === "Azure Palm Monk" &&
+          contribution.name === "Azure Pulse Monk" &&
           contribution.qiBreaksTriggered > 0
       )
     ).toBe(true);

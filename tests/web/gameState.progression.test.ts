@@ -26,7 +26,7 @@ describe("web game state progression", () => {
     expect(state.progress.selectedTacticId).toBe("balanced");
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
-    expect(viewModel.selectedStageRegionName).toBe("Bamboo Road");
+    expect(viewModel.selectedStageRegionName).toBe("Greenline Approach");
     expect(viewModel.offlineSummary).toBeNull();
     expect(viewModel.offlineFarmPreset).toBe("balanced");
     expect(viewModel.offlineFarmPresets).toHaveLength(5);
@@ -38,7 +38,7 @@ describe("web game state progression", () => {
     expect(viewModel.tactics).toHaveLength(staticData.tactics.length);
     expect(viewModel.tactics[0]).toMatchObject({
       tacticId: "balanced",
-      name: "Balanced Form",
+      name: "Balanced Routine",
       selected: true,
       modifierSummary: []
     });
@@ -81,12 +81,12 @@ describe("web game state progression", () => {
       canToggle: false,
       autoUseLabel: "Auto On"
     });
-    expect(viewModel.enemyTeamLabel).toBe("Bamboo Road Bandit x2");
+    expect(viewModel.enemyTeamLabel).toBe("Greenline Cutter x2");
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();
     expect(viewModel.masteryPanel).toMatchObject({
       regionId: "bamboo_road",
-      regionName: "Bamboo Road",
+      regionName: "Greenline Approach",
       combatExperience: 0,
       reachedRanks: [],
       nextThreshold: {
@@ -100,7 +100,7 @@ describe("web game state progression", () => {
     expect(viewModel.stageOptions).toHaveLength(staticData.stages.length);
     expect(viewModel.stageOptions[0]).toMatchObject({
       id: "bamboo_road_1",
-      regionName: "Bamboo Road",
+      regionName: "Greenline Approach",
       isUnlocked: true,
       isCleared: false,
       isSelectedStage: true,
@@ -115,7 +115,7 @@ describe("web game state progression", () => {
     });
     expect(viewModel.stageOptions[10]).toMatchObject({
       id: "mist_valley_1",
-      regionName: "Mist Valley",
+      regionName: "Veil District",
       isUnlocked: false,
       canSelectStage: false,
       canSelectOfflineFarm: false
@@ -123,7 +123,7 @@ describe("web game state progression", () => {
     expect(
       viewModel.stageOptions.find((stage) => stage.id === "black_iron_fort_1")
     ).toMatchObject({
-      regionName: "Black Iron Fort",
+      regionName: "Black Iron Foundry",
       isUnlocked: false,
       canSelectStage: false,
       canSelectOfflineFarm: false
@@ -184,7 +184,7 @@ describe("web game state progression", () => {
       active: false,
       unlocked: false,
       canActivate: false,
-      lockReason: "Clear Jade Needle Cloister"
+      lockReason: "Clear Jade Needle Clinic"
     });
     expect(viewModel.assignments[0]).toMatchObject({
       assignmentId: "bamboo_road_patrol",
@@ -198,7 +198,7 @@ describe("web game state progression", () => {
     expect(viewModel.assignments[1]).toMatchObject({
       assignmentId: "mist_valley_meditation",
       unlocked: false,
-      lockReason: "Clear Black Iron Guard"
+      lockReason: "Clear Ironwall Guard"
     });
     expect(viewModel.equipmentInventory).toEqual([]);
     expect(viewModel.heroEquipment).toHaveLength(4);
@@ -229,7 +229,7 @@ describe("web game state progression", () => {
           isSelected: false,
           canSelect: false,
           hiddenInMvp: false,
-          requirement: "Iron Fist Disciple level 3",
+          requirement: "Iron Fist Initiate level 3",
           effects: ["+6% Max Body Integrity", "+5% Kinetic Defense"]
         }
       ]
@@ -242,7 +242,7 @@ describe("web game state progression", () => {
       "front"
     ]);
     expect(viewModel.playerCombatants[0]).toMatchObject({
-      name: "Iron Fist Disciple",
+      name: "Iron Fist Initiate",
       outerHp: 180,
       innerQi: 90,
       maxOuterHp: 180,
@@ -254,7 +254,7 @@ describe("web game state progression", () => {
     });
     expect(viewModel.enemyCombatants).toHaveLength(2);
     expect(viewModel.enemyCombatants[0]).toMatchObject({
-      name: "Bamboo Road Bandit",
+      name: "Greenline Cutter",
       outerHp: 120,
       innerQi: 60,
       maxOuterHp: 120,
@@ -265,7 +265,7 @@ describe("web game state progression", () => {
       combatPower: 259
     });
     expect(viewModel.enemyCombatants[1]).toMatchObject({
-      name: "Bamboo Road Bandit",
+      name: "Greenline Cutter",
       outerHp: 120,
       maxOuterHp: 120,
       formationSlot: "middle",
@@ -388,7 +388,7 @@ describe("web game state progression", () => {
       return;
     }
     expect(battleState.lastBattle.battle.playerTactic.id).toBe("outer_pressure");
-    expect(viewModel.battleSummary?.details[0]).toBe("Tactic: Crushing Blows.");
+    expect(viewModel.battleSummary?.details[0]).toBe("Tactic: Kinetic Crush.");
   });
 
   it("selects an unlocked Lotus support hero for the active team", () => {
@@ -463,21 +463,21 @@ describe("web game state progression", () => {
 
     expect(viewModel.lastBattleStage?.id).toBe("bamboo_road_1");
     expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
-    expect(viewModel.enemyTeamLabel).toBe("Bamboo Road Bandit x2");
+    expect(viewModel.enemyTeamLabel).toBe("Greenline Cutter x2");
     expect(viewModel.enemyCombatants[0]).toMatchObject({
-      name: "Bamboo Road Bandit",
+      name: "Greenline Cutter",
       outerHp: 0,
       maxOuterHp: 120,
       isDefeated: true
     });
-    expect(viewModel.battleSummary?.title).toContain("Victory at Bamboo Road 1");
+    expect(viewModel.battleSummary?.title).toContain("Victory at Greenline Route 1");
     expect(viewModel.offlineFarmRecommendation).toMatchObject({
       stageId: "bamboo_road_1",
       isSelected: true
     });
     expect(viewModel.offlineRewardPreview).toMatchObject({
       ok: true,
-      stageName: "Bamboo Road 1",
+      stageName: "Greenline Route 1",
       previewSeconds: 3600,
       clears: 360,
       silver: 2160,
@@ -547,7 +547,7 @@ describe("web game state progression", () => {
     expect(missingStageState.selectedStageId).toBe("bamboo_road_1");
   });
 
-  it("shows unlocked Mist Valley stages and selected-region mastery", () => {
+  it("shows unlocked Veil District stages and selected-region mastery", () => {
     const state = createInitialWebGameState(staticData);
     const progressedState = webGameStateReducer(staticData, state, {
       type: "replace_progress",
@@ -574,10 +574,10 @@ describe("web game state progression", () => {
     const viewModel = getWebGameViewModel(staticData, selectedState);
 
     expect(selectedState.selectedStageId).toBe("mist_valley_2");
-    expect(viewModel.selectedStageRegionName).toBe("Mist Valley");
+    expect(viewModel.selectedStageRegionName).toBe("Veil District");
     expect(viewModel.masteryPanel).toMatchObject({
       regionId: "mist_valley",
-      regionName: "Mist Valley",
+      regionName: "Veil District",
       combatExperience: 52
     });
     expect(

@@ -1,7 +1,7 @@
 [
   {
     "id": "bamboo_road",
-    "name": "Bamboo Road",
+    "name": "Greenline Approach",
     "stageIds": [
       "bamboo_road_1",
       "bamboo_road_2",
@@ -61,7 +61,7 @@
   },
   {
     "id": "mist_valley",
-    "name": "Mist Valley",
+    "name": "Veil District",
     "stageIds": [
       "mist_valley_1",
       "mist_valley_2",
@@ -95,7 +95,7 @@
   },
   {
     "id": "black_iron_fort",
-    "name": "Black Iron Fort",
+    "name": "Black Iron Foundry",
     "stageIds": [
       "black_iron_fort_1",
       "black_iron_fort_2",
@@ -139,7 +139,7 @@
   },
   {
     "id": "lotus_monastery",
-    "name": "Lotus Monastery",
+    "name": "Lotus Clinic",
     "stageIds": [
       "lotus_monastery_1",
       "lotus_monastery_2",
@@ -184,7 +184,7 @@
   },
   {
     "id": "demon_cult_outpost",
-    "name": "Demon Cult Outpost",
+    "name": "Redline Outpost",
     "stageIds": [
       "demon_cult_outpost_1",
       "demon_cult_outpost_2",

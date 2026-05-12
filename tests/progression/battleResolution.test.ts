@@ -8,9 +8,9 @@ import {
 } from "../../core";
 import type { StaticGameData } from "../../core";
 import {
-  autoMedicinePoisonScenarioIds,
-  createAutoMedicinePoisonProgress,
-  createAutoMedicinePoisonScenarioData,
+  autoMedicineCorruptionScenarioIds,
+  createAutoMedicineCorruptionProgress,
+  createAutoMedicineCorruptionScenarioData,
   createStatusPressureProgress,
   createStatusPressureScenarioData
 } from "../helpers/statusScenarios";
@@ -230,9 +230,9 @@ describe("stage battle resolution", () => {
   });
 
   it("uses configured auto-medicine inventory in actual battles and consumes medicine", () => {
-    const data = createAutoMedicinePoisonScenarioData();
-    const progress = createAutoMedicinePoisonProgress(data);
-    const ids = autoMedicinePoisonScenarioIds;
+    const data = createAutoMedicineCorruptionScenarioData();
+    const progress = createAutoMedicineCorruptionProgress(data);
+    const ids = autoMedicineCorruptionScenarioIds;
 
     const disabledResult = resolveStageBattle(data, {
       progress,

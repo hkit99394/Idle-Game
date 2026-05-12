@@ -1370,7 +1370,7 @@ export function buildGameBalanceReport(data: StaticGameData) {
 
   if (!recommendedFarmStage) {
     throw new Error(
-      "No cleared Bamboo Road stage is available for farm simulation"
+      "No cleared Greenline Approach stage is available for farm simulation"
     );
   }
 

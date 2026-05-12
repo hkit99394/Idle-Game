@@ -23,7 +23,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 - Use **Combat Data** as the main UI term for Combat XP while technical docs may still mention `combatExperience`.
 - Do not lock style names to a simple one-word replacement before the style taxonomy decision is complete.
 - Prototype **Cognitive Intrusion** first, with **District Heat** as the preferred second neon-native system.
-- Keep known Black Iron Fort and Demon Cult tuning debt visible; do not mix broad rebalance into the retheme stage.
+- Keep known Black Iron Foundry and Redline tuning debt visible; do not mix broad rebalance into the retheme stage.
 
 ## Stage Goals
 
@@ -67,7 +67,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | 81 | Style Taxonomy Decision | Complete | Choose cyber-native style names and mappings before style-bearing copy changes |
 | 82 | Theme Vocabulary Layer | Complete | Centralize repeated display terms or make them consistently testable |
 | 83 | UI Copy Retheme | Complete | Update web surfaces to Path of Neon terminology without renaming internals |
-| 84 | District And Faction Display Retheme | Planned | Retheme static data names/descriptions while preserving ids and mechanics |
+| 84 | District And Faction Display Retheme | Complete | Retheme static data names/descriptions while preserving ids and mechanics |
 | 85 | Neon-Native System Prototype Decision | Planned | Choose one small gameplay prototype and define its contract |
 | 86 | Visual Identity Pass | Planned | Add Path of Neon palette, icon identity, and responsive/browser smoke notes |
 | 87 | Compatibility Hardening | Planned | Prove saves, ids, PWA assets, tests, reports, and docs survived the retheme |
@@ -293,6 +293,15 @@ Retheme static data display names and descriptions for regions, stages, enemies,
 - `npm run simulate`.
 - `npm run support-decision`.
 - `git diff --check`.
+
+### Progress Notes
+
+- Rethemed static display fields across regions, stages, enemies, heroes, equipment, equipment sets, formations, medicines, skill upgrades, skills, statuses, styles, tactics, assignments, and upgrades while preserving every id, reference field, stat, reward, unlock, budget, and tactic behavior field.
+- Applied the Epic 81 style taxonomy to style-bearing content: Impact, Pulse, Vector, Edge, Rend, Brace, and Ghostware now appear in static style, skill, equipment, and tactic display copy while legacy style ids remain compatibility keys.
+- Updated active content-authoring and current-system docs so display names may move to Path of Neon while ids remain stable report/save/static anchors.
+- Rethemed report/tool fallback labels for Path of Neon balance output, Redline support-decision text, Balanced Routine fallback copy, and timed Trauma metadata without changing underlying combat ids or metric fields.
+- Confirmed static-data comparability by checking parsed data JSON before/after with display fields stripped; only `name`, description, role, and flavor fields changed in `data/*.json`.
+- Verification passed: `npm test -- tests/data`, `npm test` (63 files, 382 tests), `npm run typecheck`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.
 
 ---
 

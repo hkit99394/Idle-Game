@@ -2,7 +2,7 @@
   {
     "id": "iron_fist_combo_refinement",
     "skillId": "iron_fist_combo",
-    "name": "Iron Fist Flow",
+    "name": "Impact Flow",
     "costResource": "cultivation",
     "baseCost": 8,
     "costGrowth": 1.18,
@@ -15,7 +15,7 @@
   {
     "id": "meridian_shock_refinement",
     "skillId": "meridian_shock",
-    "name": "Meridian Threading",
+    "name": "Context Threading",
     "costResource": "cultivation",
     "baseCost": 8,
     "costGrowth": 1.18,
@@ -28,7 +28,7 @@
   {
     "id": "white_crane_slash_refinement",
     "skillId": "white_crane_slash",
-    "name": "White Crane Rhythm",
+    "name": "White Crane Edge Rhythm",
     "costResource": "cultivation",
     "baseCost": 8,
     "costGrowth": 1.18,
@@ -52,7 +52,7 @@
   {
     "id": "sweeping_staff_refinement",
     "skillId": "sweeping_staff",
-    "name": "Sweeping Staff Guard",
+    "name": "Brace Sweep Guard",
     "costResource": "cultivation",
     "baseCost": 8,
     "costGrowth": 1.18,
@@ -66,7 +66,7 @@
   {
     "id": "lotus_mending_vow_refinement",
     "skillId": "lotus_mending_vow",
-    "name": "Lotus Mending Rhythm",
+    "name": "Lotus Stabilizer Rhythm",
     "costResource": "cultivation",
     "baseCost": 12,
     "costGrowth": 1.2,

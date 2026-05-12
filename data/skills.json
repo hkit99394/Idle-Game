@@ -1,7 +1,7 @@
 [
   {
     "id": "basic_strike",
-    "name": "Basic Strike",
+    "name": "Baseline Strike",
     "cooldownSeconds": 0,
     "outerMultiplier": 1,
     "innerMultiplier": 0.15,
@@ -10,7 +10,7 @@
   },
   {
     "id": "iron_fist_combo",
-    "name": "Iron Fist Combo",
+    "name": "Impact Combo",
     "cooldownSeconds": 4,
     "outerMultiplier": 1.65,
     "innerMultiplier": 0.1,
@@ -19,7 +19,7 @@
   },
   {
     "id": "meridian_shock",
-    "name": "Meridian Shock",
+    "name": "Context Shock",
     "cooldownSeconds": 5,
     "outerMultiplier": 0.25,
     "innerMultiplier": 1.65,
@@ -36,7 +36,7 @@
   },
   {
     "id": "white_crane_slash",
-    "name": "White Crane Slash",
+    "name": "White Crane Edge",
     "cooldownSeconds": 4.5,
     "outerMultiplier": 1.2,
     "innerMultiplier": 0.35,
@@ -51,7 +51,7 @@
   },
   {
     "id": "sweeping_staff",
-    "name": "Sweeping Staff",
+    "name": "Brace Sweep",
     "cooldownSeconds": 6,
     "outerMultiplier": 0.9,
     "innerMultiplier": 0.45,
@@ -71,7 +71,7 @@
   },
   {
     "id": "bandit_cut",
-    "name": "Bandit Cut",
+    "name": "Cutter Strike",
     "cooldownSeconds": 4,
     "outerMultiplier": 1.1,
     "innerMultiplier": 0.05,
@@ -89,7 +89,7 @@
   },
   {
     "id": "mist_palm_jab",
-    "name": "Mist Palm Jab",
+    "name": "Veil Pulse Jab",
     "cooldownSeconds": 4.5,
     "outerMultiplier": 0.25,
     "innerMultiplier": 1.25,
@@ -113,7 +113,7 @@
   },
   {
     "id": "fog_staff_guard",
-    "name": "Fog Staff Guard",
+    "name": "Fogline Brace Guard",
     "cooldownSeconds": 5.5,
     "outerMultiplier": 0.8,
     "innerMultiplier": 0.35,
@@ -128,7 +128,7 @@
   },
   {
     "id": "cloud_meridian_press",
-    "name": "Cloud Meridian Press",
+    "name": "Cloud Context Press",
     "cooldownSeconds": 5,
     "outerMultiplier": 0.35,
     "innerMultiplier": 1.8,
@@ -143,7 +143,7 @@
   },
   {
     "id": "valley_heart_seal",
-    "name": "Valley Heart Seal",
+    "name": "Valley Context Seal",
     "cooldownSeconds": 6,
     "outerMultiplier": 0.45,
     "innerMultiplier": 2,
@@ -178,7 +178,7 @@
   },
   {
     "id": "fortress_staff_lock",
-    "name": "Fortress Staff Lock",
+    "name": "Fortress Brace Lock",
     "cooldownSeconds": 5.8,
     "outerMultiplier": 0.85,
     "innerMultiplier": 0.25,
@@ -242,7 +242,7 @@
   },
   {
     "id": "black_fort_edict",
-    "name": "Black Fort Edict",
+    "name": "Black Foundry Edict",
     "cooldownSeconds": 6,
     "outerMultiplier": 1.65,
     "innerMultiplier": 0.25,
@@ -262,7 +262,7 @@
   },
   {
     "id": "lotus_recovery_palm",
-    "name": "Lotus Recovery Palm",
+    "name": "Lotus Stabilizer Pulse",
     "cooldownSeconds": 4.8,
     "outerMultiplier": 0.35,
     "innerMultiplier": 1.05,
@@ -282,7 +282,7 @@
   },
   {
     "id": "lotus_staff_shelter",
-    "name": "Lotus Staff Shelter",
+    "name": "Lotus Brace Shelter",
     "cooldownSeconds": 5.8,
     "outerMultiplier": 0.75,
     "innerMultiplier": 0.35,
@@ -349,7 +349,7 @@
   },
   {
     "id": "abbot_lotus_vow",
-    "name": "Abbot Lotus Vow",
+    "name": "Director Lotus Vow",
     "cooldownSeconds": 6.2,
     "outerMultiplier": 0.4,
     "innerMultiplier": 1.55,
@@ -379,7 +379,7 @@
   },
   {
     "id": "lotus_mending_vow",
-    "name": "Lotus Mending Vow",
+    "name": "Lotus Stabilizer Vow",
     "cooldownSeconds": 5.2,
     "outerMultiplier": 0.25,
     "innerMultiplier": 0.75,
@@ -404,7 +404,7 @@
   },
   {
     "id": "miasma_palm",
-    "name": "Miasma Palm",
+    "name": "Miasma Pulse",
     "cooldownSeconds": 4.4,
     "outerMultiplier": 0.55,
     "innerMultiplier": 1.2,

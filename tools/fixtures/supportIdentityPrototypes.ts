@@ -11,7 +11,7 @@ const temporaryManualScenarioBonus = 0.14;
 
 const prototypeDemonPoisonPalm: SkillDefinition = {
   id: "prototype_demon_poison_palm",
-  name: "Prototype Demon Poison Palm",
+  name: "Prototype Redline Corruption Pulse",
   cooldownSeconds: 4.5,
   outerMultiplier: 0.55,
   innerMultiplier: 1.15,
@@ -55,7 +55,7 @@ const prototypeDemonBloodSeal: SkillDefinition = {
 const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
   {
     id: "prototype_demon_poisoner",
-    name: "Prototype Demon Poisoner",
+    name: "Prototype Redline Corruptor",
     family: "demon_cult",
     type: "normal",
     style: "palm",
@@ -109,7 +109,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
   },
   {
     id: "prototype_demon_cult_boss",
-    name: "Prototype Demon Cult Boss",
+    name: "Prototype Redline Boss",
     family: "demon_cult",
     type: "boss",
     style: "blade",
@@ -138,7 +138,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
 
 const prototypeDemonCultRegion: StaticDataForSupportDecision["regions"][number] = {
   id: "demon_cult_outpost",
-  name: "Prototype Demon Cult Outpost",
+  name: "Prototype Redline Outpost",
   stageIds: [
     "demon_cult_outpost_1",
     "demon_cult_outpost_2",
@@ -156,7 +156,7 @@ const prototypeDemonCultStages: StaticDataForSupportDecision["stages"] = [
     id: "demon_cult_outpost_1",
     regionId: "demon_cult_outpost",
     index: 1,
-    name: "Prototype Demon Cult Gate",
+    name: "Prototype Redline Gate",
     enemyTeam: {
       combatantIds: ["prototype_demon_poisoner", "prototype_demon_poisoner"],
       formation: { front: [0], middle: [1], back: [] }
@@ -202,7 +202,7 @@ const prototypeDemonCultStages: StaticDataForSupportDecision["stages"] = [
     id: "demon_cult_outpost_4",
     regionId: "demon_cult_outpost",
     index: 4,
-    name: "Prototype Demon Cult Boss",
+    name: "Prototype Redline Boss",
     enemyTeam: {
       combatantIds: [
         "prototype_demon_blood_adept",
@@ -283,22 +283,22 @@ export function createSupportIdentityDecisionInput(
         optionId: "lotus_support",
         label: "Lotus support remains main counterplay",
         summary:
-          "Upgrade the existing support identity through Lotus purity training and clearer cleanse/resistance presentation.",
+          "Upgrade the existing support identity through Lotus purge training and clearer cleanse/resistance presentation.",
         productionRosterChangeRequired: false,
         prototypeNotes: [
           `Adds ${formatPercent(lotusSupportScenarioBonus)} support resistance to the combined scenario only.`,
           "Represents Lotus method/manual progression without changing production hero data."
         ],
         data: decisionData,
-        supportSourceLabel: "Lotus Purity Training",
+        supportSourceLabel: "Lotus Purge Training",
         supportResistanceBonus: lotusSupportScenarioBonus,
         scenarios: withCombinedScenarioBonus(lotusSupportScenarioBonus, "support")
       },
       {
         optionId: "new_support_hero",
-        label: "Add a new anti-Demon Cult support hero",
+        label: "Add a new anti-Redline support hero",
         summary:
-          "Prototype a Lotus purity adept as a fifth team member with high resistance and low damage.",
+          "Prototype a Lotus purge adept as a fifth team member with high resistance and low damage.",
         productionRosterChangeRequired: true,
         prototypeNotes: [
           `Adds prototype hero ${prototypeLotusHero.name} and skill ${prototypeLotusSkill.name} only to the decision simulation.`,

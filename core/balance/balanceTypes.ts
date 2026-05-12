@@ -205,7 +205,7 @@ export const defaultBalanceScenarioPresets: BalanceScenarioPreset[] = [
   {
     id: "combined",
     name: "Combined",
-    description: "Intended Demon Cult route with resistance training and medicine.",
+    description: "Intended Redline route with resistance training and medicine.",
     playerStatMultipliers: {
       maxOuterHp: 2,
       maxInnerQi: 1.4,

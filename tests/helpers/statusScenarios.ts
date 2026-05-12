@@ -11,7 +11,7 @@ import type {
 } from "../../core";
 import { staticData } from "./staticData";
 
-export const autoMedicinePoisonScenarioIds = {
+export const autoMedicineCorruptionScenarioIds = {
   stageId: "scenario_auto_medicine_stage",
   heroId: "scenario_auto_medicine_patient",
   enemyId: "scenario_auto_medicine_poisoner",
@@ -231,10 +231,10 @@ export function createStatusPressureProgress(
   return progress;
 }
 
-export function createAutoMedicinePoisonScenarioData(
+export function createAutoMedicineCorruptionScenarioData(
   baseData: StaticGameData = staticData
 ): StaticGameData {
-  const ids = autoMedicinePoisonScenarioIds;
+  const ids = autoMedicineCorruptionScenarioIds;
 
   return createStatusPressureScenarioData({
     baseData,
@@ -242,8 +242,8 @@ export function createAutoMedicinePoisonScenarioData(
     heroId: ids.heroId,
     enemyId: ids.enemyId,
     skillId: ids.skillId,
-    enemyName: "Scenario Poisoner",
-    skillName: "Scenario Actual Battle Poison",
+    enemyName: "Scenario Corruptor",
+    skillName: "Scenario Actual Battle Corruption",
     skillCooldownSeconds: 20,
     enemyStats: {
       statusAccuracy: 0.5
@@ -260,13 +260,13 @@ export function createAutoMedicinePoisonScenarioData(
   });
 }
 
-export function createAutoMedicinePoisonProgress(
+export function createAutoMedicineCorruptionProgress(
   data: StaticGameData,
   medicineInventory: PlayerProgress["medicineInventory"] = {
     clear_heart_pill: 1
   }
 ): PlayerProgress {
-  const ids = autoMedicinePoisonScenarioIds;
+  const ids = autoMedicineCorruptionScenarioIds;
 
   return createStatusPressureProgress(data, {
     stageId: ids.stageId,

@@ -20,7 +20,7 @@ export function TacticsPanel({
       <div className="tactics-heading">
         <div>
           <span className="label">{displayTerms.tactics.routine}</span>
-          <h2>{selectedTactic?.name ?? "Balanced Form"}</h2>
+          <h2>{selectedTactic?.name ?? "Balanced Routine"}</h2>
         </div>
         <span>
           {tactics.length} {displayTerms.tactics.routines.toLowerCase()}

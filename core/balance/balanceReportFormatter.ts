@@ -1,7 +1,7 @@
 import type { BalanceReport, BalanceScenarioReport, RegionBalanceReport } from "./balanceTypes";
 
 export function formatBalanceReport(report: BalanceReport): string {
-  const lines = ["Path of Jianghu Balance Report", "", "Scenario Summary"];
+  const lines = ["Path of Neon Balance Report", "", "Scenario Summary"];
   lines.push(
     "scenario clears holds status status_dmg reduced_tick cleanses medicine impossible gate"
   );
@@ -27,7 +27,7 @@ export function formatBalanceReport(report: BalanceReport): string {
 
   if (report.demonCultBossGate !== null) {
     lines.push(
-      `Demon Cult boss gate: ${report.demonCultBossGate.pass ? "pass" : "fail"} (${report.demonCultBossGate.baselineScenarioId} ${report.demonCultBossGate.baselineResult}, ${report.demonCultBossGate.intendedScenarioId} ${report.demonCultBossGate.intendedRating}, ${formatNumber(report.demonCultBossGate.estimatedClearTimeSeconds)}s)`
+      `Redline boss gate: ${report.demonCultBossGate.pass ? "pass" : "fail"} (${report.demonCultBossGate.baselineScenarioId} ${report.demonCultBossGate.baselineResult}, ${report.demonCultBossGate.intendedScenarioId} ${report.demonCultBossGate.intendedRating}, ${formatNumber(report.demonCultBossGate.estimatedClearTimeSeconds)}s)`
     );
     for (const reason of report.demonCultBossGate.reasons) {
       lines.push(`- ${reason}`);

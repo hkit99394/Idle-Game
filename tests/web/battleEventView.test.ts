@@ -11,7 +11,7 @@ describe("battle event view models", () => {
         finalPlayerTeam: [
           {
             instanceId: "player_iron_fist_disciple_1",
-            name: "Iron Fist Disciple",
+            name: "Iron Fist Initiate",
             formationSlot: "front"
           }
         ],
@@ -47,15 +47,15 @@ describe("battle event view models", () => {
         statusId: "poison",
         timeSeconds: 1,
         timeLabel: "1s",
-        headline: "Iron Fist Disciple (Front) uses Clear Heart Pill",
-        detail: "Battle purge · removes Poison",
+        headline: "Iron Fist Initiate (Front) uses Clear Heart Countermeasure",
+        detail: "Battle purge · removes Corruption",
         badges: [
           {
             label: "Auto Countermeasure",
             tone: "neutral"
           },
           {
-            label: "Poison",
+            label: "Corruption",
             tone: "danger"
           }
         ]
@@ -66,7 +66,7 @@ describe("battle event view models", () => {
         statusId: null,
         timeSeconds: 0,
         timeLabel: "0s",
-        headline: "the party uses Quiet Meridian Powder",
+        headline: "the party uses Quiet Context Powder",
         detail: "Pre-battle resistance · adds 12% Status Resistance for 12s",
         badges: [
           {

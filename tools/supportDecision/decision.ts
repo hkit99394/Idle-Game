@@ -98,8 +98,8 @@ export function buildSupportIdentityDecisionReport(
     decision:
       "Keep Lotus/support counterplay as the Stage 1.6 direction; do not add a new production hero yet.",
     rationale: [
-      "The default combined route already reaches the Demon Cult near-clear gate, so the game needs clearer support identity more than roster expansion.",
-      "The Lotus support prototype improves the boss survival ratio while keeping medicine use and UI scope stable.",
+      "The default combined route already reaches the Redline near-clear gate, so the game needs clearer support identity more than roster expansion.",
+      "The Lotus support prototype improves the boss survival ratio while keeping countermeasure use and UI scope stable.",
       "The new hero prototype improves survivability, but it adds roster, unlock, formation, and presentation work before the combat loop needs that complexity.",
       "A temporary manual is numerically clean, but it has weaker fantasy and should become part of Lotus support progression rather than a separate direction."
     ],
@@ -126,9 +126,9 @@ export function buildSupportIdentityDecisionReport(
     ],
     stageOnePointSixRecommendation: {
       direction:
-        "Make Mountain Staff Guardian and Lotus purity training the visible anti-status counterplay path.",
+        "Make Mountain Brace Guardian and Lotus purge training the visible anti-status counterplay path.",
       backlogHooks: [
-        "Add Lotus purity support upgrades or manuals that grant status resistance and cleanse reliability.",
+        "Add Lotus purge support upgrades or protocols that grant status resistance and cleanse reliability.",
         "Show support contribution in battle summary and counterplay preview.",
         "Keep a new Lotus hero as a later content reward only if Stage 1.6 playtests need roster excitement."
       ]
@@ -305,7 +305,7 @@ function getCombinedDemonCultBoss(report: BalanceReport) {
   const stage = demonCult?.stages.find((candidate) => candidate.isBoss);
 
   if (bossGate == null || stage === undefined) {
-    throw new Error("Missing combined Demon Cult boss decision output");
+    throw new Error("Missing combined Redline boss decision output");
   }
 
   return {

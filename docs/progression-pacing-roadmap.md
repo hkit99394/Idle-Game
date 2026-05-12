@@ -205,7 +205,7 @@ The existing balance report is a strong base. Add these reports before large eco
    - Report team CP and contribution breakdown per stage or boss.
    - Tune CP against simulator outcomes rather than treating it as the tuning authority.
 
-7. Demon Cult Retune Pass
+7. Redline Retune Pass
    - Address the current clear-time and status-pressure misses.
    - Use tactic comparison rows to decide whether sustain, status resistance, or countermeasure systems should be the intended solution.
 

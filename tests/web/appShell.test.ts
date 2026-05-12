@@ -41,7 +41,7 @@ describe("app shell helpers", () => {
       activeTeamStatus: "",
       assignmentStatus: "",
       battleResultClass: "victory",
-      battleStatus: "Victory - Bamboo Road 5 cleared",
+      battleStatus: "Victory - Greenline Route 5 cleared",
       equipmentStatus: "",
       purchaseStatus: "",
       skillPurchaseStatus: "",

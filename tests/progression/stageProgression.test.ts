@@ -38,7 +38,7 @@ function createTwoRegionData(): StaticGameData {
 }
 
 describe("stage progression helpers", () => {
-  it("starts new progress at Bamboo Road stage 1", () => {
+  it("starts new progress at Greenline Approach stage 1", () => {
     const progress = createInitialPlayerProgress(staticData);
 
     expect(progress.currentStageId).toBe("bamboo_road_1");
@@ -103,7 +103,7 @@ describe("stage progression helpers", () => {
     expect(isStageUnlocked(data, result.progress, mistValleyStage)).toBe(true);
   });
 
-  it("advances current stage from Mist Valley into Black Iron Fort", () => {
+  it("advances current stage from Veil District into Black Iron Foundry", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
     progress.maps.mist_valley.highestClearedStageIndex = 6;
@@ -120,7 +120,7 @@ describe("stage progression helpers", () => {
     ).toBe("black_iron_fort_1");
   });
 
-  it("advances current stage from Black Iron Fort into Lotus Monastery", () => {
+  it("advances current stage from Black Iron Foundry into Lotus Clinic", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
     progress.maps.mist_valley.highestClearedStageIndex = 6;
@@ -138,7 +138,7 @@ describe("stage progression helpers", () => {
     ).toBe("lotus_monastery_1");
   });
 
-  it("advances current stage from Lotus Monastery into Demon Cult Outpost", () => {
+  it("advances current stage from Lotus Clinic into Redline Outpost", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 10;
     progress.maps.mist_valley.highestClearedStageIndex = 6;

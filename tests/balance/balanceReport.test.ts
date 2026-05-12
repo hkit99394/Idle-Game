@@ -63,7 +63,7 @@ describe("balance report", () => {
     );
   });
 
-  it("reports nonzero Demon Cult status pressure and farm recommendation", () => {
+  it("reports nonzero Redline status pressure and farm recommendation", () => {
     const report = buildBalanceReport(staticData);
     const demonCult = report.regions.find(
       (region) => region.regionId === "demon_cult_outpost"
@@ -195,7 +195,7 @@ describe("balance report", () => {
     );
   });
 
-  it("keeps Demon Cult boss balance status pressure aligned with combat helpers", () => {
+  it("keeps Redline boss balance status pressure aligned with combat helpers", () => {
     const report = buildBalanceReport(staticData);
     const combined = getScenario(report, "combined");
     const combinedDemonBoss = getDemonCultBoss(combined);
@@ -303,7 +303,7 @@ describe("balance report", () => {
     expect(actualTickDamage).toBeGreaterThan(0);
   });
 
-  it("flags Demon Cult boss clear time outside the acceptable tuning band", () => {
+  it("flags Redline boss clear time outside the acceptable tuning band", () => {
     const slowData: StaticGameData = {
       ...staticData,
       enemies: staticData.enemies.map((enemy) =>
@@ -342,7 +342,7 @@ describe("balance report", () => {
     const report = buildBalanceReport(staticData);
     const text = formatBalanceReport(report);
 
-    expect(text).toContain("Demon Cult Outpost");
+    expect(text).toContain("Redline Outpost");
     expect(text).toContain("Scenario Summary");
     expect(text).toContain("combined");
     expect(text).toContain("demon_cult_outpost_7");
@@ -391,7 +391,7 @@ function getDemonCultBoss(
     ?.bossGate;
 
   if (boss == null) {
-    throw new Error(`Missing Demon Cult boss for ${scenario.scenarioId}`);
+    throw new Error(`Missing Redline boss for ${scenario.scenarioId}`);
   }
 
   return boss;

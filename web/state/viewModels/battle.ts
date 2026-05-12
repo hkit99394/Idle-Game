@@ -721,13 +721,13 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        headline: `${source} wounds ${target}`,
+        headline: `${source} traumatizes ${target}`,
         detail:
           `${getSkillName(data, event.skillId)} reduces recovery by ` +
           `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
         badges: [
           {
-            label: "Wound",
+            label: "Trauma",
             tone: "danger"
           },
           {

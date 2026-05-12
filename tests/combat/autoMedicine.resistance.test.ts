@@ -112,7 +112,7 @@ const statusPressureSkills: SkillDefinition[] = [
   ...skillDefinitions,
   {
     id: "test_poison_hex",
-    name: "Test Poison Hex",
+    name: "Test Corruption Hex",
     cooldownSeconds: 1,
     outerMultiplier: 0,
     innerMultiplier: 0,

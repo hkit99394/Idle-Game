@@ -18,7 +18,7 @@ import {
 import { staticData } from "../helpers/staticData";
 
 describe("balance report", () => {
-  it("builds Bamboo Road results from region stage order", () => {
+  it("builds Greenline Approach results from region stage order", () => {
     const report = buildGameBalanceReport(staticData);
     const bambooRoad = staticData.regions.find(
       (region) => region.id === BAMBOO_ROAD_REGION_ID
@@ -69,7 +69,7 @@ describe("balance report", () => {
     });
   });
 
-  it("includes Mist Valley results from the region stage order", () => {
+  it("includes Veil District results from the region stage order", () => {
     const report = buildGameBalanceReport(staticData);
     const mistValley = staticData.regions.find(
       (region) => region.id === MIST_VALLEY_REGION_ID
@@ -89,7 +89,7 @@ describe("balance report", () => {
       return;
     }
 
-    expect(mistValleyBalance.regionName).toBe("Mist Valley");
+    expect(mistValleyBalance.regionName).toBe("Veil District");
     expect(
       mistValleyBalance.stageResults.map((stage) => stage.stageId)
     ).toEqual(mistValley.stageIds);
@@ -147,7 +147,7 @@ describe("balance report", () => {
     });
   });
 
-  it("includes Black Iron Fort as a defensive post-Mist region", () => {
+  it("includes Black Iron Foundry as a defensive post-Mist region", () => {
     const report = buildGameBalanceReport(staticData);
     const blackIronFort = staticData.regions.find(
       (region) => region.id === BLACK_IRON_FORT_REGION_ID
@@ -167,7 +167,7 @@ describe("balance report", () => {
       return;
     }
 
-    expect(blackIronBalance.regionName).toBe("Black Iron Fort");
+    expect(blackIronBalance.regionName).toBe("Black Iron Foundry");
     expect(
       blackIronBalance.stageResults.map((stage) => stage.stageId)
     ).toEqual(blackIronFort.stageIds);
@@ -220,7 +220,7 @@ describe("balance report", () => {
     });
   });
 
-  it("includes Lotus Monastery as a sustain post-Fort region", () => {
+  it("includes Lotus Clinic as a sustain post-Fort region", () => {
     const report = buildGameBalanceReport(staticData);
     const lotusMonastery = staticData.regions.find(
       (region) => region.id === LOTUS_MONASTERY_REGION_ID
@@ -240,7 +240,7 @@ describe("balance report", () => {
       return;
     }
 
-    expect(lotusBalance.regionName).toBe("Lotus Monastery");
+    expect(lotusBalance.regionName).toBe("Lotus Clinic");
     expect(lotusBalance.stageResults.map((stage) => stage.stageId)).toEqual(
       lotusMonastery.stageIds
     );
@@ -282,7 +282,7 @@ describe("balance report", () => {
     });
   });
 
-  it("does not require a hard-coded Mist Valley region to build later regions", () => {
+  it("does not require a hard-coded Veil District region to build later regions", () => {
     const renamedRegionId = "renamed_valley";
     const renamedData: StaticGameData = {
       ...staticData,
@@ -653,7 +653,7 @@ describe("balance report", () => {
     });
   });
 
-  it("keeps Demon Cult simulated status pressure aligned with balance estimates", () => {
+  it("keeps Redline simulated status pressure aligned with balance estimates", () => {
     const simulatedReport = buildGameBalanceReport(staticData);
     const estimatedReport = buildBalanceReport(staticData);
     const simulatedDemonCult = getRegionReport(
@@ -698,10 +698,10 @@ describe("balance report", () => {
     const report = buildGameBalanceReport(staticData);
     const formatted = formatBalanceReport(report);
 
-    expect(formatted).toContain("Bamboo Road Balance Report");
-    expect(formatted).toContain("Mist Valley Balance Report");
-    expect(formatted).toContain("Black Iron Fort Balance Report");
-    expect(formatted).toContain("Lotus Monastery Balance Report");
+    expect(formatted).toContain("Greenline Approach Balance Report");
+    expect(formatted).toContain("Veil District Balance Report");
+    expect(formatted).toContain("Black Iron Foundry Balance Report");
+    expect(formatted).toContain("Lotus Clinic Balance Report");
     expect(formatted).toContain("lotus_monastery_7");
     expect(formatted).toContain("black_iron_fort_7");
     expect(formatted).toContain("mist_valley_6");
@@ -736,7 +736,7 @@ describe("balance report", () => {
     expect(formatted).toContain("--csv");
   });
 
-  it("fails loudly when the Bamboo Road region references a missing stage", () => {
+  it("fails loudly when the Greenline Approach region references a missing stage", () => {
     const badData: StaticGameData = {
       ...staticData,
       regions: staticData.regions.map((region) =>

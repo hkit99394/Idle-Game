@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { staticData } from "../helpers/staticData";
 
-describe("Demon Cult Outpost content", () => {
+describe("Redline Outpost content", () => {
   it("connects after the Lotus boss as a seven-stage region", () => {
     const lotusBoss = staticData.stages.find(
       (stage) => stage.id === "lotus_monastery_7"
@@ -34,7 +34,7 @@ describe("Demon Cult Outpost content", () => {
     });
   });
 
-  it("uses at least three status patterns across Demon Cult enemy skills", () => {
+  it("uses at least three status patterns across Redline enemy skills", () => {
     const skillById = new Map(
       staticData.skills.map((skill) => [skill.id, skill])
     );

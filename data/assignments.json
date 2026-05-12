@@ -1,7 +1,7 @@
 [
   {
     "id": "bamboo_road_patrol",
-    "name": "Bamboo Road Patrol",
+    "name": "Greenline Sweep",
     "type": "patrol",
     "unlockCondition": { "type": "always" },
     "durationBucket": "short",
@@ -18,7 +18,7 @@
   },
   {
     "id": "mist_valley_meditation",
-    "name": "Mist Valley Meditation",
+    "name": "Veil District Calibration",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
     "durationBucket": "medium",
@@ -31,7 +31,7 @@
   },
   {
     "id": "black_iron_drill_yard",
-    "name": "Black Iron Drill Yard",
+    "name": "Black Foundry Calibration Yard",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "black_iron_fort_1" },
     "durationBucket": "long",
@@ -46,7 +46,7 @@
   },
   {
     "id": "lotus_medicine_pavilion",
-    "name": "Lotus Medicine Pavilion",
+    "name": "Lotus Countermeasure Pavilion",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "lotus_monastery_3" },
     "durationBucket": "medium",

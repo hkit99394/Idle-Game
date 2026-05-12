@@ -59,7 +59,7 @@ describe("status presentation", () => {
     expect(buildStatusChipViewModels(statuses, statusDefinitions)).toEqual([
       {
         statusId: "poison",
-        label: "Poison",
+        label: "Corruption",
         category: "damage",
         categoryLabel: "Damage",
         severity: "high",
@@ -67,11 +67,11 @@ describe("status presentation", () => {
         toneClassName: "tone-damage",
         remainingLabel: "8s",
         stacksLabel: "x3",
-        ariaLabel: "Poison, Damage, High severity, 8 seconds remaining"
+        ariaLabel: "Corruption, Damage, High severity, 8 seconds remaining"
       },
       {
         statusId: "wound",
-        label: "Wound",
+        label: "Trauma",
         category: "recovery",
         categoryLabel: "Recovery",
         severity: "medium",
@@ -79,11 +79,11 @@ describe("status presentation", () => {
         toneClassName: "tone-recovery",
         remainingLabel: "3s",
         stacksLabel: null,
-        ariaLabel: "Wound, Recovery, Medium severity, 3 seconds remaining"
+        ariaLabel: "Trauma, Recovery, Medium severity, 3 seconds remaining"
       },
       {
         statusId: "qi_suppression",
-        label: "Qi Suppression",
+        label: "Context Suppression",
         category: "control",
         categoryLabel: "Control",
         severity: "low",
@@ -91,7 +91,7 @@ describe("status presentation", () => {
         toneClassName: "tone-control",
         remainingLabel: "2s",
         stacksLabel: null,
-        ariaLabel: "Qi Suppression, Control, Low severity, 2 seconds remaining"
+        ariaLabel: "Context Suppression, Control, Low severity, 2 seconds remaining"
       }
     ]);
   });
@@ -120,23 +120,23 @@ describe("status presentation", () => {
           statusId: "poison",
           stacks: 2,
           outerDamage: 24,
-          targetName: "Iron Fist Disciple"
+          targetName: "Iron Fist Initiate"
         },
         {
           type: "status_tick",
           statusId: "poison",
           stacks: 2,
           outerDamage: 24,
-          targetName: "Iron Fist Disciple"
+          targetName: "Iron Fist Initiate"
         }
       ],
       cleanses: [
         {
-          combatantName: "Mountain Staff Guardian",
+          combatantName: "Mountain Brace Guardian",
           statusId: "poison"
         },
         {
-          combatantName: "Mountain Staff Guardian",
+          combatantName: "Mountain Brace Guardian",
           statusId: "wound"
         }
       ]
@@ -145,33 +145,33 @@ describe("status presentation", () => {
     expect(summary.callouts).toEqual([
       {
         id: "status-damage",
-        label: "Iron Fist Disciple took 48 status damage",
+        label: "Iron Fist Initiate took 48 status damage",
         toneClassName: "tone-damage",
         ariaLabel:
-          "Damage summary: Iron Fist Disciple took 48 status damage"
+          "Damage summary: Iron Fist Initiate took 48 status damage"
       },
       {
         id: "purges",
-        label: "Mountain Staff Guardian purged 2 status",
+        label: "Mountain Brace Guardian purged 2 status",
         toneClassName: "tone-cleanse",
         ariaLabel:
-          "Purge summary: Mountain Staff Guardian purged 2 status"
+          "Purge summary: Mountain Brace Guardian purged 2 status"
       }
     ]);
     expect(summary.rows).toEqual([
       {
         label: "Status Damage",
-        value: "48 to Iron Fist Disciple",
+        value: "48 to Iron Fist Initiate",
         toneClassName: "tone-damage"
       },
       {
         label: "Purges",
-        value: "2 by Mountain Staff Guardian",
+        value: "2 by Mountain Brace Guardian",
         toneClassName: "tone-cleanse"
       },
       {
         label: "Debuffs",
-        value: "Poison, Wound",
+        value: "Corruption, Trauma",
         toneClassName: "tone-control"
       }
     ]);

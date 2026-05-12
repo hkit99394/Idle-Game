@@ -57,7 +57,7 @@ describe("web game state idle", () => {
     });
     expect(viewModel.offlineRewardPreview).toMatchObject({
       ok: true,
-      stageName: "Lotus Monastery Gate",
+      stageName: "Lotus Clinic Gate",
       herbs: 1296
     });
     expect(viewModel.offlineFarmRecommendation.herbsPerClear).toBeGreaterThan(0);
@@ -336,7 +336,7 @@ describe("web game state idle", () => {
     });
     expect(silverViewModel.offlineRewardPreview).toMatchObject({
       ok: true,
-      stageName: "Bamboo Road 9",
+      stageName: "Greenline Route 9",
       silver: 11232,
       cultivation: 5616,
       combatExperience: 2160

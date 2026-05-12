@@ -60,7 +60,7 @@ const statusPreviewData: StaticGameData = {
     ...staticData.skills,
     {
       id: "test_poison_hex",
-      name: "Test Poison Hex",
+      name: "Test Corruption Hex",
       cooldownSeconds: 1,
       outerMultiplier: 0,
       innerMultiplier: 0,
@@ -111,7 +111,7 @@ const statusPreviewData: StaticGameData = {
     },
     {
       id: "test_wound_hex",
-      name: "Test Wound Hex",
+      name: "Test Trauma Hex",
       cooldownSeconds: 1,
       outerMultiplier: 0,
       innerMultiplier: 0,
@@ -227,11 +227,11 @@ describe("counterplay preview", () => {
       preBattleResistancePolicyReason: null
     });
     expect(preview.recommendationText).toBe(
-      "Expected Poison, Qi Suppression, Vulnerable, Wound. Recommended auto medicine: Quiet Meridian Powder, Clear Heart Pill, Purity Draught."
+      "Expected Corruption, Context Suppression, Exposed, Trauma. Recommended auto medicine: Quiet Context Powder, Clear Heart Countermeasure, Purity Countermeasure."
     );
     expect(preview.supportResistanceBonus).toBeCloseTo(0.08);
     expect(preview.supportContributionText).toBe(
-      "Lotus Purity Training Lv 2 adds 8% team status resistance before the cap."
+      "Lotus Purge Training Lv 2 adds 8% team status resistance before the cap."
     );
   });
 

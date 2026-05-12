@@ -15,7 +15,7 @@ Before opening a region for play:
 5. Keep ids stable and descriptive; region and stage ids are used by saves, reports, docs, and tests.
 6. Run static validation through the test suite before trusting simulator output.
 
-For Path of Neon content, retheme display `name` and description fields before changing ids. Legacy ids can coexist with neon-facing names; see [Path Of Neon Terminology Map](path-of-neon-terminology-map.md) and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
+For Path of Neon content, retheme display `name` and description fields before changing ids. Legacy ids can coexist with neon-facing names; do not rename existing ids just to match a new display pass. Simulator and export comparisons should stay anchored on stable ids while player-facing names move toward the theme. See [Path Of Neon Terminology Map](path-of-neon-terminology-map.md) and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
 
 ## Stage And Enemy Checks
 

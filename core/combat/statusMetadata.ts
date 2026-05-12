@@ -39,7 +39,7 @@ export const TIMED_STATUS_METADATA = {
   },
   wound: {
     id: "wound",
-    label: "Wound",
+    label: "Trauma",
     field: "wound",
     dispelTags: ["wound", "debuff"],
     cleansePriority: 10

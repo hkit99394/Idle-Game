@@ -42,7 +42,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 
 ## Progression And Content
 
-- Implemented regions are Bamboo Road, Mist Valley, Black Iron Fort, Lotus Monastery, and Demon Cult Outpost.
+- Implemented districts are Greenline Approach, Veil District, Black Iron Foundry, Lotus Clinic, and Redline Outpost; their legacy region ids remain compatibility keys.
 - Stage access is gated by configured region/stage progress. Boss clearing is online play; offline farming uses cleared farmable stages.
 - Selecting a map/stage starts continuous fighting or farming behavior without a separate Fight or Set Farm button.
 - The player stays on the selected stage after battle instead of being forced to the latest unlocked stage.
@@ -53,9 +53,9 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 
 ## Heroes, Styles, And Growth
 
-- Current roster includes Iron Fist Disciple, Azure Palm Monk, White Crane Swordsman, Mountain Staff Guardian, and Lotus Mending Disciple.
-- Early heroes keep fixed martial identities while style branches, skill upgrades, and equipment create build growth.
-- Supported martial identity includes Fist, Palm, Sword, Staff, and region-specific weapon/manual equipment. Blade and hidden-weapon content remains roadmap space.
+- Current roster includes Iron Fist Initiate, Azure Pulse Monk, White Crane Edge Runner, Mountain Brace Guardian, and Lotus Stabilizer.
+- Early initiates keep fixed lineage identities while style branches, skill upgrades, and equipment create build growth.
+- Supported style-family display includes Impact, Pulse, Edge, Brace, and region-specific weapon/protocol equipment. Rend and Ghostware content remains roadmap space.
 - Style branches and skill upgrades adjust ratios, cooldowns, defenses, healing, status counterplay, and role identity.
 - Lotus support counterplay is implemented through deterministic sect/manual-style upgrades and support tools, not a separate random recruit system.
 
@@ -68,10 +68,10 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 
 ## Medicine And Status Counterplay
 
-- Demon Cult Outpost introduces heavier status pressure and makes medicine/support counterplay visible.
-- Medicine unlocks when its configured unlock condition is met or when inventory exists, but automatic use still requires inventory.
-- Auto medicine has global settings plus per-medicine disable controls.
-- Pre-battle resistance medicine policy is configurable, including boss/elite/status-heavy style thresholds.
+- Redline Outpost introduces heavier corruption/status pressure and makes countermeasure/support counterplay visible.
+- Countermeasures unlock when their configured unlock condition is met or when inventory exists, but automatic use still requires inventory.
+- Auto countermeasures have global settings plus per-countermeasure disable controls.
+- Pre-battle resistance countermeasure policy is configurable, including boss/elite/status-heavy style thresholds.
 - Status resistance reduces application reliability, effective duration, and tick impact through the combat status pipeline.
 - Status UI uses fixed category colors for damage, control, vulnerability, and cleanse/support signals.
 
@@ -109,5 +109,5 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 
 - Stage 1.9 preserved the known balance-budget posture while modularizing web UI and web state; some budget misses may be intentional tuning notes rather than code failures.
 - Use [Balance Budget Gates](balance-budget-gates.md) for current budget fields and [Content Pipeline Inventory](content-pipeline-inventory.md) for current validation coverage, manual gaps, and known target misses.
-- Stage 2.0 kept current content playable while making future region authoring safer. Known Black Iron Fort and Demon Cult tuning misses remain documented debt, not silent report noise.
-- Stage 2.1 added tactic presets and strategy visibility without retuning known Black Iron Fort or Demon Cult budget debt. Stage 2.2 completed backend and PWA readiness without mixing in content retunes.
+- Stage 2.0 kept current content playable while making future region authoring safer. Known Black Iron Foundry and Redline Outpost tuning misses remain documented debt, not silent report noise.
+- Stage 2.1 added tactic presets and strategy visibility without retuning known Black Iron Foundry or Redline Outpost budget debt. Stage 2.2 completed backend and PWA readiness without mixing in content retunes.

@@ -145,7 +145,7 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
       }),
       createScenarioSkill({
         id: "scenario_poison_touch",
-        name: "Scenario Poison Touch",
+        name: "Scenario Corruption Touch",
         effects: [
           {
             type: "apply_status",

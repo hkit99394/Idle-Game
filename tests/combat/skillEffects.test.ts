@@ -240,7 +240,7 @@ describe("skill effect combat coverage", () => {
       skills: [
         {
           id: "scenario_poison",
-          name: "Scenario Poison",
+          name: "Scenario Corruption",
           cooldownSeconds: 20,
           outerMultiplier: 0,
           innerMultiplier: 0,
@@ -339,7 +339,7 @@ describe("skill effect combat coverage", () => {
       skills: [
         {
           id: "scenario_poison",
-          name: "Scenario Poison",
+          name: "Scenario Corruption",
           cooldownSeconds: 20,
           outerMultiplier: 0,
           innerMultiplier: 0,
