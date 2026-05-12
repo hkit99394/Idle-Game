@@ -2,9 +2,9 @@
 
 ## Current Status
 
-Stage 2.4 is complete. Stage 2.3 completed the display-safe Path of Neon pivot and is archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
+Stage 2.4 is complete. Stage 2.3 completed the display-safe Path of Neon pivot and is archived at [Stage 2.3 Backlog](stage-2.3-backlog.md).
 
-This backlog records the first post-retitle compatibility slice from [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md). Stage 2.4 migrated product and storage runtime identity while proving old local players, installed PWAs, exported saves, and tooling remain safe.
+This backlog records the first post-retitle compatibility slice from [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md). Stage 2.4 migrated product and storage runtime identity while proving old local players, installed PWAs, exported saves, and tooling remain safe.
 
 ## Theme
 
@@ -45,12 +45,12 @@ This stage is deliberately narrower than the full internal-id migration. It shou
 - No save schema version bump unless the browser storage migration changes payload shape, which it should avoid.
 - No deletion of old browser save data unless a later compatibility policy explicitly approves cleanup.
 - No backend API field rename or production storage migration.
-- No Cognitive Intrusion implementation; use [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) for that later slice.
+- No Cognitive Intrusion implementation; use [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) for that later slice.
 - No broad stale-name cleanup outside product/runtime keys; legacy internal ids remain expected after this stage.
 
 ## Exit Criteria
 
-- Active docs point to this Stage 2.4 backlog for product/storage key migration and to [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) for later id/schema slices.
+- Active docs point to this archived Stage 2.4 backlog for product/storage key migration history and to [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) for later id/schema slices.
 - Canonical product/runtime keys are documented and covered by tests.
 - Browser save storage reads the new key first, falls back to the old key, copies valid old saves to the new key, and preserves the old key if the copy fails.
 - Import/export behavior remains schema-based and accepts old exported saves after browser storage has moved.
@@ -68,7 +68,7 @@ This stage is deliberately narrower than the full internal-id migration. It shou
 - Focused browser-save/PWA compatibility coverage passed with `tests/web/saveStorage.test.ts`, `tests/web/pwa.test.ts`, `tests/compatibility/runtimeIdentityAliases.test.ts`, `tests/compatibility/rethemeCompatibility.test.ts`, and `tests/docs/markdownLinks.test.ts`.
 - Stale product/runtime-name hits outside archive are limited to runtime aliases, retained legacy assets/keys, compatibility tests, and docs explaining legacy behavior.
 - Stale internal-id hits outside archive remain expected in data, core logic, reports, fixtures, and tests until Stage 2.5 and later migration stages.
-- `docs/archive/stage-2.3-backlog.md` remains the historical Stage 2.3 record, and this file is the only active Stage 2.4 backlog file.
+- `docs/archive/stage-2.3-backlog.md` remains the historical Stage 2.3 record, and this file is the historical Stage 2.4 backlog record.
 
 ## Epic Summary
 
@@ -180,7 +180,7 @@ Add a small compatibility helper shape that can support product/runtime key alia
 
 ### Tasks
 
-- Define an alias entry shape aligned with [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md): legacy id, target id, display name or label, reference fields, and owning phase.
+- Define an alias entry shape aligned with [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md): legacy id, target id, display name or label, reference fields, and owning phase.
 - Add product/runtime alias entries for package name, browser save key, service-worker cache name, cache cleanup prefix, and icon path.
 - Keep region, stage, content, and save-field aliases as documented future data, not active migrations.
 - Add helper tests for lookup by legacy id, lookup by target id, duplicate detection, missing alias behavior, and phase filtering.
@@ -379,9 +379,9 @@ Close Stage 2.4 with proof that product/runtime migration is safe and later id m
 
 - Run the full focused browser-save and PWA compatibility suite.
 - Run stale-name scans and classify remaining hits as aliases, legacy fixtures, archive docs, compatibility tests, or comments.
-- Update [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) with Stage 2.4 closure notes.
+- Update [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) with Stage 2.4 closure notes.
 - Update active docs with the next recommended stage: Stage 2.5 region/stage static id migration.
-- Confirm [Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md) stays historical and this backlog is the only active Stage 2.4 plan.
+- Confirm [Archived Stage 2.3 Backlog](stage-2.3-backlog.md) stays historical and this backlog becomes the archived Stage 2.4 plan.
 - Prepare archive notes and release-readiness evidence when the stage is complete.
 
 ### Acceptance Criteria
@@ -407,7 +407,7 @@ Close Stage 2.4 with proof that product/runtime migration is safe and later id m
 
 - Stage 2.4 closes product/storage runtime migration only; region/stage ids, content ids, save fields, combat symbols, and report columns remain later-stage work.
 - Stage 2.5 should start with region and stage static id aliases, including `progress.maps`, `currentStageId`, `selectedOfflineFarmStageId`, simulator report ids, and fixtures.
-- Stage 2.4 remains unarchived in this active docs location until the project is ready to move it to `docs/archive/stage-2.4-backlog.md`.
+- Stage 2.4 is archived at `docs/archive/stage-2.4-backlog.md` after closure review.
 - The retained legacy PWA icon path and legacy browser save key should stay in place until a later compatibility policy explicitly removes them.
 
 ### Progress Notes
@@ -415,14 +415,14 @@ Close Stage 2.4 with proof that product/runtime migration is safe and later id m
 - Ran focused browser-save, PWA, runtime-alias, retheme-compatibility, and markdown-link tests as the Stage 2.4 closure smoke.
 - Ran a local Vite smoke against `/`, `/manifest.webmanifest`, `/icons/path-of-neon.svg`, `/icons/path-of-jianghu.svg`, and `/service-worker.js`.
 - Ran product/runtime stale-name scans and classified remaining `path-of-jianghu` references as aliases, retained compatibility keys/assets, compatibility tests, or docs history.
-- Ran the broader internal-id scan from [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) and confirmed legacy region ids, save fields, and combat fields still appear by design.
-- Confirmed `docs/archive/stage-2.3-backlog.md` exists and `docs/stage-2.4-backlog.md` is the only active Stage 2.x backlog file in the docs root.
+- Ran the broader internal-id scan from [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) and confirmed legacy region ids, save fields, and combat fields still appear by design.
+- Confirmed `docs/archive/stage-2.3-backlog.md` exists and, before archival, `docs/stage-2.4-backlog.md` was the only active Stage 2.x backlog file in the docs root.
 
 ## Carried Forward
 
 - Stage 2.5 should own region and stage static id migration, starting with alias helpers and `progress.maps` compatibility.
 - Later stages should own content ids, save resource/progress fields, combat stat fields, code/report symbols, and legacy cleanup.
-- Cognitive Intrusion implementation should remain separate from product/storage migration and start from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md).
+- Cognitive Intrusion implementation should remain separate from product/storage migration and start from [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md).
 
 ## Suggested Implementation Order
 

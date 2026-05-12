@@ -29,7 +29,7 @@ Stage 2.4 completed the product/storage runtime migration without changing stati
 - The PWA shell now uses `path-of-neon-shell-v1` and `/icons/path-of-neon.svg` while still cleaning old `path-of-jianghu-shell-*` caches and retaining `/icons/path-of-jianghu.svg` for installed-PWA compatibility.
 - Shared alias helpers exist in `core/compatibility`, and product/runtime alias data lives in `web/runtimeIdentityAliases.ts`.
 - No save schema version bump was needed because browser storage moved keys without changing save payload fields.
-- Stage 2.4 closure evidence lives in [Stage 2.4 Backlog](stage-2.4-backlog.md); Stage 2.5 should start with region/stage static id migration.
+- Stage 2.4 closure evidence lives in [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md). Stage 2.5 region/stage static id migration is planned in [Stage 2.5 Backlog](stage-2.5-backlog.md).
 
 ## Scope
 
@@ -352,13 +352,13 @@ Cognitive Intrusion implementation is separate from these migration slices. It s
 
 Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. The next stage should begin with region/stage static id migration, not with a project-wide replacement.
 
-[Stage 2.4 Backlog](stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. It should be archived when the project is ready to move Stage 2.4 out of active docs.
+[Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation.
 
 Recommended sequence:
 
 1. Stage 2.3: display-safe Path of Neon pivot, completed with compatibility keys preserved.
 2. Stage 2.4: product/storage key migration and shared alias-map helpers, completed.
-3. Stage 2.5: region/stage static id migration, next.
+3. Stage 2.5: region/stage static id migration, planned in [Stage 2.5 Backlog](stage-2.5-backlog.md).
 4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines.
 5. Stage 2.7: save resource/progress field migration.
 6. Stage 2.8: combat-symbol and report-field migration.
