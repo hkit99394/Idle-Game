@@ -166,4 +166,4 @@ Prefer a small theme vocabulary/formatter layer before broad string replacement 
 
 Epic 81 settled the first style taxonomy: Impact, Pulse, Vector, Edge, Rend, Brace, and Ghostware are display families for Fist, Palm, Leg, Sword, Blade, Staff, and Hidden Weapons. Preserve legacy style ids and do not rename save/static references until the internal-id migration.
 
-Epic 85 must settle the first neon-native prototype contract before future mechanic terms appear in live UI. Cognitive Intrusion is the preferred first candidate; District Heat should remain the preferred second candidate unless the prototype review changes that order.
+Epic 85 selected Cognitive Intrusion as the first neon-native prototype and District Heat as the preferred second candidate. Future implementation should follow [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) before adding these terms to live UI.

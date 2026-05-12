@@ -219,4 +219,4 @@ Use [Stage 2.3 Backlog](stage-2.3-backlog.md) as the active implementation plan 
 
 Epic 81 completed the initial style taxonomy. Broad style-bearing copy should use the style-family display names above, keep old martial terms as lineage flavor where useful, and avoid role-forward labels as style replacements.
 
-Epic 85 owns the first neon-native prototype decision. The current recommendation is still Cognitive Intrusion first, with District Heat second, because Cognitive Intrusion reuses existing Context Stability, AI Overload, status, targeting, and simulator surfaces with the smallest likely save impact.
+Epic 85 selected Cognitive Intrusion first, with District Heat second. Use [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) for the implementation boundary: one status/effect path that enriches Context Stability and AI Overload without save-field, storage-key, or internal-id migration.

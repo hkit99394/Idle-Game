@@ -68,7 +68,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | 82 | Theme Vocabulary Layer | Complete | Centralize repeated display terms or make them consistently testable |
 | 83 | UI Copy Retheme | Complete | Update web surfaces to Path of Neon terminology without renaming internals |
 | 84 | District And Faction Display Retheme | Complete | Retheme static data names/descriptions while preserving ids and mechanics |
-| 85 | Neon-Native System Prototype Decision | Planned | Choose one small gameplay prototype and define its contract |
+| 85 | Neon-Native System Prototype Decision | Complete | Choose one small gameplay prototype and define its contract |
 | 86 | Visual Identity Pass | Planned | Add Path of Neon palette, icon identity, and responsive/browser smoke notes |
 | 87 | Compatibility Hardening | Planned | Prove saves, ids, PWA assets, tests, reports, and docs survived the retheme |
 | 88 | Internal Id Migration Contract | Planned | Prepare the later alias-map, save-version, storage-key, and cache migration plan |
@@ -331,6 +331,15 @@ Choose one small gameplay prototype that proves Path of Neon is more than a rena
 - Markdown path/link check for the contract.
 - `git diff --check`.
 - No runtime tests unless helper contracts are added.
+
+### Progress Notes
+
+- Compared Cognitive Intrusion, District Heat, Augment Loadouts, Network Operations, Countermeasure Economy, and AI Raid Event against current core, save, UI, simulator, and balance surfaces.
+- Selected Cognitive Intrusion as the first neon-native prototype because it reuses Context Stability, AI Overload, statuses, target priorities, battle summaries, and simulator/report visibility without requiring a save schema migration.
+- Recorded District Heat as the preferred second system; deferred Augment Loadouts, Network Operations, Countermeasure Economy, and AI Raid Event because they touch broader save, economy, UI, or backend surfaces.
+- Added [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) with player value, affected systems, proposed `cognitive_intrusion` data shape, save-compatibility rules, tests, report visibility, and out-of-scope boundaries.
+- Updated active theme, terminology, current-systems, and retheme migration docs to route future implementation through the contract.
+- Verification passed: markdown link/path check and `git diff --check`. Runtime tests were not required because Epic 85 added docs/contracts only.
 
 ---
 
