@@ -67,7 +67,7 @@ Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
 | Slice | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 89.1 | Product And Storage Migration Preflight | Complete | Confirm target keys, current references, fixtures, and guard tests before edits |
-| 89.2 | Shared Alias Map Helper Foundation | Planned | Add reusable alias-map shape and tests without migrating static ids |
+| 89.2 | Shared Alias Map Helper Foundation | Complete | Add reusable alias-map shape and tests without migrating static ids |
 | 89.3 | Browser Save Key Migration | Planned | Add dual-read/copy behavior for old and new save keys |
 | 89.4 | PWA Cache And Icon Path Migration | Planned | Rename cache/icon runtime identity with installed-PWA compatibility |
 | 89.5 | Package And Tooling Identity Rename | Planned | Rename package/tool display identity while keeping reports/builds coherent |
@@ -189,6 +189,21 @@ Add a small compatibility helper shape that can support product/runtime key alia
 - Focused alias helper unit tests.
 - `npm run typecheck`.
 - `git diff --check`.
+
+### Implementation Decisions
+
+- The generic alias helper lives in `core/compatibility` so later save/schema and static-id migrations can reuse it without depending on browser or PWA modules.
+- Stage 2.4 product/runtime alias data lives in `web/runtimeIdentityAliases.ts` because package, browser storage, service-worker cache, and icon paths are runtime shell concerns rather than gameplay data.
+- The helper intentionally returns `null` for missing aliases so callers can decide whether a miss is acceptable lookup behavior or a validation failure.
+- Duplicate `legacyId` and `targetId` entries throw immediately when the index is built.
+- Product/runtime aliases are limited to package name, browser save key, service-worker cache name, service-worker cache cleanup prefix, and PWA icon path. Region, stage, content, save-field, and report aliases remain later-stage work.
+
+### Progress Notes
+
+- Added `CompatibilityAliasEntry` and `buildCompatibilityAliasIndex` in `core/compatibility/aliasMap.ts`.
+- Exported the compatibility helper from `core/index.ts` for future backend-safe migration callers.
+- Added `PRODUCT_RUNTIME_ALIASES` and `PRODUCT_RUNTIME_ALIAS_INDEX` in `web/runtimeIdentityAliases.ts` for the Stage 2.4 product/runtime migration targets.
+- Added focused tests covering product/runtime target data, lookup by legacy id, lookup by target id, phase filtering, missing alias behavior, duplicate legacy ids, and duplicate target ids.
 
 ---
 
