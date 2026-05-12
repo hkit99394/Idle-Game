@@ -85,7 +85,7 @@ Stage 2.5 implements Epic 90 from the retheme migration plan as focused slices.
 | Slice | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 90.1 | Region/Stage Migration Preflight | Complete | Inventory region/stage references, fixtures, reports, and tests before edits |
-| 90.2 | Region/Stage Alias Data | Planned | Add explicit aliases and validation coverage without changing canonical ids |
+| 90.2 | Region/Stage Alias Data | Complete | Add explicit aliases and validation coverage without changing canonical ids |
 | 90.3 | Save Version And Id Migration | Planned | Bump save version and migrate old region/stage ids in saves/imports/browser storage |
 | 90.4 | Static Data Region/Stage Rename | Planned | Rename canonical region/stage ids and all static references |
 | 90.5 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
@@ -193,6 +193,22 @@ Add explicit alias data for region and stage ids before behavior changes.
 - New compatibility alias tests.
 - Static data coverage test proving every configured region/stage has an alias.
 - `npm run typecheck`.
+
+### Implementation Decisions
+
+- Region/stage aliases live in `core/compatibility/regionStageAliases.ts` so save migration, static validation, reports, and web state can share the same source of truth.
+- The alias phase is `region_stage_ids`, separate from Stage 2.4 `product_keys` aliases.
+- Region aliases cover the five configured regions; stage aliases cover every configured route with numeric suffixes preserved.
+- `normalizeRegionId` and `normalizeStageId` accept legacy, canonical, or unknown ids. Legacy ids normalize to target ids, while canonical and unknown ids remain stable.
+- `normalizeRegionMapKeys` reports collisions when both legacy and canonical keys are present and preserves the canonical entry instead of overwriting it.
+- Static data remains unchanged in this slice; canonical id migration starts in later slices after save migration behavior is ready.
+
+### Progress Notes
+
+- Added `REGION_ALIASES`, `STAGE_ALIASES`, `REGION_STAGE_ALIASES`, and lookup indexes.
+- Added helper coverage for region id normalization, stage id normalization, and region-keyed map normalization.
+- Added compatibility tests proving every current configured region and stage has an alias.
+- Confirmed `npm run typecheck` and focused alias tests pass with static ids still unchanged.
 
 ---
 
