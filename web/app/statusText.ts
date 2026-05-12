@@ -2,6 +2,7 @@ import {
   getBattleResultClass,
   getBattleResultText
 } from "../statusPresentation";
+import { displayTerms, formatResourceLabel } from "../displayTerms";
 import type { WebGameViewModel } from "../state/gameState";
 
 export type AppStatusText = {
@@ -26,7 +27,7 @@ export function buildAppStatusText(
   const resultStageName =
     viewModel.lastBattleStage?.name ??
     viewModel.selectedStage?.name ??
-    "Unknown Stage";
+    `Unknown ${displayTerms.progression.route}`;
 
   return {
     activeTeamStatus: viewModel.lastActiveTeamAction?.ok
@@ -49,14 +50,16 @@ export function buildAppStatusText(
     purchaseStatus: viewModel.lastPurchase?.ok
       ? `Art level ${viewModel.lastPurchase.newLevel}`
       : viewModel.lastPurchase
-        ? "Need silver"
+        ? `Need ${formatResourceLabel("silver")}`
         : "",
     skillPurchaseStatus: viewModel.lastSkillPurchase?.ok
       ? `Skill refinement ${viewModel.lastSkillPurchase.newLevel}`
       : viewModel.lastSkillPurchase
-        ? "Need cultivation"
+        ? `Need ${formatResourceLabel("cultivation")}`
         : "",
-    stageType: viewModel.selectedStage?.isBoss ? "Boss" : "Road",
+    stageType: viewModel.selectedStage?.isBoss
+      ? "Boss"
+      : displayTerms.progression.route,
     styleBranchStatus: viewModel.lastStyleBranchAction?.ok
       ? viewModel.lastStyleBranchAction.branchId
         ? "Branch selected"

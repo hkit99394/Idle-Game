@@ -45,7 +45,7 @@ describe("app shell helpers", () => {
       equipmentStatus: "",
       purchaseStatus: "",
       skillPurchaseStatus: "",
-      stageType: "Road",
+      stageType: "Route",
       styleBranchStatus: ""
     });
   });
@@ -84,8 +84,8 @@ describe("app shell helpers", () => {
       activeTeamStatus: "locked hero",
       assignmentStatus: "Assignment changed",
       equipmentStatus: "incompatible style",
-      purchaseStatus: "Need silver",
-      skillPurchaseStatus: "Need cultivation",
+      purchaseStatus: "Need Credits",
+      skillPurchaseStatus: "Need Resonance",
       styleBranchStatus: "Branch selected"
     });
   });

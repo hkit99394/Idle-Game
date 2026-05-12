@@ -33,7 +33,7 @@ describe("web game state progression", () => {
     expect(viewModel.offlineFarmPresets[0]).toMatchObject({
       id: "balanced",
       isSelected: true,
-      rewardPriority: ["Combat XP", "Silver", "Cultivation"]
+      rewardPriority: ["Combat Data", "Credits", "Resonance"]
     });
     expect(viewModel.tactics).toHaveLength(staticData.tactics.length);
     expect(viewModel.tactics[0]).toMatchObject({
@@ -49,19 +49,19 @@ describe("web game state progression", () => {
       behaviorTags: ["targeting", "damage"],
       modifierSummary: expect.arrayContaining([
         "Targets weakest hp",
-        "+8% Outer damage"
+        "+8% Kinetic damage"
       ])
     });
     expect(viewModel.offlineFarmRecommendation).toMatchObject({
       stageId: null,
-      stageName: "No cleared farm stage",
+      stageName: "No cleared farm route",
       presetLabel: "Balanced",
-      rewardPriority: ["Combat XP", "Silver", "Cultivation"]
+      rewardPriority: ["Combat Data", "Credits", "Resonance"]
     });
     expect(viewModel.offlineRewardPreview).toMatchObject({
       ok: false,
-      reason: "Select a cleared farm stage",
-      stageName: "No farm target",
+      reason: "Select a cleared farm route",
+      stageName: "No farm route target",
       clears: 0,
       silver: 0,
       cultivation: 0,
@@ -70,7 +70,7 @@ describe("web game state progression", () => {
     });
     expect(viewModel.counterplaySettings).toMatchObject({
       unlocked: false,
-      lockedReason: "Unlocks when the first medicine becomes available.",
+      lockedReason: "Unlocks when the first countermeasure becomes available.",
       globalEnabled: true,
       globalLabel: "Auto On",
       resistanceMode: "boss_and_elite",
@@ -142,9 +142,9 @@ describe("web game state progression", () => {
       missingSilver: 12,
       art: "outer",
       effects: expect.arrayContaining([
-        "+10% Outer Attack per level",
-        "+4% Max Outer Hp per level",
-        "+4% Outer Defense per level"
+        "+10% Kinetic Attack per level",
+        "+4% Max Body Integrity per level",
+        "+4% Kinetic Defense per level"
       ])
     });
     expect(
@@ -156,7 +156,7 @@ describe("web game state progression", () => {
       cost: 48,
       affordable: false,
       missingSilver: 48,
-      targetName: "Sect"
+      targetName: "Techno-sect"
     });
     expect(
       viewModel.upgrades.find(
@@ -165,10 +165,10 @@ describe("web game state progression", () => {
     ).toMatchObject({
       level: 0,
       cost: 72,
-      targetName: "Sect",
+      targetName: "Techno-sect",
       effects: expect.arrayContaining([
         "+4% Status Resistance per level",
-        "+2% Inner Defense per level"
+        "+2% Cognitive Defense per level"
       ])
     });
     expect(viewModel.skillUpgrades).toHaveLength(4);
@@ -191,8 +191,8 @@ describe("web game state progression", () => {
       unlocked: true,
       assignedHeroIds: [],
       rewardSummary: expect.arrayContaining([
-        "24 silver/hour",
-        "4 Combat XP/hour"
+        "24 Credits/hour",
+        "4 Combat Data/hour"
       ])
     });
     expect(viewModel.assignments[1]).toMatchObject({
@@ -219,7 +219,7 @@ describe("web game state progression", () => {
     expect(viewModel.styleMastery).toHaveLength(7);
     expect(viewModel.styleMastery[0]).toMatchObject({
       styleId: "fist",
-      name: "Fist",
+      name: "Impact Style",
       level: 0,
       experience: 0,
       branches: [
@@ -230,7 +230,7 @@ describe("web game state progression", () => {
           canSelect: false,
           hiddenInMvp: false,
           requirement: "Iron Fist Disciple level 3",
-          effects: ["+6% Max Outer Hp", "+5% Outer Defense"]
+          effects: ["+6% Max Body Integrity", "+5% Kinetic Defense"]
         }
       ]
     });
@@ -489,7 +489,7 @@ describe("web game state progression", () => {
       .toBe(true);
     expect(viewModel.battleEvents.some((event) => event.category === "defeat"))
       .toBe(true);
-    expect(viewModel.battleEvents[0].detail).toContain("Outer damage");
+    expect(viewModel.battleEvents[0].detail).toContain("Kinetic damage");
 
     const clearedStage = viewModel.stageOptions.find(
       (stage) => stage.id === "bamboo_road_1"

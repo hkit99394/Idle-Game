@@ -398,7 +398,7 @@ describe("MVP smoke flow", () => {
       )
     ).toMatchObject({
       unlocked: true,
-      rewardSummary: expect.arrayContaining(["18 herbs/hour"])
+      rewardSummary: expect.arrayContaining(["18 Reagents/hour"])
     });
 
     state = setGameActiveHeroTeam(staticData, state, {

@@ -10,6 +10,7 @@ import {
   PRE_BATTLE_RESISTANCE_MODES
 } from "../../../core";
 import type { StaticGameData } from "../../../core";
+import { displayTerms } from "../../displayTerms";
 import type { WebGameState } from "../types";
 import type { CounterplaySettingsView } from "./counterplayTypes";
 
@@ -36,7 +37,7 @@ export function buildCounterplaySettingsView(
     unlocked,
     lockedReason: unlocked
       ? null
-      : "Unlocks when the first medicine becomes available.",
+      : `Unlocks when the first ${displayTerms.counterplay.countermeasure.toLowerCase()} becomes available.`,
     globalEnabled: preferences.enabled,
     globalLabel: preferences.enabled ? "Auto On" : "Auto Off",
     medicineRows: buildMedicineCounterplayViewModels({

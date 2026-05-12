@@ -4,6 +4,7 @@ import {
   getStageById
 } from "../../../core";
 import type { StaticGameData } from "../../../core";
+import { displayTerms } from "../../displayTerms";
 import type { WebGameState } from "../types";
 import { buildAssignmentViews } from "./assignments";
 import { buildBattleFeatureView } from "./battle";
@@ -43,7 +44,9 @@ function getSelectedStageContext(data: StaticGameData, state: WebGameState) {
   return {
     selectedStage,
     selectedStageRegionName:
-      selectedStageRegion?.name ?? selectedStage?.regionId ?? "Unknown map",
+      selectedStageRegion?.name ??
+      selectedStage?.regionId ??
+      `Unknown ${displayTerms.progression.district}`,
     selectedOfflineFarmStage,
     lastBattleStage
   };

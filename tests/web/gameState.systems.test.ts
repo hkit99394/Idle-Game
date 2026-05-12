@@ -398,10 +398,10 @@ describe("web game state systems", () => {
     expect(autoMedicineEvent).toMatchObject({
       category: "auto_medicine",
       headline: "Scenario Patient (Front) uses Clear Heart Pill",
-      detail: "Battle cleanse · removes Poison",
+      detail: "Battle purge · removes Poison",
       badges: [
         {
-          label: "Auto Medicine",
+          label: "Auto Countermeasure",
           tone: "neutral"
         },
         {

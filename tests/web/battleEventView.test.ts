@@ -4,7 +4,7 @@ import { buildBattleEventViews } from "../../web/state/viewModels/battle";
 import { staticData } from "../helpers/staticData";
 
 describe("battle event view models", () => {
-  it("presents auto-medicine events with cleanse and resistance details", () => {
+  it("presents auto-countermeasure events with purge and resistance details", () => {
     const lastBattle = {
       ok: true,
       battle: {
@@ -48,10 +48,10 @@ describe("battle event view models", () => {
         timeSeconds: 1,
         timeLabel: "1s",
         headline: "Iron Fist Disciple (Front) uses Clear Heart Pill",
-        detail: "Battle cleanse · removes Poison",
+        detail: "Battle purge · removes Poison",
         badges: [
           {
-            label: "Auto Medicine",
+            label: "Auto Countermeasure",
             tone: "neutral"
           },
           {
@@ -70,7 +70,7 @@ describe("battle event view models", () => {
         detail: "Pre-battle resistance · adds 12% Status Resistance for 12s",
         badges: [
           {
-            label: "Auto Medicine",
+            label: "Auto Countermeasure",
             tone: "neutral"
           },
           {

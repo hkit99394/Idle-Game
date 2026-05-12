@@ -1,29 +1,18 @@
 import {
   getSelectedTacticId,
   type StaticGameData,
-  type TacticModifier,
-  type TacticModifierType
+  type TacticModifier
 } from "../../../core";
 import type { PlayerProgress } from "../../../core";
+import { formatTacticModifierLabel } from "../../displayTerms";
 import type { TacticPresetView } from "./tacticsTypes";
-
-const tacticModifierLabels: Record<TacticModifierType, string> = {
-  outer_damage_multiplier: "Outer damage",
-  inner_damage_multiplier: "Inner damage",
-  break_power_multiplier: "Break power",
-  boss_damage_multiplier: "Boss damage",
-  guard_multiplier: "Guard",
-  protection_multiplier: "Protection",
-  healing_multiplier: "Healing",
-  status_resistance_bonus: "Status resistance"
-};
 
 function formatPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
 function formatModifier(modifier: TacticModifier): string {
-  const label = tacticModifierLabels[modifier.type];
+  const label = formatTacticModifierLabel(modifier.type);
 
   if (modifier.type === "status_resistance_bonus") {
     return `+${formatPercent(modifier.value)} ${label}`;

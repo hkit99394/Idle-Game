@@ -6,6 +6,11 @@ import {
   isHeroUnlocked
 } from "../../../core";
 import type { PlayerProgress, StaticGameData } from "../../../core";
+import {
+  displayTerms,
+  formatResourceLabel,
+  formatStyleFamilyName
+} from "../../displayTerms";
 import type { AssignmentView } from "./assignmentTypes";
 
 function formatAssignmentNumber(value: number): string {
@@ -40,10 +45,9 @@ function formatAssignmentRequirement(
         unlock.heroId
       } level ${unlock.level}`;
     case "style_mastery_level":
-      return `${
-        data.styles.find((style) => style.id === unlock.styleId)?.name ??
-        unlock.styleId
-      } mastery ${unlock.level}`;
+      return `${formatStyleFamilyName(unlock.styleId)} ${
+        displayTerms.progression.protocolMastery
+      } ${unlock.level}`;
   }
 }
 
@@ -58,22 +62,34 @@ function buildAssignmentRewardSummary(
   const details: string[] = [];
 
   if (rewards.silverPerHour) {
-    details.push(`${formatAssignmentNumber(rewards.silverPerHour)} silver/hour`);
+    details.push(
+      `${formatAssignmentNumber(rewards.silverPerHour)} ${formatResourceLabel(
+        "silver"
+      )}/hour`
+    );
   }
 
   if (rewards.cultivationPerHour) {
     details.push(
-      `${formatAssignmentNumber(rewards.cultivationPerHour)} cultivation/hour`
+      `${formatAssignmentNumber(
+        rewards.cultivationPerHour
+      )} ${formatResourceLabel("cultivation")}/hour`
     );
   }
 
   if (rewards.herbsPerHour) {
-    details.push(`${formatAssignmentNumber(rewards.herbsPerHour)} herbs/hour`);
+    details.push(
+      `${formatAssignmentNumber(rewards.herbsPerHour)} ${formatResourceLabel(
+        "herbs"
+      )}/hour`
+    );
   }
 
   if (rewards.combatExperiencePerHour) {
     details.push(
-      `${formatAssignmentNumber(rewards.combatExperiencePerHour)} Combat XP/hour`
+      `${formatAssignmentNumber(
+        rewards.combatExperiencePerHour
+      )} ${formatResourceLabel("combatExperience")}/hour`
     );
   }
 
@@ -81,7 +97,7 @@ function buildAssignmentRewardSummary(
     details.push(
       `${formatAssignmentNumber(
         rewards.styleMasteryExperiencePerHour
-      )} style mastery/hour`
+      )} ${formatResourceLabel("styleMastery")}/hour`
     );
   }
 

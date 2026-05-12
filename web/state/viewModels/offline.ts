@@ -7,6 +7,7 @@ import {
 } from "../../../core";
 import type { OfflineFarmPreset, PlayerProgress, StaticGameData } from "../../../core";
 import { OFFLINE_TIME_TRAVEL_SECONDS } from "../constants";
+import { displayTerms, formatResourceLabel } from "../../displayTerms";
 import type {
   OfflineFarmPresetView,
   OfflineFarmRecommendationView,
@@ -14,12 +15,6 @@ import type {
   OfflineRewardSummaryView
 } from "./offlineTypes";
 import type { OfflineRewardSummary } from "../offlineRewardSummary";
-
-function formatStatName(stat: string): string {
-  return stat.replace(/[A-Z]/g, (match) => ` ${match}`).replace(/^./, (match) =>
-    match.toUpperCase()
-  );
-}
 
 export function buildOfflineRewardSummaryView(
   data: StaticGameData,
@@ -34,7 +29,7 @@ export function buildOfflineRewardSummaryView(
 
   return {
     ...summary,
-    stageName: stage?.name ?? "Assignments",
+    stageName: stage?.name ?? displayTerms.progression.operations,
     regionName: region?.name ?? stage?.regionId ?? "Idle routes"
   };
 }
@@ -46,20 +41,20 @@ function getRegionNameForStage(
   return (
     data.regions.find((candidate) => candidate.id === stage?.regionId)?.name ??
     stage?.regionId ??
-    "Unknown map"
+    "Unknown district"
   );
 }
 
 function formatOfflineFarmPriority(priority: string): string {
   switch (priority) {
     case "combatExperience":
-      return "Combat XP";
+      return formatResourceLabel("combatExperience");
     case "mastery":
-      return "Mastery";
+      return formatResourceLabel("mastery");
     case "herbs":
-      return "Herbs";
+      return formatResourceLabel("herbs");
     default:
-      return formatStatName(priority);
+      return formatResourceLabel(priority);
   }
 }
 
@@ -87,8 +82,8 @@ export function buildOfflineFarmRecommendationView(
   if (!recommendedStage) {
     return {
       stageId: null,
-      stageName: "No cleared farm stage",
-      regionName: "No map",
+      stageName: "No cleared farm route",
+      regionName: "No district",
       presetLabel: policy.label,
       description: policy.description,
       rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
@@ -112,9 +107,9 @@ export function buildOfflineFarmRecommendationView(
 function formatOfflinePreviewReason(reason: string): string {
   switch (reason) {
     case "missing_farm_stage":
-      return "Select a cleared farm stage";
+      return "Select a cleared farm route";
     case "invalid_farm_stage":
-      return "Selected farm stage is unavailable";
+      return "Selected farm route is unavailable";
     default:
       return "Offline preview unavailable";
   }
@@ -139,7 +134,7 @@ export function buildOfflineRewardPreviewView(
     return {
       ok: false,
       reason: formatOfflinePreviewReason(preview.reason),
-      stageName: stage?.name ?? "No farm target",
+      stageName: stage?.name ?? "No farm route target",
       regionName: getRegionNameForStage(data, stage),
       previewSeconds: OFFLINE_TIME_TRAVEL_SECONDS,
       clears: 0,

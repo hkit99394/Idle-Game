@@ -10,6 +10,7 @@ import {
   getStageById,
   scaleStatsForLevel
 } from "../../../core";
+import { displayTerms, formatResourceLabel } from "../../displayTerms";
 import type {
   BattleContribution,
   BattleEvent,
@@ -243,11 +244,11 @@ function formatAutoMedicineTrigger(
 ): string {
   switch (trigger) {
     case "battle_cleanse":
-      return "Battle cleanse";
+      return displayTerms.counterplay.battlePurge;
     case "post_battle_cleanse":
-      return "Post-battle cleanse";
+      return displayTerms.counterplay.postBattlePurge;
     case "pre_battle_resistance":
-      return "Pre-battle resistance";
+      return displayTerms.counterplay.preBattleResistance;
   }
 }
 
@@ -257,8 +258,8 @@ function formatAttackDetail(
 ): string {
   const detail = [
     getSkillName(data, event.skillId),
-    `${formatBattleNumber(event.outerDamage)} Outer damage`,
-    `${formatBattleNumber(event.innerDamage)} Inner Qi damage`
+    `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.kineticDamage}`,
+    `${formatBattleNumber(event.innerDamage)} ${displayTerms.combat.cognitiveDamage}`
   ];
 
   if (event.intendedTargetId && event.intendedTargetId !== event.targetId) {
@@ -318,14 +319,14 @@ function buildStatusTickEventDetail(
 
   return {
     headline: `${target} suffers ${statusName}`,
-    detail: `${formatBattleNumber(event.outerDamage)} Outer damage from ${statusName}`,
+    detail: `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.kineticDamage} from ${statusName}`,
     badges: [
       {
         label: statusName,
         tone: "danger"
       },
       {
-        label: `${formatBattleNumber(event.outerDamage)} Outer HP`,
+        label: `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.bodyIntegrity}`,
         tone: "outer"
       }
     ]
@@ -364,12 +365,12 @@ function buildCleanseEventDetail(
   return {
     headline:
       source === target
-        ? `${target} cleanses pressure`
-        : `${source} cleanses ${target}`,
+        ? `${target} purges pressure`
+        : `${source} purges ${target}`,
     detail: `${getSkillName(context.data, event.skillId)} removes ${statuses}`,
     badges: [
       {
-        label: "Cleanse",
+        label: displayTerms.counterplay.purge,
         tone: "neutral"
       },
       {
@@ -409,7 +410,7 @@ function buildAutoMedicineEventDetail(
     }`,
     badges: [
       {
-        label: "Auto Medicine",
+        label: displayTerms.counterplay.autoCountermeasure,
         tone: "neutral"
       },
       ...(statuses.length > 0
@@ -501,11 +502,11 @@ function buildBattleEventDetail(
             tone: "skill"
           },
           {
-            label: `${formatBattleNumber(event.outerDamage)} Outer HP`,
+            label: `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.bodyIntegrity}`,
             tone: "outer"
           },
           {
-            label: `${formatBattleNumber(event.innerDamage)} Inner Qi`,
+            label: `${formatBattleNumber(event.innerDamage)} ${displayTerms.combat.contextStability}`,
             tone: "inner"
           },
           ...(intendedTarget
@@ -526,7 +527,7 @@ function buildBattleEventDetail(
       return {
         headline: `${target} raises guard`,
         detail:
-          `${getSkillName(data, event.skillId)} reduces incoming Outer damage by ` +
+          `${getSkillName(data, event.skillId)} reduces incoming ${displayTerms.combat.kineticDamage} by ` +
           `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
         badges: [
           {
@@ -548,7 +549,7 @@ function buildBattleEventDetail(
         headline: `${target}'s guard absorbs the strike`,
         detail:
           `${getSkillName(data, event.skillId)} prevents ` +
-          `${formatBattleNumber(event.outerDamagePrevented)} Outer damage`,
+          `${formatBattleNumber(event.outerDamagePrevented)} ${displayTerms.combat.kineticDamage}`,
         badges: [
           {
             label: `${formatBattleNumber(event.outerDamagePrevented)} blocked`,
@@ -591,13 +592,13 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        headline: `${source} breaks ${target}'s armor`,
+        headline: `${source} breaks ${target}'s plating`,
         detail:
-          `${getSkillName(data, event.skillId)} reduces guard and Outer Defense by ` +
+          `${getSkillName(data, event.skillId)} reduces guard and Kinetic Defense by ` +
           `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
         badges: [
           {
-            label: "Armor Break",
+            label: "Plating Break",
             tone: "danger"
           },
           {
@@ -613,15 +614,15 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        headline: `${target} suffers Qi Break`,
+        headline: `${target} suffers ${displayTerms.combat.aiOverload}`,
         detail:
-          `${source} drops Inner Qi to zero, bursts ` +
-          `${formatBattleNumber(event.burstDamage)} Outer damage ` +
+          `${source} drops ${displayTerms.combat.contextStability} to zero, bursts ` +
+          `${formatBattleNumber(event.burstDamage)} ${displayTerms.combat.kineticDamage} ` +
           `(${formatBattlePercent(event.burstPercent)}), recovers at ` +
           `${formatBattleSeconds(event.endsAt)}`,
         badges: [
           {
-            label: "Qi Break",
+            label: displayTerms.combat.aiOverload,
             tone: "danger"
           },
           {
@@ -640,11 +641,11 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        headline: `${target} restores Inner Qi`,
-        detail: `Inner Qi returns to ${formatBattleNumber(event.innerQi)}`,
+        headline: `${target} restores ${displayTerms.combat.contextStability}`,
+        detail: `${displayTerms.combat.contextStability} returns to ${formatBattleNumber(event.innerQi)}`,
         badges: [
           {
-            label: `${formatBattleNumber(event.innerQi)} Inner Qi`,
+            label: `${formatBattleNumber(event.innerQi)} ${displayTerms.combat.contextStability}`,
             tone: "inner"
           }
         ]
@@ -656,14 +657,14 @@ function buildBattleEventDetail(
 
       return {
         headline: `${source} suffers backlash`,
-        detail: `${formatBattleNumber(event.damage)} Outer damage while Qi Broken`,
+        detail: `${formatBattleNumber(event.damage)} ${displayTerms.combat.kineticDamage} while Overloaded`,
         badges: [
           {
             label: `${formatBattleNumber(event.damage)} backlash`,
             tone: "danger"
           },
           {
-            label: "Qi Broken",
+            label: "Overloaded",
             tone: "qi"
           }
         ]
@@ -676,10 +677,10 @@ function buildBattleEventDetail(
       const restored = event.outerHealing + event.innerQiRestored;
       const detail = [
         event.outerHealing > 0
-          ? `${formatBattleNumber(event.outerHealing)} Outer HP`
+          ? `${formatBattleNumber(event.outerHealing)} ${displayTerms.combat.bodyIntegrity}`
           : null,
         event.innerQiRestored > 0
-          ? `${formatBattleNumber(event.innerQiRestored)} Inner Qi`
+          ? `${formatBattleNumber(event.innerQiRestored)} ${displayTerms.combat.contextStability}`
           : null,
         event.overhealing > 0
           ? `${formatBattleNumber(event.overhealing)} overheal`
@@ -764,13 +765,13 @@ function buildBattleEventDetail(
       const target = getName(names, event.targetId);
 
       return {
-        headline: `${source} weakens ${target}'s Inner Defense`,
+        headline: `${source} weakens ${target}'s Cognitive Defense`,
         detail:
-          `${getSkillName(data, event.skillId)} reduces Inner Defense by ` +
+          `${getSkillName(data, event.skillId)} reduces Cognitive Defense by ` +
           `${formatBattlePercent(event.reduction)} until ${formatBattleSeconds(event.endsAt)}`,
         badges: [
           {
-            label: "Inner Defense Down",
+            label: "Cognitive Defense Down",
             tone: "danger"
           },
           {
@@ -784,7 +785,10 @@ function buildBattleEventDetail(
     case "regeneration": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
-      const barLabel = event.restores === "outer" ? "Outer HP" : "Inner Qi";
+      const barLabel =
+        event.restores === "outer"
+          ? displayTerms.combat.bodyIntegrity
+          : displayTerms.combat.contextStability;
 
       return {
         headline:
@@ -813,10 +817,10 @@ function buildBattleEventDetail(
       const restored = event.outerHealing + event.innerQiRestored;
       const detail = [
         event.outerHealing > 0
-          ? `${formatBattleNumber(event.outerHealing)} Outer HP`
+          ? `${formatBattleNumber(event.outerHealing)} ${displayTerms.combat.bodyIntegrity}`
           : null,
         event.innerQiRestored > 0
-          ? `${formatBattleNumber(event.innerQiRestored)} Inner Qi`
+          ? `${formatBattleNumber(event.innerQiRestored)} ${displayTerms.combat.contextStability}`
           : null,
         event.overhealing > 0
           ? `${formatBattleNumber(event.overhealing)} overheal`
@@ -1097,9 +1101,15 @@ export function buildBattleSummary(
   const stageLabel = stageName ?? "stage";
   const result = formatWinner(battle.winner);
   const rewardText = lastBattle.rewards
-    ? `Rewards: ${formatBattleNumber(lastBattle.rewards.silver)} silver, ` +
-      `${formatBattleNumber(lastBattle.rewards.cultivation)} cultivation, ` +
-      `${formatBattleNumber(lastBattle.rewards.combatExperience)} Combat XP.`
+    ? `Rewards: ${formatBattleNumber(lastBattle.rewards.silver)} ${formatResourceLabel(
+        "silver"
+      )}, ` +
+      `${formatBattleNumber(lastBattle.rewards.cultivation)} ${formatResourceLabel(
+        "cultivation"
+      )}, ` +
+      `${formatBattleNumber(lastBattle.rewards.combatExperience)} ${formatResourceLabel(
+        "combatExperience"
+      )}.`
     : "No rewards earned.";
 
   return {
@@ -1110,19 +1120,19 @@ export function buildBattleSummary(
       `Tactic: ${battle.playerTactic.name}.`,
       `Disciples dealt ${formatBattleNumber(
         battle.metrics.playerOuterDamage
-      )} Outer, ${formatBattleNumber(
+      )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.playerInnerDamage
-      )} Inner Qi, and ${formatBattleNumber(
+      )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
         battle.metrics.playerQiBreakBurstDamage
-      )} Qi Break burst damage.`,
+      )} ${displayTerms.combat.aiOverload} burst damage.`,
       `Enemy dealt ${formatBattleNumber(
         battle.metrics.enemyOuterDamage
-      )} Outer, ${formatBattleNumber(
+      )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.enemyInnerDamage
-      )} Inner Qi, and ${formatBattleNumber(
+      )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
         battle.metrics.enemyQiBreakBurstDamage
-      )} Qi Break burst damage.`,
-      `Qi Breaks: ${battle.metrics.qiBreaksTriggeredByPlayer} by disciples, ${battle.metrics.qiBreaksTriggeredByEnemy} by enemy.`,
+      )} ${displayTerms.combat.aiOverload} burst damage.`,
+      `${displayTerms.combat.aiOverloads}: ${battle.metrics.qiBreaksTriggeredByPlayer} by disciples, ${battle.metrics.qiBreaksTriggeredByEnemy} by enemy.`,
       ...buildContributionSummaryDetails(battle),
       rewardText
     ]

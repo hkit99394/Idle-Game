@@ -65,7 +65,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | 79 | Path Of Neon Theme And Systems Contract | Complete | Confirm active theme docs, terminology, compatibility rules, and prototype direction |
 | 80 | Product Shell Display Rename | Complete | Rename public product-shell display copy while preserving compatibility keys |
 | 81 | Style Taxonomy Decision | Complete | Choose cyber-native style names and mappings before style-bearing copy changes |
-| 82 | Theme Vocabulary Layer | Planned | Centralize repeated display terms or make them consistently testable |
+| 82 | Theme Vocabulary Layer | Complete | Centralize repeated display terms or make them consistently testable |
 | 83 | UI Copy Retheme | Planned | Update web surfaces to Path of Neon terminology without renaming internals |
 | 84 | District And Faction Display Retheme | Planned | Retheme static data names/descriptions while preserving ids and mechanics |
 | 85 | Neon-Native System Prototype Decision | Planned | Choose one small gameplay prototype and define its contract |
@@ -216,6 +216,14 @@ Create a small display-term layer or consistent formatting path so common Path o
 - Focused view-model or web tests for display terminology.
 - `npm test`.
 - `npm run typecheck`.
+
+### Progress Notes
+
+- Added `web/displayTerms.ts` as the shared Path of Neon vocabulary owner for resources, combat/stat labels, tactic modifier labels, style families, and compact progression terms.
+- Wired the vocabulary layer into web app chrome, battle panels/events/summaries, map and offline panels, growth/mastery panels, assignment/offline/progression/tactic view models, and style-family displays without changing reducer actions, save fields, static ids, or core event names.
+- Added `tests/web/displayTerms.test.ts` for resource/stat/style/tactic mappings and a live web-source guard against future mechanic terms before implementation.
+- Updated existing UI assertions for Credits, Resonance, Reagents, Combat Data, Body Integrity, Context Stability, AI Overload, District Mastery, Protocol Mastery, and route terminology.
+- Verification passed: `npm run typecheck`, focused web tests for display terms/progression/idle/app shell/MVP smoke/battle-event/system copy, `npm test` (63 files, 381 tests), `npm run build`, markdown path/link check, future-mechanic live UI scan, and `git diff --check`.
 
 ---
 
