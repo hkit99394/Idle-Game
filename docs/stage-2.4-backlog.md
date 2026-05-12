@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.4 is ready to start. Stage 2.3 completed the display-safe Path of Neon pivot and is archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
+Stage 2.4 is in progress. Stage 2.3 completed the display-safe Path of Neon pivot and is archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
 
 This backlog turns the first post-retitle compatibility slice from [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) into an implementation-ready plan. Stage 2.4 should migrate product and storage runtime identity while proving old local players, installed PWAs, exported saves, and tooling remain safe.
 
@@ -66,7 +66,7 @@ Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
 
 | Slice | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 89.1 | Product And Storage Migration Preflight | Planned | Confirm target keys, current references, fixtures, and guard tests before edits |
+| 89.1 | Product And Storage Migration Preflight | Complete | Confirm target keys, current references, fixtures, and guard tests before edits |
 | 89.2 | Shared Alias Map Helper Foundation | Planned | Add reusable alias-map shape and tests without migrating static ids |
 | 89.3 | Browser Save Key Migration | Planned | Add dual-read/copy behavior for old and new save keys |
 | 89.4 | PWA Cache And Icon Path Migration | Planned | Rename cache/icon runtime identity with installed-PWA compatibility |
@@ -102,6 +102,63 @@ Make the compatibility surface explicit before changing runtime keys.
 - Markdown path/link check if docs change.
 - `git diff --check`.
 - Source scan for current product/runtime key references.
+
+### Preflight Decisions
+
+Canonical Stage 2.4 product/runtime targets:
+
+| Surface | Current value | Target value | Owning slice |
+| --- | --- | --- | --- |
+| Package name | `path-of-jianghu` | `path-of-neon` | 89.5 |
+| Browser save key | `path-of-jianghu.save.v1` | `path-of-neon.save.v1` | 89.3 |
+| Service-worker cache name | `path-of-jianghu-shell-v1` | `path-of-neon-shell-v1` | 89.4 |
+| Service-worker cleanup prefix | `path-of-jianghu-shell-` | clean both `path-of-jianghu-shell-` and `path-of-neon-shell-` | 89.4 |
+| Canonical icon path | `/icons/path-of-jianghu.svg` | `/icons/path-of-neon.svg` | 89.4 |
+| Legacy icon path | `/icons/path-of-jianghu.svg` | retained as a compatibility alias for one release | 89.4 |
+
+Browser save migration can reuse the current save schema version because Stage 2.4 changes the storage key, not the save payload shape. No `SAVE_DATA_VERSION` bump is expected in this stage.
+
+Current implementation references:
+
+| Surface | Active files |
+| --- | --- |
+| Package identity | `package.json`, `package-lock.json` |
+| Browser save key | `web/state/saveStorage.ts`, `web/state/viewModels/saveDiagnostics.ts` |
+| PWA shell/icon identity | `index.html`, `public/manifest.webmanifest`, `public/service-worker.js`, `public/icons/path-of-jianghu.svg` |
+| Contributor docs | `docs/save-api.md`, `docs/pwa-readiness.md`, `docs/web-ui-architecture.md`, `docs/path-of-neon-terminology-map.md`, `docs/path-of-neon-internal-id-migration.md`, this backlog |
+
+Current guard tests and how they should move:
+
+| Test area | Current role | Stage 2.4 treatment |
+| --- | --- | --- |
+| `tests/compatibility/rethemeCompatibility.test.ts` | Proves Stage 2.3 did not change package, save key, icon path, or cache key. | Split expectations: canonical runtime identity should move to Path of Neon, while legacy keys remain covered through explicit compatibility adapters and stale-name classifications. |
+| `tests/web/saveStorage.test.ts` | Exercises current-key save load, save, import, export, reset, migration rewrite, write failure, diagnostics, and invalid storage paths through `WEB_SAVE_STORAGE_KEY`. | Keep current-key tests on the new canonical key, then add explicit old-key-only, new-key-only, both-key, invalid old-key, and failed old-key-copy cases. |
+| `tests/web/offlineRewardIdempotency.test.ts` and `tests/web/offlineTimeTravel.test.ts` | Prove offline reward timestamps remain safe through current-key storage. | Add or adapt cases where old-key migration attempts offline rewards and a failed copy must not claim rewards twice. |
+| `tests/web/pwa.test.ts` | Proves retained icon path, legacy cache name, shell-only caching, and save-storage isolation. | Update canonical cache/icon expectations to Path of Neon, then add legacy icon availability and old/new cache cleanup coverage. |
+
+Browser save-key failure cases for Slice 89.3:
+
+| Case | Expected behavior |
+| --- | --- |
+| New key exists and old key exists | Load the new key. Do not overwrite it from the old key. Diagnostics should make both-key compatibility visible. |
+| New key exists and old key is invalid | Load the new key. Do not fail because a legacy backup is bad. |
+| New key is missing and old key is valid | Load and validate the old save, then copy the normalized/current payload to the new key. Keep the old key. |
+| New key is missing and old-key copy fails | Keep the old key, surface startup diagnostics, and avoid treating migrated state as durable. Offline rewards must remain pending rather than claimed twice. |
+| New key is missing and old key is invalid JSON | Follow existing invalid-save behavior and do not write the new key. |
+| New key is missing and old key has invalid save data | Follow existing invalid-save behavior and do not write the new key. |
+| New-key read throws a storage error | Return a storage error instead of falling through to old-key migration, because storage availability is unreliable. |
+| Old-key read throws after new key is missing | Return a storage error and do not write the new key. |
+| Reset after migration lands | Write the canonical new key and do not silently erase the old-key backup. |
+| Import after migration lands | Write imported saves to the canonical new key while still accepting old-schema payloads. |
+| Export after migration lands | Export the active canonical save; old-key-only storage should load through the migration path first. |
+
+### Progress Notes
+
+- Audited active product/runtime key references across package metadata, browser save storage, save diagnostics, PWA manifest/service worker/icon paths, PWA tests, save-storage tests, offline reward tests, compatibility tests, and active docs.
+- Confirmed Stage 2.4 should target `path-of-neon`, `path-of-neon.save.v1`, `path-of-neon-shell-v1`, `path-of-neon-shell-`, and `/icons/path-of-neon.svg` while retaining legacy read/cleanup/icon compatibility.
+- Classified Stage 2.3 guard tests into target-key expectations and legacy-compatibility expectations for the next slices.
+- Confirmed the browser storage key migration should avoid a save schema version bump because the payload shape remains unchanged.
+- Defined old/new save-key conflict, invalid-save, storage-error, failed-copy, reset, import, export, and offline reward idempotency cases for Slice 89.3.
 
 ---
 
