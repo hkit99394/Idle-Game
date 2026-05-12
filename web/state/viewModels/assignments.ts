@@ -8,6 +8,7 @@ import {
 import type { PlayerProgress, StaticGameData } from "../../../core";
 import {
   displayTerms,
+  formatOperationTypeLabel,
   formatResourceLabel,
   formatStyleFamilyName
 } from "../../displayTerms";
@@ -129,6 +130,7 @@ export function buildAssignmentViews(
       assignmentId: assignment.id,
       name: assignment.name,
       type: assignment.type,
+      typeLabel: formatOperationTypeLabel(assignment.type),
       durationBucket: assignment.durationBucket,
       unlocked,
       lockReason: unlocked
@@ -142,7 +144,7 @@ export function buildAssignmentViews(
         return {
           heroId: hero.id,
           name: hero.name,
-          style: hero.style,
+          style: formatStyleFamilyName(hero.style),
           role: hero.combatRole,
           eligible: isHeroEligibleForAssignment(assignment, hero),
           assignedHere: assignedAssignmentId === assignment.id,

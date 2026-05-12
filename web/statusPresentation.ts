@@ -5,6 +5,7 @@ import type {
   StatusCategory,
   StatusEffectDefinition
 } from "../core";
+import { displayTerms } from "./displayTerms";
 
 export type StatusSeverity = "low" | "medium" | "high";
 
@@ -87,7 +88,7 @@ export const statusToneDefinitions: Record<
   },
   cleanse: {
     role: "cleanse",
-    label: "Cleanse",
+    label: displayTerms.counterplay.purge,
     className: "tone-cleanse"
   }
 };
@@ -107,11 +108,11 @@ export function getBattleResultText(
   if (!lastBattle.ok) {
     switch (lastBattle.reason) {
       case "locked_stage":
-        return `${stageName} is locked`;
+        return `${stageName} route is locked`;
       case "missing_enemy":
-        return "Enemy data missing";
+        return "Hostile data missing";
       case "missing_stage":
-        return "Stage data missing";
+        return "Route data missing";
     }
   }
 
@@ -225,10 +226,10 @@ export function buildStatusSummaryViewModel(
   }
 
   if (mostCleanses !== null) {
-    const label = `${mostCleanses.key} cleansed ${formatWholeNumber(mostCleanses.value)} status`;
+    const label = `${mostCleanses.key} purged ${formatWholeNumber(mostCleanses.value)} status`;
     callouts.push(
       {
-        id: "cleanses",
+      id: "purges",
         label,
         toneClassName: cleanseTone.className,
         ariaLabel: `${cleanseTone.label} summary: ${label}`
@@ -246,7 +247,7 @@ export function buildStatusSummaryViewModel(
       toneClassName: damageTone.className
     },
     {
-      label: "Cleanses",
+      label: "Purges",
       value:
         mostCleanses === null
           ? "0"

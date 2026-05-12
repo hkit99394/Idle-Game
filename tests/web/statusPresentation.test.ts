@@ -32,7 +32,7 @@ describe("status presentation", () => {
     ]);
     expect(getStatusTone("cleanse")).toEqual({
       role: "cleanse",
-      label: "Cleanse",
+      label: "Purge",
       className: "tone-cleanse"
     });
   });
@@ -151,11 +151,11 @@ describe("status presentation", () => {
           "Damage summary: Iron Fist Disciple took 48 status damage"
       },
       {
-        id: "cleanses",
-        label: "Mountain Staff Guardian cleansed 2 status",
+        id: "purges",
+        label: "Mountain Staff Guardian purged 2 status",
         toneClassName: "tone-cleanse",
         ariaLabel:
-          "Cleanse summary: Mountain Staff Guardian cleansed 2 status"
+          "Purge summary: Mountain Staff Guardian purged 2 status"
       }
     ]);
     expect(summary.rows).toEqual([
@@ -165,7 +165,7 @@ describe("status presentation", () => {
         toneClassName: "tone-damage"
       },
       {
-        label: "Cleanses",
+        label: "Purges",
         value: "2 by Mountain Staff Guardian",
         toneClassName: "tone-cleanse"
       },

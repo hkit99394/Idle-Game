@@ -1,3 +1,4 @@
+import { displayTerms } from "../../displayTerms";
 import { PLAYER_FORMATION_SLOT_OPTIONS } from "../../state/viewModels/rosterTypes";
 import type {
   PlayerFormationHeroView,
@@ -28,11 +29,14 @@ export function RosterPanel({
     .map((hero) => hero.heroId);
 
   return (
-    <section className="roster-panel" aria-label="Hero roster">
+    <section
+      className="roster-panel"
+      aria-label={displayTerms.teams.initiateRoster}
+    >
       <div className="roster-panel-heading">
         <div>
           <span className="label">Roster</span>
-          <h2>Active Disciples</h2>
+          <h2>{displayTerms.teams.activeInitiates}</h2>
         </div>
         <span>
           {activeHeroIds.length}/{activeTeamSize} active
@@ -48,11 +52,11 @@ export function RosterPanel({
             ? hero.lockReason ?? "Locked"
             : hero.active
               ? hero.canDeactivate
-                ? "Remove"
+                ? "Stand Down"
                 : "Keep"
               : hero.canActivate
-                ? "Join"
-                : "Full";
+                ? "Deploy"
+                : "Crew Full";
 
           return (
             <article
@@ -99,13 +103,18 @@ type FormationPanelProps = {
 
 export function FormationPanel({ heroes, onSetFormation }: FormationPanelProps) {
   return (
-    <section className="formation-panel" aria-label="Player formation">
+    <section
+      className="formation-panel"
+      aria-label={`${displayTerms.teams.crew} ${displayTerms.teams.formation}`}
+    >
       <div className="formation-panel-heading">
         <div>
-          <span className="label">Formation</span>
-          <h2>Disciples</h2>
+          <span className="label">{displayTerms.teams.formation}</span>
+          <h2>{displayTerms.progression.initiates}</h2>
         </div>
-        <span>{heroes.length} heroes</span>
+        <span>
+          {heroes.length} {displayTerms.progression.initiates.toLowerCase()}
+        </span>
       </div>
       <div className="formation-slots">
         {PLAYER_FORMATION_SLOT_OPTIONS.map((slot) => {
@@ -136,7 +145,11 @@ export function FormationPanel({ heroes, onSetFormation }: FormationPanelProps) 
                 {hero.role} · {formatCombatRole(hero.combatRole)}
               </span>
             </div>
-            <div className="formation-buttons" role="group" aria-label={`${hero.name} position`}>
+            <div
+              className="formation-buttons"
+              role="group"
+              aria-label={`${hero.name} position`}
+            >
               {PLAYER_FORMATION_SLOT_OPTIONS.map((slot) => (
                 <button
                   key={slot}

@@ -219,13 +219,13 @@ export function SaveToolsPanel({
           <strong>{formatTimestamp(diagnostics.updatedAtMs)}</strong>
           <span>Offline checkpoint</span>
           <strong>{formatTimestamp(diagnostics.lastOfflineRewardAtMs)}</strong>
-          <span>Current stage</span>
+          <span>Current route id</span>
           <strong>{diagnostics.currentStageId}</strong>
-          <span>Farm stage</span>
+          <span>Farm route id</span>
           <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
-          <span>Farm preset</span>
+          <span>Farm preset id</span>
           <strong>{diagnostics.offlineFarmPreset}</strong>
-          <span>Highest clear</span>
+          <span>Highest route clear</span>
           <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
           <span>Save size</span>
           <strong>{formatNumber(diagnostics.saveSizeCharacters)} chars</strong>

@@ -855,7 +855,10 @@ function buildBattleEventDetail(
 
     case "defeat": {
       const target = getName(names, event.targetId);
-      const defeatedSide = event.team === "player" ? "disciple" : "enemy";
+      const defeatedSide =
+        event.team === "player"
+          ? displayTerms.progression.initiate.toLowerCase()
+          : "hostile";
 
       return {
         headline: `${target} is defeated`,
@@ -1118,21 +1121,21 @@ export function buildBattleSummary(
     )}`,
     details: [
       `Tactic: ${battle.playerTactic.name}.`,
-      `Disciples dealt ${formatBattleNumber(
+      `${displayTerms.progression.initiates} dealt ${formatBattleNumber(
         battle.metrics.playerOuterDamage
       )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.playerInnerDamage
       )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
         battle.metrics.playerQiBreakBurstDamage
       )} ${displayTerms.combat.aiOverload} burst damage.`,
-      `Enemy dealt ${formatBattleNumber(
+      `Hostiles dealt ${formatBattleNumber(
         battle.metrics.enemyOuterDamage
       )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.enemyInnerDamage
       )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
         battle.metrics.enemyQiBreakBurstDamage
       )} ${displayTerms.combat.aiOverload} burst damage.`,
-      `${displayTerms.combat.aiOverloads}: ${battle.metrics.qiBreaksTriggeredByPlayer} by disciples, ${battle.metrics.qiBreaksTriggeredByEnemy} by enemy.`,
+      `${displayTerms.combat.aiOverloads}: ${battle.metrics.qiBreaksTriggeredByPlayer} by initiates, ${battle.metrics.qiBreaksTriggeredByEnemy} by hostiles.`,
       ...buildContributionSummaryDetails(battle),
       rewardText
     ]
@@ -1276,7 +1279,7 @@ export function buildEnemyTeamLabel(
   stage: ReturnType<typeof getStageById> | null
 ): string {
   if (!stage || stage.enemyTeam.combatantIds.length === 0) {
-    return "Unknown Enemy Team";
+    return "Unknown hostile team";
   }
 
   const enemyNames = new Map(

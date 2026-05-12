@@ -23,6 +23,16 @@ export const displayTerms = {
     preBattleResistance: "Pre-battle resistance",
     purge: "Purge"
   },
+  equipment: {
+    augment: "Augment",
+    augments: "Augments",
+    slots: {
+      armor: "Plating",
+      manual: "Protocol",
+      medicine: "Countermeasure",
+      weapon: "Weapon"
+    }
+  },
   progression: {
     combatData: "Combat Data",
     district: "District",
@@ -57,12 +67,21 @@ export const displayTerms = {
     hidden_weapons: "Ghostware Style"
   },
   tactics: {
+    routine: "Routine",
+    routines: "Routines",
     tactic: "Tactic",
     tactics: "Tactics"
+  },
+  teams: {
+    activeInitiates: "Active Initiates",
+    crew: "Crew",
+    formation: "Formation",
+    initiateRoster: "Initiate Roster"
   }
 } as const;
 
 type ResourceDisplayKey = keyof typeof displayTerms.resources;
+type EquipmentSlotDisplayKey = keyof typeof displayTerms.equipment.slots;
 type StyleDisplayKey = keyof typeof displayTerms.styles;
 
 const statDisplayNames: Record<string, string> = {
@@ -93,6 +112,18 @@ const tacticModifierDisplayNames: Record<string, string> = {
   status_resistance_bonus: "Status Resistance"
 };
 
+const combatRoleDisplayNames: Record<string, string> = {
+  breaker: "Breacher",
+  striker: "Striker",
+  support: "Stabilizer",
+  tank: "Anchor"
+};
+
+const operationTypeDisplayNames: Record<string, string> = {
+  patrol: "Sweep operation",
+  training_ground: "Calibration operation"
+};
+
 function formatFallbackLabel(value: string): string {
   return value
     .replace(/[-_]+/g, " ")
@@ -110,6 +141,22 @@ export function formatResourceLabel(resource: string): string {
 
 export function formatInternalStatName(stat: string): string {
   return statDisplayNames[stat] ?? formatFallbackLabel(stat);
+}
+
+export function formatCombatRoleLabel(role: string): string {
+  return combatRoleDisplayNames[role] ?? formatFallbackLabel(role);
+}
+
+export function formatEquipmentSlotLabel(slot: string): string {
+  return slot in displayTerms.equipment.slots
+    ? displayTerms.equipment.slots[slot as EquipmentSlotDisplayKey]
+    : formatFallbackLabel(slot);
+}
+
+export function formatOperationTypeLabel(operationType: string): string {
+  return (
+    operationTypeDisplayNames[operationType] ?? formatFallbackLabel(operationType)
+  );
 }
 
 export function formatStyleFamilyName(styleId: string): string {

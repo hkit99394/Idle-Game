@@ -118,7 +118,7 @@ export function TeamPanel({ combatants, title }: TeamPanelProps) {
           ))}
         </div>
       ) : (
-        <p className="empty-panel">No combatants available</p>
+        <p className="empty-panel">No units available</p>
       )}
     </section>
   );
@@ -131,9 +131,9 @@ type BattleLogProps = {
 
 export function BattleLog({ events, summary }: BattleLogProps) {
   return (
-    <section className="battle-log" aria-label="Battle event playback">
+    <section className="battle-log" aria-label="Combat event playback">
       <div className="battle-log-heading">
-        <h2>Battle Record</h2>
+        <h2>Run Record</h2>
         {events.length > 0 ? <span>{events.length} events</span> : null}
       </div>
       {summary ? (

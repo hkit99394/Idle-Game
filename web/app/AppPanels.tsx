@@ -220,11 +220,11 @@ export const appFeaturePanels: readonly AppFeaturePanelDescriptor[] = [
     render: ({ game }) => (
       <div className="battle-grid">
         <TeamPanel
-          title="Disciples"
+          title={displayTerms.progression.initiates}
           combatants={game.viewModel.playerCombatants}
         />
         <TeamPanel
-          title="Enemy Team"
+          title="Hostiles"
           combatants={game.viewModel.enemyCombatants}
         />
       </div>

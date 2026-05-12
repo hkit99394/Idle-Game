@@ -66,7 +66,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | 80 | Product Shell Display Rename | Complete | Rename public product-shell display copy while preserving compatibility keys |
 | 81 | Style Taxonomy Decision | Complete | Choose cyber-native style names and mappings before style-bearing copy changes |
 | 82 | Theme Vocabulary Layer | Complete | Centralize repeated display terms or make them consistently testable |
-| 83 | UI Copy Retheme | Planned | Update web surfaces to Path of Neon terminology without renaming internals |
+| 83 | UI Copy Retheme | Complete | Update web surfaces to Path of Neon terminology without renaming internals |
 | 84 | District And Faction Display Retheme | Planned | Retheme static data names/descriptions while preserving ids and mechanics |
 | 85 | Neon-Native System Prototype Decision | Planned | Choose one small gameplay prototype and define its contract |
 | 86 | Visual Identity Pass | Planned | Add Path of Neon palette, icon identity, and responsive/browser smoke notes |
@@ -254,6 +254,14 @@ Move visible web UI copy toward Path of Neon terminology while preserving the ex
 - `npm test`.
 - `npm run typecheck`.
 - Browser smoke for visible UI changes.
+
+### Progress Notes
+
+- Extended the shared display vocabulary for operations, augments, equipment slots, combat roles, team labels, and routine/tactic panel copy.
+- Updated visible web panels for routines, initiate roster, crew formation, augment/loadout equipment, operations, countermeasures, save diagnostics, battle teams, and combat records.
+- Updated web view models so style families, operation types, equipment slots/effects, combat roles, status purge summaries, and battle result fallbacks use Path of Neon display language while raw ids and save fields stay literal.
+- Preserved static data names/descriptions for Epic 84; current district, initiate, hostile, item, status, and tactic names still come from `data/*.json`.
+- Verification passed: `npm run typecheck`, focused web tests for display terms/app shell/status presentation/progression/systems/workflow baselines, `npm test` (63 files, 382 tests), `npm run build`, markdown path/link check, stale visible-copy scan, local Vite HTTP smoke at `http://127.0.0.1:5174/`, and `git diff --check`.
 
 ---
 

@@ -1,9 +1,13 @@
+import {
+  displayTerms,
+  formatEquipmentSlotLabel
+} from "../../displayTerms";
 import type { AssignmentView } from "../../state/viewModels/assignmentTypes";
 import type {
   EquipmentInventoryItemView,
   HeroEquipmentView
 } from "../../state/viewModels/equipmentTypes";
-import { formatNumber } from "../shared/ui";
+import { formatCombatRole, formatNumber } from "../shared/ui";
 
 type EquipPanelEquipmentInput = {
   equipmentId: string;
@@ -31,11 +35,11 @@ export function EquipmentPanel({
   const heroNames = new Map(heroes.map((hero) => [hero.heroId, hero.name]));
 
   return (
-    <section className="equipment-panel" aria-label="Equipment">
+    <section className="equipment-panel" aria-label={displayTerms.equipment.augments}>
       <div className="equipment-heading">
         <div>
-          <span className="label">Gear</span>
-          <h2>Equipment</h2>
+          <span className="label">{displayTerms.equipment.augments}</span>
+          <h2>Loadouts</h2>
         </div>
         <span>{inventory.reduce((total, item) => total + item.count, 0)} owned</span>
       </div>
@@ -83,7 +87,7 @@ export function EquipmentPanel({
                   <div>
                     <strong>{item.name}</strong>
                     <span>
-                      {item.slot} · {item.rarity}
+                      {formatEquipmentSlotLabel(item.slot)} · {item.rarity}
                     </span>
                   </div>
                   <span>
@@ -128,7 +132,7 @@ export function EquipmentPanel({
                           })
                         }
                       >
-                        Equip {heroNames.get(heroId) ?? heroId}
+                        Install {heroNames.get(heroId) ?? heroId}
                       </button>
                     ))
                   ) : (
@@ -159,11 +163,14 @@ export function AssignmentPanel({
   status
 }: AssignmentPanelProps) {
   return (
-    <section className="assignment-panel" aria-label="Patrols and training">
+    <section
+      className="assignment-panel"
+      aria-label={displayTerms.progression.operations}
+    >
       <div className="assignment-heading">
         <div>
           <span className="label">Idle</span>
-          <h2>Patrols And Training</h2>
+          <h2>{displayTerms.progression.operations}</h2>
         </div>
         <span>{assignments.filter((assignment) => assignment.assignedHeroIds.length > 0).length} active</span>
       </div>
@@ -177,7 +184,7 @@ export function AssignmentPanel({
               <div>
                 <strong>{assignment.name}</strong>
                 <span>
-                  {assignment.type.replace("_", " ")} · {assignment.durationBucket}
+                  {assignment.typeLabel} · {assignment.durationBucket}
                 </span>
               </div>
               <span>{assignment.unlocked ? "Open" : assignment.lockReason}</span>
@@ -216,7 +223,7 @@ export function AssignmentPanel({
                     <span>
                       {hero.assignedHere
                         ? "Assigned"
-                        : hero.assignedAssignmentName ?? hero.role}
+                        : hero.assignedAssignmentName ?? formatCombatRole(hero.role)}
                     </span>
                   </button>
                 );

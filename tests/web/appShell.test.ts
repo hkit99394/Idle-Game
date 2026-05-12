@@ -81,8 +81,8 @@ describe("app shell helpers", () => {
     });
 
     expect(statusText).toMatchObject({
-      activeTeamStatus: "locked hero",
-      assignmentStatus: "Assignment changed",
+      activeTeamStatus: "locked initiate",
+      assignmentStatus: "Operation changed",
       equipmentStatus: "incompatible style",
       purchaseStatus: "Need Credits",
       skillPurchaseStatus: "Need Resonance",
@@ -98,7 +98,7 @@ describe("app shell helpers", () => {
     };
 
     expect(formatActionReason("hero_already_assigned")).toBe(
-      "hero already assigned"
+      "initiate already assigned"
     );
     expect(formatSaveToolStatus(result)).toBe(
       "Invalid save: Missing progress; Unknown hero"

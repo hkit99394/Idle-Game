@@ -2,6 +2,7 @@ export {
   getBattleResultClass,
   getBattleResultText
 } from "../../statusPresentation";
+import { formatCombatRoleLabel } from "../../displayTerms";
 
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -84,7 +85,5 @@ export function formatFormationSlot(slot: string): string {
 }
 
 export function formatCombatRole(role: string): string {
-  return role
-    .replace(/[-_]+/g, " ")
-    .replace(/^./, (match) => match.toUpperCase());
+  return formatCombatRoleLabel(role);
 }

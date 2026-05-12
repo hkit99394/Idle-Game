@@ -17,8 +17,14 @@ export type AppStatusText = {
   styleBranchStatus: string;
 };
 
+const actionReasonLabels: Record<string, string> = {
+  hero_already_assigned: "initiate already assigned",
+  incompatible_style: "incompatible style",
+  locked_hero: "locked initiate"
+};
+
 export function formatActionReason(reason: string): string {
-  return reason.replaceAll("_", " ");
+  return actionReasonLabels[reason] ?? reason.replaceAll("_", " ");
 }
 
 export function buildAppStatusText(
@@ -31,19 +37,19 @@ export function buildAppStatusText(
 
   return {
     activeTeamStatus: viewModel.lastActiveTeamAction?.ok
-      ? "Team changed"
+      ? "Crew changed"
       : viewModel.lastActiveTeamAction
         ? formatActionReason(viewModel.lastActiveTeamAction.reason)
         : "",
     assignmentStatus: viewModel.lastAssignmentAction?.ok
-      ? "Assignment changed"
+      ? "Operation changed"
       : viewModel.lastAssignmentAction
         ? formatActionReason(viewModel.lastAssignmentAction.reason)
         : "",
     battleResultClass: getBattleResultClass(viewModel.lastBattle),
     battleStatus: getBattleResultText(viewModel.lastBattle, resultStageName),
     equipmentStatus: viewModel.lastEquipmentAction?.ok
-      ? "Equipment changed"
+      ? "Loadout changed"
       : viewModel.lastEquipmentAction
         ? formatActionReason(viewModel.lastEquipmentAction.reason)
         : "",
@@ -53,7 +59,7 @@ export function buildAppStatusText(
         ? `Need ${formatResourceLabel("silver")}`
         : "",
     skillPurchaseStatus: viewModel.lastSkillPurchase?.ok
-      ? `Skill refinement ${viewModel.lastSkillPurchase.newLevel}`
+      ? `${displayTerms.progression.protocol} refinement ${viewModel.lastSkillPurchase.newLevel}`
       : viewModel.lastSkillPurchase
         ? `Need ${formatResourceLabel("cultivation")}`
         : "",

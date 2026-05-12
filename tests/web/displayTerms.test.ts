@@ -2,7 +2,10 @@ import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   displayTerms,
+  formatCombatRoleLabel,
+  formatEquipmentSlotLabel,
   formatInternalStatName,
+  formatOperationTypeLabel,
   formatResourceLabel,
   formatStyleFamilyName,
   formatTacticModifierLabel
@@ -59,6 +62,19 @@ describe("Path of Neon display terms", () => {
     expect(formatTacticModifierLabel("break_power_multiplier")).toBe(
       displayTerms.combat.breachPower
     );
+  });
+
+  it("formats operations, augments, and team roles through the vocabulary layer", () => {
+    expect(formatOperationTypeLabel("patrol")).toBe("Sweep operation");
+    expect(formatOperationTypeLabel("training_ground")).toBe(
+      "Calibration operation"
+    );
+    expect(formatEquipmentSlotLabel("armor")).toBe("Plating");
+    expect(formatEquipmentSlotLabel("manual")).toBe("Protocol");
+    expect(formatEquipmentSlotLabel("medicine")).toBe("Countermeasure");
+    expect(formatCombatRoleLabel("tank")).toBe("Anchor");
+    expect(formatCombatRoleLabel("breaker")).toBe("Breacher");
+    expect(formatCombatRoleLabel("support")).toBe("Stabilizer");
   });
 
   it("keeps unknown compatibility keys readable", () => {

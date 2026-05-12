@@ -6,13 +6,12 @@ import {
   isHeroUnlocked
 } from "../../../core";
 import type { EquipmentSlot, PlayerProgress, StaticGameData } from "../../../core";
+import {
+  formatEquipmentSlotLabel,
+  formatInternalStatName,
+  formatStyleFamilyName
+} from "../../displayTerms";
 import type { EquipmentInventoryItemView, HeroEquipmentView } from "./equipmentTypes";
-
-function formatStatName(stat: string): string {
-  return stat.replace(/[A-Z]/g, (match) => ` ${match}`).replace(/^./, (match) =>
-    match.toUpperCase()
-  );
-}
 
 function formatMasteryPercent(value: number): string {
   return new Intl.NumberFormat("en-US", {
@@ -23,14 +22,14 @@ function formatMasteryPercent(value: number): string {
 }
 
 function formatEquipmentSlot(slot: EquipmentSlot): string {
-  return slot.charAt(0).toUpperCase() + slot.slice(1);
+  return formatEquipmentSlotLabel(slot);
 }
 
 function formatEquipmentEffect(
   effect: StaticGameData["equipment"][number]["effects"][number]
 ): string {
   if (effect.mode === "multiplier") {
-    return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
+    return `${formatMasteryPercent(effect.value)} ${formatInternalStatName(effect.stat)}`;
   }
 
   if (
@@ -40,10 +39,12 @@ function formatEquipmentEffect(
     effect.stat === "breakResist" ||
     effect.stat === "innerRecoveryRate"
   ) {
-    return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
+    return `${formatMasteryPercent(effect.value)} ${formatInternalStatName(
+      effect.stat
+    )}`;
   }
 
-  return `${effect.value >= 0 ? "+" : ""}${effect.value} ${formatStatName(
+  return `${effect.value >= 0 ? "+" : ""}${effect.value} ${formatInternalStatName(
     effect.stat
   )}`;
 }
@@ -61,7 +62,6 @@ export function buildEquipmentInventoryViews(
   data: StaticGameData,
   progress: PlayerProgress
 ): EquipmentInventoryItemView[] {
-  const styleNames = new Map(data.styles.map((style) => [style.id, style.name]));
   const equipmentSetById = new Map(
     (data.equipmentSets ?? []).map((set) => [set.id, set])
   );
@@ -84,9 +84,7 @@ export function buildEquipmentInventoryViews(
         rarity: equipment.rarity,
         count,
         availableCount: getAvailableEquipmentCopyCount(progress, equipment.id),
-        allowedStyles: equipment.allowedStyles.map(
-          (styleId) => styleNames.get(styleId) ?? styleId
-        ),
+        allowedStyles: equipment.allowedStyles.map(formatStyleFamilyName),
         effects: equipment.effects.map(formatEquipmentEffect),
         affixes: (equipment.affixes ?? []).map(
           (affix) =>
@@ -131,7 +129,7 @@ export function buildHeroEquipmentViews(
     .map((hero) => ({
       heroId: hero.id,
       name: hero.name,
-      style: hero.style,
+      style: formatStyleFamilyName(hero.style),
       slots: EQUIPMENT_SLOTS.map((slot) => {
         const equipmentId = equipped[hero.id]?.[slot] ?? null;
         const equipment = equipmentId ? equipmentById.get(equipmentId) : null;
