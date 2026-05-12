@@ -2,9 +2,9 @@
 
 ## Current Status
 
-Stage 2.4 is in progress. Stage 2.3 completed the display-safe Path of Neon pivot and is archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
+Stage 2.4 is complete. Stage 2.3 completed the display-safe Path of Neon pivot and is archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
 
-This backlog turns the first post-retitle compatibility slice from [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) into an implementation-ready plan. Stage 2.4 should migrate product and storage runtime identity while proving old local players, installed PWAs, exported saves, and tooling remain safe.
+This backlog records the first post-retitle compatibility slice from [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md). Stage 2.4 migrated product and storage runtime identity while proving old local players, installed PWAs, exported saves, and tooling remain safe.
 
 ## Theme
 
@@ -60,6 +60,16 @@ This stage is deliberately narrower than the full internal-id migration. It shou
 - Shared alias-map helper coverage exists without migrating static ids.
 - `npm run typecheck`, `npm test`, `npm run build`, relevant PWA/browser storage smoke, `git diff --check`, markdown path checks, and stale runtime-name scans pass before archival.
 
+## Closure Evidence
+
+- Product/runtime identity now uses `path-of-neon` for package metadata, `path-of-neon.save.v1` for browser save storage, `path-of-neon-shell-v1` for the service-worker cache, and `/icons/path-of-neon.svg` for canonical icons.
+- Compatibility adapters remain for `path-of-jianghu.save.v1`, `path-of-jianghu-shell-*`, and `/icons/path-of-jianghu.svg`.
+- Static ids, save payload fields, combat stat fields, report columns, and backend payload names did not change in this stage.
+- Focused browser-save/PWA compatibility coverage passed with `tests/web/saveStorage.test.ts`, `tests/web/pwa.test.ts`, `tests/compatibility/runtimeIdentityAliases.test.ts`, `tests/compatibility/rethemeCompatibility.test.ts`, and `tests/docs/markdownLinks.test.ts`.
+- Stale product/runtime-name hits outside archive are limited to runtime aliases, retained legacy assets/keys, compatibility tests, and docs explaining legacy behavior.
+- Stale internal-id hits outside archive remain expected in data, core logic, reports, fixtures, and tests until Stage 2.5 and later migration stages.
+- `docs/archive/stage-2.3-backlog.md` remains the historical Stage 2.3 record, and this file is the only active Stage 2.4 backlog file.
+
 ## Epic Summary
 
 Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
@@ -71,7 +81,7 @@ Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
 | 89.3 | Browser Save Key Migration | Complete | Add dual-read/copy behavior for old and new save keys |
 | 89.4 | PWA Cache And Icon Path Migration | Complete | Rename cache/icon runtime identity with installed-PWA compatibility |
 | 89.5 | Package And Tooling Identity Rename | Complete | Rename package/tool display identity while keeping reports/builds coherent |
-| 89.6 | Product/Storage Compatibility Hardening | Planned | Prove old saves, new saves, PWA caches, docs, and stale scans are safe |
+| 89.6 | Product/Storage Compatibility Hardening | Complete | Prove old saves, new saves, PWA caches, docs, and stale scans are safe |
 
 ---
 
@@ -392,6 +402,21 @@ Close Stage 2.4 with proof that product/runtime migration is safe and later id m
 - `git diff --check`.
 - Markdown path/link check.
 - Stale runtime-name scan.
+
+### Implementation Decisions
+
+- Stage 2.4 closes product/storage runtime migration only; region/stage ids, content ids, save fields, combat symbols, and report columns remain later-stage work.
+- Stage 2.5 should start with region and stage static id aliases, including `progress.maps`, `currentStageId`, `selectedOfflineFarmStageId`, simulator report ids, and fixtures.
+- Stage 2.4 remains unarchived in this active docs location until the project is ready to move it to `docs/archive/stage-2.4-backlog.md`.
+- The retained legacy PWA icon path and legacy browser save key should stay in place until a later compatibility policy explicitly removes them.
+
+### Progress Notes
+
+- Ran focused browser-save, PWA, runtime-alias, retheme-compatibility, and markdown-link tests as the Stage 2.4 closure smoke.
+- Ran a local Vite smoke against `/`, `/manifest.webmanifest`, `/icons/path-of-neon.svg`, `/icons/path-of-jianghu.svg`, and `/service-worker.js`.
+- Ran product/runtime stale-name scans and classified remaining `path-of-jianghu` references as aliases, retained compatibility keys/assets, compatibility tests, or docs history.
+- Ran the broader internal-id scan from [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) and confirmed legacy region ids, save fields, and combat fields still appear by design.
+- Confirmed `docs/archive/stage-2.3-backlog.md` exists and `docs/stage-2.4-backlog.md` is the only active Stage 2.x backlog file in the docs root.
 
 ## Carried Forward
 

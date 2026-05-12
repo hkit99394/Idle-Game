@@ -61,7 +61,7 @@ The numbered sections below are implementation phases inside Stage 2.3, not proj
 | 96 | Cognitive Intrusion Prototype | Implement the smallest useful Cognitive Intrusion slice with focused tests and simulator/report visibility. |
 | 97 | Post-Migration Compatibility Hardening | Prove old saves, exports, fixtures, reports, PWA caches, docs, and stale-name scans still work after id/schema migration. |
 
-Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Stage 2.4 Backlog](stage-2.4-backlog.md) owns Epic 89 as focused product/storage key migration slices. The safest sequence is product/storage keys first, static region/route ids second, remaining static content ids third, save resource/progress fields fourth, combat save fields fifth, code/report symbols sixth, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
+Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Stage 2.4 Backlog](stage-2.4-backlog.md) completed Epic 89 as focused product/storage key migration slices. The next recommended stage is Stage 2.5 region/stage static id migration, followed by remaining static content ids, save resource/progress fields, combat save fields, code/report symbols, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
 
 ## Stage 2.3 Phase 0: Docs Contract
 

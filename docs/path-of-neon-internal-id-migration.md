@@ -17,8 +17,19 @@ Stage 2.3 completed the display-safe retheme without changing compatibility keys
 - Product shell, manifest display metadata, live web copy, static display names, and visual identity now say Path of Neon.
 - Static ids still use legacy keys such as `bamboo_road`, `demon_cult_outpost`, `iron_fist_disciple`, `balanced`, and `qi_suppression`.
 - Persisted save fields still use legacy keys such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, and `selectedOfflineFarmStageId`.
-- The browser save key now uses `path-of-neon.save.v1` while still reading/copying the legacy `path-of-jianghu.save.v1` key. The PWA shell now uses `path-of-neon-shell-v1` and `/icons/path-of-neon.svg` while still cleaning old `path-of-jianghu-shell-*` caches and retaining `/icons/path-of-jianghu.svg` for installed-PWA compatibility. The package name now uses `path-of-neon`.
-- Epic 87 added guard tests for these keys, so the later migration should update those tests intentionally rather than bypassing them.
+- Product/runtime keys were deferred to a post-retitle compatibility stage instead of being changed through broad string replacement.
+- Epic 87 added guard tests for these keys, so later migration stages must update those tests intentionally rather than bypassing them.
+
+## Stage 2.4 Closure Snapshot
+
+Stage 2.4 completed the product/storage runtime migration without changing static ids, save payload shape, report columns, or backend payload names.
+
+- Package metadata now uses `path-of-neon` in `package.json` and `package-lock.json`.
+- Browser save storage now uses `path-of-neon.save.v1` as the canonical key, reads `path-of-jianghu.save.v1` when the canonical key is missing, and copies valid legacy saves forward without deleting the old key.
+- The PWA shell now uses `path-of-neon-shell-v1` and `/icons/path-of-neon.svg` while still cleaning old `path-of-jianghu-shell-*` caches and retaining `/icons/path-of-jianghu.svg` for installed-PWA compatibility.
+- Shared alias helpers exist in `core/compatibility`, and product/runtime alias data lives in `web/runtimeIdentityAliases.ts`.
+- No save schema version bump was needed because browser storage moved keys without changing save payload fields.
+- Stage 2.4 closure evidence lives in [Stage 2.4 Backlog](stage-2.4-backlog.md); Stage 2.5 should start with region/stage static id migration.
 
 ## Scope
 
@@ -339,15 +350,15 @@ Cognitive Intrusion implementation is separate from these migration slices. It s
 
 ## Recommended Backlog Placement
 
-Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. The next stage should begin with the product/storage key migration or with a small alias-helper implementation, not with a project-wide replacement.
+Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. The next stage should begin with region/stage static id migration, not with a project-wide replacement.
 
-[Stage 2.4 Backlog](stage-2.4-backlog.md) is the active plan for the first slice: product/storage key migration plus shared alias-map helper foundation. It should close before region/stage static ids move.
+[Stage 2.4 Backlog](stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. It should be archived when the project is ready to move Stage 2.4 out of active docs.
 
 Recommended sequence:
 
 1. Stage 2.3: display-safe Path of Neon pivot, completed with compatibility keys preserved.
-2. Stage 2.4: product/storage key migration and shared alias-map helpers.
-3. Stage 2.5: region/stage static id migration.
+2. Stage 2.4: product/storage key migration and shared alias-map helpers, completed.
+3. Stage 2.5: region/stage static id migration, next.
 4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines.
 5. Stage 2.7: save resource/progress field migration.
 6. Stage 2.8: combat-symbol and report-field migration.

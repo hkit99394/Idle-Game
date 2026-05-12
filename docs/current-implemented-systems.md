@@ -88,7 +88,8 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
 - The practical checklist for adding or changing regions is [Content Authoring Checklist](content-authoring-checklist.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
-- The active Stage 2.4 planning backlog is [Stage 2.4 Backlog](stage-2.4-backlog.md), focused on product/storage key migration and shared alias-map helpers.
+- Stage 2.4 product/storage key migration is complete in [Stage 2.4 Backlog](stage-2.4-backlog.md), including package metadata, browser save storage, PWA cache/icon identity, and shared alias-map helpers.
+- The next recommended migration stage is Stage 2.5 region/stage static id migration, starting with alias helpers for `progress.maps`, selected/current stage ids, simulator report ids, and fixtures.
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md), covering the display-safe Path of Neon design pivot.
 - Completed backlogs through Stage 2.3 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
