@@ -162,7 +162,7 @@ Prefer a small theme vocabulary/formatter layer before broad string replacement 
 
 ## Stage 2.3 Handoff
 
-[Stage 2.3 Backlog](stage-2.3-backlog.md) is the active execution plan for this terminology map. Use this document as the display-language source while Epics 80, 82, 83, and 84 change product-shell, vocabulary, UI, and static-data display text.
+[Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md) records how this terminology map was applied during the completed display-safe pivot. Use this document as the active display-language source for future copy changes.
 
 Epic 81 settled the first style taxonomy: Impact, Pulse, Vector, Edge, Rend, Brace, and Ghostware are display families for Fist, Palm, Leg, Sword, Blade, Staff, and Hidden Weapons. Preserve legacy style ids and do not rename save/static references until the internal-id migration.
 

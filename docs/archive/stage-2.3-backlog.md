@@ -2,17 +2,17 @@
 
 ## Current Status
 
-Stage 2.3 is ready to start. Stage 2.2 completed backend/PWA readiness and is archived at [Stage 2.2 Backlog](archive/stage-2.2-backlog.md).
+Stage 2.3 is complete. Stage 2.2 completed backend/PWA readiness and is archived at [Stage 2.2 Backlog](stage-2.2-backlog.md).
 
-This backlog translates [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready Stage 2.3 plan. The stage is intentionally display-safe first: it should make Path of Neon visible and coherent without changing persisted save fields, static ids, browser storage keys, package names, or PWA cache ownership.
+This backlog records how [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md) was turned into the completed Stage 2.3 implementation plan. The stage stayed display-safe: it made Path of Neon visible and coherent without changing persisted save fields, static ids, browser storage keys, package names, or PWA cache ownership.
 
 ## Theme
 
 **Path Of Neon Design Pivot**
 
-Stage 2.3 should turn the current Path of Neon direction into a visible product identity and a safer implementation contract. The first pass should update docs, product-shell display copy, web UI terminology, static display names, and visual identity while preserving legacy compatibility keys. It should also choose one small neon-native system prototype so the retheme is not only copy replacement.
+Stage 2.3 turned the Path of Neon direction into a visible product identity and a safer implementation contract. The pass updated docs, product-shell display copy, web UI terminology, static display names, and visual identity while preserving legacy compatibility keys. It also selected one small neon-native system prototype so the retheme is not only copy replacement.
 
-Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration plan are later compatibility and internal-id migration work unless the team deliberately reopens scope.
+Epics 79-88 were in scope for this stage. Epics 89-97 from the retheme migration plan remain later compatibility, internal-id migration, and prototype implementation work unless the team deliberately reopens scope.
 
 ## Decisions Carried Forward
 
@@ -71,7 +71,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | 85 | Neon-Native System Prototype Decision | Complete | Choose one small gameplay prototype and define its contract |
 | 86 | Visual Identity Pass | Complete | Add Path of Neon palette, icon identity, and responsive/browser smoke notes |
 | 87 | Compatibility Hardening | Complete | Prove saves, ids, PWA assets, tests, reports, and docs survived the retheme |
-| 88 | Internal Id Migration Contract | Planned | Prepare the later alias-map, save-version, storage-key, and cache migration plan |
+| 88 | Internal Id Migration Contract | Complete | Prepare the later alias-map, save-version, storage-key, and cache migration plan |
 
 ---
 
@@ -83,7 +83,7 @@ Make the Path of Neon theme, vocabulary, compatibility rules, and deeper-system 
 
 ### Tasks
 
-- Review [Path Of Neon Theme Bible](path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) for agreement.
+- Review [Path Of Neon Theme Bible](../path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md), and [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md) for agreement.
 - Confirm active docs link to the retheme docs and this backlog.
 - Archive historical planning docs that explicitly describe themselves as old planning artifacts.
 - Mark or route older design docs so readers know which parts are pre-retitle context.
@@ -104,11 +104,11 @@ Make the Path of Neon theme, vocabulary, compatibility rules, and deeper-system 
 
 ### Progress Notes
 
-- Prepared this backlog from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
+- Prepared this backlog from [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md).
 - Archived explicit historical planning docs and the completed Stage 2.1 tactics audit under `docs/archive`.
 - Reviewed the theme bible, terminology map, migration plan, internal-id migration plan, README, current systems snapshot, web UI architecture, static-data guide, save API, and original design draft for Epic 79 alignment.
-- Added README access to [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) so the active retheme doc cluster includes the future compatibility plan.
-- Added Stage 2.3 handoff notes to [Path Of Neon Theme Bible](path-of-neon-theme-bible.md) and [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), keeping style naming with Epic 81 and prototype selection with Epic 85.
+- Added README access to [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) so the active retheme doc cluster includes the future compatibility plan.
+- Added Stage 2.3 handoff notes to [Path Of Neon Theme Bible](../path-of-neon-theme-bible.md) and [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md), keeping style naming with Epic 81 and prototype selection with Epic 85.
 - Confirmed the active docs agree on the main contract: Path of Neon is the product identity, display terms may change first, legacy ids/save fields/storage/cache keys remain compatibility contracts, Cognitive Intrusion is the preferred first prototype, and District Heat is the preferred second prototype.
 - Verification passed for Epic 79 docs changes: markdown link/path check across active and archived markdown docs, stale top-level historical path scan, and `git diff --check`.
 
@@ -150,7 +150,7 @@ Make the outer product shell read as Path of Neon while preserving old storage a
 - Reworked `public/icons/path-of-jianghu.svg` in place with Path of Neon title/description metadata and neon circuit-route artwork, leaving the filename stable for PWA cache compatibility.
 - Updated the app error log label from Path of Jianghu to Path of Neon.
 - Expanded `tests/web/pwa.test.ts` to assert Path of Neon manifest/html/icon metadata and the intentionally retained icon path/cache prefix.
-- Updated [PWA Readiness](pwa-readiness.md) to document that Stage 2.3 changed display metadata/artwork while retaining the old icon path and service-worker cache key until a later product/storage migration.
+- Updated [PWA Readiness](../pwa-readiness.md) to document that Stage 2.3 changed display metadata/artwork while retaining the old icon path and service-worker cache key until a later product/storage migration.
 - Verification passed: `npm run typecheck`, `npm test -- tests/web/pwa.test.ts`, `npm run build`, `npm test`, `git diff --check`, markdown link/path check, stale runtime display-name scan, and production PWA static smoke against Vite preview at `http://127.0.0.1:4175/`.
 
 ---
@@ -165,7 +165,7 @@ Choose cyber-native display names and mappings for current and planned style ide
 
 - Decide whether Fist, Palm, Sword, Staff, Blade, and future hidden-weapon identities remain visible as martial roots, protocol families, or role-forward labels.
 - Map each style to current combat roles without confusing Anchor, Breacher, Striker, Stabilizer, support, tank, breaker, and striker language.
-- Update [Path Of Neon Theme Bible](path-of-neon-theme-bible.md) and [Path Of Neon Terminology Map](path-of-neon-terminology-map.md) with approved mappings.
+- Update [Path Of Neon Theme Bible](../path-of-neon-theme-bible.md) and [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md) with approved mappings.
 - Mark any style-bearing skill, mastery, equipment, or tactic copy that should wait for this decision.
 - Record whether legacy style terms can appear in lore as old sect lineage while UI labels use Path of Neon terms.
 
@@ -185,7 +185,7 @@ Choose cyber-native display names and mappings for current and planned style ide
 - Reviewed current style-bearing data in `data/styles.json`, `data/heroes.json`, `data/skills.json`, `data/equipment.json`, and the core style/role contracts.
 - Chose style families rather than role-forward labels: Fist -> Impact, Palm -> Pulse, Leg -> Vector, Sword -> Edge, Blade -> Rend, Staff -> Brace, and Hidden Weapons -> Ghostware.
 - Preserved combat roles as a separate taxonomy: Anchor, Breacher, Striker, and Stabilizer describe team jobs, not style families.
-- Updated [Path Of Neon Theme Bible](path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), and [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) with the approved mapping and migration guardrails.
+- Updated [Path Of Neon Theme Bible](../path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md), and [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) with the approved mapping and migration guardrails.
 - Deferred all `styleId`, `styleMastery`, `styleBranches`, equipment `allowedStyles`, branch id, save fixture, and test id renames to the internal-id migration.
 - Verification passed: markdown link/path check, stale unresolved-style-decision scan, and `git diff --check`.
 
@@ -337,7 +337,7 @@ Choose one small gameplay prototype that proves Path of Neon is more than a rena
 - Compared Cognitive Intrusion, District Heat, Augment Loadouts, Network Operations, Countermeasure Economy, and AI Raid Event against current core, save, UI, simulator, and balance surfaces.
 - Selected Cognitive Intrusion as the first neon-native prototype because it reuses Context Stability, AI Overload, statuses, target priorities, battle summaries, and simulator/report visibility without requiring a save schema migration.
 - Recorded District Heat as the preferred second system; deferred Augment Loadouts, Network Operations, Countermeasure Economy, and AI Raid Event because they touch broader save, economy, UI, or backend surfaces.
-- Added [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) with player value, affected systems, proposed `cognitive_intrusion` data shape, save-compatibility rules, tests, report visibility, and out-of-scope boundaries.
+- Added [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) with player value, affected systems, proposed `cognitive_intrusion` data shape, save-compatibility rules, tests, report visibility, and out-of-scope boundaries.
 - Updated active theme, terminology, current-systems, and retheme migration docs to route future implementation through the contract.
 - Verification passed: markdown link/path check and `git diff --check`. Runtime tests were not required because Epic 85 added docs/contracts only.
 
@@ -434,7 +434,7 @@ Prepare the later internal-id migration without doing the full rename inside the
 
 ### Tasks
 
-- Review [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) against actual retheme changes from Stage 2.3.
+- Review [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) against actual retheme changes from Stage 2.3.
 - Draft alias-map expectations for product/storage keys, regions, stages/routes, enemies/hostiles, heroes/initiates, skills/protocols, equipment/augments, countermeasures, statuses, operations, and tactics/routines.
 - Define save-version strategy for resources, district progress, selected farm route, combat data, and combat stat fields.
 - Define browser storage key migration strategy from `path-of-jianghu.save.v1` to a Path of Neon key.
@@ -454,10 +454,19 @@ Prepare the later internal-id migration without doing the full rename inside the
 - `git diff --check`.
 - No runtime tests unless migration helpers are introduced.
 
-## Open Questions
+### Progress Notes
 
-- Which UI diagnostics should keep literal legacy schema terms visible?
-- What is the smallest Cognitive Intrusion contract that proves the new theme without forcing a save schema migration?
+- Reviewed [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) against the completed Stage 2.3 work and added a closure snapshot confirming display surfaces changed while static ids, save fields, browser storage key, PWA cache name, package name, and retained icon path stayed stable.
+- Added alias-map expectations for product/runtime keys, regions, stages/routes, hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, including representative target ids from the Stage 2.3 display retheme.
+- Defined save-version boundaries for product/storage key migration, static id migration, resource/progress field migration, selected farm route migration, and later combat stat field migration.
+- Defined browser storage migration requirements for dual-key read/copy behavior, failed-write safety, offline reward idempotency, reset/import/export behavior, and diagnostics.
+- Defined PWA cache cleanup requirements for old/new shell cache prefixes, icon path compatibility, non-GET/API exclusions, and save-storage isolation.
+- Split later implementation into narrow follow-up epics so product/storage keys, region/stage ids, content ids, save fields, combat/report symbols, and legacy cleanup stay separable.
+
+## Carried Forward
+
+- UI diagnostics that expose literal legacy schema terms should be decided in the later save resource/progress field migration, not in the completed display-safe Stage 2.3 pass.
+- Cognitive Intrusion implementation should start from [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) and stay small enough to avoid save schema, storage-key, or internal-id migration.
 
 ## Suggested Implementation Order
 
@@ -472,4 +481,4 @@ Prepare the later internal-id migration without doing the full rename inside the
 9. Epic 87: Compatibility Hardening
 10. Epic 88: Internal Id Migration Contract
 
-This order locks docs and public shell identity first, avoids broad copy churn before the style decision, makes UI terminology testable before large display text edits, then finishes with compatibility proof and the next migration contract.
+This completed order locked docs and public shell identity first, avoided broad copy churn before the style decision, made UI terminology testable before large display text edits, then finished with compatibility proof and the next migration contract.

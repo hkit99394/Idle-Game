@@ -1,0 +1,290 @@
+# Stage 2.4 Backlog
+
+## Current Status
+
+Stage 2.4 is ready to start. Stage 2.3 completed the display-safe Path of Neon pivot and is archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
+
+This backlog turns the first post-retitle compatibility slice from [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) into an implementation-ready plan. Stage 2.4 should migrate product and storage runtime identity while proving old local players, installed PWAs, exported saves, and tooling remain safe.
+
+## Theme
+
+**Product And Storage Key Migration**
+
+Stage 2.4 should make Path of Neon the canonical runtime identity for package metadata, browser save storage, PWA cache naming, and icon paths. It should also add the first shared alias-map helper shape so later static-id migrations can reuse tested compatibility patterns.
+
+This stage is deliberately narrower than the full internal-id migration. It should not rename region ids, stage ids, content ids, save resource fields, combat stat fields, report columns, or backend payload names.
+
+## Decisions Carried Forward
+
+- Stage 2.3 changed display surfaces but intentionally preserved compatibility keys.
+- The browser save key should migrate from `path-of-jianghu.save.v1` to a Path of Neon key through dual-read/copy behavior.
+- New-key saves should win when both old and new keys exist.
+- A valid old-key save should copy to the new key only after load validation succeeds.
+- The old browser save key should not be deleted until the new write succeeds.
+- Browser storage migration must not grant offline rewards twice or advance timestamps without a committed write.
+- Service-worker cache migration should delete stale old and new shell caches except the current cache.
+- The service worker must not read or write browser save storage.
+- Old icon paths should remain available or cached for one compatibility release after the canonical icon path changes.
+- Alias maps should be explicit data, not project-wide string replacement scripts.
+
+## Stage Goals
+
+- Confirm canonical product/runtime targets for package name, browser save key, service-worker cache name, cache cleanup prefix, and icon path.
+- Add a shared alias-map helper foundation that can represent legacy and target keys for product/runtime migration now and static ids later.
+- Migrate browser save storage to a Path of Neon key with dual-read/copy behavior, failed-write safety, import/export compatibility, reset semantics, and diagnostics.
+- Migrate PWA cache naming and icon paths while retaining installed-PWA compatibility.
+- Rename package/tooling identity only where tests prove build, dev, reports, and docs remain coherent.
+- Update active docs so contributors know Stage 2.4 owns product/storage keys and Stage 2.5 owns region/stage static ids.
+- Close the stage with focused compatibility tests, build checks, docs links, and stale runtime-name scans.
+
+## Non-Goals
+
+- No static id migration for regions, stages, heroes, enemies, equipment, statuses, tactics, assignments, skills, styles, or medicines.
+- No persisted save resource/progress field rename such as `silver`, `cultivation`, `herbs`, `maps`, or `combatExperience`.
+- No combat stat field rename for `outer*`, `inner*`, `qiBreak*`, or recovery fields.
+- No save schema version bump unless the browser storage migration changes payload shape, which it should avoid.
+- No deletion of old browser save data unless a later compatibility policy explicitly approves cleanup.
+- No backend API field rename or production storage migration.
+- No Cognitive Intrusion implementation; use [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) for that later slice.
+- No broad stale-name cleanup outside product/runtime keys; legacy internal ids remain expected after this stage.
+
+## Exit Criteria
+
+- Active docs point to this Stage 2.4 backlog for product/storage key migration and to [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) for later id/schema slices.
+- Canonical product/runtime keys are documented and covered by tests.
+- Browser save storage reads the new key first, falls back to the old key, copies valid old saves to the new key, and preserves the old key if the copy fails.
+- Import/export behavior remains schema-based and accepts old exported saves after browser storage has moved.
+- Reset and diagnostics behavior are explicit when both old and new save keys exist.
+- PWA activation cleans stale `path-of-jianghu-shell-*` and stale `path-of-neon-shell-*` caches without touching browser save storage.
+- Canonical icon paths work while old icon paths remain compatible for installed PWAs.
+- Shared alias-map helper coverage exists without migrating static ids.
+- `npm run typecheck`, `npm test`, `npm run build`, relevant PWA/browser storage smoke, `git diff --check`, markdown path checks, and stale runtime-name scans pass before archival.
+
+## Epic Summary
+
+Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
+
+| Slice | Title | Status | Purpose |
+| --- | --- | --- | --- |
+| 89.1 | Product And Storage Migration Preflight | Planned | Confirm target keys, current references, fixtures, and guard tests before edits |
+| 89.2 | Shared Alias Map Helper Foundation | Planned | Add reusable alias-map shape and tests without migrating static ids |
+| 89.3 | Browser Save Key Migration | Planned | Add dual-read/copy behavior for old and new save keys |
+| 89.4 | PWA Cache And Icon Path Migration | Planned | Rename cache/icon runtime identity with installed-PWA compatibility |
+| 89.5 | Package And Tooling Identity Rename | Planned | Rename package/tool display identity while keeping reports/builds coherent |
+| 89.6 | Product/Storage Compatibility Hardening | Planned | Prove old saves, new saves, PWA caches, docs, and stale scans are safe |
+
+---
+
+## Slice 89.1: Product And Storage Migration Preflight
+
+### Goal
+
+Make the compatibility surface explicit before changing runtime keys.
+
+### Tasks
+
+- Audit current references to `path-of-jianghu`, `path-of-jianghu.save.v1`, `path-of-jianghu-shell-v1`, `path-of-jianghu-shell-`, and `/icons/path-of-jianghu.svg`.
+- Confirm canonical targets for package name, save key, cache name, cache cleanup prefix, and icon path.
+- Identify tests that intentionally guard old compatibility keys from Stage 2.3.
+- Decide which tests should change in Stage 2.4 and which should become legacy-compatibility tests.
+- Confirm whether browser storage migration can reuse the current save schema version because payload shape stays unchanged.
+- Define failure cases for old-key copy, quota/storage exceptions, invalid old saves, and both-key conflicts.
+
+### Acceptance Criteria
+
+- Contributors can see exactly which runtime keys Stage 2.4 owns.
+- Guard tests are classified as target-key tests or legacy-compatibility tests.
+- No static ids or save payload fields are scheduled for this stage.
+- Browser storage migration risks are listed before implementation begins.
+
+### Test Coverage
+
+- Markdown path/link check if docs change.
+- `git diff --check`.
+- Source scan for current product/runtime key references.
+
+---
+
+## Slice 89.2: Shared Alias Map Helper Foundation
+
+### Goal
+
+Add a small compatibility helper shape that can support product/runtime key aliases now and static id aliases later.
+
+### Tasks
+
+- Define an alias entry shape aligned with [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md): legacy id, target id, display name or label, reference fields, and owning phase.
+- Add product/runtime alias entries for package name, browser save key, service-worker cache name, cache cleanup prefix, and icon path.
+- Keep region, stage, content, and save-field aliases as documented future data, not active migrations.
+- Add helper tests for lookup by legacy id, lookup by target id, duplicate detection, missing alias behavior, and phase filtering.
+- Decide whether the helper belongs in `core/`, `web/state`, or a narrow shared migration module based on who needs it in Stage 2.4.
+- Document that alias helpers do not authorize blind text replacement.
+
+### Acceptance Criteria
+
+- Product/runtime aliases are represented as data with tests.
+- Later static-id migrations can extend the shape without changing the Stage 2.4 API.
+- No static data ids, save payload keys, or report ids are renamed by this slice.
+- Duplicate and missing alias cases fail loudly in tests or validation.
+
+### Test Coverage
+
+- Focused alias helper unit tests.
+- `npm run typecheck`.
+- `git diff --check`.
+
+---
+
+## Slice 89.3: Browser Save Key Migration
+
+### Goal
+
+Move the canonical browser save key to Path of Neon without losing existing local saves.
+
+### Tasks
+
+- Introduce the new canonical save key, likely `path-of-neon.save.v1`.
+- On load, read the new key first.
+- If no new-key save exists, read the old `path-of-jianghu.save.v1` key.
+- Validate and normalize old-key saves before copying them to the new key.
+- Preserve the old key if the new-key write fails.
+- Ensure old-key migration is idempotent and does not grant offline rewards twice.
+- Define reset behavior after migration lands: reset should write the canonical new key and should not silently erase old-key backups.
+- Keep import/export based on save schema payloads, not browser storage key names.
+- Update save diagnostics so both-key states are understandable.
+
+### Acceptance Criteria
+
+- New-key saves win when both keys exist.
+- Valid old-key saves load and copy to the new key.
+- Invalid old-key saves follow existing invalid-save behavior without poisoning the new key.
+- Failed new-key writes do not delete old-key data.
+- Offline reward timestamps and rewards remain idempotent during migration.
+- Export/import works for old exported saves regardless of current browser storage key.
+
+### Test Coverage
+
+- Focused web save-storage tests for old-only, new-only, both-key, invalid old-key, and failed-copy cases.
+- Offline reward idempotency/time-travel tests where old-key migration can affect timestamps.
+- Save diagnostics tests.
+- `npm run typecheck`.
+
+---
+
+## Slice 89.4: PWA Cache And Icon Path Migration
+
+### Goal
+
+Make Path of Neon the canonical PWA shell identity while protecting installed PWAs.
+
+### Tasks
+
+- Rename the service-worker cache name to a Path of Neon value, likely `path-of-neon-shell-v1`.
+- Update cache cleanup so activation deletes stale `path-of-jianghu-shell-*` and stale `path-of-neon-shell-*` caches except the current cache.
+- Confirm non-GET requests and `/api/` requests remain outside the shell cache.
+- Ensure the service worker does not read or write `localStorage`, `sessionStorage`, or IndexedDB.
+- Add the canonical icon path, likely `/icons/path-of-neon.svg`.
+- Keep `/icons/path-of-jianghu.svg` available or cached for one release so installed shortcuts do not break.
+- Update manifest, PWA tests, and browser smoke notes for icon-path compatibility.
+
+### Acceptance Criteria
+
+- PWA install metadata and app shell use canonical Path of Neon runtime identity.
+- Old and stale new shell caches are cleaned safely during activation.
+- Save storage remains outside service-worker responsibility.
+- Both old and new icon paths work during the compatibility window.
+- PWA tests prove cache exclusions and icon availability.
+
+### Test Coverage
+
+- PWA unit/static tests for manifest, cache name, cleanup prefixes, API/non-GET exclusions, and icon paths.
+- Build and static smoke against the built app if implementation touches PWA assets.
+- `npm run build`.
+- `git diff --check`.
+
+---
+
+## Slice 89.5: Package And Tooling Identity Rename
+
+### Goal
+
+Rename package and tooling display identity to Path of Neon without breaking local scripts or report interpretation.
+
+### Tasks
+
+- Rename `package.json` package identity if package publishing constraints allow it.
+- Update package-lock metadata consistently.
+- Check script output, CLI/report headers, app startup text, and docs that quote package/runtime names.
+- Keep report field names and static ids unchanged unless explicitly covered by later stages.
+- Update tests that assert package or runtime display identity.
+- Confirm `npm install`, `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, and `npm run support-decision` still run with the new package identity.
+
+### Acceptance Criteria
+
+- Package/tooling identity reads as Path of Neon where it is product/runtime metadata.
+- Build, test, simulator, and support-decision commands are unaffected.
+- Report columns and static ids remain stable.
+- Any remaining `path-of-jianghu` hits outside archive are intentional compatibility references.
+
+### Test Coverage
+
+- `npm install` only if lockfile/package metadata requires regeneration.
+- `npm run typecheck`.
+- `npm test`.
+- `npm run build`.
+- `npm run simulate`.
+- `npm run support-decision`.
+- Stale runtime-name scan.
+
+---
+
+## Slice 89.6: Product/Storage Compatibility Hardening
+
+### Goal
+
+Close Stage 2.4 with proof that product/runtime migration is safe and later id migrations remain isolated.
+
+### Tasks
+
+- Run the full focused browser-save and PWA compatibility suite.
+- Run stale-name scans and classify remaining hits as aliases, legacy fixtures, archive docs, compatibility tests, or comments.
+- Update [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) with Stage 2.4 closure notes.
+- Update active docs with the next recommended stage: Stage 2.5 region/stage static id migration.
+- Confirm [Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md) stays historical and this backlog is the only active Stage 2.4 plan.
+- Prepare archive notes and release-readiness evidence when the stage is complete.
+
+### Acceptance Criteria
+
+- Product/runtime compatibility behavior is documented and tested.
+- Old browser saves, new browser saves, installed-PWA shell behavior, exports, imports, and diagnostics remain coherent.
+- Static ids and save payload fields remain unchanged.
+- Stage 2.5 can begin from a clean product/storage baseline.
+
+### Test Coverage
+
+- `npm run typecheck`.
+- `npm test`.
+- `npm run build`.
+- `npm run simulate`.
+- `npm run support-decision`.
+- Relevant PWA/browser smoke.
+- `git diff --check`.
+- Markdown path/link check.
+- Stale runtime-name scan.
+
+## Carried Forward
+
+- Stage 2.5 should own region and stage static id migration, starting with alias helpers and `progress.maps` compatibility.
+- Later stages should own content ids, save resource/progress fields, combat stat fields, code/report symbols, and legacy cleanup.
+- Cognitive Intrusion implementation should remain separate from product/storage migration and start from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md).
+
+## Suggested Implementation Order
+
+1. Slice 89.1: Product And Storage Migration Preflight
+2. Slice 89.2: Shared Alias Map Helper Foundation
+3. Slice 89.3: Browser Save Key Migration
+4. Slice 89.4: PWA Cache And Icon Path Migration
+5. Slice 89.5: Package And Tooling Identity Rename
+6. Slice 89.6: Product/Storage Compatibility Hardening
+
+This order inventories the current compatibility surface first, adds reusable alias structure before behavior changes, migrates local save storage before the PWA shell cleanup, then closes with package/tooling identity and full compatibility proof.

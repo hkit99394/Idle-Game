@@ -215,7 +215,7 @@ Style mastery should display as **Protocol Mastery** when the surrounding UI is 
 
 ## Stage 2.3 Contract Handoff
 
-Use [Stage 2.3 Backlog](stage-2.3-backlog.md) as the active implementation plan for this theme contract. Epics 79-88 cover the display-safe pivot; later migration work belongs in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) unless the stage is explicitly reopened.
+[Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md) records the completed implementation pass for this theme contract. Epics 79-88 covered the display-safe pivot; later migration work belongs in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) unless Stage 2.3 is explicitly reopened.
 
 Epic 81 completed the initial style taxonomy. Broad style-bearing copy should use the style-family display names above, keep old martial terms as lineage flavor where useful, and avoid role-forward labels as style replacements.
 

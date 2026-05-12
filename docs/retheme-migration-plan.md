@@ -35,7 +35,7 @@ Internal identifiers means the stable machine-readable names used by saves, stat
 
 The stage should establish the retheme contract, then make the first visible product-shell and UI-language changes while planning one small neon-native system prototype. The goal is not to rewrite the game immediately; it is to stop the retheme from being only copy replacement.
 
-The numbered sections below are implementation phases inside Stage 2.3, not project stages after Stage 2.2. "Stage 0" means the docs-only preflight phase for Stage 2.3: it can be completed before runtime retheme work starts, and it is tracked as Epic 79 in [Stage 2.3 Backlog](stage-2.3-backlog.md).
+The numbered sections below are implementation phases inside Stage 2.3, not project stages after Stage 2.2. "Stage 0" means the docs-only preflight phase for Stage 2.3: it was completed before runtime retheme work started, and it is tracked as Epic 79 in [Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
 
 ## Suggested Epics
 
@@ -61,7 +61,7 @@ The numbered sections below are implementation phases inside Stage 2.3, not proj
 | 96 | Cognitive Intrusion Prototype | Implement the smallest useful Cognitive Intrusion slice with focused tests and simulator/report visibility. |
 | 97 | Post-Migration Compatibility Hardening | Prove old saves, exports, fixtures, reports, PWA caches, docs, and stale-name scans still work after id/schema migration. |
 
-Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. The safest sequence is product/storage keys first, static region/route ids second, remaining static content ids third, save resource/progress fields fourth, combat save fields fifth, code/report symbols sixth, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
+Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Stage 2.4 Backlog](stage-2.4-backlog.md) owns Epic 89 as focused product/storage key migration slices. The safest sequence is product/storage keys first, static region/route ids second, remaining static content ids third, save resource/progress fields fourth, combat save fields fifth, code/report symbols sixth, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
 
 ## Stage 2.3 Phase 0: Docs Contract
 
@@ -117,7 +117,7 @@ Likely files:
 - [Path Of Neon Theme Bible](path-of-neon-theme-bible.md)
 - [Path Of Neon Terminology Map](path-of-neon-terminology-map.md)
 - This migration plan
-- [Stage 2.3 Backlog](stage-2.3-backlog.md)
+- [Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md)
 
 Acceptance:
 
