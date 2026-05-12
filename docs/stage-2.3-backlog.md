@@ -63,7 +63,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | Epic | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 79 | Path Of Neon Theme And Systems Contract | Complete | Confirm active theme docs, terminology, compatibility rules, and prototype direction |
-| 80 | Product Shell Display Rename | Planned | Rename public product-shell display copy while preserving compatibility keys |
+| 80 | Product Shell Display Rename | Complete | Rename public product-shell display copy while preserving compatibility keys |
 | 81 | Style Taxonomy Decision | Planned | Choose cyber-native style names and mappings before style-bearing copy changes |
 | 82 | Theme Vocabulary Layer | Planned | Centralize repeated display terms or make them consistently testable |
 | 83 | UI Copy Retheme | Planned | Update web surfaces to Path of Neon terminology without renaming internals |
@@ -142,6 +142,16 @@ Make the outer product shell read as Path of Neon while preserving old storage a
 - `npm run build`.
 - PWA static smoke against the built app.
 - `git diff --check`.
+
+### Progress Notes
+
+- Updated `index.html` to use the Path of Neon browser title and Apple web app title while keeping the manifest and icon link paths stable.
+- Updated `public/manifest.webmanifest` display metadata to Path of Neon while preserving `id`, `start_url`, `scope`, theme color, background color, and the retained `/icons/path-of-jianghu.svg` path.
+- Reworked `public/icons/path-of-jianghu.svg` in place with Path of Neon title/description metadata and neon circuit-route artwork, leaving the filename stable for PWA cache compatibility.
+- Updated the app error log label from Path of Jianghu to Path of Neon.
+- Expanded `tests/web/pwa.test.ts` to assert Path of Neon manifest/html/icon metadata and the intentionally retained icon path/cache prefix.
+- Updated [PWA Readiness](pwa-readiness.md) to document that Stage 2.3 changed display metadata/artwork while retaining the old icon path and service-worker cache key until a later product/storage migration.
+- Verification passed: `npm run typecheck`, `npm test -- tests/web/pwa.test.ts`, `npm run build`, `npm test`, `git diff --check`, markdown link/path check, stale runtime display-name scan, and production PWA static smoke against Vite preview at `http://127.0.0.1:4175/`.
 
 ---
 

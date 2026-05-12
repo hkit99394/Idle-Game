@@ -14,6 +14,8 @@ The app shell declares:
 - Display mode: `standalone`
 - Start URL and scope: `/`
 
+Stage 2.3 updates the app title, manifest display name, short name, description, Apple web app title, and SVG icon metadata/artwork to Path of Neon. The icon path remains `public/icons/path-of-jianghu.svg` until the product/storage key migration covers path changes, service-worker cache cleanup, and old installed PWA behavior.
+
 The current icon is an SVG with `purpose: "any maskable"`. If app stores or platform-specific launchers require PNG sizes later, add generated `192x192` and `512x512` PNGs without changing save behavior.
 
 ## Service Worker Strategy
@@ -28,7 +30,7 @@ The current icon is an SVG with `purpose: "any maskable"`. If app stores or plat
 
 The service worker does not read or write `localStorage`, `sessionStorage`, IndexedDB, save export text, import text, or cloud-save payloads.
 
-When the product shell changes from Path of Jianghu to Path of Neon, any new cache prefix must still clean old `path-of-jianghu-shell-*` caches during activation. Keep this covered in `tests/web/pwa.test.ts` before shipping the visible rename.
+The Stage 2.3 product-shell display rename deliberately keeps the existing `path-of-jianghu-shell-v1` cache name and `path-of-jianghu-shell-*` cleanup prefix. Any future cache prefix rename must delete old `path-of-jianghu-shell-*` caches during activation and stay covered in `tests/web/pwa.test.ts`.
 
 ## Registration
 

@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Path of Jianghu",
-  "short_name": "Jianghu",
-  "description": "An idle martial arts RPG about building a sect, clearing stages, and preserving progress safely.",
+  "name": "Path of Neon",
+  "short_name": "Path Neon",
+  "description": "An idle cyber-sect RPG about building a techno-sect, running neon districts, and preserving progress safely.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

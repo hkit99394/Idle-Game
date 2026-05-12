@@ -30,7 +30,7 @@ class AppErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error) {
-    console.error("Path of Jianghu app error", error);
+    console.error("Path of Neon app error", error);
   }
 
   render() {

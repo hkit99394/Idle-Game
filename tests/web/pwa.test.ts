@@ -10,6 +10,7 @@ import {
 const manifestPath = new URL("../../public/manifest.webmanifest", import.meta.url);
 const serviceWorkerPath = new URL("../../public/service-worker.js", import.meta.url);
 const indexHtmlPath = new URL("../../index.html", import.meta.url);
+const iconPath = new URL("../../public/icons/path-of-jianghu.svg", import.meta.url);
 
 function readManifest(): Record<string, any> {
   return JSON.parse(readFileSync(manifestPath, "utf8"));
@@ -21,8 +22,10 @@ describe("PWA install and offline shell contracts", () => {
 
     expect(manifest).toMatchObject({
       id: "/",
-      name: "Path of Jianghu",
-      short_name: "Jianghu",
+      name: "Path of Neon",
+      short_name: "Path Neon",
+      description:
+        "An idle cyber-sect RPG about building a techno-sect, running neon districts, and preserving progress safely.",
       start_url: "/",
       scope: "/",
       display: "standalone",
@@ -50,11 +53,24 @@ describe("PWA install and offline shell contracts", () => {
   it("links the manifest and theme color from the app shell", () => {
     const html = readFileSync(indexHtmlPath, "utf8");
 
+    expect(html).toContain("<title>Path of Neon</title>");
     expect(html).toContain('<link rel="manifest" href="/manifest.webmanifest" />');
     expect(html).toContain('<meta name="theme-color" content="#16231f" />');
     expect(html).toContain(
+      '<meta name="apple-mobile-web-app-title" content="Path Neon" />'
+    );
+    expect(html).toContain(
       '<link rel="icon" type="image/svg+xml" href="/icons/path-of-jianghu.svg" />'
     );
+  });
+
+  it("keeps the retained icon path but updates icon display metadata", () => {
+    const icon = readFileSync(iconPath, "utf8");
+
+    expect(icon).toContain("<title id=\"title\">Path of Neon icon</title>");
+    expect(icon).toContain("A neon circuit route seal for the Path of Neon app.");
+    expect(icon).not.toContain("Path of Jianghu icon");
+    expect(icon).not.toContain("mountain path");
   });
 
   it("keeps the service worker shell-only and save-safe", () => {
