@@ -84,7 +84,7 @@ Stage 2.5 implements Epic 90 from the retheme migration plan as focused slices.
 
 | Slice | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 90.1 | Region/Stage Migration Preflight | Planned | Inventory region/stage references, fixtures, reports, and tests before edits |
+| 90.1 | Region/Stage Migration Preflight | Complete | Inventory region/stage references, fixtures, reports, and tests before edits |
 | 90.2 | Region/Stage Alias Data | Planned | Add explicit aliases and validation coverage without changing canonical ids |
 | 90.3 | Save Version And Id Migration | Planned | Bump save version and migrate old region/stage ids in saves/imports/browser storage |
 | 90.4 | Static Data Region/Stage Rename | Planned | Rename canonical region/stage ids and all static references |
@@ -120,6 +120,50 @@ Make the region/stage compatibility surface explicit before changing canonical i
 - Markdown link check if docs change.
 - `git diff --check`.
 - Stale region/stage id scan.
+
+### Preflight Decisions
+
+- Stage 2.5 owns only region ids and stage ids, plus direct references to those ids.
+- Content ids that merely contain old region words are not part of this stage. Examples include `bamboo_road_patrol`, `mist_valley_acolyte`, and `demon_cult_ritualist`; these stay for Stage 2.6 content id migration.
+- The target id table is confirmed: five region aliases and one stage alias per configured route, using prefix migration with numeric suffixes preserved.
+- Save migration must bump `SAVE_DATA_VERSION` because `progress.maps`, `progress.currentStageId`, and `selectedOfflineFarmStageId` store region/stage ids.
+- Report/export compatibility should add temporary legacy id context to structured outputs. `buildBalanceAuthoringExport`, `formatBalanceStageExportCsv`, and tactic comparison exports should carry `legacyRegionId` and/or `legacyStageId` where they currently emit canonical `regionId` and `stageId`. Human-readable report text may show legacy ids only where it helps compare before/after simulator output.
+
+### Reference Inventory
+
+Static data fields owned by Stage 2.5:
+
+- `data/regions.json`: `id`, `stageIds`, `unlockCondition.stageId`, `balanceTargets.rewardCurve.allowedRegressions[].stageId`, and `balanceTargets.budgetExceptions[].stageId`.
+- `data/stages.json`: `id`, `regionId`, and `nextStageId`.
+- `data/heroes.json`, `data/styles.json`, `data/assignments.json`, and `data/medicines.json`: stage unlock refs only.
+- `tools/fixtures/supportIdentityPrototypes.ts` and test helpers: region/stage fixture refs only.
+
+Save and browser-storage fields owned by Stage 2.5:
+
+- `progress.maps` keys.
+- `progress.currentStageId`.
+- `selectedOfflineFarmStageId` values.
+- Save migration, validation, load transaction, factory, browser storage, diagnostics, and import/export paths that normalize or display those values.
+
+Report, tooling, and web surfaces owned by Stage 2.5:
+
+- `core/balance/balanceReportBuilder.ts`, `core/balance/simulatedBalanceReport.ts`, and report formatters that emit region/stage ids.
+- `tools/balance/exportReport.ts` JSON/CSV exports and tactic comparison rows.
+- `tools/supportDecision/decision.ts` and its prototype fixture references to Redline routes.
+- Web route selection, offline farm selection, save diagnostics, and workflow baselines.
+
+Test classification:
+
+- Canonical-id tests should move static-data, progression, web workflow, and balance expectations to Path of Neon region/stage ids after canonical data changes.
+- Compatibility tests should keep old region/stage ids in save fixtures, import/browser-storage tests, alias tests, and stale-scan classification.
+- Later-stage legacy tests should keep content ids, resource fields, combat stat fields, and tactic ids unchanged unless they directly reference migrated region/stage ids.
+
+### Progress Notes
+
+- Ran stale region/stage id scans across `data/`, `core/`, `web/`, `tools/`, `tests/`, and active docs.
+- Confirmed current legacy region/stage hits are concentrated in static data, save fixtures/tests, progression/offline/web tests, balance reports/exports, support-decision fixtures, and migration docs.
+- Confirmed `data/enemies.json` and assignment ids contain old region words as content ids; those are explicitly out of scope for Stage 2.5.
+- Confirmed Stage 2.5 should not start with static data edits until alias data and save migration behavior exist.
 
 ---
 
