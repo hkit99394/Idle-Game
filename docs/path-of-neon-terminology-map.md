@@ -123,7 +123,7 @@ Do not retheme these in schema docs until a migration changes them:
 - All static JSON `id` fields and all save/static reference fields ending in `Id`, including `regionId`, `stageId`, `enemyId`, `heroId`, `skillId`, `styleId`, `equipmentId`, `equipmentSetId`, `assignmentId`, `medicineId`, `statusId`, and `tacticId`
 - Exported constants such as `WEB_SAVE_STORAGE_KEY`
 - Legacy browser save key `path-of-jianghu.save.v1`, which remains a read/copy compatibility key after the canonical `path-of-neon.save.v1` migration
-- Existing PWA cache prefix `path-of-jianghu-shell-` until a cache migration handles old and new prefixes
+- Legacy PWA cache prefix `path-of-jianghu-shell-`, which remains a cleanup compatibility prefix after the canonical `path-of-neon-shell-` migration
 
 Migration targets and ordering are tracked in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md).
 

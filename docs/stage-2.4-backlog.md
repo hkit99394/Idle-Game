@@ -69,7 +69,7 @@ Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
 | 89.1 | Product And Storage Migration Preflight | Complete | Confirm target keys, current references, fixtures, and guard tests before edits |
 | 89.2 | Shared Alias Map Helper Foundation | Complete | Add reusable alias-map shape and tests without migrating static ids |
 | 89.3 | Browser Save Key Migration | Complete | Add dual-read/copy behavior for old and new save keys |
-| 89.4 | PWA Cache And Icon Path Migration | Planned | Rename cache/icon runtime identity with installed-PWA compatibility |
+| 89.4 | PWA Cache And Icon Path Migration | Complete | Rename cache/icon runtime identity with installed-PWA compatibility |
 | 89.5 | Package And Tooling Identity Rename | Planned | Rename package/tool display identity while keeping reports/builds coherent |
 | 89.6 | Product/Storage Compatibility Hardening | Planned | Prove old saves, new saves, PWA caches, docs, and stale scans are safe |
 
@@ -124,7 +124,7 @@ Current implementation references:
 | --- | --- |
 | Package identity | `package.json`, `package-lock.json` |
 | Browser save key | `web/state/saveStorage.ts`, `web/state/viewModels/saveDiagnostics.ts` |
-| PWA shell/icon identity | `index.html`, `public/manifest.webmanifest`, `public/service-worker.js`, `public/icons/path-of-jianghu.svg` |
+| PWA shell/icon identity | `index.html`, `public/manifest.webmanifest`, `public/service-worker.js`, `public/icons/path-of-neon.svg`, `public/icons/path-of-jianghu.svg` |
 | Contributor docs | `docs/save-api.md`, `docs/pwa-readiness.md`, `docs/web-ui-architecture.md`, `docs/path-of-neon-terminology-map.md`, `docs/path-of-neon-internal-id-migration.md`, this backlog |
 
 Current guard tests and how they should move:
@@ -291,6 +291,23 @@ Make Path of Neon the canonical PWA shell identity while protecting installed PW
 - Build and static smoke against the built app if implementation touches PWA assets.
 - `npm run build`.
 - `git diff --check`.
+
+### Implementation Decisions
+
+- `public/manifest.webmanifest` and `index.html` now use `/icons/path-of-neon.svg` as the canonical app icon path.
+- `public/icons/path-of-jianghu.svg` remains in place for installed-PWA compatibility during the compatibility window.
+- `public/service-worker.js` now uses `path-of-neon-shell-v1` as the current shell cache.
+- Service-worker activation cleans both `path-of-jianghu-shell-*` and `path-of-neon-shell-*` caches except the current cache.
+- The app shell precaches both `/icons/path-of-neon.svg` and `/icons/path-of-jianghu.svg` so old installed shortcuts retain an icon path during the transition.
+- The service worker still ignores non-GET and `/api/` requests and still does not read or write browser save storage.
+
+### Progress Notes
+
+- Added `public/icons/path-of-neon.svg` using the current Path of Neon icon artwork while retaining the old path.
+- Updated manifest and app-shell favicon references to the canonical Path of Neon icon path.
+- Updated service-worker cache naming and cleanup prefix logic for old and new shell cache prefixes.
+- Updated PWA and compatibility tests to assert canonical icon/cache identity plus retained legacy icon/cache cleanup compatibility.
+- Updated active PWA and architecture docs to reflect the canonical cache/icon migration.
 
 ---
 

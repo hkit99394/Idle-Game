@@ -10,7 +10,14 @@ import {
 const manifestPath = new URL("../../public/manifest.webmanifest", import.meta.url);
 const serviceWorkerPath = new URL("../../public/service-worker.js", import.meta.url);
 const indexHtmlPath = new URL("../../index.html", import.meta.url);
-const iconPath = new URL("../../public/icons/path-of-jianghu.svg", import.meta.url);
+const canonicalIconPath = new URL(
+  "../../public/icons/path-of-neon.svg",
+  import.meta.url
+);
+const legacyIconPath = new URL(
+  "../../public/icons/path-of-jianghu.svg",
+  import.meta.url
+);
 
 function readManifest(): Record<string, any> {
   return JSON.parse(readFileSync(manifestPath, "utf8"));
@@ -35,7 +42,7 @@ describe("PWA install and offline shell contracts", () => {
     });
     expect(manifest.icons).toEqual([
       {
-        src: "/icons/path-of-jianghu.svg",
+        src: "/icons/path-of-neon.svg",
         sizes: "any",
         type: "image/svg+xml",
         purpose: "any maskable"
@@ -60,26 +67,33 @@ describe("PWA install and offline shell contracts", () => {
       '<meta name="apple-mobile-web-app-title" content="Path Neon" />'
     );
     expect(html).toContain(
-      '<link rel="icon" type="image/svg+xml" href="/icons/path-of-jianghu.svg" />'
+      '<link rel="icon" type="image/svg+xml" href="/icons/path-of-neon.svg" />'
     );
   });
 
-  it("keeps the retained icon path but updates icon display metadata", () => {
-    const icon = readFileSync(iconPath, "utf8");
+  it("keeps canonical and legacy icon paths available with current metadata", () => {
+    const canonicalIcon = readFileSync(canonicalIconPath, "utf8");
+    const legacyIcon = readFileSync(legacyIconPath, "utf8");
 
-    expect(icon).toContain("<title id=\"title\">Path of Neon icon</title>");
-    expect(icon).toContain("A neon circuit route seal for the Path of Neon app.");
-    expect(icon).not.toContain("Path of Jianghu icon");
-    expect(icon).not.toContain("mountain path");
+    for (const icon of [canonicalIcon, legacyIcon]) {
+      expect(icon).toContain("<title id=\"title\">Path of Neon icon</title>");
+      expect(icon).toContain("A neon circuit route seal for the Path of Neon app.");
+      expect(icon).not.toContain("Path of Jianghu icon");
+      expect(icon).not.toContain("mountain path");
+    }
   });
 
   it("keeps the service worker shell-only and save-safe", () => {
     const source = readFileSync(serviceWorkerPath, "utf8");
 
-    expect(source).toContain('const CACHE_NAME = "path-of-jianghu-shell-v1"');
+    expect(source).toContain('const CACHE_NAME = "path-of-neon-shell-v1"');
+    expect(source).toContain('"path-of-jianghu-shell-"');
+    expect(source).toContain('"path-of-neon-shell-"');
     expect(source).toContain('"/index.html"');
     expect(source).toContain('"/manifest.webmanifest"');
+    expect(source).toContain('"/icons/path-of-neon.svg"');
     expect(source).toContain('"/icons/path-of-jianghu.svg"');
+    expect(source).toContain("CACHE_PREFIXES_TO_CLEAN.some");
     expect(source).toContain('request.method !== "GET"');
     expect(source).toContain('!url.pathname.startsWith("/api/")');
     expect(source).not.toMatch(/\b(?:localStorage|sessionStorage|indexedDB)\b/);

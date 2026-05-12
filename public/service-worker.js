@@ -1,8 +1,13 @@
-const CACHE_NAME = "path-of-jianghu-shell-v1";
+const CACHE_NAME = "path-of-neon-shell-v1";
+const CACHE_PREFIXES_TO_CLEAN = [
+  "path-of-jianghu-shell-",
+  "path-of-neon-shell-"
+];
 const APP_SHELL_URLS = [
   "/",
   "/index.html",
   "/manifest.webmanifest",
+  "/icons/path-of-neon.svg",
   "/icons/path-of-jianghu.svg"
 ];
 const CACHEABLE_DESTINATIONS = new Set([
@@ -26,7 +31,9 @@ self.addEventListener("activate", (event) => {
       Promise.all(
         cacheNames
           .filter((cacheName) =>
-            cacheName.startsWith("path-of-jianghu-shell-") &&
+            CACHE_PREFIXES_TO_CLEAN.some((prefix) =>
+              cacheName.startsWith(prefix)
+            ) &&
             cacheName !== CACHE_NAME
           )
           .map((cacheName) => caches.delete(cacheName))

@@ -48,7 +48,7 @@ Boundary tests in `tests/web/viewModelBoundaries.test.ts` guard sibling feature 
 ## PWA And Backend Adapters
 
 - `web/pwa.ts` owns production service-worker registration after the first app render and should stay separate from save startup.
-- `public/manifest.webmanifest`, `public/service-worker.js`, and `public/icons/path-of-jianghu.svg` own install metadata and app-shell caching.
+- `public/manifest.webmanifest`, `public/service-worker.js`, `public/icons/path-of-neon.svg`, and retained `public/icons/path-of-jianghu.svg` own install metadata and app-shell caching.
 - The service worker must keep future `/api/` cloud-save, online boss, auth, and backend calls out of the app-shell cache.
 - Future online/backend UI should call web adapters that translate browser state into core-safe envelopes; React panels should not import transport clients directly.
 

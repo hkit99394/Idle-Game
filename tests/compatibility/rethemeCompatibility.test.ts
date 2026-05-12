@@ -272,13 +272,22 @@ describe("Stage 2.3 retheme compatibility keys", () => {
       "combatExperience"
     );
     expect(manifest.icons.map((icon) => icon.src)).toEqual([
-      "/icons/path-of-jianghu.svg"
+      "/icons/path-of-neon.svg"
     ]);
     expect(serviceWorkerSource).toContain(
-      'const CACHE_NAME = "path-of-jianghu-shell-v1"'
+      'const CACHE_NAME = "path-of-neon-shell-v1"'
     );
     expect(serviceWorkerSource).toContain(
-      'cacheName.startsWith("path-of-jianghu-shell-")'
+      '"/icons/path-of-neon.svg"'
+    );
+    expect(serviceWorkerSource).toContain(
+      '"/icons/path-of-jianghu.svg"'
+    );
+    expect(serviceWorkerSource).toContain(
+      '"path-of-jianghu-shell-"'
+    );
+    expect(serviceWorkerSource).toContain(
+      '"path-of-neon-shell-"'
     );
   });
 

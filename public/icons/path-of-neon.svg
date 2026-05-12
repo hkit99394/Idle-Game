@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Path of Neon icon</title>
+  <desc id="desc">A neon circuit route seal for the Path of Neon app.</desc>
+  <defs>
+    <linearGradient id="panel" x1="90" x2="422" y1="66" y2="446" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111820"/>
+      <stop offset="1" stop-color="#1a1020"/>
+    </linearGradient>
+    <linearGradient id="route" x1="128" x2="384" y1="365" y2="147" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#29f2d0"/>
+      <stop offset="0.54" stop-color="#a7ff6b"/>
+      <stop offset="1" stop-color="#ff4fd8"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#panel)"/>
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#2b3540" stroke-width="22"/>
+  <circle cx="256" cy="256" r="154" fill="#10151b" stroke="#f4fff9" stroke-opacity="0.16" stroke-width="8"/>
+  <path d="M150 362 214 292 188 246 250 172 300 220 362 146" fill="none" stroke="url(#route)" stroke-linecap="round" stroke-linejoin="round" stroke-width="28"/>
+  <path d="M160 382h192" stroke="#f5b84b" stroke-linecap="round" stroke-width="24"/>
+  <path d="M192 382V270m128 112V270" stroke="#29f2d0" stroke-linecap="round" stroke-width="20"/>
+  <path d="M172 270h168l-26 38H198l-26-38Z" fill="#ff4fd8"/>
+  <path d="M206 238h100" stroke="#f4fff9" stroke-linecap="round" stroke-opacity="0.82" stroke-width="18"/>
+  <circle cx="150" cy="362" r="24" fill="#29f2d0"/>
+  <circle cx="250" cy="172" r="22" fill="#a7ff6b"/>
+  <circle cx="362" cy="146" r="24" fill="#ff4fd8"/>
+</svg>
