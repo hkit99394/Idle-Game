@@ -80,6 +80,20 @@ function expectDeclaration(
   );
 }
 
+function readDeclaration(source: string, selector: string, property: string): string {
+  const rule = getRule(source, selector);
+  const declaration = rule
+    .split(";")
+    .map((value) => value.trim())
+    .find((value) => value.startsWith(`${property}: `));
+
+  if (!declaration) {
+    throw new Error(`Missing ${selector} ${property}`);
+  }
+
+  return declaration.slice(`${property}: `.length);
+}
+
 describe("responsive panel smoke contracts", () => {
   it("keeps narrow viewport panel layouts on a single readable column", () => {
     const tabletBlock = getMediaBlock(720);
@@ -189,6 +203,40 @@ describe("responsive panel smoke contracts", () => {
     ]) {
       expect(cssSource).toContain(ownershipComment);
     }
+  });
+
+  it("keeps the Path of Neon visual identity readable and status-coded", () => {
+    for (const token of [
+      "--neon-cyan",
+      "--neon-acid",
+      "--neon-magenta",
+      "--neon-amber",
+      "--neon-red"
+    ]) {
+      expect(cssSource).toContain(token);
+    }
+
+    expect(getRule(cssSource, ".app-shell")).toContain("#101418");
+    expect(getRule(cssSource, ".app-shell")).toContain("repeating-linear-gradient");
+    expectDeclaration(cssSource, ".stage-header h1", "color", "#f4fff9");
+    expect(cssSource).toContain("color: #e9fff8;");
+    expectDeclaration(cssSource, ".stage-card", "color", "var(--neon-ink)");
+    expectDeclaration(
+      cssSource,
+      ".status-pressure-list .status-backlash",
+      "color",
+      "#fff2ee"
+    );
+
+    const statusBorderColors = [
+      ".status-pressure-list .status-damage",
+      ".status-pressure-list .status-control",
+      ".status-pressure-list .status-vulnerability",
+      ".status-pressure-list .status-recovery",
+      ".status-pressure-list .status-backlash"
+    ].map((selector) => readDeclaration(cssSource, selector, "border-color"));
+
+    expect(new Set(statusBorderColors).size).toBe(statusBorderColors.length);
   });
 
   it("keeps the Epic 59 smoke workflows wired to the protected selectors", () => {

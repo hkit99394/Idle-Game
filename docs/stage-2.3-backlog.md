@@ -69,7 +69,7 @@ Epics 79-88 are in scope for this stage. Epics 89-97 from the retheme migration 
 | 83 | UI Copy Retheme | Complete | Update web surfaces to Path of Neon terminology without renaming internals |
 | 84 | District And Faction Display Retheme | Complete | Retheme static data names/descriptions while preserving ids and mechanics |
 | 85 | Neon-Native System Prototype Decision | Complete | Choose one small gameplay prototype and define its contract |
-| 86 | Visual Identity Pass | Planned | Add Path of Neon palette, icon identity, and responsive/browser smoke notes |
+| 86 | Visual Identity Pass | Complete | Add Path of Neon palette, icon identity, and responsive/browser smoke notes |
 | 87 | Compatibility Hardening | Planned | Prove saves, ids, PWA assets, tests, reports, and docs survived the retheme |
 | 88 | Internal Id Migration Contract | Planned | Prepare the later alias-map, save-version, storage-key, and cache migration plan |
 
@@ -371,6 +371,14 @@ Give the web app and install metadata a readable Path of Neon identity without r
 - Browser smoke at desktop and narrow mobile widths.
 - PWA static smoke if manifest or icons change.
 
+### Progress Notes
+
+- Added Path of Neon visual tokens and a dark circuit-grid app shell so the first viewport reads as the rethemed product while preserving readable light content panels.
+- Updated stage header, route metadata, resource rows, selected controls, combat bars, event rows, and counterplay status chips with distinct cyan, acid, magenta, amber, and red status meanings.
+- Updated manifest and shell theme/background colors to match the new shell. The retained SVG icon already carries Path of Neon title, description, and neon route-seal artwork, so no icon path or artwork replacement was needed.
+- Browser smoke passed at the normal desktop viewport and at a 390px narrow mobile viewport; labels stacked cleanly, first-viewport route metadata stayed readable, and no clipped controls or overlap were visible.
+- Verification passed: `npm run test -- responsivePanelSmoke pwa`, `npm run build`, `npm test` (63 files, 383 tests), browser smoke at desktop and 390px mobile widths, and `git diff --check`.
+
 ---
 
 ## Epic 87: Compatibility Hardening
@@ -438,7 +446,6 @@ Prepare the later internal-id migration without doing the full rename inside the
 
 ## Open Questions
 
-- Does product-shell icon artwork change in Stage 2.3, or only icon metadata?
 - Which UI diagnostics should keep literal legacy schema terms visible?
 - What is the smallest Cognitive Intrusion contract that proves the new theme without forcing a save schema migration?
 - Which stale-name scans should ignore archived docs by default?

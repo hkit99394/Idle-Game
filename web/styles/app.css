@@ -1,6 +1,24 @@
 :root {
-  color: #15120e;
-  background: #f3efe7;
+  color: #15191d;
+  background: #101418;
+  color-scheme: light;
+  --neon-ink: #15191d;
+  --neon-shell: #101418;
+  --neon-shell-2: #162129;
+  --neon-panel: #f7fff7;
+  --neon-panel-warm: #fffaf0;
+  --neon-line: #b8d6cf;
+  --neon-muted: #53635f;
+  --neon-cyan: #0f6f7b;
+  --neon-cyan-soft: #dff7f5;
+  --neon-acid: #4d7f2e;
+  --neon-acid-soft: #ebf8df;
+  --neon-magenta: #a33b86;
+  --neon-magenta-soft: #f8e4f2;
+  --neon-amber: #8b651b;
+  --neon-amber-soft: #fff1c7;
+  --neon-red: #9d332d;
+  --neon-red-soft: #f8e2dd;
   font-family:
     Inter,
     ui-sans-serif,
@@ -22,6 +40,7 @@ html {
 body {
   margin: 0;
   overflow-x: hidden;
+  background: var(--neon-shell);
 }
 
 button,
@@ -35,8 +54,10 @@ textarea {
 .app-shell {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(243, 239, 231, 0.94), rgba(232, 234, 227, 0.98)),
-    #f3efe7;
+    linear-gradient(180deg, rgba(10, 17, 22, 0.98), rgba(16, 20, 24, 0.94) 34%, rgba(14, 24, 22, 0.96)),
+    repeating-linear-gradient(90deg, rgba(41, 242, 208, 0.08) 0 1px, transparent 1px 96px),
+    repeating-linear-gradient(0deg, rgba(167, 255, 107, 0.05) 0 1px, transparent 1px 96px),
+    #101418;
 }
 
 .battle-surface {
@@ -44,6 +65,7 @@ textarea {
   width: min(1120px, 100%);
   margin: 0 auto;
   padding: 24px;
+  color: #f4fff9;
 }
 
 .app-error-state {
@@ -62,7 +84,7 @@ textarea {
 
 .app-error-state p {
   margin: 0;
-  color: #4d4639;
+  color: #c7ddd4;
   overflow-wrap: anywhere;
 }
 
@@ -70,9 +92,9 @@ textarea {
   justify-self: start;
   min-height: 44px;
   padding: 0 18px;
-  border: 1px solid #2e5f63;
+  border: 1px solid var(--neon-cyan);
   border-radius: 6px;
-  background: #2e5f63;
+  background: var(--neon-cyan);
   color: #fffaf0;
   font: inherit;
   font-weight: 800;
@@ -86,14 +108,16 @@ textarea {
   align-items: end;
   margin-bottom: 18px;
   padding-bottom: 18px;
-  border-bottom: 1px solid #d6cdbc;
+  border-bottom: 1px solid rgba(41, 242, 208, 0.32);
 }
 
 .stage-header h1 {
   overflow-wrap: anywhere;
   margin: 0;
+  color: #f4fff9;
   font-size: 2rem;
   line-height: 1.05;
+  text-shadow: 0 0 18px rgba(41, 242, 208, 0.22);
 }
 
 .stage-meta {
@@ -102,7 +126,7 @@ textarea {
   gap: 8px;
   justify-content: flex-end;
   min-width: 0;
-  color: #4d4639;
+  color: #c7ddd4;
   font-size: 0.88rem;
 }
 
@@ -119,13 +143,19 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.stage-meta span {
+  border-color: rgba(41, 242, 208, 0.42);
+  background: rgba(9, 27, 32, 0.84);
+  color: #e9fff8;
+}
+
 .battle-result {
   grid-column: 1 / -1;
   min-width: 0;
   padding: 14px 16px;
-  border-left: 6px solid #6f7f4f;
-  background: #edf1df;
-  color: #283315;
+  border-left: 6px solid var(--neon-acid);
+  background: var(--neon-acid-soft);
+  color: #273d17;
   font-size: 1rem;
   font-weight: 800;
   overflow-wrap: anywhere;
@@ -138,21 +168,25 @@ textarea {
 }
 
 .battle-result.defeat {
-  border-color: #a64236;
-  background: #f5e7e2;
+  border-color: var(--neon-red);
+  background: var(--neon-red-soft);
   color: #5f1f1b;
 }
 
 .battle-result.stalemate {
-  border-color: #8c6f4b;
-  background: #f3eadc;
-  color: #4f3a22;
+  border-color: var(--neon-amber);
+  background: var(--neon-amber-soft);
+  color: #4f3510;
 }
 
 .battle-result.blocked {
-  border-color: #6d6354;
-  background: #eee8dc;
-  color: #4d4639;
+  border-color: #66736d;
+  background: #e8eee9;
+  color: #35413c;
+}
+
+.resource-row strong {
+  color: #a7ff6b;
 }
 
 .resource-row {
@@ -162,7 +196,7 @@ textarea {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
-  color: #4d4639;
+  color: #d6e8df;
   font-size: 0.95rem;
 }
 
@@ -172,9 +206,9 @@ textarea {
   gap: 12px;
   margin-bottom: 20px;
   padding: 14px 0;
-  border-top: 1px solid #c3d1bd;
-  border-bottom: 1px solid #c3d1bd;
-  background: linear-gradient(90deg, rgba(237, 241, 223, 0.72), transparent);
+  border-top: 1px solid rgba(167, 255, 107, 0.26);
+  border-bottom: 1px solid rgba(41, 242, 208, 0.24);
+  background: linear-gradient(90deg, rgba(17, 41, 35, 0.72), transparent);
 }
 
 .offline-summary-heading {
@@ -193,17 +227,17 @@ textarea {
 .offline-summary-heading button {
   min-height: 44px;
   padding: 0 12px;
-  border: 1px solid #6f7f4f;
+  border: 1px solid var(--neon-acid);
   border-radius: 6px;
-  background: #edf1df;
-  color: #283315;
+  background: var(--neon-acid-soft);
+  color: #273d17;
   font: inherit;
   font-weight: 800;
   cursor: pointer;
 }
 
 .offline-summary-heading button:hover {
-  background: #dfe8c9;
+  background: #d9f0c7;
 }
 
 .offline-summary-meta,
@@ -217,7 +251,7 @@ textarea {
 .offline-summary-rewards strong {
   min-height: 24px;
   padding: 0 9px;
-  border: 1px solid #c7bbab;
+  border: 1px solid var(--neon-line);
   border-radius: 999px;
   background: #fffaf0;
   color: #4d4639;
@@ -227,9 +261,9 @@ textarea {
 }
 
 .offline-summary-rewards strong {
-  border-color: #c3d1bd;
-  background: #f4f8ec;
-  color: #283315;
+  border-color: #a6c88b;
+  background: var(--neon-acid-soft);
+  color: #273d17;
 }
 
 .offline-farm-panel {
@@ -237,8 +271,8 @@ textarea {
   gap: 12px;
   margin-bottom: 22px;
   padding: 16px 0;
-  border-top: 1px solid #d6cdbc;
-  border-bottom: 1px solid #d6cdbc;
+  border-top: 1px solid rgba(41, 242, 208, 0.22);
+  border-bottom: 1px solid rgba(41, 242, 208, 0.22);
 }
 
 .offline-farm-heading {
@@ -255,7 +289,7 @@ textarea {
 }
 
 .offline-farm-heading > span {
-  color: #283315;
+  color: #d6e8df;
   font-weight: 800;
   overflow-wrap: anywhere;
 }
@@ -269,9 +303,9 @@ textarea {
 .offline-preset-row button {
   min-height: 34px;
   padding: 0 10px;
-  border: 1px solid #c7bbab;
+  border: 1px solid var(--neon-line);
   border-radius: 6px;
-  background: #f4efe5;
+  background: var(--neon-panel-warm);
   color: #4d4639;
   font: inherit;
   font-size: 0.82rem;
@@ -282,8 +316,8 @@ textarea {
 .offline-preset-row button.selected,
 .offline-preset-row button:hover,
 .offline-preset-row button:focus-visible {
-  border-color: #2e5f63;
-  background: #2e5f63;
+  border-color: var(--neon-cyan);
+  background: var(--neon-cyan);
   color: #fffaf0;
   outline: none;
 }
@@ -299,9 +333,9 @@ textarea {
   gap: 8px;
   min-width: 0;
   padding: 12px;
-  border: 1px solid #d6cdbc;
+  border: 1px solid var(--neon-line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: var(--neon-panel);
 }
 
 .offline-farm-card h3,
@@ -318,7 +352,7 @@ textarea {
 }
 
 .offline-farm-card strong {
-  color: #1f5559;
+  color: var(--neon-cyan);
   font-size: 0.84rem;
 }
 
@@ -333,7 +367,7 @@ textarea {
 .offline-priority-list span {
   min-height: 22px;
   padding: 0 8px;
-  border: 1px solid #c7bbab;
+  border: 1px solid var(--neon-line);
   border-radius: 999px;
   background: #fffaf0;
   color: #4d4639;
@@ -344,9 +378,9 @@ textarea {
 }
 
 .offline-preview-rewards span {
-  border-color: #c3d1bd;
-  background: #f4f8ec;
-  color: #283315;
+  border-color: #a6c88b;
+  background: var(--neon-acid-soft);
+  color: #273d17;
 }
 
 .label {
@@ -359,12 +393,30 @@ textarea {
   text-transform: uppercase;
 }
 
+.stage-selector-heading .label,
+.offline-summary-heading .label,
+.offline-farm-heading .label,
+.formation-panel-heading .label,
+.tactics-heading .label,
+.upgrade-panel-heading .label,
+.skill-upgrade-heading .label,
+.equipment-heading .label,
+.style-mastery-heading .label,
+.roster-panel-heading .label,
+.assignment-heading .label,
+.counterplay-settings-heading .label,
+.save-tools-heading .label,
+.team-heading .label,
+.battle-log-heading .label {
+  color: #8beadd;
+}
+
 /* Growth and mastery panels */
 .mastery-panel {
   margin-bottom: 20px;
   padding: 16px 0;
-  border-top: 1px solid #d6cdbc;
-  border-bottom: 1px solid #d6cdbc;
+  border-top: 1px solid rgba(41, 242, 208, 0.22);
+  border-bottom: 1px solid rgba(41, 242, 208, 0.22);
 }
 
 .mastery-panel-heading {
@@ -383,7 +435,7 @@ textarea {
 
 .mastery-xp {
   max-width: 100%;
-  color: #283315;
+  color: #d6e8df;
   font-weight: 800;
   overflow-wrap: anywhere;
 }
@@ -398,18 +450,18 @@ textarea {
   height: 14px;
   overflow: hidden;
   border-radius: 999px;
-  background: #d8d1c3;
+  background: rgba(232, 244, 238, 0.34);
 }
 
 .mastery-meter span {
   display: block;
   height: 100%;
-  background: #6f7f4f;
+  background: linear-gradient(90deg, var(--neon-cyan), #65a83a);
   transition: width 180ms ease;
 }
 
 .mastery-next {
-  color: #6d6354;
+  color: #c7ddd4;
   font-size: 0.84rem;
   font-weight: 700;
 }
@@ -468,8 +520,8 @@ textarea {
 .stage-selector {
   margin-bottom: 22px;
   padding: 16px 0;
-  border-top: 1px solid #d6cdbc;
-  border-bottom: 1px solid #d6cdbc;
+  border-top: 1px solid rgba(41, 242, 208, 0.22);
+  border-bottom: 1px solid rgba(41, 242, 208, 0.22);
 }
 
 .stage-selector-heading {
@@ -487,7 +539,7 @@ textarea {
 }
 
 .stage-selector-heading > span {
-  color: #4d4639;
+  color: #d6e8df;
   font-weight: 800;
 }
 
@@ -504,8 +556,8 @@ textarea {
   padding: 12px;
   border: 1px solid #d6cdbc;
   border-radius: 8px;
-  background: #fffaf0;
-  color: inherit;
+  background: var(--neon-panel);
+  color: var(--neon-ink);
   cursor: pointer;
   font: inherit;
   text-align: left;
@@ -513,13 +565,13 @@ textarea {
 
 .stage-card:hover,
 .stage-card:focus-visible {
-  border-color: #8c6f4b;
+  border-color: var(--neon-cyan);
   outline: none;
-  box-shadow: inset 0 0 0 1px #8c6f4b;
+  box-shadow: inset 0 0 0 1px var(--neon-cyan);
 }
 
 .stage-card.locked {
-  background: #ece6da;
+  background: #e9efea;
   color: #6d6354;
   cursor: not-allowed;
 }
@@ -531,12 +583,14 @@ textarea {
 }
 
 .stage-card.selected-stage {
-  border-color: #2e5f63;
-  box-shadow: inset 0 0 0 1px #2e5f63;
+  border-color: var(--neon-cyan);
+  box-shadow:
+    inset 0 0 0 1px var(--neon-cyan),
+    0 0 0 3px rgba(41, 242, 208, 0.12);
 }
 
 .stage-card.boss {
-  border-color: #a64236;
+  border-color: var(--neon-magenta);
 }
 
 .stage-card-heading {
@@ -571,10 +625,10 @@ textarea {
   max-width: 100%;
   min-height: 22px;
   padding: 0 8px;
-  border: 1px solid #c7bbab;
+  border: 1px solid var(--neon-line);
   border-radius: 999px;
-  background: #e7ead7;
-  color: #34451f;
+  background: var(--neon-acid-soft);
+  color: #304d1d;
   font-size: 0.74rem;
   font-weight: 800;
   line-height: 22px;
@@ -586,9 +640,9 @@ textarea {
 }
 
 .stage-card.boss .stage-card-heading > span {
-  border-color: #c88f86;
-  background: #f4ddd7;
-  color: #6b241f;
+  border-color: #d894c8;
+  background: var(--neon-magenta-soft);
+  color: #70265c;
 }
 
 .stage-rewards {
@@ -609,9 +663,9 @@ textarea {
 .stage-card-actions span {
   min-height: 22px;
   padding: 0 8px;
-  border: 1px solid #c7bbab;
+  border: 1px solid var(--neon-line);
   border-radius: 999px;
-  background: #fffaf0;
+  background: var(--neon-panel-warm);
   color: #4d4639;
   font-size: 0.74rem;
   font-weight: 800;
@@ -629,8 +683,8 @@ textarea {
 .formation-panel {
   margin-bottom: 22px;
   padding: 16px 0;
-  border-top: 1px solid #d6cdbc;
-  border-bottom: 1px solid #d6cdbc;
+  border-top: 1px solid rgba(41, 242, 208, 0.22);
+  border-bottom: 1px solid rgba(41, 242, 208, 0.22);
 }
 
 /* Roster and formation panels */
@@ -652,7 +706,7 @@ textarea {
 
 .formation-panel-heading > span,
 .tactics-heading > span {
-  color: #4d4639;
+  color: #d6e8df;
   font-weight: 800;
 }
 
@@ -668,9 +722,9 @@ textarea {
   min-width: 0;
   min-height: 154px;
   padding: 12px;
-  border: 1px solid #d6cdbc;
+  border: 1px solid var(--neon-line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: var(--neon-panel);
   color: #4d4639;
   font: inherit;
   cursor: pointer;
@@ -679,13 +733,13 @@ textarea {
 
 .tactic-option:hover,
 .tactic-option:focus-visible {
-  border-color: #2e5f63;
+  border-color: var(--neon-cyan);
   outline: none;
 }
 
 .tactic-option.selected {
-  border-color: #2e5f63;
-  background: #f1f8f2;
+  border-color: var(--neon-cyan);
+  background: #effbf6;
 }
 
 .tactic-option-heading {
@@ -707,9 +761,9 @@ textarea {
 .tactic-option-heading em {
   min-height: 22px;
   padding: 0 8px;
-  border: 1px solid #2e5f63;
+  border: 1px solid var(--neon-cyan);
   border-radius: 999px;
-  background: #2e5f63;
+  background: var(--neon-cyan);
   color: #fffaf0;
   font-size: 0.74rem;
   font-style: normal;
@@ -1552,13 +1606,14 @@ h2 {
   gap: 10px;
   min-width: 0;
   padding: 14px;
-  border: 1px solid #d6cdbc;
+  border: 1px solid var(--neon-line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: var(--neon-panel);
 }
 
 .combatant-card.enemy {
-  background: #f7efe7;
+  border-color: #d69ac9;
+  background: #fff4fb;
 }
 
 .combatant-card.defeated {
@@ -1566,8 +1621,8 @@ h2 {
 }
 
 .combatant-card.qi-broken {
-  border-color: #c88f86;
-  background: #fff3ed;
+  border-color: var(--neon-magenta);
+  background: var(--neon-magenta-soft);
 }
 
 .combatant-heading {
@@ -1622,41 +1677,41 @@ h2 {
 }
 
 .style-tag {
-  background: #e7ead7;
-  color: #34451f;
+  background: var(--neon-acid-soft);
+  color: #304d1d;
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: capitalize;
 }
 
 .cp-tag {
-  border: 1px solid #8c6f4b;
-  background: #f3eadc;
-  color: #4f3a22;
+  border: 1px solid var(--neon-amber);
+  background: var(--neon-amber-soft);
+  color: #4f3510;
   font-size: 0.78rem;
   font-weight: 900;
 }
 
 .level-tag {
-  border: 1px solid #5b8662;
-  background: #e2efdf;
-  color: #254f2c;
+  border: 1px solid var(--neon-acid);
+  background: var(--neon-acid-soft);
+  color: #273d17;
   font-size: 0.78rem;
   font-weight: 900;
 }
 
 .slot-tag {
-  border: 1px solid #2e5f63;
-  background: #e3f0f4;
-  color: #1f5559;
+  border: 1px solid var(--neon-cyan);
+  background: var(--neon-cyan-soft);
+  color: var(--neon-cyan);
   font-size: 0.78rem;
   font-weight: 900;
 }
 
 .role-tag {
-  border: 1px solid #6f7f4f;
-  background: #edf1df;
-  color: #283315;
+  border: 1px solid var(--neon-line);
+  background: #eef7ef;
+  color: #35413c;
   font-size: 0.78rem;
   font-weight: 900;
 }
@@ -1667,12 +1722,12 @@ h2 {
 }
 
 .outer-stat .bar-label span {
-  color: #8d2f27;
+  color: var(--neon-red);
   font-weight: 800;
 }
 
 .inner-stat .bar-label span {
-  color: #225d73;
+  color: var(--neon-cyan);
   font-weight: 800;
 }
 
@@ -1702,7 +1757,7 @@ h2 {
   width: 100%;
   overflow: hidden;
   border-radius: 999px;
-  background: #d8d1c3;
+  background: #d8e6df;
 }
 
 .bar span {
@@ -1716,7 +1771,7 @@ h2 {
 }
 
 .bar.outer span {
-  background: linear-gradient(90deg, #7f2923, #c84336);
+  background: linear-gradient(90deg, var(--neon-red), var(--neon-magenta));
 }
 
 .bar.inner {
@@ -1724,7 +1779,7 @@ h2 {
 }
 
 .bar.inner span {
-  background: linear-gradient(90deg, #225d73, #3a86a2);
+  background: linear-gradient(90deg, var(--neon-cyan), #65a83a);
 }
 
 .combatant-stats {
@@ -1744,10 +1799,10 @@ h2 {
 .combatant-contributions span {
   min-height: 22px;
   padding: 0 8px;
-  border: 1px solid #6f7f4f;
+  border: 1px solid #a6c88b;
   border-radius: 999px;
-  background: #edf1df;
-  color: #283315;
+  background: var(--neon-acid-soft);
+  color: #273d17;
   font-size: 0.74rem;
   font-weight: 800;
   line-height: 22px;
@@ -1761,9 +1816,9 @@ h2 {
 }
 
 .combatant-status.qi-broken-status {
-  border-color: #c88f86;
-  background: #f4ddd7;
-  color: #6b241f;
+  border-color: var(--neon-magenta);
+  background: var(--neon-magenta-soft);
+  color: #70265c;
 }
 
 .combatant-status.defeated-status {
@@ -1774,7 +1829,7 @@ h2 {
 
 .battle-log {
   padding-top: 18px;
-  border-top: 1px solid #d6cdbc;
+  border-top: 1px solid rgba(41, 242, 208, 0.22);
 }
 
 .battle-log-heading {
@@ -1790,7 +1845,7 @@ h2 {
 }
 
 .battle-log-heading span {
-  color: #6d6354;
+  color: #c7ddd4;
   font-size: 0.86rem;
   font-weight: 700;
 }
@@ -1800,22 +1855,22 @@ h2 {
   gap: 6px;
   margin-bottom: 12px;
   padding: 12px 0;
-  border-top: 1px solid #e1d8c8;
-  border-bottom: 1px solid #e1d8c8;
-  color: #4d4639;
+  border-top: 1px solid rgba(41, 242, 208, 0.18);
+  border-bottom: 1px solid rgba(41, 242, 208, 0.18);
+  color: #d6e8df;
   font-size: 0.9rem;
   overflow-wrap: anywhere;
 }
 
 .battle-summary strong {
-  color: #15120e;
+  color: #f4fff9;
   font-size: 1rem;
 }
 
 .empty-log,
 .empty-panel {
   margin: 0;
-  color: #6d6354;
+  color: #c7ddd4;
 }
 
 .empty-panel {
@@ -1839,26 +1894,26 @@ h2 {
   gap: 10px;
   align-items: start;
   padding: 12px;
-  border-left: 4px solid #8c6f4b;
-  background: rgba(255, 250, 240, 0.78);
+  border-left: 4px solid var(--neon-amber);
+  background: rgba(247, 255, 247, 0.9);
 }
 
 .event-row.attack {
-  border-color: #2e5f63;
+  border-color: var(--neon-cyan);
 }
 
 .event-row.qi_break {
-  border-color: #a64236;
-  background: linear-gradient(90deg, #f5e7e2, #fff7ef);
-  box-shadow: inset 0 0 0 1px #e3b8ae;
+  border-color: var(--neon-magenta);
+  background: linear-gradient(90deg, var(--neon-magenta-soft), #fff7fc);
+  box-shadow: inset 0 0 0 1px #e7b7dc;
 }
 
 .event-row.qi_recover {
-  border-color: #2d6f88;
+  border-color: var(--neon-cyan);
 }
 
 .event-row.backlash {
-  border-color: #7b2f2b;
+  border-color: var(--neon-red);
 }
 
 .event-row.guard,
@@ -1869,25 +1924,25 @@ h2 {
 }
 
 .event-row.armor_break {
-  border-color: #a64236;
-  background: #f5e7e2;
+  border-color: var(--neon-red);
+  background: var(--neon-red-soft);
 }
 
 .event-row.heal,
 .event-row.regeneration,
 .event-row.regeneration_tick {
-  border-color: #547536;
-  background: #f4f8ec;
+  border-color: var(--neon-acid);
+  background: var(--neon-acid-soft);
 }
 
 .event-row.wound {
-  border-color: #9d3f2f;
-  background: #f5e7e2;
+  border-color: var(--neon-red);
+  background: var(--neon-red-soft);
 }
 
 .event-row.cleanse {
-  border-color: #517657;
-  background: #eff7ed;
+  border-color: var(--neon-acid);
+  background: #eefbec;
 }
 
 .event-row.defeat {
@@ -1950,9 +2005,9 @@ h2 {
 
 .event-badges .inner,
 .event-badges .qi {
-  border-color: #93b8c5;
-  background: #e3f0f4;
-  color: #225d73;
+  border-color: #96cbd0;
+  background: var(--neon-cyan-soft);
+  color: var(--neon-cyan);
 }
 
 .event-badges .danger {
@@ -1973,8 +2028,8 @@ h2 {
   gap: 14px;
   margin-bottom: 22px;
   padding: 16px 0;
-  border-top: 1px solid #d6cdbc;
-  border-bottom: 1px solid #d6cdbc;
+  border-top: 1px solid rgba(41, 242, 208, 0.22);
+  border-bottom: 1px solid rgba(41, 242, 208, 0.22);
 }
 
 .counterplay-settings-heading {
@@ -1993,9 +2048,9 @@ h2 {
 .counterplay-settings-heading > span {
   min-height: 24px;
   padding: 0 9px;
-  border: 1px solid #c7bbab;
+  border: 1px solid var(--neon-line);
   border-radius: 999px;
-  background: #fffaf0;
+  background: var(--neon-panel);
   color: #4d4639;
   font-size: 0.82rem;
   font-weight: 800;
@@ -2012,7 +2067,7 @@ h2 {
 }
 
 .counterplay-preview .counterplay-support-note {
-  color: #2e5f63;
+  color: var(--neon-cyan);
 }
 
 .counterplay-settings-grid {
@@ -2025,9 +2080,9 @@ h2 {
 .counterplay-mode-field,
 .medicine-toggle-row {
   min-width: 0;
-  border: 1px solid #d6cdbc;
+  border: 1px solid var(--neon-line);
   border-radius: 8px;
-  background: #fffaf0;
+  background: var(--neon-panel);
 }
 
 .counterplay-toggle-row,
@@ -2044,7 +2099,7 @@ h2 {
 .medicine-toggle-row input {
   width: 18px;
   height: 18px;
-  accent-color: #2e5f63;
+  accent-color: var(--neon-cyan);
 }
 
 .counterplay-toggle-row span,
@@ -2124,9 +2179,9 @@ h2 {
   display: grid;
   gap: 8px;
   padding: 12px;
-  border: 1px solid #d6cdbc;
+  border: 1px solid var(--neon-line);
   border-radius: 8px;
-  background: #f4efe5;
+  background: #f0fbf6;
 }
 
 .status-pressure-list {
@@ -2138,9 +2193,9 @@ h2 {
 .status-pressure-list span {
   min-height: 24px;
   padding: 0 8px;
-  border: 1px solid #c7bbab;
+  border: 1px solid var(--neon-line);
   border-radius: 999px;
-  background: #fffaf0;
+  background: var(--neon-panel-warm);
   color: #4d4639;
   font-size: 0.78rem;
   font-weight: 800;
@@ -2149,33 +2204,33 @@ h2 {
 }
 
 .status-pressure-list .status-damage {
-  border-color: #a64236;
-  background: #f5e7e2;
-  color: #7b2f2b;
+  border-color: var(--neon-magenta);
+  background: var(--neon-magenta-soft);
+  color: #70265c;
 }
 
 .status-pressure-list .status-control {
-  border-color: #2e5f63;
-  background: #e3f0f4;
-  color: #1f5559;
+  border-color: var(--neon-cyan);
+  background: var(--neon-cyan-soft);
+  color: var(--neon-cyan);
 }
 
 .status-pressure-list .status-vulnerability {
-  border-color: #8c6f4b;
-  background: #f3eadc;
-  color: #4f3a22;
+  border-color: var(--neon-amber);
+  background: var(--neon-amber-soft);
+  color: #4f3510;
 }
 
 .status-pressure-list .status-recovery {
-  border-color: #6f7f4f;
-  background: #edf1df;
-  color: #283315;
+  border-color: var(--neon-acid);
+  background: var(--neon-acid-soft);
+  color: #273d17;
 }
 
 .status-pressure-list .status-backlash {
-  border-color: #7b2f2b;
-  background: #ece6da;
-  color: #15120e;
+  border-color: var(--neon-red);
+  background: #3a1618;
+  color: #fff2ee;
 }
 
 .save-tools {
@@ -2183,7 +2238,7 @@ h2 {
   gap: 14px;
   margin-top: 22px;
   padding: 18px 0 0;
-  border-top: 1px solid #d6cdbc;
+  border-top: 1px solid rgba(41, 242, 208, 0.22);
 }
 
 .save-tools-heading {
@@ -2356,6 +2411,77 @@ h2 {
     monospace;
   font-size: 0.8rem;
   line-height: 1.45;
+}
+
+/* Path of Neon visual identity */
+.formation-slot,
+.formation-hero,
+.offline-farm-card,
+.stage-card,
+.tactic-option,
+.roster-card,
+.assignment-card,
+.style-mastery-card,
+.upgrade-card,
+.hero-equipment-card,
+.equipment-item-card,
+.combatant-card,
+.counterplay-preview {
+  border-color: var(--neon-line);
+  background: var(--neon-panel);
+  color: var(--neon-ink);
+}
+
+.assignment-heroes button.assigned,
+.formation-buttons button.selected {
+  border-color: var(--neon-cyan);
+  background: var(--neon-cyan);
+  color: #fffaf0;
+}
+
+.roster-card.active {
+  border-color: var(--neon-cyan);
+  background: #effbf6;
+  color: var(--neon-ink);
+}
+
+.upgrade-silver,
+.equipment-heading > span,
+.style-mastery-heading > span,
+.assignment-heading > span,
+.roster-panel-heading > span {
+  color: #d6e8df;
+}
+
+.roster-card button,
+.upgrade-card button,
+.equipment-actions button,
+.save-actions button,
+.assignment-heroes button.assigned {
+  border-color: var(--neon-cyan);
+  background: var(--neon-cyan);
+}
+
+.roster-card button:hover,
+.upgrade-card button:not(:disabled):hover,
+.equipment-actions button:hover,
+.equipment-actions button:focus-visible,
+.save-actions button:not(:disabled):hover {
+  background: #0b5e69;
+}
+
+.save-actions button.danger,
+.save-actions button.danger:not(:disabled):hover {
+  border-color: var(--neon-red);
+  background: #76211f;
+}
+
+.offline-farm-card,
+.stage-card,
+.tactic-option,
+.combatant-card,
+.counterplay-preview {
+  box-shadow: 0 1px 0 rgba(8, 20, 18, 0.08);
 }
 
 /* Responsive panel contracts */

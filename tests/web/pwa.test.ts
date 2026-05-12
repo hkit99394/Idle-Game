@@ -30,8 +30,8 @@ describe("PWA install and offline shell contracts", () => {
       scope: "/",
       display: "standalone",
       orientation: "any",
-      theme_color: "#16231f",
-      background_color: "#f4efe2"
+      theme_color: "#101418",
+      background_color: "#f7fff7"
     });
     expect(manifest.icons).toEqual([
       {
@@ -55,7 +55,7 @@ describe("PWA install and offline shell contracts", () => {
 
     expect(html).toContain("<title>Path of Neon</title>");
     expect(html).toContain('<link rel="manifest" href="/manifest.webmanifest" />');
-    expect(html).toContain('<meta name="theme-color" content="#16231f" />');
+    expect(html).toContain('<meta name="theme-color" content="#101418" />');
     expect(html).toContain(
       '<meta name="apple-mobile-web-app-title" content="Path Neon" />'
     );
