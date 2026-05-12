@@ -20,7 +20,7 @@ These are non-goals for the display-safe retheme pass, not permanent product dec
 
 ## Compatibility Rules
 
-- Keep `WEB_SAVE_STORAGE_KEY` as `path-of-jianghu.save.v1` until a tested dual-read/write migration is added.
+- Keep reading the legacy `path-of-jianghu.save.v1` browser key after `WEB_SAVE_STORAGE_KEY` moves to `path-of-neon.save.v1`; old-key saves must copy forward safely before any cleanup policy is considered.
 - If the PWA cache name changes to a Path of Neon prefix, service-worker activation must delete both `path-of-jianghu-shell-*` and `path-of-neon-shell-*` caches except the current cache.
 - Static data `id` fields and all save/static `*Id` reference fields stay stable until the dedicated internal-id migration. Static data `name` and description fields may change as display text before that.
 - Save/cloud/core docs should describe persisted field names literally, then point to the display terminology map when needed.

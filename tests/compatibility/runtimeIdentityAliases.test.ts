@@ -4,6 +4,10 @@ import {
   PRODUCT_RUNTIME_ALIASES,
   PRODUCT_RUNTIME_ALIAS_INDEX
 } from "../../web/runtimeIdentityAliases";
+import {
+  LEGACY_WEB_SAVE_STORAGE_KEY,
+  WEB_SAVE_STORAGE_KEY
+} from "../../web/state/saveStorage";
 
 describe("runtime identity aliases", () => {
   it("defines the Stage 2.4 product/runtime migration targets", () => {
@@ -52,6 +56,14 @@ describe("runtime identity aliases", () => {
     expect(PRODUCT_RUNTIME_ALIAS_INDEX.getByPhase("product_keys")).toHaveLength(
       PRODUCT_RUNTIME_ALIASES.length
     );
+  });
+
+  it("keeps save storage constants aligned with the runtime alias data", () => {
+    const saveKeyAlias = PRODUCT_RUNTIME_ALIAS_INDEX.getByLegacyId(
+      LEGACY_WEB_SAVE_STORAGE_KEY
+    );
+
+    expect(saveKeyAlias?.targetId).toBe(WEB_SAVE_STORAGE_KEY);
   });
 
   it("returns null for missing aliases", () => {

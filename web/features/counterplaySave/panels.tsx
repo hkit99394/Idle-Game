@@ -211,8 +211,14 @@ export function SaveToolsPanel({
       >
         <summary>Save Diagnostics</summary>
         <div className="save-diagnostics-grid">
-          <span>Key</span>
+          <span>Canonical key</span>
           <strong>{diagnostics.storageKey}</strong>
+          <span>Active key</span>
+          <strong>{diagnostics.activeStorageKey ?? "-"}</strong>
+          <span>Legacy backup</span>
+          <strong>
+            {diagnostics.legacySavePresent ? diagnostics.legacyStorageKey : "-"}
+          </strong>
           <span>Version</span>
           <strong>{diagnostics.saveVersion ?? "-"}</strong>
           <span>Updated</span>

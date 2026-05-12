@@ -11,6 +11,9 @@ export type SaveStatus =
 export type SaveDiagnosticsView = {
   storageAvailable: boolean;
   storageKey: string;
+  activeStorageKey: string | null;
+  legacyStorageKey: string;
+  legacySavePresent: boolean;
   status: SaveStatus;
   saveVersion: number | null;
   saveSizeCharacters: number;

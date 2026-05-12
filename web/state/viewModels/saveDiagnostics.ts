@@ -3,6 +3,7 @@ import type { PlayerProgress, StaticGameData } from "../../../core";
 import {
   getBrowserSaveStorage,
   loadSaveDataFromStorage,
+  LEGACY_WEB_SAVE_STORAGE_KEY,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS,
   WEB_SAVE_STORAGE_KEY
 } from "../saveStorage";
@@ -72,6 +73,9 @@ export function buildSaveDiagnostics(
     return {
       storageAvailable: false,
       storageKey: WEB_SAVE_STORAGE_KEY,
+      activeStorageKey: null,
+      legacyStorageKey: LEGACY_WEB_SAVE_STORAGE_KEY,
+      legacySavePresent: false,
       status: "storage_unavailable",
       saveVersion: null,
       saveSizeCharacters: 0,
@@ -90,14 +94,20 @@ export function buildSaveDiagnostics(
     };
   }
 
+  const legacySavePresent = hasStoredSave(storage, LEGACY_WEB_SAVE_STORAGE_KEY);
+  const loadResult = loadSaveDataFromStorage(data, storage);
+  const activeStorageKey = loadResult.storageKey;
   let rawSave: string | null = null;
 
   try {
-    rawSave = storage.getItem(WEB_SAVE_STORAGE_KEY);
+    rawSave = storage.getItem(activeStorageKey);
   } catch (error) {
     return {
       storageAvailable: true,
       storageKey: WEB_SAVE_STORAGE_KEY,
+      activeStorageKey,
+      legacyStorageKey: LEGACY_WEB_SAVE_STORAGE_KEY,
+      legacySavePresent,
       status: "storage_error",
       saveVersion: null,
       saveSizeCharacters: 0,
@@ -116,12 +126,13 @@ export function buildSaveDiagnostics(
     };
   }
 
-  const loadResult = loadSaveDataFromStorage(data, storage);
-
   if (!loadResult.ok) {
     return {
       storageAvailable: true,
       storageKey: WEB_SAVE_STORAGE_KEY,
+      activeStorageKey,
+      legacyStorageKey: LEGACY_WEB_SAVE_STORAGE_KEY,
+      legacySavePresent,
       status: loadResult.reason,
       saveVersion: null,
       saveSizeCharacters: rawSave?.length ?? 0,
@@ -146,6 +157,9 @@ export function buildSaveDiagnostics(
   return {
     storageAvailable: true,
     storageKey: WEB_SAVE_STORAGE_KEY,
+    activeStorageKey: loadResult.storageKey,
+    legacyStorageKey: LEGACY_WEB_SAVE_STORAGE_KEY,
+    legacySavePresent,
     status: errors.length > 0 ? "storage_error" : "ready",
     saveVersion: save.version,
     saveSizeCharacters: rawSave?.length ?? 0,
@@ -162,4 +176,12 @@ export function buildSaveDiagnostics(
     autosaveIntervalMs: WEB_SAVE_AUTOSAVE_INTERVAL_MS,
     errors
   };
+}
+
+function hasStoredSave(storage: Pick<Storage, "getItem">, key: string): boolean {
+  try {
+    return storage.getItem(key) !== null;
+  } catch {
+    return false;
+  }
 }

@@ -68,7 +68,7 @@ Stage 2.4 implements Epic 89 from the retheme migration plan as focused slices.
 | --- | --- | --- | --- |
 | 89.1 | Product And Storage Migration Preflight | Complete | Confirm target keys, current references, fixtures, and guard tests before edits |
 | 89.2 | Shared Alias Map Helper Foundation | Complete | Add reusable alias-map shape and tests without migrating static ids |
-| 89.3 | Browser Save Key Migration | Planned | Add dual-read/copy behavior for old and new save keys |
+| 89.3 | Browser Save Key Migration | Complete | Add dual-read/copy behavior for old and new save keys |
 | 89.4 | PWA Cache And Icon Path Migration | Planned | Rename cache/icon runtime identity with installed-PWA compatibility |
 | 89.5 | Package And Tooling Identity Rename | Planned | Rename package/tool display identity while keeping reports/builds coherent |
 | 89.6 | Product/Storage Compatibility Hardening | Planned | Prove old saves, new saves, PWA caches, docs, and stale scans are safe |
@@ -240,6 +240,24 @@ Move the canonical browser save key to Path of Neon without losing existing loca
 - Offline reward idempotency/time-travel tests where old-key migration can affect timestamps.
 - Save diagnostics tests.
 - `npm run typecheck`.
+
+### Implementation Decisions
+
+- `WEB_SAVE_STORAGE_KEY` is now the canonical `path-of-neon.save.v1` key.
+- `LEGACY_WEB_SAVE_STORAGE_KEY` preserves the old `path-of-jianghu.save.v1` key for fallback reads and copy-forward compatibility.
+- Default storage callers read the canonical key first. They only fall back to the legacy key when the canonical key is missing; invalid or unreadable canonical storage does not fall through to legacy.
+- Explicit key arguments still target the provided key, which keeps focused tests and future compatibility probes possible.
+- Legacy-key startup loads write the validated/current save to the canonical key and retain the legacy key.
+- Failed legacy-key copies keep the legacy key, avoid creating a partial canonical key, and surface startup diagnostics.
+- Save diagnostics now show the canonical key, active key, and whether a legacy backup exists.
+
+### Progress Notes
+
+- Updated `web/state/saveStorage.ts` so the canonical save key is `path-of-neon.save.v1`, with legacy fallback to `path-of-jianghu.save.v1` when the canonical key is missing.
+- Added `storageKeyMigrated` as a web startup persistence reason so failed copy-forward attempts are visible without changing the core save schema.
+- Updated save diagnostics and the Save Tools panel to distinguish canonical, active, and legacy backup keys.
+- Added focused tests for old-key copy-forward, canonical-key precedence, invalid legacy saves, failed legacy copies, offline reward idempotency on failed copies, and canonical read errors.
+- Updated compatibility and runtime-alias tests so Stage 2.4 now treats the Path of Neon save key as canonical while preserving the legacy key as an explicit adapter.
 
 ---
 

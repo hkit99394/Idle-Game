@@ -48,8 +48,12 @@ export type StartupSavePersistence = {
   persistedSave: SaveData | null;
   offlineRewardBaselineSave?: SaveData | null;
   commitStatus: "not_needed" | "written" | "failed";
-  attemptedWriteReasons: SaveLoadWriteReason[];
+  attemptedWriteReasons: StartupSaveWriteReason[];
 };
+
+export type StartupSaveWriteReason =
+  | SaveLoadWriteReason
+  | "storageKeyMigrated";
 
 export type PurchaseGameUpgradeInput = Omit<PurchaseUpgradeInput, "progress">;
 export type PurchaseGameSkillUpgradeInput = Omit<

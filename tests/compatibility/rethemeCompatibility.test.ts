@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { createInitialPlayerProgress, createSaveData } from "../../core";
 import { staticGameData } from "../../data/staticGameData";
-import { WEB_SAVE_STORAGE_KEY } from "../../web/state/saveStorage";
+import {
+  LEGACY_WEB_SAVE_STORAGE_KEY,
+  WEB_SAVE_STORAGE_KEY
+} from "../../web/state/saveStorage";
 
 const serviceWorkerSource = readFileSync(
   new URL("../../public/service-worker.js", import.meta.url),
@@ -250,7 +253,7 @@ describe("Stage 2.3 retheme compatibility keys", () => {
     });
   });
 
-  it("keeps save, package, PWA cache, and icon compatibility keys unchanged", () => {
+  it("keeps internal compatibility fields stable and tracks runtime key migration", () => {
     const save = createSaveData({
       progress: createInitialPlayerProgress(staticGameData),
       selectedOfflineFarmStageId: null,
@@ -258,7 +261,8 @@ describe("Stage 2.3 retheme compatibility keys", () => {
     });
 
     expect(packageMetadata.name).toBe("path-of-jianghu");
-    expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-jianghu.save.v1");
+    expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-neon.save.v1");
+    expect(LEGACY_WEB_SAVE_STORAGE_KEY).toBe("path-of-jianghu.save.v1");
     expect(Object.keys(save.progress.resources)).toEqual([
       "silver",
       "cultivation",
