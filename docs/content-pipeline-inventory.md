@@ -13,6 +13,7 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 - [core/balance/simulatedBalanceReport.ts](../core/balance/simulatedBalanceReport.ts) and `npm run simulate` are the current dynamic balance gate.
 - [docs/static-data.md](static-data.md) documents the canonical bundle workflow.
 - [docs/balance-budget-gates.md](balance-budget-gates.md) documents the current region budget fields and release posture.
+- [docs/progression-pacing-roadmap.md](progression-pacing-roadmap.md) records the target-time roadmap for stages, power, offline pacing, boss gates, and milestone timing.
 
 ## Data Inventory
 
@@ -77,6 +78,8 @@ Stage 2.1 adds opt-in tactic comparison exports without changing the default rep
 - `npm run --silent simulate -- --tactics-json` returns stable rows for every configured stage and tactic.
 - `npm run --silent simulate -- --tactics-csv` returns the same rows for spreadsheet review.
 - Tactic rows include baseline result, result changes, duration deltas, target-status changes, `budgetShift`, pressure metrics, and contribution metric deltas.
+
+The active balance report is stage and region focused. It does not yet answer the longer-form pacing question of where a player should be after 5 minutes, 15 minutes, 1 hour, Day 1, Day 3, or Day 7. Use [Progression Pacing Roadmap](progression-pacing-roadmap.md) as the planning authority for that next layer until timeline simulation tooling exists.
 
 ## Known Budget Debt
 

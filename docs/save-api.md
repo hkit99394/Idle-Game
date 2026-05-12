@@ -4,6 +4,8 @@
 
 Save loading should be owned by `core/` so web storage, tools, tests, and a future backend use the same migration, validation, normalization, offline reward, and timestamp behavior.
 
+Theme note: Path of Neon display terms do not rename save schema fields during the display-safe retheme. Persisted fields such as `silver`, `cultivation`, `herbs`, `sect`, `outerHp`, and `innerQi` remain compatibility contracts until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them with a save-version bump and fixture coverage.
+
 ## Preferred Core Entry Points
 
 | Use Case | API | Notes |
@@ -13,6 +15,7 @@ Save loading should be owned by `core/` so web storage, tools, tests, and a futu
 | Load a save and apply offline rewards | `loadSaveTransaction` | Preferred load path for web startup, future backend load, and tests that need full load semantics. |
 | Apply load semantics to an already parsed save | `applySaveLoadTransaction` | Use when the caller already has validated `SaveData`. Normalizes farm metadata and applies offline rewards. |
 | Validate user-supplied save data for diagnostics | `validateSaveData` | Returns validation strings. Runtime load should prefer `parseSaveData` or `loadSaveTransaction`. |
+| Wrap and load cloud saves | `createCloudSaveEnvelope`, `loadCloudSaveEnvelopeTransaction` | Cloud envelopes add account, slot, checksum, and conflict metadata around current `SaveData`; see [Cloud Save Contract](cloud-save-contract.md). |
 
 ## Load Semantics
 
@@ -61,6 +64,8 @@ adding a separate `normalizedSave` reason.
 
 It should not own migration, offline reward calculation, farm-target normalization, or timestamp rules.
 
+The current browser storage key is `path-of-jianghu.save.v1`. A Path of Neon product-shell rename must either keep reading that key or add a tested dual-read/write migration before writing to any new key.
+
 On failed persistence, adapters must keep the concepts separate:
 
 - The loaded normalized save is the current-schema value returned by core after
@@ -89,3 +94,9 @@ When a save version is added, add or update the migration fixture path before ch
 ## Import And Future Versions
 
 Imported saves with unsupported future versions must fail validation. The game should not try to downgrade future saves or grant offline rewards to invalid imports.
+
+Cloud envelopes follow the same rule: `saveVersion` must match the current `SAVE_DATA_VERSION`, and `rawSave` still routes through core load validation before rewards or normalization are accepted.
+
+## Backend And Online Boss Notes
+
+Backend save adapters should compare account, slot, checksum, and timestamp metadata before accepting cloud writes or online boss attempts. Competitive online boss attempts should use the save metadata and team snapshot only as input to server-side deterministic simulation; client-submitted battle results are diagnostics, not authoritative rewards or leaderboard state. See [Cloud Save Contract](cloud-save-contract.md) and [Online Boss Transport Decision](online-boss-transport-decision.md).

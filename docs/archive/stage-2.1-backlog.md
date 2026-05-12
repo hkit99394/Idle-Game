@@ -286,7 +286,7 @@ Close Stage 2.1 with clear strategy docs, release verification, and next-stage r
 
 ### Progress Notes
 
-- Updated [Current Implemented Systems](../current-implemented-systems.md), [Static Data](../static-data.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Stage 2.1 Tactics Audit](../stage-2.1-tactics-audit.md), and [Roadmap Stage 1.7 To 2.2](../roadmap-stage-1.7-to-2.2.md) so tactics are described in completed-stage language across engine, data, UI/save, and balance-review surfaces.
+- Updated [Current Implemented Systems](../current-implemented-systems.md), [Static Data](../static-data.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Stage 2.1 Tactics Audit](../stage-2.1-tactics-audit.md), and [Roadmap Stage 1.7 To 2.2](roadmap-stage-1.7-to-2.2.md) so tactics are described in completed-stage language across engine, data, UI/save, and balance-review surfaces.
 - Confirmed no new Combat Engine V2 extension contract was required for Epic 72; Stage 2.1 reused the documented combat extension lanes already updated by earlier epics.
 - Preserved the known Black Iron Fort and Demon Cult budget debt as visible tuning debt instead of making a broad Stage 2.1 retune. `npm run simulate` still reports the expected Black Iron Fort clear-time miss and Demon Cult clear-time/status-pressure misses.
 - Verified tactic comparison exports report tactic ids, baseline results, result changes, duration deltas, target-status changes, pressure deltas, contribution deltas, and budget-shift labels.

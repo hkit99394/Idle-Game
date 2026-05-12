@@ -2,6 +2,8 @@
 
 Use this checklist when adding or changing regions, stages, enemies, skills, rewards, or balance budgets. The goal is to make content review happen through data, validation, and reports before UI work depends on the new content.
 
+For longer-form progression timing, use [Progression Pacing Roadmap](progression-pacing-roadmap.md) alongside this checklist. The checklist protects content correctness and local balance gates; the pacing roadmap defines where players should be after first-session, first-hour, Day 1, Day 3, and Day 7 milestones.
+
 ## Region Slice
 
 Before opening a region for play:
@@ -12,6 +14,8 @@ Before opening a region for play:
 4. Add or update any skills, statuses, medicines, equipment, assignments, upgrades, style entries, and mastery assumptions that the region uses.
 5. Keep ids stable and descriptive; region and stage ids are used by saves, reports, docs, and tests.
 6. Run static validation through the test suite before trusting simulator output.
+
+For Path of Neon content, retheme display `name` and description fields before changing ids. Legacy ids can coexist with neon-facing names; see [Path Of Neon Terminology Map](path-of-neon-terminology-map.md) and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
 
 ## Stage And Enemy Checks
 

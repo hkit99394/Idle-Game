@@ -1,6 +1,8 @@
 # Core Engine Boundary
 
-`core/` is the reusable game engine boundary for Path of Jianghu.
+`core/` is the reusable game engine boundary for Path of Neon, formerly Path of Jianghu.
+
+Theme note: the Path of Neon retheme changes player-facing language before internal contract names. Core types, save fields, static ids, event names, and tests may retain legacy terms such as `outerHp`, `innerQi`, `cultivation`, and `sect` until a dedicated migration changes them.
 
 ## Entry Points
 
@@ -69,3 +71,9 @@
 ## Backend Readiness
 
 The backend can reuse battle simulation, progression, offline rewards, save migration, and static data validation by importing from `core/index.ts`. Account storage, cloud sync, authentication, and websocket delivery should wrap the engine instead of moving browser or server concerns into `core/`.
+
+The approved headless workflows, adapter boundaries, and missing public entry points for Stage 2.2 are tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).
+
+Server-safe import expectations are guarded by `tests/core/engineBoundary.test.ts`, including runtime imports of approved entry points and source scans for browser, React, Vite, web, tool, wall-clock, and ambient-random dependencies.
+
+Cloud-save adapters should wrap current `SaveData` with the account/slot/checksum envelope described in [Cloud Save Contract](cloud-save-contract.md). Online boss adapters should follow [Online Boss Transport Decision](online-boss-transport-decision.md): HTTP attempt submission plus polling, with server-side deterministic simulation as the authoritative result source.

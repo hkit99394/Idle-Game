@@ -1,6 +1,8 @@
-# Path of Jianghu
+# Path of Neon
 
-An idle martial arts RPG concept built around separate **Outer Art** and **Inner Art** combat.
+An idle cyber-sect RPG concept built around separate **Kinetic Art** and **Cognitive Art** combat.
+
+Path of Neon is the new product direction for the project formerly called Path of Jianghu. The current runtime still contains legacy Path of Jianghu names while the retheme is planned and migrated safely.
 
 Start with the current contributor docs:
 
@@ -8,9 +10,16 @@ Start with the current contributor docs:
 - [Core Engine Boundary](docs/core-engine-boundary.md)
 - [Combat Engine V2](docs/combat-engine-v2.md)
 - [Web UI Architecture](docs/web-ui-architecture.md)
+- [Stage 2.2 Headless Engine Boundary Audit](docs/stage-2.2-headless-engine-audit.md)
+- [Path Of Neon Theme Bible](docs/path-of-neon-theme-bible.md)
+- [Path Of Neon Terminology Map](docs/path-of-neon-terminology-map.md)
+- [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
-- [Recommended Roadmap: Stage 1.7 To 2.2](docs/roadmap-stage-1.7-to-2.2.md)
+- [Archived Roadmap: Stage 1.7 To 2.2](docs/archive/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)
+- [Cloud Save Contract](docs/cloud-save-contract.md)
+- [PWA Readiness](docs/pwa-readiness.md)
+- [Online Boss Transport Decision](docs/online-boss-transport-decision.md)
 - [Static Data](docs/static-data.md)
 - [Content Pipeline Inventory](docs/content-pipeline-inventory.md)
 - [Balance Budget Gates](docs/balance-budget-gates.md)
@@ -21,6 +30,7 @@ Historical planning and archived backlogs:
 
 - [Planning Questions Before Analysis Stage](docs/planning-questions.md)
 - [Analysis Stage](docs/analysis-stage.md)
+- [Archived Stage 2.2 Backlog](docs/archive/stage-2.2-backlog.md)
 - [Archived Stage 2.1 Backlog](docs/archive/stage-2.1-backlog.md)
 - [Archived Stage 2.0 Backlog](docs/archive/stage-2.0-backlog.md)
 - [Archived Stage 1.9 Backlog](docs/archive/stage-1.9-backlog.md)
@@ -37,6 +47,7 @@ Historical planning and archived backlogs:
 ## Current Prototype
 
 - Responsive web prototype with continuous stage fighting.
+- Product direction is now Path of Neon: techno-sects, neon districts, AI Overload combat, and future neon-native systems such as district heat, cognitive intrusion, augment loadouts, network operations, and AI raid events.
 - Clicking a map route card selects where the team fights; cleared non-boss cards also become the offline farm target.
 - Bamboo Road, Mist Valley, Black Iron Fort, Lotus Monastery, and Demon Cult Outpost are implemented with team encounters, formation slots, targeting rules, CP, levels, rewards, equipment, medicine, status counterplay, and map mastery.
 - Save export/import, reset, diagnostics, offline reward preview, time travel testing, and farm presets are available in the web UI.

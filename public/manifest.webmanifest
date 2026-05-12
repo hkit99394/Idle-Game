@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Path of Jianghu",
+  "short_name": "Jianghu",
+  "description": "An idle martial arts RPG about building a sect, clearing stages, and preserving progress safely.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#16231f",
+  "background_color": "#f4efe2",
+  "icons": [
+    {
+      "src": "/icons/path-of-jianghu.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
