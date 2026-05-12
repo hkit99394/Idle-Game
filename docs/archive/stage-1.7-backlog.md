@@ -197,7 +197,7 @@ Make active docs match the current game and keep completed stage history in `doc
 
 - Update `docs/martial-idle-design.md` to describe current implemented systems: formations, enemy teams, CP, levels, equipment, assignments, medicine, Demon Cult, and support counterplay.
 - Update `docs/core-engine-boundary.md` to reflect current core/web/tool boundaries after refactors.
-- Review `docs/analysis-stage.md` and `docs/planning-questions.md` for stale decisions or outdated uncertainty.
+- Review `docs/archive/analysis-stage.md` and `docs/archive/planning-questions.md` for stale decisions or outdated uncertainty.
 - Ensure Stage 1.6 is archived and active docs link to the archived path only where historical context is useful.
 - Add a short "Current Implemented Systems" section or doc for quick onboarding.
 - Keep roadmap docs aligned with what Stage 1.7 actually completes.
@@ -220,7 +220,7 @@ Make active docs match the current game and keep completed stage history in `doc
 - Stage 1.6 backlog has been moved to `docs/archive/stage-1.6-backlog.md`.
 - Added `docs/current-implemented-systems.md` as the short current-state onboarding doc.
 - Updated `docs/martial-idle-design.md` to point readers to the implemented systems snapshot before older design sections.
-- Marked `docs/analysis-stage.md` and `docs/planning-questions.md` as historical planning artifacts with links to current docs.
+- Marked `docs/archive/analysis-stage.md` and `docs/archive/planning-questions.md` as historical planning artifacts with links to current docs.
 - Expanded `docs/core-engine-boundary.md` with the static-data builder, save-load transaction path, no-browser-dependency rule, and balance/tool boundaries.
 - Updated the Stage 1.7 to 2.2 roadmap so Stage 1.6 archive status and Stage 1.7 progress are current.
 - Verified with markdown link checks, `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, and `git diff --check`.

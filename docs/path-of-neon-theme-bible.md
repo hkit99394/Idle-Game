@@ -191,3 +191,11 @@ Cards, dashboards, and repeated controls should stay dense and readable. The gam
 - Keep future mechanic terms out of player-facing UI until the corresponding mechanic exists.
 - Do not rewrite archived backlogs. They are historical records of the Path of Jianghu era.
 - Any future data rename must distinguish `id` stability from `name` display changes.
+
+## Stage 2.3 Contract Handoff
+
+Use [Stage 2.3 Backlog](stage-2.3-backlog.md) as the active implementation plan for this theme contract. Epics 79-88 cover the display-safe pivot; later migration work belongs in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) unless the stage is explicitly reopened.
+
+Epic 81 owns the unresolved style taxonomy. Do not finalize broad Fist, Palm, Sword, Staff, Blade, hidden-weapon, style-mastery, skill, or equipment copy until that decision records whether old styles remain visible as lineage terms, become protocol families, or move to role-forward labels.
+
+Epic 85 owns the first neon-native prototype decision. The current recommendation is still Cognitive Intrusion first, with District Heat second, because Cognitive Intrusion reuses existing Context Stability, AI Overload, status, targeting, and simulator surfaces with the smallest likely save impact.

@@ -96,4 +96,4 @@ This section is retained as closure history, not active implementation guidance.
 4. Tests proving valid tactics pass and invalid tactics fail with actionable messages.
 5. Minimal schema documentation before Epic 69 documented deeper behavior.
 
-The static-data contract now exists in [tactics.json](../data/tactics.json), `StaticGameData.tactics`, and `validateStaticGameData`. Epic 69 activated the combat behavior through runtime tactic inputs, and Epic 70 completed persistence and web selection.
+The static-data contract now exists in [tactics.json](../../data/tactics.json), `StaticGameData.tactics`, and `validateStaticGameData`. Epic 69 activated the combat behavior through runtime tactic inputs, and Epic 70 completed persistence and web selection.

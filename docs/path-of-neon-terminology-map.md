@@ -156,3 +156,11 @@ Before changing player-facing copy, inventory these sources:
 - Tests that assert display strings, especially PWA, view-model, responsive smoke, save tool, data, and tooling tests.
 
 Prefer a small theme vocabulary/formatter layer before broad string replacement so repeated terms like Body Integrity, Context Stability, AI Overload, Context Rebuild, Resonance, Credits, and District Mastery stay consistent.
+
+## Stage 2.3 Handoff
+
+[Stage 2.3 Backlog](stage-2.3-backlog.md) is the active execution plan for this terminology map. Use this document as the display-language source while Epics 80, 82, 83, and 84 change product-shell, vocabulary, UI, and static-data display text.
+
+Epic 81 must settle the style rows marked "Needs style naming pass" before broad style-bearing copy changes. Until then, preserve legacy style ids and avoid replacing every style reference with provisional names such as Impact, Pulse, Edge, or Ward.
+
+Epic 85 must settle the first neon-native prototype contract before future mechanic terms appear in live UI. Cognitive Intrusion is the preferred first candidate; District Heat should remain the preferred second candidate unless the prototype review changes that order.

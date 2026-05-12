@@ -35,7 +35,7 @@ Internal identifiers means the stable machine-readable names used by saves, stat
 
 The stage should establish the retheme contract, then make the first visible product-shell and UI-language changes while planning one small neon-native system prototype. The goal is not to rewrite the game immediately; it is to stop the retheme from being only copy replacement.
 
-The numbered sections below are implementation phases inside Stage 2.3, not project stages after Stage 2.2. "Stage 0" means the docs-only preflight phase for Stage 2.3: it can be completed before runtime retheme work starts, and it should become Epic 79 or the opening slice of the Stage 2.3 backlog.
+The numbered sections below are implementation phases inside Stage 2.3, not project stages after Stage 2.2. "Stage 0" means the docs-only preflight phase for Stage 2.3: it can be completed before runtime retheme work starts, and it is tracked as Epic 79 in [Stage 2.3 Backlog](stage-2.3-backlog.md).
 
 ## Suggested Epics
 
@@ -117,7 +117,7 @@ Likely files:
 - [Path Of Neon Theme Bible](path-of-neon-theme-bible.md)
 - [Path Of Neon Terminology Map](path-of-neon-terminology-map.md)
 - This migration plan
-- Future stage backlog
+- [Stage 2.3 Backlog](stage-2.3-backlog.md)
 
 Acceptance:
 

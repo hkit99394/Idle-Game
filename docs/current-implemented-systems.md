@@ -88,7 +88,8 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
 - The practical checklist for adding or changing regions is [Content Authoring Checklist](content-authoring-checklist.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
-- Completed backlogs through Stage 2.1 live in `docs/archive`.
+- The active Stage 2.3 planning backlog is [Stage 2.3 Backlog](stage-2.3-backlog.md), focused on the display-safe Path of Neon design pivot.
+- Completed backlogs through Stage 2.2 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
