@@ -4,7 +4,7 @@
 
 This map is the display-language contract for the Path of Neon retheme. It keeps mechanics recognizable while allowing player-facing copy, content names, and visual design to move away from pure martial fantasy.
 
-Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them, but not during casual UI copy replacement. In particular, save fields, storage keys, static ids, test fixture keys, and API envelope fields may keep legacy names such as `cultivation`, `silver`, `sect`, `innerQi`, `bamboo_road`, or `path-of-jianghu.save.v1` until the migration plan in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) is implemented.
+Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them, but not during casual UI copy replacement. In particular, save fields, static ids, test fixture keys, and API envelope fields may keep legacy names such as `cultivation`, `silver`, `sect`, `innerQi`, or `bamboo_road` until the migration plan in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) is implemented. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
 
 Use this map in three different ways:
 
@@ -122,8 +122,8 @@ Do not retheme these in schema docs until a migration changes them:
 - `outerHp`, `innerQi`, `maxOuterHp`, `maxInnerQi`
 - All static JSON `id` fields and all save/static reference fields ending in `Id`, including `regionId`, `stageId`, `enemyId`, `heroId`, `skillId`, `styleId`, `equipmentId`, `equipmentSetId`, `assignmentId`, `medicineId`, `statusId`, and `tacticId`
 - Exported constants such as `WEB_SAVE_STORAGE_KEY`
-- Browser save key `path-of-jianghu.save.v1`
-- Existing PWA cache prefix `path-of-jianghu-shell-` until a cache migration handles old and new prefixes
+- Legacy browser save key `path-of-jianghu.save.v1`, which remains a read/copy compatibility key after the canonical `path-of-neon.save.v1` migration
+- Legacy PWA cache prefix `path-of-jianghu-shell-`, which remains a cleanup compatibility prefix after the canonical `path-of-neon-shell-` migration
 
 Migration targets and ordering are tracked in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md).
 

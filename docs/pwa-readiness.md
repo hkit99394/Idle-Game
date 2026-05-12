@@ -9,12 +9,13 @@ Stage 2.2 makes the existing web app installable and gives it a safe offline she
 The app shell declares:
 
 - Manifest: `public/manifest.webmanifest`
-- Icon: `public/icons/path-of-jianghu.svg`
-- Theme color: `#16231f`
+- Canonical icon: `public/icons/path-of-neon.svg`
+- Legacy icon compatibility path: `public/icons/path-of-jianghu.svg`
+- Theme color: `#101418`
 - Display mode: `standalone`
 - Start URL and scope: `/`
 
-Stage 2.3 updates the app title, manifest display name, short name, description, Apple web app title, and SVG icon metadata/artwork to Path of Neon. The icon path remains `public/icons/path-of-jianghu.svg` until the product/storage key migration covers path changes, service-worker cache cleanup, and old installed PWA behavior.
+Stage 2.3 updated the app title, manifest display name, short name, description, Apple web app title, and SVG icon metadata/artwork to Path of Neon. Stage 2.4 moved the canonical manifest and favicon path to `public/icons/path-of-neon.svg` while keeping `public/icons/path-of-jianghu.svg` available and cached for installed-PWA compatibility.
 
 The current icon is an SVG with `purpose: "any maskable"`. If app stores or platform-specific launchers require PNG sizes later, add generated `192x192` and `512x512` PNGs without changing save behavior.
 
@@ -30,7 +31,7 @@ The current icon is an SVG with `purpose: "any maskable"`. If app stores or plat
 
 The service worker does not read or write `localStorage`, `sessionStorage`, IndexedDB, save export text, import text, or cloud-save payloads.
 
-The Stage 2.3 product-shell display rename deliberately keeps the existing `path-of-jianghu-shell-v1` cache name and `path-of-jianghu-shell-*` cleanup prefix. Any future cache prefix rename must delete old `path-of-jianghu-shell-*` caches during activation and stay covered in `tests/web/pwa.test.ts`.
+The canonical shell cache is `path-of-neon-shell-v1`. Activation deletes stale `path-of-jianghu-shell-*` and stale `path-of-neon-shell-*` caches except the current cache, and this behavior is covered in `tests/web/pwa.test.ts`.
 
 ## Registration
 

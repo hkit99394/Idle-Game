@@ -21,6 +21,7 @@ import {
   resetSaveDataInStorage,
   saveWebGameStateToStorage,
   timeTravelOfflineSave,
+  LEGACY_WEB_SAVE_STORAGE_KEY,
   WEB_SAVE_AUTOSAVE_INTERVAL_MS,
   WEB_SAVE_STORAGE_KEY,
   type WebSaveStorage
@@ -38,6 +39,18 @@ class FailingWriteStorage extends MemoryStorage {
     }
 
     super.setItem(key, value);
+  }
+}
+
+class FailingReadStorage extends MemoryStorage {
+  failKeys = new Set<string>();
+
+  override getItem(key: string): string | null {
+    if (this.failKeys.has(key)) {
+      throw new Error(`read failed for ${key}`);
+    }
+
+    return super.getItem(key);
   }
 }
 
@@ -63,6 +76,11 @@ function withBrowserStorage<T>(storage: WebSaveStorage, callback: () => T): T {
 }
 
 describe("web save storage", () => {
+  it("uses the Path of Neon save key as canonical while retaining the legacy key", () => {
+    expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-neon.save.v1");
+    expect(LEGACY_WEB_SAVE_STORAGE_KEY).toBe("path-of-jianghu.save.v1");
+  });
+
   it("falls back to a new game when no save exists", () => {
     const storage = new MemoryStorage();
     const loadResult = loadSaveDataFromStorage(staticData, storage);
@@ -79,6 +97,193 @@ describe("web save storage", () => {
     expect(state.selectedStageId).toBe("bamboo_road_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
     expect(state.offlineFarmPreset).toBe("balanced");
+  });
+
+  it("loads a valid legacy-key save and copies it to the canonical key", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 123;
+    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.currentStageId = "bamboo_road_3";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      offlineFarmPreset: "silver",
+      nowMs: 1000
+    });
+
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+    const copiedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok || !copiedSave.ok) {
+      return;
+    }
+    expect(loadResult.commitResult.status).toBe("written");
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual([
+      "storageKeyMigrated"
+    ]);
+    expect(copiedSave.storageKey).toBe(WEB_SAVE_STORAGE_KEY);
+    expect(copiedSave.save.progress.resources.silver).toBe(123);
+    expect(storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY)).toBe(
+      JSON.stringify(save)
+    );
+    expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toBe(
+      JSON.stringify(copiedSave.save)
+    );
+  });
+
+  it("prefers the canonical key when both canonical and legacy saves exist", () => {
+    const storage = new MemoryStorage();
+    const canonicalProgress = createInitialPlayerProgress(staticData);
+    canonicalProgress.resources.silver = 456;
+    const canonicalSave = createSaveData({
+      progress: canonicalProgress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 2000
+    });
+
+    storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(canonicalSave));
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, "{not json");
+
+    const loadResult = loadSaveDataFromStorage(staticData, storage);
+    const state = createInitialWebGameStateFromStorage(staticData, storage, 3000);
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok) {
+      return;
+    }
+    expect(loadResult.storageKey).toBe(WEB_SAVE_STORAGE_KEY);
+    expect(loadResult.save.progress.resources.silver).toBe(456);
+    expect(state.progress.resources.silver).toBe(456);
+    expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toBe(
+      JSON.stringify(canonicalSave)
+    );
+    expect(storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY)).toBe("{not json");
+  });
+
+  it("does not write the canonical key when the legacy save is invalid", () => {
+    const storage = new MemoryStorage();
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, "{not json");
+
+    const loadResult = loadSaveDataFromStorage(staticData, storage);
+
+    expect(loadResult.ok).toBe(false);
+    if (loadResult.ok) {
+      return;
+    }
+    expect(loadResult.reason).toBe("invalid_json");
+    expect(loadResult.storageKey).toBe(LEGACY_WEB_SAVE_STORAGE_KEY);
+    expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("keeps the legacy save when canonical copy fails", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 123;
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+    storage.failWrites = true;
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok) {
+      return;
+    }
+    expect(loadResult.commitResult.status).toBe("failed");
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual([
+      "storageKeyMigrated"
+    ]);
+    expect(loadResult.activeSave).toEqual(save);
+    expect(loadResult.persistedSave).toBeNull();
+    expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toBeNull();
+    expect(storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY)).toBe(
+      JSON.stringify(save)
+    );
+  });
+
+  it("does not claim offline rewards when legacy-key migration copy fails", () => {
+    const storage = new FailingWriteStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.currentStageId = "bamboo_road_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "bamboo_road_1",
+      nowMs: 1000
+    });
+
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+    storage.failWrites = true;
+
+    const loadResult = loadSaveDataWithOfflineRewardsFromStorage(
+      staticData,
+      storage,
+      31_000
+    );
+    const storedLegacySave = JSON.parse(
+      storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY) ?? "{}"
+    ) as { lastOfflineRewardAtMs?: unknown };
+
+    expect(loadResult.ok).toBe(true);
+    if (!loadResult.ok) {
+      return;
+    }
+    expect(loadResult.commitResult.status).toBe("failed");
+    expect(loadResult.commitResult.attemptedWriteReasons).toEqual([
+      "offlineRewardsApplied",
+      "storageKeyMigrated"
+    ]);
+    expect(loadResult.offlineRewards).toBeNull();
+    expect(loadResult.activeSave.lastOfflineRewardAtMs).toBe(1000);
+    expect(loadResult.offlineRewardBaselineSave?.lastOfflineRewardAtMs).toBe(
+      1000
+    );
+    expect(storedLegacySave.lastOfflineRewardAtMs).toBe(1000);
+    expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("surfaces storage errors instead of falling through to legacy migration", () => {
+    const storage = new FailingReadStorage();
+    const save = createSaveData({
+      progress: createInitialPlayerProgress(staticData),
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
+    storage.failKeys.add(WEB_SAVE_STORAGE_KEY);
+
+    const loadResult = loadSaveDataFromStorage(staticData, storage);
+
+    expect(loadResult.ok).toBe(false);
+    if (loadResult.ok) {
+      return;
+    }
+    expect(loadResult.reason).toBe("storage_error");
+    expect(loadResult.storageKey).toBe(WEB_SAVE_STORAGE_KEY);
+    expect(loadResult.errors).toEqual([
+      `read failed for ${WEB_SAVE_STORAGE_KEY}`
+    ]);
+    expect(storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY)).toBe(
+      JSON.stringify(save)
+    );
   });
 
   it("loads saved progress and farm target into initial web state", () => {

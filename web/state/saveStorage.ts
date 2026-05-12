@@ -16,9 +16,10 @@ import type {
   SaveMigrationMetadata,
   StaticGameData
 } from "../../core";
-import type { WebGameState } from "./gameState";
+import type { StartupSaveWriteReason, WebGameState } from "./types";
 
-export const WEB_SAVE_STORAGE_KEY = "path-of-jianghu.save.v1";
+export const LEGACY_WEB_SAVE_STORAGE_KEY = "path-of-jianghu.save.v1";
+export const WEB_SAVE_STORAGE_KEY = "path-of-neon.save.v1";
 export const WEB_SAVE_AUTOSAVE_INTERVAL_MS = 15_000;
 
 export type WebSaveStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -43,11 +44,14 @@ export type LoadSaveDataFromStorageResult =
       ok: true;
       save: SaveData;
       migration: SaveMigrationMetadata;
+      storageKey: string;
     }
   | {
       ok: false;
       reason: "missing_save" | "invalid_json" | "invalid_save" | "storage_error";
       errors: string[];
+      storageKey: string;
+      legacyStorageKey?: string;
     };
 
 export type LoadSaveDataWithOfflineRewardsSuccess = {
@@ -81,12 +85,12 @@ export type SaveStorageCommitResult =
     }
   | {
       status: "written";
-      attemptedWriteReasons: SaveLoadWriteReason[];
-      committedWriteReasons: SaveLoadWriteReason[];
+      attemptedWriteReasons: StartupSaveWriteReason[];
+      committedWriteReasons: StartupSaveWriteReason[];
     }
   | {
       status: "failed";
-      attemptedWriteReasons: SaveLoadWriteReason[];
+      attemptedWriteReasons: StartupSaveWriteReason[];
       committedWriteReasons: [];
       errors: string[];
     };
@@ -158,52 +162,28 @@ export function loadSaveDataFromStorage(
   storage: WebSaveStorage,
   key = WEB_SAVE_STORAGE_KEY
 ): LoadSaveDataFromStorageResult {
-  let rawSave: string | null;
+  const rawSaveResult = loadRawSaveFromCanonicalOrLegacyStorage(storage, key);
 
-  try {
-    rawSave = storage.getItem(key);
-  } catch (error) {
-    return {
-      ok: false,
-      reason: "storage_error",
-      errors: [error instanceof Error ? error.message : "Unable to read save"]
-    };
+  if (!rawSaveResult.ok) {
+    return rawSaveResult;
   }
 
-  if (!rawSave) {
-    return {
-      ok: false,
-      reason: "missing_save",
-      errors: []
-    };
-  }
-
-  let parsedSave: unknown;
-
-  try {
-    parsedSave = JSON.parse(rawSave);
-  } catch {
-    return {
-      ok: false,
-      reason: "invalid_json",
-      errors: ["Stored save is not valid JSON"]
-    };
-  }
-
-  const parseResult = parseSaveData(data, parsedSave);
+  const parseResult = parseSaveData(data, rawSaveResult.rawSave);
 
   if (!parseResult.ok) {
     return {
       ok: false,
       reason: "invalid_save",
-      errors: parseResult.errors
+      errors: parseResult.errors,
+      storageKey: rawSaveResult.storageKey
     };
   }
 
   return {
     ok: true,
     save: parseResult.save,
-    migration: parseResult.migration
+    migration: parseResult.migration,
+    storageKey: rawSaveResult.storageKey
   };
 }
 
@@ -213,7 +193,7 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
   nowMs = Date.now(),
   key = WEB_SAVE_STORAGE_KEY
 ): LoadSaveDataWithOfflineRewardsResult {
-  const rawSaveResult = loadRawSaveFromStorage(storage, key);
+  const rawSaveResult = loadRawSaveFromCanonicalOrLegacyStorage(storage, key);
 
   if (!rawSaveResult.ok) {
     return rawSaveResult;
@@ -229,11 +209,27 @@ export function loadSaveDataWithOfflineRewardsFromStorage(
     return {
       ok: false,
       reason: "invalid_save",
-      errors: transaction.errors
+      errors: transaction.errors,
+      storageKey: rawSaveResult.storageKey
     };
   }
 
-  return commitSaveLoadTransactionToStorage(transaction, storage, key);
+  if (rawSaveResult.needsStorageKeyMigration) {
+    return commitSaveLoadTransactionToStorage(
+      transaction,
+      storage,
+      WEB_SAVE_STORAGE_KEY,
+      transaction.previousSave,
+      null,
+      ["storageKeyMigrated"]
+    );
+  }
+
+  return commitSaveLoadTransactionToStorage(
+    transaction,
+    storage,
+    rawSaveResult.storageKey
+  );
 }
 
 export function loadSaveDataWithOfflineRewardsFromSave(
@@ -269,11 +265,16 @@ function commitSaveLoadTransactionToStorage(
     transaction.writeReasons
   )
     ? transaction.previousSave
-    : null
+    : null,
+  additionalWriteReasons: StartupSaveWriteReason[] = []
 ): Extract<LoadSaveDataWithOfflineRewardsResult, { ok: true }> {
   const migration = getTransactionMigration(transaction);
+  const writeReasons: StartupSaveWriteReason[] = [
+    ...transaction.writeReasons,
+    ...additionalWriteReasons
+  ];
 
-  if (transaction.writeReasons.length > 0) {
+  if (writeReasons.length > 0) {
     const persistResult = persistSaveToStorage(storage, transaction.save, key);
 
     if (!persistResult.ok) {
@@ -285,13 +286,13 @@ function commitSaveLoadTransactionToStorage(
         activeSave: failedActiveSave,
         persistedSave: failedPersistedSave,
         offlineRewardBaselineSave: hasOfflineRewardWriteReason(
-          transaction.writeReasons
+          writeReasons
         )
           ? transaction.previousSave
           : null,
         commitResult: {
           status: "failed",
-          attemptedWriteReasons: transaction.writeReasons,
+          attemptedWriteReasons: writeReasons,
           committedWriteReasons: [],
           errors: persistResult.errors
         },
@@ -310,11 +311,11 @@ function commitSaveLoadTransactionToStorage(
     persistedSave: transaction.save,
     offlineRewardBaselineSave: null,
     commitResult:
-      transaction.writeReasons.length > 0
+      writeReasons.length > 0
         ? {
             status: "written",
-            attemptedWriteReasons: transaction.writeReasons,
-            committedWriteReasons: transaction.writeReasons
+            attemptedWriteReasons: writeReasons,
+            committedWriteReasons: writeReasons
           }
         : {
             status: "not_needed",
@@ -335,7 +336,7 @@ function getTransactionMigration(
 }
 
 function isCurrentSchemaPersistedSave(
-  writeReasons: SaveLoadWriteReason[]
+  writeReasons: StartupSaveWriteReason[]
 ): boolean {
   return !writeReasons.some(
     (reason) => reason === "migrated" || reason === "normalizedSave"
@@ -343,7 +344,7 @@ function isCurrentSchemaPersistedSave(
 }
 
 function hasOfflineRewardWriteReason(
-  writeReasons: SaveLoadWriteReason[]
+  writeReasons: StartupSaveWriteReason[]
 ): boolean {
   return writeReasons.some(
     (reason) =>
@@ -526,12 +527,49 @@ type LoadRawSaveFromStorageResult =
   | {
       ok: true;
       rawSave: unknown;
+      storageKey: string;
+      legacyStorageKey?: string;
+      needsStorageKeyMigration: boolean;
     }
   | Extract<LoadSaveDataFromStorageResult, { ok: false }>;
 
-function loadRawSaveFromStorage(
+function loadRawSaveFromCanonicalOrLegacyStorage(
   storage: WebSaveStorage,
   key: string
+): LoadRawSaveFromStorageResult {
+  const canonicalResult = loadRawSaveFromStorage(storage, key);
+
+  if (
+    canonicalResult.ok ||
+    key !== WEB_SAVE_STORAGE_KEY ||
+    canonicalResult.reason !== "missing_save"
+  ) {
+    return canonicalResult;
+  }
+
+  const legacyResult = loadRawSaveFromStorage(
+    storage,
+    LEGACY_WEB_SAVE_STORAGE_KEY,
+    true
+  );
+
+  if (legacyResult.ok || legacyResult.reason !== "missing_save") {
+    return {
+      ...legacyResult,
+      legacyStorageKey: LEGACY_WEB_SAVE_STORAGE_KEY
+    };
+  }
+
+  return {
+    ...canonicalResult,
+    legacyStorageKey: LEGACY_WEB_SAVE_STORAGE_KEY
+  };
+}
+
+function loadRawSaveFromStorage(
+  storage: WebSaveStorage,
+  key: string,
+  needsStorageKeyMigration = false
 ): LoadRawSaveFromStorageResult {
   let rawSave: string | null;
 
@@ -541,7 +579,8 @@ function loadRawSaveFromStorage(
     return {
       ok: false,
       reason: "storage_error",
-      errors: [error instanceof Error ? error.message : "Unable to read save"]
+      errors: [error instanceof Error ? error.message : "Unable to read save"],
+      storageKey: key
     };
   }
 
@@ -549,20 +588,24 @@ function loadRawSaveFromStorage(
     return {
       ok: false,
       reason: "missing_save",
-      errors: []
+      errors: [],
+      storageKey: key
     };
   }
 
   try {
     return {
       ok: true,
-      rawSave: JSON.parse(rawSave)
+      rawSave: JSON.parse(rawSave),
+      storageKey: key,
+      needsStorageKeyMigration
     };
   } catch {
     return {
       ok: false,
       reason: "invalid_json",
-      errors: ["Stored save is not valid JSON"]
+      errors: ["Stored save is not valid JSON"],
+      storageKey: key
     };
   }
 }

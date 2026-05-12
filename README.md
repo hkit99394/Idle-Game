@@ -2,7 +2,7 @@
 
 An idle cyber-sect RPG concept built around separate **Kinetic Art** and **Cognitive Art** combat.
 
-Path of Neon is the new product direction for the project formerly called Path of Jianghu. The current runtime still contains legacy Path of Jianghu names while the retheme is planned and migrated safely.
+Path of Neon is the new product direction for the project formerly called Path of Jianghu. Some internal ids and save fields still contain legacy Path of Jianghu names until the dedicated internal-id migration finishes.
 
 Start with the current contributor docs:
 
@@ -15,7 +15,7 @@ Start with the current contributor docs:
 - [Path Of Neon Terminology Map](docs/path-of-neon-terminology-map.md)
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
-- [Stage 2.4 Backlog](docs/stage-2.4-backlog.md)
+- [Stage 2.5 Backlog](docs/stage-2.5-backlog.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Archived Roadmap: Stage 1.7 To 2.2](docs/archive/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)
@@ -32,10 +32,11 @@ Historical planning and archived backlogs:
 
 - [Planning Questions Before Analysis Stage](docs/archive/planning-questions.md)
 - [Analysis Stage](docs/archive/analysis-stage.md)
-- [Archived Stage 2.1 Tactics Audit](docs/archive/stage-2.1-tactics-audit.md)
+- [Archived Stage 2.4 Backlog](docs/archive/stage-2.4-backlog.md)
 - [Archived Stage 2.3 Backlog](docs/archive/stage-2.3-backlog.md)
 - [Archived Stage 2.2 Backlog](docs/archive/stage-2.2-backlog.md)
 - [Archived Stage 2.1 Backlog](docs/archive/stage-2.1-backlog.md)
+- [Archived Stage 2.1 Tactics Audit](docs/archive/stage-2.1-tactics-audit.md)
 - [Archived Stage 2.0 Backlog](docs/archive/stage-2.0-backlog.md)
 - [Archived Stage 1.9 Backlog](docs/archive/stage-1.9-backlog.md)
 - [Archived Stage 1.8 Backlog](docs/archive/stage-1.8-backlog.md)

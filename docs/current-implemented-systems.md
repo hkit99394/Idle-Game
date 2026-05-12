@@ -14,7 +14,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.2 completed backend-safe core boundaries, cloud-save contracts, PWA readiness, and online boss scope decisions.
 - Path of Neon is the active product/theme direction. The retheme plan is documented in [Path Of Neon Theme Bible](path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
 - The retheme is intended to become deeper than copy replacement: [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) is the selected first mechanic contract, with district heat, augment loadouts, network operations, countermeasure economy, and AI raid events deferred.
-- Existing internal ids, save fields, and browser storage keys remain legacy-compatible until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them.
+- Existing internal ids and save fields remain legacy-compatible until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them. Browser storage now uses the Path of Neon key with legacy-key read/copy support.
 - The Stage 2.2 headless engine contract is tracked in [Stage 2.2 Headless Engine Boundary Audit](stage-2.2-headless-engine-audit.md).
 - PWA install/offline shell behavior is tracked in [PWA Readiness](pwa-readiness.md).
 - The first online boss transport decision is HTTP attempt submission plus lightweight polling, with server-side deterministic simulation; see [Online Boss Transport Decision](online-boss-transport-decision.md).
@@ -88,14 +88,16 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - The current content file inventory, validation coverage map, report-only gaps, and known budget debt are tracked in [Content Pipeline Inventory](content-pipeline-inventory.md).
 - The practical checklist for adding or changing regions is [Content Authoring Checklist](content-authoring-checklist.md).
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
-- The active Stage 2.4 planning backlog is [Stage 2.4 Backlog](stage-2.4-backlog.md), focused on product/storage key migration and shared alias-map helpers.
+- Stage 2.4 product/storage key migration is closed and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md), including package metadata, browser save storage, PWA cache/icon identity, and shared alias-map helpers.
+- The active Stage 2.5 planning backlog is [Stage 2.5 Backlog](stage-2.5-backlog.md), focused on region/stage static id migration, save-version fixtures, `progress.maps`, selected/current stage ids, simulator report ids, and compatibility aliases.
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md), covering the display-safe Path of Neon design pivot.
-- Completed backlogs through Stage 2.3 live in `docs/archive`.
+- Completed backlogs through Stage 2.4 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
 - Stage 2.2 is closed and archived at [Stage 2.2 Backlog](archive/stage-2.2-backlog.md); `docs/stage-2.2-backlog.md` should not exist as an active backlog unless Stage 2.2 is explicitly reopened.
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md); `docs/stage-2.3-backlog.md` should not exist as an active backlog unless Stage 2.3 is explicitly reopened.
+- Stage 2.4 is closed and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md); `docs/stage-2.4-backlog.md` should not exist as an active backlog unless Stage 2.4 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules

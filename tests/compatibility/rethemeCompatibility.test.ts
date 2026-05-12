@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { createInitialPlayerProgress, createSaveData } from "../../core";
 import { staticGameData } from "../../data/staticGameData";
-import { WEB_SAVE_STORAGE_KEY } from "../../web/state/saveStorage";
+import {
+  LEGACY_WEB_SAVE_STORAGE_KEY,
+  WEB_SAVE_STORAGE_KEY
+} from "../../web/state/saveStorage";
 
 const serviceWorkerSource = readFileSync(
   new URL("../../public/service-worker.js", import.meta.url),
@@ -50,7 +53,7 @@ function ids(collection: readonly { id: string }[] | undefined): string[] {
   return (collection ?? []).map((entry) => entry.id);
 }
 
-describe("Stage 2.3 retheme compatibility keys", () => {
+describe("Path of Neon retheme compatibility keys", () => {
   it("keeps static data ids stable until the dedicated id migration", () => {
     expect({
       assignments: ids(staticGameData.assignments),
@@ -250,15 +253,16 @@ describe("Stage 2.3 retheme compatibility keys", () => {
     });
   });
 
-  it("keeps save, package, PWA cache, and icon compatibility keys unchanged", () => {
+  it("keeps internal compatibility fields stable and tracks runtime key migration", () => {
     const save = createSaveData({
       progress: createInitialPlayerProgress(staticGameData),
       selectedOfflineFarmStageId: null,
       nowMs: 1_000
     });
 
-    expect(packageMetadata.name).toBe("path-of-jianghu");
-    expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-jianghu.save.v1");
+    expect(packageMetadata.name).toBe("path-of-neon");
+    expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-neon.save.v1");
+    expect(LEGACY_WEB_SAVE_STORAGE_KEY).toBe("path-of-jianghu.save.v1");
     expect(Object.keys(save.progress.resources)).toEqual([
       "silver",
       "cultivation",
@@ -268,13 +272,22 @@ describe("Stage 2.3 retheme compatibility keys", () => {
       "combatExperience"
     );
     expect(manifest.icons.map((icon) => icon.src)).toEqual([
-      "/icons/path-of-jianghu.svg"
+      "/icons/path-of-neon.svg"
     ]);
     expect(serviceWorkerSource).toContain(
-      'const CACHE_NAME = "path-of-jianghu-shell-v1"'
+      'const CACHE_NAME = "path-of-neon-shell-v1"'
     );
     expect(serviceWorkerSource).toContain(
-      'cacheName.startsWith("path-of-jianghu-shell-")'
+      '"/icons/path-of-neon.svg"'
+    );
+    expect(serviceWorkerSource).toContain(
+      '"/icons/path-of-jianghu.svg"'
+    );
+    expect(serviceWorkerSource).toContain(
+      '"path-of-jianghu-shell-"'
+    );
+    expect(serviceWorkerSource).toContain(
+      '"path-of-neon-shell-"'
     );
   });
 

@@ -64,7 +64,7 @@ adding a separate `normalizedSave` reason.
 
 It should not own migration, offline reward calculation, farm-target normalization, or timestamp rules.
 
-The current browser storage key is `path-of-jianghu.save.v1`. A Path of Neon product-shell rename must either keep reading that key or add a tested dual-read/write migration before writing to any new key.
+The canonical browser storage key is `path-of-neon.save.v1`. The web adapter still reads the legacy `path-of-jianghu.save.v1` key when the canonical key is missing, then copies valid legacy saves forward without deleting the old key.
 
 On failed persistence, adapters must keep the concepts separate:
 

@@ -20,7 +20,7 @@ These are non-goals for the display-safe retheme pass, not permanent product dec
 
 ## Compatibility Rules
 
-- Keep `WEB_SAVE_STORAGE_KEY` as `path-of-jianghu.save.v1` until a tested dual-read/write migration is added.
+- Keep reading the legacy `path-of-jianghu.save.v1` browser key after `WEB_SAVE_STORAGE_KEY` moves to `path-of-neon.save.v1`; old-key saves must copy forward safely before any cleanup policy is considered.
 - If the PWA cache name changes to a Path of Neon prefix, service-worker activation must delete both `path-of-jianghu-shell-*` and `path-of-neon-shell-*` caches except the current cache.
 - Static data `id` fields and all save/static `*Id` reference fields stay stable until the dedicated internal-id migration. Static data `name` and description fields may change as display text before that.
 - Save/cloud/core docs should describe persisted field names literally, then point to the display terminology map when needed.
@@ -61,7 +61,7 @@ The numbered sections below are implementation phases inside Stage 2.3, not proj
 | 96 | Cognitive Intrusion Prototype | Implement the smallest useful Cognitive Intrusion slice with focused tests and simulator/report visibility. |
 | 97 | Post-Migration Compatibility Hardening | Prove old saves, exports, fixtures, reports, PWA caches, docs, and stale-name scans still work after id/schema migration. |
 
-Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Stage 2.4 Backlog](stage-2.4-backlog.md) owns Epic 89 as focused product/storage key migration slices. The safest sequence is product/storage keys first, static region/route ids second, remaining static content ids third, save resource/progress fields fourth, combat save fields fifth, code/report symbols sixth, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
+Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) completed Epic 89 as focused product/storage key migration slices. [Stage 2.5 Backlog](stage-2.5-backlog.md) plans Epic 90 as region/stage static id migration, followed by remaining static content ids, save resource/progress fields, combat save fields, code/report symbols, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
 
 ## Stage 2.3 Phase 0: Docs Contract
 
