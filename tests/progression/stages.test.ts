@@ -9,7 +9,7 @@ import type { RegionProgress } from "../../core";
 import { staticData } from "../helpers/staticData";
 
 describe("stage progression", () => {
-  it("unlocks Demon Cult Outpost only after the Lotus boss is cleared", () => {
+  it("unlocks Redline Outpost only after the Lotus boss is cleared", () => {
     const beforeBoss: RegionProgress = {
       lotus_monastery: { highestClearedStageIndex: 6 }
     };
@@ -31,7 +31,7 @@ describe("stage progression", () => {
     );
   });
 
-  it("gates later Demon Cult stages by highest cleared stage index", () => {
+  it("gates later Redline stages by highest cleared stage index", () => {
     const entryProgress: RegionProgress = {
       lotus_monastery: { highestClearedStageIndex: 7 },
       demon_cult_outpost: { highestClearedStageIndex: 0 }

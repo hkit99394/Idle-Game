@@ -86,16 +86,19 @@ Use this map in three different ways:
 
 | Current Term | Path of Neon Term | Migration Rule |
 | --- | --- | --- |
-| Fist | Needs style naming pass | Do not lock to Impact yet; preserve old-style mapping and combat readability. |
-| Palm | Needs style naming pass | Do not lock to Pulse yet; preserve old-style mapping and combat readability. |
-| Sword | Needs style naming pass | Do not lock to Edge yet; preserve old-style mapping and combat readability. |
-| Staff | Needs style naming pass | Do not lock to Ward/Brace yet; preserve guardian/support readability. |
-| Blade | Blade | Can stay. |
-| Hidden weapon | Ghostware / hidden weapon | Future content. |
+| Fist | Impact Style | Display family first; keep `fist` and old Fist lineage until style-id migration. |
+| Palm | Pulse Style | Display family first; keep `palm` and old Palm lineage until style-id migration. |
+| Leg | Vector Style | Display family first; keep `leg` and old Leg lineage until style-id migration. |
+| Sword | Edge Style | Display family first; keep `sword` and old Sword lineage until style-id migration. |
+| Blade | Rend Style | Display family first; keep `blade` and old Blade lineage until style-id migration. |
+| Staff | Brace Style | Display family first; keep `staff` and old Staff lineage until style-id migration. |
+| Hidden weapon | Ghostware Style | Display family first; keep `hidden_weapons` until style-id migration. |
 | Tank | Anchor | Optional role flavor. |
 | Breaker | Breacher | Display rename. |
 | Striker | Striker | Can stay. |
 | Support | Support / Stabilizer | Use "stabilizer" for Lotus/clinic content. |
+
+Style families and combat roles are separate. Do not use Anchor, Breacher, Striker, or Stabilizer as style names; they describe team jobs. If transitional copy needs old and new terms together, use `Display Family / legacy id` or "Display Family (old lineage)" wording, for example "Impact Style / `fist`" in technical docs or "Impact Style, Iron Fist lineage" in player-facing copy.
 
 ## District And Faction Candidates
 
@@ -156,3 +159,11 @@ Before changing player-facing copy, inventory these sources:
 - Tests that assert display strings, especially PWA, view-model, responsive smoke, save tool, data, and tooling tests.
 
 Prefer a small theme vocabulary/formatter layer before broad string replacement so repeated terms like Body Integrity, Context Stability, AI Overload, Context Rebuild, Resonance, Credits, and District Mastery stay consistent.
+
+## Stage 2.3 Handoff
+
+[Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md) records how this terminology map was applied during the completed display-safe pivot. Use this document as the active display-language source for future copy changes.
+
+Epic 81 settled the first style taxonomy: Impact, Pulse, Vector, Edge, Rend, Brace, and Ghostware are display families for Fist, Palm, Leg, Sword, Blade, Staff, and Hidden Weapons. Preserve legacy style ids and do not rename save/static references until the internal-id migration.
+
+Epic 85 selected Cognitive Intrusion as the first neon-native prototype and District Heat as the preferred second candidate. Future implementation should follow [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) before adding these terms to live UI.

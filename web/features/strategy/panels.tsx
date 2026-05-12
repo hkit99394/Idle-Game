@@ -1,3 +1,4 @@
+import { displayTerms } from "../../displayTerms";
 import type { TacticPresetView } from "../../state/viewModels/tacticsTypes";
 
 type TacticsPanelProps = {
@@ -12,13 +13,18 @@ export function TacticsPanel({
   const selectedTactic = tactics.find((tactic) => tactic.selected);
 
   return (
-    <section className="tactics-panel" aria-label="Tactic presets">
+    <section
+      className="tactics-panel"
+      aria-label={`${displayTerms.tactics.routine} presets`}
+    >
       <div className="tactics-heading">
         <div>
-          <span className="label">Tactic</span>
-          <h2>{selectedTactic?.name ?? "Balanced Form"}</h2>
+          <span className="label">{displayTerms.tactics.routine}</span>
+          <h2>{selectedTactic?.name ?? "Balanced Routine"}</h2>
         </div>
-        <span>{tactics.length} forms</span>
+        <span>
+          {tactics.length} {displayTerms.tactics.routines.toLowerCase()}
+        </span>
       </div>
       <div className="tactics-grid">
         {tactics.map((tactic) => (

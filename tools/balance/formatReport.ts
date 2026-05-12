@@ -267,7 +267,7 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     : `not affordable: ${trainingEconomy.reason}`;
 
   return [
-    "Path of Jianghu Balance Report",
+    "Path of Neon Balance Report",
     "",
     ...report.regionBalances.flatMap((region, index) => [
       ...(index > 0 ? [""] : []),

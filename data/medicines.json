@@ -1,7 +1,7 @@
 [
   {
     "id": "clear_heart_pill",
-    "name": "Clear Heart Pill",
+    "name": "Clear Heart Countermeasure",
     "unlock": {
       "type": "stage_cleared",
       "stageId": "bamboo_road_10"
@@ -17,7 +17,7 @@
   },
   {
     "id": "quiet_meridian_powder",
-    "name": "Quiet Meridian Powder",
+    "name": "Quiet Context Powder",
     "unlock": {
       "type": "stage_cleared",
       "stageId": "demon_cult_outpost_2"
@@ -33,7 +33,7 @@
   },
   {
     "id": "purity_draught",
-    "name": "Purity Draught",
+    "name": "Purity Countermeasure",
     "unlock": {
       "type": "stage_cleared",
       "stageId": "demon_cult_outpost_4"

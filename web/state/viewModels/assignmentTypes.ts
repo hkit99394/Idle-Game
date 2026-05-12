@@ -12,6 +12,7 @@ export type AssignmentView = {
   assignmentId: string;
   name: string;
   type: "patrol" | "training_ground";
+  typeLabel: string;
   durationBucket: string;
   unlocked: boolean;
   lockReason: string | null;

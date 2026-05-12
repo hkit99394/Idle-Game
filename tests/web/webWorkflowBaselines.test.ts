@@ -66,7 +66,7 @@ describe("web workflow baselines", () => {
 
     expect(viewModel.offlineSummary).toMatchObject({
       stageId: webWorkflowBaselineIds.offlineSummaryStageId,
-      stageName: "Bamboo Road 3",
+      stageName: "Greenline Route 3",
       clears: 36,
       assignmentSilver: 24
     });
@@ -75,7 +75,7 @@ describe("web workflow baselines", () => {
     );
     expect(viewModel.offlineRewardPreview).toMatchObject({
       ok: true,
-      stageName: "Bamboo Road 3"
+      stageName: "Greenline Route 3"
     });
 
     expect(viewModel.heroEquipment[0].slots).toEqual(

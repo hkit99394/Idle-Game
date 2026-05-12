@@ -92,7 +92,7 @@ Choose the first deeper strategy layer and document how it will fit the current 
 
 ### Progress Notes
 
-- Added [Stage 2.1 Tactics Audit](../stage-2.1-tactics-audit.md) with the candidate comparison, tactic MVP decision, behavior boundaries, touchpoint map, save/UI decision, balance-output decision, and Epic 68 handoff.
+- Added [Stage 2.1 Tactics Audit](stage-2.1-tactics-audit.md) with the candidate comparison, tactic MVP decision, behavior boundaries, touchpoint map, save/UI decision, balance-output decision, and Epic 68 handoff.
 - Chose global tactic presets as the first Stage 2.1 strategy layer. Formation bonuses, manual battle actions, and skill branch content stay deferred.
 - Chose the MVP tactic ids: `balanced`, `outer_pressure`, `inner_pressure`, `guard_support`, `sustain`, and `boss_burst`.
 - Chose static data as the tactic definition home, with `data/tactics.json` feeding `StaticGameData.tactics`.
@@ -286,7 +286,7 @@ Close Stage 2.1 with clear strategy docs, release verification, and next-stage r
 
 ### Progress Notes
 
-- Updated [Current Implemented Systems](../current-implemented-systems.md), [Static Data](../static-data.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Stage 2.1 Tactics Audit](../stage-2.1-tactics-audit.md), and [Roadmap Stage 1.7 To 2.2](roadmap-stage-1.7-to-2.2.md) so tactics are described in completed-stage language across engine, data, UI/save, and balance-review surfaces.
+- Updated [Current Implemented Systems](../current-implemented-systems.md), [Static Data](../static-data.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Stage 2.1 Tactics Audit](stage-2.1-tactics-audit.md), and [Roadmap Stage 1.7 To 2.2](roadmap-stage-1.7-to-2.2.md) so tactics are described in completed-stage language across engine, data, UI/save, and balance-review surfaces.
 - Confirmed no new Combat Engine V2 extension contract was required for Epic 72; Stage 2.1 reused the documented combat extension lanes already updated by earlier epics.
 - Preserved the known Black Iron Fort and Demon Cult budget debt as visible tuning debt instead of making a broad Stage 2.1 retune. `npm run simulate` still reports the expected Black Iron Fort clear-time miss and Demon Cult clear-time/status-pressure misses.
 - Verified tactic comparison exports report tactic ids, baseline results, result changes, duration deltas, target-status changes, pressure deltas, contribution deltas, and budget-shift labels.

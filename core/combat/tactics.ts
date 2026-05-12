@@ -9,8 +9,8 @@ export const DEFAULT_TACTIC_ID = "balanced";
 
 const FALLBACK_BALANCED_TACTIC: TacticPresetDefinition = {
   id: DEFAULT_TACTIC_ID,
-  name: "Balanced Form",
-  description: "Default balanced tactic.",
+  name: "Balanced Routine",
+  description: "Default balanced routine.",
   isDefault: true,
   behaviorFlags: [],
   modifiers: []

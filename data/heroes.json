@@ -1,9 +1,9 @@
 [
   {
     "id": "iron_fist_disciple",
-    "name": "Iron Fist Disciple",
+    "name": "Iron Fist Initiate",
     "style": "fist",
-    "role": "Outer bruiser",
+    "role": "Kinetic bruiser",
     "combatRole": "striker",
     "baseStats": {
       "maxOuterHp": 180,
@@ -27,9 +27,9 @@
   },
   {
     "id": "azure_palm_monk",
-    "name": "Azure Palm Monk",
+    "name": "Azure Pulse Monk",
     "style": "palm",
-    "role": "Inner breaker",
+    "role": "Cognitive breacher",
     "combatRole": "breaker",
     "baseStats": {
       "maxOuterHp": 120,
@@ -53,7 +53,7 @@
   },
   {
     "id": "white_crane_swordsman",
-    "name": "White Crane Swordsman",
+    "name": "White Crane Edge Runner",
     "style": "sword",
     "role": "Hybrid duelist",
     "combatRole": "striker",
@@ -79,9 +79,9 @@
   },
   {
     "id": "mountain_staff_guardian",
-    "name": "Mountain Staff Guardian",
+    "name": "Mountain Brace Guardian",
     "style": "staff",
-    "role": "Defensive support",
+    "role": "Defensive stabilizer",
     "combatRole": "tank",
     "baseStats": {
       "maxOuterHp": 220,
@@ -105,9 +105,9 @@
   },
   {
     "id": "lotus_mending_disciple",
-    "name": "Lotus Mending Disciple",
+    "name": "Lotus Stabilizer",
     "style": "palm",
-    "role": "Recovery support",
+    "role": "Recovery stabilizer",
     "combatRole": "support",
     "baseStats": {
       "maxOuterHp": 130,

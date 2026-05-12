@@ -35,6 +35,7 @@ import type {
   WebGameViewModel
 } from "../state/gameState";
 import type { SaveDiagnosticsView } from "../state/viewModels/saveDiagnosticsTypes";
+import { displayTerms, formatResourceLabel } from "../displayTerms";
 import { buildAppStatusText } from "./statusText";
 import type { AppStatusText } from "./statusText";
 import type { SaveToolControls } from "./useSaveTools";
@@ -219,11 +220,11 @@ export const appFeaturePanels: readonly AppFeaturePanelDescriptor[] = [
     render: ({ game }) => (
       <div className="battle-grid">
         <TeamPanel
-          title="Disciples"
+          title={displayTerms.progression.initiates}
           combatants={game.viewModel.playerCombatants}
         />
         <TeamPanel
-          title="Enemy Team"
+          title="Hostiles"
           combatants={game.viewModel.enemyCombatants}
         />
       </div>
@@ -271,13 +272,18 @@ export function GamePanelStack({ game, saveTools }: GamePanelStackProps) {
     <section className="battle-surface">
       <header className="stage-header">
         <div>
-          <span className="label">Current Stage</span>
-          <h1>{viewModel.selectedStage?.name ?? "Unknown Stage"}</h1>
+          <span className="label">Current {displayTerms.progression.route}</span>
+          <h1>
+            {viewModel.selectedStage?.name ??
+              `Unknown ${displayTerms.progression.route}`}
+          </h1>
         </div>
         <div className="stage-meta">
           <span>{viewModel.selectedStageRegionName}</span>
           <span>{statusText.stageType}</span>
-          <span>Stage {viewModel.selectedStage?.index ?? "-"}</span>
+          <span>
+            {displayTerms.progression.route} {viewModel.selectedStage?.index ?? "-"}
+          </span>
           <span>{viewModel.enemyTeamLabel}</span>
         </div>
         <div
@@ -288,13 +294,20 @@ export function GamePanelStack({ game, saveTools }: GamePanelStackProps) {
         </div>
       </header>
       <div className="resource-row">
-        <span>Silver {formatNumber(viewModel.progress.resources.silver)}</span>
         <span>
-          Cultivation {formatNumber(viewModel.progress.resources.cultivation)}
+          {formatResourceLabel("silver")}{" "}
+          {formatNumber(viewModel.progress.resources.silver)}
         </span>
-        <span>Herbs {formatNumber(viewModel.progress.resources.herbs)}</span>
         <span>
-          Combat Exp{" "}
+          {formatResourceLabel("cultivation")}{" "}
+          {formatNumber(viewModel.progress.resources.cultivation)}
+        </span>
+        <span>
+          {formatResourceLabel("herbs")}{" "}
+          {formatNumber(viewModel.progress.resources.herbs)}
+        </span>
+        <span>
+          {formatResourceLabel("combatExperience")}{" "}
           {formatNumber(viewModel.masteryPanel?.combatExperience ?? 0)}
         </span>
       </div>

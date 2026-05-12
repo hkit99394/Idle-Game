@@ -1,7 +1,7 @@
 [
   {
     "id": "mvp_line",
-    "name": "MVP Line",
+    "name": "Starter Crew Line",
     "slots": ["front", "middle", "back"]
   }
 ]

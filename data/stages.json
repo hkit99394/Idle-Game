@@ -3,7 +3,7 @@
     "id": "bamboo_road_1",
     "regionId": "bamboo_road",
     "index": 1,
-    "name": "Bamboo Road 1",
+    "name": "Greenline Route 1",
     "enemyTeam": {
       "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [0], "middle": [1], "back": [] }
@@ -17,7 +17,7 @@
     "id": "bamboo_road_2",
     "regionId": "bamboo_road",
     "index": 2,
-    "name": "Bamboo Road 2",
+    "name": "Greenline Route 2",
     "enemyTeam": {
       "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [0], "middle": [1], "back": [] }
@@ -32,7 +32,7 @@
     "id": "bamboo_road_3",
     "regionId": "bamboo_road",
     "index": 3,
-    "name": "Bamboo Road 3",
+    "name": "Greenline Route 3",
     "enemyTeam": {
       "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [0], "middle": [1], "back": [] }
@@ -46,7 +46,7 @@
     "id": "bamboo_road_4",
     "regionId": "bamboo_road",
     "index": 4,
-    "name": "Bamboo Road 4",
+    "name": "Greenline Route 4",
     "enemyTeam": {
       "combatantIds": ["bamboo_bandit", "bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -60,7 +60,7 @@
     "id": "bamboo_road_5",
     "regionId": "bamboo_road",
     "index": 5,
-    "name": "Bamboo Road 5",
+    "name": "Greenline Route 5",
     "enemyTeam": {
       "combatantIds": ["mist_palm_thug", "bamboo_bandit"],
       "formation": { "front": [1], "middle": [0], "back": [] }
@@ -75,7 +75,7 @@
     "id": "bamboo_road_6",
     "regionId": "bamboo_road",
     "index": 6,
-    "name": "Bamboo Road 6",
+    "name": "Greenline Route 6",
     "enemyTeam": {
       "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [0], "middle": [1], "back": [] }
@@ -89,7 +89,7 @@
     "id": "bamboo_road_7",
     "regionId": "bamboo_road",
     "index": 7,
-    "name": "Bamboo Road 7",
+    "name": "Greenline Route 7",
     "enemyTeam": {
       "combatantIds": ["bamboo_bandit", "bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -103,7 +103,7 @@
     "id": "bamboo_road_8",
     "regionId": "bamboo_road",
     "index": 8,
-    "name": "Bamboo Road 8",
+    "name": "Greenline Route 8",
     "enemyTeam": {
       "combatantIds": ["mist_palm_thug", "bamboo_bandit"],
       "formation": { "front": [1], "middle": [0], "back": [] }
@@ -118,7 +118,7 @@
     "id": "bamboo_road_9",
     "regionId": "bamboo_road",
     "index": 9,
-    "name": "Bamboo Road 9",
+    "name": "Greenline Route 9",
     "enemyTeam": {
       "combatantIds": ["mist_palm_thug", "bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [1], "middle": [0], "back": [2] }
@@ -132,7 +132,7 @@
     "id": "bamboo_road_10",
     "regionId": "bamboo_road",
     "index": 10,
-    "name": "Black Iron Guard",
+    "name": "Ironwall Guard",
     "enemyTeam": {
       "combatantIds": ["black_iron_guard", "bamboo_bandit", "bamboo_bandit"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -147,7 +147,7 @@
     "id": "mist_valley_1",
     "regionId": "mist_valley",
     "index": 1,
-    "name": "Mist Valley Gate",
+    "name": "Veil District Gate",
     "enemyTeam": {
       "combatantIds": ["mist_valley_acolyte", "mist_valley_acolyte"],
       "formation": { "front": [0], "middle": [1], "back": [] }
@@ -162,7 +162,7 @@
     "id": "mist_valley_2",
     "regionId": "mist_valley",
     "index": 2,
-    "name": "Reed Fog Ambush",
+    "name": "Reed-Fog Ambush",
     "enemyTeam": {
       "combatantIds": ["mist_valley_acolyte", "veilstep_needler"],
       "formation": { "front": [0], "middle": [], "back": [1] }
@@ -176,7 +176,7 @@
     "id": "mist_valley_3",
     "regionId": "mist_valley",
     "index": 3,
-    "name": "Clouded Meridian Path",
+    "name": "Clouded Context Path",
     "enemyTeam": {
       "combatantIds": ["fog_staff_ward", "mist_valley_acolyte", "mist_valley_acolyte"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -206,7 +206,7 @@
     "id": "mist_valley_5",
     "regionId": "mist_valley",
     "index": 5,
-    "name": "Veil Palm Shrine",
+    "name": "Veil Pulse Shrine",
     "enemyTeam": {
       "combatantIds": ["fog_staff_ward", "mist_palm_adept"],
       "formation": { "front": [0], "middle": [1], "back": [] }
@@ -221,7 +221,7 @@
     "id": "mist_valley_6",
     "regionId": "mist_valley",
     "index": 6,
-    "name": "Mist Valley Elder",
+    "name": "Veil District Elder",
     "enemyTeam": {
       "combatantIds": ["fog_staff_ward", "mist_valley_elder", "veilstep_needler"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -236,7 +236,7 @@
     "id": "black_iron_fort_1",
     "regionId": "black_iron_fort",
     "index": 1,
-    "name": "Black Iron Gate",
+    "name": "Ironwall Gate",
     "enemyTeam": {
       "combatantIds": ["iron_fort_sentry", "shieldwall_guard"],
       "formation": { "front": [1], "middle": [0], "back": [] }
@@ -293,7 +293,7 @@
     "id": "black_iron_fort_5",
     "regionId": "black_iron_fort",
     "index": 5,
-    "name": "Iron Armor Barracks",
+    "name": "Plating Barracks",
     "enemyTeam": {
       "combatantIds": ["iron_armor_captain", "iron_fort_sentry"],
       "formation": { "front": [0], "middle": [1], "back": [] }
@@ -326,7 +326,7 @@
     "id": "black_iron_fort_7",
     "regionId": "black_iron_fort",
     "index": 7,
-    "name": "Black Fort Commander",
+    "name": "Black Foundry Commander",
     "enemyTeam": {
       "combatantIds": ["iron_armor_captain", "black_fort_commander", "black_iron_saber"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -341,7 +341,7 @@
     "id": "lotus_monastery_1",
     "regionId": "lotus_monastery",
     "index": 1,
-    "name": "Lotus Monastery Gate",
+    "name": "Lotus Clinic Gate",
     "enemyTeam": {
       "combatantIds": ["lotus_staff_keeper", "lotus_outer_disciple", "lotus_mender"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -356,7 +356,7 @@
     "id": "lotus_monastery_2",
     "regionId": "lotus_monastery",
     "index": 2,
-    "name": "Incense Recovery Hall",
+    "name": "Incense Stabilization Hall",
     "enemyTeam": {
       "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_outer_disciple"],
       "formation": { "front": [0], "middle": [2], "back": [1] }
@@ -371,7 +371,7 @@
     "id": "lotus_monastery_3",
     "regionId": "lotus_monastery",
     "index": 3,
-    "name": "Jade Needle Cloister",
+    "name": "Jade Needle Clinic",
     "enemyTeam": {
       "combatantIds": ["lotus_staff_keeper", "jade_needle_sister", "lotus_outer_disciple", "lotus_mender"],
       "formation": { "front": [0], "middle": [1, 2], "back": [3] }
@@ -389,7 +389,7 @@
     "id": "lotus_monastery_4",
     "regionId": "lotus_monastery",
     "index": 4,
-    "name": "Blooming Sword Walk",
+    "name": "Blooming Edge Walk",
     "enemyTeam": {
       "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "lotus_mender"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -404,7 +404,7 @@
     "id": "lotus_monastery_5",
     "regionId": "lotus_monastery",
     "index": 5,
-    "name": "Tranquil Meridian Garden",
+    "name": "Tranquil Context Garden",
     "enemyTeam": {
       "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_mender"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -422,7 +422,7 @@
     "id": "lotus_monastery_6",
     "regionId": "lotus_monastery",
     "index": 6,
-    "name": "Lotus Abbot Approach",
+    "name": "Lotus Director Approach",
     "enemyTeam": {
       "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "jade_needle_sister"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -437,7 +437,7 @@
     "id": "lotus_monastery_7",
     "regionId": "lotus_monastery",
     "index": 7,
-    "name": "Lotus Abbot",
+    "name": "Lotus Clinic Director",
     "enemyTeam": {
       "combatantIds": ["lotus_staff_keeper", "lotus_abbot", "lotus_mender"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -525,7 +525,7 @@
     "id": "demon_cult_outpost_6",
     "regionId": "demon_cult_outpost",
     "index": 6,
-    "name": "Outpost Inner Court",
+    "name": "Redline Inner Court",
     "enemyTeam": {
       "combatantIds": ["burning_blood_captain", "demon_cult_ritualist", "marrow_lock_supplicant"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
@@ -539,7 +539,7 @@
     "id": "demon_cult_outpost_7",
     "regionId": "demon_cult_outpost",
     "index": 7,
-    "name": "Demon Cult Overseer",
+    "name": "Redline Overseer",
     "enemyTeam": {
       "combatantIds": ["burning_blood_captain", "demon_cult_overseer", "demon_cult_ritualist"],
       "formation": { "front": [0], "middle": [1], "back": [2] }

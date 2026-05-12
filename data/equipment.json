@@ -1,7 +1,7 @@
 [
   {
     "id": "training_wraps",
-    "name": "Training Wraps",
+    "name": "Impact Training Wraps",
     "slot": "weapon",
     "rarity": "common",
     "allowedStyles": ["fist", "leg"],
@@ -12,7 +12,7 @@
   },
   {
     "id": "willow_palm_manual",
-    "name": "Willow Palm Manual",
+    "name": "Willow Pulse Protocol",
     "slot": "manual",
     "rarity": "common",
     "allowedStyles": ["palm"],
@@ -23,7 +23,7 @@
   },
   {
     "id": "crane_edge_sword",
-    "name": "Crane Edge Sword",
+    "name": "Crane Edge Cutter",
     "slot": "weapon",
     "rarity": "uncommon",
     "allowedStyles": ["sword"],
@@ -34,7 +34,7 @@
   },
   {
     "id": "guardian_staff",
-    "name": "Guardian Staff",
+    "name": "Guardian Brace Staff",
     "slot": "weapon",
     "rarity": "uncommon",
     "allowedStyles": ["staff"],
@@ -45,7 +45,7 @@
   },
   {
     "id": "woven_travel_robe",
-    "name": "Woven Travel Robe",
+    "name": "Woven Travel Plating",
     "slot": "armor",
     "rarity": "common",
     "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
@@ -56,7 +56,7 @@
   },
   {
     "id": "calming_breath_pill",
-    "name": "Calming Breath Pill",
+    "name": "Calming Context Stim",
     "slot": "medicine",
     "rarity": "common",
     "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
@@ -67,7 +67,7 @@
   },
   {
     "id": "mist_needle_case",
-    "name": "Mist Needle Case",
+    "name": "Veil Needle Case",
     "slot": "weapon",
     "rarity": "uncommon",
     "allowedStyles": ["hidden_weapons"],
@@ -78,7 +78,7 @@
   },
   {
     "id": "veil_palm_manual",
-    "name": "Veil Palm Manual",
+    "name": "Veil Pulse Protocol",
     "slot": "manual",
     "rarity": "uncommon",
     "allowedStyles": ["palm"],
@@ -89,7 +89,7 @@
   },
   {
     "id": "iron_thread_armor",
-    "name": "Iron Thread Armor",
+    "name": "Iron Thread Plating",
     "slot": "armor",
     "rarity": "rare",
     "allowedStyles": ["fist", "blade", "staff"],
@@ -132,7 +132,7 @@
   },
   {
     "id": "fortress_guard_manual",
-    "name": "Fortress Guard Manual",
+    "name": "Fortress Guard Protocol",
     "slot": "manual",
     "rarity": "uncommon",
     "allowedStyles": ["fist", "staff"],
@@ -153,7 +153,7 @@
   },
   {
     "id": "tempered_meridian_pill",
-    "name": "Tempered Meridian Pill",
+    "name": "Tempered Context Stim",
     "slot": "medicine",
     "rarity": "uncommon",
     "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
@@ -174,7 +174,7 @@
   },
   {
     "id": "lotus_dew_pill",
-    "name": "Lotus Dew Pill",
+    "name": "Lotus Dew Countermeasure",
     "slot": "medicine",
     "rarity": "common",
     "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
@@ -185,7 +185,7 @@
   },
   {
     "id": "mending_poultice",
-    "name": "Mending Poultice",
+    "name": "Mending Patch",
     "slot": "medicine",
     "rarity": "uncommon",
     "allowedStyles": ["palm", "staff", "hidden_weapons"],

@@ -328,7 +328,7 @@ describe("recovery and wound effects", () => {
         },
         {
           id: "scenario_wounding_strike",
-          name: "Scenario Wounding Strike",
+          name: "Scenario Trauma Strike",
           cooldownSeconds: 1,
           outerMultiplier: 1,
           innerMultiplier: 0,
@@ -402,7 +402,7 @@ describe("recovery and wound effects", () => {
     expect(wounded.durationSeconds).toBeLessThan(plain.durationSeconds);
   });
 
-  it("unlocks a player wound path through White Crane Slash refinement", () => {
+  it("unlocks a player wound path through White Crane Edge refinement", () => {
     const result = simulateBattle(staticData, {
       playerTeam: {
         id: "player",

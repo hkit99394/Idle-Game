@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
+import { displayTerms } from "../../displayTerms";
 import { OFFLINE_TIME_TRAVEL_SECONDS } from "../../state/constants";
 import type { CounterplaySettingsView } from "../../state/viewModels/counterplayTypes";
 import type { SaveDiagnosticsView } from "../../state/viewModels/saveDiagnosticsTypes";
@@ -64,17 +65,17 @@ export function CounterplaySettingsPanel({
   const pressureItems = settings.stagePreview?.statusPressureItems ?? [];
   const recommendationText =
     settings.stagePreview?.recommendationText ??
-    "No selected stage counterplay data.";
+    "No selected route counterplay data.";
 
   return (
     <section
       className="counterplay-settings-panel"
-      aria-label="Counterplay settings"
+      aria-label={`${displayTerms.counterplay.countermeasures} settings`}
     >
       <div className="counterplay-settings-heading">
         <div>
-          <span className="label">Counterplay</span>
-          <h2>Medicine Automation</h2>
+          <span className="label">{displayTerms.counterplay.countermeasures}</span>
+          <h2>{displayTerms.counterplay.countermeasure} Automation</h2>
         </div>
         <span>{settings.unlocked ? settings.globalLabel : "Locked"}</span>
       </div>
@@ -90,7 +91,7 @@ export function CounterplaySettingsPanel({
             onChange={handleGlobalChange}
           />
           <span>
-            <strong>Auto Medicine</strong>
+            <strong>{displayTerms.counterplay.autoCountermeasure}</strong>
             <small>{settings.globalLabel}</small>
           </span>
         </label>
@@ -218,13 +219,13 @@ export function SaveToolsPanel({
           <strong>{formatTimestamp(diagnostics.updatedAtMs)}</strong>
           <span>Offline checkpoint</span>
           <strong>{formatTimestamp(diagnostics.lastOfflineRewardAtMs)}</strong>
-          <span>Current stage</span>
+          <span>Current route id</span>
           <strong>{diagnostics.currentStageId}</strong>
-          <span>Farm stage</span>
+          <span>Farm route id</span>
           <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
-          <span>Farm preset</span>
+          <span>Farm preset id</span>
           <strong>{diagnostics.offlineFarmPreset}</strong>
-          <span>Highest clear</span>
+          <span>Highest route clear</span>
           <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
           <span>Save size</span>
           <strong>{formatNumber(diagnostics.saveSizeCharacters)} chars</strong>

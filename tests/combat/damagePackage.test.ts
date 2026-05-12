@@ -82,7 +82,7 @@ function createDamageCombatant(input: CombatantInput = {}): CombatantState {
 
 const vulnerabilityDefinition: StatusEffectDefinition = {
   id: "scenario_vulnerable",
-  name: "Scenario Vulnerable",
+  name: "Scenario Exposed",
   category: "vulnerability",
   durationSeconds: 5,
   maxStacks: 1,

@@ -1,14 +1,14 @@
 {
   "id": "/",
-  "name": "Path of Jianghu",
-  "short_name": "Jianghu",
-  "description": "An idle martial arts RPG about building a sect, clearing stages, and preserving progress safely.",
+  "name": "Path of Neon",
+  "short_name": "Path Neon",
+  "description": "An idle cyber-sect RPG about building a techno-sect, running neon districts, and preserving progress safely.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "theme_color": "#16231f",
-  "background_color": "#f4efe2",
+  "theme_color": "#101418",
+  "background_color": "#f7fff7",
   "icons": [
     {
       "src": "/icons/path-of-jianghu.svg",

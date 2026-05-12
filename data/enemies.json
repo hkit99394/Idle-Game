@@ -1,7 +1,7 @@
 [
   {
     "id": "bamboo_bandit",
-    "name": "Bamboo Road Bandit",
+    "name": "Greenline Cutter",
     "family": "bandit",
     "type": "normal",
     "style": "blade",
@@ -28,7 +28,7 @@
   },
   {
     "id": "mist_palm_thug",
-    "name": "Mist Palm Thug",
+    "name": "Veil Pulse Bruiser",
     "family": "bandit",
     "type": "elite",
     "style": "palm",
@@ -55,7 +55,7 @@
   },
   {
     "id": "black_iron_guard",
-    "name": "Black Iron Guard",
+    "name": "Ironwall Guard",
     "family": "iron_fort",
     "type": "boss",
     "style": "blade",
@@ -82,7 +82,7 @@
   },
   {
     "id": "mist_valley_acolyte",
-    "name": "Mist Valley Acolyte",
+    "name": "Veil District Acolyte",
     "family": "mist_valley",
     "type": "normal",
     "style": "palm",
@@ -136,7 +136,7 @@
   },
   {
     "id": "fog_staff_ward",
-    "name": "Fog Staff Ward",
+    "name": "Fogline Brace Ward",
     "family": "mist_valley",
     "type": "normal",
     "style": "staff",
@@ -163,7 +163,7 @@
   },
   {
     "id": "mist_palm_adept",
-    "name": "Mist Palm Adept",
+    "name": "Veil Pulse Adept",
     "family": "mist_valley",
     "type": "elite",
     "style": "palm",
@@ -190,7 +190,7 @@
   },
   {
     "id": "mist_valley_elder",
-    "name": "Mist Valley Elder",
+    "name": "Veil District Elder",
     "family": "mist_valley",
     "type": "boss",
     "style": "palm",
@@ -217,7 +217,7 @@
   },
   {
     "id": "iron_fort_sentry",
-    "name": "Iron Fort Sentry",
+    "name": "Ironwall Sentry",
     "family": "iron_fort",
     "type": "normal",
     "style": "blade",
@@ -271,7 +271,7 @@
   },
   {
     "id": "black_iron_saber",
-    "name": "Black Iron Saber",
+    "name": "Ironwall Saber",
     "family": "iron_fort",
     "type": "elite",
     "style": "blade",
@@ -325,7 +325,7 @@
   },
   {
     "id": "iron_armor_captain",
-    "name": "Iron Armor Captain",
+    "name": "Iron Plating Captain",
     "family": "iron_fort",
     "type": "elite",
     "style": "blade",
@@ -352,7 +352,7 @@
   },
   {
     "id": "black_fort_commander",
-    "name": "Black Fort Commander",
+    "name": "Black Foundry Commander",
     "family": "iron_fort",
     "type": "boss",
     "style": "blade",
@@ -379,7 +379,7 @@
   },
   {
     "id": "lotus_outer_disciple",
-    "name": "Lotus Outer Disciple",
+    "name": "Lotus Kinetic Initiate",
     "family": "lotus_monastery",
     "type": "normal",
     "style": "palm",
@@ -406,7 +406,7 @@
   },
   {
     "id": "lotus_mender",
-    "name": "Lotus Mender",
+    "name": "Lotus Stabilizer",
     "family": "lotus_monastery",
     "type": "normal",
     "style": "palm",
@@ -433,7 +433,7 @@
   },
   {
     "id": "lotus_staff_keeper",
-    "name": "Lotus Staff Keeper",
+    "name": "Lotus Brace Keeper",
     "family": "lotus_monastery",
     "type": "normal",
     "style": "staff",
@@ -460,7 +460,7 @@
   },
   {
     "id": "jade_needle_sister",
-    "name": "Jade Needle Sister",
+    "name": "Jade Needle Operator",
     "family": "lotus_monastery",
     "type": "elite",
     "style": "hidden_weapons",
@@ -487,7 +487,7 @@
   },
   {
     "id": "lotus_sword_warden",
-    "name": "Lotus Sword Warden",
+    "name": "Lotus Edge Warden",
     "family": "lotus_monastery",
     "type": "elite",
     "style": "sword",
@@ -514,7 +514,7 @@
   },
   {
     "id": "lotus_abbot",
-    "name": "Lotus Abbot",
+    "name": "Lotus Clinic Director",
     "family": "lotus_monastery",
     "type": "boss",
     "style": "palm",
@@ -541,7 +541,7 @@
   },
   {
     "id": "miasma_palm_apprentice",
-    "name": "Miasma Palm Apprentice",
+    "name": "Miasma Pulse Apprentice",
     "family": "demon_cult",
     "type": "normal",
     "style": "palm",
@@ -649,7 +649,7 @@
   },
   {
     "id": "demon_cult_ritualist",
-    "name": "Demon Cult Ritualist",
+    "name": "Redline Ritualist",
     "family": "demon_cult",
     "type": "normal",
     "style": "palm",
@@ -676,7 +676,7 @@
   },
   {
     "id": "demon_cult_overseer",
-    "name": "Demon Cult Overseer",
+    "name": "Redline Overseer",
     "family": "demon_cult",
     "type": "boss",
     "style": "blade",

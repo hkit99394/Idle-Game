@@ -280,9 +280,9 @@ describe("status effects", () => {
 
     expect(cleanse.cleansedStatusIds).toEqual(["wound", "armor_break", "poison"]);
     expect(cleanse.descriptors.map((status) => status.label)).toEqual([
-      "Wound",
+      "Trauma",
       "Armor Break",
-      "Poison"
+      "Corruption"
     ]);
     expect(target.wound).toBeNull();
     expect(target.armorBreak).toBeNull();

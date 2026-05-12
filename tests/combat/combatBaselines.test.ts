@@ -8,9 +8,9 @@ import {
   createCombatBaselineFixture
 } from "../helpers/combatScenarios";
 import {
-  autoMedicinePoisonScenarioIds,
-  createAutoMedicinePoisonProgress,
-  createAutoMedicinePoisonScenarioData
+  autoMedicineCorruptionScenarioIds,
+  createAutoMedicineCorruptionProgress,
+  createAutoMedicineCorruptionScenarioData
 } from "../helpers/statusScenarios";
 
 function summarizeEvent(event: ReturnType<typeof simulateBattle>["events"][number]) {
@@ -176,9 +176,9 @@ describe("combat baseline traces", () => {
   });
 
   it("locks battle-cleanse medicine ordering around status application", () => {
-    const data = createAutoMedicinePoisonScenarioData();
-    const progress = createAutoMedicinePoisonProgress(data);
-    const ids = autoMedicinePoisonScenarioIds;
+    const data = createAutoMedicineCorruptionScenarioData();
+    const progress = createAutoMedicineCorruptionProgress(data);
+    const ids = autoMedicineCorruptionScenarioIds;
     const result = resolveStageBattle(data, {
       progress,
       stageId: ids.stageId,

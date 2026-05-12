@@ -43,7 +43,7 @@ describe("support identity decision", () => {
     expect(lotus.productionRosterChangeRequired).toBe(false);
     expect(newHero.productionRosterChangeRequired).toBe(true);
     expect(lotus.supportContribution).toMatchObject({
-      label: "Lotus Purity Training",
+      label: "Lotus Purge Training",
       statusResistanceBonus: 0.08
     });
     expect(lotus.supportContribution?.estimatedCpContribution).toBeGreaterThan(0);

@@ -69,11 +69,11 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 
 ## Current Gate Intent
 
-- Bamboo Road should pass tutorial timing, recommend the best farm stage, and keep the boss blocked until trained.
-- Mist Valley should pass timing and status-pressure budgets while clearing its boss baseline.
-- Black Iron Fort should exercise defense mechanics and require farmed/trained counterplay for the boss. The current report intentionally calls out `black_iron_fort_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
-- Lotus Monastery should exercise healing and cleanse mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
-- Demon Cult Outpost should show status-heavy pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
+- Greenline Approach should pass tutorial timing, recommend the best farm route, and keep the gatekeeper blocked until trained.
+- Veil District should pass timing and status-pressure budgets while clearing its gatekeeper baseline.
+- Black Iron Foundry should exercise defense mechanics and require farmed/trained counterplay for the gatekeeper. The current report intentionally calls out `black_iron_fort_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
+- Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
+- Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
 
 ## Reading Report Sections
 
@@ -82,7 +82,7 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 The `Region Boss Gate Assumptions` section expands each evaluated boss scenario:
 
 - `baseline` is the immediate boss attempt before extra farming or training.
-- `trained` is an explicit training-plan attempt, currently used by Bamboo Road.
+- `trained` is an explicit training-plan attempt, currently used by Greenline Approach.
 - `farmed` is the region farm-and-affordable-training attempt used when a later boss blocks progression.
 - `medicine`, `status damage`, `farms`, and `training` show the counterplay assumptions behind the result.
 

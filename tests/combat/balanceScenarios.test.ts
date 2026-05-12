@@ -8,7 +8,7 @@ import type { StaticGameData } from "../../core";
 import { staticData } from "../helpers/staticData";
 
 describe("balance-critical combat scenarios", () => {
-  it("keeps the Bamboo Road boss as a real gate before training", () => {
+  it("keeps the Greenline Approach boss as a real gate before training", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.maps.bamboo_road.highestClearedStageIndex = 9;
     progress.currentStageId = "bamboo_road_10";
@@ -114,7 +114,7 @@ describe("balance-critical combat scenarios", () => {
         ...staticData.skills,
         {
           id: "lotus_recovery_palm",
-          name: "Lotus Recovery Palm",
+          name: "Lotus Stabilizer Pulse",
           cooldownSeconds: 2,
           outerMultiplier: 0.25,
           innerMultiplier: 0,

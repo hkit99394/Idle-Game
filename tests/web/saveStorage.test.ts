@@ -552,8 +552,8 @@ describe("web save storage", () => {
     expect(
       getWebGameViewModel(staticData, firstLoadState).offlineSummary
     ).toMatchObject({
-      stageName: "Bamboo Road 1",
-      regionName: "Bamboo Road",
+      stageName: "Greenline Route 1",
+      regionName: "Greenline Approach",
       silver: 18,
       cultivation: 9,
       combatExperience: 9

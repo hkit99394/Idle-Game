@@ -87,12 +87,12 @@ The current simulator output keeps these misses visible:
 
 | Region | Current miss | Disposition through Stage 2.1 |
 | --- | --- | --- |
-| Black Iron Fort | `black_iron_fort_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Demon Cult Outpost | `demon_cult_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Demon Cult Outpost | `demon_cult_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Demon Cult Outpost | `demon_cult_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Demon Cult Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Demon Cult Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
+| Black Iron Foundry | `black_iron_fort_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `demon_cult_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `demon_cult_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `demon_cult_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
 These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
 
@@ -102,7 +102,7 @@ Epic 71 did not retune content. The tactic comparison export keeps known debt vi
 
 - `demon_cult_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `inner_pressure` or `boss_burst`, marked as `budgetShift: improved_existing_miss`.
 - `demon_cult_outpost_7` is untargeted by clear-time budgets, but `inner_pressure` and `boss_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
-- `sustain` preserves the Demon Cult boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
+- `sustain` preserves the Redline boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
 
 ## Stage 2.0 Closure Notes
 
@@ -112,4 +112,4 @@ Epic 71 did not retune content. The tactic comparison export keeps known debt vi
 - Epic 64 added difficulty-trend, spike, and boss-gate assumption reporting before any retune.
 - Epic 65 added compact JSON and generated CSV review exports while keeping `docs/balance-template.csv` as a hand-authored reference template.
 - Epic 66 folded the final [Content Authoring Checklist](content-authoring-checklist.md) back into contributor docs and archived the Stage 2.0 backlog.
-- The remaining manual gap is tuning judgment: current Black Iron Fort and Demon Cult misses stay visible in reports until a later balance pass retunes or explicitly reclassifies them.
+- The remaining manual gap is tuning judgment: current Black Iron Foundry and Redline misses stay visible in reports until a later balance pass retunes or explicitly reclassifies them.

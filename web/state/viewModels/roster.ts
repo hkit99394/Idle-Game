@@ -10,6 +10,10 @@ import {
   scaleStatsForLevel
 } from "../../../core";
 import type { PlayerProgress, StaticGameData } from "../../../core";
+import {
+  displayTerms,
+  formatStyleFamilyName
+} from "../../displayTerms";
 import type { BattleCombatantView } from "./battleTypes";
 import type { PlayerFormationHeroView, RosterHeroView } from "./rosterTypes";
 
@@ -32,10 +36,9 @@ function formatHeroUnlockRequirement(
         unlock.heroId
       } level ${unlock.level}`;
     case "style_mastery_level":
-      return `${
-        data.styles.find((style) => style.id === unlock.styleId)?.name ??
-        unlock.styleId
-      } mastery ${unlock.level}`;
+      return `${formatStyleFamilyName(unlock.styleId)} ${
+        displayTerms.progression.protocolMastery
+      } ${unlock.level}`;
   }
 }
 
@@ -71,7 +74,7 @@ export function buildRosterHeroViews(
     return {
       heroId: hero.id,
       name: hero.name,
-      style: hero.style,
+      style: formatStyleFamilyName(hero.style),
       role: hero.role,
       combatRole: hero.combatRole,
       level: progress.heroes[hero.id]?.level ?? 1,
@@ -95,7 +98,7 @@ export function buildPlayerFormationViews(
   return playerCombatants.map((combatant) => ({
     heroId: combatant.definitionId,
     name: combatant.name,
-    style: combatant.style,
+    style: formatStyleFamilyName(combatant.style),
     role: combatant.role,
     combatRole: combatant.combatRole,
     formationSlot: combatant.formationSlot

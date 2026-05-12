@@ -13,9 +13,9 @@ import {
   webGameStateReducer
 } from "../../web/state/gameState";
 import {
-  autoMedicinePoisonScenarioIds,
-  createAutoMedicinePoisonProgress,
-  createAutoMedicinePoisonScenarioData
+  autoMedicineCorruptionScenarioIds,
+  createAutoMedicineCorruptionProgress,
+  createAutoMedicineCorruptionScenarioData
 } from "../helpers/statusScenarios";
 import { staticData } from "../helpers/staticData";
 
@@ -143,7 +143,7 @@ describe("web game state systems", () => {
 
     expect(viewModel.equipmentInventory[0]).toMatchObject({
       equipmentId: "training_wraps",
-      name: "Training Wraps",
+      name: "Impact Training Wraps",
       slot: "weapon",
       rarity: "common",
       count: 1,
@@ -171,7 +171,7 @@ describe("web game state systems", () => {
         expect.objectContaining({
           slot: "weapon",
           equipmentId: "training_wraps",
-          name: "Training Wraps",
+          name: "Impact Training Wraps",
           rarity: "common"
         })
       ])
@@ -204,12 +204,12 @@ describe("web game state systems", () => {
     );
 
     expect(armorView).toMatchObject({
-      setName: "Black Iron Ward",
+      setName: "Ironwall Ward",
       affixes: expect.arrayContaining([
         expect.stringContaining("Tempered Weave")
       ]),
       setBonuses: expect.arrayContaining([
-        expect.stringContaining("Black Iron Ward 2-piece")
+        expect.stringContaining("Ironwall Ward 2-piece")
       ])
     });
 
@@ -228,7 +228,7 @@ describe("web game state systems", () => {
 
     expect(heroView?.activeSetBonuses).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("Black Iron Ward 2-piece")
+        expect.stringContaining("Ironwall Ward 2-piece")
       ])
     );
   });
@@ -339,12 +339,12 @@ describe("web game state systems", () => {
   });
 
   it("applies auto-medicine preferences through the selected battle command path", () => {
-    const data = createAutoMedicinePoisonScenarioData();
-    const ids = autoMedicinePoisonScenarioIds;
+    const data = createAutoMedicineCorruptionScenarioData();
+    const ids = autoMedicineCorruptionScenarioIds;
     const state = createInitialWebGameState(data);
     const readyState = webGameStateReducer(data, state, {
       type: "replace_progress",
-      progress: createAutoMedicinePoisonProgress(data)
+      progress: createAutoMedicineCorruptionProgress(data)
     });
     const selectedState = webGameStateReducer(data, readyState, {
       type: "select_stage",
@@ -397,15 +397,15 @@ describe("web game state systems", () => {
 
     expect(autoMedicineEvent).toMatchObject({
       category: "auto_medicine",
-      headline: "Scenario Patient (Front) uses Clear Heart Pill",
-      detail: "Battle cleanse · removes Poison",
+      headline: "Scenario Patient (Front) uses Clear Heart Countermeasure",
+      detail: "Battle purge · removes Corruption",
       badges: [
         {
-          label: "Auto Medicine",
+          label: "Auto Countermeasure",
           tone: "neutral"
         },
         {
-          label: "Poison",
+          label: "Corruption",
           tone: "danger"
         }
       ]
@@ -428,7 +428,7 @@ describe("web game state systems", () => {
         ...staticData.skills,
         {
           id: "web_poison_hex",
-          name: "Web Poison Hex",
+          name: "Web Corruption Hex",
           cooldownSeconds: 1,
           outerMultiplier: 0,
           innerMultiplier: 0,
@@ -495,7 +495,7 @@ describe("web game state systems", () => {
       stageId,
       supportResistanceBonus: 0.08,
       supportContributionText:
-        "Lotus Purity Training Lv 2 adds 8% team status resistance before the cap."
+        "Lotus Purge Training Lv 2 adds 8% team status resistance before the cap."
     });
   });
 });

@@ -10,6 +10,7 @@ import {
   formatNumber,
   StatBar
 } from "../shared/ui";
+import { displayTerms } from "../../displayTerms";
 
 type CombatantCardProps = {
   combatant: BattleCombatantView;
@@ -54,19 +55,23 @@ export function CombatantCard({ combatant }: CombatantCardProps) {
       </div>
       <StatBar
         className="outer"
-        label="Outer HP"
+        label={displayTerms.combat.bodyIntegrity}
         current={combatant.outerHp}
         max={combatant.maxOuterHp}
       />
       <StatBar
         className="inner"
-        label="Inner Qi"
+        label={displayTerms.combat.contextStability}
         current={combatant.innerQi}
         max={combatant.maxInnerQi}
       />
       <div className="combatant-stats">
-        <span>Outer Attack {formatNumber(combatant.outerAttack)}</span>
-        <span>Inner Attack {formatNumber(combatant.innerAttack)}</span>
+        <span>
+          {displayTerms.combat.kineticAttack} {formatNumber(combatant.outerAttack)}
+        </span>
+        <span>
+          {displayTerms.combat.cognitiveAttack} {formatNumber(combatant.innerAttack)}
+        </span>
         <span>Speed {formatNumber(combatant.speed)}</span>
       </div>
       {contributionStats.length > 0 ? (
@@ -82,7 +87,7 @@ export function CombatantCard({ combatant }: CombatantCardProps) {
             combatant.isDefeated ? "defeated-status" : "qi-broken-status"
           }`}
         >
-          {combatant.isDefeated ? "Defeated" : "Qi Broken"}
+          {combatant.isDefeated ? "Defeated" : "Overloaded"}
         </div>
       ) : null}
     </article>
@@ -113,7 +118,7 @@ export function TeamPanel({ combatants, title }: TeamPanelProps) {
           ))}
         </div>
       ) : (
-        <p className="empty-panel">No combatants available</p>
+        <p className="empty-panel">No units available</p>
       )}
     </section>
   );
@@ -126,9 +131,9 @@ type BattleLogProps = {
 
 export function BattleLog({ events, summary }: BattleLogProps) {
   return (
-    <section className="battle-log" aria-label="Battle event playback">
+    <section className="battle-log" aria-label="Combat event playback">
       <div className="battle-log-heading">
-        <h2>Battle Record</h2>
+        <h2>Run Record</h2>
         {events.length > 0 ? <span>{events.length} events</span> : null}
       </div>
       {summary ? (

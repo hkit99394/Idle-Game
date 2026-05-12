@@ -1,14 +1,14 @@
 [
   {
     "id": "fist",
-    "name": "Fist",
+    "name": "Impact Style",
     "bonuses": [
       { "stat": "outerAttack", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
         "id": "iron_body_fist",
-        "name": "Iron Body Fist",
+        "name": "Iron Body Impact",
         "unlock": { "type": "hero_level", "heroId": "iron_fist_disciple", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
@@ -20,14 +20,14 @@
   },
   {
     "id": "palm",
-    "name": "Palm",
+    "name": "Pulse Style",
     "bonuses": [
       { "stat": "innerAttack", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
         "id": "cloud_meridian_palm",
-        "name": "Cloud Meridian Palm",
+        "name": "Cloud Context Pulse",
         "unlock": { "type": "style_mastery_level", "styleId": "palm", "level": 2 },
         "hiddenInMvp": false,
         "effects": [
@@ -39,14 +39,14 @@
   },
   {
     "id": "leg",
-    "name": "Leg",
+    "name": "Vector Style",
     "bonuses": [
       { "stat": "speed", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
         "id": "wind_step_leg",
-        "name": "Wind Step Leg",
+        "name": "Wind Step Vector",
         "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
         "hiddenInMvp": false,
         "effects": [
@@ -57,7 +57,7 @@
   },
   {
     "id": "sword",
-    "name": "Sword",
+    "name": "Edge Style",
     "bonuses": [
       { "stat": "outerAttack", "effectPerLevel": 0.006 },
       { "stat": "innerAttack", "effectPerLevel": 0.006 }
@@ -65,7 +65,7 @@
     "branches": [
       {
         "id": "white_crane_sword",
-        "name": "White Crane Sword",
+        "name": "White Crane Edge",
         "unlock": { "type": "hero_level", "heroId": "white_crane_swordsman", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
@@ -78,7 +78,7 @@
   },
   {
     "id": "blade",
-    "name": "Blade",
+    "name": "Rend Style",
     "bonuses": [
       { "stat": "outerAttack", "effectPerLevel": 0.008 },
       { "stat": "outerDefense", "effectPerLevel": 0.004 }
@@ -86,7 +86,7 @@
     "branches": [
       {
         "id": "black_iron_blade",
-        "name": "Black Iron Blade",
+        "name": "Black Iron Rend",
         "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
         "hiddenInMvp": false,
         "effects": [
@@ -98,7 +98,7 @@
   },
   {
     "id": "staff",
-    "name": "Staff",
+    "name": "Brace Style",
     "bonuses": [
       { "stat": "maxOuterHp", "effectPerLevel": 0.008 },
       { "stat": "outerDefense", "effectPerLevel": 0.008 }
@@ -106,7 +106,7 @@
     "branches": [
       {
         "id": "mountain_guard_staff",
-        "name": "Mountain Guard Staff",
+        "name": "Mountain Guard Brace",
         "unlock": { "type": "hero_level", "heroId": "mountain_staff_guardian", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
@@ -118,7 +118,7 @@
   },
   {
     "id": "hidden_weapons",
-    "name": "Hidden Weapons",
+    "name": "Ghostware Style",
     "bonuses": [
       { "stat": "innerAttack", "effectPerLevel": 0.006 },
       { "stat": "speed", "effectPerLevel": 0.006 }
@@ -126,7 +126,7 @@
     "branches": [
       {
         "id": "rain_needle_art",
-        "name": "Rain Needle Art",
+        "name": "Rain Needle Ghostware",
         "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
         "hiddenInMvp": false,
         "effects": [

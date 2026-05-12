@@ -182,7 +182,7 @@ describe("upgrades", () => {
     expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.06 * 1.04);
   });
 
-  it("applies Lotus purity training as capped team resistance with CP value", () => {
+  it("applies Lotus purge training as capped team resistance with CP value", () => {
     const progress = createInitialPlayerProgress(staticData);
     const guardian = staticData.heroes.find(
       (candidate) => candidate.id === "mountain_staff_guardian"

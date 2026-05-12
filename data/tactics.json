@@ -1,16 +1,16 @@
 [
   {
     "id": "balanced",
-    "name": "Balanced Form",
-    "description": "Use current skill targeting and combat pacing without tactic modifiers.",
+    "name": "Balanced Routine",
+    "description": "Use current skill targeting and combat pacing without routine modifiers.",
     "isDefault": true,
     "behaviorFlags": [],
     "modifiers": []
   },
   {
     "id": "outer_pressure",
-    "name": "Crushing Blows",
-    "description": "Press wounded enemies and convert pressure into faster Outer HP clears.",
+    "name": "Kinetic Crush",
+    "description": "Press weakened hostiles and convert pressure into faster Body Integrity clears.",
     "behaviorFlags": ["targeting", "damage"],
     "targetPriorities": ["weakest_hp"],
     "modifiers": [
@@ -22,8 +22,8 @@
   },
   {
     "id": "inner_pressure",
-    "name": "Meridian Break",
-    "description": "Pressure Inner Qi, exploit broken enemies, and threaten high-value targets.",
+    "name": "Context Break",
+    "description": "Pressure Context Stability, exploit overloaded hostiles, and threaten high-value targets.",
     "behaviorFlags": ["targeting", "damage"],
     "targetPriorities": ["inner_broken", "highest_cp"],
     "modifiers": [
@@ -39,8 +39,8 @@
   },
   {
     "id": "guard_support",
-    "name": "Guard The Healer",
-    "description": "Bias the team toward keeping support and backline allies alive.",
+    "name": "Guard The Stabilizer",
+    "description": "Bias the crew toward keeping stabilizers and backline allies alive.",
     "behaviorFlags": ["defense"],
     "modifiers": [
       {
@@ -55,8 +55,8 @@
   },
   {
     "id": "sustain",
-    "name": "Long Breath",
-    "description": "Favor recovery and medicine posture for longer pressure fights.",
+    "name": "Long Stabilization",
+    "description": "Favor recovery and countermeasure posture for longer pressure fights.",
     "behaviorFlags": ["recovery", "medicine"],
     "modifiers": [
       {
@@ -71,8 +71,8 @@
   },
   {
     "id": "boss_burst",
-    "name": "Boss Burst",
-    "description": "Focus high-value threats for decisive elite and boss clear attempts.",
+    "name": "Gatekeeper Burst",
+    "description": "Focus high-value threats for decisive elite and gatekeeper clear attempts.",
     "behaviorFlags": ["targeting", "damage"],
     "targetPriorities": ["highest_cp"],
     "modifiers": [

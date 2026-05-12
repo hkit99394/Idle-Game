@@ -6,6 +6,7 @@ import type {
   OfflineRewardPreviewView,
   OfflineRewardSummaryView
 } from "../../state/viewModels/offlineTypes";
+import { displayTerms, formatResourceLabel } from "../../displayTerms";
 import { formatDuration, formatNumber } from "../shared/ui";
 
 type OfflineSummaryPanelProps = {
@@ -38,15 +39,25 @@ export function OfflineSummaryPanel({
         <span>{formatNumber(summary.clears)} clears</span>
       </div>
       <div className="offline-summary-rewards">
-        <strong>{formatNumber(summary.silver)} silver</strong>
-        <strong>{formatNumber(summary.cultivation)} cultivation</strong>
+        <strong>
+          {formatNumber(summary.silver)} {formatResourceLabel("silver")}
+        </strong>
+        <strong>
+          {formatNumber(summary.cultivation)} {formatResourceLabel("cultivation")}
+        </strong>
         {summary.herbs > 0 ? (
-          <strong>{formatNumber(summary.herbs)} herbs</strong>
+          <strong>
+            {formatNumber(summary.herbs)} {formatResourceLabel("herbs")}
+          </strong>
         ) : null}
-        <strong>{formatNumber(summary.combatExperience)} Combat XP</strong>
+        <strong>
+          {formatNumber(summary.combatExperience)}{" "}
+          {formatResourceLabel("combatExperience")}
+        </strong>
         {summary.assignmentStyleMasteryExperience > 0 ? (
           <strong>
-            {formatNumber(summary.assignmentStyleMasteryExperience)} style mastery
+            {formatNumber(summary.assignmentStyleMasteryExperience)}{" "}
+            {formatResourceLabel("styleMastery")}
           </strong>
         ) : null}
         {summary.assignmentEquipmentRewards.map((reward) => (
@@ -104,13 +115,26 @@ export function OfflineFarmPanel({
           <h3>{preview.stageName}</h3>
           <p>{preview.regionName}</p>
           <div className="offline-preview-rewards">
-            <span>{formatNumber(preview.silver)} silver</span>
-            <span>{formatNumber(preview.cultivation)} cultivation</span>
+            <span>
+              {formatNumber(preview.silver)} {formatResourceLabel("silver")}
+            </span>
+            <span>
+              {formatNumber(preview.cultivation)}{" "}
+              {formatResourceLabel("cultivation")}
+            </span>
             {preview.herbs > 0 ? (
-              <span>{formatNumber(preview.herbs)} herbs</span>
+              <span>
+                {formatNumber(preview.herbs)} {formatResourceLabel("herbs")}
+              </span>
             ) : null}
-            <span>{formatNumber(preview.combatExperience)} Combat XP</span>
-            <span>{formatNumber(preview.masteryExperienceGain)} mastery</span>
+            <span>
+              {formatNumber(preview.combatExperience)}{" "}
+              {formatResourceLabel("combatExperience")}
+            </span>
+            <span>
+              {formatNumber(preview.masteryExperienceGain)}{" "}
+              {formatResourceLabel("mastery")}
+            </span>
           </div>
         </article>
         <article className="offline-farm-card">
@@ -122,7 +146,10 @@ export function OfflineFarmPanel({
               <span key={priority}>{priority}</span>
             ))}
             {recommendation.herbsPerClear > 0 ? (
-              <span>{formatNumber(recommendation.herbsPerClear)} herbs/clear</span>
+              <span>
+                {formatNumber(recommendation.herbsPerClear)}{" "}
+                {formatResourceLabel("herbs")}/clear
+              </span>
             ) : null}
           </div>
           <strong>
@@ -158,11 +185,14 @@ export function StageSelectorPanel({
   };
 
   return (
-    <section className="stage-selector" aria-label="Stage routes">
+    <section
+      className="stage-selector"
+      aria-label={`${displayTerms.progression.route} list`}
+    >
       <div className="stage-selector-heading">
         <div>
-          <span className="label">Route</span>
-          <h2>Map Routes</h2>
+          <span className="label">{displayTerms.progression.route}</span>
+          <h2>District {displayTerms.progression.routes}</h2>
         </div>
         <span>{stages.filter((stage) => stage.isCleared).length} cleared</span>
       </div>
@@ -192,7 +222,10 @@ export function StageSelectorPanel({
               <div className="stage-card-heading">
                 <div>
                   <strong>{stage.name}</strong>
-                  <span>{stage.regionName} · Stage {stage.index}</span>
+                  <span>
+                    {stage.regionName} · {displayTerms.progression.route}{" "}
+                    {stage.index}
+                  </span>
                 </div>
                 <span>
                   {stage.isSelectedStage
@@ -207,12 +240,24 @@ export function StageSelectorPanel({
                 </span>
               </div>
               <div className="stage-rewards">
-                <span>{formatNumber(stage.rewards.silver)} silver</span>
-                <span>{formatNumber(stage.rewards.cultivation)} cultivation</span>
+                <span>
+                  {formatNumber(stage.rewards.silver)}{" "}
+                  {formatResourceLabel("silver")}
+                </span>
+                <span>
+                  {formatNumber(stage.rewards.cultivation)}{" "}
+                  {formatResourceLabel("cultivation")}
+                </span>
                 {stage.rewards.herbs ? (
-                  <span>{formatNumber(stage.rewards.herbs)} herbs</span>
+                  <span>
+                    {formatNumber(stage.rewards.herbs)}{" "}
+                    {formatResourceLabel("herbs")}
+                  </span>
                 ) : null}
-                <span>{formatNumber(stage.rewards.combatExperience)} xp</span>
+                <span>
+                  {formatNumber(stage.rewards.combatExperience)}{" "}
+                  {formatResourceLabel("combatExperience")}
+                </span>
               </div>
               <div className="stage-card-actions">
                 <span>
@@ -226,7 +271,7 @@ export function StageSelectorPanel({
             </article>
           ))
         ) : (
-          <p className="empty-panel">No stages available</p>
+          <p className="empty-panel">No routes available</p>
         )}
       </div>
     </section>

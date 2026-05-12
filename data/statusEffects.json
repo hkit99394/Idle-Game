@@ -1,7 +1,7 @@
 [
   {
     "id": "poison",
-    "name": "Poison",
+    "name": "Corruption",
     "category": "damage",
     "durationSeconds": 8,
     "maxStacks": 3,
@@ -14,7 +14,7 @@
   },
   {
     "id": "wound",
-    "name": "Wound",
+    "name": "Trauma",
     "category": "recovery",
     "durationSeconds": 6,
     "maxStacks": 2,
@@ -26,7 +26,7 @@
   },
   {
     "id": "qi_suppression",
-    "name": "Qi Suppression",
+    "name": "Context Suppression",
     "category": "control",
     "durationSeconds": 6,
     "maxStacks": 2,
@@ -38,7 +38,7 @@
   },
   {
     "id": "vulnerable",
-    "name": "Vulnerable",
+    "name": "Exposed",
     "category": "vulnerability",
     "durationSeconds": 5,
     "maxStacks": 2,

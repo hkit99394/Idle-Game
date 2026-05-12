@@ -57,7 +57,7 @@ describe("web game state idle", () => {
     });
     expect(viewModel.offlineRewardPreview).toMatchObject({
       ok: true,
-      stageName: "Lotus Monastery Gate",
+      stageName: "Lotus Clinic Gate",
       herbs: 1296
     });
     expect(viewModel.offlineFarmRecommendation.herbsPerClear).toBeGreaterThan(0);
@@ -67,7 +67,7 @@ describe("web game state idle", () => {
       )
     ).toMatchObject({
       unlocked: true,
-      rewardSummary: expect.arrayContaining(["18 herbs/hour"])
+      rewardSummary: expect.arrayContaining(["18 Reagents/hour"])
     });
   });
 
@@ -189,7 +189,7 @@ describe("web game state idle", () => {
     });
     expect(familiarMastery?.progressPercent).toBeCloseTo(0.24);
     expect(familiarMastery?.activeBonuses.map((bonus) => bonus.label)).toEqual([
-      "+1% Outer and Inner attack"
+      "+1% Kinetic and Cognitive attack"
     ]);
     expect(trainedMastery).toMatchObject({
       combatExperience: 600,
@@ -213,12 +213,12 @@ describe("web game state idle", () => {
     });
     expect(trainedMastery?.progressPercent).toBeCloseTo(0.2);
     expect(trainedMastery?.activeBonuses.map((bonus) => bonus.label)).toEqual([
-      "+1% Outer and Inner attack",
-      "+2% stage rewards"
+      "+1% Kinetic and Cognitive attack",
+      "+2% route rewards"
     ]);
   });
 
-  it("builds readable battle playback rows for Qi Break events", () => {
+  it("builds readable battle playback rows for AI Overload events", () => {
     const state = createInitialWebGameState(staticData);
     const stageFiveProgress = {
       ...state.progress,
@@ -252,25 +252,28 @@ describe("web game state idle", () => {
     );
 
     expect(attackEvent?.headline).toContain("attacks");
-    expect(attackEvent?.detail).toContain("Outer damage");
+    expect(attackEvent?.detail).toContain("Kinetic damage");
     expect(attackEvent?.badges.map((badge) => badge.tone)).toEqual([
       "skill",
       "outer",
       "inner"
     ]);
-    expect(attackEvent?.badges.some((badge) => badge.label.includes("Outer HP")))
-      .toBe(true);
-    expect(qiBreakEvent?.headline).toContain("Qi Break");
-    expect(qiBreakEvent?.detail).toContain("Inner Qi");
+    expect(
+      attackEvent?.badges.some((badge) =>
+        badge.label.includes("Body Integrity")
+      )
+    ).toBe(true);
+    expect(qiBreakEvent?.headline).toContain("AI Overload");
+    expect(qiBreakEvent?.detail).toContain("Context Stability");
     expect(qiBreakEvent?.badges).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          label: "Qi Break",
+          label: "AI Overload",
           tone: "danger"
         })
       ])
     );
-    expect(viewModel.battleSummary?.details.join(" ")).toContain("Qi Breaks");
+    expect(viewModel.battleSummary?.details.join(" ")).toContain("AI Overloads");
   });
 
   it("normalizes selected offline farm stage to the best unlocked farm", () => {
@@ -324,7 +327,7 @@ describe("web game state idle", () => {
     expect(silverState.selectedOfflineFarmStageId).toBe("bamboo_road_9");
     expect(silverViewModel.offlineFarmPresets.find((preset) => preset.id === "silver")).toMatchObject({
       isSelected: true,
-      rewardPriority: ["Silver", "Combat XP", "Cultivation"]
+      rewardPriority: ["Credits", "Combat Data", "Resonance"]
     });
     expect(silverViewModel.offlineFarmRecommendation).toMatchObject({
       stageId: "bamboo_road_9",
@@ -333,7 +336,7 @@ describe("web game state idle", () => {
     });
     expect(silverViewModel.offlineRewardPreview).toMatchObject({
       ok: true,
-      stageName: "Bamboo Road 9",
+      stageName: "Greenline Route 9",
       silver: 11232,
       cultivation: 5616,
       combatExperience: 2160

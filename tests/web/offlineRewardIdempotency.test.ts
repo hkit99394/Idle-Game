@@ -70,7 +70,7 @@ describe("offline reward idempotency", () => {
     ).toBeCloseTo(8640);
   });
 
-  it("grants Demon Cult farm rewards once through the current save schema", () => {
+  it("grants Redline farm rewards once through the current save schema", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);
     const savedAtMs = 1000;

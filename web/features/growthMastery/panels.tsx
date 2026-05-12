@@ -4,6 +4,7 @@ import type {
   StyleMasteryView,
   UpgradeView
 } from "../../state/viewModels/progressionTypes";
+import { displayTerms, formatResourceLabel } from "../../displayTerms";
 import { formatNumber, formatSignedPercent } from "../shared/ui";
 
 type PurchaseUpgradePanelInput = {
@@ -31,18 +32,24 @@ export function MasteryPanel({ mastery }: MasteryPanelProps) {
 
   const progressWidth = `${Math.round(mastery.progressPercent * 100)}%`;
   const nextThresholdLabel = mastery.nextThreshold
-    ? `${formatNumber(mastery.nextThreshold.experience)} XP for ${mastery.nextThreshold.rank}`
+    ? `${formatNumber(mastery.nextThreshold.experience)} ${
+        displayTerms.progression.combatData
+      } for ${mastery.nextThreshold.rank}`
     : "All thresholds reached";
 
   return (
-    <section className="mastery-panel" aria-label="Map mastery">
+    <section
+      className="mastery-panel"
+      aria-label={displayTerms.progression.districtMastery}
+    >
       <div className="mastery-panel-heading">
         <div>
-          <span className="label">Mastery</span>
+          <span className="label">{displayTerms.progression.districtMastery}</span>
           <h2>{mastery.regionName}</h2>
         </div>
         <div className="mastery-xp">
-          {formatNumber(mastery.combatExperience)} Combat XP
+          {formatNumber(mastery.combatExperience)}{" "}
+          {displayTerms.progression.combatData}
         </div>
       </div>
       <div className="mastery-progress">
@@ -62,7 +69,8 @@ export function MasteryPanel({ mastery }: MasteryPanelProps) {
         </div>
         {mastery.nextThreshold ? (
           <span className="mastery-next">
-            {formatNumber(mastery.nextThreshold.remainingExperience)} XP remaining
+            {formatNumber(mastery.nextThreshold.remainingExperience)}{" "}
+            {displayTerms.progression.combatData} remaining
           </span>
         ) : null}
       </div>
@@ -103,13 +111,20 @@ type UpgradePanelProps = {
 
 export function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePanelProps) {
   return (
-    <section className="upgrade-panel" aria-label="Outer and Inner Art">
+    <section
+      className="upgrade-panel"
+      aria-label={`${displayTerms.combat.kineticArt} and ${displayTerms.combat.cognitiveArt}`}
+    >
       <div className="upgrade-panel-heading">
         <div>
           <span className="label">Arts</span>
-          <h2>Outer And Inner Art</h2>
+          <h2>
+            {displayTerms.combat.kineticArt} And {displayTerms.combat.cognitiveArt}
+          </h2>
         </div>
-        <div className="upgrade-silver">Silver {formatNumber(silver)}</div>
+        <div className="upgrade-silver">
+          {formatResourceLabel("silver")} {formatNumber(silver)}
+        </div>
       </div>
       <div className="upgrade-grid">
         {upgrades.length > 0 ? (
@@ -133,7 +148,8 @@ export function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePa
                 ))}
                 {!upgrade.affordable ? (
                   <span className="upgrade-shortfall">
-                    Need {formatNumber(upgrade.missingSilver)} more silver
+                    Need {formatNumber(upgrade.missingSilver)} more{" "}
+                    {formatResourceLabel("silver")}
                   </span>
                 ) : null}
               </div>
@@ -149,7 +165,9 @@ export function UpgradePanel({ onPurchase, silver, status, upgrades }: UpgradePa
               >
                 {upgrade.affordable
                   ? "Train Art"
-                  : `Need ${formatNumber(upgrade.missingSilver)} silver`}
+                  : `Need ${formatNumber(upgrade.missingSilver)} ${formatResourceLabel(
+                      "silver"
+                    )}`}
               </button>
             </article>
           ))
@@ -174,11 +192,14 @@ export function StyleMasteryPanel({
   styles
 }: StyleMasteryPanelProps) {
   return (
-    <section className="style-mastery-panel" aria-label="Style mastery">
+    <section
+      className="style-mastery-panel"
+      aria-label={displayTerms.progression.protocolMastery}
+    >
       <div className="style-mastery-heading">
         <div>
-          <span className="label">Mastery</span>
-          <h2>Martial Styles</h2>
+          <span className="label">{displayTerms.progression.protocolMastery}</span>
+          <h2>Style Families</h2>
         </div>
         <span>{styles.length} styles</span>
       </div>
@@ -193,7 +214,10 @@ export function StyleMasteryPanel({
                   <strong>{style.name}</strong>
                   <span>Level {formatNumber(style.level)}</span>
                 </div>
-                <span>{formatNumber(style.experience)} XP</span>
+                <span>
+                  {formatNumber(style.experience)}{" "}
+                  {displayTerms.progression.combatData}
+                </span>
               </div>
               <div className="mastery-meter">
                 <span style={{ width }} />
@@ -258,14 +282,17 @@ export function SkillUpgradePanel({
   status
 }: SkillUpgradePanelProps) {
   return (
-    <section className="skill-upgrade-panel" aria-label="Skill upgrades">
+    <section
+      className="skill-upgrade-panel"
+      aria-label={`${displayTerms.progression.protocol} upgrades`}
+    >
       <div className="skill-upgrade-heading">
         <div>
-          <span className="label">Techniques</span>
-          <h2>Skill Refinement</h2>
+          <span className="label">{displayTerms.progression.protocols}</span>
+          <h2>{displayTerms.progression.protocol} Refinement</h2>
         </div>
         <div className="upgrade-silver">
-          Cultivation {formatNumber(cultivation)}
+          {formatResourceLabel("cultivation")} {formatNumber(cultivation)}
         </div>
       </div>
       <div className="upgrade-grid">
@@ -292,7 +319,9 @@ export function SkillUpgradePanel({
                 <span className="upgrade-shortfall">
                   {upgrade.level >= upgrade.maxLevel
                     ? "Maximum refinement"
-                    : `Need ${formatNumber(upgrade.missingCultivation)} more cultivation`}
+                    : `Need ${formatNumber(
+                        upgrade.missingCultivation
+                      )} more ${formatResourceLabel("cultivation")}`}
                 </span>
               ) : null}
             </div>
@@ -309,7 +338,9 @@ export function SkillUpgradePanel({
                 ? "Refine"
                 : upgrade.level >= upgrade.maxLevel
                   ? "Maxed"
-                  : `Need ${formatNumber(upgrade.missingCultivation)} cultivation`}
+                  : `Need ${formatNumber(
+                      upgrade.missingCultivation
+                    )} ${formatResourceLabel("cultivation")}`}
             </button>
           </article>
         ))}

@@ -35,7 +35,7 @@ Internal identifiers means the stable machine-readable names used by saves, stat
 
 The stage should establish the retheme contract, then make the first visible product-shell and UI-language changes while planning one small neon-native system prototype. The goal is not to rewrite the game immediately; it is to stop the retheme from being only copy replacement.
 
-The numbered sections below are implementation phases inside Stage 2.3, not project stages after Stage 2.2. "Stage 0" means the docs-only preflight phase for Stage 2.3: it can be completed before runtime retheme work starts, and it should become Epic 79 or the opening slice of the Stage 2.3 backlog.
+The numbered sections below are implementation phases inside Stage 2.3, not project stages after Stage 2.2. "Stage 0" means the docs-only preflight phase for Stage 2.3: it was completed before runtime retheme work started, and it is tracked as Epic 79 in [Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md).
 
 ## Suggested Epics
 
@@ -61,7 +61,7 @@ The numbered sections below are implementation phases inside Stage 2.3, not proj
 | 96 | Cognitive Intrusion Prototype | Implement the smallest useful Cognitive Intrusion slice with focused tests and simulator/report visibility. |
 | 97 | Post-Migration Compatibility Hardening | Prove old saves, exports, fixtures, reports, PWA caches, docs, and stale-name scans still work after id/schema migration. |
 
-Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. The safest sequence is product/storage keys first, static region/route ids second, remaining static content ids third, save resource/progress fields fourth, combat save fields fifth, code/report symbols sixth, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
+Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Stage 2.4 Backlog](stage-2.4-backlog.md) owns Epic 89 as focused product/storage key migration slices. The safest sequence is product/storage keys first, static region/route ids second, remaining static content ids third, save resource/progress fields fourth, combat save fields fifth, code/report symbols sixth, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
 
 ## Stage 2.3 Phase 0: Docs Contract
 
@@ -117,7 +117,7 @@ Likely files:
 - [Path Of Neon Theme Bible](path-of-neon-theme-bible.md)
 - [Path Of Neon Terminology Map](path-of-neon-terminology-map.md)
 - This migration plan
-- Future stage backlog
+- [Archived Stage 2.3 Backlog](archive/stage-2.3-backlog.md)
 
 Acceptance:
 
@@ -195,7 +195,7 @@ Pick one prototype for the first deeper change. Do not implement all of these in
 | Countermeasure Economy | Makes medicine and Lotus support feel tech-native. | Rename/polish countermeasure UI, then add one anti-overload countermeasure. |
 | AI Raid Event | Connects Path of Neon to online boss planning. | Create endpoint/mock contract for async raid attempts without production backend. |
 
-Recommendation: start with **Cognitive Intrusion**, then follow with **District Heat**. Cognitive Intrusion is the smallest strong gameplay proof that Path of Neon is more than renamed copy: it reuses Context Stability, AI Overload, statuses, target rules, and existing simulator visibility. District Heat is still the best second prototype because it changes route and offline-farming decisions, but it touches more progression and economy surfaces.
+Recommendation: start with **Cognitive Intrusion**, then follow with **District Heat**. Cognitive Intrusion is the smallest strong gameplay proof that Path of Neon is more than renamed copy: it reuses Context Stability, AI Overload, statuses, target rules, and existing simulator visibility. District Heat is still the best second prototype because it changes route and offline-farming decisions, but it touches more progression and economy surfaces. Stage 2.3 recorded the selected implementation boundary in [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md).
 
 Acceptance:
 
@@ -269,11 +269,13 @@ Acceptance:
 
 - Use **Path of Neon** as the product/world identity. Do not use "Neon Jianghu" as player-facing or lore-facing terminology.
 - Use **Combat Data** as the main UI term for Combat XP. Technical docs may still refer to `combatExperience` when describing schema or save fields.
-- Do not lock the style rename to Impact/Pulse/Edge/Ward yet. Treat style naming as a dedicated design pass so each style has a cyber-native identity, readable combat role, and compatible old-style mapping.
+- Stage 2.3 Epic 81 chose style-family display names: Impact, Pulse, Vector, Edge, Rend, Brace, and Ghostware. Treat old martial style terms as lineage flavor and keep style ids stable until the internal-id migration.
 - Use **Redline** as the hostile Demon Cult direction. `Redline Outpost` and `Redline Cult` are the current best display candidates; `Null Context` can remain a doctrine/status flavor, not the main faction name.
 - Prototype **Cognitive Intrusion** first, with **District Heat** as the preferred second neon-native system.
 - Migrate internal ids through a dedicated compatibility phase. Display names can change first; ids and persisted fields should change only after alias maps, save-version migration, storage-key migration, and fixture coverage are ready.
 
-## Remaining Style Naming Work
+## Style Naming Decision
 
-The style rename needs a focused design pass instead of a simple one-word replacement. The pass should decide whether old styles remain visible as martial roots, become protocol families, or become role-forward labels. It should preserve readability for current Fist, Palm, Sword, Staff, Blade, and future hidden-weapon identities while making the names feel native to Path of Neon.
+Epic 81 completed the focused style naming pass. Use **Impact**, **Pulse**, **Vector**, **Edge**, **Rend**, **Brace**, and **Ghostware** as display families for Fist, Palm, Leg, Sword, Blade, Staff, and Hidden Weapons. Old martial terms may remain as lineage flavor, especially in hero, skill, branch, and equipment copy, but role labels such as Anchor, Breacher, Striker, and Stabilizer should not replace style names.
+
+The later internal-id migration can target `impact`, `pulse`, `vector`, `edge`, `rend`, `brace`, and `ghostware` ids after alias maps, save-version migration, storage-key migration, and fixture coverage are ready.

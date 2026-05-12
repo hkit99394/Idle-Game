@@ -24,12 +24,11 @@ import type {
   StyleMasteryView,
   UpgradeView
 } from "./progressionTypes";
-
-function formatStatName(stat: string): string {
-  return stat.replace(/[A-Z]/g, (match) => ` ${match}`).replace(/^./, (match) =>
-    match.toUpperCase()
-  );
-}
+import {
+  displayTerms,
+  formatInternalStatName,
+  formatStyleFamilyName
+} from "../../displayTerms";
 
 function formatPerLevelEffect(
   stat: string,
@@ -41,10 +40,10 @@ function formatPerLevelEffect(
       stat === "statusResistance"
         ? formatMasteryPercent(value)
         : `${value >= 0 ? "+" : ""}${value}`;
-    return `${formattedValue} ${formatStatName(stat)} per level`;
+    return `${formattedValue} ${formatInternalStatName(stat)} per level`;
   }
 
-  return `${formatMasteryPercent(value)} ${formatStatName(stat)} per level`;
+  return `${formatMasteryPercent(value)} ${formatInternalStatName(stat)} per level`;
 }
 
 function getUnlockedHeroDefinitions(
@@ -96,7 +95,7 @@ export function buildUpgradeViews(
           cost,
           missingSilver,
           `sect:${upgrade.id}`,
-          "Sect"
+          displayTerms.progression.technoSect
         )
       ];
     }
@@ -128,9 +127,9 @@ function formatSkillUpgradeEffect(
         2
       )}s cooldown per level`;
     case "outer_multiplier":
-      return `${formatMasteryPercent(effect.valuePerLevel)} Outer ratio per level`;
+      return `${formatMasteryPercent(effect.valuePerLevel)} Kinetic ratio per level`;
     case "inner_multiplier":
-      return `${formatMasteryPercent(effect.valuePerLevel)} Inner ratio per level`;
+      return `${formatMasteryPercent(effect.valuePerLevel)} Cognitive ratio per level`;
     case "add_skill_effect":
       return `Adds ${effect.effect.type.replaceAll("_", " ")} at level ${effect.unlockLevel}`;
   }
@@ -188,9 +187,9 @@ function formatMasteryPercent(value: number): string {
 function formatMasteryBonus(bonus: MasteryBonus): string {
   switch (bonus.type) {
     case "map_outer_and_inner_attack_multiplier":
-      return `${formatMasteryPercent(bonus.value)} Outer and Inner attack`;
+      return `${formatMasteryPercent(bonus.value)} Kinetic and Cognitive attack`;
     case "map_reward_multiplier":
-      return `${formatMasteryPercent(bonus.value)} stage rewards`;
+      return `${formatMasteryPercent(bonus.value)} route rewards`;
     case "enemy_family_damage_multiplier":
       return `${formatMasteryPercent(bonus.value)} damage to enemy family`;
   }
@@ -295,10 +294,9 @@ function formatStyleBranchRequirement(
         unlock.heroId
       } level ${unlock.level}`;
     case "style_mastery_level":
-      return `${
-        data.styles.find((style) => style.id === unlock.styleId)?.name ??
-        unlock.styleId
-      } mastery ${unlock.level}`;
+      return `${formatStyleFamilyName(unlock.styleId)} ${
+        displayTerms.progression.protocolMastery
+      } ${unlock.level}`;
   }
 }
 
@@ -307,7 +305,9 @@ function formatStyleBranchEffect(
 ): string {
   switch (effect.type) {
     case "stat_multiplier":
-      return `${formatMasteryPercent(effect.value)} ${formatStatName(effect.stat)}`;
+      return `${formatMasteryPercent(effect.value)} ${formatInternalStatName(
+        effect.stat
+      )}`;
   }
 }
 
@@ -331,7 +331,7 @@ export function buildStyleMasteryViews(
 
     return {
       styleId: style.id,
-      name: style.name,
+      name: formatStyleFamilyName(style.id),
       level,
       experience,
       nextLevelExperience,

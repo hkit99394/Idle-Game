@@ -2,7 +2,7 @@
 
 ## Current Implementation Note
 
-This document began as the full design draft. The current implementation has advanced beyond the original MVP plan: enemy teams, formations, CP, levels, equipment, assignments, medicine, Demon Cult status pressure, and Lotus support counterplay are now implemented.
+This document began as the full design draft. The current implementation has advanced beyond the original MVP plan: enemy teams, formations, CP, levels, equipment, assignments, countermeasures, Redline status pressure, and Lotus support counterplay are now implemented.
 
 The product direction is now **Path of Neon**, a cyber-sect retheme of this original Path of Jianghu design. For the active retheme contract, read [Path Of Neon Theme Bible](path-of-neon-theme-bible.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md).
 
