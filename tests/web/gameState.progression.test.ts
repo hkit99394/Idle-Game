@@ -19,13 +19,13 @@ describe("web game state progression", () => {
     const state = createInitialWebGameState(staticData);
     const viewModel = getWebGameViewModel(staticData, state);
 
-    expect(state.progress.currentStageId).toBe("bamboo_road_1");
-    expect(state.selectedStageId).toBe("bamboo_road_1");
+    expect(state.progress.currentStageId).toBe("greenline_approach_1");
+    expect(state.selectedStageId).toBe("greenline_approach_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
     expect(state.offlineFarmPreset).toBe("balanced");
     expect(state.progress.selectedTacticId).toBe("balanced");
     expect(state.offlineSummary).toBeNull();
-    expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
+    expect(viewModel.selectedStage?.id).toBe("greenline_approach_1");
     expect(viewModel.selectedStageRegionName).toBe("Greenline Approach");
     expect(viewModel.offlineSummary).toBeNull();
     expect(viewModel.offlineFarmPreset).toBe("balanced");
@@ -85,7 +85,7 @@ describe("web game state progression", () => {
     expect(viewModel.battleEvents).toEqual([]);
     expect(viewModel.battleSummary).toBeNull();
     expect(viewModel.masteryPanel).toMatchObject({
-      regionId: "bamboo_road",
+      regionId: "greenline_approach",
       regionName: "Greenline Approach",
       combatExperience: 0,
       reachedRanks: [],
@@ -99,7 +99,7 @@ describe("web game state progression", () => {
     });
     expect(viewModel.stageOptions).toHaveLength(staticData.stages.length);
     expect(viewModel.stageOptions[0]).toMatchObject({
-      id: "bamboo_road_1",
+      id: "greenline_approach_1",
       regionName: "Greenline Approach",
       isUnlocked: true,
       isCleared: false,
@@ -108,20 +108,20 @@ describe("web game state progression", () => {
       canSelectOfflineFarm: false
     });
     expect(viewModel.stageOptions[1]).toMatchObject({
-      id: "bamboo_road_2",
+      id: "greenline_approach_2",
       isUnlocked: false,
       canSelectStage: false,
       canSelectOfflineFarm: false
     });
     expect(viewModel.stageOptions[10]).toMatchObject({
-      id: "mist_valley_1",
+      id: "veil_district_1",
       regionName: "Veil District",
       isUnlocked: false,
       canSelectStage: false,
       canSelectOfflineFarm: false
     });
     expect(
-      viewModel.stageOptions.find((stage) => stage.id === "black_iron_fort_1")
+      viewModel.stageOptions.find((stage) => stage.id === "black_iron_foundry_1")
     ).toMatchObject({
       regionName: "Black Iron Foundry",
       isUnlocked: false,
@@ -399,19 +399,19 @@ describe("web game state progression", () => {
         ...state.progress,
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 0,
             highestClearedStageIndex: 10
           },
-          mist_valley: {
+          veil_district: {
             combatExperience: 0,
             highestClearedStageIndex: 10
           },
-          black_iron_fort: {
+          black_iron_foundry: {
             combatExperience: 0,
             highestClearedStageIndex: 10
           },
-          lotus_monastery: {
+          lotus_clinic: {
             combatExperience: 0,
             highestClearedStageIndex: 3
           }
@@ -453,16 +453,16 @@ describe("web game state progression", () => {
 
     expect(nextState.lastBattle?.ok).toBe(true);
     expect(nextState.progress.resources.silver).toBe(10);
-    expect(nextState.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
-    expect(nextState.progress.currentStageId).toBe("bamboo_road_2");
-    expect(nextState.selectedStageId).toBe("bamboo_road_1");
-    expect(nextState.selectedOfflineFarmStageId).toBe("bamboo_road_1");
-    expect(nextState.lastBattleStageId).toBe("bamboo_road_1");
+    expect(nextState.progress.maps.greenline_approach.highestClearedStageIndex).toBe(1);
+    expect(nextState.progress.currentStageId).toBe("greenline_approach_2");
+    expect(nextState.selectedStageId).toBe("greenline_approach_1");
+    expect(nextState.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(nextState.lastBattleStageId).toBe("greenline_approach_1");
 
     const viewModel = getWebGameViewModel(staticData, nextState);
 
-    expect(viewModel.lastBattleStage?.id).toBe("bamboo_road_1");
-    expect(viewModel.selectedStage?.id).toBe("bamboo_road_1");
+    expect(viewModel.lastBattleStage?.id).toBe("greenline_approach_1");
+    expect(viewModel.selectedStage?.id).toBe("greenline_approach_1");
     expect(viewModel.enemyTeamLabel).toBe("Greenline Cutter x2");
     expect(viewModel.enemyCombatants[0]).toMatchObject({
       name: "Greenline Cutter",
@@ -472,7 +472,7 @@ describe("web game state progression", () => {
     });
     expect(viewModel.battleSummary?.title).toContain("Victory at Greenline Route 1");
     expect(viewModel.offlineFarmRecommendation).toMatchObject({
-      stageId: "bamboo_road_1",
+      stageId: "greenline_approach_1",
       isSelected: true
     });
     expect(viewModel.offlineRewardPreview).toMatchObject({
@@ -492,10 +492,10 @@ describe("web game state progression", () => {
     expect(viewModel.battleEvents[0].detail).toContain("Kinetic damage");
 
     const clearedStage = viewModel.stageOptions.find(
-      (stage) => stage.id === "bamboo_road_1"
+      (stage) => stage.id === "greenline_approach_1"
     );
     const nextStage = viewModel.stageOptions.find(
-      (stage) => stage.id === "bamboo_road_2"
+      (stage) => stage.id === "greenline_approach_2"
     );
 
     expect(clearedStage).toMatchObject({
@@ -518,7 +518,7 @@ describe("web game state progression", () => {
         ...state.progress,
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 95,
             highestClearedStageIndex: 0
           }
@@ -536,15 +536,15 @@ describe("web game state progression", () => {
     const state = createInitialWebGameState(staticData);
     const nextState = webGameStateReducer(staticData, state, {
       type: "select_stage",
-      stageId: "bamboo_road_5"
+      stageId: "greenline_approach_5"
     });
     const missingStageState = webGameStateReducer(staticData, state, {
       type: "select_stage",
       stageId: "missing_stage"
     });
 
-    expect(nextState.selectedStageId).toBe("bamboo_road_1");
-    expect(missingStageState.selectedStageId).toBe("bamboo_road_1");
+    expect(nextState.selectedStageId).toBe("greenline_approach_1");
+    expect(missingStageState.selectedStageId).toBe("greenline_approach_1");
   });
 
   it("shows unlocked Veil District stages and selected-region mastery", () => {
@@ -553,14 +553,14 @@ describe("web game state progression", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "mist_valley_1",
+        currentStageId: "veil_district_1",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 188,
             highestClearedStageIndex: 10
           },
-          mist_valley: {
+          veil_district: {
             combatExperience: 52,
             highestClearedStageIndex: 2
           }
@@ -569,19 +569,19 @@ describe("web game state progression", () => {
     });
     const selectedState = webGameStateReducer(staticData, progressedState, {
       type: "select_stage",
-      stageId: "mist_valley_2"
+      stageId: "veil_district_2"
     });
     const viewModel = getWebGameViewModel(staticData, selectedState);
 
-    expect(selectedState.selectedStageId).toBe("mist_valley_2");
+    expect(selectedState.selectedStageId).toBe("veil_district_2");
     expect(viewModel.selectedStageRegionName).toBe("Veil District");
     expect(viewModel.masteryPanel).toMatchObject({
-      regionId: "mist_valley",
+      regionId: "veil_district",
       regionName: "Veil District",
       combatExperience: 52
     });
     expect(
-      viewModel.stageOptions.find((stage) => stage.id === "mist_valley_3")
+      viewModel.stageOptions.find((stage) => stage.id === "veil_district_3")
     ).toMatchObject({
       isUnlocked: true,
       canSelectStage: true

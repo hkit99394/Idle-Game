@@ -54,7 +54,7 @@ describe("static data builder", () => {
     const invalidData: StaticGameData = {
       ...staticGameData,
       stages: staticGameData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               nextStageId: "missing_stage"
@@ -64,7 +64,7 @@ describe("static data builder", () => {
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Stage bamboo_road_1 references missing next stage missing_stage"
+      "Stage greenline_approach_1 references missing next stage missing_stage"
     );
   });
 });

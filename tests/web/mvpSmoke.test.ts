@@ -30,8 +30,8 @@ const stage12SmokeChoices = {
 const stage13SmokeChoices = {
   assignmentHeroId: "mountain_staff_guardian",
   assignmentId: "lotus_medicine_pavilion",
-  entryBossStageId: "black_iron_fort_7",
-  farmStageId: "lotus_monastery_1",
+  entryBossStageId: "black_iron_foundry_7",
+  farmStageId: "lotus_clinic_1",
   supportHeroId: "lotus_mending_disciple"
 } as const;
 
@@ -122,19 +122,19 @@ function createStage13BlackIronBossReadyState(
     },
     maps: {
       ...state.progress.maps,
-      bamboo_road: {
+      greenline_approach: {
         combatExperience: 188,
         highestClearedStageIndex: 10
       },
-      mist_valley: {
+      veil_district: {
         combatExperience: 152,
         highestClearedStageIndex: 6
       },
-      black_iron_fort: {
+      black_iron_foundry: {
         combatExperience: 378,
         highestClearedStageIndex: 6
       },
-      lotus_monastery: {
+      lotus_clinic: {
         combatExperience: 0,
         highestClearedStageIndex: 0
       }
@@ -171,14 +171,14 @@ describe("MVP smoke flow", () => {
       return;
     }
     expect(missingSave.reason).toBe("missing_save");
-    expect(state.progress.currentStageId).toBe("bamboo_road_1");
+    expect(state.progress.currentStageId).toBe("greenline_approach_1");
 
     state = battleAndSave(storage, state, (nowMs += 1_000));
     state = battleAndSave(storage, state, (nowMs += 1_000));
 
-    expect(state.progress.currentStageId).toBe("bamboo_road_3");
+    expect(state.progress.currentStageId).toBe("greenline_approach_3");
     expect(state.progress.resources.silver).toBe(24);
-    expect(state.progress.maps.bamboo_road.combatExperience).toBe(10);
+    expect(state.progress.maps.greenline_approach.combatExperience).toBe(10);
 
     state = purchaseGameUpgrade(staticData, state, {
       upgradeId: "hero_outer_training",
@@ -205,9 +205,9 @@ describe("MVP smoke flow", () => {
 
     const preBossViewModel = getWebGameViewModel(staticData, state);
 
-    expect(state.progress.currentStageId).toBe("bamboo_road_10");
+    expect(state.progress.currentStageId).toBe("greenline_approach_10");
     expect(
-      state.progress.maps.bamboo_road.highestClearedStageIndex
+      state.progress.maps.greenline_approach.highestClearedStageIndex
     ).toBe(9);
     expect(preBossViewModel.masteryPanel).toMatchObject({
       combatExperience: 88,
@@ -235,8 +235,8 @@ describe("MVP smoke flow", () => {
       throw new Error("Boss battle did not resolve successfully");
     }
     expect(bossBattleResult.stageCleared).toBe(false);
-    expect(state.progress.currentStageId).toBe("bamboo_road_10");
-    expect(state.selectedStageId).toBe("bamboo_road_10");
+    expect(state.progress.currentStageId).toBe("greenline_approach_10");
+    expect(state.selectedStageId).toBe("greenline_approach_10");
 
     state = equipGameEquipment(staticData, state, {
       heroId: stage12SmokeChoices.heroId,
@@ -283,12 +283,12 @@ describe("MVP smoke flow", () => {
 
     state = webGameStateReducer(staticData, state, {
       type: "select_stage",
-      stageId: "bamboo_road_1"
+      stageId: "greenline_approach_1"
     });
     saveState(storage, state, (nowMs += 1_000));
 
-    expect(state.selectedStageId).toBe("bamboo_road_1");
-    expect(state.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(state.selectedStageId).toBe("greenline_approach_1");
+    expect(state.selectedOfflineFarmStageId).toBe("greenline_approach_1");
 
     const reloadedState = createInitialWebGameStateFromStorage(
       staticData,
@@ -296,12 +296,12 @@ describe("MVP smoke flow", () => {
       nowMs
     );
 
-    expect(reloadedState.progress.currentStageId).toBe("bamboo_road_10");
+    expect(reloadedState.progress.currentStageId).toBe("greenline_approach_10");
     expect(
-      reloadedState.progress.maps.bamboo_road.highestClearedStageIndex
+      reloadedState.progress.maps.greenline_approach.highestClearedStageIndex
     ).toBe(9);
     expectStage12SmokeChoices(reloadedState);
-    expect(reloadedState.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(reloadedState.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(reloadedState.offlineSummary).toBeNull();
 
     const offlineState = createInitialWebGameStateFromStorage(
@@ -311,7 +311,7 @@ describe("MVP smoke flow", () => {
     );
 
     expect(offlineState.offlineSummary).toMatchObject({
-      stageId: "bamboo_road_1",
+      stageId: "greenline_approach_1",
       clears: 3
     });
     expect(offlineState.offlineSummary?.silver).toBeCloseTo(18.124);
@@ -321,7 +321,7 @@ describe("MVP smoke flow", () => {
 
     const silverAfterOffline = offlineState.progress.resources.silver;
     const combatExperienceAfterOffline =
-      offlineState.progress.maps.bamboo_road.combatExperience;
+      offlineState.progress.maps.greenline_approach.combatExperience;
     const secondReloadState = createInitialWebGameStateFromStorage(
       staticData,
       storage,
@@ -332,7 +332,7 @@ describe("MVP smoke flow", () => {
     expect(secondReloadState.progress.resources.silver).toBe(
       silverAfterOffline
     );
-    expect(secondReloadState.progress.maps.bamboo_road.combatExperience).toBe(
+    expect(secondReloadState.progress.maps.greenline_approach.combatExperience).toBe(
       combatExperienceAfterOffline
     );
   });
@@ -354,16 +354,16 @@ describe("MVP smoke flow", () => {
       throw new Error("Black Iron boss did not resolve successfully");
     }
     expect(state.lastBattle.stageCleared).toBe(true);
-    expect(state.progress.currentStageId).toBe("lotus_monastery_1");
-    expect(state.selectedStageId).toBe("lotus_monastery_1");
+    expect(state.progress.currentStageId).toBe("lotus_clinic_1");
+    expect(state.selectedStageId).toBe("lotus_clinic_1");
     expect(
-      state.progress.maps.black_iron_fort.highestClearedStageIndex
+      state.progress.maps.black_iron_foundry.highestClearedStageIndex
     ).toBe(7);
 
     for (const stageId of [
-      "lotus_monastery_1",
-      "lotus_monastery_2",
-      "lotus_monastery_3"
+      "lotus_clinic_1",
+      "lotus_clinic_2",
+      "lotus_clinic_3"
     ]) {
       expect(state.selectedStageId).toBe(stageId);
 
@@ -376,9 +376,9 @@ describe("MVP smoke flow", () => {
       expect(state.lastBattle.stageCleared, stageId).toBe(true);
     }
 
-    expect(state.progress.currentStageId).toBe("lotus_monastery_4");
+    expect(state.progress.currentStageId).toBe("lotus_clinic_4");
     expect(
-      state.progress.maps.lotus_monastery.highestClearedStageIndex
+      state.progress.maps.lotus_clinic.highestClearedStageIndex
     ).toBe(3);
     expect(state.progress.resources.herbs).toBeGreaterThan(0);
 
@@ -444,7 +444,7 @@ describe("MVP smoke flow", () => {
       nowMs
     );
 
-    expect(reloadedState.progress.currentStageId).toBe("lotus_monastery_4");
+    expect(reloadedState.progress.currentStageId).toBe("lotus_clinic_4");
     expect(reloadedState.progress.activeHeroIds).toContain(
       stage13SmokeChoices.supportHeroId
     );

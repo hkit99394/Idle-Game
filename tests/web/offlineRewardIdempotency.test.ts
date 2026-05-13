@@ -19,12 +19,12 @@ describe("offline reward idempotency", () => {
     const savedAtMs = 1000;
     const firstLoadAtMs = savedAtMs + 10 * 60 * 60 * 1000;
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
-    progress.currentStageId = "bamboo_road_2";
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.currentStageId = "greenline_approach_2";
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       nowMs: savedAtMs
     });
 
@@ -55,7 +55,7 @@ describe("offline reward idempotency", () => {
     expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(17280);
     expect(firstLoad.activeSave.progress.resources.cultivation).toBeCloseTo(8640);
     expect(
-      firstLoad.activeSave.progress.maps.bamboo_road.combatExperience
+      firstLoad.activeSave.progress.maps.greenline_approach.combatExperience
     ).toBeCloseTo(8640);
     expect(savedAfterFirstLoad.save.updatedAtMs).toBe(firstLoadAtMs);
     expect(savedAfterFirstLoad.save.lastOfflineRewardAtMs).toBe(firstLoadAtMs);
@@ -66,7 +66,7 @@ describe("offline reward idempotency", () => {
     expect(secondLoad.activeSave.progress.resources.silver).toBeCloseTo(17280);
     expect(secondLoad.activeSave.progress.resources.cultivation).toBeCloseTo(8640);
     expect(
-      secondLoad.activeSave.progress.maps.bamboo_road.combatExperience
+      secondLoad.activeSave.progress.maps.greenline_approach.combatExperience
     ).toBeCloseTo(8640);
   });
 
@@ -76,16 +76,16 @@ describe("offline reward idempotency", () => {
     const savedAtMs = 1000;
     const firstLoadAtMs = savedAtMs + 60_000;
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 6;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
-    progress.maps.lotus_monastery.highestClearedStageIndex = 7;
-    progress.maps.demon_cult_outpost.highestClearedStageIndex = 6;
-    progress.currentStageId = "demon_cult_outpost_7";
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 6;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 7;
+    progress.maps.lotus_clinic.highestClearedStageIndex = 7;
+    progress.maps.redline_outpost.highestClearedStageIndex = 6;
+    progress.currentStageId = "redline_outpost_7";
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "demon_cult_outpost_6",
+      selectedOfflineFarmStageId: "redline_outpost_6",
       nowMs: savedAtMs
     });
 
@@ -115,15 +115,15 @@ describe("offline reward idempotency", () => {
       return;
     }
 
-    expect(firstOfflineRewards.stageId).toBe("demon_cult_outpost_6");
+    expect(firstOfflineRewards.stageId).toBe("redline_outpost_6");
     expect(firstOfflineRewards.rewards.clears).toBe(6);
     expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(5832);
     expect(firstLoad.activeSave.progress.resources.cultivation).toBeCloseTo(2916);
     expect(firstLoad.activeSave.progress.resources.herbs).toBeCloseTo(180);
-    expect(firstLoad.activeSave.progress.maps.demon_cult_outpost.combatExperience).toBeCloseTo(
+    expect(firstLoad.activeSave.progress.maps.redline_outpost.combatExperience).toBeCloseTo(
       1101.6
     );
-    expect(firstLoad.activeSave.progress.currentStageId).toBe("demon_cult_outpost_7");
+    expect(firstLoad.activeSave.progress.currentStageId).toBe("redline_outpost_7");
 
     const secondOfflineRewards = secondLoad.offlineRewards;
 
@@ -134,8 +134,8 @@ describe("offline reward idempotency", () => {
 
     expect(secondOfflineRewards.rewards.clears).toBe(0);
     expect(secondLoad.activeSave.progress.resources).toEqual(firstLoad.activeSave.progress.resources);
-    expect(secondLoad.activeSave.progress.maps.demon_cult_outpost).toEqual(
-      firstLoad.activeSave.progress.maps.demon_cult_outpost
+    expect(secondLoad.activeSave.progress.maps.redline_outpost).toEqual(
+      firstLoad.activeSave.progress.maps.redline_outpost
     );
   });
 
@@ -157,7 +157,7 @@ describe("offline reward idempotency", () => {
 
     const save = createSaveData({
       progress: assigned.progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       nowMs: savedAtMs
     });
 
@@ -190,7 +190,7 @@ describe("offline reward idempotency", () => {
       firstLoad.offlineAssignmentRewards?.rewards.combatExperience
     ).toBeCloseTo(19.2);
     expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(115.2);
-    expect(firstLoad.activeSave.progress.maps.bamboo_road.combatExperience).toBeCloseTo(
+    expect(firstLoad.activeSave.progress.maps.greenline_approach.combatExperience).toBeCloseTo(
       19.2
     );
     expect(firstLoad.activeSave.progress.equipment?.inventory.training_wraps).toBe(1);
@@ -211,10 +211,10 @@ describe("offline reward idempotency", () => {
     const savedAtMs = 1000;
     const firstLoadAtMs = savedAtMs + 24 * 60 * 60 * 1000;
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 6;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
-    progress.maps.lotus_monastery.highestClearedStageIndex = 3;
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 6;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 7;
+    progress.maps.lotus_clinic.highestClearedStageIndex = 3;
 
     const assigned = setAssignmentHeroes(staticData, {
       progress,
@@ -229,7 +229,7 @@ describe("offline reward idempotency", () => {
 
     const save = createSaveData({
       progress: assigned.progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       nowMs: savedAtMs
     });
 

@@ -1,6 +1,7 @@
 import {
   createInitialPlayerProgress,
   createSaveData,
+  getLegacyRegionId,
   normalizeRegionId,
   normalizeRegionMapKeys,
   normalizeStageId,
@@ -47,6 +48,12 @@ function createCurrentSaveFixture(data: StaticGameData): SaveData {
   const progress = createInitialPlayerProgress(data);
   progress.resources.silver = 100;
   progress.resources.cultivation = 25;
+  progress.maps = Object.fromEntries(
+    Object.entries(progress.maps).map(([regionId, mapProgress]) => [
+      getLegacyRegionId(regionId),
+      mapProgress
+    ])
+  );
   progress.maps.bamboo_road.combatExperience = 12;
   progress.maps.bamboo_road.highestClearedStageIndex = 1;
   progress.currentStageId = "bamboo_road_2";

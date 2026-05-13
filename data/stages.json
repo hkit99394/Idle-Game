@@ -1,7 +1,7 @@
 [
   {
-    "id": "bamboo_road_1",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_1",
+    "regionId": "greenline_approach",
     "index": 1,
     "name": "Greenline Route 1",
     "enemyTeam": {
@@ -11,11 +11,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 10, "cultivation": 5, "combatExperience": 5 },
-    "nextStageId": "bamboo_road_2"
+    "nextStageId": "greenline_approach_2"
   },
   {
-    "id": "bamboo_road_2",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_2",
+    "regionId": "greenline_approach",
     "index": 2,
     "name": "Greenline Route 2",
     "enemyTeam": {
@@ -26,11 +26,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 5 },
     "equipmentDrops": [{ "equipmentId": "training_wraps", "quantity": 1 }],
-    "nextStageId": "bamboo_road_3"
+    "nextStageId": "greenline_approach_3"
   },
   {
-    "id": "bamboo_road_3",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_3",
+    "regionId": "greenline_approach",
     "index": 3,
     "name": "Greenline Route 3",
     "enemyTeam": {
@@ -40,11 +40,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 18, "cultivation": 9, "combatExperience": 6 },
-    "nextStageId": "bamboo_road_4"
+    "nextStageId": "greenline_approach_4"
   },
   {
-    "id": "bamboo_road_4",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_4",
+    "regionId": "greenline_approach",
     "index": 4,
     "name": "Greenline Route 4",
     "enemyTeam": {
@@ -54,11 +54,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 22, "cultivation": 11, "combatExperience": 6 },
-    "nextStageId": "bamboo_road_5"
+    "nextStageId": "greenline_approach_5"
   },
   {
-    "id": "bamboo_road_5",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_5",
+    "regionId": "greenline_approach",
     "index": 5,
     "name": "Greenline Route 5",
     "enemyTeam": {
@@ -69,11 +69,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
     "equipmentDrops": [{ "equipmentId": "willow_palm_manual", "quantity": 1 }],
-    "nextStageId": "bamboo_road_6"
+    "nextStageId": "greenline_approach_6"
   },
   {
-    "id": "bamboo_road_6",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_6",
+    "regionId": "greenline_approach",
     "index": 6,
     "name": "Greenline Route 6",
     "enemyTeam": {
@@ -83,11 +83,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 30, "cultivation": 15, "combatExperience": 8 },
-    "nextStageId": "bamboo_road_7"
+    "nextStageId": "greenline_approach_7"
   },
   {
-    "id": "bamboo_road_7",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_7",
+    "regionId": "greenline_approach",
     "index": 7,
     "name": "Greenline Route 7",
     "enemyTeam": {
@@ -97,11 +97,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 36, "cultivation": 18, "combatExperience": 8 },
-    "nextStageId": "bamboo_road_8"
+    "nextStageId": "greenline_approach_8"
   },
   {
-    "id": "bamboo_road_8",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_8",
+    "regionId": "greenline_approach",
     "index": 8,
     "name": "Greenline Route 8",
     "enemyTeam": {
@@ -112,11 +112,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 44, "cultivation": 22, "combatExperience": 20 },
     "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
-    "nextStageId": "bamboo_road_9"
+    "nextStageId": "greenline_approach_9"
   },
   {
-    "id": "bamboo_road_9",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_9",
+    "regionId": "greenline_approach",
     "index": 9,
     "name": "Greenline Route 9",
     "enemyTeam": {
@@ -126,11 +126,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 52, "cultivation": 26, "combatExperience": 10 },
-    "nextStageId": "bamboo_road_10"
+    "nextStageId": "greenline_approach_10"
   },
   {
-    "id": "bamboo_road_10",
-    "regionId": "bamboo_road",
+    "id": "greenline_approach_10",
+    "regionId": "greenline_approach",
     "index": 10,
     "name": "Ironwall Guard",
     "enemyTeam": {
@@ -144,8 +144,8 @@
     "nextStageId": null
   },
   {
-    "id": "mist_valley_1",
-    "regionId": "mist_valley",
+    "id": "veil_district_1",
+    "regionId": "veil_district",
     "index": 1,
     "name": "Veil District Gate",
     "enemyTeam": {
@@ -156,11 +156,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 66, "cultivation": 34, "combatExperience": 24 },
     "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
-    "nextStageId": "mist_valley_2"
+    "nextStageId": "veil_district_2"
   },
   {
-    "id": "mist_valley_2",
-    "regionId": "mist_valley",
+    "id": "veil_district_2",
+    "regionId": "veil_district",
     "index": 2,
     "name": "Reed-Fog Ambush",
     "enemyTeam": {
@@ -170,11 +170,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 78, "cultivation": 40, "combatExperience": 26 },
-    "nextStageId": "mist_valley_3"
+    "nextStageId": "veil_district_3"
   },
   {
-    "id": "mist_valley_3",
-    "regionId": "mist_valley",
+    "id": "veil_district_3",
+    "regionId": "veil_district",
     "index": 3,
     "name": "Clouded Context Path",
     "enemyTeam": {
@@ -185,11 +185,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 92, "cultivation": 46, "combatExperience": 28 },
     "equipmentDrops": [{ "equipmentId": "woven_travel_robe", "quantity": 1 }],
-    "nextStageId": "mist_valley_4"
+    "nextStageId": "veil_district_4"
   },
   {
-    "id": "mist_valley_4",
-    "regionId": "mist_valley",
+    "id": "veil_district_4",
+    "regionId": "veil_district",
     "index": 4,
     "name": "Needle Rain Crossing",
     "enemyTeam": {
@@ -200,11 +200,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 116, "cultivation": 58, "combatExperience": 34 },
     "equipmentDrops": [{ "equipmentId": "mist_needle_case", "quantity": 1 }],
-    "nextStageId": "mist_valley_5"
+    "nextStageId": "veil_district_5"
   },
   {
-    "id": "mist_valley_5",
-    "regionId": "mist_valley",
+    "id": "veil_district_5",
+    "regionId": "veil_district",
     "index": 5,
     "name": "Veil Pulse Shrine",
     "enemyTeam": {
@@ -215,11 +215,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 40 },
     "equipmentDrops": [{ "equipmentId": "veil_palm_manual", "quantity": 1 }],
-    "nextStageId": "mist_valley_6"
+    "nextStageId": "veil_district_6"
   },
   {
-    "id": "mist_valley_6",
-    "regionId": "mist_valley",
+    "id": "veil_district_6",
+    "regionId": "veil_district",
     "index": 6,
     "name": "Veil District Elder",
     "enemyTeam": {
@@ -233,8 +233,8 @@
     "nextStageId": null
   },
   {
-    "id": "black_iron_fort_1",
-    "regionId": "black_iron_fort",
+    "id": "black_iron_foundry_1",
+    "regionId": "black_iron_foundry",
     "index": 1,
     "name": "Ironwall Gate",
     "enemyTeam": {
@@ -244,11 +244,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 170, "cultivation": 86, "combatExperience": 46 },
-    "nextStageId": "black_iron_fort_2"
+    "nextStageId": "black_iron_foundry_2"
   },
   {
-    "id": "black_iron_fort_2",
-    "regionId": "black_iron_fort",
+    "id": "black_iron_foundry_2",
+    "regionId": "black_iron_foundry",
     "index": 2,
     "name": "Shieldwall Yard",
     "enemyTeam": {
@@ -258,11 +258,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 192, "cultivation": 96, "combatExperience": 48 },
-    "nextStageId": "black_iron_fort_3"
+    "nextStageId": "black_iron_foundry_3"
   },
   {
-    "id": "black_iron_fort_3",
-    "regionId": "black_iron_fort",
+    "id": "black_iron_foundry_3",
+    "regionId": "black_iron_foundry",
     "index": 3,
     "name": "Hook Chain Foundry",
     "enemyTeam": {
@@ -272,11 +272,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 220, "cultivation": 110, "combatExperience": 54 },
-    "nextStageId": "black_iron_fort_4"
+    "nextStageId": "black_iron_foundry_4"
   },
   {
-    "id": "black_iron_fort_4",
-    "regionId": "black_iron_fort",
+    "id": "black_iron_foundry_4",
+    "regionId": "black_iron_foundry",
     "index": 4,
     "name": "Saber Drill Hall",
     "enemyTeam": {
@@ -287,11 +287,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 252, "cultivation": 126, "combatExperience": 64 },
     "equipmentDrops": [{ "equipmentId": "black_iron_saber_blade", "quantity": 1 }],
-    "nextStageId": "black_iron_fort_5"
+    "nextStageId": "black_iron_foundry_5"
   },
   {
-    "id": "black_iron_fort_5",
-    "regionId": "black_iron_fort",
+    "id": "black_iron_foundry_5",
+    "regionId": "black_iron_foundry",
     "index": 5,
     "name": "Plating Barracks",
     "enemyTeam": {
@@ -302,11 +302,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 292, "cultivation": 146, "combatExperience": 78 },
     "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
-    "nextStageId": "black_iron_fort_6"
+    "nextStageId": "black_iron_foundry_6"
   },
   {
-    "id": "black_iron_fort_6",
-    "regionId": "black_iron_fort",
+    "id": "black_iron_foundry_6",
+    "regionId": "black_iron_foundry",
     "index": 6,
     "name": "Black Forge Approach",
     "enemyTeam": {
@@ -320,11 +320,11 @@
       { "equipmentId": "fortress_guard_manual", "quantity": 1 },
       { "equipmentId": "tempered_meridian_pill", "quantity": 1 }
     ],
-    "nextStageId": "black_iron_fort_7"
+    "nextStageId": "black_iron_foundry_7"
   },
   {
-    "id": "black_iron_fort_7",
-    "regionId": "black_iron_fort",
+    "id": "black_iron_foundry_7",
+    "regionId": "black_iron_foundry",
     "index": 7,
     "name": "Black Foundry Commander",
     "enemyTeam": {
@@ -338,8 +338,8 @@
     "nextStageId": null
   },
   {
-    "id": "lotus_monastery_1",
-    "regionId": "lotus_monastery",
+    "id": "lotus_clinic_1",
+    "regionId": "lotus_clinic",
     "index": 1,
     "name": "Lotus Clinic Gate",
     "enemyTeam": {
@@ -350,11 +350,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 390, "cultivation": 196, "herbs": 6, "combatExperience": 96 },
     "equipmentDrops": [{ "equipmentId": "lotus_dew_pill", "quantity": 1 }],
-    "nextStageId": "lotus_monastery_2"
+    "nextStageId": "lotus_clinic_2"
   },
   {
-    "id": "lotus_monastery_2",
-    "regionId": "lotus_monastery",
+    "id": "lotus_clinic_2",
+    "regionId": "lotus_clinic",
     "index": 2,
     "name": "Incense Stabilization Hall",
     "enemyTeam": {
@@ -365,11 +365,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 440, "cultivation": 220, "herbs": 8, "combatExperience": 102 },
     "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
-    "nextStageId": "lotus_monastery_3"
+    "nextStageId": "lotus_clinic_3"
   },
   {
-    "id": "lotus_monastery_3",
-    "regionId": "lotus_monastery",
+    "id": "lotus_clinic_3",
+    "regionId": "lotus_clinic",
     "index": 3,
     "name": "Jade Needle Clinic",
     "enemyTeam": {
@@ -383,11 +383,11 @@
       { "equipmentId": "mist_needle_case", "quantity": 1 },
       { "equipmentId": "lotus_dew_pill", "quantity": 1 }
     ],
-    "nextStageId": "lotus_monastery_4"
+    "nextStageId": "lotus_clinic_4"
   },
   {
-    "id": "lotus_monastery_4",
-    "regionId": "lotus_monastery",
+    "id": "lotus_clinic_4",
+    "regionId": "lotus_clinic",
     "index": 4,
     "name": "Blooming Edge Walk",
     "enemyTeam": {
@@ -398,11 +398,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 570, "cultivation": 286, "herbs": 12, "combatExperience": 126 },
     "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
-    "nextStageId": "lotus_monastery_5"
+    "nextStageId": "lotus_clinic_5"
   },
   {
-    "id": "lotus_monastery_5",
-    "regionId": "lotus_monastery",
+    "id": "lotus_clinic_5",
+    "regionId": "lotus_clinic",
     "index": 5,
     "name": "Tranquil Context Garden",
     "enemyTeam": {
@@ -416,11 +416,11 @@
       { "equipmentId": "veil_palm_manual", "quantity": 1 },
       { "equipmentId": "mending_poultice", "quantity": 1 }
     ],
-    "nextStageId": "lotus_monastery_6"
+    "nextStageId": "lotus_clinic_6"
   },
   {
-    "id": "lotus_monastery_6",
-    "regionId": "lotus_monastery",
+    "id": "lotus_clinic_6",
+    "regionId": "lotus_clinic",
     "index": 6,
     "name": "Lotus Director Approach",
     "enemyTeam": {
@@ -431,11 +431,11 @@
     "canFarmOffline": true,
     "rewards": { "silver": 740, "cultivation": 370, "herbs": 20, "combatExperience": 158 },
     "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
-    "nextStageId": "lotus_monastery_7"
+    "nextStageId": "lotus_clinic_7"
   },
   {
-    "id": "lotus_monastery_7",
-    "regionId": "lotus_monastery",
+    "id": "lotus_clinic_7",
+    "regionId": "lotus_clinic",
     "index": 7,
     "name": "Lotus Clinic Director",
     "enemyTeam": {
@@ -449,11 +449,11 @@
       { "equipmentId": "tempered_meridian_pill", "quantity": 1 },
       { "equipmentId": "mending_poultice", "quantity": 1 }
     ],
-    "nextStageId": "demon_cult_outpost_1"
+    "nextStageId": "redline_outpost_1"
   },
   {
-    "id": "demon_cult_outpost_1",
-    "regionId": "demon_cult_outpost",
+    "id": "redline_outpost_1",
+    "regionId": "redline_outpost",
     "index": 1,
     "name": "Miasma Gate",
     "enemyTeam": {
@@ -463,11 +463,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 860, "cultivation": 430, "herbs": 24, "combatExperience": 176 },
-    "nextStageId": "demon_cult_outpost_2"
+    "nextStageId": "redline_outpost_2"
   },
   {
-    "id": "demon_cult_outpost_2",
-    "regionId": "demon_cult_outpost",
+    "id": "redline_outpost_2",
+    "regionId": "redline_outpost",
     "index": 2,
     "name": "Blood Brand Yard",
     "enemyTeam": {
@@ -477,11 +477,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 960, "cultivation": 480, "herbs": 28, "combatExperience": 194 },
-    "nextStageId": "demon_cult_outpost_3"
+    "nextStageId": "redline_outpost_3"
   },
   {
-    "id": "demon_cult_outpost_3",
-    "regionId": "demon_cult_outpost",
+    "id": "redline_outpost_3",
+    "regionId": "redline_outpost",
     "index": 3,
     "name": "Marrow Lock Shrine",
     "enemyTeam": {
@@ -491,11 +491,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 1080, "cultivation": 540, "herbs": 32, "combatExperience": 214 },
-    "nextStageId": "demon_cult_outpost_4"
+    "nextStageId": "redline_outpost_4"
   },
   {
-    "id": "demon_cult_outpost_4",
-    "regionId": "demon_cult_outpost",
+    "id": "redline_outpost_4",
+    "regionId": "redline_outpost",
     "index": 4,
     "name": "Burning Blood Hall",
     "enemyTeam": {
@@ -505,11 +505,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 1220, "cultivation": 610, "herbs": 36, "combatExperience": 238 },
-    "nextStageId": "demon_cult_outpost_5"
+    "nextStageId": "redline_outpost_5"
   },
   {
-    "id": "demon_cult_outpost_5",
-    "regionId": "demon_cult_outpost",
+    "id": "redline_outpost_5",
+    "regionId": "redline_outpost",
     "index": 5,
     "name": "Ritual Smoke Crossing",
     "enemyTeam": {
@@ -519,11 +519,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 1400, "cultivation": 700, "herbs": 42, "combatExperience": 266 },
-    "nextStageId": "demon_cult_outpost_6"
+    "nextStageId": "redline_outpost_6"
   },
   {
-    "id": "demon_cult_outpost_6",
-    "regionId": "demon_cult_outpost",
+    "id": "redline_outpost_6",
+    "regionId": "redline_outpost",
     "index": 6,
     "name": "Redline Inner Court",
     "enemyTeam": {
@@ -533,11 +533,11 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 1620, "cultivation": 810, "herbs": 50, "combatExperience": 306 },
-    "nextStageId": "demon_cult_outpost_7"
+    "nextStageId": "redline_outpost_7"
   },
   {
-    "id": "demon_cult_outpost_7",
-    "regionId": "demon_cult_outpost",
+    "id": "redline_outpost_7",
+    "regionId": "redline_outpost",
     "index": 7,
     "name": "Redline Overseer",
     "enemyTeam": {

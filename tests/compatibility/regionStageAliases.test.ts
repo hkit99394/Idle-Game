@@ -42,7 +42,7 @@ function expectedStageTargetId(stageId: string): string {
 
 describe("region and stage compatibility aliases", () => {
   it("defines one region alias for every configured region", () => {
-    expect(REGION_ALIASES.map((alias) => alias.legacyId)).toEqual(
+    expect(REGION_ALIASES.map((alias) => alias.targetId)).toEqual(
       staticData.regions.map((region) => region.id)
     );
     expect(
@@ -53,9 +53,9 @@ describe("region and stage compatibility aliases", () => {
         kind
       }))
     ).toEqual(
-      staticData.regions.map((region) => ({
-        legacyId: region.id,
-        targetId: regionTargetIds[region.id as keyof typeof regionTargetIds],
+      Object.entries(regionTargetIds).map(([legacyId, targetId]) => ({
+        legacyId,
+        targetId,
         phase: "region_stage_ids",
         kind: "region"
       }))
@@ -63,7 +63,7 @@ describe("region and stage compatibility aliases", () => {
   });
 
   it("defines one stage alias for every configured stage", () => {
-    expect(STAGE_ALIASES.map((alias) => alias.legacyId)).toEqual(
+    expect(STAGE_ALIASES.map((alias) => alias.targetId)).toEqual(
       staticData.stages.map((stage) => stage.id)
     );
     expect(
@@ -74,9 +74,9 @@ describe("region and stage compatibility aliases", () => {
         kind
       }))
     ).toEqual(
-      staticData.stages.map((stage) => ({
-        legacyId: stage.id,
-        targetId: expectedStageTargetId(stage.id),
+      STAGE_ALIASES.map((alias) => ({
+        legacyId: alias.legacyId,
+        targetId: expectedStageTargetId(alias.legacyId),
         phase: "region_stage_ids",
         kind: "stage"
       }))

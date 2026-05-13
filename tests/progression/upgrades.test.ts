@@ -92,7 +92,7 @@ describe("upgrades", () => {
 
     const firstUpgradeCost = calculateUpgradeCost(upgrade, 0);
     const silverAfterThreeClears = staticData.stages
-      .filter((stage) => stage.regionId === "bamboo_road" && !stage.isBoss)
+      .filter((stage) => stage.regionId === "greenline_approach" && !stage.isBoss)
       .slice(0, 3)
       .reduce((silver, stage) => silver + stage.rewards.silver, 0);
 
@@ -102,7 +102,7 @@ describe("upgrades", () => {
   it("does not let mastery experience or cultivation pay silver upgrade costs", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.resources.cultivation = 999;
-    progress.maps.bamboo_road.combatExperience = 3000;
+    progress.maps.greenline_approach.combatExperience = 3000;
 
     const result = purchaseUpgrade(staticData.upgrades, {
       progress,

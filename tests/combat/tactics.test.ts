@@ -497,7 +497,7 @@ describe("combat tactics", () => {
     const progress = createInitialPlayerProgress(staticData);
     const result = resolveStageBattle(staticData, {
       progress,
-      stageId: "bamboo_road_1",
+      stageId: "greenline_approach_1",
       tacticId: "outer_pressure",
       maxDurationSeconds: 1
     });

@@ -147,12 +147,12 @@ describe("combat simulator", () => {
     const baseTeam = buildPlayerTeamForStage(
       durableEnemyData,
       baseProgress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
     const upgradedTeam = buildPlayerTeamForStage(
       durableEnemyData,
       upgradedProgress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(baseTeam.ok).toBe(true);

@@ -22,7 +22,7 @@ describe("stage battle resolution", () => {
 
     const result = resolveStageBattle(staticData, {
       progress,
-      stageId: "bamboo_road_1",
+      stageId: "greenline_approach_1",
       maxDurationSeconds: 60
     });
 
@@ -42,18 +42,18 @@ describe("stage battle resolution", () => {
     });
     expect(result.progress.resources.silver).toBe(10);
     expect(result.progress.resources.cultivation).toBe(5);
-    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
-    expect(result.progress.currentStageId).toBe("bamboo_road_2");
+    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(1);
+    expect(result.progress.currentStageId).toBe("greenline_approach_2");
   });
 
   it("preserves battle, reward, mastery, and equipment adapter fields on stage clear", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
-    progress.currentStageId = "bamboo_road_2";
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.currentStageId = "greenline_approach_2";
 
     const result = resolveStageBattle(staticData, {
       progress,
-      stageId: "bamboo_road_2",
+      stageId: "greenline_approach_2",
       maxDurationSeconds: 60
     });
 
@@ -99,7 +99,7 @@ describe("stage battle resolution", () => {
 
     const result = resolveStageBattle(staticData, {
       progress,
-      stageId: "bamboo_road_3",
+      stageId: "greenline_approach_3",
       maxDurationSeconds: 60
     });
 
@@ -111,17 +111,17 @@ describe("stage battle resolution", () => {
     expect(result.reason).toBe("locked_stage");
     expect(result.progress).toBe(progress);
     expect(progress.resources.silver).toBe(0);
-    expect(progress.maps.bamboo_road.highestClearedStageIndex).toBe(0);
+    expect(progress.maps.greenline_approach.highestClearedStageIndex).toBe(0);
   });
 
   it("does not move current stage backward when replaying an older cleared stage", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 3;
-    progress.currentStageId = "bamboo_road_4";
+    progress.maps.greenline_approach.highestClearedStageIndex = 3;
+    progress.currentStageId = "greenline_approach_4";
 
     const result = resolveStageBattle(staticData, {
       progress,
-      stageId: "bamboo_road_1",
+      stageId: "greenline_approach_1",
       maxDurationSeconds: 60
     });
 
@@ -132,18 +132,18 @@ describe("stage battle resolution", () => {
 
     expect(result.battle.winner).toBe("player");
     expect(result.stageCleared).toBe(true);
-    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(3);
-    expect(result.progress.currentStageId).toBe("bamboo_road_4");
+    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(3);
+    expect(result.progress.currentStageId).toBe("greenline_approach_4");
   });
 
   it("does not grant rewards or unlock next stage on defeat", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 9;
-    progress.currentStageId = "bamboo_road_10";
+    progress.maps.greenline_approach.highestClearedStageIndex = 9;
+    progress.currentStageId = "greenline_approach_10";
 
     const result = resolveStageBattle(staticData, {
       progress,
-      stageId: "bamboo_road_10",
+      stageId: "greenline_approach_10",
       maxDurationSeconds: 180
     });
 
@@ -155,18 +155,18 @@ describe("stage battle resolution", () => {
     expect(result.battle.winner).toBe("enemy");
     expect(result.stageCleared).toBe(false);
     expect(result.rewards).toBeNull();
-    expect(result.suggestedFarmStageId).toBe("bamboo_road_8");
+    expect(result.suggestedFarmStageId).toBe("greenline_approach_8");
     expect(result.progress).toBe(progress);
     expect(result.progress.resources.silver).toBe(0);
-    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(9);
-    expect(result.progress.currentStageId).toBe("bamboo_road_10");
+    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(9);
+    expect(result.progress.currentStageId).toBe("greenline_approach_10");
   });
 
   it("returns no farm suggestion when the player has not cleared a farmable stage", () => {
     const data: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               enemyTeam: {
@@ -180,7 +180,7 @@ describe("stage battle resolution", () => {
 
     const result = resolveStageBattle(data, {
       progress,
-      stageId: "bamboo_road_1",
+      stageId: "greenline_approach_1",
       maxDurationSeconds: 180
     });
 
@@ -195,15 +195,15 @@ describe("stage battle resolution", () => {
     expect(result.suggestedFarmStageId).toBeNull();
     expect(result.progress).toBe(progress);
     expect(result.progress.resources.silver).toBe(0);
-    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(0);
-    expect(result.progress.currentStageId).toBe("bamboo_road_1");
+    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(0);
+    expect(result.progress.currentStageId).toBe("greenline_approach_1");
   });
 
   it("returns a missing enemy error before simulating bad stage data", () => {
     const badData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               enemyTeam: {
@@ -217,7 +217,7 @@ describe("stage battle resolution", () => {
 
     const result = resolveStageBattle(badData, {
       progress,
-      stageId: "bamboo_road_1"
+      stageId: "greenline_approach_1"
     });
 
     expect(result.ok).toBe(false);

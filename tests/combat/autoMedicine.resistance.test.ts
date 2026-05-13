@@ -47,7 +47,7 @@ function getStage(stageId: string): StageDefinition {
 
 const statusPressureStage: StageDefinition = {
   id: "test_status_pressure",
-  regionId: "bamboo_road",
+  regionId: "greenline_approach",
   index: 1,
   name: "Status Pressure Test",
   enemyTeam: {

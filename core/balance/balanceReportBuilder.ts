@@ -825,11 +825,11 @@ function getDemonCultBossGateContext(
   const intendedScenario = getScenarioReport(scenarios, "combined");
   const baseline = getScenarioRegion(
     baselineScenario,
-    "demon_cult_outpost"
+    "redline_outpost"
   )?.bossGate;
   const intendedRegion = getScenarioRegion(
     intendedScenario,
-    "demon_cult_outpost"
+    "redline_outpost"
   );
   const intended = intendedRegion?.bossGate;
   const intendedStage = intendedRegion?.stages.find((stage) => stage.isBoss);

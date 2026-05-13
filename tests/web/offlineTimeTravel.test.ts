@@ -41,14 +41,14 @@ describe("offline time travel save state", () => {
     const state = createInitialWebGameState(staticData);
     const travelReadyState = {
       ...state,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       progress: {
         ...state.progress,
-        currentStageId: "bamboo_road_2",
+        currentStageId: "greenline_approach_2",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
-            ...state.progress.maps.bamboo_road,
+          greenline_approach: {
+            ...state.progress.maps.greenline_approach,
             highestClearedStageIndex: 1
           }
         }
@@ -81,7 +81,7 @@ describe("offline time travel save state", () => {
     expect(storedSave.save.updatedAtMs).not.toBe(70_000);
     expect(storedSave.save.progress.resources.silver).toBe(0);
     expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toContain(
-      '"selectedOfflineFarmStageId":"bamboo_road_1"'
+      '"selectedOfflineFarmStageId":"greenline_approach_1"'
     );
   });
 
@@ -90,14 +90,14 @@ describe("offline time travel save state", () => {
     const state = createInitialWebGameState(staticData);
     const travelReadyState = {
       ...state,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       progress: {
         ...state.progress,
-        currentStageId: "bamboo_road_2",
+        currentStageId: "greenline_approach_2",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
-            ...state.progress.maps.bamboo_road,
+          greenline_approach: {
+            ...state.progress.maps.greenline_approach,
             highestClearedStageIndex: 1
           }
         }

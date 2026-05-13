@@ -33,10 +33,10 @@ import {
 } from "./regionBudgetGates";
 import type { PlayerProgress, ResolveStageBattleResult } from "../progression";
 
-export const BAMBOO_ROAD_REGION_ID = "bamboo_road";
-export const MIST_VALLEY_REGION_ID = "mist_valley";
-export const BLACK_IRON_FORT_REGION_ID = "black_iron_fort";
-export const LOTUS_MONASTERY_REGION_ID = "lotus_monastery";
+export const BAMBOO_ROAD_REGION_ID = "greenline_approach";
+export const MIST_VALLEY_REGION_ID = "veil_district";
+export const BLACK_IRON_FORT_REGION_ID = "black_iron_foundry";
+export const LOTUS_MONASTERY_REGION_ID = "lotus_clinic";
 
 export const TRAINED_BOSS_UPGRADES = {
   heroOuterTraining: 6,

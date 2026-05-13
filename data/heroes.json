@@ -127,6 +127,6 @@
     },
     "skillIds": ["lotus_mending_vow"],
     "passiveIds": [],
-    "unlock": { "type": "stage_cleared", "stageId": "lotus_monastery_3" }
+    "unlock": { "type": "stage_cleared", "stageId": "lotus_clinic_3" }
   }
 ]

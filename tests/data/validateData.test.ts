@@ -8,16 +8,150 @@ describe("static game data validation", () => {
     expect(validateStaticGameData(staticData)).toEqual([]);
   });
 
+  it("rejects legacy route ids in canonical static data references", () => {
+    const invalidData: StaticGameData = {
+      ...staticData,
+      regions: staticData.regions.map((region) => {
+        if (region.id === "greenline_approach") {
+          const balanceTargets = region.balanceTargets!;
+
+          return {
+            ...region,
+            id: "bamboo_road",
+            stageIds: ["bamboo_road_1", ...region.stageIds.slice(1)],
+            balanceTargets: {
+              ...balanceTargets,
+              rewardCurve: {
+                ...balanceTargets.rewardCurve,
+                allowedRegressions: [
+                  {
+                    stageId: "bamboo_road_6",
+                    metrics: ["farmScore"],
+                    reason: "Legacy ids must be rejected."
+                  }
+                ]
+              },
+              budgetExceptions: [
+                {
+                  type: "boss_clear_time_target",
+                  stageId: "bamboo_road_10",
+                  reason: "Legacy ids must be rejected."
+                }
+              ]
+            }
+          };
+        }
+
+        if (region.id === "veil_district") {
+          return {
+            ...region,
+            unlockCondition: {
+              type: "stage_cleared",
+              stageId: "bamboo_road_10"
+            }
+          };
+        }
+
+        return region;
+      }),
+      stages: staticData.stages.map((stage) =>
+        stage.id === "greenline_approach_1"
+          ? {
+              ...stage,
+              id: "bamboo_road_1",
+              regionId: "bamboo_road",
+              nextStageId: "bamboo_road_2"
+            }
+          : stage
+      ),
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "lotus_mending_disciple"
+          ? {
+              ...hero,
+              unlock: { type: "stage_cleared", stageId: "lotus_monastery_3" }
+            }
+          : hero
+      ),
+      medicines: staticData.medicines.map((medicine) =>
+        medicine.id === "clear_heart_pill"
+          ? {
+              ...medicine,
+              unlock: { type: "stage_cleared", stageId: "bamboo_road_10" }
+            }
+          : medicine
+      ),
+      assignments: staticData.assignments?.map((assignment) => {
+        if (assignment.id === "bamboo_road_patrol") {
+          return {
+            ...assignment,
+            rewardProfile: {
+              ...assignment.rewardProfile,
+              mapRegionId: "bamboo_road"
+            }
+          };
+        }
+
+        if (assignment.id === "mist_valley_meditation") {
+          return {
+            ...assignment,
+            unlockCondition: {
+              type: "stage_cleared",
+              stageId: "bamboo_road_10"
+            }
+          };
+        }
+
+        return assignment;
+      }),
+      styles: staticData.styles.map((style) =>
+        style.id === "leg"
+          ? {
+              ...style,
+              branches: style.branches.map((branch) =>
+                branch.id === "wind_step_leg"
+                  ? {
+                      ...branch,
+                      unlock: {
+                        type: "stage_cleared",
+                        stageId: "bamboo_road_10"
+                      }
+                    }
+                  : branch
+              )
+            }
+          : style
+      )
+    };
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "Region bamboo_road id must use canonical region id greenline_approach instead of legacy bamboo_road",
+        "Region bamboo_road stageIds[0] must use canonical stage id greenline_approach_1 instead of legacy bamboo_road_1",
+        "Region bamboo_road balanceTargets.rewardCurve.allowedRegressions[0].stageId must use canonical stage id greenline_approach_6 instead of legacy bamboo_road_6",
+        "Region bamboo_road balanceTargets.budgetExceptions[0].stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
+        "Region veil_district unlockCondition.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
+        "Stage bamboo_road_1 id must use canonical stage id greenline_approach_1 instead of legacy bamboo_road_1",
+        "Stage bamboo_road_1 regionId must use canonical region id greenline_approach instead of legacy bamboo_road",
+        "Stage bamboo_road_1 nextStageId must use canonical stage id greenline_approach_2 instead of legacy bamboo_road_2",
+        "Hero lotus_mending_disciple unlock.stageId must use canonical stage id lotus_clinic_3 instead of legacy lotus_monastery_3",
+        "Medicine clear_heart_pill unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
+        "Assignment bamboo_road_patrol rewardProfile.mapRegionId must use canonical region id greenline_approach instead of legacy bamboo_road",
+        "Assignment mist_valley_meditation unlockCondition.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
+        "Style branch leg.wind_step_leg unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10"
+      ])
+    );
+  });
+
   it("rejects boss stages marked as offline farm targets", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_10" ? { ...stage, canFarmOffline: true } : stage
+        stage.id === "greenline_approach_10" ? { ...stage, canFarmOffline: true } : stage
       )
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Boss stage bamboo_road_10 cannot be marked for offline farming"
+      "Boss stage greenline_approach_10 cannot be marked for offline farming"
     );
   });
 
@@ -25,7 +159,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "lotus_monastery_1"
+        stage.id === "lotus_clinic_1"
           ? {
               ...stage,
               rewards: {
@@ -50,7 +184,7 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Stage lotus_monastery_1 rewards must be non-negative",
+        "Stage lotus_clinic_1 rewards must be non-negative",
         "Assignment lotus_medicine_pavilion reward values must be non-negative numbers"
       ])
     );
@@ -345,7 +479,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               enemyTeam: {
@@ -360,7 +494,7 @@ describe("static game data validation", () => {
     } as StaticGameData;
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Stage bamboo_road_1 enemyTeam formation slot flank must be one of front, middle, back"
+      "Stage greenline_approach_1 enemyTeam formation slot flank must be one of front, middle, back"
     );
   });
 
@@ -368,15 +502,15 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "mist_valley"
+        region.id === "veil_district"
           ? {
               ...region,
-              stageIds: [...region.stageIds, "bamboo_road_1", "missing_stage"]
+              stageIds: [...region.stageIds, "greenline_approach_1", "missing_stage"]
             }
           : region
       ),
       stages: staticData.stages.map((stage) =>
-        stage.id === "mist_valley_1"
+        stage.id === "veil_district_1"
           ? {
               ...stage,
               regionId: "missing_region",
@@ -388,10 +522,10 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Stage mist_valley_1 references missing region missing_region",
-        "Stage mist_valley_1 references missing next stage missing_next_stage",
-        "Region mist_valley references missing stage missing_stage",
-        "Region mist_valley includes stage bamboo_road_1 from region bamboo_road"
+        "Stage veil_district_1 references missing region missing_region",
+        "Stage veil_district_1 references missing next stage missing_next_stage",
+        "Region veil_district references missing stage missing_stage",
+        "Region veil_district includes stage greenline_approach_1 from region greenline_approach"
       ])
     );
   });
@@ -400,7 +534,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "bamboo_road"
+        region.id === "greenline_approach"
           ? {
               ...region,
               balanceTargets: {
@@ -438,19 +572,19 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Region bamboo_road balanceTargets.clearTimeSeconds.normal.min must be less than or equal to max",
-        "Region bamboo_road balanceTargets.clearTimeSeconds.elite.min must be non-negative",
-        "Region bamboo_road balanceTargets.clearTimeSeconds.boss.max must be a finite number",
-        "Region bamboo_road balanceTargets.rewardCurve.requireBestFarmRecommendation must be a boolean",
-        "Region bamboo_road balanceTargets.statusPressure.applications.min must be less than or equal to max",
-        "Region bamboo_road balanceTargets.statusPressure.maxExpectedDamage must be non-negative",
-        "Region bamboo_road balanceTargets.statusPressure.maxMedicineConsumed must be a finite number",
-        "Region bamboo_road balanceTargets.statusPressure.expectedStatusIds must be an array of strings",
-        "Region bamboo_road balanceTargets.defensePressure.minGuardAbsorbs must be non-negative",
-        "Region bamboo_road balanceTargets.healingPressure.minHeals must be non-negative",
-        "Region bamboo_road balanceTargets.bossGate.baselineResult must be one of player_clear, enemy_hold",
-        "Region bamboo_road balanceTargets.bossGate.maxFarmClears must be non-negative",
-        "Region bamboo_road balanceTargets.bossGate.clearTimeSeconds.min must be less than or equal to max"
+        "Region greenline_approach balanceTargets.clearTimeSeconds.normal.min must be less than or equal to max",
+        "Region greenline_approach balanceTargets.clearTimeSeconds.elite.min must be non-negative",
+        "Region greenline_approach balanceTargets.clearTimeSeconds.boss.max must be a finite number",
+        "Region greenline_approach balanceTargets.rewardCurve.requireBestFarmRecommendation must be a boolean",
+        "Region greenline_approach balanceTargets.statusPressure.applications.min must be less than or equal to max",
+        "Region greenline_approach balanceTargets.statusPressure.maxExpectedDamage must be non-negative",
+        "Region greenline_approach balanceTargets.statusPressure.maxMedicineConsumed must be a finite number",
+        "Region greenline_approach balanceTargets.statusPressure.expectedStatusIds must be an array of strings",
+        "Region greenline_approach balanceTargets.defensePressure.minGuardAbsorbs must be non-negative",
+        "Region greenline_approach balanceTargets.healingPressure.minHeals must be non-negative",
+        "Region greenline_approach balanceTargets.bossGate.baselineResult must be one of player_clear, enemy_hold",
+        "Region greenline_approach balanceTargets.bossGate.maxFarmClears must be non-negative",
+        "Region greenline_approach balanceTargets.bossGate.clearTimeSeconds.min must be less than or equal to max"
       ])
     );
   });
@@ -459,7 +593,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "bamboo_road"
+        region.id === "greenline_approach"
           ? {
               ...region,
               balanceTargets: {}
@@ -470,10 +604,10 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Region bamboo_road balanceTargets.clearTimeSeconds must be an object",
-        "Region bamboo_road balanceTargets.rewardCurve.requireBestFarmRecommendation must be true because region has farmable stages",
-        "Region bamboo_road balanceTargets.statusPressure is required because region enemies apply status effects",
-        "Region bamboo_road balanceTargets.bossGate is required because region has boss stages"
+        "Region greenline_approach balanceTargets.clearTimeSeconds must be an object",
+        "Region greenline_approach balanceTargets.rewardCurve.requireBestFarmRecommendation must be true because region has farmable stages",
+        "Region greenline_approach balanceTargets.statusPressure is required because region enemies apply status effects",
+        "Region greenline_approach balanceTargets.bossGate is required because region has boss stages"
       ])
     );
   });
@@ -482,7 +616,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "black_iron_fort"
+        region.id === "black_iron_foundry"
           ? {
               ...region,
               balanceTargets: {
@@ -495,7 +629,7 @@ describe("static game data validation", () => {
     } as StaticGameData;
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Region black_iron_fort boss stage black_iron_fort_7 requires balanceTargets.bossGate.clearTimeSeconds, balanceTargets.clearTimeSeconds.boss, or a boss_clear_time_target budget exception because a boss result is expected to clear"
+      "Region black_iron_foundry boss stage black_iron_foundry_7 requires balanceTargets.bossGate.clearTimeSeconds, balanceTargets.clearTimeSeconds.boss, or a boss_clear_time_target budget exception because a boss result is expected to clear"
     );
   });
 
@@ -503,7 +637,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "demon_cult_outpost"
+        region.id === "redline_outpost"
           ? {
               ...region,
               balanceTargets: {
@@ -535,13 +669,13 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Region demon_cult_outpost balanceTargets.extraBudget is not supported",
-        "Region demon_cult_outpost balanceTargets.clearTimeSeconds.quick is not supported",
-        "Region demon_cult_outpost balanceTargets.clearTimeSeconds.normal.average is not supported",
-        "Region demon_cult_outpost balanceTargets.rewardCurve.allowRegression is not supported",
-        "Region demon_cult_outpost balanceTargets.statusPressure must define at least one budget field",
-        "Region demon_cult_outpost balanceTargets.bossGate.maxFarmClears requires farmedResult",
-        "Region demon_cult_outpost balanceTargets.bossGate.clearTimeSeconds requires at least one player_clear boss result"
+        "Region redline_outpost balanceTargets.extraBudget is not supported",
+        "Region redline_outpost balanceTargets.clearTimeSeconds.quick is not supported",
+        "Region redline_outpost balanceTargets.clearTimeSeconds.normal.average is not supported",
+        "Region redline_outpost balanceTargets.rewardCurve.allowRegression is not supported",
+        "Region redline_outpost balanceTargets.statusPressure must define at least one budget field",
+        "Region redline_outpost balanceTargets.bossGate.maxFarmClears requires farmedResult",
+        "Region redline_outpost balanceTargets.bossGate.clearTimeSeconds requires at least one player_clear boss result"
       ])
     );
   });
@@ -550,7 +684,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "mist_valley"
+        region.id === "veil_district"
           ? {
               ...region,
               balanceTargets: {
@@ -558,7 +692,7 @@ describe("static game data validation", () => {
                 budgetExceptions: [
                   {
                     type: "boss_clear_time_target",
-                    stageId: "mist_valley_6",
+                    stageId: "veil_district_6",
                     reason: "Already has a boss clear-time target."
                   },
                   {
@@ -568,7 +702,7 @@ describe("static game data validation", () => {
                   },
                   {
                     type: "unknown_exception",
-                    stageId: "mist_valley_6",
+                    stageId: "veil_district_6",
                     reason: "Unsupported exception type."
                   }
                 ]
@@ -580,10 +714,10 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Region mist_valley balanceTargets.budgetExceptions[0] is redundant because a boss clear-time target is configured",
-        "Region mist_valley balanceTargets.budgetExceptions[1].reason must be a non-empty string",
-        "Region mist_valley balanceTargets.budgetExceptions[1].stageId missing_stage must reference a boss stage in region mist_valley",
-        "Region mist_valley balanceTargets.budgetExceptions[2].type must be one of boss_clear_time_target"
+        "Region veil_district balanceTargets.budgetExceptions[0] is redundant because a boss clear-time target is configured",
+        "Region veil_district balanceTargets.budgetExceptions[1].reason must be a non-empty string",
+        "Region veil_district balanceTargets.budgetExceptions[1].stageId missing_stage must reference a boss stage in region veil_district",
+        "Region veil_district balanceTargets.budgetExceptions[2].type must be one of boss_clear_time_target"
       ])
     );
   });
@@ -592,7 +726,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.regionId === "mist_valley"
+        stage.regionId === "veil_district"
           ? {
               ...stage,
               canFarmOffline: false
@@ -602,7 +736,7 @@ describe("static game data validation", () => {
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Region mist_valley balanceTargets.rewardCurve.requireBestFarmRecommendation cannot be true because region has no farmable stages"
+      "Region veil_district balanceTargets.rewardCurve.requireBestFarmRecommendation cannot be true because region has no farmable stages"
     );
   });
 
@@ -610,7 +744,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "bamboo_road"
+        region.id === "greenline_approach"
           ? {
               ...region,
               balanceTargets: {
@@ -626,9 +760,9 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Region bamboo_road rewardCurve stage bamboo_road_6 farm score 84.5 is below previous farm stage bamboo_road_5 value 136; add an allowedRegressions entry if intentional",
-        "Region bamboo_road rewardCurve stage bamboo_road_6 combatExperience 8 is below previous farm stage bamboo_road_5 value 20; add an allowedRegressions entry if intentional",
-        "Region bamboo_road rewardCurve stage bamboo_road_9 mastery 10 is below previous farm stage bamboo_road_8 value 20; add an allowedRegressions entry if intentional"
+        "Region greenline_approach rewardCurve stage greenline_approach_6 farm score 84.5 is below previous farm stage greenline_approach_5 value 136; add an allowedRegressions entry if intentional",
+        "Region greenline_approach rewardCurve stage greenline_approach_6 combatExperience 8 is below previous farm stage greenline_approach_5 value 20; add an allowedRegressions entry if intentional",
+        "Region greenline_approach rewardCurve stage greenline_approach_9 mastery 10 is below previous farm stage greenline_approach_8 value 20; add an allowedRegressions entry if intentional"
       ])
     );
   });
@@ -637,7 +771,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "mist_valley"
+        region.id === "veil_district"
           ? {
               ...region,
               balanceTargets: {
@@ -646,13 +780,13 @@ describe("static game data validation", () => {
                   ...region.balanceTargets?.rewardCurve,
                   allowedRegressions: [
                     {
-                      stageId: "mist_valley_2",
+                      stageId: "veil_district_2",
                       metrics: ["farmScore", "farmScore", "prestige"],
                       reason: "",
                       extra: true
                     },
                     {
-                      stageId: "mist_valley_6",
+                      stageId: "veil_district_6",
                       metrics: ["silver"],
                       reason: "Bosses are not farmable."
                     }
@@ -666,13 +800,13 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].extra is not supported",
-        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].reason must be a non-empty string",
-        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0] allows farm score regression for mist_valley_2, but no such regression exists",
-        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].metrics duplicates farmScore",
-        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[0].metrics includes unsupported metric prestige",
-        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[1].stageId mist_valley_6 must reference a farmable non-boss stage in region mist_valley",
-        "Region mist_valley balanceTargets.rewardCurve.allowedRegressions[1] allows silver regression for mist_valley_6, but no such regression exists"
+        "Region veil_district balanceTargets.rewardCurve.allowedRegressions[0].extra is not supported",
+        "Region veil_district balanceTargets.rewardCurve.allowedRegressions[0].reason must be a non-empty string",
+        "Region veil_district balanceTargets.rewardCurve.allowedRegressions[0] allows farm score regression for veil_district_2, but no such regression exists",
+        "Region veil_district balanceTargets.rewardCurve.allowedRegressions[0].metrics duplicates farmScore",
+        "Region veil_district balanceTargets.rewardCurve.allowedRegressions[0].metrics includes unsupported metric prestige",
+        "Region veil_district balanceTargets.rewardCurve.allowedRegressions[1].stageId veil_district_6 must reference a farmable non-boss stage in region veil_district",
+        "Region veil_district balanceTargets.rewardCurve.allowedRegressions[1] allows silver regression for veil_district_6, but no such regression exists"
       ])
     );
   });
@@ -681,7 +815,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "demon_cult_outpost"
+        region.id === "redline_outpost"
           ? {
               ...region,
               balanceTargets: {
@@ -701,7 +835,7 @@ describe("static game data validation", () => {
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Region demon_cult_outpost balanceTargets.statusPressure.expectedStatusIds includes unknown status missing_status"
+      "Region redline_outpost balanceTargets.statusPressure.expectedStatusIds includes unknown status missing_status"
     );
   });
 
@@ -726,7 +860,7 @@ describe("static game data validation", () => {
           : equipment
       ),
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               equipmentDrops: [
@@ -748,8 +882,8 @@ describe("static game data validation", () => {
         "Equipment training_wraps effect stat luck must be a valid base stat",
         "Equipment training_wraps effect mode must be one of flat, multiplier",
         "Equipment training_wraps effect value must be a number",
-        "Stage bamboo_road_1 references missing equipment missing_equipment",
-        "Stage bamboo_road_1 equipment drop quantity must be an integer >= 1"
+        "Stage greenline_approach_1 references missing equipment missing_equipment",
+        "Stage greenline_approach_1 equipment drop quantity must be an integer >= 1"
       ])
     );
   });
@@ -876,7 +1010,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               enemyTeam: {
@@ -892,7 +1026,7 @@ describe("static game data validation", () => {
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Stage bamboo_road_1 enemyTeam formation places combatant index 0 more than once"
+      "Stage greenline_approach_1 enemyTeam formation places combatant index 0 more than once"
     );
   });
 
@@ -900,7 +1034,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               enemyTeam: {
@@ -915,7 +1049,7 @@ describe("static game data validation", () => {
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Stage bamboo_road_1 enemyTeam formation slot front has invalid combatant index 99"
+      "Stage greenline_approach_1 enemyTeam formation slot front has invalid combatant index 99"
     );
   });
 

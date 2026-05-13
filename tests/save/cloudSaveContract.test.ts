@@ -14,10 +14,10 @@ import { staticData } from "../helpers/staticData";
 describe("cloud save contract", () => {
   it("wraps current saves and routes cloud loads through the core load transaction", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       nowMs: 1_000
     });
     const envelope = createCloudSaveEnvelope({

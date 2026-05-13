@@ -299,7 +299,7 @@ function getCombinedDemonCultBoss(report: BalanceReport) {
     (scenario) => scenario.scenarioId === "combined"
   );
   const demonCult = combined?.regions.find(
-    (region) => region.regionId === "demon_cult_outpost"
+    (region) => region.regionId === "redline_outpost"
   );
   const bossGate = demonCult?.bossGate;
   const stage = demonCult?.stages.find((candidate) => candidate.isBoss);

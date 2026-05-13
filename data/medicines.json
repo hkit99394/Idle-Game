@@ -4,7 +4,7 @@
     "name": "Clear Heart Countermeasure",
     "unlock": {
       "type": "stage_cleared",
-      "stageId": "bamboo_road_10"
+      "stageId": "greenline_approach_10"
     },
     "maxCarry": 20,
     "effects": [
@@ -20,7 +20,7 @@
     "name": "Quiet Context Powder",
     "unlock": {
       "type": "stage_cleared",
-      "stageId": "demon_cult_outpost_2"
+      "stageId": "redline_outpost_2"
     },
     "maxCarry": 10,
     "effects": [
@@ -36,7 +36,7 @@
     "name": "Purity Countermeasure",
     "unlock": {
       "type": "stage_cleared",
-      "stageId": "demon_cult_outpost_4"
+      "stageId": "redline_outpost_4"
     },
     "maxCarry": 8,
     "effects": [

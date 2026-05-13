@@ -49,7 +49,7 @@ describe("balance report", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       regions: staticData.regions.map((region) =>
-        region.id === "demon_cult_outpost"
+        region.id === "redline_outpost"
           ? {
               ...region,
               stageIds: [...region.stageIds, "missing_stage"]
@@ -59,14 +59,14 @@ describe("balance report", () => {
     };
 
     expect(() => buildBalanceReport(invalidData)).toThrow(
-      "Region demon_cult_outpost references missing stage missing_stage"
+      "Region redline_outpost references missing stage missing_stage"
     );
   });
 
   it("reports nonzero Redline status pressure and farm recommendation", () => {
     const report = buildBalanceReport(staticData);
     const demonCult = report.regions.find(
-      (region) => region.regionId === "demon_cult_outpost"
+      (region) => region.regionId === "redline_outpost"
     );
 
     expect(demonCult).toBeDefined();
@@ -86,7 +86,7 @@ describe("balance report", () => {
         0
       )
     ).toBeGreaterThan(0);
-    expect(demonCult.farmRecommendation?.stageId).toBe("demon_cult_outpost_6");
+    expect(demonCult.farmRecommendation?.stageId).toBe("redline_outpost_6");
     expect(demonCult.farmRecommendation).toMatchObject({
       score: 4159,
       scoreBreakdown: {
@@ -99,7 +99,7 @@ describe("balance report", () => {
       reason: expect.stringContaining("highest weighted farm score")
     });
     expect(demonCult.bossGate).toMatchObject({
-      stageId: "demon_cult_outpost_7"
+      stageId: "redline_outpost_7"
     });
   });
 
@@ -112,7 +112,7 @@ describe("balance report", () => {
           name: "Inner Calm Tablet",
           unlock: {
             type: "stage_cleared",
-            stageId: "bamboo_road_5"
+            stageId: "greenline_approach_5"
           },
           maxCarry: 5,
           effects: [
@@ -164,7 +164,7 @@ describe("balance report", () => {
       baselineDemonBoss.survivalRatio
     );
     expect(report.demonCultBossGate).toMatchObject({
-      stageId: "demon_cult_outpost_7",
+      stageId: "redline_outpost_7",
       baselineScenarioId: "baseline",
       intendedScenarioId: "combined",
       pass: true
@@ -345,7 +345,7 @@ describe("balance report", () => {
     expect(text).toContain("Redline Outpost");
     expect(text).toContain("Scenario Summary");
     expect(text).toContain("combined");
-    expect(text).toContain("demon_cult_outpost_7");
+    expect(text).toContain("redline_outpost_7");
     expect(text).toContain("highest weighted farm score");
     expect(report.totals.statusApplications).toBeGreaterThan(0);
     const json = JSON.parse(JSON.stringify(report));
@@ -387,7 +387,7 @@ function getDemonCultBoss(
   scenario: ReturnType<typeof buildBalanceReport>["scenarios"][number]
 ) {
   const boss = scenario.regions
-    .find((region) => region.regionId === "demon_cult_outpost")
+    .find((region) => region.regionId === "redline_outpost")
     ?.bossGate;
 
   if (boss == null) {

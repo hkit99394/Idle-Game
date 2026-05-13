@@ -9,8 +9,8 @@ import {
 import type { OfflineRewardSummary, WebGameState } from "../../web/state/gameState";
 
 export const webWorkflowBaselineIds = {
-  stageId: "bamboo_road_5",
-  offlineSummaryStageId: "bamboo_road_3",
+  stageId: "greenline_approach_5",
+  offlineSummaryStageId: "greenline_approach_3",
   equipmentId: "training_wraps",
   assignmentId: "bamboo_road_patrol",
   heroId: "iron_fist_disciple",
@@ -159,7 +159,7 @@ export function createWebWorkflowBaselineState(
     },
     maps: {
       ...initialState.progress.maps,
-      bamboo_road: {
+      greenline_approach: {
         combatExperience: 88,
         highestClearedStageIndex: 4
       }

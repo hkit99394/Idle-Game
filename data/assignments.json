@@ -10,7 +10,7 @@
     "rewardProfile": {
       "silverPerHour": 24,
       "combatExperiencePerHour": 4,
-      "mapRegionId": "bamboo_road",
+      "mapRegionId": "greenline_approach",
       "equipmentRewardsPerHour": [
         { "equipmentId": "training_wraps", "quantityPerHour": 0.25 }
       ]
@@ -20,7 +20,7 @@
     "id": "mist_valley_meditation",
     "name": "Veil District Calibration",
     "type": "training_ground",
-    "unlockCondition": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+    "unlockCondition": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
     "durationBucket": "medium",
     "allowedRoles": ["breaker", "support"],
     "allowedStyles": ["palm", "staff", "hidden_weapons"],
@@ -33,7 +33,7 @@
     "id": "black_iron_drill_yard",
     "name": "Black Foundry Calibration Yard",
     "type": "training_ground",
-    "unlockCondition": { "type": "stage_cleared", "stageId": "black_iron_fort_1" },
+    "unlockCondition": { "type": "stage_cleared", "stageId": "black_iron_foundry_1" },
     "durationBucket": "long",
     "allowedRoles": ["tank", "breaker", "striker"],
     "allowedStyles": ["fist", "sword", "blade", "staff"],
@@ -41,14 +41,14 @@
       "cultivationPerHour": 24,
       "combatExperiencePerHour": 6,
       "styleMasteryExperiencePerHour": 10,
-      "mapRegionId": "black_iron_fort"
+      "mapRegionId": "black_iron_foundry"
     }
   },
   {
     "id": "lotus_medicine_pavilion",
     "name": "Lotus Countermeasure Pavilion",
     "type": "training_ground",
-    "unlockCondition": { "type": "stage_cleared", "stageId": "lotus_monastery_3" },
+    "unlockCondition": { "type": "stage_cleared", "stageId": "lotus_clinic_3" },
     "durationBucket": "medium",
     "allowedRoles": ["support", "tank"],
     "allowedStyles": ["palm", "staff", "hidden_weapons"],

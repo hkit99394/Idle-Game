@@ -49,14 +49,14 @@ describe("offline assignment rewards", () => {
       }
     ]);
     expect(result.progress.resources.silver).toBe(600);
-    expect(result.progress.maps.bamboo_road.combatExperience).toBe(100);
+    expect(result.progress.maps.greenline_approach.combatExperience).toBe(100);
     expect(result.progress.equipment?.inventory.training_wraps).toBe(6);
     expect(result.progress.heroes.iron_fist_disciple.level).toBeGreaterThan(1);
   });
 
   it("applies training ground style mastery to assigned hero styles", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
     const assigned = setAssignmentHeroes(staticData, {
       progress,
       assignmentId: "mist_valley_meditation",
@@ -87,10 +87,10 @@ describe("offline assignment rewards", () => {
 
   it("applies Lotus medicine pavilion herbs and medicine rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 10;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
-    progress.maps.lotus_monastery.highestClearedStageIndex = 3;
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 10;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
+    progress.maps.lotus_clinic.highestClearedStageIndex = 3;
     const assigned = setAssignmentHeroes(staticData, {
       progress,
       assignmentId: "lotus_medicine_pavilion",

@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.5 is planned. Stage 2.4 product/storage key migration is complete and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md).
+Stage 2.5 is in progress. Slices 90.1 through 90.4 are complete; report/tooling continuity and final compatibility hardening remain. Stage 2.4 product/storage key migration is complete and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md).
 
 This backlog turns Epic 90 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready region/stage static-id migration. It should make Path of Neon district and route ids canonical while preserving old saves, exports, fixtures, reports, and local browser storage compatibility.
 
@@ -87,7 +87,7 @@ Stage 2.5 implements Epic 90 from the retheme migration plan as focused slices.
 | 90.1 | Region/Stage Migration Preflight | Complete | Inventory region/stage references, fixtures, reports, and tests before edits |
 | 90.2 | Region/Stage Alias Data | Complete | Add explicit aliases and validation coverage without changing canonical ids |
 | 90.3 | Save Version And Id Migration | Complete | Bump save version and migrate old region/stage ids in saves/imports/browser storage |
-| 90.4 | Static Data Region/Stage Rename | Planned | Rename canonical region/stage ids and all static references |
+| 90.4 | Static Data Region/Stage Rename | Complete | Rename canonical region/stage ids and all static references |
 | 90.5 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
 | 90.6 | Region/Stage Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
 
@@ -290,6 +290,21 @@ Make Path of Neon region/stage ids canonical in static data and static reference
 - Balance report tests.
 - Progression stage/unlock tests.
 - `npm run typecheck`.
+
+### Implementation Decisions
+
+- Canonical static data now uses Path of Neon region ids and numeric route ids: `greenline_approach`, `veil_district`, `black_iron_foundry`, `lotus_clinic`, `redline_outpost`, and their `*_N` stages.
+- Direct static references were moved to canonical ids across region stage lists, stage region/next-stage links, unlock conditions, region balance exceptions, static fixtures, and canonical-id tests.
+- Content ids that merely contain old region words remain unchanged. Examples include `bamboo_road_patrol`, `mist_valley_meditation`, `mist_valley_acolyte`, and enemy families. Those remain Stage 2.6 content-id work.
+- Current-save and current-web tests now use canonical ids. Legacy region/stage ids remain only in migration fixtures, compatibility tests, alias tests, and raw old-save inputs.
+- Static validation now rejects legacy region/stage aliases in canonical static data instead of silently accepting mixed ids. Runtime/save compatibility still owns alias normalization for imported or persisted legacy input.
+
+### Progress Notes
+
+- Renamed `data/regions.json`, `data/stages.json`, and direct static region/stage references to canonical ids.
+- Updated save, progression, combat, web, and balance tests that assert current canonical region/stage ids.
+- Added validation coverage for legacy aliases reappearing in region ids, stage ids, region stage lists, stage links, unlock refs, assignment reward map refs, and balance exception refs.
+- Confirmed `npm run typecheck`, focused static/compatibility tests, and save/browser-storage migration tests pass.
 
 ---
 

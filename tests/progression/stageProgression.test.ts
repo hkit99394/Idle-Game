@@ -25,7 +25,7 @@ function createTwoRegionData(): StaticGameData {
   return {
     ...staticData,
     stages: staticData.stages.map((stage) =>
-      stage.id === "bamboo_road_10"
+      stage.id === "greenline_approach_10"
         ? {
             ...stage,
             enemyTeam: {
@@ -41,15 +41,15 @@ describe("stage progression helpers", () => {
   it("starts new progress at Greenline Approach stage 1", () => {
     const progress = createInitialPlayerProgress(staticData);
 
-    expect(progress.currentStageId).toBe("bamboo_road_1");
-    expect(getCurrentStage(staticData, progress)?.id).toBe("bamboo_road_1");
+    expect(progress.currentStageId).toBe("greenline_approach_1");
+    expect(getCurrentStage(staticData, progress)?.id).toBe("greenline_approach_1");
   });
 
   it("uses highest cleared stage to gate stage unlocks", () => {
     const progress = createInitialPlayerProgress(staticData);
-    const stage1 = getStageById(staticData, "bamboo_road_1");
-    const stage2 = getStageById(staticData, "bamboo_road_2");
-    const stage3 = getStageById(staticData, "bamboo_road_3");
+    const stage1 = getStageById(staticData, "greenline_approach_1");
+    const stage2 = getStageById(staticData, "greenline_approach_2");
+    const stage3 = getStageById(staticData, "greenline_approach_3");
 
     expect(stage1).toBeDefined();
     expect(stage2).toBeDefined();
@@ -62,7 +62,7 @@ describe("stage progression helpers", () => {
     expect(isStageUnlocked(staticData, progress, stage2)).toBe(false);
     expect(hasClearedStage(progress, stage1)).toBe(false);
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     expect(hasClearedStage(progress, stage1)).toBe(true);
     expect(isStageUnlocked(staticData, progress, stage2)).toBe(true);
@@ -72,22 +72,22 @@ describe("stage progression helpers", () => {
   it("advances current stage to a newly unlocked region after a boss victory", () => {
     const data = createTwoRegionData();
     const progress = createInitialPlayerProgress(data);
-    progress.maps.bamboo_road.highestClearedStageIndex = 9;
-    progress.currentStageId = "bamboo_road_10";
+    progress.maps.greenline_approach.highestClearedStageIndex = 9;
+    progress.currentStageId = "greenline_approach_10";
 
-    const mistValleyStage = getStageById(data, "mist_valley_1");
+    const mistValleyStage = getStageById(data, "veil_district_1");
 
     expect(mistValleyStage).toBeDefined();
     if (!mistValleyStage) {
       return;
     }
 
-    expect(isRegionUnlocked(data, progress, "mist_valley")).toBe(false);
+    expect(isRegionUnlocked(data, progress, "veil_district")).toBe(false);
     expect(isStageUnlocked(data, progress, mistValleyStage)).toBe(false);
 
     const result = resolveStageBattle(data, {
       progress,
-      stageId: "bamboo_road_10",
+      stageId: "greenline_approach_10",
       maxDurationSeconds: 60
     });
 
@@ -97,18 +97,18 @@ describe("stage progression helpers", () => {
     }
 
     expect(result.stageCleared).toBe(true);
-    expect(result.progress.currentStageId).toBe("mist_valley_1");
-    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(10);
-    expect(isRegionUnlocked(data, result.progress, "mist_valley")).toBe(true);
+    expect(result.progress.currentStageId).toBe("veil_district_1");
+    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(10);
+    expect(isRegionUnlocked(data, result.progress, "veil_district")).toBe(true);
     expect(isStageUnlocked(data, result.progress, mistValleyStage)).toBe(true);
   });
 
   it("advances current stage from Veil District into Black Iron Foundry", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 6;
-    progress.currentStageId = "mist_valley_6";
-    const stage = getStageById(staticData, "mist_valley_6");
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 6;
+    progress.currentStageId = "veil_district_6";
+    const stage = getStageById(staticData, "veil_district_6");
 
     expect(stage).toBeDefined();
     if (!stage) {
@@ -117,16 +117,16 @@ describe("stage progression helpers", () => {
 
     expect(
       getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
-    ).toBe("black_iron_fort_1");
+    ).toBe("black_iron_foundry_1");
   });
 
   it("advances current stage from Black Iron Foundry into Lotus Clinic", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 6;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
-    progress.currentStageId = "black_iron_fort_7";
-    const stage = getStageById(staticData, "black_iron_fort_7");
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 6;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 7;
+    progress.currentStageId = "black_iron_foundry_7";
+    const stage = getStageById(staticData, "black_iron_foundry_7");
 
     expect(stage).toBeDefined();
     if (!stage) {
@@ -135,17 +135,17 @@ describe("stage progression helpers", () => {
 
     expect(
       getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
-    ).toBe("lotus_monastery_1");
+    ).toBe("lotus_clinic_1");
   });
 
   it("advances current stage from Lotus Clinic into Redline Outpost", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 6;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
-    progress.maps.lotus_monastery.highestClearedStageIndex = 7;
-    progress.currentStageId = "lotus_monastery_7";
-    const stage = getStageById(staticData, "lotus_monastery_7");
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 6;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 7;
+    progress.maps.lotus_clinic.highestClearedStageIndex = 7;
+    progress.currentStageId = "lotus_clinic_7";
+    const stage = getStageById(staticData, "lotus_clinic_7");
 
     expect(stage).toBeDefined();
     if (!stage) {
@@ -154,18 +154,18 @@ describe("stage progression helpers", () => {
 
     expect(
       getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
-    ).toBe("demon_cult_outpost_1");
+    ).toBe("redline_outpost_1");
   });
 
   it("keeps current stage unchanged after the final configured boss", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 6;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 7;
-    progress.maps.lotus_monastery.highestClearedStageIndex = 7;
-    progress.maps.demon_cult_outpost.highestClearedStageIndex = 7;
-    progress.currentStageId = "demon_cult_outpost_7";
-    const stage = getStageById(staticData, "demon_cult_outpost_7");
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 6;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 7;
+    progress.maps.lotus_clinic.highestClearedStageIndex = 7;
+    progress.maps.redline_outpost.highestClearedStageIndex = 7;
+    progress.currentStageId = "redline_outpost_7";
+    const stage = getStageById(staticData, "redline_outpost_7");
 
     expect(stage).toBeDefined();
     if (!stage) {
@@ -174,75 +174,75 @@ describe("stage progression helpers", () => {
 
     expect(
       getNextCurrentStageId(staticData, stage, progress.currentStageId, progress)
-    ).toBe("demon_cult_outpost_7");
+    ).toBe("redline_outpost_7");
   });
 
   it("uses cleared non-boss stages as valid offline farming targets", () => {
     const progress = createInitialPlayerProgress(staticData);
 
     expect(getUnlockedOfflineFarmStages(staticData, progress)).toEqual([]);
-    expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_1")).toBe(
+    expect(isOfflineFarmStageUnlocked(staticData, progress, "greenline_approach_1")).toBe(
       false
     );
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
 
     expect(
       getUnlockedOfflineFarmStages(staticData, progress).map((stage) => stage.id)
-    ).toEqual(["bamboo_road_1", "bamboo_road_2"]);
-    expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_2")).toBe(
+    ).toEqual(["greenline_approach_1", "greenline_approach_2"]);
+    expect(isOfflineFarmStageUnlocked(staticData, progress, "greenline_approach_2")).toBe(
       true
     );
     expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
-      "bamboo_road_2"
+      "greenline_approach_2"
     );
-    expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_3")).toBe(
+    expect(isOfflineFarmStageUnlocked(staticData, progress, "greenline_approach_3")).toBe(
       false
     );
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
 
     expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
-      "bamboo_road_8"
+      "greenline_approach_8"
     );
-    expect(isOfflineFarmStageUnlocked(staticData, progress, "bamboo_road_10")).toBe(
+    expect(isOfflineFarmStageUnlocked(staticData, progress, "greenline_approach_10")).toBe(
       false
     );
   });
 
   it("unlocks and recommends farm stages across multiple regions", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 3;
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 3;
 
-    expect(isRegionUnlocked(staticData, progress, "mist_valley")).toBe(true);
-    expect(isOfflineFarmStageUnlocked(staticData, progress, "mist_valley_3")).toBe(
+    expect(isRegionUnlocked(staticData, progress, "veil_district")).toBe(true);
+    expect(isOfflineFarmStageUnlocked(staticData, progress, "veil_district_3")).toBe(
       true
     );
     expect(
       getUnlockedOfflineFarmStages(staticData, progress).map((stage) => stage.id)
     ).toEqual([
-      "bamboo_road_1",
-      "bamboo_road_2",
-      "bamboo_road_3",
-      "bamboo_road_4",
-      "bamboo_road_5",
-      "bamboo_road_6",
-      "bamboo_road_7",
-      "bamboo_road_8",
-      "bamboo_road_9",
-      "mist_valley_1",
-      "mist_valley_2",
-      "mist_valley_3"
+      "greenline_approach_1",
+      "greenline_approach_2",
+      "greenline_approach_3",
+      "greenline_approach_4",
+      "greenline_approach_5",
+      "greenline_approach_6",
+      "greenline_approach_7",
+      "greenline_approach_8",
+      "greenline_approach_9",
+      "veil_district_1",
+      "veil_district_2",
+      "veil_district_3"
     ]);
     expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
-      "mist_valley_3"
+      "veil_district_3"
     );
   });
 
   it("keeps unlocked farm stages in progression order for selectors", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+    progress.maps.greenline_approach.highestClearedStageIndex = 9;
 
     const unsortedData: StaticGameData = {
       ...staticData,
@@ -254,21 +254,21 @@ describe("stage progression helpers", () => {
     expect(
       getUnlockedOfflineFarmStages(unsortedData, progress).map((stage) => stage.id)
     ).toEqual([
-      "bamboo_road_1",
-      "bamboo_road_2",
-      "bamboo_road_3",
-      "bamboo_road_4",
-      "bamboo_road_5",
-      "bamboo_road_6",
-      "bamboo_road_7",
-      "bamboo_road_8",
-      "bamboo_road_9"
+      "greenline_approach_1",
+      "greenline_approach_2",
+      "greenline_approach_3",
+      "greenline_approach_4",
+      "greenline_approach_5",
+      "greenline_approach_6",
+      "greenline_approach_7",
+      "greenline_approach_8",
+      "greenline_approach_9"
     ]);
   });
 
   it("recommends the best farm rewards instead of the latest cleared stage", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+    progress.maps.greenline_approach.highestClearedStageIndex = 9;
 
     expect(OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY).toEqual([
       "combatExperience",
@@ -276,13 +276,13 @@ describe("stage progression helpers", () => {
       "cultivation"
     ]);
     expect(getRecommendedOfflineFarmStage(staticData, progress)?.id).toBe(
-      "bamboo_road_8"
+      "greenline_approach_8"
     );
   });
 
   it("recommends farm stages by explicit preset policies", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+    progress.maps.greenline_approach.highestClearedStageIndex = 9;
 
     expect(OFFLINE_FARM_PRESET_POLICIES.map((policy) => policy.id)).toEqual([
       "balanced",
@@ -298,30 +298,30 @@ describe("stage progression helpers", () => {
     ]);
     expect(normalizeOfflineFarmPreset("not-a-preset")).toBe("balanced");
     expect(getRecommendedOfflineFarmStage(staticData, progress, "balanced")?.id).toBe(
-      "bamboo_road_8"
+      "greenline_approach_8"
     );
     expect(getRecommendedOfflineFarmStage(staticData, progress, "silver")?.id).toBe(
-      "bamboo_road_9"
+      "greenline_approach_9"
     );
     expect(
       getRecommendedOfflineFarmStage(staticData, progress, "cultivation")?.id
-    ).toBe("bamboo_road_9");
+    ).toBe("greenline_approach_9");
     expect(
       getRecommendedOfflineFarmStage(staticData, progress, "combatExperience")?.id
-    ).toBe("bamboo_road_8");
+    ).toBe("greenline_approach_8");
     expect(getRecommendedOfflineFarmStage(staticData, progress, "mastery")?.id).toBe(
-      "bamboo_road_8"
+      "greenline_approach_8"
     );
   });
 
   it("validates selected offline farm targets with explicit reasons", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
 
     const notFarmableData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               canFarmOffline: false
@@ -331,11 +331,11 @@ describe("stage progression helpers", () => {
     };
 
     expect(
-      validateOfflineFarmStageTarget(staticData, progress, "bamboo_road_1")
+      validateOfflineFarmStageTarget(staticData, progress, "greenline_approach_1")
     ).toMatchObject({
       ok: true,
       stage: {
-        id: "bamboo_road_1"
+        id: "greenline_approach_1"
       }
     });
     expect(
@@ -345,19 +345,19 @@ describe("stage progression helpers", () => {
       reason: "missing_stage"
     });
     expect(
-      validateOfflineFarmStageTarget(staticData, progress, "bamboo_road_10")
+      validateOfflineFarmStageTarget(staticData, progress, "greenline_approach_10")
     ).toEqual({
       ok: false,
       reason: "boss_stage"
     });
     expect(
-      validateOfflineFarmStageTarget(notFarmableData, progress, "bamboo_road_1")
+      validateOfflineFarmStageTarget(notFarmableData, progress, "greenline_approach_1")
     ).toEqual({
       ok: false,
       reason: "not_farmable"
     });
     expect(
-      validateOfflineFarmStageTarget(staticData, progress, "bamboo_road_3")
+      validateOfflineFarmStageTarget(staticData, progress, "greenline_approach_3")
     ).toEqual({
       ok: false,
       reason: "uncleared_stage"
@@ -369,22 +369,22 @@ describe("stage progression helpers", () => {
 
     expect(setOfflineFarmStageTarget(staticData, progress, null)).toBeNull();
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 2;
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
 
     expect(
-      setOfflineFarmStageTarget(staticData, progress, "bamboo_road_1")
-    ).toBe("bamboo_road_1");
+      setOfflineFarmStageTarget(staticData, progress, "greenline_approach_1")
+    ).toBe("greenline_approach_1");
     expect(
-      setOfflineFarmStageTarget(staticData, progress, "bamboo_road_3")
-    ).toBe("bamboo_road_2");
+      setOfflineFarmStageTarget(staticData, progress, "greenline_approach_3")
+    ).toBe("greenline_approach_2");
     expect(
       setOfflineFarmStageTarget(staticData, progress, "missing_stage")
-    ).toBe("bamboo_road_2");
+    ).toBe("greenline_approach_2");
 
-    progress.maps.bamboo_road.highestClearedStageIndex = 9;
+    progress.maps.greenline_approach.highestClearedStageIndex = 9;
 
     expect(setOfflineFarmStageTarget(staticData, progress, null, "silver")).toBe(
-      "bamboo_road_9"
+      "greenline_approach_9"
     );
   });
 });

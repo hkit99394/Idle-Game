@@ -279,10 +279,10 @@ describe("web game state systems", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "mist_valley_1",
+        currentStageId: "veil_district_1",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 300,
             highestClearedStageIndex: 10
           }
@@ -448,7 +448,7 @@ describe("web game state systems", () => {
         ...staticData.stages,
         {
           id: stageId,
-          regionId: "bamboo_road",
+          regionId: "greenline_approach",
           index: 11,
           name: "Web Status Counterplay",
           enemyTeam: {
@@ -478,8 +478,8 @@ describe("web game state systems", () => {
         },
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
-            ...state.progress.maps.bamboo_road,
+          greenline_approach: {
+            ...state.progress.maps.greenline_approach,
             highestClearedStageIndex: 10
           }
         }

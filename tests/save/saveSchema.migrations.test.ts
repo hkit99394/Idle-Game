@@ -169,14 +169,19 @@ describe("save schema migrations", () => {
 
   it("migrates legacy region map keys and stage ids to Path of Neon ids", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road = {
+    progress.maps.greenline_approach = {
       combatExperience: 40,
       highestClearedStageIndex: 2
     };
-    progress.currentStageId = "bamboo_road_3";
     const save = {
       ...createSaveData({
-        progress,
+        progress: {
+          ...progress,
+          maps: {
+            bamboo_road: progress.maps.greenline_approach
+          },
+          currentStageId: "bamboo_road_3"
+        },
         selectedOfflineFarmStageId: "bamboo_road_1",
         nowMs: 1000
       }),
@@ -585,7 +590,7 @@ describe("save schema migrations", () => {
       progress: {
         ...save.progress,
         maps: {
-          bamboo_road: save.progress.maps.bamboo_road
+          bamboo_road: save.progress.maps.greenline_approach
         }
       }
     };

@@ -13,7 +13,7 @@ import { staticData } from "../helpers/staticData";
 describe("progress-based player team builder", () => {
   it("builds the fixed MVP hero roster in order", () => {
     const progress = createInitialPlayerProgress(staticData);
-    const result = buildPlayerTeamForStage(staticData, progress, "bamboo_road_1");
+    const result = buildPlayerTeamForStage(staticData, progress, "greenline_approach_1");
 
     expect(progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
     expect(result.ok).toBe(true);
@@ -57,7 +57,7 @@ describe("progress-based player team builder", () => {
     const teamResult = buildPlayerTeamForStage(
       staticData,
       progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(teamResult.ok).toBe(true);
@@ -71,11 +71,11 @@ describe("progress-based player team builder", () => {
 
   it("allows the Lotus support hero after the unlock stage is cleared", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 10;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
-    progress.maps.lotus_monastery.highestClearedStageIndex = 3;
-    progress.currentStageId = "lotus_monastery_4";
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 10;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
+    progress.maps.lotus_clinic.highestClearedStageIndex = 3;
+    progress.currentStageId = "lotus_clinic_4";
 
     expect(isHeroUnlocked(staticData, progress, "lotus_mending_disciple")).toBe(
       true
@@ -99,7 +99,7 @@ describe("progress-based player team builder", () => {
     const teamResult = buildPlayerTeamForStage(
       staticData,
       activeResult.progress,
-      "lotus_monastery_4"
+      "lotus_clinic_4"
     );
 
     expect(teamResult.ok).toBe(true);
@@ -124,9 +124,9 @@ describe("progress-based player team builder", () => {
     progress.heroes.iron_fist_disciple.upgrades.hero_outer_training = 2;
     progress.sect.upgrades.sect_outer_training = 1;
     progress.sect.upgrades.sect_inner_training = 1;
-    progress.maps.bamboo_road.combatExperience = 100;
+    progress.maps.greenline_approach.combatExperience = 100;
 
-    const result = buildPlayerTeamForStage(staticData, progress, "bamboo_road_1");
+    const result = buildPlayerTeamForStage(staticData, progress, "greenline_approach_1");
 
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -172,7 +172,7 @@ describe("progress-based player team builder", () => {
     const teamResult = buildPlayerTeamForStage(
       staticData,
       formationResult.progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(teamResult.ok).toBe(true);
@@ -190,10 +190,10 @@ describe("progress-based player team builder", () => {
 
   it("adds enemy-family mastery damage multipliers for the current stage enemy family", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.combatExperience = 3000;
+    progress.maps.greenline_approach.combatExperience = 3000;
 
-    const normalResult = buildPlayerTeamForStage(staticData, progress, "bamboo_road_1");
-    const bossResult = buildPlayerTeamForStage(staticData, progress, "bamboo_road_10");
+    const normalResult = buildPlayerTeamForStage(staticData, progress, "greenline_approach_1");
+    const bossResult = buildPlayerTeamForStage(staticData, progress, "greenline_approach_10");
 
     expect(normalResult.ok).toBe(true);
     expect(bossResult.ok).toBe(true);
@@ -213,10 +213,10 @@ describe("progress-based player team builder", () => {
   it("enemy-family mastery changes simulator damage output", () => {
     const baseProgress = createInitialPlayerProgress(staticData);
     const masteredProgress = createInitialPlayerProgress(staticData);
-    masteredProgress.maps.bamboo_road.combatExperience = 3000;
+    masteredProgress.maps.greenline_approach.combatExperience = 3000;
 
-    const baseTeam = buildPlayerTeamForStage(staticData, baseProgress, "bamboo_road_1");
-    const masteredTeam = buildPlayerTeamForStage(staticData, masteredProgress, "bamboo_road_1");
+    const baseTeam = buildPlayerTeamForStage(staticData, baseProgress, "greenline_approach_1");
+    const masteredTeam = buildPlayerTeamForStage(staticData, masteredProgress, "greenline_approach_1");
 
     expect(baseTeam.ok).toBe(true);
     expect(masteredTeam.ok).toBe(true);
@@ -250,10 +250,10 @@ describe("progress-based player team builder", () => {
   it("map attack mastery changes simulator damage output", () => {
     const baseProgress = createInitialPlayerProgress(staticData);
     const masteredProgress = createInitialPlayerProgress(staticData);
-    masteredProgress.maps.bamboo_road.combatExperience = 100;
+    masteredProgress.maps.greenline_approach.combatExperience = 100;
 
-    const baseTeam = buildPlayerTeamForStage(staticData, baseProgress, "bamboo_road_1");
-    const masteredTeam = buildPlayerTeamForStage(staticData, masteredProgress, "bamboo_road_1");
+    const baseTeam = buildPlayerTeamForStage(staticData, baseProgress, "greenline_approach_1");
+    const masteredTeam = buildPlayerTeamForStage(staticData, masteredProgress, "greenline_approach_1");
 
     expect(baseTeam.ok).toBe(true);
     expect(masteredTeam.ok).toBe(true);
