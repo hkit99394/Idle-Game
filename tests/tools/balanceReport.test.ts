@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { buildBalanceReport, type StaticGameData } from "../../core";
 import {
+  BALANCE_EXPORT_SCHEMA_VERSION,
   BALANCE_STAGE_EXPORT_CSV_HEADERS,
   BAMBOO_ROAD_REGION_ID,
   BLACK_IRON_FORT_REGION_ID,
   LOTUS_MONASTERY_REGION_ID,
   MIST_VALLEY_REGION_ID,
+  TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION,
   TACTIC_COMPARISON_CSV_HEADERS,
   buildBalanceAuthoringExport,
   buildGameBalanceReport,
@@ -491,7 +493,11 @@ describe("balance report", () => {
     const csv = formatBalanceStageExportCsv(report);
     const csvLines = csv.split("\n");
 
-    expect(exportReport.schemaVersion).toBe(1);
+    expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
+    expect(exportReport.regions[0]).toMatchObject({
+      regionId: "greenline_approach",
+      legacyRegionId: "bamboo_road"
+    });
     expect(exportReport.regions.map((region) => region.regionId)).toEqual(
       staticData.regions.map((region) => region.id)
     );
@@ -500,6 +506,8 @@ describe("balance report", () => {
     );
     expect(blackIronStage).toMatchObject({
       regionId: BLACK_IRON_FORT_REGION_ID,
+      legacyRegionId: "black_iron_fort",
+      legacyStageId: "black_iron_fort_4",
       targetStatus: "fail",
       difficultyIssue: expect.stringContaining("below"),
       pressure: {
@@ -517,20 +525,26 @@ describe("balance report", () => {
       farmReason: expect.stringContaining("weighted score")
     });
     expect(blackIronBossGate).toMatchObject({
+      legacyRegionId: "black_iron_fort",
+      legacyStageId: "black_iron_fort_7",
       result: "player_clear",
       farmStageId: "black_iron_foundry_6",
+      legacyFarmStageId: "black_iron_fort_6",
       farmClears: expect.any(Number),
       trainingCost: expect.any(Number)
     });
     expect(demonCultStatusCheck).toMatchObject({
+      legacyRegionId: "demon_cult_outpost",
       status: "fail",
       reason: expect.stringContaining("status damage")
     });
     expect(csvLines[0]).toBe(BALANCE_STAGE_EXPORT_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(staticData.stages.length + 1);
     expect(csv).toContain("redline_outpost_3");
+    expect(csv).toContain("demon_cult_outpost_3");
     expect(csv).toContain("difficulty_spike_status");
     expect(csv).toContain("black_iron_foundry_6");
+    expect(csv).toContain("black_iron_fort_6");
   });
 
   it("builds opt-in tactic comparison exports for JSON and CSV review", () => {
@@ -561,7 +575,9 @@ describe("balance report", () => {
         row.tacticId === "boss_burst"
     );
 
-    expect(exportReport.schemaVersion).toBe(1);
+    expect(exportReport.schemaVersion).toBe(
+      TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION
+    );
     expect(exportReport.defaultTacticId).toBe("balanced");
     expect(exportReport.tactics.map((tactic) => tactic.tacticId)).toEqual(
       staticData.tactics.map((tactic) => tactic.id)
@@ -573,6 +589,8 @@ describe("balance report", () => {
       staticData.stages.length * staticData.tactics.length
     );
     expect(balancedBamboo).toMatchObject({
+      legacyRegionId: "bamboo_road",
+      legacyStageId: "bamboo_road_1",
       isDefaultTactic: true,
       baselineTacticId: "balanced",
       durationDeltaSeconds: 0,
@@ -594,6 +612,8 @@ describe("balance report", () => {
       }
     });
     expect(innerDemonCult).toMatchObject({
+      legacyRegionId: "demon_cult_outpost",
+      legacyStageId: "demon_cult_outpost_3",
       baselineTargetStatus: "fail",
       targetStatus: "pass",
       targetStatusChange: "improved",
@@ -618,6 +638,8 @@ describe("balance report", () => {
     expect(csvLines[0]).toBe(TACTIC_COMPARISON_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("outer_pressure");
+    expect(csv).toContain("bamboo_road_1");
+    expect(csv).toContain("demon_cult_outpost_7");
     expect(csv).toContain("improved_existing_miss");
     expect(csv).toContain("new_miss");
   });

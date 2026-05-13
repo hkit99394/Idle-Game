@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.5 is in progress. Slices 90.1 through 90.4 are complete; report/tooling continuity and final compatibility hardening remain. Stage 2.4 product/storage key migration is complete and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md).
+Stage 2.5 is in progress. Slices 90.1 through 90.5 are complete; final compatibility hardening remains. Stage 2.4 product/storage key migration is complete and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md).
 
 This backlog turns Epic 90 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready region/stage static-id migration. It should make Path of Neon district and route ids canonical while preserving old saves, exports, fixtures, reports, and local browser storage compatibility.
 
@@ -88,7 +88,7 @@ Stage 2.5 implements Epic 90 from the retheme migration plan as focused slices.
 | 90.2 | Region/Stage Alias Data | Complete | Add explicit aliases and validation coverage without changing canonical ids |
 | 90.3 | Save Version And Id Migration | Complete | Bump save version and migrate old region/stage ids in saves/imports/browser storage |
 | 90.4 | Static Data Region/Stage Rename | Complete | Rename canonical region/stage ids and all static references |
-| 90.5 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
+| 90.5 | Report, Tooling, And Web Continuity | Complete | Keep simulator exports, web state, diagnostics, and workflows coherent |
 | 90.6 | Region/Stage Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
 
 ---
@@ -337,6 +337,21 @@ Keep user workflows and downstream report consumers coherent while canonical ids
 - Support decision tests.
 - `npm run simulate`.
 - `npm run support-decision`.
+
+### Implementation Decisions
+
+- Balance authoring and tactic comparison exports now use schema version `2` because their JSON and CSV shapes include temporary legacy-id comparison fields.
+- `buildBalanceAuthoringExport` keeps canonical `regionId` and `stageId` as primary fields and adds `legacyRegionId`, `legacyStageId`, and `legacyFarmStageId` where those old ids help compare Stage 2.4 and Stage 2.5 outputs.
+- `formatBalanceStageExportCsv` and `formatTacticComparisonCsv` include `legacy_region_id` and `legacy_stage_id` columns next to the canonical id columns.
+- Browser save export emits canonical region/stage ids. Browser import still accepts legacy region/stage ids through the core save migration and writes canonical ids back to storage.
+- Web route selection, offline farm selection, save diagnostics, workflow baselines, simulator output, and support-decision output remain canonical-id surfaces.
+
+### Progress Notes
+
+- Added legacy-id context to balance authoring export regions, stages, budget checks, boss-gate assumptions, farm-stage refs, tactic comparison regions, and tactic comparison rows.
+- Added tests proving JSON and CSV exports carry canonical ids plus legacy comparison ids.
+- Added web storage import coverage proving raw old region/stage ids migrate into canonical browser saves.
+- Confirmed focused balance-export tests, focused web save/workflow tests, and `npm run typecheck` pass.
 
 ---
 

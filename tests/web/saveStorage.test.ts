@@ -464,6 +464,12 @@ describe("web save storage", () => {
     if (!exportResult.ok) {
       return;
     }
+    expect(JSON.parse(exportResult.json)).toMatchObject({
+      progress: {
+        currentStageId: "greenline_approach_3"
+      },
+      selectedOfflineFarmStageId: "greenline_approach_2"
+    });
 
     const importResult = importSaveDataToStorage(
       staticData,
@@ -485,6 +491,59 @@ describe("web save storage", () => {
       preBattleResistanceMode: "status_heavy",
       disabledMedicineIds: ["clear_heart_pill"]
     });
+  });
+
+  it("imports legacy region and stage ids as canonical save payloads", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 456;
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
+    const legacySave = {
+      ...createSaveData({
+        progress: {
+          ...progress,
+          maps: {
+            bamboo_road: progress.maps.greenline_approach
+          },
+          currentStageId: "bamboo_road_3"
+        },
+        selectedOfflineFarmStageId: "bamboo_road_2",
+        offlineFarmPreset: "combatExperience",
+        nowMs: 1000
+      }),
+      version: 10
+    };
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(legacySave)
+    );
+    const importedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(importResult.ok).toBe(true);
+    expect(importedSave.ok).toBe(true);
+    if (!importResult.ok || !importedSave.ok) {
+      return;
+    }
+    expect(importResult.save.version).toBe(SAVE_DATA_VERSION);
+    expect(importResult.save.progress.maps.greenline_approach).toEqual({
+      combatExperience: 0,
+      highestClearedStageIndex: 2
+    });
+    expect(importResult.save.progress.maps.bamboo_road).toBeUndefined();
+    expect(importResult.save.progress.currentStageId).toBe(
+      "greenline_approach_3"
+    );
+    expect(importResult.save.selectedOfflineFarmStageId).toBe(
+      "greenline_approach_2"
+    );
+    expect(importedSave.save.progress.currentStageId).toBe(
+      "greenline_approach_3"
+    );
+    expect(importedSave.save.selectedOfflineFarmStageId).toBe(
+      "greenline_approach_2"
+    );
   });
 
   it("normalizes imported offline farm metadata through the core save transaction", () => {

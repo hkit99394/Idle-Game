@@ -2,16 +2,22 @@ import type {
   GameBalanceReport,
   TacticComparisonReport
 } from "./progressionReport";
+import {
+  getLegacyRegionId,
+  getLegacyStageId
+} from "../../core";
 
 type RegionSummary = GameBalanceReport["regionBalances"][number];
 type StageSummary = RegionSummary["stageResults"][number];
 
-export const BALANCE_EXPORT_SCHEMA_VERSION = 1;
+export const BALANCE_EXPORT_SCHEMA_VERSION = 2;
 
 export const BALANCE_STAGE_EXPORT_CSV_HEADERS = [
   "region_id",
+  "legacy_region_id",
   "region_name",
   "stage_id",
+  "legacy_stage_id",
   "stage_name",
   "stage_index",
   "enemy_ids",
@@ -44,7 +50,7 @@ export const BALANCE_STAGE_EXPORT_CSV_HEADERS = [
   "recovery_prevented"
 ] as const;
 
-export const TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION = 1;
+export const TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION = 2;
 
 export const TACTIC_COMPARISON_CSV_HEADERS = [
   "tactic_id",
@@ -52,8 +58,10 @@ export const TACTIC_COMPARISON_CSV_HEADERS = [
   "is_default_tactic",
   "behavior_flags",
   "region_id",
+  "legacy_region_id",
   "region_name",
   "stage_id",
+  "legacy_stage_id",
   "stage_name",
   "stage_index",
   "result",
@@ -101,7 +109,9 @@ export const TACTIC_COMPARISON_CSV_HEADERS = [
 ] as const;
 
 type BalanceStageExportRow = ReturnType<typeof buildStageExportRow>;
-type TacticComparisonRow = TacticComparisonReport["rows"][number];
+type TacticComparisonExportRow = ReturnType<
+  typeof buildTacticComparisonExport
+>["rows"][number];
 
 function toExportNumber(value: number | null | undefined): number | null {
   if (value === null || value === undefined) {
@@ -154,8 +164,10 @@ function buildStageExportRow(region: RegionSummary, stage: StageSummary) {
 
   return {
     regionId: region.regionId,
+    legacyRegionId: getLegacyRegionId(region.regionId),
     regionName: region.regionName,
     stageId: stage.stageId,
+    legacyStageId: getLegacyStageId(stage.stageId),
     stageName: stage.name,
     stageIndex: stage.ok ? stage.index : null,
     enemyIds: stage.enemyIds,
@@ -215,6 +227,7 @@ function buildRegionExport(region: RegionSummary) {
 
   return {
     regionId: region.regionId,
+    legacyRegionId: getLegacyRegionId(region.regionId),
     regionName: region.regionName,
     stageCount: region.stageResults.length,
     difficulty: region.difficultyCurve.summary,
@@ -223,6 +236,7 @@ function buildRegionExport(region: RegionSummary) {
     farmRecommendation: region.farmRecommendation
       ? {
           stageId: region.farmRecommendation.stageId,
+          legacyStageId: getLegacyStageId(region.farmRecommendation.stageId),
           score: region.farmRecommendation.score,
           scoreBreakdown: region.farmRecommendation.scoreBreakdown,
           reason: region.farmRecommendation.reason
@@ -249,6 +263,7 @@ function buildRegionExport(region: RegionSummary) {
 function buildBudgetCheckExport(region: RegionSummary) {
   return region.budgetChecks.map((check) => ({
     regionId: region.regionId,
+    legacyRegionId: getLegacyRegionId(region.regionId),
     regionName: region.regionName,
     checkId: check.id,
     label: check.label,
@@ -260,9 +275,11 @@ function buildBudgetCheckExport(region: RegionSummary) {
 function buildBossGateExport(region: RegionSummary) {
   return region.bossGateAssumptions.map((assumption) => ({
     regionId: region.regionId,
+    legacyRegionId: getLegacyRegionId(region.regionId),
     regionName: region.regionName,
     scenario: assumption.scenario,
     stageId: assumption.stageId,
+    legacyStageId: getLegacyStageId(assumption.stageId),
     result: assumption.result,
     durationSeconds: toExportNumber(assumption.durationSeconds),
     targetMinSeconds: assumption.targetSeconds?.[0] ?? null,
@@ -275,6 +292,10 @@ function buildBossGateExport(region: RegionSummary) {
     medicineConsumed: assumption.medicineConsumed,
     statusDamage: toExportNumber(assumption.statusDamage),
     farmStageId: assumption.farmStageId,
+    legacyFarmStageId:
+      assumption.farmStageId === null
+        ? null
+        : getLegacyStageId(assumption.farmStageId),
     farmClears: assumption.farmClears,
     trainingCost: assumption.trainingCost,
     reason: assumption.reason
@@ -286,8 +307,15 @@ export function buildTacticComparisonExport(report: TacticComparisonReport) {
     schemaVersion: TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION,
     defaultTacticId: report.defaultTacticId,
     tactics: report.tactics,
-    regions: report.regions,
-    rows: report.rows
+    regions: report.regions.map((region) => ({
+      ...region,
+      legacyRegionId: getLegacyRegionId(region.regionId)
+    })),
+    rows: report.rows.map((row) => ({
+      ...row,
+      legacyRegionId: getLegacyRegionId(row.regionId),
+      legacyStageId: getLegacyStageId(row.stageId)
+    }))
   };
 }
 
@@ -325,8 +353,10 @@ function toCsvCell(value: unknown): string {
 function stageRowToCsvCells(row: BalanceStageExportRow): unknown[] {
   return [
     row.regionId,
+    row.legacyRegionId,
     row.regionName,
     row.stageId,
+    row.legacyStageId,
     row.stageName,
     row.stageIndex,
     row.enemyIds,
@@ -372,15 +402,17 @@ export function formatBalanceStageExportCsv(report: GameBalanceReport): string {
   return lines.join("\n");
 }
 
-function tacticComparisonRowToCsvCells(row: TacticComparisonRow): unknown[] {
+function tacticComparisonRowToCsvCells(row: TacticComparisonExportRow): unknown[] {
   return [
     row.tacticId,
     row.tacticName,
     row.isDefaultTactic,
     row.behaviorFlags,
     row.regionId,
+    row.legacyRegionId,
     row.regionName,
     row.stageId,
+    row.legacyStageId,
     row.stageName,
     row.stageIndex,
     row.result,
