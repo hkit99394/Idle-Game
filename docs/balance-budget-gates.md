@@ -45,7 +45,7 @@ Use `rewardCurve.allowedRegressions` for reward dips that are part of the author
 
 ```json
 {
-  "stageId": "bamboo_road_9",
+  "stageId": "greenline_approach_9",
   "metrics": ["farmScore", "combatExperience", "mastery"],
   "reason": "Pre-boss normal stage trades lower Combat XP and mastery yield for higher silver and cultivation."
 }
@@ -58,7 +58,7 @@ Use `budgetExceptions` only for named deferrals that should remain visible in da
 ```json
 {
   "type": "boss_clear_time_target",
-  "stageId": "black_iron_fort_7",
+  "stageId": "black_iron_foundry_7",
   "reason": "Farmed counterplay timing remains tuning debt until Epic 64 reviews boss gate reports."
 }
 ```
@@ -71,7 +71,7 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 
 - Greenline Approach should pass tutorial timing, recommend the best farm route, and keep the gatekeeper blocked until trained.
 - Veil District should pass timing and status-pressure budgets while clearing its gatekeeper baseline.
-- Black Iron Foundry should exercise defense mechanics and require farmed/trained counterplay for the gatekeeper. The current report intentionally calls out `black_iron_fort_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
+- Black Iron Foundry should exercise defense mechanics and require farmed/trained counterplay for the gatekeeper. The current report intentionally calls out `black_iron_foundry_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
 - Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
 
@@ -113,12 +113,14 @@ For stable authoring JSON, run:
 npm run --silent simulate -- --export-json
 ```
 
-This compact export has `schemaVersion: 1` and four top-level tables:
+This compact export has `schemaVersion: 2` and four top-level tables:
 
 - `regions` for region totals, farm recommendations, mastery milestones, and pressure summaries.
 - `stages` for stage timing, rewards, farm recommendation markers, difficulty issues, difficulty spikes, and pressure fields.
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
+
+Stage 2.5 schema version 2 keeps canonical `regionId` and `stageId` as primary fields and adds temporary legacy id context for report comparison.
 
 For spreadsheet review, run:
 

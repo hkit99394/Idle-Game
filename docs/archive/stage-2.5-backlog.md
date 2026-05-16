@@ -2,9 +2,9 @@
 
 ## Current Status
 
-Stage 2.5 is in progress. Slices 90.1 through 90.5 are complete; final compatibility hardening remains. Stage 2.4 product/storage key migration is complete and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md).
+Stage 2.5 is complete. Slices 90.1 through 90.6 are implemented and release-readiness validation is captured below. Stage 2.4 product/storage key migration is complete and archived at [Archived Stage 2.4 Backlog](stage-2.4-backlog.md).
 
-This backlog turns Epic 90 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready region/stage static-id migration. It should make Path of Neon district and route ids canonical while preserving old saves, exports, fixtures, reports, and local browser storage compatibility.
+This backlog turns Epic 90 from [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md) into an implementation-ready region/stage static-id migration. It should make Path of Neon district and route ids canonical while preserving old saves, exports, fixtures, reports, and local browser storage compatibility.
 
 ## Theme
 
@@ -89,7 +89,7 @@ Stage 2.5 implements Epic 90 from the retheme migration plan as focused slices.
 | 90.3 | Save Version And Id Migration | Complete | Bump save version and migrate old region/stage ids in saves/imports/browser storage |
 | 90.4 | Static Data Region/Stage Rename | Complete | Rename canonical region/stage ids and all static references |
 | 90.5 | Report, Tooling, And Web Continuity | Complete | Keep simulator exports, web state, diagnostics, and workflows coherent |
-| 90.6 | Region/Stage Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
+| 90.6 | Region/Stage Compatibility Hardening | Complete | Run full compatibility proof, stale scans, docs updates, and archive readiness |
 
 ---
 
@@ -365,9 +365,9 @@ Close Stage 2.5 with proof that region/stage id migration is safe and later id m
 
 - Run stale-name scans for legacy region/stage ids and classify every remaining hit.
 - Confirm remaining `bamboo_road`, `mist_valley`, `black_iron_fort`, `lotus_monastery`, and `demon_cult_outpost` hits outside archive are aliases, fixtures, tests, report legacy columns, or migration docs.
-- Update [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) with Stage 2.5 closure notes.
+- Update [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) with Stage 2.5 closure notes.
 - Update active docs with the next recommended stage: Stage 2.6 content id migration.
-- Confirm [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) stays historical and this backlog is the only active Stage 2.5 plan.
+- Confirm [Archived Stage 2.4 Backlog](stage-2.4-backlog.md) stays historical and this backlog is the only active Stage 2.5 plan.
 - Prepare archive notes and release-readiness evidence when the stage is complete.
 
 ### Acceptance Criteria
@@ -376,6 +376,35 @@ Close Stage 2.5 with proof that region/stage id migration is safe and later id m
 - Old saves, old browser storage keys, new saves, exports, imports, reports, and diagnostics remain coherent.
 - Content ids, save resource/progress fields, combat stat fields, and report field names remain unchanged except for temporary legacy id columns.
 - Stage 2.6 can begin from a clean region/stage id baseline.
+
+### Implementation Decisions
+
+- Stage 2.5 closure keeps the active region/stage aliases and temporary legacy report columns. Their removal belongs to Stage 2.9 or a later compatibility cleanup, not this release.
+- Active docs now use canonical route ids for budget debt and export guidance. Legacy region/stage examples remain in migration docs where they explain old-to-new aliases.
+- Save import and parsing normalize legacy region/stage aliases even when the payload is already labeled with the current save version, so current-version imports still persist canonical ids.
+- Stage 2.6 should start with content ids that still carry old region words, including assignment ids, enemy ids/families, and stage combatant refs. Region/stage data is no longer the blocker.
+- [Archived Stage 2.4 Backlog](stage-2.4-backlog.md) remains historical; this file is the archived Stage 2.5 closure record.
+
+### Stale-Scan Classification
+
+Remaining legacy region/stage word hits outside `docs/archive` are intentional in these buckets:
+
+| Bucket | Expected locations | Disposition |
+| --- | --- | --- |
+| Region/stage aliases | `core/compatibility/regionStageAliases.ts` and alias tests | Required compatibility surface for old saves/imports/report comparison. |
+| Legacy save fixtures and import tests | `tests/fixtures/`, `tests/save/`, `tests/web/saveStorage.test.ts`, and save migration tests | Required proof that pre-Stage 2.5 saves and browser storage still load. |
+| Temporary legacy export columns | `tools/balance/exportReport.ts` and `tests/tools/balanceReport.test.ts` | Intentional schema v2 comparison fields from Slice 90.5. |
+| Static validation negative tests | `tests/data/validateData.test.ts` | Required proof that legacy aliases cannot re-enter canonical static data. |
+| Stage 2.6 content ids | `data/assignments.json`, `data/enemies.json`, `data/stages.json`, related combat/progression/offline tests | Deferred content-id migration, not region/stage id work. |
+| Migration and planning docs | this backlog, [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md), [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md), and [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md) | Intentional history, alias mapping, and next-stage planning. |
+
+### Progress Notes
+
+- Ran stale region/stage word scans after Slice 90.5 and classified remaining hits by compatibility, fixture/test, temporary export field, migration-doc, or Stage 2.6 content-id ownership.
+- Updated active balance docs and inventory notes to reference canonical route ids.
+- Updated the internal-id migration and retheme planning docs to mark Stage 2.5 complete and set Stage 2.6 content id migration as the next recommended backlog.
+- Fixed the review gap where current-version imports with legacy region/stage alias values could stay non-canonical; added core save and web import regression coverage.
+- Confirmed no active non-archive doc treats `docs/archive/stage-2.4-backlog.md` as a current release authority.
 
 ### Test Coverage
 
@@ -389,10 +418,24 @@ Close Stage 2.5 with proof that region/stage id migration is safe and later id m
 - Markdown path/link check.
 - Stale region/stage id scan.
 
+### Release Readiness Evidence
+
+Validated for Stage 2.5 closure:
+
+- `npm run typecheck` passed.
+- `npm test` passed: 67 test files and 415 tests.
+- `npm run build` passed.
+- `npm run simulate` passed and reports canonical region/stage ids with the expected known balance debt still visible.
+- `npm run support-decision` passed.
+- Export smoke passed for `npm run --silent simulate -- --export-json`, `--csv`, and `--tactics-csv`: authoring JSON has `schemaVersion: 2`, and CSV exports include `region_id`, `legacy_region_id`, `stage_id`, and `legacy_stage_id`.
+- Markdown path/link check passed across 42 docs.
+- `git diff --check` passed.
+- Stale region/stage id scan passed by classification: remaining hits outside `docs/archive` are aliases, fixtures/tests, temporary legacy export fields, migration docs, or Stage 2.6 content ids.
+
 ## Carried Forward
 
 - Stage 2.6 should own static content id migration for enemies, heroes, skills, styles, equipment, equipment sets, assignments, medicines, statuses, and tactics.
 - Stage 2.7 should own save resource/progress field migration, including `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, and the `selectedOfflineFarmStageId` field-name decision.
 - Stage 2.8 should own combat stat fields and code/report symbol migration.
 - Stage 2.9 should own legacy cleanup after compatibility policy allows temporary adapters and legacy report columns to be removed.
-- Cognitive Intrusion implementation remains separate from id migration and should start from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) once naming and compatibility churn is stable.
+- Cognitive Intrusion implementation remains separate from id migration and should start from [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) once naming and compatibility churn is stable.

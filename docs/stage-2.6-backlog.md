@@ -1,0 +1,375 @@
+# Stage 2.6 Backlog
+
+## Current Status
+
+Stage 2.6 is planned. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
+
+This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
+
+## Theme
+
+**Static Content Id Migration**
+
+Stage 2.6 should migrate static content ids after the region/stage baseline is canonical. It owns enemy, hero, skill, skill-upgrade, style, style-branch, equipment, equipment-set, assignment, medicine, status, and tactic ids, plus direct references to those ids.
+
+This stage is broader than Stage 2.5 and must stay split into focused slices. It should not rename persisted resource/progress field names, combat stat fields, report/code symbols, product/runtime keys, or region/stage ids.
+
+## Decisions Carried Forward
+
+- Stage 2.5 already made region and route ids canonical and keeps explicit region/stage aliases for compatibility.
+- Stage 2.6 content id migration needs explicit alias data before changing static data.
+- A new `SAVE_DATA_VERSION` is expected because supported saves store content ids in progress maps such as heroes, skill upgrades, style mastery, style branches, equipment inventory/equipped slots, medicine inventory, assignment progress, auto-medicine disabled lists, active team ids, formation slots, and selected tactic values.
+- Current save field names remain technical. `selectedTacticId` may store a migrated routine id, but the field name should not become `selectedRoutineId` until the save resource/progress field stage.
+- Static validation should reject legacy content ids in canonical static data after their owning slice lands.
+- Reports and exports may need temporary legacy content-id context only where downstream users compare old and new outputs.
+- Do not use broad string replacement across the repo. Use explicit alias data, targeted migrations, and tests.
+
+## Content Id Inventory
+
+Stage 2.6 must classify every id in these data files before static edits begin:
+
+| Category | Source | Count | Save/static references |
+| --- | --- | ---: | --- |
+| Hostiles | `data/enemies.json` | 26 | `data/stages.json` `enemyTeam.combatantIds`, battle/simulator reports, fixtures |
+| Initiates | `data/heroes.json` | 5 | `progress.heroes`, `activeHeroIds`, `formation`, assignment hero lists, hero unlock refs |
+| Protocols | `data/skills.json`, `data/skillUpgrades.json` | 28 skills, 5 upgrades | hero/enemy `skillIds`, `progress.skillUpgrades`, upgrade `skillId`, status effects in upgrade payloads |
+| Styles | `data/styles.json` | 7 styles, 7 branch ids | hero/enemy `style`, equipment and assignment `allowedStyles`, `progress.styleMastery`, `progress.styleBranches` keys and values |
+| Augments | `data/equipment.json`, `data/equipmentSets.json` | 14 equipment, 1 set | stage drops, assignment equipment rewards, inventory keys, equipped slots, `setId` |
+| Countermeasures | `data/medicines.json` | 3 | `progress.medicineInventory`, auto-medicine inventory, disabled medicine ids |
+| Statuses | `data/statusEffects.json` | 5 | skill effects, budget expected status ids, battle records, web status presentation |
+| Operations | `data/assignments.json` | 4 | `progress.assignments`, assignment reward/apply tests, operation view models |
+| Routines | `data/tactics.json` | 6 | `progress.selectedTacticId`, tactic comparison exports, simulator CLI/options |
+
+## Initial Target Draft
+
+The target ids below are a working draft. Slice 91.1 must expand or explicitly confirm the full table before behavior changes.
+
+| Category | Legacy id examples | Target direction |
+| --- | --- | --- |
+| Hostiles | `bamboo_bandit`, `mist_valley_acolyte`, `black_fort_commander`, `demon_cult_ritualist` | `greenline_cutter`, `veil_district_acolyte`, `black_foundry_commander`, `redline_ritualist` |
+| Initiates | `iron_fist_disciple`, `azure_palm_monk`, `white_crane_swordsman`, `mountain_staff_guardian`, `lotus_mending_disciple` | `iron_fist_initiate`, `azure_pulse_monk`, `white_crane_edge_runner`, `mountain_brace_guardian`, `lotus_stabilizer` |
+| Protocols | `iron_fist_combo`, `meridian_shock`, `sweeping_staff`, `lotus_mending_vow` | `impact_combo`, `context_shock`, `brace_sweep`, `lotus_stabilizer_vow` |
+| Skill upgrades | `iron_fist_combo_refinement`, `meridian_shock_refinement`, `lotus_mending_vow_refinement` | `impact_combo_refinement`, `context_shock_refinement`, `lotus_stabilizer_vow_refinement` |
+| Styles | `fist`, `palm`, `leg`, `sword`, `blade`, `staff`, `hidden_weapons` | `impact`, `pulse`, `vector`, `edge`, `rend`, `brace`, `ghostware` |
+| Style branches | `iron_body_fist`, `cloud_meridian_palm`, `white_crane_sword`, `mountain_guard_staff` | `iron_body_impact`, `cloud_context_pulse`, `white_crane_edge`, `mountain_guard_brace` |
+| Augments | `willow_palm_manual`, `calming_breath_pill`, `lotus_dew_pill`, `black_iron_ward` | `willow_pulse_protocol`, `calming_context_stim`, `lotus_dew_countermeasure`, `ironwall_ward` |
+| Countermeasures | `clear_heart_pill`, `quiet_meridian_powder`, `purity_draught` | `clear_heart_countermeasure`, `quiet_context_powder`, `purity_countermeasure` |
+| Statuses | `poison`, `wound`, `qi_suppression`, `vulnerable` | `corruption`, `trauma`, `context_suppression`, `exposed` |
+| Operations | `bamboo_road_patrol`, `mist_valley_meditation`, `black_iron_drill_yard`, `lotus_medicine_pavilion` | `greenline_sweep`, `veil_district_calibration`, `black_foundry_calibration_yard`, `lotus_countermeasure_pavilion` |
+| Routines | `balanced`, `outer_pressure`, `inner_pressure`, `guard_support`, `sustain`, `boss_burst` | `balanced_routine`, `kinetic_crush`, `context_break`, `guard_the_stabilizer`, `long_stabilization`, `gatekeeper_burst` |
+
+Ids that already read as Path of Neon terms, such as `veilstep_needler`, `shieldwall_guard`, `forge_chain_hook`, `blood_brand_duelist`, `marrow_lock_supplicant`, and `burning_blood`, still need an explicit migrate-or-keep decision in Slice 91.1.
+
+## Stage Goals
+
+- Add explicit content alias data using the existing compatibility alias-helper pattern.
+- Bump the save version and normalize old content ids in every supported save path.
+- Rename canonical static content ids and direct content references in focused slices.
+- Keep old save imports, browser saves, fixtures, simulator reports, web workflows, and tool exports coherent.
+- Keep region/stage compatibility from Stage 2.5 unchanged.
+- Document remaining legacy ids as save-field, combat-symbol, report-field, or cleanup work for later stages.
+
+## Non-Goals
+
+- No region or stage id migration. Stage 2.5 owns that and is closed.
+- No persisted resource/progress field rename such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, `selectedOfflineFarmStageId`, or `selectedTacticId`.
+- No combat stat field rename for `outer*`, `inner*`, `qiBreak*`, or recovery fields.
+- No product/runtime key migration for browser storage keys, PWA cache names, package metadata, or icon paths.
+- No removal of Stage 2.4 or Stage 2.5 compatibility aliases.
+- No Cognitive Intrusion implementation.
+- No rebalance unless a content id rename exposes a validation/reporting bug.
+
+## Exit Criteria
+
+- Canonical static data emits Path of Neon content ids for all categories owned by this stage.
+- Legacy saves and imports with old content ids migrate to canonical ids.
+- Current-version imports with old content ids normalize to canonical ids, matching the tightened Stage 2.5 behavior.
+- Static validation rejects legacy content ids in canonical data after the owning slice lands.
+- Reports, web views, save diagnostics, imports/exports, and simulator outputs remain readable and schema-based.
+- Remaining legacy content ids outside `docs/archive` are limited to alias maps, compatibility fixtures/tests, migration docs, temporary legacy report columns, or later-stage save-field/combat-symbol work.
+- `npm run typecheck`, `npm test`, `npm run build`, `npm run simulate`, `npm run support-decision`, markdown link checks, `git diff --check`, and stale-name scans pass before archival.
+
+## Epic Summary
+
+Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
+
+| Slice | Title | Status | Purpose |
+| --- | --- | --- | --- |
+| 91.1 | Content Id Migration Preflight | Planned | Inventory every content id/reference and finalize migrate-or-keep target table |
+| 91.2 | Content Alias Data | Planned | Add explicit aliases and shared normalization helpers without changing canonical ids |
+| 91.3 | Save Version And Content Id Migration | Planned | Bump save version and migrate old content ids in saves/imports/browser storage |
+| 91.4 | Hostile And Status Static Rename | Planned | Rename enemy/family/status ids and battle/status static references |
+| 91.5 | Initiate, Protocol, And Style Static Rename | Planned | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
+| 91.6 | Augment, Countermeasure, Operation, And Routine Static Rename | Planned | Rename equipment, set, medicine, assignment, and tactic ids plus direct references |
+| 91.7 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
+| 91.8 | Content Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
+
+---
+
+## Slice 91.1: Content Id Migration Preflight
+
+### Goal
+
+Make the content-id compatibility surface explicit before alias or static-data edits.
+
+### Tasks
+
+- Inventory every content id and reference across `data/`, `core/`, `web/`, `tools/`, `tests/`, and active docs.
+- Expand the target table to cover every owned id, including enemy families and style branch ids.
+- Classify each id as migrate, keep, or defer with a reason.
+- Classify tests as canonical-id tests, compatibility tests, or later-stage legacy tests.
+- Identify all save fields that store content ids.
+- Decide which reports/exports need temporary legacy content-id context.
+- Confirm whether `burning_blood` remains a doctrine/status id or migrates to a different Path of Neon term.
+
+### Acceptance Criteria
+
+- Contributors can see exactly which content surfaces Stage 2.6 owns.
+- The target id list covers every configured static content id and save-stored content id.
+- No save-field names, combat stat fields, or region/stage ids are accidentally scheduled for this stage.
+
+### Test Coverage
+
+- Markdown link check if docs change.
+- `git diff --check`.
+- Stale content-id scan.
+
+---
+
+## Slice 91.2: Content Alias Data
+
+### Goal
+
+Add explicit content alias data before behavior changes.
+
+### Tasks
+
+- Add content alias modules using `CompatibilityAliasEntry`.
+- Include alias phases for `hostile_ids`, `initiate_ids`, `protocol_ids`, `style_ids`, `augment_ids`, `countermeasure_ids`, `status_ids`, `operation_ids`, and `routine_ids`.
+- Include reference fields for every static/save/report surface each alias can appear in.
+- Add lookup helpers for normalizing ids and map-key dictionaries by category.
+- Add tests for duplicate alias rejection, legacy lookup, target lookup, normalization, reverse legacy lookup, and missing-id behavior.
+- Keep existing static data unchanged in this slice.
+
+### Acceptance Criteria
+
+- Alias data covers every id classified as migrate in Slice 91.1.
+- Static validation can use the alias data without migrating ids yet.
+- Later save/static-data slices can call shared helpers instead of duplicating string maps.
+
+### Test Coverage
+
+- New compatibility alias tests.
+- Static coverage tests proving every migrated category has an alias or a documented keep decision.
+- `npm run typecheck`.
+
+---
+
+## Slice 91.3: Save Version And Content Id Migration
+
+### Goal
+
+Migrate old content ids in persisted saves without changing unrelated save fields.
+
+### Tasks
+
+- Bump `SAVE_DATA_VERSION`.
+- Normalize content ids in:
+  - `progress.heroes` keys;
+  - `progress.activeHeroIds`;
+  - `progress.formation` slot values;
+  - `progress.styleMastery` keys;
+  - `progress.styleBranches` keys and selected branch ids;
+  - `progress.skillUpgrades` keys;
+  - `progress.equipment.inventory` keys;
+  - `progress.equipment.equipped[heroId][slot]` hero and equipment ids;
+  - `progress.medicineInventory` keys;
+  - `progress.assignments` keys and `heroIds`;
+  - `progress.selectedTacticId`;
+  - `autoMedicinePreferences.disabledMedicineIds`.
+- Preserve field names such as `heroes`, `styleMastery`, `skillUpgrades`, `medicineInventory`, `assignments`, and `selectedTacticId`.
+- Add fixtures for the immediately previous save version and at least one pre-retheme save with legacy content ids.
+- Prove current-version imports with legacy content ids normalize to canonical ids.
+- Confirm migration is idempotent and does not grant offline rewards twice.
+
+### Acceptance Criteria
+
+- Legacy saves load into current saves with canonical content ids.
+- Current saves are emitted with canonical content ids.
+- Existing resources, combat stat fields, region/stage ids, browser storage keys, and report-field names remain unchanged.
+
+### Test Coverage
+
+- Save migration fixture tests for every supported legacy version.
+- Focused tests for each save-stored content-id category.
+- Browser storage import tests combining old storage-key compatibility and old content ids.
+- Offline reward idempotency tests.
+- Save diagnostics tests.
+
+---
+
+## Slice 91.4: Hostile And Status Static Rename
+
+### Goal
+
+Make hostile and status ids canonical in static data and battle/report references.
+
+### Tasks
+
+- Rename `data/enemies.json` ids and enemy `family` values according to the approved target table.
+- Rename `data/statusEffects.json` ids.
+- Update `data/stages.json` enemy team refs.
+- Update skill/status effect refs and region budget expected status refs.
+- Update combat, auto-medicine, balance, web status presentation, and fixture expectations.
+- Preserve built-in combat event/status symbols such as `guard`, `protection`, `armor_break`, `inner_defense_down`, and `regeneration` unless Slice 91.1 explicitly schedules them.
+
+### Acceptance Criteria
+
+- Canonical static data has no migrated legacy hostile/status ids outside alias data and compatibility fixtures.
+- Battle simulation and report rows use canonical hostile/status ids where those ids are emitted.
+- Old saves and imports still accept legacy ids through the save migration.
+
+### Test Coverage
+
+- Static data validation suite.
+- Combat status/skill effect tests.
+- Auto-medicine tests.
+- Balance report tests.
+- `npm run simulate`.
+
+---
+
+## Slice 91.5: Initiate, Protocol, And Style Static Rename
+
+### Goal
+
+Make hero, skill, skill-upgrade, style, and style-branch ids canonical.
+
+### Tasks
+
+- Rename `data/heroes.json` ids, `style`, `skillIds`, and direct unlock refs.
+- Rename `data/skills.json` ids.
+- Rename `data/skillUpgrades.json` ids and `skillId` refs.
+- Rename `data/styles.json` ids and branch ids.
+- Update style refs in heroes, enemies, equipment, assignments, unlock conditions, mastery, and tests.
+- Update save migration coverage for hero progress, active team, formation, style mastery, style branches, and skill-upgrade progress.
+
+### Acceptance Criteria
+
+- Canonical static data uses Path of Neon ids for initiates, protocols, styles, and branches.
+- Old saves with legacy team/style/protocol ids migrate correctly.
+- Web team, progression, equipment compatibility, and style branch workflows remain coherent.
+
+### Test Coverage
+
+- Static data validation suite.
+- Progression/team/upgrade/style tests.
+- Web state workflow tests.
+- Save migration tests.
+- `npm run typecheck`.
+
+---
+
+## Slice 91.6: Augment, Countermeasure, Operation, And Routine Static Rename
+
+### Goal
+
+Make equipment, equipment-set, medicine, assignment, and tactic ids canonical.
+
+### Tasks
+
+- Rename `data/equipment.json` ids and `setId` refs.
+- Rename `data/equipmentSets.json` ids.
+- Rename stage `equipmentDrops[].equipmentId` and assignment `equipmentRewardsPerHour[].equipmentId`.
+- Rename `data/medicines.json` ids and auto-medicine references.
+- Rename `data/assignments.json` ids.
+- Rename `data/tactics.json` ids while preserving the `selectedTacticId` save field name.
+- Update save migration coverage for inventory, equipped items, medicine inventory, auto-medicine disabled ids, assignment progress, and selected tactic values.
+
+### Acceptance Criteria
+
+- Canonical static data uses Path of Neon ids for augments, countermeasures, operations, and routines.
+- Old saves with legacy equipment, medicine, assignment, and tactic ids migrate correctly.
+- Web equipment, countermeasure, operation, and tactic workflows remain coherent.
+
+### Test Coverage
+
+- Static data validation suite.
+- Equipment/progression tests.
+- Auto-medicine tests.
+- Assignment/offline reward tests.
+- Tactic comparison tests.
+- Web workflow/save tests.
+
+---
+
+## Slice 91.7: Report, Tooling, And Web Continuity
+
+### Goal
+
+Keep user workflows and downstream report consumers coherent while content ids change.
+
+### Tasks
+
+- Update simulator text, JSON, CSV, and tactic comparison exports to use canonical content ids.
+- Add temporary `legacy*` fields only where useful for report comparison.
+- Update web diagnostics, export/import flows, battle summaries, route cards, operation panels, equipment panels, countermeasure panels, and tactic controls as needed.
+- Update workflow baselines and browser-save tests.
+- Confirm `npm run simulate` and `npm run support-decision` still produce meaningful reports after ids change.
+- Document any remaining legacy content-id columns as temporary compatibility output.
+
+### Acceptance Criteria
+
+- Web workflows select, display, export, import, and persist canonical content ids.
+- Exports/imports stay schema-based and accept legacy ids through migration.
+- Reports remain comparable enough for Stage 2.5/2.6 before-and-after review.
+
+### Test Coverage
+
+- Web workflow/save tests.
+- Balance report JSON/CSV/tactic export tests.
+- Support decision tests.
+- `npm run simulate`.
+- `npm run support-decision`.
+
+---
+
+## Slice 91.8: Content Compatibility Hardening
+
+### Goal
+
+Close Stage 2.6 with proof that static content id migration is safe and later migration stages remain isolated.
+
+### Tasks
+
+- Run stale-name scans for legacy content ids and classify every remaining hit.
+- Confirm remaining old ids outside archive are aliases, fixtures, tests, temporary report columns, or migration docs.
+- Update [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) with Stage 2.6 closure notes.
+- Update active docs with the next recommended stage: Stage 2.7 save resource/progress field migration.
+- Prepare archive notes and release-readiness evidence when the stage is complete.
+
+### Acceptance Criteria
+
+- Content id compatibility behavior is documented and tested.
+- Old saves, old browser storage keys, new saves, exports, imports, reports, and diagnostics remain coherent.
+- Save resource/progress fields, combat stat fields, and report/code symbols remain unchanged except for intentional temporary legacy comparison output.
+- Stage 2.7 can begin from a clean static-content id baseline.
+
+### Test Coverage
+
+- `npm run typecheck`.
+- `npm test`.
+- `npm run build`.
+- `npm run simulate`.
+- `npm run support-decision`.
+- Relevant browser save/import/export smoke.
+- `git diff --check`.
+- Markdown path/link check.
+- Stale content-id scan.
+
+## Carried Forward
+
+- Stage 2.7 should own save resource/progress field migration, including `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, and the `selectedOfflineFarmStageId` and `selectedTacticId` field-name decisions.
+- Stage 2.8 should own combat stat fields and code/report symbol migration.
+- Stage 2.9 should own cleanup of temporary legacy adapters and report columns after compatibility policy allows.
+- Cognitive Intrusion implementation remains separate from id migration and should start from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) once naming and compatibility churn is stable.

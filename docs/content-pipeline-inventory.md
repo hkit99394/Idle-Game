@@ -87,11 +87,11 @@ The current simulator output keeps these misses visible:
 
 | Region | Current miss | Disposition through Stage 2.1 |
 | --- | --- | --- |
-| Black Iron Foundry | `black_iron_fort_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `demon_cult_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `demon_cult_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `demon_cult_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `demon_cult_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Black Iron Foundry | `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `redline_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `redline_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `redline_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Redline Outpost | `redline_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
 | Redline Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
 These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
@@ -100,8 +100,8 @@ These are not accepted silent noise. The active authority is this inventory, [ba
 
 Epic 71 did not retune content. The tactic comparison export keeps known debt visible and adds row-level shift labels:
 
-- `demon_cult_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `inner_pressure` or `boss_burst`, marked as `budgetShift: improved_existing_miss`.
-- `demon_cult_outpost_7` is untargeted by clear-time budgets, but `inner_pressure` and `boss_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
+- `redline_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `inner_pressure` or `boss_burst`, marked as `budgetShift: improved_existing_miss`.
+- `redline_outpost_7` is untargeted by clear-time budgets, but `inner_pressure` and `boss_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
 - `sustain` preserves the Redline boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
 
 ## Stage 2.0 Closure Notes

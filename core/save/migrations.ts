@@ -354,9 +354,9 @@ export function migrateSaveData(
     };
   }
 
-  const shouldMigrateRegionStageIds = raw.version < SAVE_DATA_VERSION;
+  const shouldNormalizeRegionStageIds = true;
   const progress = normalizeProgressForMigration(data, raw.progress, {
-    migrateRegionStageIds: shouldMigrateRegionStageIds
+    migrateRegionStageIds: shouldNormalizeRegionStageIds
   });
   const autoMedicinePreferences = normalizeAutoMedicinePreferencesWithChanges(
     raw.autoMedicinePreferences
@@ -378,12 +378,12 @@ export function migrateSaveData(
       ? null
       : raw.selectedOfflineFarmStageId;
   const normalizedSelectedOfflineFarmStageId =
-    shouldMigrateRegionStageIds && typeof selectedOfflineFarmStageId === "string"
+    shouldNormalizeRegionStageIds && typeof selectedOfflineFarmStageId === "string"
       ? normalizeStageId(selectedOfflineFarmStageId)
       : selectedOfflineFarmStageId;
 
   if (
-    shouldMigrateRegionStageIds &&
+    shouldNormalizeRegionStageIds &&
     typeof selectedOfflineFarmStageId === "string" &&
     normalizedSelectedOfflineFarmStageId !== selectedOfflineFarmStageId
   ) {

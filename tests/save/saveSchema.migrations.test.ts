@@ -220,6 +220,59 @@ describe("save schema migrations", () => {
     );
   });
 
+  it("normalizes legacy region and stage ids even when a save is already current version", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.greenline_approach = {
+      combatExperience: 44,
+      highestClearedStageIndex: 2
+    };
+    const save = createSaveData({
+      progress: {
+        ...progress,
+        maps: {
+          bamboo_road: progress.maps.greenline_approach
+        },
+        currentStageId: "bamboo_road_3"
+      },
+      selectedOfflineFarmStageId: "bamboo_road_2",
+      nowMs: 1000
+    });
+    const result = parseSaveData(staticData, save);
+
+    expect(save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.save.progress.maps.greenline_approach).toEqual({
+      combatExperience: 44,
+      highestClearedStageIndex: 2
+    });
+    expect(result.save.progress.maps.bamboo_road).toBeUndefined();
+    expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
+    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_2");
+    expect(result.migration.migrated).toBe(false);
+    expect(result.migration.normalized).toBe(true);
+    expect(result.migration.normalizations).toEqual(
+      expect.arrayContaining([
+        {
+          field: "progress.maps.bamboo_road",
+          reason: "migrated legacy region id"
+        },
+        {
+          field: "progress.currentStageId",
+          reason: "migrated legacy stage id"
+        },
+        {
+          field: "selectedOfflineFarmStageId",
+          reason: "migrated legacy stage id"
+        }
+      ])
+    );
+  });
+
   it("preserves canonical map entries when legacy and canonical keys collide", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = {
@@ -616,11 +669,11 @@ describe("save schema migrations", () => {
             combatExperience: 0,
             highestClearedStageIndex: 1
           },
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 0,
             highestClearedStageIndex: 2.5
           },
-          lotus_monastery: {
+          lotus_clinic: {
             combatExperience: 0,
             highestClearedStageIndex: 8
           }
@@ -631,8 +684,8 @@ describe("save schema migrations", () => {
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
         "progress.maps.missing_region must reference an existing region",
-        "progress.maps.bamboo_road.highestClearedStageIndex must be an integer between 0 and 10",
-        "progress.maps.lotus_monastery.highestClearedStageIndex must be an integer between 0 and 7"
+        "progress.maps.greenline_approach.highestClearedStageIndex must be an integer between 0 and 10",
+        "progress.maps.lotus_clinic.highestClearedStageIndex must be an integer between 0 and 7"
       ])
     );
   });

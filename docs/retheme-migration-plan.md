@@ -6,7 +6,7 @@ Move the project from Path of Jianghu to **Path of Neon** without breaking exist
 
 The first retheme pass should be display-safe, but the product plan must be deeper than a rename. Internal identifiers are compatibility contracts until a specific migration says otherwise; player-facing design should move toward cyber-native systems such as cognitive intrusion, augmentation loadouts, district heat, network operations, protocol decks, countermeasure economy, and AI raid events.
 
-Internal ids should migrate to Path of Neon names, but only through the dedicated compatibility plan in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md). Until that migration lands, display terms may change while legacy ids and persisted fields remain valid.
+Internal ids should migrate to Path of Neon names, but only through the dedicated compatibility plan in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md). As each migration slice lands, canonical data may move while legacy ids and persisted fields remain valid through explicit compatibility adapters.
 
 ## Non-Goals
 
@@ -22,12 +22,12 @@ These are non-goals for the display-safe retheme pass, not permanent product dec
 
 - Keep reading the legacy `path-of-jianghu.save.v1` browser key after `WEB_SAVE_STORAGE_KEY` moves to `path-of-neon.save.v1`; old-key saves must copy forward safely before any cleanup policy is considered.
 - If the PWA cache name changes to a Path of Neon prefix, service-worker activation must delete both `path-of-jianghu-shell-*` and `path-of-neon-shell-*` caches except the current cache.
-- Static data `id` fields and all save/static `*Id` reference fields stay stable until the dedicated internal-id migration. Static data `name` and description fields may change as display text before that.
+- Static data `id` values and all save/static `*Id` reference fields stay stable until their dedicated internal-id migration slice. Stage 2.5 migrated region and route id values; content ids and persisted field names remain owned by later stages.
 - Save/cloud/core docs should describe persisted field names literally, then point to the display terminology map when needed.
 - Tests should only update expected strings when they assert player-facing copy. Tests asserting ids or schema fields should keep legacy names.
 - Future mechanic terms such as District Heat, Trace, Firewall, and Calibration Debt should stay out of player-facing UI until the selected prototype exists.
 
-Internal identifiers means the stable machine-readable names used by saves, static data, tests, reports, and future backend payloads. Examples include JSON ids such as `bamboo_road`, `demon_cult_outpost`, `hero_outer_training`, and `balanced`, plus reference fields such as `stageId`, `regionId`, `heroId`, `skillId`, and saved fields such as `silver`, `cultivation`, `innerQi`, and `selectedTacticId`. These can display as Path of Neon terms before the dedicated internal-id migration changes the underlying ids.
+Internal identifiers means the stable machine-readable names used by saves, static data, tests, reports, and future backend payloads. Examples include JSON ids such as `greenline_approach`, `redline_outpost`, `hero_outer_training`, and `balanced`, plus reference fields such as `stageId`, `regionId`, `heroId`, `skillId`, and saved fields such as `silver`, `cultivation`, `innerQi`, and `selectedTacticId`. These can display as Path of Neon terms before the dedicated internal-id migration changes the underlying ids for their category.
 
 ## Recommended Stage 2.3 Theme
 
@@ -61,7 +61,7 @@ The numbered sections below are implementation phases inside Stage 2.3, not proj
 | 96 | Cognitive Intrusion Prototype | Implement the smallest useful Cognitive Intrusion slice with focused tests and simulator/report visibility. |
 | 97 | Post-Migration Compatibility Hardening | Prove old saves, exports, fixtures, reports, PWA caches, docs, and stale-name scans still work after id/schema migration. |
 
-Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) completed Epic 89 as focused product/storage key migration slices. [Stage 2.5 Backlog](stage-2.5-backlog.md) plans Epic 90 as region/stage static id migration, followed by remaining static content ids, save resource/progress fields, combat save fields, code/report symbols, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
+Epics 79-88 belong in the display-safe Stage 2.3 pivot. Epics 89-97 should be split into later stages unless the team deliberately accepts a larger migration stage. [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) completed Epic 89 as focused product/storage key migration slices. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) completed Epic 90 as the region/stage static id migration. [Stage 2.6 Backlog](stage-2.6-backlog.md) plans Epic 91 as static content id migration, followed by save resource/progress fields, combat save fields, code/report symbols, and the Cognitive Intrusion prototype after the naming and compatibility surface is stable enough to avoid churn.
 
 ## Stage 2.3 Phase 0: Docs Contract
 

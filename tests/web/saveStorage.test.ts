@@ -546,6 +546,57 @@ describe("web save storage", () => {
     );
   });
 
+  it("imports current-version saves with legacy region and stage ids as canonical payloads", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 654;
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
+    const currentSaveWithLegacyIds = createSaveData({
+      progress: {
+        ...progress,
+        maps: {
+          bamboo_road: progress.maps.greenline_approach
+        },
+        currentStageId: "bamboo_road_3"
+      },
+      selectedOfflineFarmStageId: "bamboo_road_2",
+      offlineFarmPreset: "combatExperience",
+      nowMs: 1000
+    });
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(currentSaveWithLegacyIds)
+    );
+    const importedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(currentSaveWithLegacyIds.version).toBe(SAVE_DATA_VERSION);
+    expect(importResult.ok).toBe(true);
+    expect(importedSave.ok).toBe(true);
+    if (!importResult.ok || !importedSave.ok) {
+      return;
+    }
+
+    expect(importResult.save.progress.maps.greenline_approach).toEqual({
+      combatExperience: 0,
+      highestClearedStageIndex: 2
+    });
+    expect(importResult.save.progress.maps.bamboo_road).toBeUndefined();
+    expect(importResult.save.progress.currentStageId).toBe(
+      "greenline_approach_3"
+    );
+    expect(importResult.save.selectedOfflineFarmStageId).toBe(
+      "greenline_approach_2"
+    );
+    expect(importedSave.save.progress.currentStageId).toBe(
+      "greenline_approach_3"
+    );
+    expect(importedSave.save.selectedOfflineFarmStageId).toBe(
+      "greenline_approach_2"
+    );
+  });
+
   it("normalizes imported offline farm metadata through the core save transaction", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);
