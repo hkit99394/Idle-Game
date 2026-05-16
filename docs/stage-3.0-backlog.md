@@ -6,7 +6,7 @@ Stage 3.0 is the active post-migration mechanic milestone. It implements Epics 9
 
 [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md) closed the cleanup and handoff work. Stage 2.9 kept compatibility-sensitive transition fields stable, refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md), and confirmed the first implementation should be one small data-driven status mechanic with no save, export, event, taxonomy, storage-key, or internal-id migration.
 
-Slices 95.1, 96.1, 96.2, and 96.3 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage; Slice 96.3 added the live Intrusion status and Azure Pulse Monk upgrade hook.
+Slices 95.1, 96.1, 96.2, 96.3, and 96.4 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage; Slice 96.3 added the live Intrusion status and Azure Pulse Monk upgrade hook; Slice 96.4 verified Intrusion visibility through existing presentation, counterplay, battle event, and tactic comparison surfaces.
 
 ## Stage Theme
 
@@ -62,7 +62,7 @@ The milestone should prove that Path of Neon is more than renamed combat vocabul
 | 96.1 | 96 | Status Modifier Schema And Validation | Complete |
 | 96.2 | 96 | Cognitive Damage Application | Complete |
 | 96.3 | 96 | Static Data And Upgrade Hook | Complete |
-| 96.4 | 96 | Presentation And Counterplay Visibility | Planned |
+| 96.4 | 96 | Presentation And Counterplay Visibility | Complete |
 | 96.5 | 96 | Simulator, Balance, And Regression Review | Planned |
 | 96.6 | 96 | Release Hardening And Archive Readiness | Planned |
 
@@ -226,6 +226,16 @@ Prove the mechanic is visible through current UI and report surfaces.
 - Verify simulator/tactic comparison output remains readable without adding columns or bumping schema version.
 - Add or update focused status presentation tests if the current coverage does not exercise data-driven status display.
 
+### Implementation Notes
+
+Completed in tests and backlog documentation. No new UI, battle event, save, or export fields were needed.
+
+- `tests/web/statusPresentation.test.ts` proves **Intrusion** renders through the existing data-status chip path and appears by name in purge summaries.
+- `tests/counterplay/counterplayPreview.test.ts` proves Intrusion is detected from an `apply_status` pressure skill, keeps the control category path, and is covered by existing `debuff` countermeasure recommendations.
+- `tests/web/battleEventView.test.ts` proves `status_apply` and `cleanse` event views resolve `cognitive_intrusion` to **Intrusion** through existing status metadata.
+- `tests/tools/balanceReport.test.ts` keeps the tactic comparison schema version/header stable and confirms no Intrusion-specific columns were added.
+- `tests/compatibility/contentIdAliases.test.ts` now treats `cognitive_intrusion` as a post-Stage 2.6 current content id, preserving the archived 91.1 preflight comparison without rewriting history.
+
 ### Acceptance
 
 - Players can see Intrusion on affected targets.
@@ -235,10 +245,10 @@ Prove the mechanic is visible through current UI and report surfaces.
 
 ### Verification
 
-- `npm test -- tests/web/statusPresentation.test.ts`
-- `npm test`
-- `npm run typecheck`
-- `git diff --check`
+- Passed: `npm test -- tests/web/statusPresentation.test.ts tests/counterplay/counterplayPreview.test.ts tests/web/battleEventView.test.ts tests/tools/balanceReport.test.ts`
+- Passed: `npm test`
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 96.5: Simulator, Balance, And Regression Review
 
