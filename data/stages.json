@@ -25,7 +25,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 5 },
-    "equipmentDrops": [{ "equipmentId": "training_wraps", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "impact_training_wraps", "quantity": 1 }],
     "nextStageId": "greenline_approach_3"
   },
   {
@@ -68,7 +68,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
-    "equipmentDrops": [{ "equipmentId": "willow_palm_manual", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "willow_pulse_protocol", "quantity": 1 }],
     "nextStageId": "greenline_approach_6"
   },
   {
@@ -111,7 +111,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 44, "cultivation": 22, "combatExperience": 20 },
-    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "crane_edge_cutter", "quantity": 1 }],
     "nextStageId": "greenline_approach_9"
   },
   {
@@ -140,7 +140,7 @@
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 100 },
-    "equipmentDrops": [{ "equipmentId": "guardian_staff", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "guardian_brace_staff", "quantity": 1 }],
     "nextStageId": null
   },
   {
@@ -155,7 +155,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 66, "cultivation": 34, "combatExperience": 24 },
-    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "calming_context_stim", "quantity": 1 }],
     "nextStageId": "veil_district_2"
   },
   {
@@ -184,7 +184,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 92, "cultivation": 46, "combatExperience": 28 },
-    "equipmentDrops": [{ "equipmentId": "woven_travel_robe", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "woven_travel_plating", "quantity": 1 }],
     "nextStageId": "veil_district_4"
   },
   {
@@ -199,7 +199,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 116, "cultivation": 58, "combatExperience": 34 },
-    "equipmentDrops": [{ "equipmentId": "mist_needle_case", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "veil_needle_case", "quantity": 1 }],
     "nextStageId": "veil_district_5"
   },
   {
@@ -214,7 +214,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 40 },
-    "equipmentDrops": [{ "equipmentId": "veil_palm_manual", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "veil_pulse_protocol", "quantity": 1 }],
     "nextStageId": "veil_district_6"
   },
   {
@@ -229,7 +229,7 @@
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 340, "cultivation": 170, "combatExperience": 160 },
-    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "iron_thread_plating", "quantity": 1 }],
     "nextStageId": null
   },
   {
@@ -286,7 +286,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 252, "cultivation": 126, "combatExperience": 64 },
-    "equipmentDrops": [{ "equipmentId": "black_iron_saber_blade", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "black_iron_saber", "quantity": 1 }],
     "nextStageId": "black_iron_foundry_5"
   },
   {
@@ -301,7 +301,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 292, "cultivation": 146, "combatExperience": 78 },
-    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "iron_thread_plating", "quantity": 1 }],
     "nextStageId": "black_iron_foundry_6"
   },
   {
@@ -317,8 +317,8 @@
     "canFarmOffline": true,
     "rewards": { "silver": 336, "cultivation": 168, "combatExperience": 88 },
     "equipmentDrops": [
-      { "equipmentId": "fortress_guard_manual", "quantity": 1 },
-      { "equipmentId": "tempered_meridian_pill", "quantity": 1 }
+      { "equipmentId": "fortress_guard_protocol", "quantity": 1 },
+      { "equipmentId": "tempered_context_stim", "quantity": 1 }
     ],
     "nextStageId": "black_iron_foundry_7"
   },
@@ -334,7 +334,7 @@
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 720, "cultivation": 360, "combatExperience": 260 },
-    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "iron_thread_plating", "quantity": 1 }],
     "nextStageId": null
   },
   {
@@ -349,7 +349,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 390, "cultivation": 196, "herbs": 6, "combatExperience": 96 },
-    "equipmentDrops": [{ "equipmentId": "lotus_dew_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "lotus_dew_countermeasure", "quantity": 1 }],
     "nextStageId": "lotus_clinic_2"
   },
   {
@@ -364,7 +364,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 440, "cultivation": 220, "herbs": 8, "combatExperience": 102 },
-    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "calming_context_stim", "quantity": 1 }],
     "nextStageId": "lotus_clinic_3"
   },
   {
@@ -380,8 +380,8 @@
     "canFarmOffline": true,
     "rewards": { "silver": 500, "cultivation": 250, "herbs": 10, "combatExperience": 112 },
     "equipmentDrops": [
-      { "equipmentId": "mist_needle_case", "quantity": 1 },
-      { "equipmentId": "lotus_dew_pill", "quantity": 1 }
+      { "equipmentId": "veil_needle_case", "quantity": 1 },
+      { "equipmentId": "lotus_dew_countermeasure", "quantity": 1 }
     ],
     "nextStageId": "lotus_clinic_4"
   },
@@ -397,7 +397,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 570, "cultivation": 286, "herbs": 12, "combatExperience": 126 },
-    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "crane_edge_cutter", "quantity": 1 }],
     "nextStageId": "lotus_clinic_5"
   },
   {
@@ -413,8 +413,8 @@
     "canFarmOffline": true,
     "rewards": { "silver": 650, "cultivation": 326, "herbs": 16, "combatExperience": 140 },
     "equipmentDrops": [
-      { "equipmentId": "veil_palm_manual", "quantity": 1 },
-      { "equipmentId": "mending_poultice", "quantity": 1 }
+      { "equipmentId": "veil_pulse_protocol", "quantity": 1 },
+      { "equipmentId": "mending_patch", "quantity": 1 }
     ],
     "nextStageId": "lotus_clinic_6"
   },
@@ -430,7 +430,7 @@
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 740, "cultivation": 370, "herbs": 20, "combatExperience": 158 },
-    "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "tempered_context_stim", "quantity": 1 }],
     "nextStageId": "lotus_clinic_7"
   },
   {
@@ -446,8 +446,8 @@
     "canFarmOffline": false,
     "rewards": { "silver": 1500, "cultivation": 750, "herbs": 40, "combatExperience": 420 },
     "equipmentDrops": [
-      { "equipmentId": "tempered_meridian_pill", "quantity": 1 },
-      { "equipmentId": "mending_poultice", "quantity": 1 }
+      { "equipmentId": "tempered_context_stim", "quantity": 1 },
+      { "equipmentId": "mending_patch", "quantity": 1 }
     ],
     "nextStageId": "redline_outpost_1"
   },

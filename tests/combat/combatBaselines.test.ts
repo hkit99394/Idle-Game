@@ -221,14 +221,14 @@ describe("combat baseline traces", () => {
         type: "auto_medicine",
         time: 1,
         targetId: ids.targetId,
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         trigger: "battle_cleanse"
       }
     ]);
     expect(result.battle.autoMedicine.uses).toEqual([
       expect.objectContaining({
         trigger: "battle_cleanse",
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         targetId: ids.targetId,
         cleansedStatusIds: ["corruption"]
       })

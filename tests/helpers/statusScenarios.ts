@@ -263,7 +263,7 @@ export function createAutoMedicineCorruptionScenarioData(
 export function createAutoMedicineCorruptionProgress(
   data: StaticGameData,
   medicineInventory: PlayerProgress["medicineInventory"] = {
-    clear_heart_pill: 1
+    clear_heart_countermeasure: 1
   }
 ): PlayerProgress {
   const ids = autoMedicineCorruptionScenarioIds;

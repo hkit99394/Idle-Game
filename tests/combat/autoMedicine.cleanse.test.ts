@@ -191,7 +191,7 @@ describe("auto medicine cleanse", () => {
       isAutoMedicineUnlocked({
         medicines: medicineDefinitions,
         inventory: {
-          clear_heart_pill: 1
+          clear_heart_countermeasure: 1
         }
       })
     ).toBe(true);
@@ -201,7 +201,7 @@ describe("auto medicine cleanse", () => {
     const result = applyAutoCleanseMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        clear_heart_pill: 1
+        clear_heart_countermeasure: 1
       },
       activeStatuses: [status("corruption")],
       statusDefinitions,
@@ -211,7 +211,7 @@ describe("auto medicine cleanse", () => {
 
     expect(result).toMatchObject({
       inventory: {
-        clear_heart_pill: 1
+        clear_heart_countermeasure: 1
       },
       usedMedicine: null,
       skippedReason: "automation_locked"
@@ -225,19 +225,19 @@ describe("auto medicine cleanse", () => {
       selectAutoCleanseMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          clear_heart_pill: 1,
-          purity_draught: 1
+          clear_heart_countermeasure: 1,
+          purity_countermeasure: 1
         },
         activeStatuses,
         statusDefinitions
       })?.id
-    ).toBe("clear_heart_pill");
+    ).toBe("clear_heart_countermeasure");
 
     const result = applyAutoCleanseMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        clear_heart_pill: 1,
-        purity_draught: 1
+        clear_heart_countermeasure: 1,
+        purity_countermeasure: 1
       },
       activeStatuses,
       statusDefinitions,
@@ -246,11 +246,11 @@ describe("auto medicine cleanse", () => {
 
     expect(result.usedMedicine).toMatchObject({
       trigger: "battle_cleanse",
-      medicineId: "clear_heart_pill",
+      medicineId: "clear_heart_countermeasure",
       cleansedStatusIds: ["corruption", "trauma"]
     });
-    expect(result.inventory.clear_heart_pill).toBeUndefined();
-    expect(result.inventory.purity_draught).toBe(1);
+    expect(result.inventory.clear_heart_countermeasure).toBeUndefined();
+    expect(result.inventory.purity_countermeasure).toBe(1);
     expect(result.statuses).toEqual([]);
   });
 
@@ -258,8 +258,8 @@ describe("auto medicine cleanse", () => {
     const result = applyAutoCleanseMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        clear_heart_pill: 1,
-        purity_draught: 1
+        clear_heart_countermeasure: 1,
+        purity_countermeasure: 1
       },
       activeStatuses: [status("context_suppression")],
       statusDefinitions,
@@ -268,13 +268,13 @@ describe("auto medicine cleanse", () => {
 
     expect(result.usedMedicine).toMatchObject({
       trigger: "post_battle_cleanse",
-      medicineId: "purity_draught",
+      medicineId: "purity_countermeasure",
       cleansedStatusIds: ["context_suppression"],
       statusResistanceBonus: 0.08,
       statusResistanceDurationSeconds: 10
     });
-    expect(result.inventory.clear_heart_pill).toBe(1);
-    expect(result.inventory.purity_draught).toBeUndefined();
+    expect(result.inventory.clear_heart_countermeasure).toBe(1);
+    expect(result.inventory.purity_countermeasure).toBeUndefined();
     expect(result.statuses).toEqual([]);
   });
 
@@ -286,7 +286,7 @@ describe("auto medicine cleanse", () => {
     ];
     const disabledClearHeartPill = setMedicineAutoUsePreference(
       undefined,
-      "clear_heart_pill",
+      "clear_heart_countermeasure",
       false
     );
 
@@ -294,20 +294,20 @@ describe("auto medicine cleanse", () => {
       selectAutoCleanseMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          clear_heart_pill: 1,
-          purity_draught: 1
+          clear_heart_countermeasure: 1,
+          purity_countermeasure: 1
         },
         activeStatuses,
         statusDefinitions,
         preferences: disabledClearHeartPill
       })?.id
-    ).toBe("purity_draught");
+    ).toBe("purity_countermeasure");
 
     const result = applyAutoCleanseMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        clear_heart_pill: 1,
-        purity_draught: 1
+        clear_heart_countermeasure: 1,
+        purity_countermeasure: 1
       },
       activeStatuses,
       statusDefinitions,
@@ -315,13 +315,13 @@ describe("auto medicine cleanse", () => {
       preferences: disabledClearHeartPill
     });
 
-    expect(result.usedMedicine?.medicineId).toBe("purity_draught");
-    expect(result.inventory.clear_heart_pill).toBe(1);
-    expect(result.inventory.purity_draught).toBeUndefined();
+    expect(result.usedMedicine?.medicineId).toBe("purity_countermeasure");
+    expect(result.inventory.clear_heart_countermeasure).toBe(1);
+    expect(result.inventory.purity_countermeasure).toBeUndefined();
 
     const reenabledClearHeartPill = setMedicineAutoUsePreference(
       disabledClearHeartPill,
-      "clear_heart_pill",
+      "clear_heart_countermeasure",
       true
     );
 
@@ -329,14 +329,14 @@ describe("auto medicine cleanse", () => {
       selectAutoCleanseMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          clear_heart_pill: 1,
-          purity_draught: 1
+          clear_heart_countermeasure: 1,
+          purity_countermeasure: 1
         },
         activeStatuses,
         statusDefinitions,
         preferences: reenabledClearHeartPill
       })?.id
-    ).toBe("clear_heart_pill");
+    ).toBe("clear_heart_countermeasure");
   });
 
   it("does not consume medicine when there is no matching trigger", () => {
@@ -344,7 +344,7 @@ describe("auto medicine cleanse", () => {
       applyAutoCleanseMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          clear_heart_pill: 1
+          clear_heart_countermeasure: 1
         },
         activeStatuses: [status("context_suppression")],
         statusDefinitions,
@@ -352,7 +352,7 @@ describe("auto medicine cleanse", () => {
       })
     ).toMatchObject({
       inventory: {
-        clear_heart_pill: 1
+        clear_heart_countermeasure: 1
       },
       usedMedicine: null,
       skippedReason: "no_owned_match"
@@ -362,7 +362,7 @@ describe("auto medicine cleanse", () => {
       applyAutoPreBattleResistanceMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          quiet_meridian_powder: 1
+          quiet_context_powder: 1
         },
         stage: getStage("greenline_approach_1"),
         enemies: enemyDefinitions,
@@ -371,7 +371,7 @@ describe("auto medicine cleanse", () => {
       })
     ).toMatchObject({
       inventory: {
-        quiet_meridian_powder: 1
+        quiet_context_powder: 1
       },
       usedMedicine: null,
       skippedReason: "no_status_pressure"
@@ -383,15 +383,15 @@ describe("auto medicine cleanse", () => {
     const firstUse = applyAutoCleanseMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        clear_heart_pill: 2
+        clear_heart_countermeasure: 2
       },
       activeStatuses: [poisoned],
       statusDefinitions,
       trigger: "battle_cleanse"
     });
 
-    expect(firstUse.usedMedicine?.medicineId).toBe("clear_heart_pill");
-    expect(firstUse.inventory.clear_heart_pill).toBe(1);
+    expect(firstUse.usedMedicine?.medicineId).toBe("clear_heart_countermeasure");
+    expect(firstUse.inventory.clear_heart_countermeasure).toBe(1);
 
     const secondUse = applyAutoCleanseMedicine({
       medicines: medicineDefinitions,
@@ -404,7 +404,7 @@ describe("auto medicine cleanse", () => {
 
     expect(secondUse).toMatchObject({
       inventory: {
-        clear_heart_pill: 1
+        clear_heart_countermeasure: 1
       },
       usedMedicine: null,
       skippedReason: "no_owned_match"

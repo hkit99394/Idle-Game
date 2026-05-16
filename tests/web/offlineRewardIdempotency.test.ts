@@ -146,7 +146,7 @@ describe("offline reward idempotency", () => {
     const firstLoadAtMs = savedAtMs + 10 * 60 * 60 * 1000;
     const assigned = setAssignmentHeroes(staticData, {
       progress,
-      assignmentId: "bamboo_road_patrol",
+      assignmentId: "greenline_sweep",
       heroIds: ["iron_fist_initiate"]
     });
 
@@ -193,7 +193,7 @@ describe("offline reward idempotency", () => {
     expect(firstLoad.activeSave.progress.maps.greenline_approach.combatExperience).toBeCloseTo(
       19.2
     );
-    expect(firstLoad.activeSave.progress.equipment?.inventory.training_wraps).toBe(1);
+    expect(firstLoad.activeSave.progress.equipment?.inventory.impact_training_wraps).toBe(1);
     expect(savedAfterFirstLoad.save.updatedAtMs).toBe(firstLoadAtMs);
     expect(savedAfterFirstLoad.save.lastOfflineRewardAtMs).toBe(firstLoadAtMs);
 
@@ -202,7 +202,7 @@ describe("offline reward idempotency", () => {
       assignments: []
     });
     expect(secondLoad.activeSave.progress.resources.silver).toBeCloseTo(115.2);
-    expect(secondLoad.activeSave.progress.equipment?.inventory.training_wraps).toBe(1);
+    expect(secondLoad.activeSave.progress.equipment?.inventory.impact_training_wraps).toBe(1);
   });
 
   it("grants medicine assignment herbs once with the same timestamp guard", () => {
@@ -218,7 +218,7 @@ describe("offline reward idempotency", () => {
 
     const assigned = setAssignmentHeroes(staticData, {
       progress,
-      assignmentId: "lotus_medicine_pavilion",
+      assignmentId: "lotus_countermeasure_pavilion",
       heroIds: ["mountain_brace_guardian"]
     });
 
@@ -254,12 +254,12 @@ describe("offline reward idempotency", () => {
 
     expect(firstLoad.offlineAssignmentRewards?.rewards.herbs).toBeCloseTo(86.4);
     expect(firstLoad.activeSave.progress.resources.herbs).toBeCloseTo(86.4);
-    expect(firstLoad.activeSave.progress.equipment?.inventory.lotus_dew_pill).toBe(1);
+    expect(firstLoad.activeSave.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(1);
     expect(secondLoad.offlineAssignmentRewards?.rewards).toMatchObject({
       offlineSeconds: 0,
       assignments: []
     });
     expect(secondLoad.activeSave.progress.resources.herbs).toBeCloseTo(86.4);
-    expect(secondLoad.activeSave.progress.equipment?.inventory.lotus_dew_pill).toBe(1);
+    expect(secondLoad.activeSave.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(1);
   });
 });

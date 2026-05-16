@@ -95,7 +95,7 @@ describe("stage clear rewards", () => {
     expect(result.progress.resources.herbs).toBe(6);
     expect(result.equipmentRewards).toEqual([
       {
-        equipmentId: "lotus_dew_pill",
+        equipmentId: "lotus_dew_countermeasure",
         quantity: 1
       }
     ]);

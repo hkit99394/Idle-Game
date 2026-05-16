@@ -5,7 +5,7 @@ import type {
 } from "../data/types";
 import type { BattleTacticSummary, CombatantState, TargetRule } from "./types";
 
-export const DEFAULT_TACTIC_ID = "balanced";
+export const DEFAULT_TACTIC_ID = "balanced_routine";
 
 const FALLBACK_BALANCED_TACTIC: TacticPresetDefinition = {
   id: DEFAULT_TACTIC_ID,

@@ -1,6 +1,6 @@
 [
   {
-    "id": "balanced",
+    "id": "balanced_routine",
     "name": "Balanced Routine",
     "description": "Use current skill targeting and combat pacing without routine modifiers.",
     "isDefault": true,
@@ -8,7 +8,7 @@
     "modifiers": []
   },
   {
-    "id": "outer_pressure",
+    "id": "kinetic_crush",
     "name": "Kinetic Crush",
     "description": "Press weakened hostiles and convert pressure into faster Body Integrity clears.",
     "behaviorFlags": ["targeting", "damage"],
@@ -21,7 +21,7 @@
     ]
   },
   {
-    "id": "inner_pressure",
+    "id": "context_break",
     "name": "Context Break",
     "description": "Pressure Context Stability, exploit overloaded hostiles, and threaten high-value targets.",
     "behaviorFlags": ["targeting", "damage"],
@@ -38,7 +38,7 @@
     ]
   },
   {
-    "id": "guard_support",
+    "id": "guard_the_stabilizer",
     "name": "Guard The Stabilizer",
     "description": "Bias the crew toward keeping stabilizers and backline allies alive.",
     "behaviorFlags": ["defense"],
@@ -54,7 +54,7 @@
     ]
   },
   {
-    "id": "sustain",
+    "id": "long_stabilization",
     "name": "Long Stabilization",
     "description": "Favor recovery and countermeasure posture for longer pressure fights.",
     "behaviorFlags": ["recovery", "medicine"],
@@ -70,7 +70,7 @@
     ]
   },
   {
-    "id": "boss_burst",
+    "id": "gatekeeper_burst",
     "name": "Gatekeeper Burst",
     "description": "Focus high-value threats for decisive elite and gatekeeper clear attempts.",
     "behaviorFlags": ["targeting", "damage"],

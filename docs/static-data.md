@@ -39,7 +39,7 @@ Internal id migration is now planned in [Path Of Neon Internal Id Migration](pat
 
 Stage 2.1 tactic presets live in [tactics.json](../data/tactics.json) and are part of the canonical `StaticGameData` bundle.
 
-- `balanced` must be the single default tactic and must not define behavior flags, target priorities, or modifiers.
+- `balanced_routine` must be the single default tactic and must not define behavior flags, target priorities, or modifiers.
 - Non-default tactics must define behavior flags such as `targeting`, `damage`, `defense`, `recovery`, or `medicine`.
 - `targetPriorities` must use supported combat target rules.
 - `modifiers` must use supported tactic modifier types and validated value ranges.

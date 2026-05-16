@@ -65,7 +65,12 @@ const landedStaticRenameKinds = new Set<ContentIdAliasKind>([
   "skill_upgrade",
   "style",
   "style_branch",
-  "status"
+  "augment",
+  "augment_set",
+  "countermeasure",
+  "status",
+  "operation",
+  "routine"
 ]);
 
 function parsePreflightRows(): PreflightRow[] {
@@ -302,7 +307,7 @@ describe("content id compatibility aliases", () => {
     }
   });
 
-  it("keeps landed 91.4/91.5 ids canonical while later static rename slices wait", () => {
+  it("keeps landed 91.4/91.5/91.6 ids canonical", () => {
     expect(staticData.enemies.map((enemy) => enemy.id)).toContain(
       "greenline_cutter"
     );
@@ -321,8 +326,20 @@ describe("content id compatibility aliases", () => {
     expect(staticData.styles.map((style) => style.id)).toContain(
       "impact"
     );
+    expect(staticData.equipment.map((equipment) => equipment.id)).toContain(
+      "impact_training_wraps"
+    );
+    expect(staticData.equipmentSets?.map((set) => set.id)).toContain(
+      "ironwall_ward"
+    );
+    expect(staticData.medicines.map((medicine) => medicine.id)).toContain(
+      "clear_heart_countermeasure"
+    );
+    expect(staticData.assignments?.map((assignment) => assignment.id)).toContain(
+      "greenline_sweep"
+    );
     expect(staticData.tactics.map((tactic) => tactic.id)).toContain(
-      "outer_pressure"
+      "kinetic_crush"
     );
     expect(staticData.enemies.map((enemy) => enemy.id)).not.toContain(
       "bamboo_bandit"
@@ -341,6 +358,21 @@ describe("content id compatibility aliases", () => {
     );
     expect(staticData.styles.map((style) => style.id)).not.toContain(
       "fist"
+    );
+    expect(staticData.equipment.map((equipment) => equipment.id)).not.toContain(
+      "training_wraps"
+    );
+    expect(staticData.equipmentSets?.map((set) => set.id)).not.toContain(
+      "black_iron_ward"
+    );
+    expect(staticData.medicines.map((medicine) => medicine.id)).not.toContain(
+      "clear_heart_pill"
+    );
+    expect(staticData.assignments?.map((assignment) => assignment.id)).not.toContain(
+      "bamboo_road_patrol"
+    );
+    expect(staticData.tactics.map((tactic) => tactic.id)).not.toContain(
+      "outer_pressure"
     );
 
     expect(normalizeContentId("hostile", "bamboo_bandit")).toBe(

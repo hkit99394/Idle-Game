@@ -1,6 +1,6 @@
 [
   {
-    "id": "training_wraps",
+    "id": "impact_training_wraps",
     "name": "Impact Training Wraps",
     "slot": "weapon",
     "rarity": "common",
@@ -11,7 +11,7 @@
     ]
   },
   {
-    "id": "willow_palm_manual",
+    "id": "willow_pulse_protocol",
     "name": "Willow Pulse Protocol",
     "slot": "manual",
     "rarity": "common",
@@ -22,7 +22,7 @@
     ]
   },
   {
-    "id": "crane_edge_sword",
+    "id": "crane_edge_cutter",
     "name": "Crane Edge Cutter",
     "slot": "weapon",
     "rarity": "uncommon",
@@ -33,7 +33,7 @@
     ]
   },
   {
-    "id": "guardian_staff",
+    "id": "guardian_brace_staff",
     "name": "Guardian Brace Staff",
     "slot": "weapon",
     "rarity": "uncommon",
@@ -44,7 +44,7 @@
     ]
   },
   {
-    "id": "woven_travel_robe",
+    "id": "woven_travel_plating",
     "name": "Woven Travel Plating",
     "slot": "armor",
     "rarity": "common",
@@ -55,7 +55,7 @@
     ]
   },
   {
-    "id": "calming_breath_pill",
+    "id": "calming_context_stim",
     "name": "Calming Context Stim",
     "slot": "medicine",
     "rarity": "common",
@@ -66,7 +66,7 @@
     ]
   },
   {
-    "id": "mist_needle_case",
+    "id": "veil_needle_case",
     "name": "Veil Needle Case",
     "slot": "weapon",
     "rarity": "uncommon",
@@ -77,7 +77,7 @@
     ]
   },
   {
-    "id": "veil_palm_manual",
+    "id": "veil_pulse_protocol",
     "name": "Veil Pulse Protocol",
     "slot": "manual",
     "rarity": "uncommon",
@@ -88,12 +88,12 @@
     ]
   },
   {
-    "id": "iron_thread_armor",
+    "id": "iron_thread_plating",
     "name": "Iron Thread Plating",
     "slot": "armor",
     "rarity": "rare",
     "allowedStyles": ["impact", "rend", "brace"],
-    "setId": "black_iron_ward",
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.14 },
       { "stat": "outerDefense", "mode": "multiplier", "value": 0.16 },
@@ -110,12 +110,12 @@
     ]
   },
   {
-    "id": "black_iron_saber_blade",
+    "id": "black_iron_saber",
     "name": "Black Iron Saber",
     "slot": "weapon",
     "rarity": "rare",
     "allowedStyles": ["edge", "rend"],
-    "setId": "black_iron_ward",
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.14 },
       { "stat": "breakPower", "mode": "flat", "value": 0.015 }
@@ -131,12 +131,12 @@
     ]
   },
   {
-    "id": "fortress_guard_manual",
+    "id": "fortress_guard_protocol",
     "name": "Fortress Guard Protocol",
     "slot": "manual",
     "rarity": "uncommon",
     "allowedStyles": ["impact", "brace"],
-    "setId": "black_iron_ward",
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.08 },
       { "stat": "outerDefense", "mode": "multiplier", "value": 0.08 }
@@ -152,12 +152,12 @@
     ]
   },
   {
-    "id": "tempered_meridian_pill",
+    "id": "tempered_context_stim",
     "name": "Tempered Context Stim",
     "slot": "medicine",
     "rarity": "uncommon",
     "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
-    "setId": "black_iron_ward",
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.07 },
       { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.08 }
@@ -173,7 +173,7 @@
     ]
   },
   {
-    "id": "lotus_dew_pill",
+    "id": "lotus_dew_countermeasure",
     "name": "Lotus Dew Countermeasure",
     "slot": "medicine",
     "rarity": "common",
@@ -184,7 +184,7 @@
     ]
   },
   {
-    "id": "mending_poultice",
+    "id": "mending_patch",
     "name": "Mending Patch",
     "slot": "medicine",
     "rarity": "uncommon",

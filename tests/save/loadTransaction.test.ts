@@ -173,7 +173,7 @@ describe("save load transaction", () => {
   it("applies offline assignment rewards in core and advances timestamps once", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.assignments = {
-      bamboo_road_patrol: {
+      greenline_sweep: {
         heroIds: ["iron_fist_initiate"]
       }
     };
@@ -192,7 +192,7 @@ describe("save load transaction", () => {
     expect(firstLoad.writeReasons).toEqual(["offlineAssignmentsApplied"]);
     expect(firstLoad.offlineAssignmentRewards?.rewards.assignments).toEqual([
       expect.objectContaining({
-        assignmentId: "bamboo_road_patrol",
+        assignmentId: "greenline_sweep",
         heroIds: ["iron_fist_initiate"]
       })
     ]);

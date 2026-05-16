@@ -100,9 +100,9 @@ These are not accepted silent noise. The active authority is this inventory, [ba
 
 Epic 71 did not retune content. The tactic comparison export keeps known debt visible and adds row-level shift labels:
 
-- `redline_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `inner_pressure` or `boss_burst`, marked as `budgetShift: improved_existing_miss`.
-- `redline_outpost_7` is untargeted by clear-time budgets, but `inner_pressure` and `boss_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
-- `sustain` preserves the Redline boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
+- `redline_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `context_break` or `gatekeeper_burst`, marked as `budgetShift: improved_existing_miss`.
+- `redline_outpost_7` is untargeted by clear-time budgets, but `context_break` and `gatekeeper_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
+- `long_stabilization` preserves the Redline boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
 
 ## Stage 2.0 Closure Notes
 

@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.5 are complete: the content-id preflight, alias data, save-version migration, hostile/status static rename, and initiate/protocol/style static rename are now in place.
+Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.6 are complete: the content-id preflight, alias data, save-version migration, hostile/status static rename, initiate/protocol/style static rename, and augment/countermeasure/operation/routine static rename are now in place.
 
 This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
 
@@ -92,7 +92,7 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 | 91.3 | Save Version And Content Id Migration | Complete | Bump save version and migrate old content ids in saves/imports/browser storage |
 | 91.4 | Hostile And Status Static Rename | Complete | Rename enemy/family/status ids and battle/status static references |
 | 91.5 | Initiate, Protocol, And Style Static Rename | Complete | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
-| 91.6 | Augment, Countermeasure, Operation, And Routine Static Rename | Planned | Rename equipment, set, medicine, assignment, and tactic ids plus direct references |
+| 91.6 | Augment, Countermeasure, Operation, And Routine Static Rename | Complete | Rename equipment, set, medicine, assignment, and tactic ids plus direct references |
 | 91.7 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
 | 91.8 | Content Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
 
@@ -222,7 +222,7 @@ Migrate old content ids in persisted saves without changing unrelated save field
 - Bumped `SAVE_DATA_VERSION` to `12` and retained version `11` as a supported legacy version.
 - Added data-aware content-id normalization across every save-stored Stage 2.6 content-id field: heroes, active team ids, formation keys, style mastery, style branches, skill upgrades, equipment inventory/equipped ids, medicine inventory, assignment ids and hero ids, selected tactic values, and auto-medicine disabled medicine ids.
 - Kept save field names, resources, combat stat fields, region/stage compatibility, browser storage keys, and report field names unchanged.
-- Static data still uses legacy content ids for the remaining 91.6 categories. During that transition, current-version imports using target aliases normalize back to the configured id side for categories that have not landed yet; after each static data rename lands, old saves normalize forward to target ids through the same helper path.
+- The migration helper supports both sides of each alias during static rename sequencing: before an owning rename lands it can normalize target aliases back to the configured id side, and after the rename lands it normalizes old saves forward to target ids through the same helper path.
 - Added focused save migration and browser storage import coverage for content aliases, including current-version import normalization and legacy version `11` migration against target-id static data.
 
 ---
@@ -304,13 +304,15 @@ Make hero, skill, skill-upgrade, style, and style-branch ids canonical.
 
 - Renamed canonical initiate ids, protocol ids, skill-upgrade ids, style ids, and style-branch ids through the approved 91.1 target table.
 - Updated direct references in heroes, enemies, skill upgrades, styles, equipment `allowedStyles`, assignment `allowedStyles`, style branch unlocks, starter roster defaults, formation defaults, fallback combat skill selection, and balance formation scenarios.
-- Preserved 91.6 ids for augments, countermeasures, operations, and routines while ensuring current-version imports normalize 91.5 aliases forward and 91.6 target aliases back to the configured side.
+- Kept the remaining augment, countermeasure, operation, and routine aliases isolated for the dedicated 91.6 static rename slice.
 - Kept legacy save fixtures intentionally legacy so versioned migration coverage proves old teams, formations, style mastery, style branches, and skill-upgrade progress migrate to canonical ids.
 - Updated web progression, equipment compatibility, display terms, combat, offline rewards, save storage, and compatibility snapshots to use canonical 91.5 ids.
 
 ---
 
 ## Slice 91.6: Augment, Countermeasure, Operation, And Routine Static Rename
+
+Status: complete.
 
 ### Goal
 
@@ -340,6 +342,14 @@ Make equipment, equipment-set, medicine, assignment, and tactic ids canonical.
 - Assignment/offline reward tests.
 - Tactic comparison tests.
 - Web workflow/save tests.
+
+### Completion Notes
+
+- Renamed canonical augment, augment-set, countermeasure, operation, and routine ids through `data/equipment.json`, `data/equipmentSets.json`, `data/medicines.json`, `data/assignments.json`, and `data/tactics.json`.
+- Updated direct static references in stage equipment drops, assignment equipment rewards, equipment `setId`, runtime default tactic selection, static validation, web view models, simulator tactic comparison expectations, and save/import workflows.
+- Preserved the persisted `selectedTacticId` save field name while migrating stored values such as `outer_pressure` to `kinetic_crush` and defaulting new progress to `balanced_routine`.
+- Kept legacy fixture inputs and alias-map tests intentionally old so equipment inventory, equipped slots, medicine inventory, disabled medicine ids, assignment progress, and selected tactic values continue to prove compatibility.
+- Verified focused compatibility/save tests and the broader combat, progression, offline, web, balance, counterplay, and tools suites after the rename.
 
 ---
 

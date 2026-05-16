@@ -70,7 +70,7 @@ describe("save schema validation", () => {
     const save = createSaveData({
       progress: {
         ...progress,
-        selectedTacticId: "outer_pressure"
+        selectedTacticId: "kinetic_crush"
       },
       selectedOfflineFarmStageId: null,
       nowMs: 1000
@@ -95,7 +95,7 @@ describe("save schema validation", () => {
       ok: true,
       save: {
         progress: {
-          selectedTacticId: "outer_pressure"
+          selectedTacticId: "kinetic_crush"
         }
       }
     });
@@ -104,7 +104,7 @@ describe("save schema validation", () => {
       save: {
         version: SAVE_DATA_VERSION,
         progress: {
-          selectedTacticId: "balanced"
+          selectedTacticId: "balanced_routine"
         }
       },
       migration: {
@@ -121,7 +121,7 @@ describe("save schema validation", () => {
       ok: true,
       save: {
         progress: {
-          selectedTacticId: "balanced"
+          selectedTacticId: "balanced_routine"
         }
       },
       migration: {

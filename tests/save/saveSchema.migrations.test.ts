@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   createInitialPlayerProgress,
   createSaveData,
-  CONTENT_ID_ALIASES,
   migrateSaveData,
   MVP_PLAYER_HERO_IDS,
   parseSaveData,
@@ -60,7 +59,7 @@ describe("save schema migrations", () => {
       ).toBeGreaterThanOrEqual(result.save.createdAtMs);
       expect(result.save.offlineFarmPreset, fixture.description).toBe("balanced");
       expect(result.save.progress.selectedTacticId, fixture.description).toBe(
-        "balanced"
+        "balanced_routine"
       );
       expect(result.save.autoMedicinePreferences.preBattleResistanceMode).toBe(
         "boss_and_elite"
@@ -161,10 +160,14 @@ describe("save schema migrations", () => {
       "lotus_stabilizer"
     );
     expect(result.save.progress.equipment?.inventory).toMatchObject({
-      tempered_meridian_pill: 1
+      tempered_context_stim: 1
     });
-    expect(result.save.progress.equipment?.inventory.lotus_dew_pill).toBeUndefined();
-    expect(result.save.progress.assignments?.lotus_medicine_pavilion).toBeUndefined();
+    expect(
+      result.save.progress.equipment?.inventory.lotus_dew_countermeasure
+    ).toBeUndefined();
+    expect(
+      result.save.progress.assignments?.lotus_countermeasure_pavilion
+    ).toBeUndefined();
     expect(result.save.selectedOfflineFarmStageId).toBe("black_iron_foundry_6");
   });
 
@@ -374,25 +377,25 @@ describe("save schema migrations", () => {
     });
     expect(result.save.progress.equipment).toEqual({
       inventory: {
-        training_wraps: 1
+        impact_training_wraps: 1
       },
       equipped: {
         iron_fist_initiate: {
-          weapon: "training_wraps"
+          weapon: "impact_training_wraps"
         }
       }
     });
     expect(result.save.progress.medicineInventory).toEqual({
-      clear_heart_pill: 2
+      clear_heart_countermeasure: 2
     });
     expect(result.save.progress.assignments).toEqual({
-      bamboo_road_patrol: {
+      greenline_sweep: {
         heroIds: ["iron_fist_initiate"]
       }
     });
-    expect(result.save.progress.selectedTacticId).toBe("outer_pressure");
+    expect(result.save.progress.selectedTacticId).toBe("kinetic_crush");
     expect(result.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
-      "clear_heart_pill"
+      "clear_heart_countermeasure"
     ]);
     expect(result.migration.migrated).toBe(false);
     expect(result.migration.normalized).toBe(true);
@@ -411,11 +414,7 @@ describe("save schema migrations", () => {
           reason: "normalized content id alias"
         },
         {
-          field: "progress.selectedTacticId",
-          reason: "normalized content id alias"
-        },
-        {
-          field: "autoMedicinePreferences.disabledMedicineIds.1",
+          field: "autoMedicinePreferences.disabledMedicineIds.0",
           reason: "normalized content id alias"
         }
       ])
@@ -431,8 +430,7 @@ describe("save schema migrations", () => {
     expect(secondParse.save).toEqual(result.save);
   });
 
-  it("migrates legacy content ids to target ids when static data has moved", () => {
-    const futureData = createContentTargetStaticData();
+  it("migrates legacy content ids to target ids", () => {
     const progress = createInitialPlayerProgress(staticData);
     const rawSave = {
       ...createSaveData({
@@ -492,7 +490,7 @@ describe("save schema migrations", () => {
       }),
       version: 11
     };
-    const migration = migrateSaveData(futureData, rawSave);
+    const migration = migrateSaveData(staticData, rawSave);
 
     expect(migration.ok).toBe(true);
     if (!migration.ok) {
@@ -672,14 +670,14 @@ describe("save schema migrations", () => {
       ...save,
       autoMedicinePreferences: {
         ...save.autoMedicinePreferences,
-        disabledMedicineIds: ["clear_heart_pill"]
+        disabledMedicineIds: ["clear_heart_countermeasure"]
       }
     };
     const invalidSave = {
       ...validSave,
       autoMedicinePreferences: {
         ...validSave.autoMedicinePreferences,
-        disabledMedicineIds: ["clear_heart_pill", "missing_medicine"]
+        disabledMedicineIds: ["clear_heart_countermeasure", "missing_medicine"]
       }
     };
     const result = parseSaveData(staticData, validSave);
@@ -690,7 +688,7 @@ describe("save schema migrations", () => {
       return;
     }
     expect(result.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
-      "clear_heart_pill"
+      "clear_heart_countermeasure"
     ]);
     expect(validateSaveData(staticData, invalidSave)).toContain(
       "autoMedicinePreferences.disabledMedicineIds.1 must reference an existing medicine"
@@ -989,14 +987,14 @@ describe("save schema migrations", () => {
         equipment: {
           inventory: {
             missing_equipment: 1,
-            training_wraps: 1.5
+            impact_training_wraps: 1.5
           },
           equipped: {
             missing_hero: {
-              weapon: "training_wraps"
+              weapon: "impact_training_wraps"
             },
             iron_fist_disciple: {
-              trinket: "training_wraps",
+              trinket: "impact_training_wraps",
               armor: "missing_equipment"
             }
           }
@@ -1008,7 +1006,7 @@ describe("save schema migrations", () => {
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
         "progress.equipment.inventory.missing_equipment must reference an existing equipment item",
-        "progress.equipment.inventory.training_wraps must be an integer >= 0",
+        "progress.equipment.inventory.impact_training_wraps must be an integer >= 0",
         "progress.equipment.equipped.missing_hero must reference an existing hero",
         "progress.equipment.equipped.iron_fist_initiate.trinket must be weapon, armor, manual, or medicine",
         "progress.equipment.equipped.iron_fist_initiate.armor must reference an existing equipment item"
@@ -1052,92 +1050,11 @@ describe("save schema migrations", () => {
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
         "progress.assignments.missing_assignment must reference an existing assignment",
-        "progress.assignments.bamboo_road_patrol.heroIds.missing_hero must reference an existing hero",
-        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_initiate is already assigned",
-        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_initiate is not eligible",
-        "progress.assignments.mist_valley_meditation must be unlocked by saved progress"
+        "progress.assignments.greenline_sweep.heroIds.missing_hero must reference an existing hero",
+        "progress.assignments.veil_district_calibration.heroIds.iron_fist_initiate is already assigned",
+        "progress.assignments.veil_district_calibration.heroIds.iron_fist_initiate is not eligible",
+        "progress.assignments.veil_district_calibration must be unlocked by saved progress"
       ])
     );
   });
 });
-
-function createContentTargetStaticData(): typeof staticData {
-  const targetIdFor = (kind: string, id: string): string =>
-    CONTENT_ID_ALIASES.find(
-      (alias) => alias.kind === kind && alias.legacyId === id
-    )?.targetId ?? id;
-
-  return {
-    ...staticData,
-    heroes: staticData.heroes.map((hero) => ({
-      ...hero,
-      id: targetIdFor("initiate", hero.id),
-      style: targetIdFor("style", hero.style) as typeof hero.style
-    })),
-    styles: staticData.styles.map((style) => ({
-      ...style,
-      id: targetIdFor("style", style.id) as typeof style.id,
-      branches: style.branches.map((branch) => ({
-        ...branch,
-        id: targetIdFor("style_branch", branch.id),
-        unlock:
-          branch.unlock.type === "hero_level"
-            ? {
-                ...branch.unlock,
-                heroId: targetIdFor("initiate", branch.unlock.heroId)
-              }
-            : branch.unlock.type === "style_mastery_level"
-              ? {
-                  ...branch.unlock,
-                  styleId: targetIdFor(
-                    "style",
-                    branch.unlock.styleId
-                  ) as typeof branch.unlock.styleId
-                }
-              : branch.unlock
-      }))
-    })),
-    skillUpgrades: staticData.skillUpgrades.map((upgrade) => ({
-      ...upgrade,
-      id: targetIdFor("skill_upgrade", upgrade.id),
-      skillId: targetIdFor("protocol", upgrade.skillId)
-    })),
-    equipment: staticData.equipment.map((equipment) => ({
-      ...equipment,
-      id: targetIdFor("augment", equipment.id),
-      allowedStyles: equipment.allowedStyles.map((styleId) =>
-        targetIdFor("style", styleId)
-      ) as typeof equipment.allowedStyles,
-      setId: equipment.setId
-        ? targetIdFor("augment_set", equipment.setId)
-        : undefined
-    })),
-    equipmentSets: (staticData.equipmentSets ?? []).map((set) => ({
-      ...set,
-      id: targetIdFor("augment_set", set.id)
-    })),
-    medicines: staticData.medicines.map((medicine) => ({
-      ...medicine,
-      id: targetIdFor("countermeasure", medicine.id)
-    })),
-    assignments: (staticData.assignments ?? []).map((assignment) => ({
-      ...assignment,
-      id: targetIdFor("operation", assignment.id),
-      allowedStyles: assignment.allowedStyles.map((styleId) =>
-        targetIdFor("style", styleId)
-      ) as typeof assignment.allowedStyles,
-      rewardProfile: {
-        ...assignment.rewardProfile,
-        equipmentRewardsPerHour:
-          assignment.rewardProfile.equipmentRewardsPerHour?.map((reward) => ({
-            ...reward,
-            equipmentId: targetIdFor("augment", reward.equipmentId)
-          }))
-      }
-    })),
-    tactics: staticData.tactics.map((tactic) => ({
-      ...tactic,
-      id: targetIdFor("routine", tactic.id)
-    }))
-  };
-}

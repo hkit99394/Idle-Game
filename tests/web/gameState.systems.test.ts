@@ -133,7 +133,7 @@ describe("web game state systems", () => {
         ...state.progress,
         equipment: {
           inventory: {
-            training_wraps: 1
+            impact_training_wraps: 1
           },
           equipped: {}
         }
@@ -142,7 +142,7 @@ describe("web game state systems", () => {
     const viewModel = getWebGameViewModel(staticData, lootState);
 
     expect(viewModel.equipmentInventory[0]).toMatchObject({
-      equipmentId: "training_wraps",
+      equipmentId: "impact_training_wraps",
       name: "Impact Training Wraps",
       slot: "weapon",
       rarity: "common",
@@ -156,7 +156,7 @@ describe("web game state systems", () => {
     )?.combatPower;
     const equippedState = equipGameEquipment(staticData, lootState, {
       heroId: "iron_fist_initiate",
-      equipmentId: "training_wraps"
+      equipmentId: "impact_training_wraps"
     });
 
     expect(equippedState.lastEquipmentAction?.ok).toBe(true);
@@ -170,7 +170,7 @@ describe("web game state systems", () => {
       expect.arrayContaining([
         expect.objectContaining({
           slot: "weapon",
-          equipmentId: "training_wraps",
+          equipmentId: "impact_training_wraps",
           name: "Impact Training Wraps",
           rarity: "common"
         })
@@ -191,8 +191,8 @@ describe("web game state systems", () => {
         ...state.progress,
         equipment: {
           inventory: {
-            iron_thread_armor: 1,
-            fortress_guard_manual: 1
+            iron_thread_plating: 1,
+            fortress_guard_protocol: 1
           },
           equipped: {}
         }
@@ -200,7 +200,7 @@ describe("web game state systems", () => {
     });
     const inventoryViewModel = getWebGameViewModel(staticData, lootState);
     const armorView = inventoryViewModel.equipmentInventory.find(
-      (item) => item.equipmentId === "iron_thread_armor"
+      (item) => item.equipmentId === "iron_thread_plating"
     );
 
     expect(armorView).toMatchObject({
@@ -215,11 +215,11 @@ describe("web game state systems", () => {
 
     const armorState = equipGameEquipment(staticData, lootState, {
       heroId: "iron_fist_initiate",
-      equipmentId: "iron_thread_armor"
+      equipmentId: "iron_thread_plating"
     });
     const manualState = equipGameEquipment(staticData, armorState, {
       heroId: "iron_fist_initiate",
-      equipmentId: "fortress_guard_manual"
+      equipmentId: "fortress_guard_protocol"
     });
     const equippedViewModel = getWebGameViewModel(staticData, manualState);
     const heroView = equippedViewModel.heroEquipment.find(
@@ -236,18 +236,18 @@ describe("web game state systems", () => {
   it("shows and updates patrol assignments", () => {
     const state = createInitialWebGameState(staticData);
     const assignedState = setGameAssignmentHeroes(staticData, state, {
-      assignmentId: "bamboo_road_patrol",
+      assignmentId: "greenline_sweep",
       heroIds: ["iron_fist_initiate"]
     });
 
     expect(assignedState.lastAssignmentAction?.ok).toBe(true);
     expect(
-      assignedState.progress.assignments?.bamboo_road_patrol?.heroIds
+      assignedState.progress.assignments?.greenline_sweep?.heroIds
     ).toEqual(["iron_fist_initiate"]);
 
     const viewModel = getWebGameViewModel(staticData, assignedState);
     const patrol = viewModel.assignments.find(
-      (assignment) => assignment.assignmentId === "bamboo_road_patrol"
+      (assignment) => assignment.assignmentId === "greenline_sweep"
     );
 
     expect(patrol).toMatchObject({
@@ -260,7 +260,7 @@ describe("web game state systems", () => {
     });
 
     const rejectedState = setGameAssignmentHeroes(staticData, assignedState, {
-      assignmentId: "mist_valley_meditation",
+      assignmentId: "veil_district_calibration",
       heroIds: ["iron_fist_initiate"]
     });
 
@@ -268,7 +268,7 @@ describe("web game state systems", () => {
       ok: false,
       reason: "locked_assignment"
     });
-    expect(rejectedState.progress.assignments?.bamboo_road_patrol?.heroIds).toEqual([
+    expect(rejectedState.progress.assignments?.greenline_sweep?.heroIds).toEqual([
       "iron_fist_initiate"
     ]);
   });
@@ -298,7 +298,7 @@ describe("web game state systems", () => {
       unlockedState,
       {
         type: "set_medicine_auto_use",
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         enabled: false
       }
     );
@@ -317,7 +317,7 @@ describe("web game state systems", () => {
     expect(disabledGlobalState.autoMedicinePreferences.enabled).toBe(false);
     expect(
       disabledMedicineState.autoMedicinePreferences.disabledMedicineIds
-    ).toEqual(["clear_heart_pill"]);
+    ).toEqual(["clear_heart_countermeasure"]);
     expect(modeState.autoMedicinePreferences.preBattleResistanceMode).toBe(
       "status_heavy"
     );
@@ -328,7 +328,7 @@ describe("web game state systems", () => {
     });
     expect(
       viewModel.counterplaySettings.medicineRows.find(
-        (medicine) => medicine.id === "clear_heart_pill"
+        (medicine) => medicine.id === "clear_heart_countermeasure"
       )
     ).toMatchObject({
       disabled: true,
@@ -353,7 +353,7 @@ describe("web game state systems", () => {
     const enabledState = resolveSelectedStageBattle(data, selectedState);
     const disabledPreferenceState = webGameStateReducer(data, selectedState, {
       type: "set_medicine_auto_use",
-      medicineId: "clear_heart_pill",
+      medicineId: "clear_heart_countermeasure",
       enabled: false
     });
     const disabledState = resolveSelectedStageBattle(
@@ -386,9 +386,9 @@ describe("web game state systems", () => {
       )
     ).toBe(true);
     expect(
-      enabledState.progress.medicineInventory?.clear_heart_pill
+      enabledState.progress.medicineInventory?.clear_heart_countermeasure
     ).toBeUndefined();
-    expect(disabledState.progress.medicineInventory?.clear_heart_pill).toBe(1);
+    expect(disabledState.progress.medicineInventory?.clear_heart_countermeasure).toBe(1);
 
     const enabledViewModel = getWebGameViewModel(data, enabledState);
     const autoMedicineEvent = enabledViewModel.battleEvents.find(

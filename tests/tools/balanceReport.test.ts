@@ -222,7 +222,7 @@ describe("balance report", () => {
     });
   });
 
-  it("includes Lotus Clinic as a sustain post-Fort region", () => {
+  it("includes Lotus Clinic as a Long Stabilization post-Fort region", () => {
     const report = buildGameBalanceReport(staticData);
     const lotusMonastery = staticData.regions.find(
       (region) => region.id === LOTUS_MONASTERY_REGION_ID
@@ -554,31 +554,31 @@ describe("balance report", () => {
     const csvLines = csv.split("\n");
     const balancedBamboo = exportReport.rows.find(
       (row) =>
-        row.stageId === "greenline_approach_1" && row.tacticId === "balanced"
+        row.stageId === "greenline_approach_1" && row.tacticId === "balanced_routine"
     );
     const outerBamboo = exportReport.rows.find(
       (row) =>
-        row.stageId === "greenline_approach_1" && row.tacticId === "outer_pressure"
+        row.stageId === "greenline_approach_1" && row.tacticId === "kinetic_crush"
     );
     const innerDemonCult = exportReport.rows.find(
       (row) =>
         row.stageId === "redline_outpost_3" &&
-        row.tacticId === "inner_pressure"
+        row.tacticId === "context_break"
     );
     const sustainDemonBoss = exportReport.rows.find(
       (row) =>
-        row.stageId === "redline_outpost_7" && row.tacticId === "sustain"
+        row.stageId === "redline_outpost_7" && row.tacticId === "long_stabilization"
     );
     const bossBurstDemonBoss = exportReport.rows.find(
       (row) =>
         row.stageId === "redline_outpost_7" &&
-        row.tacticId === "boss_burst"
+        row.tacticId === "gatekeeper_burst"
     );
 
     expect(exportReport.schemaVersion).toBe(
       TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION
     );
-    expect(exportReport.defaultTacticId).toBe("balanced");
+    expect(exportReport.defaultTacticId).toBe("balanced_routine");
     expect(exportReport.tactics.map((tactic) => tactic.tacticId)).toEqual(
       staticData.tactics.map((tactic) => tactic.id)
     );
@@ -592,7 +592,7 @@ describe("balance report", () => {
       legacyRegionId: "bamboo_road",
       legacyStageId: "bamboo_road_1",
       isDefaultTactic: true,
-      baselineTacticId: "balanced",
+      baselineTacticId: "balanced_routine",
       durationDeltaSeconds: 0,
       pressureDeltas: {
         statusDamage: 0
@@ -637,7 +637,7 @@ describe("balance report", () => {
     });
     expect(csvLines[0]).toBe(TACTIC_COMPARISON_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
-    expect(csv).toContain("outer_pressure");
+    expect(csv).toContain("kinetic_crush");
     expect(csv).toContain("bamboo_road_1");
     expect(csv).toContain("demon_cult_outpost_7");
     expect(csv).toContain("improved_existing_miss");

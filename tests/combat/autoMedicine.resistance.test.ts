@@ -185,8 +185,8 @@ describe("auto medicine resistance", () => {
       selectAutoPreBattleResistanceMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          quiet_meridian_powder: 1,
-          purity_draught: 1
+          quiet_context_powder: 1,
+          purity_countermeasure: 1
         },
         stage: statusPressureStage,
         enemies: statusPressureEnemies,
@@ -197,13 +197,13 @@ describe("auto medicine resistance", () => {
           preBattleResistanceMode: "status_heavy"
         }
       })?.id
-    ).toBe("quiet_meridian_powder");
+    ).toBe("quiet_context_powder");
 
     const result = applyAutoPreBattleResistanceMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        quiet_meridian_powder: 1,
-        purity_draught: 1
+        quiet_context_powder: 1,
+        purity_countermeasure: 1
       },
       stage: statusPressureStage,
       enemies: statusPressureEnemies,
@@ -217,19 +217,19 @@ describe("auto medicine resistance", () => {
 
     expect(result.usedMedicine).toMatchObject({
       trigger: "pre_battle_resistance",
-      medicineId: "quiet_meridian_powder",
+      medicineId: "quiet_context_powder",
       statusResistanceBonus: 0.12,
       statusResistanceDurationSeconds: 12
     });
-    expect(result.inventory.quiet_meridian_powder).toBeUndefined();
-    expect(result.inventory.purity_draught).toBe(1);
+    expect(result.inventory.quiet_context_powder).toBeUndefined();
+    expect(result.inventory.purity_countermeasure).toBe(1);
   });
 
   it("applies pre-battle resistance policy modes deterministically", () => {
     const baseInput = {
       medicines: medicineDefinitions,
       inventory: {
-        quiet_meridian_powder: 1
+        quiet_context_powder: 1
       },
       stage: statusPressureStage,
       enemies: statusPressureEnemies,
@@ -278,7 +278,7 @@ describe("auto medicine resistance", () => {
           preBattleResistanceMode: "status_heavy"
         }
       })?.id
-    ).toBe("quiet_meridian_powder");
+    ).toBe("quiet_context_powder");
     expect(
       selectAutoPreBattleResistanceMedicine({
         ...baseInput,
@@ -287,7 +287,7 @@ describe("auto medicine resistance", () => {
           preBattleResistanceMode: "always_when_recommended"
         }
       })?.id
-    ).toBe("quiet_meridian_powder");
+    ).toBe("quiet_context_powder");
   });
 
   it("uses boss and elite policy for boss or elite status-pressure stages", () => {
@@ -300,7 +300,7 @@ describe("auto medicine resistance", () => {
       selectAutoPreBattleResistanceMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          quiet_meridian_powder: 1
+          quiet_context_powder: 1
         },
         stage: bossStatusPressureStage,
         enemies: statusPressureEnemies,
@@ -308,12 +308,12 @@ describe("auto medicine resistance", () => {
         statusDefinitions,
         preferences
       })?.id
-    ).toBe("quiet_meridian_powder");
+    ).toBe("quiet_context_powder");
     expect(
       selectAutoPreBattleResistanceMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          quiet_meridian_powder: 1
+          quiet_context_powder: 1
         },
         stage: eliteStatusPressureStage,
         enemies: statusPressureEnemies,
@@ -321,7 +321,7 @@ describe("auto medicine resistance", () => {
         statusDefinitions,
         preferences
       })?.id
-    ).toBe("quiet_meridian_powder");
+    ).toBe("quiet_context_powder");
   });
 
   it("does not consume resistance medicine for light stages below policy threshold", () => {
@@ -332,7 +332,7 @@ describe("auto medicine resistance", () => {
       const result = applyAutoPreBattleResistanceMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          quiet_meridian_powder: 1
+          quiet_context_powder: 1
         },
         stage: statusLightStage,
         enemies: statusPressureEnemies,
@@ -346,7 +346,7 @@ describe("auto medicine resistance", () => {
 
       expect(result).toMatchObject({
         inventory: {
-          quiet_meridian_powder: 1
+          quiet_context_powder: 1
         },
         usedMedicine: null,
         skippedReason: "stage_below_policy_threshold"
@@ -359,7 +359,7 @@ describe("auto medicine resistance", () => {
       applyAutoPreBattleResistanceMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          quiet_meridian_powder: 1
+          quiet_context_powder: 1
         },
         stage: statusLightStage,
         enemies: statusPressureEnemies,
@@ -372,7 +372,7 @@ describe("auto medicine resistance", () => {
       })
     ).toMatchObject({
       usedMedicine: {
-        medicineId: "quiet_meridian_powder"
+        medicineId: "quiet_context_powder"
       },
       skippedReason: null
     });
@@ -384,7 +384,7 @@ describe("auto medicine resistance", () => {
         ...defaultAutoMedicinePreferences,
         preBattleResistanceMode: "status_heavy"
       },
-      "quiet_meridian_powder",
+      "quiet_context_powder",
       false
     );
 
@@ -392,8 +392,8 @@ describe("auto medicine resistance", () => {
       selectAutoPreBattleResistanceMedicine({
         medicines: medicineDefinitions,
         inventory: {
-          quiet_meridian_powder: 1,
-          purity_draught: 1
+          quiet_context_powder: 1,
+          purity_countermeasure: 1
         },
         stage: statusPressureStage,
         enemies: statusPressureEnemies,
@@ -401,13 +401,13 @@ describe("auto medicine resistance", () => {
         statusDefinitions,
         preferences
       })?.id
-    ).toBe("purity_draught");
+    ).toBe("purity_countermeasure");
 
     const result = applyAutoPreBattleResistanceMedicine({
       medicines: medicineDefinitions,
       inventory: {
-        quiet_meridian_powder: 1,
-        purity_draught: 1
+        quiet_context_powder: 1,
+        purity_countermeasure: 1
       },
       stage: statusPressureStage,
       enemies: statusPressureEnemies,
@@ -416,8 +416,8 @@ describe("auto medicine resistance", () => {
       preferences
     });
 
-    expect(result.usedMedicine?.medicineId).toBe("purity_draught");
-    expect(result.inventory.quiet_meridian_powder).toBe(1);
-    expect(result.inventory.purity_draught).toBeUndefined();
+    expect(result.usedMedicine?.medicineId).toBe("purity_countermeasure");
+    expect(result.inventory.quiet_context_powder).toBe(1);
+    expect(result.inventory.purity_countermeasure).toBeUndefined();
   });
 });

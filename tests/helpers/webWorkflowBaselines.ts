@@ -11,10 +11,10 @@ import type { OfflineRewardSummary, WebGameState } from "../../web/state/gameSta
 export const webWorkflowBaselineIds = {
   stageId: "greenline_approach_5",
   offlineSummaryStageId: "greenline_approach_3",
-  equipmentId: "training_wraps",
-  assignmentId: "bamboo_road_patrol",
+  equipmentId: "impact_training_wraps",
+  assignmentId: "greenline_sweep",
   heroId: "iron_fist_initiate",
-  medicineId: "clear_heart_pill"
+  medicineId: "clear_heart_countermeasure"
 } as const;
 
 export const webUiModuleInventory = [

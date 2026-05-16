@@ -39,7 +39,7 @@ Stage 2.5 completed the region/stage static id migration while leaving content i
 - Stage 2.5 moved saves to version `11`; legacy `progress.maps` keys, `progress.currentStageId`, and `selectedOfflineFarmStageId` values migrate through explicit region/stage aliases.
 - Static validation rejects legacy region/stage aliases in canonical data, while save import and browser storage paths still accept old values and rewrite them to canonical ids even when the payload is already labeled as the current save version.
 - Balance authoring and tactic comparison exports now use schema version `2`, keep canonical ids as primary fields, and include temporary legacy id context for report comparison.
-- Remaining old region words outside `docs/archive` are expected in alias data, old-save fixtures/tests, legacy export columns, migration docs, and Stage 2.6 content ids such as assignment/enemy ids.
+- Remaining old region words outside `docs/archive` are expected in alias data, old-save fixtures/tests, legacy export columns, migration docs, and later-stage save-field or combat-symbol work.
 
 ## Stage 2.6 Active Snapshot
 
@@ -50,7 +50,8 @@ Stage 2.6 is migrating static content ids in focused slices while preserving sav
 - Slice 91.3 moved `SAVE_DATA_VERSION` to `12` and normalizes save-stored content ids through the alias map. Current-version imports with target aliases normalize to the configured static id side, and legacy version `11` saves will normalize forward once the owning static data slices rename canonical ids.
 - Slice 91.4 renamed hostile ids, hostile family ids, and status ids in static data, stage enemy-team references, and skill `apply_status` references while keeping deterministic status rolls stable across aliases.
 - Slice 91.5 renamed initiate ids, protocol ids, skill-upgrade ids, style ids, and style-branch ids in static data and direct references while keeping old saves/imports alias-compatible.
-- Remaining static content ids for augments, countermeasures, operations, and routines still wait for Slice 91.6.
+- Slice 91.6 renamed augment, augment-set, countermeasure, operation, and routine ids plus direct references in equipment drops, assignment rewards, auto-medicine preferences, and tactic defaults while preserving the `selectedTacticId` save field name.
+- No static content-id rename category remains open in Stage 2.6; the remaining slices are continuity, hardening, stale-scan, and archival work.
 
 ## Scope
 
@@ -58,7 +59,7 @@ Internal names include three different categories.
 
 | Category | Examples | Migration risk |
 | --- | --- | --- |
-| Static ids | `greenline_approach`, `redline_outpost`, `greenline_cutter`, `iron_fist_initiate`, `impact_combo`, `corruption`, `hero_outer_training`, `balanced` | Breaks stage unlock refs, save refs, reports, tests, and data validation if renamed without aliasing. Region/stage, hostile/status, and initiate/protocol/style values have migrated; remaining content ids are later Stage 2.6 work. |
+| Static ids | `greenline_approach`, `redline_outpost`, `greenline_cutter`, `iron_fist_initiate`, `impact_combo`, `corruption`, `impact_training_wraps`, `clear_heart_countermeasure`, `greenline_sweep`, `balanced_routine` | Breaks stage unlock refs, save refs, reports, tests, and data validation if renamed without aliasing. Region/stage and Stage 2.6 static content categories have migrated; remaining internal rename work belongs to later save-field, code-symbol, report-field, or cleanup stages. |
 | Persisted save fields | `silver`, `cultivation`, `herbs`, `combatExperience`, `sect`, `maps`, `innerQi`, `selectedOfflineFarmStageId` | Requires a save schema version bump and fixture coverage. |
 | Product/runtime keys | `path-of-jianghu.save.v1`, `path-of-jianghu-shell-v1`, `path-of-jianghu.svg`, package/app metadata | Requires dual-read/write or cleanup behavior so existing local players and installed PWAs do not lose state. |
 
@@ -373,7 +374,7 @@ Cognitive Intrusion implementation is separate from these migration slices. It s
 
 ## Recommended Backlog Placement
 
-Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. [Stage 2.6 Backlog](stage-2.6-backlog.md) begins content id migration as focused slices, not as a project-wide replacement, and [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md) records the 91.1 migrate/keep/defer matrix.
+Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. [Stage 2.6 Backlog](stage-2.6-backlog.md) handles content id migration as focused slices, not as a project-wide replacement, and [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md) records the 91.1 migrate/keep/defer matrix.
 
 [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) is the completed closure record for region/stage static id migration.
 
@@ -382,7 +383,7 @@ Recommended sequence:
 1. Stage 2.3: display-safe Path of Neon pivot, completed with compatibility keys preserved.
 2. Stage 2.4: product/storage key migration and shared alias-map helpers, completed.
 3. Stage 2.5: region/stage static id migration, completed in [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
-4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, planned in [Stage 2.6 Backlog](stage-2.6-backlog.md) with 91.1 preflight completed in [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md).
+4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, tracked in [Stage 2.6 Backlog](stage-2.6-backlog.md) with 91.1 preflight completed in [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md).
 5. Stage 2.7: save resource/progress field migration.
 6. Stage 2.8: combat-symbol and report-field migration.
 7. Stage 2.9: cleanup of temporary legacy adapters when compatibility policy allows.

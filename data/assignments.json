@@ -1,6 +1,6 @@
 [
   {
-    "id": "bamboo_road_patrol",
+    "id": "greenline_sweep",
     "name": "Greenline Sweep",
     "type": "patrol",
     "unlockCondition": { "type": "always" },
@@ -12,12 +12,12 @@
       "combatExperiencePerHour": 4,
       "mapRegionId": "greenline_approach",
       "equipmentRewardsPerHour": [
-        { "equipmentId": "training_wraps", "quantityPerHour": 0.25 }
+        { "equipmentId": "impact_training_wraps", "quantityPerHour": 0.25 }
       ]
     }
   },
   {
-    "id": "mist_valley_meditation",
+    "id": "veil_district_calibration",
     "name": "Veil District Calibration",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
@@ -30,7 +30,7 @@
     }
   },
   {
-    "id": "black_iron_drill_yard",
+    "id": "black_foundry_calibration_yard",
     "name": "Black Foundry Calibration Yard",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "black_iron_foundry_1" },
@@ -45,7 +45,7 @@
     }
   },
   {
-    "id": "lotus_medicine_pavilion",
+    "id": "lotus_countermeasure_pavilion",
     "name": "Lotus Countermeasure Pavilion",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "lotus_clinic_3" },
@@ -57,8 +57,8 @@
       "herbsPerHour": 18,
       "styleMasteryExperiencePerHour": 8,
       "equipmentRewardsPerHour": [
-        { "equipmentId": "lotus_dew_pill", "quantityPerHour": 0.25 },
-        { "equipmentId": "mending_poultice", "quantityPerHour": 0.08 }
+        { "equipmentId": "lotus_dew_countermeasure", "quantityPerHour": 0.25 },
+        { "equipmentId": "mending_patch", "quantityPerHour": 0.08 }
       ]
     }
   }

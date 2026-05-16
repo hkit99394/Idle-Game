@@ -23,7 +23,7 @@ describe("web game state progression", () => {
     expect(state.selectedStageId).toBe("greenline_approach_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
     expect(state.offlineFarmPreset).toBe("balanced");
-    expect(state.progress.selectedTacticId).toBe("balanced");
+    expect(state.progress.selectedTacticId).toBe("balanced_routine");
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("greenline_approach_1");
     expect(viewModel.selectedStageRegionName).toBe("Greenline Approach");
@@ -37,13 +37,13 @@ describe("web game state progression", () => {
     });
     expect(viewModel.tactics).toHaveLength(staticData.tactics.length);
     expect(viewModel.tactics[0]).toMatchObject({
-      tacticId: "balanced",
+      tacticId: "balanced_routine",
       name: "Balanced Routine",
       selected: true,
       modifierSummary: []
     });
     expect(
-      viewModel.tactics.find((tactic) => tactic.tacticId === "outer_pressure")
+      viewModel.tactics.find((tactic) => tactic.tacticId === "kinetic_crush")
     ).toMatchObject({
       selected: false,
       behaviorTags: ["targeting", "damage"],
@@ -77,7 +77,7 @@ describe("web game state progression", () => {
       resistanceModeLabel: "Boss And Elite"
     });
     expect(viewModel.counterplaySettings.medicineRows[0]).toMatchObject({
-      id: "clear_heart_pill",
+      id: "clear_heart_countermeasure",
       canToggle: false,
       autoUseLabel: "Auto On"
     });
@@ -187,7 +187,7 @@ describe("web game state progression", () => {
       lockReason: "Clear Jade Needle Clinic"
     });
     expect(viewModel.assignments[0]).toMatchObject({
-      assignmentId: "bamboo_road_patrol",
+      assignmentId: "greenline_sweep",
       unlocked: true,
       assignedHeroIds: [],
       rewardSummary: expect.arrayContaining([
@@ -196,7 +196,7 @@ describe("web game state progression", () => {
       ])
     });
     expect(viewModel.assignments[1]).toMatchObject({
-      assignmentId: "mist_valley_meditation",
+      assignmentId: "veil_district_calibration",
       unlocked: false,
       lockReason: "Clear Ironwall Guard"
     });
@@ -358,7 +358,7 @@ describe("web game state progression", () => {
   it("selects tactics and applies them to stage battles", () => {
     const state = createInitialWebGameState(staticData);
     const selectedState = selectGameTactic(staticData, state, {
-      tacticId: "outer_pressure"
+      tacticId: "kinetic_crush"
     });
     const invalidState = selectGameTactic(staticData, selectedState, {
       tacticId: "missing_tactic"
@@ -368,17 +368,17 @@ describe("web game state progression", () => {
 
     expect(selectedState.lastTacticAction).toMatchObject({
       ok: true,
-      tacticId: "outer_pressure"
+      tacticId: "kinetic_crush"
     });
-    expect(selectedState.progress.selectedTacticId).toBe("outer_pressure");
+    expect(selectedState.progress.selectedTacticId).toBe("kinetic_crush");
     expect(
       getWebGameViewModel(staticData, selectedState).tactics.find(
-        (tactic) => tactic.tacticId === "outer_pressure"
+        (tactic) => tactic.tacticId === "kinetic_crush"
       )
     ).toMatchObject({
       selected: true
     });
-    expect(invalidState.progress.selectedTacticId).toBe("outer_pressure");
+    expect(invalidState.progress.selectedTacticId).toBe("kinetic_crush");
     expect(invalidState.lastTacticAction).toMatchObject({
       ok: false,
       reason: "missing_tactic"
@@ -387,7 +387,7 @@ describe("web game state progression", () => {
     if (!battleState.lastBattle?.ok) {
       return;
     }
-    expect(battleState.lastBattle.battle.playerTactic.id).toBe("outer_pressure");
+    expect(battleState.lastBattle.battle.playerTactic.id).toBe("kinetic_crush");
     expect(viewModel.battleSummary?.details[0]).toBe("Tactic: Kinetic Crush.");
   });
 

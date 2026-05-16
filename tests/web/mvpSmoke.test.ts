@@ -20,16 +20,16 @@ import { MemoryStorage } from "../helpers/memoryStorage";
 import { staticData } from "../helpers/staticData";
 
 const stage12SmokeChoices = {
-  assignmentId: "bamboo_road_patrol",
+  assignmentId: "greenline_sweep",
   branchId: "cloud_context_pulse",
-  equipmentId: "training_wraps",
+  equipmentId: "impact_training_wraps",
   heroId: "iron_fist_initiate",
   styleId: "pulse"
 } as const;
 
 const stage13SmokeChoices = {
   assignmentHeroId: "mountain_brace_guardian",
-  assignmentId: "lotus_medicine_pavilion",
+  assignmentId: "lotus_countermeasure_pavilion",
   entryBossStageId: "black_iron_foundry_7",
   farmStageId: "lotus_clinic_1",
   supportHeroId: "lotus_stabilizer"
@@ -473,12 +473,12 @@ describe("MVP smoke flow", () => {
       reloadedState.progress.resources.herbs
     );
     expect(
-      offlineState.progress.equipment?.inventory.lotus_dew_pill
+      offlineState.progress.equipment?.inventory.lotus_dew_countermeasure
     ).toBeGreaterThanOrEqual(1);
 
     const herbsAfterOffline = offlineState.progress.resources.herbs;
     const lotusDewAfterOffline =
-      offlineState.progress.equipment?.inventory.lotus_dew_pill;
+      offlineState.progress.equipment?.inventory.lotus_dew_countermeasure;
     const secondReloadState = createInitialWebGameStateFromStorage(
       staticData,
       storage,
@@ -487,7 +487,7 @@ describe("MVP smoke flow", () => {
 
     expect(secondReloadState.offlineSummary).toBeNull();
     expect(secondReloadState.progress.resources.herbs).toBe(herbsAfterOffline);
-    expect(secondReloadState.progress.equipment?.inventory.lotus_dew_pill).toBe(
+    expect(secondReloadState.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(
       lotusDewAfterOffline
     );
   });

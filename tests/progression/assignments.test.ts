@@ -10,7 +10,7 @@ describe("assignment progression", () => {
     const progress = createInitialPlayerProgress(staticData);
     const assigned = setAssignmentHeroes(staticData, {
       progress,
-      assignmentId: "bamboo_road_patrol",
+      assignmentId: "greenline_sweep",
       heroIds: ["iron_fist_initiate"]
     });
 
@@ -20,12 +20,12 @@ describe("assignment progression", () => {
     }
 
     expect(
-      assigned.progress.assignments?.bamboo_road_patrol?.heroIds
+      assigned.progress.assignments?.greenline_sweep?.heroIds
     ).toEqual(["iron_fist_initiate"]);
 
     const unassigned = setAssignmentHeroes(staticData, {
       progress: assigned.progress,
-      assignmentId: "bamboo_road_patrol",
+      assignmentId: "greenline_sweep",
       heroIds: []
     });
 
@@ -33,7 +33,7 @@ describe("assignment progression", () => {
     if (!unassigned.ok) {
       return;
     }
-    expect(unassigned.progress.assignments?.bamboo_road_patrol).toBeUndefined();
+    expect(unassigned.progress.assignments?.greenline_sweep).toBeUndefined();
   });
 
   it("rejects locked, duplicate, ineligible, and already assigned heroes", () => {
@@ -42,7 +42,7 @@ describe("assignment progression", () => {
     expect(
       setAssignmentHeroes(staticData, {
         progress,
-        assignmentId: "mist_valley_meditation",
+        assignmentId: "veil_district_calibration",
         heroIds: ["azure_pulse_monk"]
       })
     ).toMatchObject({
@@ -53,7 +53,7 @@ describe("assignment progression", () => {
     expect(
       setAssignmentHeroes(staticData, {
         progress,
-        assignmentId: "bamboo_road_patrol",
+        assignmentId: "greenline_sweep",
         heroIds: ["iron_fist_initiate", "iron_fist_initiate"]
       })
     ).toMatchObject({
@@ -67,7 +67,7 @@ describe("assignment progression", () => {
     expect(
       setAssignmentHeroes(staticData, {
         progress: unlockedProgress,
-        assignmentId: "mist_valley_meditation",
+        assignmentId: "veil_district_calibration",
         heroIds: ["iron_fist_initiate"]
       })
     ).toMatchObject({
@@ -77,7 +77,7 @@ describe("assignment progression", () => {
 
     const firstAssignment = setAssignmentHeroes(staticData, {
       progress: unlockedProgress,
-      assignmentId: "bamboo_road_patrol",
+      assignmentId: "greenline_sweep",
       heroIds: ["azure_pulse_monk"]
     });
 
@@ -89,7 +89,7 @@ describe("assignment progression", () => {
     expect(
       setAssignmentHeroes(staticData, {
         progress: firstAssignment.progress,
-        assignmentId: "mist_valley_meditation",
+        assignmentId: "veil_district_calibration",
         heroIds: ["azure_pulse_monk"]
       })
     ).toMatchObject({

@@ -404,7 +404,7 @@ describe("web save storage", () => {
           ...baseState.autoMedicinePreferences,
           enabled: false,
           preBattleResistanceMode: "status_heavy",
-          disabledMedicineIds: ["clear_heart_pill"]
+          disabledMedicineIds: ["clear_heart_countermeasure"]
         }
       }
     });
@@ -424,7 +424,7 @@ describe("web save storage", () => {
     expect(reloadedState.autoMedicinePreferences).toMatchObject({
       enabled: false,
       preBattleResistanceMode: "status_heavy",
-      disabledMedicineIds: ["clear_heart_pill"]
+      disabledMedicineIds: ["clear_heart_countermeasure"]
     });
     expect(
       getWebGameViewModel(staticData, reloadedState).counterplaySettings
@@ -451,7 +451,7 @@ describe("web save storage", () => {
         postBattleCleanseEnabled: true,
         preBattleResistanceEnabled: true,
         preBattleResistanceMode: "status_heavy",
-        disabledMedicineIds: ["clear_heart_pill"]
+        disabledMedicineIds: ["clear_heart_countermeasure"]
       },
       nowMs: 1000
     });
@@ -489,7 +489,7 @@ describe("web save storage", () => {
     expect(importedSave.save.offlineFarmPreset).toBe("cultivation");
     expect(importedSave.save.autoMedicinePreferences).toMatchObject({
       preBattleResistanceMode: "status_heavy",
-      disabledMedicineIds: ["clear_heart_pill"]
+      disabledMedicineIds: ["clear_heart_countermeasure"]
     });
   });
 
@@ -675,21 +675,21 @@ describe("web save storage", () => {
       upgrades: {}
     });
     expect(importResult.save.progress.heroes.iron_fist_disciple).toBeUndefined();
-    expect(importResult.save.progress.selectedTacticId).toBe("outer_pressure");
+    expect(importResult.save.progress.selectedTacticId).toBe("kinetic_crush");
     expect(importResult.save.progress.equipment?.inventory).toEqual({
-      training_wraps: 1
+      impact_training_wraps: 1
     });
     expect(importResult.save.progress.assignments).toEqual({
-      bamboo_road_patrol: {
+      greenline_sweep: {
         heroIds: ["iron_fist_initiate"]
       }
     });
     expect(importResult.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
-      "clear_heart_pill"
+      "clear_heart_countermeasure"
     ]);
-    expect(importedSave.save.progress.selectedTacticId).toBe("outer_pressure");
+    expect(importedSave.save.progress.selectedTacticId).toBe("kinetic_crush");
     expect(importedSave.save.progress.assignments).toEqual({
-      bamboo_road_patrol: {
+      greenline_sweep: {
         heroIds: ["iron_fist_initiate"]
       }
     });

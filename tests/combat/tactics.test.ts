@@ -141,7 +141,7 @@ describe("combat tactics", () => {
     const implicit = simulateBattle(data, battleInput);
     const balanced = simulateBattle(data, {
       ...battleInput,
-      tacticId: "balanced"
+      tacticId: "balanced_routine"
     });
     const unknown = simulateBattle(data, {
       ...battleInput,
@@ -149,11 +149,11 @@ describe("combat tactics", () => {
     });
 
     expect(implicit.playerTactic).toMatchObject({
-      id: "balanced",
+      id: "balanced_routine",
       isDefault: true
     });
     expect(balanced.events).toEqual(implicit.events);
-    expect(unknown.playerTactic.id).toBe("balanced");
+    expect(unknown.playerTactic.id).toBe("balanced_routine");
     expect(unknown.events).toEqual(implicit.events);
     expect(unknown.metrics).toEqual(implicit.metrics);
   });
@@ -198,10 +198,10 @@ describe("combat tactics", () => {
     const balanced = simulateBattle(data, battleInput);
     const outerPressure = simulateBattle(data, {
       ...battleInput,
-      tacticId: "outer_pressure"
+      tacticId: "kinetic_crush"
     });
 
-    expect(outerPressure.playerTactic.id).toBe("outer_pressure");
+    expect(outerPressure.playerTactic.id).toBe("kinetic_crush");
     expect(firstPlayerAttack(outerPressure.events).outerDamage).toBeCloseTo(
       firstPlayerAttack(balanced.events).outerDamage * 1.08
     );
@@ -271,7 +271,7 @@ describe("combat tactics", () => {
     const balanced = simulateBattle(data, battleInput);
     const bossBurst = simulateBattle(data, {
       ...battleInput,
-      tacticId: "boss_burst"
+      tacticId: "gatekeeper_burst"
     });
 
     expect(firstPlayerAttack(balanced.events).targetId).toBe("front_normal");
@@ -327,13 +327,13 @@ describe("combat tactics", () => {
     const balanced = simulateBattle(data, battleInput);
     const innerPressure = simulateBattle(data, {
       ...battleInput,
-      tacticId: "inner_pressure"
+      tacticId: "context_break"
     });
     const balancedBreak = balanced.events.find((event) => event.type === "qi_break");
     const tacticBreak = innerPressure.events.find((event) => event.type === "qi_break");
     const repeat = simulateBattle(data, {
       ...battleInput,
-      tacticId: "inner_pressure"
+      tacticId: "context_break"
     });
 
     expect(balancedBreak).toBeDefined();
@@ -345,7 +345,7 @@ describe("combat tactics", () => {
     expect(repeat.metrics).toEqual(innerPressure.metrics);
   });
 
-  it("boosts guard support, sustain healing, and status resistance for players", () => {
+  it("boosts guard support, Long Stabilization healing, and status resistance for players", () => {
     const defensiveData = withScenarioData({
       skills: [
         {
@@ -397,7 +397,7 @@ describe("combat tactics", () => {
     const balancedDefense = simulateBattle(defensiveData, defensiveInput);
     const guardSupport = simulateBattle(defensiveData, {
       ...defensiveInput,
-      tacticId: "guard_support"
+      tacticId: "guard_the_stabilizer"
     });
     const balancedAbsorb = balancedDefense.events.find(
       (event) => event.type === "guard_absorb"
@@ -478,17 +478,19 @@ describe("combat tactics", () => {
     };
 
     const balancedRecovery = simulateBattle(recoveryData, recoveryInput);
-    const sustain = simulateBattle(recoveryData, {
+    const longStabilization = simulateBattle(recoveryData, {
       ...recoveryInput,
-      tacticId: "sustain"
+      tacticId: "long_stabilization"
     });
     const balancedHeal = balancedRecovery.events.find(
       (event) => event.type === "heal"
     );
-    const sustainHeal = sustain.events.find((event) => event.type === "heal");
+    const longStabilizationHeal = longStabilization.events.find(
+      (event) => event.type === "heal"
+    );
 
-    expect(sustain.finalPlayerTeam[0]?.stats.statusResistance).toBeCloseTo(0.08);
-    expect(sustainHeal?.outerHealing).toBeGreaterThan(
+    expect(longStabilization.finalPlayerTeam[0]?.stats.statusResistance).toBeCloseTo(0.08);
+    expect(longStabilizationHeal?.outerHealing).toBeGreaterThan(
       balancedHeal?.outerHealing ?? 0
     );
   });
@@ -498,7 +500,7 @@ describe("combat tactics", () => {
     const result = resolveStageBattle(staticData, {
       progress,
       stageId: "greenline_approach_1",
-      tacticId: "outer_pressure",
+      tacticId: "kinetic_crush",
       maxDurationSeconds: 1
     });
 
@@ -507,6 +509,6 @@ describe("combat tactics", () => {
       return;
     }
 
-    expect(result.battle.playerTactic.id).toBe("outer_pressure");
+    expect(result.battle.playerTactic.id).toBe("kinetic_crush");
   });
 });

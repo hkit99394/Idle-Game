@@ -73,10 +73,10 @@ describe("Path of Neon retheme compatibility keys", () => {
       upgrades: ids(staticGameData.upgrades)
     }).toEqual({
       assignments: [
-        "bamboo_road_patrol",
-        "mist_valley_meditation",
-        "black_iron_drill_yard",
-        "lotus_medicine_pavilion"
+        "greenline_sweep",
+        "veil_district_calibration",
+        "black_foundry_calibration_yard",
+        "lotus_countermeasure_pavilion"
       ],
       enemies: [
         "greenline_cutter",
@@ -107,22 +107,22 @@ describe("Path of Neon retheme compatibility keys", () => {
         "redline_overseer"
       ],
       equipment: [
-        "training_wraps",
-        "willow_palm_manual",
-        "crane_edge_sword",
-        "guardian_staff",
-        "woven_travel_robe",
-        "calming_breath_pill",
-        "mist_needle_case",
-        "veil_palm_manual",
-        "iron_thread_armor",
-        "black_iron_saber_blade",
-        "fortress_guard_manual",
-        "tempered_meridian_pill",
-        "lotus_dew_pill",
-        "mending_poultice"
+        "impact_training_wraps",
+        "willow_pulse_protocol",
+        "crane_edge_cutter",
+        "guardian_brace_staff",
+        "woven_travel_plating",
+        "calming_context_stim",
+        "veil_needle_case",
+        "veil_pulse_protocol",
+        "iron_thread_plating",
+        "black_iron_saber",
+        "fortress_guard_protocol",
+        "tempered_context_stim",
+        "lotus_dew_countermeasure",
+        "mending_patch"
       ],
-      equipmentSets: ["black_iron_ward"],
+      equipmentSets: ["ironwall_ward"],
       formations: ["mvp_line"],
       heroes: [
         "iron_fist_initiate",
@@ -132,9 +132,9 @@ describe("Path of Neon retheme compatibility keys", () => {
         "lotus_stabilizer"
       ],
       medicines: [
-        "clear_heart_pill",
-        "quiet_meridian_powder",
-        "purity_draught"
+        "clear_heart_countermeasure",
+        "quiet_context_powder",
+        "purity_countermeasure"
       ],
       regions: [
         "greenline_approach",
@@ -236,12 +236,12 @@ describe("Path of Neon retheme compatibility keys", () => {
         "ghostware"
       ],
       tactics: [
-        "balanced",
-        "outer_pressure",
-        "inner_pressure",
-        "guard_support",
-        "sustain",
-        "boss_burst"
+        "balanced_routine",
+        "kinetic_crush",
+        "context_break",
+        "guard_the_stabilizer",
+        "long_stabilization",
+        "gatekeeper_burst"
       ],
       upgrades: [
         "hero_outer_training",

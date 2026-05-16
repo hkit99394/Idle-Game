@@ -209,7 +209,7 @@ Stage 2.3 uses **style families** as the player-facing layer and keeps legacy ma
 | Staff | Brace Style | Guard, intercept, control, front-line stability, and protection. |
 | Hidden Weapons | Ghostware Style | Needles, covert payloads, delayed pressure, status, and weak-point attacks. |
 
-Use old martial terms as lineage flavor rather than primary UI taxonomy when space allows: "Impact Style: Iron Fist lineage" is clearer than erasing Fist everywhere or exposing only legacy ids. Stage 2.6 now migrates static style ids, saved style mastery keys, equipment `allowedStyles`, branch ids, and tests through compatibility aliases and fixtures.
+Use old martial terms as lineage flavor rather than primary UI taxonomy when space allows: "Impact Style: Iron Fist lineage" is clearer than erasing Fist everywhere or exposing only legacy ids. Stage 2.6 now migrates static content ids, saved content-id keys, equipment `allowedStyles`, branch ids, operation/routine values, and tests through compatibility aliases and fixtures.
 
 Style mastery should display as **Protocol Mastery** when the surrounding UI is fully rethemed. If a panel needs both layers during transition, write it as "Protocol Mastery (Impact / Fist lineage)" rather than inventing separate mastery systems.
 
