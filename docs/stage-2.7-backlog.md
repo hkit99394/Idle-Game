@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.7 is the active planning backlog for Epic 92: Save Resource And Progress Field Migration.
+Stage 2.7 is the active planning backlog for Epic 92: Save Resource And Progress Field Migration. Slice 92.1 is complete in [Stage 2.7 Save Field Preflight](stage-2.7-save-field-preflight.md).
 
 [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) and [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md) are the completed closure records for static content id migration. Stage 2.7 begins from that canonical static-content baseline and should not reopen Stage 2.6 id decisions.
 
@@ -23,23 +23,23 @@ Migrate persisted save resource and progress field names from legacy Path of Jia
 - Combat stat fields such as `outerHp`, `innerQi`, max fields, recovery fields, and AI Overload state are not part of Stage 2.7. They belong to the later combat save/stat migration.
 - Broad code/report symbol cleanup is not part of Stage 2.7 unless a rename is required to express the current save schema safely.
 
-## Candidate Field Targets
+## Field Targets
 
-Slice 92.1 owns the final decision, but the expected target set is:
+Slice 92.1 locked the final decisions in [Stage 2.7 Save Field Preflight](stage-2.7-save-field-preflight.md). The target set is:
 
-| Current field | Candidate target | Notes |
+| Current field | Target field | Notes |
 | --- | --- | --- |
 | `progress.resources.silver` | `progress.resources.credits` | UI already displays Credits. |
 | `progress.resources.cultivation` | `progress.resources.resonance` | UI already displays Resonance. |
 | `progress.resources.herbs` | `progress.resources.reagents` | UI already displays Reagents. |
 | `progress.maps` | `progress.districts` | Values already use canonical district ids after Stage 2.5. |
 | `progress.maps.*.combatExperience` | `progress.districts.*.combatData` | UI already displays Combat Data. |
-| `progress.maps.*.highestClearedStageIndex` | `progress.districts.*.highestClearedRouteIndex` | Decide in 92.1. This is a farm-route progress field, not a static id value. |
+| `progress.maps.*.highestClearedStageIndex` | `progress.districts.*.highestClearedRouteIndex` | This is a farm-route progress field, not a static id value. |
 | `progress.currentStageId` | `progress.currentRouteId` | Values are already canonical route ids. |
 | `selectedOfflineFarmStageId` | `selectedOfflineFarmRouteId` | Values are already canonical route ids. |
 | `progress.selectedTacticId` | `progress.selectedRoutineId` | Static values are routine ids after Stage 2.6; field-name migration belongs here if accepted. |
-| `progress.sect` | `progress.technoSect` | Decide in 92.1 with diagnostics and training-upgrade naming. |
-| `offlineFarmPreset` | Keep or rename after 92.1 | Preset values are UX policy, not static route ids. Do not rename casually. |
+| `progress.sect` | `progress.technoSect` | Migrate the save field while deferring static upgrade ids and scopes. |
+| `offlineFarmPreset` | Keep field; migrate resource-named values | Keep the policy field name, but migrate values such as `silver`, `cultivation`, and `combatExperience`. |
 
 ## Non-Goals
 
@@ -68,7 +68,7 @@ Stage 2.7 implements Epic 92 from the retheme migration plan as focused slices.
 
 | Slice | Title | Status | Goal |
 | --- | --- | --- | --- |
-| 92.1 | Save Field Migration Preflight | Planned | Lock target names, compatibility behavior, test fixtures, and stale-scan rules before code changes. |
+| 92.1 | Save Field Migration Preflight | Complete | Locked target names, compatibility behavior, test fixtures, and stale-scan rules before code changes. |
 | 92.2 | Save Schema Alias Foundation | Planned | Add save-field alias helpers, bump the save version, and prove legacy/current imports normalize safely. |
 | 92.3 | Resources And District Progress Rename | Planned | Rename resource and district progress fields through core save/progression/offline paths. |
 | 92.4 | Route, Farm, Routine, And Techno-Sect Fields | Planned | Rename selected/current route, routine, and techno-sect save fields where 92.1 approves them. |
@@ -79,6 +79,8 @@ Stage 2.7 implements Epic 92 from the retheme migration plan as focused slices.
 ## Slice 92.1: Save Field Migration Preflight
 
 Classify every owned save field and decide migrate, keep, or defer before editing schema code.
+
+Completed in [Stage 2.7 Save Field Preflight](stage-2.7-save-field-preflight.md).
 
 ### Tasks
 
