@@ -9,9 +9,9 @@ This document does not rename schema code. It classifies the current save fields
 ## Source Contracts
 
 - [Stage 2.7 Backlog](stage-2.7-backlog.md) owns Epic 92.
-- [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) defines the save-version boundary and target terminology.
-- [Save API](save-api.md) defines migration, validation, load, import, export, and cloud-envelope behavior.
-- [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md) records the completed content-id migration and the fields intentionally deferred to Stage 2.7.
+- [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) defines the save-version boundary and target terminology.
+- [Save API](../save-api.md) defines migration, validation, load, import, export, and cloud-envelope behavior.
+- [Archived Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md) records the completed content-id migration and the fields intentionally deferred to Stage 2.7.
 
 ## Owned Save Surfaces
 

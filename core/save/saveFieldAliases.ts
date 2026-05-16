@@ -40,16 +40,56 @@ function hasOwn(record: UnknownRecord, key: string): boolean {
   return Object.hasOwn(record, key);
 }
 
-function valuesAreEquivalent(left: unknown, right: unknown): boolean {
-  return JSON.stringify(left) === JSON.stringify(right);
-}
-
 function addConflict(
   errors: string[],
   targetField: string,
   legacyField: string
 ): void {
   errors.push(`conflicting save field aliases: ${targetField} and ${legacyField}`);
+}
+
+function arraysAreEquivalent(left: unknown[], right: unknown[]): boolean {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((value, index) => valuesAreEquivalent(value, right[index]));
+}
+
+function recordsAreEquivalent(
+  left: UnknownRecord,
+  right: UnknownRecord
+): boolean {
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+
+  if (leftKeys.length !== rightKeys.length) {
+    return false;
+  }
+
+  return leftKeys.every(
+    (key) => hasOwn(right, key) && valuesAreEquivalent(left[key], right[key])
+  );
+}
+
+function valuesAreEquivalent(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) {
+    return true;
+  }
+
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right)
+      ? arraysAreEquivalent(left, right)
+      : false;
+  }
+
+  if (isRecord(left) || isRecord(right)) {
+    return isRecord(left) && isRecord(right)
+      ? recordsAreEquivalent(left, right)
+      : false;
+  }
+
+  return false;
 }
 
 function copyAliasedField(

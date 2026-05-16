@@ -434,6 +434,59 @@ describe("save schema migrations", () => {
     });
   });
 
+  it("accepts equivalent legacy and Stage 2.7 district aliases regardless of key order", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.districts.greenline_approach.combatData = 20;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 2;
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmRouteId: "greenline_approach_1",
+      nowMs: 1000
+    });
+    const serialized = JSON.parse(JSON.stringify(save));
+    serialized.progress.maps = {
+      greenline_approach: {
+        combatExperience: 20,
+        highestClearedStageIndex: 2
+      }
+    };
+    serialized.progress.districts.greenline_approach = {
+      highestClearedRouteIndex: 2,
+      combatData: 20
+    };
+
+    expect(validateSaveData(staticData, serialized)).toEqual([]);
+    const result = parseSaveData(staticData, serialized);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.progress.districts.greenline_approach).toEqual({
+      combatData: 20,
+      highestClearedRouteIndex: 2
+    });
+    expect(result.migration.normalizations).toEqual(
+      expect.arrayContaining([
+        {
+          field: "progress.maps.greenline_approach.combatExperience",
+          reason:
+            "migrated legacy save field to progress.districts.greenline_approach.combatData"
+        },
+        {
+          field: "progress.maps.greenline_approach.highestClearedStageIndex",
+          reason:
+            "migrated legacy save field to progress.districts.greenline_approach.highestClearedRouteIndex"
+        },
+        {
+          field: "progress.maps",
+          reason: "migrated legacy save field to progress.districts"
+        }
+      ])
+    );
+  });
+
   it("normalizes content alias ids to the currently configured static id side", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({

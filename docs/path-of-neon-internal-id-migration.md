@@ -53,16 +53,19 @@ Stage 2.6 completed static content id migration in focused slices while preservi
 - Slice 91.6 renamed augment, augment-set, countermeasure, operation, and routine ids plus direct references in equipment drops, assignment rewards, auto-medicine preferences, and tactic defaults while preserving the `selectedTacticId` save field name.
 - Slice 91.7 moved balance authoring and tactic comparison exports to schema version `3`, keeping canonical content ids primary while adding temporary legacy enemy/status/tactic comparison fields for Stage 2.5/2.6 review.
 - Slice 91.8 completed compatibility hardening, stale-scan classification, release-readiness validation, and archival of the Stage 2.6 backlog and preflight.
-- No static content-id rename category remains open in Stage 2.6. Stage 2.7 should own save resource/progress field migration.
+- No static content-id rename category remains open in Stage 2.6. Stage 2.7 completed save resource/progress field migration.
 
-## Stage 2.7 In-Progress Snapshot
+## Stage 2.7 Closure Snapshot
 
-Stage 2.7 has moved saves to version `13` for owned resource/progress field migration.
+Stage 2.7 completed owned resource/progress field migration and moved saves to version `13`.
 
 - Slice 92.1 locked the save-field target matrix.
 - Slice 92.2 added save-field alias normalization and current-schema serialization.
 - Slice 92.3 moved runtime resources and district progress to `credits`, `resonance`, `reagents`, `districts`, `combatData`, and `highestClearedRouteIndex`.
 - Slice 92.4 moved route/farm/routine/techno-sect runtime and save fields to `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`, and migrated `offlineFarmPreset` values to `credits`, `resonance`, and `combatData`.
+- Slice 92.5 updated web save diagnostics, import/export, reset, and storage-key/schema-migration coverage.
+- Slice 92.6 confirmed simulator/support tooling continuity and documented that generated balance reward columns remain static authoring metrics, not save fields.
+- Slice 92.7 completed stale-scan classification, validation, docs closure, and archival.
 - Legacy save fields such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, `currentStageId`, `selectedOfflineFarmStageId`, `selectedTacticId`, and `sect` remain import-compatible aliases.
 
 ## Scope
@@ -272,7 +275,7 @@ Save-version strategy:
 
 - Product/storage-key migration can reuse the current save schema if the payload shape does not change; it still needs browser-storage tests proving old-key saves copy to the new key safely.
 - Static id migration needs a new `SAVE_DATA_VERSION` because persisted fields store ids in `currentRouteId`, `selectedOfflineFarmRouteId`, `progress.maps`, hero progress keys, active team ids, assignment hero ids, equipment inventory/equipped ids, disabled medicine ids, and `selectedRoutineId`.
-- Resource and progress field migration should be a separate `SAVE_DATA_VERSION` after static ids are stable. Stage 2.7 is now planned in [Stage 2.7 Backlog](stage-2.7-backlog.md) and owns `silver` -> `credits`, `cultivation` -> `resonance`, `herbs` -> `reagents`, `maps` -> `districts`, and map-level `combatExperience` -> `combatData`.
+- Resource and progress field migration used a separate `SAVE_DATA_VERSION` after static ids stabilized. Stage 2.7 completed that work in [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md), including `silver` -> `credits`, `cultivation` -> `resonance`, `herbs` -> `reagents`, `maps` -> `districts`, and map-level `combatExperience` -> `combatData`.
 - Selected farm route migration should happen with the resource/progress field migration unless stage ids have not landed yet. Do not rename `selectedOfflineFarmRouteId` while it still stores legacy stage ids.
 - Combat stat field migration should be later than resource/progress fields. It touches broader combat, reports, and possible future backend payloads, and should not be coupled to storage-key migration.
 - Every version bump needs fixtures for the immediately previous version and for at least one old pre-retheme save that still uses legacy ids and fields.
@@ -378,17 +381,17 @@ Keep implementation slices narrow. A safe backlog shape:
 1. Product/storage key migration: package name, browser save key dual-read/copy, PWA cache prefix cleanup, icon path compatibility, and PWA tests.
 2. Region/stage alias migration: alias helpers, region/stage static ids, save `currentRouteId`, `selectedOfflineFarmRouteId`, `progress.maps`, simulator report ids, and fixtures. Completed in Stage 2.5.
 3. Content id migration: hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines in small batches with static validation and save/import coverage. Completed in Stage 2.6.
-4. Save resource/progress field migration: resources, districts, Combat Data, selected farm route field, diagnostics labels, the legacy schema term visibility decision, and export/import fixtures. Active in [Stage 2.7 Backlog](stage-2.7-backlog.md).
-5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with `legacy*` report columns where downstream consumers need them.
+4. Save resource/progress field migration: resources, districts, Combat Data, selected farm route field, diagnostics labels, the legacy schema term visibility decision, and export/import fixtures. Completed in [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md).
+5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with `legacy*` report columns where downstream consumers need them. This work is now planned in [Stage 2.8 Backlog](stage-2.8-backlog.md).
 6. Legacy cleanup: stale-name scans, docs cleanup outside `docs/archive`, and removal of temporary dual-write behavior only after old-key import/read tests prove enough compatibility time has passed.
 
 Cognitive Intrusion implementation is separate from these migration slices. It should begin from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) once the naming and compatibility surface is stable enough to avoid churn.
 
 ## Recommended Backlog Placement
 
-Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. Stage 2.6 completed static content id migration as focused slices, not as a project-wide replacement, and [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md) records the 91.1 migrate/keep/defer matrix.
+Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. Stage 2.6 completed static content id migration as focused slices, not as a project-wide replacement, and [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md) records the 91.1 migrate/keep/defer matrix. Stage 2.7 completed save resource/progress field migration with save version `13`.
 
-[Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) is the completed closure record for region/stage static id migration. [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) is the completed closure record for static content id migration. [Stage 2.7 Backlog](stage-2.7-backlog.md) is the active backlog for save resource/progress field migration.
+[Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) is the completed closure record for region/stage static id migration. [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) is the completed closure record for static content id migration. [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) is the completed closure record for save resource/progress field migration. [Stage 2.8 Backlog](stage-2.8-backlog.md) is the active planning record for combat save/stat, combat-symbol, and report-field migration.
 
 Recommended sequence:
 
@@ -396,8 +399,8 @@ Recommended sequence:
 2. Stage 2.4: product/storage key migration and shared alias-map helpers, completed.
 3. Stage 2.5: region/stage static id migration, completed in [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
 4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, completed in [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) with 91.1 preflight recorded in [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md).
-5. Stage 2.7: save resource/progress field migration, active in [Stage 2.7 Backlog](stage-2.7-backlog.md).
-6. Stage 2.8: combat-symbol and report-field migration.
+5. Stage 2.7: save resource/progress field migration, completed in [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md).
+6. Stage 2.8: combat save/stat, combat-symbol, and report-field migration, active in [Stage 2.8 Backlog](stage-2.8-backlog.md).
 7. Stage 2.9: cleanup of temporary legacy adapters when compatibility policy allows.
 8. Prototype implementation: Cognitive Intrusion, starting from the completed Stage 2.3 contract once it can avoid naming or compatibility churn.
 
