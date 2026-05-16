@@ -79,6 +79,8 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
 - Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
 
+For Stage 3.1 District Heat work, these known Black Iron Foundry and Redline Outpost misses do not block report-only heat projection. They do block live heat reward, risk, offline-farming, or route-pressure changes until the affected miss is retuned or explicitly reclassified.
+
 ## Reading Report Sections
 
 `npm run simulate` includes a `Region Difficulty Curve` section before the boss-gate summaries. Each region line reports the clear trend, hold/unresolved counts, target issues, and detected spikes. `issues` are target failures that should be fixed or explicitly tracked. `spikes` are large clear-time jumps between targeted player clears; `fail` spikes also miss their configured target, while `watch` spikes are useful tuning handles that still fit the target band.

@@ -103,6 +103,8 @@ These are not accepted silent noise. The active authority is this inventory, [ba
 
 Stage 3.0 did not retune these budgets. Its simulator review confirmed the same Black Iron Foundry and Redline Outpost misses remain visible while Intrusion's focused regression proves the new mechanic changes AI Overload timing.
 
+Stage 3.1 Slice 97.3 classifies these misses as acceptable for report-only District Heat projection, provided they remain visible by stable ids in the same simulator/export run. They remain blockers for live District Heat reward, risk, offline-farming, or route-pressure changes until a later tuning slice retunes or explicitly reclassifies the affected debt.
+
 ## Tactic Comparison Notes
 
 Epic 71 did not retune content. The tactic comparison export keeps known debt visible and adds row-level shift labels:

@@ -6,7 +6,7 @@ Stage 3.1 is the active post-Intrusion planning and hardening milestone. [Archiv
 
 This stage prepares **District Heat** as the preferred second Path of Neon prototype, but it should not ship live heat penalties, persisted heat, or UI promises before the contract and pacing evidence are ready. District Heat touches offline farming, assignments, rewards, region UI, save posture, and balance gates, so the first milestone should make those boundaries explicit.
 
-Slices 97.1 and 97.2 are complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path, defers derived or persisted live heat until later evidence justifies it, and now records the offline/assignment pacing baseline that must gate live reward changes.
+Slices 97.1, 97.2, and 97.3 are complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path, defers derived or persisted live heat until later evidence justifies it, records the offline/assignment pacing baseline, and classifies known balance debt before heat can modify live rewards or risk.
 
 ## Stage Theme
 
@@ -58,7 +58,7 @@ The milestone should turn District Heat from a theme-bible candidate into an imp
 | --- | --- | --- | --- |
 | 97.1 | 97 | District Heat Contract Preflight | Complete |
 | 97.2 | 97 | Offline And Pacing Baseline Audit | Complete |
-| 97.3 | 97 | Known Balance Debt Gate Review | Planned |
+| 97.3 | 97 | Known Balance Debt Gate Review | Complete |
 | 97.4 | 97 | Report-Only Heat Projection Surface | Planned |
 | 97.5 | 97 | Save, UI, And Export Boundary Proof | Planned |
 | 97.6 | 97 | Release Hardening And Archive Readiness | Planned |
@@ -142,6 +142,16 @@ Classify the existing Black Iron Foundry and Redline Outpost misses before heat 
 - Keep Black Iron Foundry and Redline Outpost debt visible by stable ids.
 - Do not retune broadly unless a specific miss blocks report-only heat projection.
 
+### Implementation Notes
+
+- Ran the default simulator, compact JSON export, stage CSV export, tactic JSON export, and tactic CSV export. The same Black Iron Foundry and Redline Outpost misses remain visible by stable ids.
+- Classified the current debt in [District Heat Contract](district-heat-contract.md). Report-only District Heat projection may proceed while the misses stay visible in the same report run.
+- Live District Heat reward, risk, offline-farming, or route-pressure changes are blocked until the known misses are either tuned or explicitly reclassified in a later slice.
+- `black_iron_foundry_4` is deferred tuning debt for report-only heat because it is an elite route clearing below target, not a pressure-amplification risk.
+- `redline_outpost_1`, `redline_outpost_3`, `redline_outpost_4`, `redline_outpost_5`, and Redline status damage above cap are live-heat blockers because heat reward/risk changes could hide or amplify existing Redline pacing pressure.
+- `redline_outpost_3` is the clearest small pre-heat tuning candidate because tactic comparison rows show `context_break` and `gatekeeper_burst` can improve the existing miss; Redline status pressure should be reviewed through sustain/counterplay before any heat pressure amplification.
+- No runtime behavior, balance data, reward tuning, export schema, save schema, or web UI changed in this slice.
+
 ### Acceptance
 
 - Every known miss has a Stage 3.1 disposition.
@@ -150,12 +160,13 @@ Classify the existing Black Iron Foundry and Redline Outpost misses before heat 
 
 ### Verification
 
-- `npm run simulate`
-- `npm run --silent simulate -- --export-json`
-- `npm run --silent simulate -- --csv`
-- `npm run --silent simulate -- --tactics-json`
-- `npm run --silent simulate -- --tactics-csv`
-- `git diff --check`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 97.4: Report-Only Heat Projection Surface
 

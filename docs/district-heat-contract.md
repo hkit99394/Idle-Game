@@ -161,6 +161,27 @@ Assignment heat participation is report-only and should be conservative:
 - Assignments without `mapRegionId` contribute no projected heat until a future contract defines a district target for them.
 - Assignment heat must not modify per-hour assignment rewards, equipment rolls, unlocks, or assigned hero eligibility in Stage 3.1.
 
+## Known Debt Gate
+
+Slice 97.3 reviewed the current simulator, compact JSON export, stage CSV export, tactic JSON export, and tactic CSV export against [Content Pipeline Inventory](content-pipeline-inventory.md) and [Balance Budget Gates](balance-budget-gates.md).
+
+Report-only District Heat projection may proceed with the existing misses visible by stable ids. Live District Heat reward, risk, offline-farming, or route-pressure changes must not proceed until the affected miss is tuned or explicitly reclassified by a later slice.
+
+| Miss | Stage 3.1 disposition | Heat gate |
+| --- | --- | --- |
+| `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt. This is a too-fast elite route, not a report-only heat blocker. | Report-only heat may proceed; live heat must not silently use reward/risk pressure to mask this debt. |
+| `redline_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt and live-heat blocker. | Report-only heat may proceed; live heat reward or risk changes are blocked until the normal-stage pacing miss is retuned or reclassified. |
+| `redline_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Small pre-heat tuning candidate and live-heat blocker. Tactic comparison rows show `context_break` and `gatekeeper_burst` can improve this existing miss. | Report-only heat may proceed; live heat is blocked until a tuning slice chooses whether to apply counterplay/tactic changes. |
+| `redline_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Pre-heat tuning candidate and live-heat blocker because it is the largest Redline clear-time miss. | Report-only heat may proceed; live heat is blocked until severe Redline spike pressure is resolved or explicitly accepted. |
+| `redline_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt and live-heat blocker. | Report-only heat may proceed; live heat reward or risk changes are blocked until the miss is retuned or reclassified. |
+| Redline status damage is `1077.06`, above the configured `1000` cap. | Pre-heat tuning candidate and live-heat blocker. Tactic comparison rows show `long_stabilization` reduces Redline boss status pressure without turning the boss into a new miss. | Report-only heat may proceed; any live heat pressure amplification is blocked until status counterplay or cap posture is reviewed. |
+
+Additional tactic comparison caution:
+
+- `redline_outpost_7` is untargeted by clear-time budgets, but `context_break` and `gatekeeper_burst` can change the baseline `player_clear` into `enemy_hold`. These tactics should not be treated as blanket Redline fixes.
+- Report-only heat must preserve existing `Region Difficulty Curve`, `Region Budget Gates`, compact export `budgetChecks`, and tactic `budgetShift` visibility.
+- Any data change that tunes these misses belongs in a named pacing/balance slice before live heat changes economy pressure.
+
 ## Verification Requirements
 
 For contract and report-only work:
