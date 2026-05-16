@@ -71,7 +71,7 @@ export type AiOverloadBurstInput = {
   targetOverloadResist?: number;
 };
 
-export type InnerRecoveryInput = {
+export type ContextRebuildInput = {
   maxContextStability: number;
   currentContextStability: number;
   contextRebuildRate: number;
@@ -239,7 +239,7 @@ export type TimedRecoveryEffect = Omit<TimedCombatEffect, "id"> & {
   id: "regeneration";
   nextTickAt: number;
   tickIntervalSeconds: number;
-  restores: "outer" | "inner";
+  restores: "body_integrity" | "context_stability";
 };
 
 export type TimedStatusResistanceBonus = {
@@ -418,7 +418,7 @@ export type BattleEvent =
       targetId: string;
       skillId: string;
       statusId: "regeneration";
-      restores: "outer" | "inner";
+      restores: "body_integrity" | "context_stability";
       percentPerTick: number;
       endsAt: number;
     }
@@ -429,8 +429,8 @@ export type BattleEvent =
       targetId: string;
       skillId: string;
       statusId: "regeneration";
-      outerHealing: number;
-      innerQiRestored: number;
+      bodyIntegrityRestored: number;
+      contextStabilityRestored: number;
       overhealing: number;
       recoveryPrevented: number;
     }
@@ -465,7 +465,7 @@ export type BattleEvent =
       type: "context_rebuild";
       time: number;
       targetId: string;
-      innerQi: number;
+      contextStability: number;
     }
   | {
       type: "backlash";
@@ -479,8 +479,8 @@ export type BattleEvent =
       sourceId: string;
       targetId: string;
       skillId: string;
-      outerHealing: number;
-      innerQiRestored: number;
+      bodyIntegrityRestored: number;
+      contextStabilityRestored: number;
       overhealing: number;
       recoveryPrevented: number;
     }
@@ -512,10 +512,10 @@ export type BattleMetrics = {
   woundsTriggeredByEnemy: number;
   cleansesByPlayer: number;
   cleansesByEnemy: number;
-  playerOuterHealing: number;
-  enemyOuterHealing: number;
-  playerInnerQiRestored: number;
-  enemyInnerQiRestored: number;
+  playerBodyIntegrityRestored: number;
+  enemyBodyIntegrityRestored: number;
+  playerContextStabilityRestored: number;
+  enemyContextStabilityRestored: number;
   playerOverhealing: number;
   enemyOverhealing: number;
   recoveryPreventedByPlayer: number;
@@ -545,8 +545,8 @@ export type BattleContribution = {
   armorBreaksApplied: number;
   woundsApplied: number;
   cleansesApplied: number;
-  outerHealingDone: number;
-  innerQiRestored: number;
+  bodyIntegrityRestoredDone: number;
+  contextStabilityRestored: number;
   overhealingDone: number;
   recoveryPrevented: number;
   survived: boolean;

@@ -63,7 +63,7 @@ describe("balance-critical combat scenarios", () => {
     });
   });
 
-  it("captures Inner Qi pressure enemies that can break a player hero", () => {
+  it("captures Context Stability pressure enemies that can overload a player hero", () => {
     const innerPressureData: StaticGameData = {
       ...staticData,
       enemies: [
@@ -121,7 +121,7 @@ describe("balance-critical combat scenarios", () => {
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_heal_percent",
+              type: "body_integrity_restore_percent",
               value: 0.2
             }
           ]

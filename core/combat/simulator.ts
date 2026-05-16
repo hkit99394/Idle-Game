@@ -19,7 +19,7 @@ import type {
   TacticPresetDefinition
 } from "../data/types";
 import {
-  calculateInnerRecovery,
+  calculateContextRebuild,
   calculateAiOverloadContextRebuild,
   defaultCombatFormulaConstants,
   deriveStats,
@@ -540,19 +540,22 @@ function recoverAiOverloads(
     ) {
       combatant.isOverloaded = false;
       combatant.overloadEndsAt = null;
-      combatant.contextStability = calculateAiOverloadContextRebuild(combatant.maxContextStability, constants);
+      combatant.contextStability = calculateAiOverloadContextRebuild(
+        combatant.maxContextStability,
+        constants
+      );
       combatant.lastCognitiveDamageAt = time;
       events.push({
         type: "context_rebuild",
         time,
         targetId: combatant.instanceId,
-        innerQi: combatant.contextStability
+        contextStability: combatant.contextStability
       });
     }
   }
 }
 
-function recoverInnerQi(
+function rebuildContextStability(
   combatants: CombatantState[],
   statusDefinitions: Record<string, StatusEffectDefinition>,
   time: number,
@@ -576,7 +579,7 @@ function recoverInnerQi(
       combatant.activeStatuses,
       statusDefinitions
     );
-    combatant.contextStability = calculateInnerRecovery({
+    combatant.contextStability = calculateContextRebuild({
       maxContextStability: combatant.maxContextStability,
       currentContextStability: combatant.contextStability,
       contextRebuildRate:
@@ -835,7 +838,7 @@ function advanceSimulationPhase(
     runtime.constants,
     runtime.events
   );
-  recoverInnerQi(
+  rebuildContextStability(
     runtime.combatants,
     runtime.lookup.statusDefinitions,
     time,

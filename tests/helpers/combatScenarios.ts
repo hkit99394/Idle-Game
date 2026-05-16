@@ -137,9 +137,9 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
         name: "Scenario Heal",
         effects: [
           {
-            type: "outer_heal_percent",
+            type: "body_integrity_restore_percent",
             value: 0.25,
-            target: "lowest_outer_hp_ally"
+            target: "lowest_body_integrity_ally"
           }
         ]
       }),

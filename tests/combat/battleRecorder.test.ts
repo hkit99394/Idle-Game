@@ -121,7 +121,7 @@ const sampleEventsByType = {
     targetId: "player_a",
     skillId: "regen",
     statusId: "regeneration",
-    restores: "outer",
+    restores: "body_integrity",
     percentPerTick: 0.1,
     endsAt: 6
   },
@@ -132,8 +132,8 @@ const sampleEventsByType = {
     targetId: "player_a",
     skillId: "regen",
     statusId: "regeneration",
-    outerHealing: 20,
-    innerQiRestored: 0,
+    bodyIntegrityRestored: 20,
+    contextStabilityRestored: 0,
     overhealing: 0,
     recoveryPrevented: 0
   },
@@ -168,7 +168,7 @@ const sampleEventsByType = {
     type: "context_rebuild",
     time: 10,
     targetId: "enemy_a",
-    innerQi: 50
+    contextStability: 50
   },
   backlash: {
     type: "backlash",
@@ -182,8 +182,8 @@ const sampleEventsByType = {
     sourceId: "player_healer",
     targetId: "player_a",
     skillId: "heal",
-    outerHealing: 25,
-    innerQiRestored: 5,
+    bodyIntegrityRestored: 25,
+    contextStabilityRestored: 5,
     overhealing: 0,
     recoveryPrevented: 0
   },

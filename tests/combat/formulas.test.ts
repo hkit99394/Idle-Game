@@ -4,7 +4,7 @@ import {
   calculateCombatPower,
   calculateExpectedCritMultiplier,
   calculateInnerDamage,
-  calculateInnerRecovery,
+  calculateContextRebuild,
   calculateOuterDamage,
   calculateAiOverloadFeedbackDamage,
   calculateAiOverloadBurst,
@@ -111,7 +111,7 @@ describe("combat formulas", () => {
     expect(brokenDamage).toBeCloseTo(25);
   });
 
-  it("calculates default AI Overload burst as 10% of max Outer HP", () => {
+  it("calculates default AI Overload burst as 10% of max Body Integrity", () => {
     const burst = calculateAiOverloadBurst({ targetMaxBodyIntegrity: 1000 });
 
     expect(burst.percent).toBeCloseTo(0.1);
@@ -139,9 +139,9 @@ describe("combat formulas", () => {
     expect(calculateAiOverloadContextRebuild(400)).toBeCloseTo(140);
   });
 
-  it("recovers Inner Qi without exceeding maximum", () => {
+  it("rebuilds Context Stability without exceeding maximum", () => {
     expect(
-      calculateInnerRecovery({
+      calculateContextRebuild({
         maxContextStability: 100,
         currentContextStability: 50,
         contextRebuildRate: 0.005,
@@ -150,7 +150,7 @@ describe("combat formulas", () => {
     ).toBeCloseTo(55);
 
     expect(
-      calculateInnerRecovery({
+      calculateContextRebuild({
         maxContextStability: 100,
         currentContextStability: 99,
         contextRebuildRate: 0.005,

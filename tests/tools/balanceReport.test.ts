@@ -270,13 +270,13 @@ describe("balance report", () => {
       wounds: expect.any(Number),
       woundUptimeSeconds: expect.any(Number),
       cleanses: expect.any(Number),
-      outerHealing: expect.any(Number),
-      innerQiRestored: expect.any(Number),
+      bodyIntegrityRestored: expect.any(Number),
+      contextStabilityRestored: expect.any(Number),
       overhealing: expect.any(Number),
       recoveryPrevented: expect.any(Number)
     });
     expect(lotusBalance.recoveryEvents.heals).toBeGreaterThan(0);
-    expect(lotusBalance.recoveryEvents.outerHealing).toBeGreaterThan(0);
+    expect(lotusBalance.recoveryEvents.bodyIntegrityRestored).toBeGreaterThan(0);
     expect(lotusBalance.recoveryEvents.woundUptimeSeconds).toBeGreaterThanOrEqual(0);
     expect(lotusBalance.bossGate.baseline).toMatchObject({
       stageId: "lotus_clinic_7",

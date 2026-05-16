@@ -72,13 +72,13 @@ const tacticModifierBehaviorFlags = {
 const SKILL_EFFECT_TARGETS = [
   "self",
   "target",
-  "lowest_outer_hp_ally",
-  "lowest_inner_qi_ally",
+  "lowest_body_integrity_ally",
+  "lowest_context_stability_ally",
   "wounded_or_armor_broken_ally"
 ] as const;
 const TIMED_SKILL_EFFECT_TYPES = [
-  "outer_regeneration_percent",
-  "inner_regeneration_percent",
+  "body_integrity_regeneration_percent",
+  "context_stability_regeneration_percent",
   "wound",
   "speed_down",
   "inner_defense_down",

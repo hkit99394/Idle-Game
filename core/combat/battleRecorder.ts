@@ -9,13 +9,20 @@ import { isLiving } from "./targeting";
 
 export type BattleEventCategory = BattleEvent["type"];
 
+type LegacyContextRebuildEvent = Omit<
+  Extract<BattleEvent, { type: "context_rebuild" }>,
+  "type" | "contextStability"
+> & {
+  type: "qi_recover";
+  contextStability?: number;
+  innerQi?: number;
+};
+
 export type LegacyBattleEvent =
   | (Omit<Extract<BattleEvent, { type: "ai_overload" }>, "type"> & {
       type: "qi_break";
     })
-  | (Omit<Extract<BattleEvent, { type: "context_rebuild" }>, "type"> & {
-      type: "qi_recover";
-    });
+  | LegacyContextRebuildEvent;
 
 export type BattleEventRecordInput = BattleEvent | LegacyBattleEvent;
 
@@ -110,10 +117,10 @@ export function createInitialMetrics(): BattleMetrics {
     woundsTriggeredByEnemy: 0,
     cleansesByPlayer: 0,
     cleansesByEnemy: 0,
-    playerOuterHealing: 0,
-    enemyOuterHealing: 0,
-    playerInnerQiRestored: 0,
-    enemyInnerQiRestored: 0,
+    playerBodyIntegrityRestored: 0,
+    enemyBodyIntegrityRestored: 0,
+    playerContextStabilityRestored: 0,
+    enemyContextStabilityRestored: 0,
     playerOverhealing: 0,
     enemyOverhealing: 0,
     recoveryPreventedByPlayer: 0,
@@ -150,8 +157,8 @@ export function createInitialContributions(
         armorBreaksApplied: 0,
         woundsApplied: 0,
         cleansesApplied: 0,
-        outerHealingDone: 0,
-        innerQiRestored: 0,
+        bodyIntegrityRestoredDone: 0,
+        contextStabilityRestored: 0,
         overhealingDone: 0,
         recoveryPrevented: 0,
         survived: true

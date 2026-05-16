@@ -750,13 +750,13 @@ function summarizeBattle(
       ...new Set(statusApplyEvents.map((event) => event.statusId))
     ].sort(),
     medicineConsumed: autoMedicineEvents.length,
-    outerHealing: roundBalanceNumber(
-      result.battle.metrics.playerOuterHealing +
-        result.battle.metrics.enemyOuterHealing
+    bodyIntegrityRestored: roundBalanceNumber(
+      result.battle.metrics.playerBodyIntegrityRestored +
+        result.battle.metrics.enemyBodyIntegrityRestored
     ),
-    innerQiRestored: roundBalanceNumber(
-      result.battle.metrics.playerInnerQiRestored +
-        result.battle.metrics.enemyInnerQiRestored
+    contextStabilityRestored: roundBalanceNumber(
+      result.battle.metrics.playerContextStabilityRestored +
+        result.battle.metrics.enemyContextStabilityRestored
     ),
     overhealing: roundBalanceNumber(
       result.battle.metrics.playerOverhealing +

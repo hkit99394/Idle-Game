@@ -121,7 +121,7 @@ function getContributionTotalDamage(contribution?: BattleContribution): number {
 
 function getContributionRecovery(contribution?: BattleContribution): number {
   return contribution
-    ? contribution.outerHealingDone + contribution.innerQiRestored
+    ? contribution.bodyIntegrityRestoredDone + contribution.contextStabilityRestored
     : 0;
 }
 
@@ -644,10 +644,10 @@ function buildBattleEventDetail(
 
       return {
         headline: `${target} restores ${displayTerms.combat.contextStability}`,
-        detail: `${displayTerms.combat.contextStability} returns to ${formatBattleNumber(event.innerQi)}`,
+        detail: `${displayTerms.combat.contextStability} returns to ${formatBattleNumber(event.contextStability)}`,
         badges: [
           {
-            label: `${formatBattleNumber(event.innerQi)} ${displayTerms.combat.contextStability}`,
+            label: `${formatBattleNumber(event.contextStability)} ${displayTerms.combat.contextStability}`,
             tone: "inner"
           }
         ]
@@ -676,13 +676,13 @@ function buildBattleEventDetail(
     case "heal": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
-      const restored = event.outerHealing + event.innerQiRestored;
+      const restored = event.bodyIntegrityRestored + event.contextStabilityRestored;
       const detail = [
-        event.outerHealing > 0
-          ? `${formatBattleNumber(event.outerHealing)} ${displayTerms.combat.bodyIntegrity}`
+        event.bodyIntegrityRestored > 0
+          ? `${formatBattleNumber(event.bodyIntegrityRestored)} ${displayTerms.combat.bodyIntegrity}`
           : null,
-        event.innerQiRestored > 0
-          ? `${formatBattleNumber(event.innerQiRestored)} ${displayTerms.combat.contextStability}`
+        event.contextStabilityRestored > 0
+          ? `${formatBattleNumber(event.contextStabilityRestored)} ${displayTerms.combat.contextStability}`
           : null,
         event.overhealing > 0
           ? `${formatBattleNumber(event.overhealing)} overheal`
@@ -788,7 +788,7 @@ function buildBattleEventDetail(
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
       const barLabel =
-        event.restores === "outer"
+        event.restores === "body_integrity"
           ? displayTerms.combat.bodyIntegrity
           : displayTerms.combat.contextStability;
 
@@ -808,7 +808,7 @@ function buildBattleEventDetail(
           },
           {
             label: `${formatBattlePercent(event.percentPerTick)} ${barLabel}`,
-            tone: event.restores === "outer" ? "outer" : "inner"
+            tone: event.restores === "body_integrity" ? "outer" : "inner"
           }
         ]
       };
@@ -816,13 +816,13 @@ function buildBattleEventDetail(
 
     case "regeneration_tick": {
       const target = getName(names, event.targetId);
-      const restored = event.outerHealing + event.innerQiRestored;
+      const restored = event.bodyIntegrityRestored + event.contextStabilityRestored;
       const detail = [
-        event.outerHealing > 0
-          ? `${formatBattleNumber(event.outerHealing)} ${displayTerms.combat.bodyIntegrity}`
+        event.bodyIntegrityRestored > 0
+          ? `${formatBattleNumber(event.bodyIntegrityRestored)} ${displayTerms.combat.bodyIntegrity}`
           : null,
-        event.innerQiRestored > 0
-          ? `${formatBattleNumber(event.innerQiRestored)} ${displayTerms.combat.contextStability}`
+        event.contextStabilityRestored > 0
+          ? `${formatBattleNumber(event.contextStabilityRestored)} ${displayTerms.combat.contextStability}`
           : null,
         event.overhealing > 0
           ? `${formatBattleNumber(event.overhealing)} overheal`
@@ -938,8 +938,8 @@ function getContributionDamage(contribution: BattleContribution): number {
 
 function getContributionSupport(contribution: BattleContribution): number {
   return (
-    contribution.outerHealingDone +
-    contribution.innerQiRestored +
+    contribution.bodyIntegrityRestoredDone +
+    contribution.contextStabilityRestored +
     contribution.guardDamagePrevented +
     contribution.protectionDamagePrevented +
     contribution.recoveryPrevented +
@@ -990,7 +990,7 @@ function buildContributionSummaryDetails(
   const topHealer = getTopContribution(
     battle.contributions,
     (contribution) =>
-      contribution.outerHealingDone + contribution.innerQiRestored
+      contribution.bodyIntegrityRestoredDone + contribution.contextStabilityRestored
   );
   const topProtector = getTopContribution(
     battle.contributions,
@@ -1037,11 +1037,11 @@ function buildContributionSummaryDetails(
 
   if (
     topHealer &&
-    topHealer.outerHealingDone + topHealer.innerQiRestored > 0
+    topHealer.bodyIntegrityRestoredDone + topHealer.contextStabilityRestored > 0
   ) {
     details.push(
       `Top recovery: ${formatContributionName(topHealer)} restored ${formatBattleNumber(
-        topHealer.outerHealingDone + topHealer.innerQiRestored
+        topHealer.bodyIntegrityRestoredDone + topHealer.contextStabilityRestored
       )} total recovery.`
     );
   }

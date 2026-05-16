@@ -55,17 +55,21 @@ const BASE_STAT_VALUE_ALIASES: Record<string, string> = {
 };
 
 const SKILL_EFFECT_TYPE_ALIASES: Record<string, string> = {
-  body_integrity_regeneration_percent: "outer_regeneration_percent",
-  body_integrity_restore_percent: "outer_heal_percent",
+  outer_regeneration_percent: "body_integrity_regeneration_percent",
+  outer_heal_percent: "body_integrity_restore_percent",
   cognitive_defense_down: "inner_defense_down",
-  context_stability_regeneration_percent: "inner_regeneration_percent",
-  context_stability_restore_percent: "inner_heal_percent"
+  inner_regeneration_percent: "context_stability_regeneration_percent",
+  inner_heal_percent: "context_stability_restore_percent"
 };
 
 const SKILL_EFFECT_TARGET_ALIASES: Record<string, string> = {
-  lowest_body_integrity_ally: "lowest_outer_hp_ally",
-  lowest_context_stability_ally: "lowest_inner_qi_ally"
+  lowest_outer_hp_ally: "lowest_body_integrity_ally",
+  lowest_inner_qi_ally: "lowest_context_stability_ally"
 };
+
+const REGION_HEALING_PRESSURE_TARGET_ALIASES = [
+  { legacy: "minOuterHealing", target: "minBodyIntegrityRestored" }
+] as const satisfies readonly FieldAlias[];
 
 const TARGET_RULE_ALIASES: Record<string, string> = {
   inner_broken: "overloaded"
@@ -310,6 +314,30 @@ function normalizeStatusEffect(
   } as StatusEffectDefinition;
 }
 
+function normalizeRegion(region: StaticGameData["regions"][number], errors?: string[]) {
+  const balanceTargets = isRecord(region.balanceTargets)
+    ? { ...region.balanceTargets }
+    : region.balanceTargets;
+
+  if (
+    isRecord(balanceTargets) &&
+    isRecord(balanceTargets.healingPressure)
+  ) {
+    balanceTargets.healingPressure = normalizeFieldAliases(
+      balanceTargets.healingPressure,
+      `Region ${region.id} balanceTargets.healingPressure`,
+      REGION_HEALING_PRESSURE_TARGET_ALIASES,
+      "target",
+      errors
+    );
+  }
+
+  return {
+    ...region,
+    balanceTargets
+  } as StaticGameData["regions"][number];
+}
+
 function normalizeEquipment(equipment: EquipmentDefinition): EquipmentDefinition {
   return {
     ...equipment,
@@ -410,6 +438,7 @@ function normalizeStaticCombatSchemaAliasesInternal(
     equipmentSets: Array.isArray(data.equipmentSets)
       ? data.equipmentSets.map(normalizeEquipmentSet)
       : data.equipmentSets,
+    regions: normalizeArray(data.regions, (region) => normalizeRegion(region, errors)),
     upgrades: normalizeArray(data.upgrades, normalizeUpgrade),
     skillUpgrades: normalizeArray(data.skillUpgrades, normalizeSkillUpgrade),
     styles: normalizeArray(data.styles, normalizeStyle),

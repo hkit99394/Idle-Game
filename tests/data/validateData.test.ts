@@ -51,6 +51,31 @@ describe("static game data validation", () => {
           : enemy
       ),
       skills: staticData.skills.map((skill) => {
+        if (skill.id === "lotus_stabilizer_pulse") {
+          return {
+            ...skill,
+            effects: skill.effects.map((effect) => {
+              if (effect.type === "body_integrity_restore_percent") {
+                return {
+                  ...effect,
+                  type: "outer_heal_percent",
+                  target: "lowest_outer_hp_ally"
+                };
+              }
+
+              if (effect.type === "context_stability_restore_percent") {
+                return {
+                  ...effect,
+                  type: "inner_heal_percent",
+                  target: "lowest_inner_qi_ally"
+                };
+              }
+
+              return effect;
+            })
+          };
+        }
+
         if (skill.id !== "cloud_context_press") {
           return skill;
         }
@@ -193,7 +218,26 @@ describe("static game data validation", () => {
         }
 
         return status;
-      })
+      }),
+      regions: staticData.regions.map((region) =>
+        region.id === "lotus_clinic"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                healingPressure:
+                  region.balanceTargets?.healingPressure === undefined
+                    ? undefined
+                    : {
+                        ...region.balanceTargets.healingPressure,
+                        minOuterHealing:
+                          region.balanceTargets.healingPressure
+                            .minBodyIntegrityRestored
+                      }
+              }
+            }
+          : region
+      )
     } as unknown as StaticGameData;
 
     expect(validateStaticGameData(aliasedData)).toEqual([]);
@@ -231,6 +275,25 @@ describe("static game data validation", () => {
               }
             }
           : status
+      ),
+      regions: staticData.regions.map((region) =>
+        region.id === "lotus_clinic"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                healingPressure:
+                  region.balanceTargets?.healingPressure === undefined
+                    ? undefined
+                    : {
+                        ...region.balanceTargets.healingPressure,
+                        minOuterHealing:
+                          region.balanceTargets.healingPressure
+                            .minBodyIntegrityRestored
+                      }
+              }
+            }
+          : region
       )
     } as unknown as StaticGameData;
 
@@ -270,6 +333,25 @@ describe("static game data validation", () => {
               }
             }
           : status
+      ),
+      regions: staticData.regions.map((region) =>
+        region.id === "lotus_clinic"
+          ? {
+              ...region,
+              balanceTargets: {
+                ...region.balanceTargets,
+                healingPressure:
+                  region.balanceTargets?.healingPressure === undefined
+                    ? undefined
+                    : {
+                        ...region.balanceTargets.healingPressure,
+                        minOuterHealing:
+                          (region.balanceTargets.healingPressure
+                            .minBodyIntegrityRestored ?? 0) + 1
+                      }
+              }
+            }
+          : region
       )
     } as unknown as StaticGameData;
 
@@ -277,7 +359,8 @@ describe("static game data validation", () => {
       expect.arrayContaining([
         "conflicting combat schema aliases: Hero iron_fist_initiate baseStats.maxBodyIntegrity and Hero iron_fist_initiate baseStats.maxOuterHp",
         "conflicting combat schema aliases: Skill impact_combo.kineticMultiplier and Skill impact_combo.outerMultiplier",
-        "conflicting combat schema aliases: Status corruption effects.bodyIntegrityDamagePerSecond and Status corruption effects.outerDamagePerSecond"
+        "conflicting combat schema aliases: Status corruption effects.bodyIntegrityDamagePerSecond and Status corruption effects.outerDamagePerSecond",
+        "conflicting combat schema aliases: Region lotus_clinic balanceTargets.healingPressure.minBodyIntegrityRestored and Region lotus_clinic balanceTargets.healingPressure.minOuterHealing"
       ])
     );
   });
@@ -580,7 +663,7 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Skill impact_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break, apply_status",
+        "Skill impact_combo effect unknown_effect must be one of body_integrity_restore_percent, context_stability_restore_percent, body_integrity_regeneration_percent, context_stability_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break, apply_status",
         "Skill impact_combo effect unknown_effect value must be a number",
         "Skill impact_combo effect guard durationSeconds must be a positive number"
       ])
@@ -614,7 +697,7 @@ describe("static game data validation", () => {
         "Skill impact_combo effect apply_status references missing status missing_status",
         "Skill impact_combo effect apply_status chance must be 0-1",
         "Skill impact_combo effect apply_status stacks must be positive",
-        "Skill impact_combo effect apply_status target must be one of self, target, lowest_outer_hp_ally, lowest_inner_qi_ally, wounded_or_armor_broken_ally",
+        "Skill impact_combo effect apply_status target must be one of self, target, lowest_body_integrity_ally, lowest_context_stability_ally, wounded_or_armor_broken_ally",
         "Skill impact_combo effect apply_status durationSeconds must be a positive number"
       ])
     );

@@ -425,9 +425,9 @@ describe("combat tactics", () => {
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_heal_percent",
+              type: "body_integrity_restore_percent",
               value: 0.25,
-              target: "lowest_outer_hp_ally"
+              target: "lowest_body_integrity_ally"
             }
           ]
         },
@@ -490,8 +490,8 @@ describe("combat tactics", () => {
     );
 
     expect(longStabilization.finalPlayerTeam[0]?.stats.statusResistance).toBeCloseTo(0.08);
-    expect(longStabilizationHeal?.outerHealing).toBeGreaterThan(
-      balancedHeal?.outerHealing ?? 0
+    expect(longStabilizationHeal?.bodyIntegrityRestored).toBeGreaterThan(
+      balancedHeal?.bodyIntegrityRestored ?? 0
     );
   });
 

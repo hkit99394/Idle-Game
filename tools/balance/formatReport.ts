@@ -225,7 +225,7 @@ function formatRegionRecoveryEventLine(region: RegionSummary): string {
 
   return (
     `- ${region.regionName}: ${events.heals} heals/regen ticks, ` +
-    `${events.outerHealing} Outer HP and ${events.innerQiRestored} Inner Qi restored, ` +
+    `${events.bodyIntegrityRestored} Body Integrity and ${events.contextStabilityRestored} Context Stability restored, ` +
     `${events.overhealing} overheal, ${events.recoveryPrevented} recovery denied, ` +
     `${events.wounds} wounds, ${events.woundUptimeSeconds}s wound uptime, ` +
     `${events.cleanses} cleanses`

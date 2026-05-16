@@ -27,14 +27,14 @@ export function calculateSkillSupportCombatPower(
       const durationMultiplier = Math.max(1, effect.durationSeconds ?? 1);
 
       switch (effect.type) {
-        case "outer_heal_percent":
+        case "body_integrity_restore_percent":
           return effectTotal + stats.maxBodyIntegrity * effect.value * 0.5;
-        case "inner_heal_percent":
+        case "context_stability_restore_percent":
           return effectTotal + stats.maxContextStability * effect.value * 0.45;
-        case "outer_regeneration_percent":
+        case "body_integrity_regeneration_percent":
           return effectTotal +
             stats.maxBodyIntegrity * effect.value * durationMultiplier * 0.35;
-        case "inner_regeneration_percent":
+        case "context_stability_regeneration_percent":
           return effectTotal +
             stats.maxContextStability * effect.value * durationMultiplier * 0.32;
         case "cleanse":

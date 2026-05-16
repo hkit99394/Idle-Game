@@ -20,12 +20,12 @@ This guide is for new contributors working on the combat engine produced by Stag
    - `createLookup` indexes heroes, enemies, skills, skill upgrades, and status definitions.
    - `resolvePlayerTactic` resolves `input.tacticId` to a validated tactic preset, defaulting missing or unknown ids to `balanced_routine`.
    - `applyPreBattleAutoMedicine` may consume pre-battle resistance medicine before combatants are created.
-   - `createCombatantState` derives stats, applies player-side tactic status resistance, initial HP/Qi, cooldown state, formation slot, family multipliers, timed status fields, data status list, and first `nextActionAt`.
+   - `createCombatantState` derives stats, applies player-side tactic status resistance, initial Body Integrity/Context Stability, cooldown state, formation slot, family multipliers, timed status fields, data status list, and first `nextActionAt`.
 2. Step advance phase:
    - `expireStatusEffects` clears expired timed statuses and medicine resistance bonuses.
    - `advanceCombatantDataStatuses` advances `activeStatuses`, applies status tick damage, records `status_tick`/`status_expire`, and marks defeats.
    - `recoverAiOverloads` ends AI Overload windows and restores Context Stability.
-   - `recoverInnerQi` restores inner Qi after the configured delay, with data-status recovery modifiers.
+   - `rebuildContextStability` restores Context Stability after the configured delay, with data-status Context Rebuild modifiers.
    - `tickRegeneration` applies timed regeneration ticks.
 3. Action phase:
    - Combatants are visited in runtime array order.
@@ -34,7 +34,7 @@ This guide is for new contributors working on the combat engine produced by Stag
    - `resolveAttackDamageTargets` selects the intended enemy target, applying player tactic target priorities when present, and may redirect damage to a protector.
    - `createAttackDamagePackage` calculates outer/inner damage from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, AI Overload modifiers, and data status modifiers.
    - `applyDamagePackageMitigation` applies guard first, then protection.
-   - `commitDamagePackage` mutates target HP/Qi and records attack damage.
+   - `commitDamagePackage` mutates target Body Integrity/Context Stability and records attack damage.
    - `applyTimedSkillEffects` handles post-attack timed/status effects.
    - `applyRecoverySkillEffects` handles heals, regeneration setup, and cleanse.
    - `applyAiOverloadIfNeeded`, defeat checks, AI Overload feedback/backlash, and data-status attack backlash run after skill effects.
@@ -55,7 +55,7 @@ Skill effects start in static data and end in `core/combat/effectPipeline.ts`.
 5. If the effect emits a battle event, extend `BattleEvent` in `core/combat/types.ts`, `BATTLE_EVENT_TYPES` in `battleRecorder.ts`, and `getBattleEventStatusId` in `statusMetadata.ts` when the event carries a status.
 6. Add focused tests under `tests/combat`, plus data validation coverage when the effect can appear in JSON.
 
-Inside `effectPipeline.ts`, use the local `selectEffectTarget`/`selectOffensiveEffectTarget` helpers for effect target semantics. Current supported targets are `self`, `target`, `lowest_outer_hp_ally`, `lowest_inner_qi_ally`, and `wounded_or_armor_broken_ally`.
+Inside `effectPipeline.ts`, use the local `selectEffectTarget`/`selectOffensiveEffectTarget` helpers for effect target semantics. Current supported targets are `self`, `target`, `lowest_body_integrity_ally`, `lowest_context_stability_ally`, and `wounded_or_armor_broken_ally`.
 
 ## Where to add a status hook
 

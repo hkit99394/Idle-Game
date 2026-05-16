@@ -17,10 +17,10 @@ export type UnlockCondition =
   | { type: "style_mastery_level"; styleId: MartialStyleId; level: number };
 
 export const SKILL_EFFECT_TYPES = [
-  "outer_heal_percent",
-  "inner_heal_percent",
-  "outer_regeneration_percent",
-  "inner_regeneration_percent",
+  "body_integrity_restore_percent",
+  "context_stability_restore_percent",
+  "body_integrity_regeneration_percent",
+  "context_stability_regeneration_percent",
   "wound",
   "cleanse",
   "speed_down",
@@ -36,8 +36,8 @@ export type SkillEffectType = (typeof SKILL_EFFECT_TYPES)[number];
 export type SkillEffectTarget =
   | "self"
   | "target"
-  | "lowest_outer_hp_ally"
-  | "lowest_inner_qi_ally"
+  | "lowest_body_integrity_ally"
+  | "lowest_context_stability_ally"
   | "wounded_or_armor_broken_ally";
 
 export type DirectSkillEffect = {
@@ -330,7 +330,7 @@ export type RegionBalanceTargets = {
   };
   healingPressure?: {
     minHeals?: number;
-    minOuterHealing?: number;
+    minBodyIntegrityRestored?: number;
     minCleanses?: number;
     maxRecoveryPrevented?: number;
   };

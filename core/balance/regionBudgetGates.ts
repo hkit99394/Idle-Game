@@ -40,7 +40,7 @@ export type StageBudgetMetrics = {
   armorBreaks: number;
   defensiveDamagePrevented: number;
   heals: number;
-  outerHealing: number;
+  bodyIntegrityRestored: number;
   cleanses: number;
   recoveryPrevented: number;
 };
@@ -55,7 +55,7 @@ export type RegionPressureStageSummary =
       regenerations?: number;
       wounds?: number;
       woundUptimeSeconds?: number;
-      innerQiRestored?: number;
+      contextStabilityRestored?: number;
       overhealing?: number;
     } & StageBudgetMetrics);
 
@@ -78,8 +78,8 @@ export type RegionPressureMetrics = {
     wounds: number;
     woundUptimeSeconds: number;
     cleanses: number;
-    outerHealing: number;
-    innerQiRestored: number;
+    bodyIntegrityRestored: number;
+    contextStabilityRestored: number;
     overhealing: number;
     recoveryPrevented: number;
   };
@@ -125,7 +125,7 @@ export type RegionBudgetGateContext = {
   };
   healingPressure?: {
     heals: number;
-    outerHealing: number;
+    bodyIntegrityRestored: number;
     cleanses: number;
     recoveryPrevented: number;
   };
@@ -286,15 +286,15 @@ export function buildRegionPressureMetrics(
             ).toFixed(2)
           ),
           cleanses: summary.healingPressure.cleanses + stage.cleanses,
-          outerHealing: Number(
+          bodyIntegrityRestored: Number(
             (
-              summary.healingPressure.outerHealing + stage.outerHealing
+              summary.healingPressure.bodyIntegrityRestored + stage.bodyIntegrityRestored
             ).toFixed(2)
           ),
-          innerQiRestored: Number(
+          contextStabilityRestored: Number(
             (
-              summary.healingPressure.innerQiRestored +
-              (stage.innerQiRestored ?? 0)
+              summary.healingPressure.contextStabilityRestored +
+              (stage.contextStabilityRestored ?? 0)
             ).toFixed(2)
           ),
           overhealing: Number(
@@ -331,8 +331,8 @@ export function buildRegionPressureMetrics(
         wounds: 0,
         woundUptimeSeconds: 0,
         cleanses: 0,
-        outerHealing: 0,
-        innerQiRestored: 0,
+        bodyIntegrityRestored: 0,
+        contextStabilityRestored: 0,
         overhealing: 0,
         recoveryPrevented: 0
       }
@@ -534,11 +534,11 @@ function buildHealingPressureBudgetCheck(
   }
 
   if (
-    target.minOuterHealing !== undefined &&
-    events.outerHealing < target.minOuterHealing
+    target.minBodyIntegrityRestored !== undefined &&
+    events.bodyIntegrityRestored < target.minBodyIntegrityRestored
   ) {
     failures.push(
-      `Outer healing ${formatNumber(events.outerHealing)} below minimum ${formatNumber(target.minOuterHealing)}`
+      `Body Integrity restored ${formatNumber(events.bodyIntegrityRestored)} below minimum ${formatNumber(target.minBodyIntegrityRestored)}`
     );
   }
 
@@ -561,7 +561,7 @@ function buildHealingPressureBudgetCheck(
     "healing_pressure",
     "Healing Pressure",
     failures,
-    `${events.heals} heals, ${formatNumber(events.outerHealing)} Outer healing, ${events.cleanses} cleanses within healing budget`
+    `${events.heals} heals, ${formatNumber(events.bodyIntegrityRestored)} Body Integrity restored, ${events.cleanses} cleanses within healing budget`
   );
 }
 

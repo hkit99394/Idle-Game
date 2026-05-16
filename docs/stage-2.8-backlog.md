@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1, 93.2, 93.3, and 94.1 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`; Slice 93.3 moved owned combat runtime stat fields to the approved Path of Neon names; Slice 94.1 moved AI Overload event and aggregate symbols to current names.
+Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1, 93.2, 93.3, 94.1, and 94.2 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`; Slice 93.3 moved owned combat runtime stat fields to the approved Path of Neon names; Slice 94.1 moved AI Overload event and aggregate symbols to current names; Slice 94.2 moved Context Rebuild and restoration payload/report symbols to current names.
 
 [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) completed save resource/progress field migration and left combat stat fields, combat event names, battle metrics, and report/code symbols explicitly deferred. Stage 2.8 starts from that save version `13` baseline and should not reopen Stage 2.7 resource/progress decisions.
 
@@ -23,6 +23,7 @@ Migrate owned combat stat, combat event, battle metric, and report/code symbols 
 - Slice 93.2 added `core/data/combatSchemaAliases.ts`; Slice 93.3 flipped the BaseStats and status-modifier alias direction so legacy authored stat fields normalize forward into the current runtime contract.
 - Combat runtime `BaseStats`, `DerivedStats`, `CombatantState`, formula inputs/constants, progression stat derivation, support/balance stat callers, and battle combatant view models now use fields such as `maxBodyIntegrity`, `contextStability`, `kineticAttack`, `cognitiveDefense`, `breachPower`, `overloadResist`, and `contextRebuildRate`.
 - Slice 94.1 moved event types to `ai_overload` and `context_rebuild`, renamed AI Overload metrics/contributions/formula helpers, and preserves legacy `qi_break` / `qi_recover` event record normalization.
+- Slice 94.2 renamed baseline rebuild helpers, restoration event payloads, recovery metrics/contributions, canonical recovery skill effect types/targets, and the recovery pressure budget target; legacy recovery/static payloads still normalize through `core/data/combatSchemaAliases.ts`.
 - Runtime targeting now uses `overloaded`; legacy static `inner_broken` target rules still normalize through `core/data/combatSchemaAliases.ts`.
 - Current combat display terms already use Body Integrity, Context Stability, AI Overload, Context Rebuild, Kinetic Art, and Cognitive Art in player-facing UI where appropriate.
 - Combat event records and metrics are stable tooling contracts. Any symbol rename must either preserve legacy compatibility, add temporary legacy report columns, or record an explicit keep/defer decision.
@@ -40,7 +41,7 @@ Slice 93.1 locked the final Stage 2.8 directions in [Stage 2.8 Combat Save And S
 | `innerAttack`, `innerDefense` | `cognitiveAttack`, `cognitiveDefense` | Cognitive pressure/defense stat direction. |
 | `breakPower`, `breakResist` | `breachPower`, `overloadResist` | Display terms already exist; schema/report rename needs preflight. |
 | `qi_break`, `qiBreak*`, `isQiBroken`, `qiBreakEndsAt` | `ai_overload`, `aiOverload*`, `isOverloaded`, `overloadEndsAt` | Event, metric, and runtime state direction. |
-| `innerRecoveryRate`, `innerQiRestored`, recovery effect fields | `contextRebuildRate`, `contextStabilityRestored`, `contextRebuild*` for baseline rebuild | Split baseline rebuild from generic recovery behavior. |
+| `innerRecoveryRate`, `innerQiRestored`, `outerHealing`, recovery effect fields | `contextRebuildRate`, `contextStabilityRestored`, `bodyIntegrityRestored`, `contextRebuild*` for baseline rebuild | Split baseline rebuild from generic recovery behavior. |
 | `inner_broken` targeting | `overloaded` targeting | Preserve the legacy target-rule alias during transition. |
 
 ## Non-Goals
@@ -73,7 +74,7 @@ Stage 2.8 implements Epics 93 and 94 from the retheme migration plan as focused 
 | 93.2 | Combat Save Alias Foundation | Complete | Added static/combat schema alias normalization without a save-version bump. |
 | 93.3 | Combat Runtime Stat Fields | Complete | Moved owned combat runtime/view model stat fields to approved current names without changing combat math. |
 | 94.1 | AI Overload Event And Metric Symbols | Complete | Renamed AI Overload event, metric, contribution, and report symbols with compatibility where needed. |
-| 94.2 | Context Rebuild And Recovery Symbols | Planned | Rename baseline recovery/restoration symbols while keeping boost/status behavior clear. |
+| 94.2 | Context Rebuild And Recovery Symbols | Complete | Renamed baseline recovery/restoration symbols while keeping boost/status behavior clear. |
 | 94.3 | Static Data And Validation Continuity | Planned | Apply or defer static stat/effect schema key migration with data validation and aliases. |
 | 94.4 | Web, Tooling, And Export Continuity | Planned | Keep web battle panels, diagnostics, simulator output, JSON/CSV exports, and support tooling coherent. |
 | 94.5 | Hardening And Archive Readiness | Planned | Run stale scans, full validation, docs closure, and prepare Stage 2.8 for archive. |
@@ -142,7 +143,7 @@ Completed in code: `core/data/combatSchemaAliases.ts` accepts Stage 2.8 combat s
 
 Move owned transient combat/runtime stat symbols to approved Path of Neon names after alias foundations are safe.
 
-Completed in code: `BaseStats`/`DerivedStats`, `CombatantState`, damage and overload formula inputs/constants, Context Rebuild runtime fields, progression stat derivation, support/balance callers, and battle combatant view models now use the current Body Integrity, Context Stability, Kinetic/Cognitive, Breach Power, Overload Resist, and Context Rebuild symbols. Battle recovery/restoration and damage-channel payload names such as `innerQiRestored`, `outerDamage`, and `innerDamage` remain for the later 94.x report/recovery slices. Static JSON authored with legacy stat fields still validates through the alias bridge and normalizes to the current runtime shape.
+Completed in code: `BaseStats`/`DerivedStats`, `CombatantState`, damage and overload formula inputs/constants, Context Rebuild runtime fields, progression stat derivation, support/balance callers, and battle combatant view models now use the current Body Integrity, Context Stability, Kinetic/Cognitive, Breach Power, Overload Resist, and Context Rebuild symbols. Battle damage-channel payload names such as `outerDamage` and `innerDamage` remain for a later report/export slice. Static JSON authored with legacy stat fields still validates through the alias bridge and normalizes to the current runtime shape.
 
 ### Tasks
 
@@ -196,6 +197,8 @@ Completed in code: `BattleEvent` now emits `ai_overload` and `context_rebuild`; 
 ## Slice 94.2: Context Rebuild And Recovery Symbols
 
 Rename recovery/restoration symbols while preserving the distinction between baseline rebuild and boosted reboot behavior.
+
+Completed in code: baseline rebuild helpers now use `ContextRebuildInput`, `calculateContextRebuild`, and `rebuildContextStability`; `context_rebuild` events carry `contextStability`; heal/regeneration events, battle metrics, contributions, balance summaries, and web battle details use `bodyIntegrityRestored` and `contextStabilityRestored`; regeneration `restores` values use `body_integrity` and `context_stability`; canonical skill effect types/targets use Body Integrity and Context Stability names; `minOuterHealing` normalizes to `minBodyIntegrityRestored`; `innerRecoveryMultiplier` remains a Context Rebuild modifier through the `contextRebuildMultiplier` alias.
 
 ### Tasks
 

@@ -81,7 +81,7 @@ function withScenarioData(input: {
 }
 
 describe("recovery and wound effects", () => {
-  it("heals the damaged ally selected by lowest Outer HP", () => {
+  it("heals the damaged ally selected by lowest Body Integrity", () => {
     const data = withScenarioData({
       skills: [
         {
@@ -93,9 +93,9 @@ describe("recovery and wound effects", () => {
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_heal_percent",
+              type: "body_integrity_restore_percent",
               value: 0.25,
-              target: "lowest_outer_hp_ally"
+              target: "lowest_body_integrity_ally"
             }
           ]
         }
@@ -141,11 +141,11 @@ describe("recovery and wound effects", () => {
       sourceId: "player_scenario_ally_healer_2",
       targetId: "player_scenario_recovery_tank_1"
     });
-    expect(heal?.outerHealing).toBeGreaterThan(0);
-    expect(result.metrics.playerOuterHealing).toBeGreaterThan(0);
+    expect(heal?.bodyIntegrityRestored).toBeGreaterThan(0);
+    expect(result.metrics.playerBodyIntegrityRestored).toBeGreaterThan(0);
   });
 
-  it("records overheal when a full HP recovery has no effective healing", () => {
+  it("records overheal when a full Body Integrity recovery has no effective healing", () => {
     const data = withScenarioData({
       skills: [
         {
@@ -155,7 +155,7 @@ describe("recovery and wound effects", () => {
           outerMultiplier: 0,
           innerMultiplier: 0,
           targetRule: "first_living",
-          effects: [{ type: "outer_heal_percent", value: 0.2 }]
+          effects: [{ type: "body_integrity_restore_percent", value: 0.2 }]
         }
       ],
       heroes: [
@@ -181,13 +181,13 @@ describe("recovery and wound effects", () => {
 
     expect(heal).toMatchObject({
       type: "heal",
-      outerHealing: 0
+      bodyIntegrityRestored: 0
     });
     expect(heal?.overhealing).toBeGreaterThan(0);
     expect(result.metrics.playerOverhealing).toBeGreaterThan(0);
   });
 
-  it("restores damaged Inner Qi without exceeding the max bar", () => {
+  it("restores damaged Context Stability without exceeding the max bar", () => {
     const data = withScenarioData({
       skills: [
         {
@@ -199,9 +199,9 @@ describe("recovery and wound effects", () => {
           targetRule: "first_living",
           effects: [
             {
-              type: "inner_heal_percent",
+              type: "context_stability_restore_percent",
               value: 0.3,
-              target: "lowest_inner_qi_ally"
+              target: "lowest_context_stability_ally"
             }
           ]
         },
@@ -250,13 +250,13 @@ describe("recovery and wound effects", () => {
     });
     const heal = result.events
       .filter((event) => event.type === "heal")
-      .find((event) => event.innerQiRestored > 0);
+      .find((event) => event.contextStabilityRestored > 0);
 
     expect(heal).toMatchObject({
       type: "heal",
       targetId: "player_scenario_inner_tank_1"
     });
-    expect(heal?.innerQiRestored).toBeGreaterThan(0);
+    expect(heal?.contextStabilityRestored).toBeGreaterThan(0);
     expect(result.finalPlayerTeam[0].contextStability).toBeLessThanOrEqual(
       result.finalPlayerTeam[0].maxContextStability
     );
@@ -274,7 +274,7 @@ describe("recovery and wound effects", () => {
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_regeneration_percent",
+              type: "body_integrity_regeneration_percent",
               value: 0.1,
               durationSeconds: 3
             }
@@ -311,7 +311,7 @@ describe("recovery and wound effects", () => {
 
     expect(result.events.some((event) => event.type === "regeneration")).toBe(true);
     expect(ticks.map((event) => event.time)).toEqual([2, 3]);
-    expect(ticks.every((event) => event.outerHealing > 0)).toBe(true);
+    expect(ticks.every((event) => event.bodyIntegrityRestored > 0)).toBe(true);
   });
 
   it("uses wound to reduce recovery and improve clear time against a healer", () => {
@@ -349,7 +349,7 @@ describe("recovery and wound effects", () => {
           outerMultiplier: 0,
           innerMultiplier: 0,
           targetRule: "first_living",
-          effects: [{ type: "outer_heal_percent", value: 0.2 }]
+          effects: [{ type: "body_integrity_restore_percent", value: 0.2 }]
         }
       ],
       heroes: [

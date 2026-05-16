@@ -3,7 +3,7 @@ import type {
   CombatFormulaConstants,
   DamageInput,
   DerivedStats,
-  InnerRecoveryInput,
+  ContextRebuildInput,
   AiOverloadBurstInput
 } from "./types";
 
@@ -62,7 +62,8 @@ export function calculateCombatPower(stats: DerivedStats): number {
   const offense = expectedDamage * speedMultiplier * 10;
   const aiOverloadControl =
     (Math.max(0, stats.breachPower) + Math.max(0, stats.overloadResist)) * 500;
-  const innerRecovery = stats.maxContextStability * Math.max(0, stats.contextRebuildRate) * 20;
+  const contextRebuild =
+    stats.maxContextStability * Math.max(0, stats.contextRebuildRate) * 20;
   const statusTenacity = clamp(stats.statusResistance, 0, 0.8) * 600;
 
   return Math.max(
@@ -72,7 +73,7 @@ export function calculateCombatPower(stats: DerivedStats): number {
         innerDurability +
         offense +
         aiOverloadControl +
-        innerRecovery +
+        contextRebuild +
         statusTenacity
     )
   );
@@ -162,8 +163,8 @@ export function calculateAiOverloadContextRebuild(
   return maxContextStability * constants.aiOverloadContextRebuildPercent;
 }
 
-export function calculateInnerRecovery(
-  input: InnerRecoveryInput
+export function calculateContextRebuild(
+  input: ContextRebuildInput
 ): number {
   const recovered =
     input.currentContextStability +
