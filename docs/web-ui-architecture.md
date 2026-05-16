@@ -57,8 +57,8 @@ Boundary tests in `tests/web/viewModelBoundaries.test.ts` guard sibling feature 
 - `web/displayTerms.ts` owns the shared Path of Neon vocabulary and formatter helpers for resource labels, combat stat labels, tactic modifier labels, and style-family display names.
 - React panels and view models should use the vocabulary helpers for repeated player-facing terms while reducer actions, save fields, static ids, and core event contracts keep their compatibility names.
 - Static data display names and descriptions remain owned by `data/*.json`; retheme those through the static-content epic without changing ids.
-- Concept terms for unimplemented mechanics, such as District Heat, Trace, Firewall, Calibration Debt, Cognitive Intrusion, or AI Raid, should not appear in player-facing UI until those systems exist.
-- `tests/web/displayTerms.test.ts` guards the formatter mappings and scans live web source for future-mechanic terms.
+- Concept terms for deferred mechanics, such as District Heat, Trace, Firewall, Calibration Debt, or AI Raid, should not appear in player-facing UI until those systems exist. The implemented Intrusion status should surface through static status metadata instead of hard-coded panel copy.
+- `tests/web/displayTerms.test.ts` guards the formatter mappings and scans live web source for future-only mechanic terms.
 
 ## Styling And Smoke Coverage
 

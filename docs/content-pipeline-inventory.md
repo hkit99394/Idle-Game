@@ -4,6 +4,8 @@ Stage 2.0 closed with a content pipeline where JSON content is assembled into `S
 
 Known misses below are recorded as tuning debt so future tuning passes can handle them intentionally.
 
+Stage 3.0 added the first post-migration mechanic as data-driven combat content: the `cognitive_intrusion` status and Azure Pulse Monk's `context_shock_refinement` upgrade hook. The addition uses existing status, skill-upgrade, simulator, and report surfaces rather than changing save or export schemas.
+
 ## Current Authoring Contract
 
 - [data/staticGameData.ts](../data/staticGameData.ts) imports the configured JSON files and exports the canonical bundle.
@@ -25,7 +27,7 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 | [data/heroes.json](../data/heroes.json) | `heroes` | 5 | Duplicate ids, skill/style references, base stats, combat role, and unlock references. | Roster composition, CP curve, and `passiveIds` are not tied to a passive catalog yet. |
 | [data/skills.json](../data/skills.json) | `skills` | 28 | Duplicate ids, cooldown/multiplier ranges, target rules, skill effect types, status refs, chance, stacks, duration, and effect targets. | Skill power identity and cross-skill progression are only visible through combat and balance reports. |
 | [data/tactics.json](../data/tactics.json) | `tactics` | 6 | Duplicate ids, balanced default, names, descriptions, behavior flags, target priorities, modifier types/ranges, and contradictory fields. | Combat behavior is reviewed through tactic tests and opt-in tactic comparison exports; player selection persists through save migration and web state. |
-| [data/statusEffects.json](../data/statusEffects.json) | `statusEffects` | 6 | Duplicate ids, category, duration, stacks, stack policy, dispel tags, tick interval, and effect keys. | Status-pressure severity is judged through simulation budgets. |
+| [data/statusEffects.json](../data/statusEffects.json) | `statusEffects` | 6 | Duplicate ids, category, duration, stacks, stack policy, dispel tags, tick interval, and effect keys including `cognitiveDamageTakenMultiplier`. | Status-pressure severity and Intrusion pacing are judged through simulation budgets and focused combat regressions. |
 | [data/medicines.json](../data/medicines.json) | `medicines` | 3 | Duplicate ids, stage unlock refs, max carry, effect type, cleanse tags, max count, resistance value, and duration. | Auto-use policy, inventory pressure, and expected medicine spend are report-driven. |
 | [data/equipment.json](../data/equipment.json) | `equipment` | 14 | Duplicate ids, slot, rarity, allowed styles, set refs, effects, and affixes. | Drop economy, CP value, and set/item pacing are not strict validation gates. |
 | [data/equipmentSets.json](../data/equipmentSets.json) | `equipmentSets` | 1 | Duplicate ids, set names, piece counts, duplicate piece tiers, and bonus effects. | Set power curve and region placement remain manual. |
@@ -88,7 +90,7 @@ The active balance report is stage and region focused. It does not yet answer th
 
 The current simulator output keeps these misses visible:
 
-| Region | Current miss | Disposition through Stage 2.1 |
+| Region | Current miss | Current disposition |
 | --- | --- | --- |
 | Black Iron Foundry | `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
 | Redline Outpost | `redline_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
@@ -98,6 +100,8 @@ The current simulator output keeps these misses visible:
 | Redline Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
 
 These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
+
+Stage 3.0 did not retune these budgets. Its simulator review confirmed the same Black Iron Foundry and Redline Outpost misses remain visible while Intrusion's focused regression proves the new mechanic changes AI Overload timing.
 
 ## Tactic Comparison Notes
 

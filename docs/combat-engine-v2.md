@@ -62,7 +62,7 @@ Inside `effectPipeline.ts`, use the local `selectEffectTarget`/`selectOffensiveE
 There are two status systems.
 
 - Timed combat statuses are fixed fields on `CombatantState`: guard, protection, armor break, wound, speed down, Cognitive Defense Down (`inner_defense_down` internally), and regeneration. To add one, update the `StatusEffectId` union and `CombatantState` field in `core/combat/types.ts`, metadata in `statusMetadata.ts`, and the `getStatusEffect`, `setStatusEffect`, and `clearStatusEffect` switches in `statusEffects.ts`.
-- Data statuses live in `activeStatuses` and are defined by `data/statusEffects.json`. They are applied by the `apply_status` skill effect, advanced by `advanceStatusEffects`, and interpreted through `getStatusCombatModifiers` and `calculateStatusTickOuterDamage`.
+- Data statuses live in `activeStatuses` and are defined by `data/statusEffects.json`. They are applied by the `apply_status` skill effect, advanced by `advanceStatusEffects`, and interpreted through `getStatusCombatModifiers` and `calculateStatusTickOuterDamage`. The Stage 3.0 Intrusion status (`cognitive_intrusion`) uses this path: `cognitiveDamageTakenMultiplier` is aggregated with other status combat modifiers, while the reused `contextRebuildMultiplier` slows Context Rebuild.
 
 Put recurring tick behavior in `advanceStatusEffects` for data statuses or `tickRegeneration` for the timed regeneration status. Put stat multipliers in `getStatusCombatModifiers`. Put application chance, duration, stack, and resistance behavior in `statusEffects.ts`.
 
@@ -71,7 +71,7 @@ Auto-medicine interacts with status hooks through `core/combat/autoMedicine/appl
 ## Where to add damage or defense behavior
 
 - Target selection rules belong in `core/combat/targeting.ts`. Add the `TargetRule` type, `TARGET_RULES`, validation, and tests together.
-- Raw package creation belongs in `core/combat/damagePackage.ts`. Keep package creation separate from mutation so target/source invariants stay enforceable.
+- Raw package creation belongs in `core/combat/damagePackage.ts`. Keep package creation separate from mutation so target/source invariants stay enforceable. Cognitive damage taken modifiers belong here and should affect Cognitive attack damage only, not Kinetic damage, status ticks, AI Overload burst damage, or backlash.
 - Target stat reductions before damage belong in `getEffectiveTargetStats` in `core/combat/defensivePipeline.ts`.
 - Damage prevention or redirection belongs in `applyDamagePackageMitigation`, `applyGuardReduction`, `findProtector`, or `applyProtectionReduction`.
 - Body Integrity/Context Stability mutation and attack/AI Overload/backlash events belong in the commit functions in `damagePackage.ts`.

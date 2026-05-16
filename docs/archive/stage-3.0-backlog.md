@@ -1,12 +1,12 @@
-# Stage 3.0 Backlog: Cognitive Intrusion Prototype
+# Archived Stage 3.0 Backlog: Cognitive Intrusion Prototype
 
 ## Current Status
 
-Stage 3.0 is the active post-migration mechanic milestone. It implements Epics 95 and 96 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md): Cognitive Intrusion Contract and Cognitive Intrusion Prototype.
+Stage 3.0 is complete and archived as the first post-migration mechanic milestone. It implemented Epics 95 and 96 from [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md): Cognitive Intrusion Contract and Cognitive Intrusion Prototype.
 
-[Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md) closed the cleanup and handoff work. Stage 2.9 kept compatibility-sensitive transition fields stable, refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md), and confirmed the first implementation should be one small data-driven status mechanic with no save, export, event, taxonomy, storage-key, or internal-id migration.
+[Archived Stage 2.9 Backlog](stage-2.9-backlog.md) closed the cleanup and handoff work. Stage 2.9 kept compatibility-sensitive transition fields stable, refreshed [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md), and confirmed the first implementation should be one small data-driven status mechanic with no save, export, event, taxonomy, storage-key, or internal-id migration.
 
-Slices 95.1, 96.1, 96.2, 96.3, 96.4, and 96.5 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage; Slice 96.3 added the live Intrusion status and Azure Pulse Monk upgrade hook; Slice 96.4 verified Intrusion visibility through existing presentation, counterplay, battle event, and tactic comparison surfaces; Slice 96.5 proved Intrusion accelerates the first AI Overload window in a focused simulator regression while keeping known Black Iron Foundry and Redline Outpost tuning debt visible.
+Slices 95.1 and 96.1 through 96.6 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage; Slice 96.3 added the live Intrusion status and Azure Pulse Monk upgrade hook; Slice 96.4 verified Intrusion visibility through existing presentation, counterplay, battle event, and tactic comparison surfaces; Slice 96.5 proved Intrusion accelerates the first AI Overload window in a focused simulator regression while keeping known Black Iron Foundry and Redline Outpost tuning debt visible; Slice 96.6 closed validation, active-doc cleanup, stale-term scans, and archive readiness.
 
 ## Stage Theme
 
@@ -16,7 +16,7 @@ The milestone should prove that Path of Neon is more than renamed combat vocabul
 
 ## Source Contracts And Carry-Forward Decisions
 
-- Use [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) as the implementation boundary.
+- Use [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) as the implementation boundary.
 - Implement one new static status id: `cognitive_intrusion`.
 - Implement one new status effect modifier: `cognitiveDamageTakenMultiplier`.
 - Reuse the existing `contextRebuildMultiplier` modifier on the same status.
@@ -52,7 +52,7 @@ The milestone should prove that Path of Neon is more than renamed combat vocabul
 - Existing status chips, cleanse/purge paths, battle summaries, simulator output, and tactic comparison rows make the mechanic observable without new exported fields.
 - Save fixture/import tests pass without a schema migration or save-version bump.
 - `npm run simulate` still reports known Black Iron Foundry and Redline Outpost budget debt by stable ids.
-- Active docs point to Stage 3.0 while archived Stage 2.9 remains the closed handoff record.
+- Active docs point to archived Stage 3.0 while archived Stage 2.9 remains the closed handoff record.
 
 ## Epic Summary
 
@@ -64,7 +64,7 @@ The milestone should prove that Path of Neon is more than renamed combat vocabul
 | 96.3 | 96 | Static Data And Upgrade Hook | Complete |
 | 96.4 | 96 | Presentation And Counterplay Visibility | Complete |
 | 96.5 | 96 | Simulator, Balance, And Regression Review | Complete |
-| 96.6 | 96 | Release Hardening And Archive Readiness | Planned |
+| 96.6 | 96 | Release Hardening And Archive Readiness | Complete |
 
 ## Slice 95.1: Cognitive Intrusion Contract Adoption
 
@@ -72,7 +72,7 @@ Confirm the refreshed contract is implementation-ready after Stage 2.9 and map t
 
 ### Tasks
 
-- Re-read [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md), [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md), [Combat Engine V2](combat-engine-v2.md), and status/static-data docs before touching runtime code.
+- Re-read [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md), [Archived Stage 2.9 Backlog](stage-2.9-backlog.md), [Combat Engine V2](../combat-engine-v2.md), and status/static-data docs before touching runtime code.
 - Identify the current status modifier types, combat aggregation path, static validation path, status metadata path, skill-upgrade effect path, and focused test files.
 - Record any discovered mismatch between the contract and current code before implementation.
 - Keep the milestone boundary explicit: one status id, one new effect key, reused Context Rebuild modifier, no save/export/event/taxonomy churn.
@@ -198,7 +198,7 @@ Completed in static data and tests.
 - `data/skillUpgrades.json` now adds a level 3 `add_skill_effect` to `context_shock_refinement`, applying `cognitive_intrusion` through the existing `apply_status` effect path.
 - `tests/data/validateData.test.ts` asserts the static status shape and upgrade hook.
 - `tests/progression/upgrades.test.ts` proves Context Shock refinement level 2 does not add Intrusion and level 3 does.
-- `tests/compatibility/rethemeCompatibility.test.ts` and [Content Pipeline Inventory](content-pipeline-inventory.md) now include the new canonical status id/count.
+- `tests/compatibility/rethemeCompatibility.test.ts` and [Content Pipeline Inventory](../content-pipeline-inventory.md) now include the new canonical status id/count.
 
 ### Acceptance
 
@@ -291,9 +291,16 @@ Close Stage 3.0 with full validation, docs cleanup, and archive prep.
 
 - Run the verification baseline and capture any skipped command with a reason.
 - Run stale-term scans for active docs/UI to ensure future-only mechanic names are not accidentally exposed.
-- Update [Current Implemented Systems](current-implemented-systems.md), [Combat Engine V2](combat-engine-v2.md), [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) if implementation details changed.
+- Update [Current Implemented Systems](../current-implemented-systems.md), [Combat Engine V2](../combat-engine-v2.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), and [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) if implementation details changed.
 - Add Stage 3.0 closure notes to this backlog.
 - Move this backlog to `docs/archive/stage-3.0-backlog.md` only after the milestone is complete.
+
+### Implementation Notes
+
+- Active docs now describe Intrusion as implemented rather than future-only: `current-implemented-systems.md`, `combat-engine-v2.md`, `content-pipeline-inventory.md`, `balance-budget-gates.md`, `cognitive-intrusion-prototype-contract.md`, `web-ui-architecture.md`, `path-of-neon-terminology-map.md`, `path-of-neon-theme-bible.md`, `retheme-migration-plan.md`, and `path-of-neon-internal-id-migration.md`.
+- `tests/web/displayTerms.test.ts` now guards only deferred future-only mechanic terms; Cognitive Intrusion is no longer classified as unimplemented.
+- Stale-term scans confirm deferred future-only mechanic names are absent from live web source, and active docs no longer treat Cognitive Intrusion as future-only.
+- Stage 3.0 stayed inside contract: no save/export/event/taxonomy churn, hostile Intrusion, District Heat, or broad retune was added.
 
 ### Acceptance
 
@@ -304,11 +311,12 @@ Close Stage 3.0 with full validation, docs cleanup, and archive prep.
 
 ### Verification
 
-- `npm test`
-- `npm run typecheck`
-- `npm run build`
-- `npm run simulate`
-- `git diff --check`
+- Passed: `npm test -- tests/data/validateData.test.ts tests/combat/statusEffects.test.ts tests/combat/damagePackage.test.ts tests/combat/simulator.test.ts tests/web/statusPresentation.test.ts tests/web/displayTerms.test.ts`
+- Passed: `npm test`
+- Passed: `npm run typecheck`
+- Passed: `npm run build`
+- Passed: `npm run simulate`
+- Passed: `git diff --check`
 
 ## Verification Baseline
 
@@ -327,6 +335,6 @@ If a named focused test file does not exist yet, either add the equivalent focus
 
 ## Closure Notes
 
-- Stage 3.0 is not complete until Slices 95.1 and 96.1 through 96.6 are all complete.
+- Stage 3.0 is complete: Slices 95.1 and 96.1 through 96.6 are all complete.
 - Archive target after completion: `docs/archive/stage-3.0-backlog.md`.
-- Preferred next prototype after closure remains District Heat, but only after Cognitive Intrusion has been validated as a useful first Path of Neon mechanic.
+- Preferred next prototype after closure remains District Heat, because Cognitive Intrusion has been validated as a useful first Path of Neon mechanic.
