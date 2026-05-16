@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.6 is planned. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
+Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slice 91.1 is complete in [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md).
 
 This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
 
@@ -26,10 +26,11 @@ This stage is broader than Stage 2.5 and must stay split into focused slices. It
 
 ## Content Id Inventory
 
-Stage 2.6 must classify every id in these data files before static edits begin:
+Slice 91.1 classified the owned ids, references, save fields, test surfaces, report/export continuity needs, and migrate/keep/defer decisions in [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md). The summary inventory is:
 
 | Category | Source | Count | Save/static references |
 | --- | --- | ---: | --- |
+| Hostile families | `data/enemies.json` | 5 | enemy `family`, battle/simulator grouping, mastery family modifiers |
 | Hostiles | `data/enemies.json` | 26 | `data/stages.json` `enemyTeam.combatantIds`, battle/simulator reports, fixtures |
 | Initiates | `data/heroes.json` | 5 | `progress.heroes`, `activeHeroIds`, `formation`, assignment hero lists, hero unlock refs |
 | Protocols | `data/skills.json`, `data/skillUpgrades.json` | 28 skills, 5 upgrades | hero/enemy `skillIds`, `progress.skillUpgrades`, upgrade `skillId`, status effects in upgrade payloads |
@@ -42,23 +43,14 @@ Stage 2.6 must classify every id in these data files before static edits begin:
 
 ## Initial Target Draft
 
-The target ids below are a working draft. Slice 91.1 must expand or explicitly confirm the full table before behavior changes.
+The initial draft is now superseded by the full target matrix in [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md). It covers 116 ids and family buckets: 98 migrate decisions and 18 keep decisions.
 
-| Category | Legacy id examples | Target direction |
-| --- | --- | --- |
-| Hostiles | `bamboo_bandit`, `mist_valley_acolyte`, `black_fort_commander`, `demon_cult_ritualist` | `greenline_cutter`, `veil_district_acolyte`, `black_foundry_commander`, `redline_ritualist` |
-| Initiates | `iron_fist_disciple`, `azure_palm_monk`, `white_crane_swordsman`, `mountain_staff_guardian`, `lotus_mending_disciple` | `iron_fist_initiate`, `azure_pulse_monk`, `white_crane_edge_runner`, `mountain_brace_guardian`, `lotus_stabilizer` |
-| Protocols | `iron_fist_combo`, `meridian_shock`, `sweeping_staff`, `lotus_mending_vow` | `impact_combo`, `context_shock`, `brace_sweep`, `lotus_stabilizer_vow` |
-| Skill upgrades | `iron_fist_combo_refinement`, `meridian_shock_refinement`, `lotus_mending_vow_refinement` | `impact_combo_refinement`, `context_shock_refinement`, `lotus_stabilizer_vow_refinement` |
-| Styles | `fist`, `palm`, `leg`, `sword`, `blade`, `staff`, `hidden_weapons` | `impact`, `pulse`, `vector`, `edge`, `rend`, `brace`, `ghostware` |
-| Style branches | `iron_body_fist`, `cloud_meridian_palm`, `white_crane_sword`, `mountain_guard_staff` | `iron_body_impact`, `cloud_context_pulse`, `white_crane_edge`, `mountain_guard_brace` |
-| Augments | `willow_palm_manual`, `calming_breath_pill`, `lotus_dew_pill`, `black_iron_ward` | `willow_pulse_protocol`, `calming_context_stim`, `lotus_dew_countermeasure`, `ironwall_ward` |
-| Countermeasures | `clear_heart_pill`, `quiet_meridian_powder`, `purity_draught` | `clear_heart_countermeasure`, `quiet_context_powder`, `purity_countermeasure` |
-| Statuses | `poison`, `wound`, `qi_suppression`, `vulnerable` | `corruption`, `trauma`, `context_suppression`, `exposed` |
-| Operations | `bamboo_road_patrol`, `mist_valley_meditation`, `black_iron_drill_yard`, `lotus_medicine_pavilion` | `greenline_sweep`, `veil_district_calibration`, `black_foundry_calibration_yard`, `lotus_countermeasure_pavilion` |
-| Routines | `balanced`, `outer_pressure`, `inner_pressure`, `guard_support`, `sustain`, `boss_burst` | `balanced_routine`, `kinetic_crush`, `context_break`, `guard_the_stabilizer`, `long_stabilization`, `gatekeeper_burst` |
+Important 91.1 decisions:
 
-Ids that already read as Path of Neon terms, such as `veilstep_needler`, `shieldwall_guard`, `forge_chain_hook`, `blood_brand_duelist`, `marrow_lock_supplicant`, and `burning_blood`, still need an explicit migrate-or-keep decision in Slice 91.1.
+- `burning_blood`, `burning_blood_captain`, and `burning_blood_edict` remain Redline doctrine/status flavor and do not receive no-op aliases.
+- `lotus_mender` targets `lotus_clinic_stabilizer` to avoid colliding with the initiate target `lotus_stabilizer`.
+- `white_crane_sword` targets `white_crane_edge_branch` to avoid colliding with the protocol target `white_crane_edge`.
+- `SkillEffect.type = "wound"`, cleanse `dispelTags`, battle event/status symbols, resource/save field names, and combat stat fields are deferred to later save-field or combat-symbol stages.
 
 ## Stage Goals
 
@@ -95,7 +87,7 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 
 | Slice | Title | Status | Purpose |
 | --- | --- | --- | --- |
-| 91.1 | Content Id Migration Preflight | Planned | Inventory every content id/reference and finalize migrate-or-keep target table |
+| 91.1 | Content Id Migration Preflight | Complete | Inventory every content id/reference and finalize migrate-or-keep target table |
 | 91.2 | Content Alias Data | Planned | Add explicit aliases and shared normalization helpers without changing canonical ids |
 | 91.3 | Save Version And Content Id Migration | Planned | Bump save version and migrate old content ids in saves/imports/browser storage |
 | 91.4 | Hostile And Status Static Rename | Planned | Rename enemy/family/status ids and battle/status static references |
@@ -107,6 +99,8 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 ---
 
 ## Slice 91.1: Content Id Migration Preflight
+
+Status: complete.
 
 ### Goal
 
@@ -133,6 +127,12 @@ Make the content-id compatibility surface explicit before alias or static-data e
 - Markdown link check if docs change.
 - `git diff --check`.
 - Stale content-id scan.
+
+### Completion Notes
+
+- Added [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md) with the owned-surface inventory, persisted content-id fields, target matrix, defer list, test classification, report/export continuity plan, and 91.2 handoff.
+- Confirmed every configured Stage 2.6 content id and hostile family has a migrate or keep decision before alias/static-data edits begin.
+- Confirmed `burning_blood` remains Redline doctrine/status flavor.
 
 ---
 

@@ -109,8 +109,8 @@ Style families and combat roles are separate. Do not use Anchor, Breacher, Strik
 | Black Iron Fort | Black Iron Foundry | Canonical region id is `black_iron_foundry`; legacy alias `black_iron_fort` remains import-compatible. |
 | Lotus Monastery | Lotus Clinic | Canonical region id is `lotus_clinic`; legacy alias `lotus_monastery` remains import-compatible. |
 | Demon Cult Outpost | Redline Outpost | Canonical region id is `redline_outpost`; legacy alias `demon_cult_outpost` remains import-compatible. Reserve Null Context for doctrine/status flavor. |
-| Black Iron Guard | Ironwall Guard | Keep enemy ids. |
-| Lotus Mending Disciple | Lotus Stabilizer | Keep hero ids. |
+| Black Iron Guard | Ironwall Guard | Stage 2.6 preflight targets `black_iron_guard` -> `ironwall_guard`. |
+| Lotus Mending Disciple | Lotus Stabilizer | Stage 2.6 preflight targets `lotus_mending_disciple` -> `lotus_stabilizer`. |
 
 ## Contract Terms That Should Stay Technical
 

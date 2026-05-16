@@ -16,6 +16,7 @@ Start with the current contributor docs:
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
 - [Stage 2.6 Backlog](docs/stage-2.6-backlog.md)
+- [Stage 2.6 Content Id Preflight](docs/stage-2.6-content-id-preflight.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Archived Roadmap: Stage 1.7 To 2.2](docs/archive/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)

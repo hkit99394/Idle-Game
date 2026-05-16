@@ -362,7 +362,7 @@ Cognitive Intrusion implementation is separate from these migration slices. It s
 
 ## Recommended Backlog Placement
 
-Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. [Stage 2.6 Backlog](stage-2.6-backlog.md) begins content id migration as focused slices, not as a project-wide replacement.
+Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. [Stage 2.6 Backlog](stage-2.6-backlog.md) begins content id migration as focused slices, not as a project-wide replacement, and [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md) records the 91.1 migrate/keep/defer matrix.
 
 [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) is the completed closure record for region/stage static id migration.
 
@@ -371,7 +371,7 @@ Recommended sequence:
 1. Stage 2.3: display-safe Path of Neon pivot, completed with compatibility keys preserved.
 2. Stage 2.4: product/storage key migration and shared alias-map helpers, completed.
 3. Stage 2.5: region/stage static id migration, completed in [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
-4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, planned in [Stage 2.6 Backlog](stage-2.6-backlog.md).
+4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, planned in [Stage 2.6 Backlog](stage-2.6-backlog.md) with 91.1 preflight completed in [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md).
 5. Stage 2.7: save resource/progress field migration.
 6. Stage 2.8: combat-symbol and report-field migration.
 7. Stage 2.9: cleanup of temporary legacy adapters when compatibility policy allows.
