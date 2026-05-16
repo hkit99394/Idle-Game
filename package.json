@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "simulate": "vite-node tools/simulateBattle.ts",
-    "support-decision": "vite-node tools/supportDecision.ts"
+    "support-decision": "vite-node tools/supportDecision.ts",
+    "verify": "npm run typecheck && npm test && npm run build && npm run simulate && npm run support-decision && git diff --check"
   },
   "dependencies": {
     "react": "^19.0.0",

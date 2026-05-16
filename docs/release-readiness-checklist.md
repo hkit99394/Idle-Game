@@ -6,6 +6,8 @@ Use this checklist before closing a stage, archiving a stage backlog, or prepari
 
 Run these commands from the repository root before marking a stage complete:
 
+Shortcut: `npm run verify` runs the full required command chain below.
+
 | Command | Purpose | Pass Condition |
 | --- | --- | --- |
 | `npm run typecheck` | Catches TypeScript drift across core, web, tools, and tests. | Exits 0 with no type errors. |

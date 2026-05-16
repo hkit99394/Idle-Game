@@ -2,9 +2,9 @@
 
 ## Current Status
 
-Stage 2.9 is active as the post-Stage 2.8 cleanup and Cognitive Intrusion handoff stage. [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md) completed Epics 93 and 94: combat save/stat field migration plus combat/report symbol migration. Stage 2.8 confirmed current saves do not persist live combat stat/event state, so no combat save-version bump was needed.
+Stage 2.9 is complete and archived as the post-Stage 2.8 cleanup and Cognitive Intrusion handoff stage. [Archived Stage 2.8 Backlog](stage-2.8-backlog.md) completed Epics 93 and 94: combat save/stat field migration plus combat/report symbol migration. Stage 2.8 confirmed current saves do not persist live combat stat/event state, so no combat save-version bump was needed.
 
-Slices 2.9.1, 2.9.2, 2.9.3, and 2.9.4 are complete. Tactic comparison legacy damage fields and CSV columns stay for one more review cycle; `TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION` remains `4`. Engine-level `outerDamage` / `innerDamage` payload keys also stay as stable internal replay/accounting fields for now. Static taxonomy keys such as `inner_defense_down`, upgrade `art` buckets, and mastery bonus type names stay stable after 2.9.3, with safe display/docs cleanup applied. Cognitive Intrusion's refreshed contract now locks the minimum implementation shape: one new `cognitive_intrusion` status, one new `cognitiveDamageTakenMultiplier` status modifier, reused `contextRebuildMultiplier`, and no save/export/event/taxonomy churn. Stage 2.9 should stay conservative: do not remove compatibility adapters, temporary report/export columns, stable engine payload fields, or static taxonomy keys until downstream comparison, replay, and static-schema needs have been checked and the affected schema or event contract has an explicit migration path.
+Slices 2.9.1, 2.9.2, 2.9.3, 2.9.4, and 2.9.5 are complete. Tactic comparison legacy damage fields and CSV columns stay for one more review cycle; `TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION` remains `4`. Engine-level `outerDamage` / `innerDamage` payload keys also stay as stable internal replay/accounting fields for now. Static taxonomy keys such as `inner_defense_down`, upgrade `art` buckets, and mastery bonus type names stay stable after 2.9.3, with safe display/docs cleanup applied. Cognitive Intrusion's refreshed contract now locks the minimum implementation shape: one new `cognitive_intrusion` status, one new `cognitiveDamageTakenMultiplier` status modifier, reused `contextRebuildMultiplier`, and no save/export/event/taxonomy churn. Stage 2.9 stayed conservative: no compatibility adapters, temporary report/export columns, stable engine payload fields, or static taxonomy keys were removed without downstream comparison, replay, and static-schema migration proof.
 
 ## Stage Theme
 
@@ -38,7 +38,7 @@ Clean up the remaining transition vocabulary from the combat migration, decide w
 | 2.9.2 | Engine Damage Channel Internal Rename Decision | Complete | Decided core damage/event/metric internals remain stable internal `outer` / `inner` payload fields for now. |
 | 2.9.3 | Deferred Static Taxonomy Cleanup | Complete | Reviewed upgrade art buckets, timed status ids, and dispel tags; kept stable schema keys and cleaned safe display/docs language. |
 | 2.9.4 | Cognitive Intrusion Preflight | Complete | Refreshed the prototype contract against current combat terminology and locked the minimum static/status schema addition. |
-| 2.9.5 | Cleanup Hardening | Planned | Run stale scans, full validation, docs update, and archive any completed Stage 2.9 planning docs. |
+| 2.9.5 | Cleanup Hardening | Complete | Ran stale scans, full validation, docs update, and archived the completed Stage 2.9 backlog. |
 
 ## Slice 2.9.1: Legacy Export Column Retirement Decision
 
@@ -173,7 +173,7 @@ Non-goals:
 
 ### Acceptance
 
-- [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) uses current Body Integrity, Context Stability, Kinetic/Cognitive, AI Overload, and Context Rebuild terminology.
+- [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) uses current Body Integrity, Context Stability, Kinetic/Cognitive, AI Overload, and Context Rebuild terminology.
 - The contract identifies `cognitiveDamageTakenMultiplier` as the only new status modifier required for the first implementation.
 - The contract records that `contextRebuildMultiplier` should be reused and that save/export/event/static-taxonomy contracts should stay unchanged.
 - The future implementation test list covers validation, Cognitive-only damage behavior, status presentation, AI Overload visibility, skill-upgrade gating, save compatibility, and simulator stability.
@@ -183,6 +183,46 @@ Non-goals:
 - `rg -n "cognitiveDamageTakenMultiplier|contextRebuildMultiplier|context_shock_refinement|inner_defense_down|outerDamage|innerDamage" core data docs tests`
 - `npm run typecheck`
 - `npm test`
+- `git diff --check`
+
+## Slice 2.9.5: Cleanup Hardening
+
+Close Stage 2.9 with stale-scan classification, release-readiness verification, active-doc cleanup, and archival.
+
+Completed in docs/validation contract. Decision: Stage 2.9 closes as a conservative cleanup and handoff stage. It did not remove compatibility aliases, report/export transition fields, engine replay/accounting payload fields, or stable static taxonomy keys. Remaining legacy-looking hits are documented compatibility surfaces or intentionally stable schema/internal contracts.
+
+Stale-scan classification:
+
+- Product/storage hits such as `path-of-jianghu` remain only for legacy PWA icon/cache/save compatibility paths and tests.
+- Region/stage hits such as `bamboo_road` and `demon_cult_outpost` remain in alias helpers, old-save fixtures, and compatibility tests.
+- Resource hits such as `silver`, `cultivation`, and `herbs` remain in static reward authoring, balance reports, alias fixtures/tests, and display-term mapping; active onboarding copy now uses Credits, Resonance, and reagents.
+- Combat hits such as `outerDamage`, `innerDamage`, `playerOuterDamage`, `playerInnerDamage`, `qi_break`, and `qi_recover` remain in stable engine replay/accounting payloads, battle-event compatibility normalization, temporary tactic comparison aliases, and tests.
+- Static taxonomy hits such as `inner_defense_down`, `innerDefenseDown`, and dispel tag `inner` remain stable internal/static schema keys after the 2.9.3 keep decision.
+- Historical context under `docs/archive` is intentionally excluded from cleanup.
+
+Closure notes:
+
+- Browser smoke was skipped because Stage 2.9.5 changes only docs and archive links.
+- Save compatibility was not rerun with new fixtures because the slice does not change save schema, migrations, import/export behavior, or runtime data.
+- Known Black Iron Foundry and Redline Outpost balance debt remains unchanged and continues to live in the existing balance/content docs.
+- Release-readiness validation passed during closure: typecheck, full test suite, production build, active markdown link check, simulator, support-decision tooling, and whitespace diff check all exited 0. The simulator still reports the known Black Iron Foundry clear-time miss and Redline Outpost clear-time/status-pressure misses.
+- The next recommended implementation step is Epic 95/96 Cognitive Intrusion work, starting from [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md).
+
+### Acceptance
+
+- Stage 2.9 records final keep/remove decisions for remaining transition vocabulary and static taxonomy hits.
+- Active docs point to the archived Stage 2.9 backlog instead of a duplicate active backlog.
+- No active `docs/stage-2.9-backlog.md` remains after archival.
+- Release-readiness validation passes before closure.
+
+### Verification
+
+- `rg -n "path-of-jianghu|bamboo_road|demon_cult_outpost|innerQi|outerHp|cultivation|silver|outerDamage|innerDamage|playerOuterDamage|playerInnerDamage|qi_break|qi_recover|inner_defense_down|innerDefenseDown" core data docs tests --glob '!docs/archive/**'`
+- `npm run typecheck`
+- `npm test`
+- `npm run build`
+- `npm run simulate`
+- `npm run support-decision`
 - `git diff --check`
 
 ## Verification Baseline
