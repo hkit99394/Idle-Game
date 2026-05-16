@@ -385,7 +385,7 @@ Keep implementation slices narrow. A safe backlog shape:
 5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with legacy report columns where downstream consumers need them. Completed in [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md).
 6. Legacy cleanup: stale-name scans, docs cleanup outside `docs/archive`, and removal of temporary transition fields only after compatibility policy says enough comparison time has passed. Completed in [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md).
 
-Cognitive Intrusion implementation is separate from these migration slices. It should begin from the refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) after Stage 2.9 hardening confirms the current combat vocabulary is stable enough to avoid churn.
+Cognitive Intrusion implementation is separate from these migration slices. It begins in [Stage 3.0 Backlog: Cognitive Intrusion Prototype](stage-3.0-backlog.md), using the refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) after Stage 2.9 hardening confirmed the current combat vocabulary is stable enough to avoid churn.
 
 ## Recommended Backlog Placement
 
@@ -402,6 +402,6 @@ Recommended sequence:
 5. Stage 2.7: save resource/progress field migration, completed in [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md).
 6. Stage 2.8: combat save/stat, combat-symbol, and report-field migration, completed in [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md).
 7. Stage 2.9: cleanup of temporary legacy adapters and report/export transition fields when compatibility policy allows, completed in [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md).
-8. Prototype implementation: Cognitive Intrusion, starting from the refreshed contract once it can avoid naming or compatibility churn.
+8. Stage 3.0: Cognitive Intrusion Prototype, tracked in [Stage 3.0 Backlog](stage-3.0-backlog.md) and starting from the refreshed contract without naming or compatibility churn.
 
 If the team wants a faster route, combine stages 2.4 and 2.5, but keep save-field and combat-symbol migration separate. That is the highest-risk layer.

@@ -15,6 +15,8 @@ Start with the current contributor docs:
 - [Path Of Neon Terminology Map](docs/path-of-neon-terminology-map.md)
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
+- [Stage 3.0 Backlog: Cognitive Intrusion Prototype](docs/stage-3.0-backlog.md)
+- [Cognitive Intrusion Prototype Contract](docs/cognitive-intrusion-prototype-contract.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Archived Roadmap: Stage 1.7 To 2.2](docs/archive/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)

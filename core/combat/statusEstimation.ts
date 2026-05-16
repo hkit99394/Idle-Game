@@ -98,16 +98,28 @@ export function estimateStatusModifierDamage(input: {
   resistedDurationSeconds: number;
   targetMaxBodyIntegrity: number;
   enemyDps: number;
+  cognitiveDps?: number;
   playerAttackEventsPerSecond: number;
 }): number {
-  const vulnerabilityMultiplier =
+  const kineticVulnerabilityMultiplier =
     input.definition.effects.kineticDamageTakenMultiplier === undefined
       ? 1
       : input.definition.effects.kineticDamageTakenMultiplier ** input.stacks;
-  const vulnerabilityDamage =
-    vulnerabilityMultiplier > 1
+  const cognitiveVulnerabilityMultiplier =
+    input.definition.effects.cognitiveDamageTakenMultiplier === undefined
+      ? 1
+      : input.definition.effects.cognitiveDamageTakenMultiplier ** input.stacks;
+  const kineticVulnerabilityDamage =
+    kineticVulnerabilityMultiplier > 1
       ? input.enemyDps *
-        (vulnerabilityMultiplier - 1) *
+        (kineticVulnerabilityMultiplier - 1) *
+        input.resistedDurationSeconds *
+        input.expectedApplications
+      : 0;
+  const cognitiveVulnerabilityDamage =
+    cognitiveVulnerabilityMultiplier > 1
+      ? (input.cognitiveDps ?? input.enemyDps) *
+        (cognitiveVulnerabilityMultiplier - 1) *
         input.resistedDurationSeconds *
         input.expectedApplications
       : 0;
@@ -121,5 +133,5 @@ export function estimateStatusModifierDamage(input: {
         input.resistedDurationSeconds *
         input.expectedApplications;
 
-  return vulnerabilityDamage + backlashDamage;
+  return kineticVulnerabilityDamage + cognitiveVulnerabilityDamage + backlashDamage;
 }

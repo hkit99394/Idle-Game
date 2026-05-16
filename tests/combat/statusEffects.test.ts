@@ -8,6 +8,7 @@ import {
   createTimedStatusEffect,
   expireStatusEffects,
   getActiveStatusEffect,
+  getStatusCombatModifiers,
   setStatusEffect
 } from "../../core";
 import type {
@@ -37,6 +38,20 @@ const baseStats = {
   contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
+};
+
+const cognitiveIntrusionDefinition: StatusEffectDefinition = {
+  id: "scenario_intrusion",
+  name: "Scenario Intrusion",
+  category: "control",
+  durationSeconds: 6,
+  maxStacks: 2,
+  stackPolicy: "stack_intensity",
+  dispelTags: ["debuff"],
+  effects: {
+    cognitiveDamageTakenMultiplier: 1.12,
+    contextRebuildMultiplier: 0.85
+  }
 };
 
 function combatant(input: {
@@ -80,6 +95,33 @@ function combatant(input: {
 }
 
 describe("status effects", () => {
+  it("aggregates data-driven combat modifiers with cognitive vulnerability", () => {
+    const modifiers = getStatusCombatModifiers(
+      [
+        {
+          statusId: "scenario_intrusion",
+          remainingSeconds: 6,
+          stacks: 2
+        },
+        {
+          statusId: "exposed",
+          remainingSeconds: 5,
+          stacks: 2
+        }
+      ],
+      {
+        scenario_intrusion: cognitiveIntrusionDefinition,
+        exposed: statusDefinitions.exposed
+      }
+    );
+
+    expect(modifiers.healingReceivedMultiplier).toBe(1);
+    expect(modifiers.contextRebuildMultiplier).toBeCloseTo(0.85 ** 2);
+    expect(modifiers.kineticDamageTakenMultiplier).toBeCloseTo(1.15 ** 2);
+    expect(modifiers.cognitiveDamageTakenMultiplier).toBeCloseTo(1.12 ** 2);
+    expect(modifiers.feedbackBodyIntegrityPercent).toBe(0);
+  });
+
   it("stores normalized status identity and deterministic duration", () => {
     const target = combatant({ id: "hero" });
 

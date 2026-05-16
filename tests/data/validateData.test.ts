@@ -37,6 +37,48 @@ describe("static game data validation", () => {
     expect(validateStaticGameData(staticData)).toEqual([]);
   });
 
+  it("accepts Cognitive damage taken status effect modifiers", () => {
+    const data = {
+      ...staticData,
+      statusEffects: staticData.statusEffects.map((status) =>
+        status.id === "exposed"
+          ? {
+              ...status,
+              effects: {
+                ...status.effects,
+                cognitiveDamageTakenMultiplier: 1.12
+              }
+            }
+          : status
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(data)).toEqual([]);
+  });
+
+  it("rejects unsupported status effect modifier keys", () => {
+    const data = {
+      ...staticData,
+      statusEffects: staticData.statusEffects.map((status) =>
+        status.id === "exposed"
+          ? {
+              ...status,
+              effects: {
+                ...status.effects,
+                intrusionBonus: 1.12
+              }
+            }
+          : status
+      )
+    } as unknown as StaticGameData;
+
+    expect(validateStaticGameData(data)).toEqual(
+      expect.arrayContaining([
+        "Status exposed effect intrusionBonus must be supported"
+      ])
+    );
+  });
+
   it("accepts Stage 2.8 combat schema aliases during validation", () => {
     const aliasedData = {
       ...staticData,

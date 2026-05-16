@@ -37,6 +37,7 @@ export const defaultStatusCombatModifiers: StatusCombatModifiers = {
   healingReceivedMultiplier: 1,
   contextRebuildMultiplier: 1,
   kineticDamageTakenMultiplier: 1,
+  cognitiveDamageTakenMultiplier: 1,
   feedbackBodyIntegrityPercent: 0
 };
 
@@ -259,6 +260,9 @@ export function getStatusCombatModifiers(
         kineticDamageTakenMultiplier:
           modifiers.kineticDamageTakenMultiplier *
           getStackedMultiplier(effects.kineticDamageTakenMultiplier, stacks),
+        cognitiveDamageTakenMultiplier:
+          modifiers.cognitiveDamageTakenMultiplier *
+          getStackedMultiplier(effects.cognitiveDamageTakenMultiplier, stacks),
         feedbackBodyIntegrityPercent:
           modifiers.feedbackBodyIntegrityPercent +
           (effects.feedbackBodyIntegrityPercent ?? 0) * stacks

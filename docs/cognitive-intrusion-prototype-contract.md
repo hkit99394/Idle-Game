@@ -6,6 +6,8 @@ Stage 2.3 selects **Cognitive Intrusion** as the first neon-native gameplay prot
 
 Stage 2.9.4 refreshes the implementation contract after the combat vocabulary and cleanup decisions from Stages 2.8 and 2.9. The prototype should make Cognitive Art feel like hostile system pressure, not only renamed Inner damage. It should reuse the existing combat loop: Context Stability, AI Overload, data-driven statuses, target priorities, battle summaries, and simulator reports.
 
+Stage 3.0 tracks implementation in [Stage 3.0 Backlog: Cognitive Intrusion Prototype](stage-3.0-backlog.md). The backlog should stay inside this contract unless it records an explicit contract clarification first.
+
 ## Candidate Comparison
 
 | Candidate | Fit | Save Risk | Implementation Footprint | Decision |
