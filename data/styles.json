@@ -3,7 +3,7 @@
     "id": "impact",
     "name": "Impact Style",
     "bonuses": [
-      { "stat": "outerAttack", "effectPerLevel": 0.01 }
+      { "stat": "kineticAttack", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
@@ -12,8 +12,8 @@
         "unlock": { "type": "hero_level", "heroId": "iron_fist_initiate", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
-          { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.06 },
-          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.05 }
+          { "type": "stat_multiplier", "stat": "maxBodyIntegrity", "value": 0.06 },
+          { "type": "stat_multiplier", "stat": "kineticDefense", "value": 0.05 }
         ]
       }
     ]
@@ -22,7 +22,7 @@
     "id": "pulse",
     "name": "Pulse Style",
     "bonuses": [
-      { "stat": "innerAttack", "effectPerLevel": 0.01 }
+      { "stat": "cognitiveAttack", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
@@ -31,8 +31,8 @@
         "unlock": { "type": "style_mastery_level", "styleId": "pulse", "level": 2 },
         "hiddenInMvp": false,
         "effects": [
-          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.05 },
-          { "type": "stat_multiplier", "stat": "breakPower", "value": 0.08 }
+          { "type": "stat_multiplier", "stat": "cognitiveAttack", "value": 0.05 },
+          { "type": "stat_multiplier", "stat": "breachPower", "value": 0.08 }
         ]
       }
     ]
@@ -59,8 +59,8 @@
     "id": "edge",
     "name": "Edge Style",
     "bonuses": [
-      { "stat": "outerAttack", "effectPerLevel": 0.006 },
-      { "stat": "innerAttack", "effectPerLevel": 0.006 }
+      { "stat": "kineticAttack", "effectPerLevel": 0.006 },
+      { "stat": "cognitiveAttack", "effectPerLevel": 0.006 }
     ],
     "branches": [
       {
@@ -69,8 +69,8 @@
         "unlock": { "type": "hero_level", "heroId": "white_crane_edge_runner", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
-          { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.03 },
-          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.03 },
+          { "type": "stat_multiplier", "stat": "kineticAttack", "value": 0.03 },
+          { "type": "stat_multiplier", "stat": "cognitiveAttack", "value": 0.03 },
           { "type": "stat_multiplier", "stat": "speed", "value": 0.03 }
         ]
       }
@@ -80,8 +80,8 @@
     "id": "rend",
     "name": "Rend Style",
     "bonuses": [
-      { "stat": "outerAttack", "effectPerLevel": 0.008 },
-      { "stat": "outerDefense", "effectPerLevel": 0.004 }
+      { "stat": "kineticAttack", "effectPerLevel": 0.008 },
+      { "stat": "kineticDefense", "effectPerLevel": 0.004 }
     ],
     "branches": [
       {
@@ -90,8 +90,8 @@
         "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
         "effects": [
-          { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.04 },
-          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.04 }
+          { "type": "stat_multiplier", "stat": "kineticAttack", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "kineticDefense", "value": 0.04 }
         ]
       }
     ]
@@ -100,8 +100,8 @@
     "id": "brace",
     "name": "Brace Style",
     "bonuses": [
-      { "stat": "maxOuterHp", "effectPerLevel": 0.008 },
-      { "stat": "outerDefense", "effectPerLevel": 0.008 }
+      { "stat": "maxBodyIntegrity", "effectPerLevel": 0.008 },
+      { "stat": "kineticDefense", "effectPerLevel": 0.008 }
     ],
     "branches": [
       {
@@ -110,8 +110,8 @@
         "unlock": { "type": "hero_level", "heroId": "mountain_brace_guardian", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
-          { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.04 },
-          { "type": "stat_multiplier", "stat": "outerDefense", "value": 0.06 }
+          { "type": "stat_multiplier", "stat": "maxBodyIntegrity", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "kineticDefense", "value": 0.06 }
         ]
       }
     ]
@@ -120,7 +120,7 @@
     "id": "ghostware",
     "name": "Ghostware Style",
     "bonuses": [
-      { "stat": "innerAttack", "effectPerLevel": 0.006 },
+      { "stat": "cognitiveAttack", "effectPerLevel": 0.006 },
       { "stat": "speed", "effectPerLevel": 0.006 }
     ],
     "branches": [
@@ -130,7 +130,7 @@
         "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
         "effects": [
-          { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.04 },
+          { "type": "stat_multiplier", "stat": "cognitiveAttack", "value": 0.04 },
           { "type": "stat_multiplier", "stat": "speed", "value": 0.04 }
         ]
       }

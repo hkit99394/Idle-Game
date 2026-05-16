@@ -64,8 +64,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_guard_stance",
         name: "Scenario Guard Stance",
         cooldownSeconds: 4,
-        outerMultiplier: 0,
-        innerMultiplier: 0,
+        kineticMultiplier: 0,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: [{ type: "guard", value: 0.5, durationSeconds: 4 }]
       },
@@ -73,8 +73,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_protect_stance",
         name: "Scenario Protect Stance",
         cooldownSeconds: 4,
-        outerMultiplier: 0,
-        innerMultiplier: 0,
+        kineticMultiplier: 0,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: [{ type: "protect", value: 0.5, durationSeconds: 4 }]
       },
@@ -82,8 +82,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_heavy_strike",
         name: "Scenario Heavy Strike",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: []
       },
@@ -91,8 +91,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_highest_cp_strike",
         name: "Scenario Highest CP Strike",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "highest_cp",
         effects: []
       },
@@ -100,8 +100,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_armor_break_hit",
         name: "Scenario Armor Break Hit",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: [{ type: "armor_break", value: 0.5, durationSeconds: 5 }]
       },
@@ -109,8 +109,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_plain_hit",
         name: "Scenario Plain Hit",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: []
       }

@@ -159,7 +159,7 @@
       },
       "healingPressure": {
         "minHeals": 100,
-        "minOuterHealing": 4000,
+        "minBodyIntegrityRestored": 4000,
         "minCleanses": 1,
         "maxRecoveryPrevented": 0
       },

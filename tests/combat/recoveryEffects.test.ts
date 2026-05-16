@@ -88,8 +88,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_ally_heal",
           name: "Scenario Ally Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -152,8 +152,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_full_heal",
           name: "Scenario Full Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "body_integrity_restore_percent", value: 0.2 }]
         }
@@ -194,8 +194,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_inner_heal",
           name: "Scenario Inner Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -209,8 +209,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_inner_hit",
           name: "Scenario Inner Hit",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 1,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 1,
           targetRule: "first_living",
           effects: []
         }
@@ -269,8 +269,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_regenerate",
           name: "Scenario Regenerate",
           cooldownSeconds: 10,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -321,8 +321,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_plain_strike",
           name: "Scenario Plain Strike",
           cooldownSeconds: 1,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         },
@@ -330,8 +330,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_wounding_strike",
           name: "Scenario Trauma Strike",
           cooldownSeconds: 1,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -346,8 +346,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_enemy_heal",
           name: "Scenario Enemy Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "body_integrity_restore_percent", value: 0.2 }]
         }
@@ -440,8 +440,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_status_cut",
           name: "Scenario Status Cut",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             { type: "armor_break", value: 0.4, durationSeconds: 5 },
@@ -452,8 +452,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_enemy_guard",
           name: "Scenario Enemy Guard",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "guard", value: 0.3, durationSeconds: 5 }]
         },
@@ -461,8 +461,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_cleanse",
           name: "Scenario Cleanse",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {

@@ -6,8 +6,8 @@
       {
         "pieces": 2,
         "effects": [
-          { "stat": "outerDefense", "mode": "multiplier", "value": 0.05 },
-          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+          { "stat": "kineticDefense", "mode": "multiplier", "value": 0.05 },
+          { "stat": "overloadResist", "mode": "flat", "value": 0.01 }
         ]
       }
     ]

@@ -80,13 +80,13 @@ describe("static game data validation", () => {
           return skill;
         }
 
-        const { outerMultiplier, innerMultiplier, ...rest } = skill;
+        const { kineticMultiplier, cognitiveMultiplier, ...rest } = skill;
 
         return {
           ...rest,
-          kineticMultiplier: outerMultiplier,
-          cognitiveMultiplier: innerMultiplier,
-          targetRule: "overloaded",
+          outerMultiplier: kineticMultiplier,
+          innerMultiplier: cognitiveMultiplier,
+          targetRule: "inner_broken",
           effects: skill.effects.map((effect) =>
             effect.type === "inner_defense_down"
               ? { ...effect, type: "cognitive_defense_down" }
@@ -98,14 +98,14 @@ describe("static game data validation", () => {
         tactic.id === "context_break"
           ? {
               ...tactic,
-              targetPriorities: ["overloaded", "highest_cp"],
+              targetPriorities: ["inner_broken", "highest_cp"],
               modifiers: tactic.modifiers.map((modifier) => {
-                if (modifier.type === "inner_damage_multiplier") {
-                  return { ...modifier, type: "cognitive_damage_multiplier" };
+                if (modifier.type === "cognitive_damage_multiplier") {
+                  return { ...modifier, type: "inner_damage_multiplier" };
                 }
 
-                if (modifier.type === "break_power_multiplier") {
-                  return { ...modifier, type: "breach_power_multiplier" };
+                if (modifier.type === "breach_power_multiplier") {
+                  return { ...modifier, type: "break_power_multiplier" };
                 }
 
                 return modifier;
@@ -154,8 +154,10 @@ describe("static game data validation", () => {
           ? {
               ...upgrade,
               effects: upgrade.effects.map((effect) =>
-                effect.type === "outer_multiplier"
-                  ? { ...effect, type: "kinetic_multiplier" }
+                effect.type === "kinetic_multiplier"
+                  ? { ...effect, type: "outer_multiplier" }
+                  : effect.type === "cognitive_multiplier"
+                    ? { ...effect, type: "inner_multiplier" }
                   : effect
               )
             }
@@ -261,7 +263,7 @@ describe("static game data validation", () => {
         skill.id === "impact_combo"
           ? {
               ...skill,
-              kineticMultiplier: skill.outerMultiplier
+              outerMultiplier: skill.kineticMultiplier
             }
           : skill
       ),
@@ -318,7 +320,7 @@ describe("static game data validation", () => {
         skill.id === "impact_combo"
           ? {
               ...skill,
-              kineticMultiplier: skill.outerMultiplier + 0.1
+              outerMultiplier: skill.kineticMultiplier + 0.1
             }
           : skill
       ),
@@ -719,7 +721,7 @@ describe("static game data validation", () => {
           targetPriorities: ["nearest", "weakest_hp", "weakest_hp"],
           modifiers: [
             {
-              type: "outer_damage_multiplier",
+              type: "kinetic_damage_multiplier",
               value: 2.5
             },
             {
@@ -750,8 +752,8 @@ describe("static game data validation", () => {
         "Tactic broken_tactic behaviorFlags includes unsupported flag burst",
         "Tactic broken_tactic targetPriorities includes unsupported target rule nearest",
         "Tactic broken_tactic targetPriorities duplicates weakest_hp",
-        "Tactic broken_tactic modifier outer_damage_multiplier value must be between 0.5 and 1.5",
-        "Tactic broken_tactic modifier outer_damage_multiplier requires behavior flag damage",
+        "Tactic broken_tactic modifier kinetic_damage_multiplier value must be between 0.5 and 1.5",
+        "Tactic broken_tactic modifier kinetic_damage_multiplier requires behavior flag damage",
         "Tactic broken_tactic modifier status_resistance_bonus value must be between 0 and 0.5",
         "Tactic broken_tactic modifier status_resistance_bonus requires behavior flag medicine",
         "Tactic broken_tactic modifier unknown_modifier must be supported",
@@ -779,7 +781,7 @@ describe("static game data validation", () => {
                 targetPriorities: ["first_living"],
                 modifiers: [
                   {
-                    type: "outer_damage_multiplier",
+                    type: "kinetic_damage_multiplier",
                     value: 1.05
                   }
                 ]

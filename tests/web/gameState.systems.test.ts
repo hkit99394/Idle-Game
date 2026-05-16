@@ -430,8 +430,8 @@ describe("web game state systems", () => {
           id: "web_poison_hex",
           name: "Web Corruption Hex",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living" as const,
           effects: [
             {

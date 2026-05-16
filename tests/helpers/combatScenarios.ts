@@ -32,8 +32,8 @@ export function createScenarioSkill(
   return {
     name: skill.id,
     cooldownSeconds: 1,
-    outerMultiplier: 0,
-    innerMultiplier: 0,
+    kineticMultiplier: 0,
+    cognitiveMultiplier: 0,
     targetRule: "first_living",
     effects: [],
     ...skill
@@ -115,12 +115,12 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
       createScenarioSkill({
         id: "scenario_outer_combo",
         name: "Scenario Outer Combo",
-        outerMultiplier: 1
+        kineticMultiplier: 1
       }),
       createScenarioSkill({
         id: "scenario_inner_break",
         name: "Scenario Inner Break",
-        innerMultiplier: 1
+        cognitiveMultiplier: 1
       }),
       createScenarioSkill({
         id: "scenario_guard",

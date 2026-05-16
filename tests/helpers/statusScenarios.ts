@@ -156,8 +156,8 @@ export function createStatusPressureScenarioData(
         id: input.skillId,
         name: input.skillName ?? "Scenario Status Pressure",
         cooldownSeconds: input.skillCooldownSeconds ?? 1,
-        outerMultiplier: 0,
-        innerMultiplier: 0,
+        kineticMultiplier: 0,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects:
           input.skillEffects ??

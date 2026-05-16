@@ -178,14 +178,14 @@ export function createAttackDamagePackage(input: {
     getPlayerTacticModifierValue(
       input.tactic,
       input.attacker,
-      "outer_damage_multiplier",
+      "kinetic_damage_multiplier",
       1
     ) * bossDamageMultiplier;
   const innerTacticMultiplier =
     getPlayerTacticModifierValue(
       input.tactic,
       input.attacker,
-      "inner_damage_multiplier",
+      "cognitive_damage_multiplier",
       1
     ) * bossDamageMultiplier;
   const outerDamage =
@@ -193,7 +193,7 @@ export function createAttackDamagePackage(input: {
       {
         attacker: input.attacker.stats,
         target: effectiveTargetStats,
-        skillMultiplier: input.skill.outerMultiplier,
+        skillMultiplier: input.skill.kineticMultiplier,
         targetIsOverloaded: target.isOverloaded
       },
       input.constants
@@ -206,7 +206,7 @@ export function createAttackDamagePackage(input: {
       {
         attacker: input.attacker.stats,
         target: effectiveTargetStats,
-        skillMultiplier: input.skill.innerMultiplier,
+        skillMultiplier: input.skill.cognitiveMultiplier,
         targetIsOverloaded: target.isOverloaded
       },
       input.constants
@@ -331,7 +331,7 @@ export function createAiOverloadDamagePackage(input: {
     getPlayerTacticModifierValue(
       input.tactic,
       input.attacker,
-      "break_power_multiplier",
+      "breach_power_multiplier",
       1
     );
   const burst = calculateAiOverloadBurst(

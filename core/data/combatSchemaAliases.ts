@@ -76,14 +76,14 @@ const TARGET_RULE_ALIASES: Record<string, string> = {
 };
 
 const TACTIC_MODIFIER_TYPE_ALIASES: Record<string, string> = {
-  breach_power_multiplier: "break_power_multiplier",
-  cognitive_damage_multiplier: "inner_damage_multiplier",
-  kinetic_damage_multiplier: "outer_damage_multiplier"
+  break_power_multiplier: "breach_power_multiplier",
+  inner_damage_multiplier: "cognitive_damage_multiplier",
+  outer_damage_multiplier: "kinetic_damage_multiplier"
 };
 
 const SKILL_UPGRADE_EFFECT_TYPE_ALIASES: Record<string, string> = {
-  cognitive_multiplier: "inner_multiplier",
-  kinetic_multiplier: "outer_multiplier"
+  inner_multiplier: "cognitive_multiplier",
+  outer_multiplier: "kinetic_multiplier"
 };
 
 function isRecord(value: unknown): value is UnknownRecord {
@@ -228,7 +228,7 @@ function normalizeSkill(skill: SkillDefinition, errors?: string[]): SkillDefinit
       skill as unknown as UnknownRecord,
       `Skill ${skill.id}`,
       SKILL_DAMAGE_FIELD_ALIASES,
-      "legacy",
+      "target",
       errors
     ),
     "targetRule",

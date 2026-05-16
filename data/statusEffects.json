@@ -9,7 +9,7 @@
     "dispelTags": ["poison", "debuff"],
     "tickIntervalSeconds": 2,
     "effects": {
-      "outerDamagePerSecond": 0.006
+      "bodyIntegrityDamagePerSecond": 0.006
     }
   },
   {
@@ -33,7 +33,7 @@
     "stackPolicy": "refresh",
     "dispelTags": ["inner", "debuff"],
     "effects": {
-      "innerRecoveryMultiplier": 0.7
+      "contextRebuildMultiplier": 0.7
     }
   },
   {
@@ -45,7 +45,7 @@
     "stackPolicy": "stack_intensity",
     "dispelTags": ["vulnerability", "debuff"],
     "effects": {
-      "outerDamageTakenMultiplier": 1.15
+      "kineticDamageTakenMultiplier": 1.15
     }
   },
   {
@@ -57,7 +57,7 @@
     "stackPolicy": "stack_intensity",
     "dispelTags": ["backlash", "debuff"],
     "effects": {
-      "attackBacklashOuterHpPercent": 0.01
+      "feedbackBodyIntegrityPercent": 0.01
     }
   }
 ]

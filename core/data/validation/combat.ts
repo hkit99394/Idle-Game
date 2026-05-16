@@ -50,18 +50,18 @@ const medicineEffectTypes = new Set([
 const tacticBehaviorFlags = new Set(TACTIC_BEHAVIOR_FLAGS);
 const tacticModifierTypes = new Set(TACTIC_MODIFIER_TYPES);
 const tacticMultiplierModifierTypes = new Set<TacticModifierType>([
-  "outer_damage_multiplier",
-  "inner_damage_multiplier",
-  "break_power_multiplier",
+  "kinetic_damage_multiplier",
+  "cognitive_damage_multiplier",
+  "breach_power_multiplier",
   "boss_damage_multiplier",
   "guard_multiplier",
   "protection_multiplier",
   "healing_multiplier"
 ]);
 const tacticModifierBehaviorFlags = {
-  outer_damage_multiplier: "damage",
-  inner_damage_multiplier: "damage",
-  break_power_multiplier: "damage",
+  kinetic_damage_multiplier: "damage",
+  cognitive_damage_multiplier: "damage",
+  breach_power_multiplier: "damage",
   boss_damage_multiplier: "damage",
   guard_multiplier: "defense",
   protection_multiplier: "defense",
@@ -223,7 +223,7 @@ export function validateSkill(
     errors.push(`Skill ${skill.id} cooldownSeconds must be non-negative`);
   }
 
-  if (skill.outerMultiplier < 0 || skill.innerMultiplier < 0) {
+  if (skill.kineticMultiplier < 0 || skill.cognitiveMultiplier < 0) {
     errors.push(`Skill ${skill.id} damage multipliers must be non-negative`);
   }
 

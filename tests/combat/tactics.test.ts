@@ -104,8 +104,8 @@ describe("combat tactics", () => {
           id: "scenario_balanced_hit",
           name: "Scenario Balanced Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
@@ -165,8 +165,8 @@ describe("combat tactics", () => {
           id: "scenario_outer_hit",
           name: "Scenario Outer Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
@@ -214,8 +214,8 @@ describe("combat tactics", () => {
           id: "scenario_boss_hit",
           name: "Scenario Boss Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
@@ -288,8 +288,8 @@ describe("combat tactics", () => {
           id: "scenario_inner_hit",
           name: "Scenario Inner Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 0,
-          innerMultiplier: 1,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 1,
           targetRule: "first_living",
           effects: []
         }
@@ -352,8 +352,8 @@ describe("combat tactics", () => {
           id: "scenario_guard",
           name: "Scenario Guard",
           cooldownSeconds: 4,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "guard", value: 0.5, durationSeconds: 4 }]
         },
@@ -361,8 +361,8 @@ describe("combat tactics", () => {
           id: "scenario_enemy_hit",
           name: "Scenario Enemy Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
@@ -420,8 +420,8 @@ describe("combat tactics", () => {
           id: "scenario_ally_heal",
           name: "Scenario Ally Heal",
           cooldownSeconds: 2,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -435,8 +435,8 @@ describe("combat tactics", () => {
           id: "scenario_recovery_hit",
           name: "Scenario Recovery Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }

@@ -5,9 +5,9 @@
     "scope": "hero",
     "art": "outer",
     "effects": [
-      { "stat": "maxOuterHp", "effectPerLevel": 0.04 },
-      { "stat": "outerAttack", "effectPerLevel": 0.1 },
-      { "stat": "outerDefense", "effectPerLevel": 0.04 }
+      { "stat": "maxBodyIntegrity", "effectPerLevel": 0.04 },
+      { "stat": "kineticAttack", "effectPerLevel": 0.1 },
+      { "stat": "kineticDefense", "effectPerLevel": 0.04 }
     ],
     "baseCost": 12,
     "costGrowth": 1.12
@@ -18,10 +18,10 @@
     "scope": "hero",
     "art": "inner",
     "effects": [
-      { "stat": "maxInnerQi", "effectPerLevel": 0.04 },
-      { "stat": "innerAttack", "effectPerLevel": 0.1 },
-      { "stat": "innerDefense", "effectPerLevel": 0.04 },
-      { "stat": "innerRecoveryRate", "effectPerLevel": 0.03 }
+      { "stat": "maxContextStability", "effectPerLevel": 0.04 },
+      { "stat": "cognitiveAttack", "effectPerLevel": 0.1 },
+      { "stat": "cognitiveDefense", "effectPerLevel": 0.04 },
+      { "stat": "contextRebuildRate", "effectPerLevel": 0.03 }
     ],
     "baseCost": 12,
     "costGrowth": 1.12
@@ -32,9 +32,9 @@
     "scope": "sect",
     "art": "outer",
     "effects": [
-      { "stat": "maxOuterHp", "effectPerLevel": 0.02 },
-      { "stat": "outerAttack", "effectPerLevel": 0.05 },
-      { "stat": "outerDefense", "effectPerLevel": 0.02 }
+      { "stat": "maxBodyIntegrity", "effectPerLevel": 0.02 },
+      { "stat": "kineticAttack", "effectPerLevel": 0.05 },
+      { "stat": "kineticDefense", "effectPerLevel": 0.02 }
     ],
     "baseCost": 48,
     "costGrowth": 1.14
@@ -45,10 +45,10 @@
     "scope": "sect",
     "art": "inner",
     "effects": [
-      { "stat": "maxInnerQi", "effectPerLevel": 0.02 },
-      { "stat": "innerAttack", "effectPerLevel": 0.05 },
-      { "stat": "innerDefense", "effectPerLevel": 0.02 },
-      { "stat": "innerRecoveryRate", "effectPerLevel": 0.02 }
+      { "stat": "maxContextStability", "effectPerLevel": 0.02 },
+      { "stat": "cognitiveAttack", "effectPerLevel": 0.05 },
+      { "stat": "cognitiveDefense", "effectPerLevel": 0.02 },
+      { "stat": "contextRebuildRate", "effectPerLevel": 0.02 }
     ],
     "baseCost": 48,
     "costGrowth": 1.14
@@ -60,7 +60,7 @@
     "art": "inner",
     "effects": [
       { "stat": "statusResistance", "mode": "flat", "effectPerLevel": 0.04 },
-      { "stat": "innerDefense", "effectPerLevel": 0.02 }
+      { "stat": "cognitiveDefense", "effectPerLevel": 0.02 }
     ],
     "baseCost": 72,
     "costGrowth": 1.16

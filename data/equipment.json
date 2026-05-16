@@ -6,7 +6,7 @@
     "rarity": "common",
     "allowedStyles": ["impact", "vector"],
     "effects": [
-      { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
+      { "stat": "kineticAttack", "mode": "multiplier", "value": 0.08 },
       { "stat": "critChance", "mode": "flat", "value": 0.01 }
     ]
   },
@@ -17,8 +17,8 @@
     "rarity": "common",
     "allowedStyles": ["pulse"],
     "effects": [
-      { "stat": "innerAttack", "mode": "multiplier", "value": 0.08 },
-      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.05 }
+      { "stat": "cognitiveAttack", "mode": "multiplier", "value": 0.08 },
+      { "stat": "maxContextStability", "mode": "multiplier", "value": 0.05 }
     ]
   },
   {
@@ -28,7 +28,7 @@
     "rarity": "uncommon",
     "allowedStyles": ["edge"],
     "effects": [
-      { "stat": "outerAttack", "mode": "multiplier", "value": 0.12 },
+      { "stat": "kineticAttack", "mode": "multiplier", "value": 0.12 },
       { "stat": "speed", "mode": "multiplier", "value": 0.06 }
     ]
   },
@@ -39,8 +39,8 @@
     "rarity": "uncommon",
     "allowedStyles": ["brace"],
     "effects": [
-      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.1 },
-      { "stat": "outerDefense", "mode": "multiplier", "value": 0.12 }
+      { "stat": "maxBodyIntegrity", "mode": "multiplier", "value": 0.1 },
+      { "stat": "kineticDefense", "mode": "multiplier", "value": 0.12 }
     ]
   },
   {
@@ -50,8 +50,8 @@
     "rarity": "common",
     "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
-      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
-      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.04 }
+      { "stat": "maxBodyIntegrity", "mode": "multiplier", "value": 0.06 },
+      { "stat": "maxContextStability", "mode": "multiplier", "value": 0.04 }
     ]
   },
   {
@@ -61,8 +61,8 @@
     "rarity": "common",
     "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
-      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },
-      { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.1 }
+      { "stat": "maxContextStability", "mode": "multiplier", "value": 0.06 },
+      { "stat": "contextRebuildRate", "mode": "multiplier", "value": 0.1 }
     ]
   },
   {
@@ -72,8 +72,8 @@
     "rarity": "uncommon",
     "allowedStyles": ["ghostware"],
     "effects": [
-      { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
-      { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 }
+      { "stat": "kineticAttack", "mode": "multiplier", "value": 0.08 },
+      { "stat": "cognitiveAttack", "mode": "multiplier", "value": 0.12 }
     ]
   },
   {
@@ -83,8 +83,8 @@
     "rarity": "uncommon",
     "allowedStyles": ["pulse"],
     "effects": [
-      { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 },
-      { "stat": "breakPower", "mode": "flat", "value": 0.01 }
+      { "stat": "cognitiveAttack", "mode": "multiplier", "value": 0.12 },
+      { "stat": "breachPower", "mode": "flat", "value": 0.01 }
     ]
   },
   {
@@ -95,16 +95,16 @@
     "allowedStyles": ["impact", "rend", "brace"],
     "setId": "ironwall_ward",
     "effects": [
-      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.14 },
-      { "stat": "outerDefense", "mode": "multiplier", "value": 0.16 },
-      { "stat": "breakResist", "mode": "flat", "value": 0.02 }
+      { "stat": "maxBodyIntegrity", "mode": "multiplier", "value": 0.14 },
+      { "stat": "kineticDefense", "mode": "multiplier", "value": 0.16 },
+      { "stat": "overloadResist", "mode": "flat", "value": 0.02 }
     ],
     "affixes": [
       {
         "id": "tempered_weave",
         "name": "Tempered Weave",
         "effects": [
-          { "stat": "outerDefense", "mode": "multiplier", "value": 0.04 }
+          { "stat": "kineticDefense", "mode": "multiplier", "value": 0.04 }
         ]
       }
     ]
@@ -117,15 +117,15 @@
     "allowedStyles": ["edge", "rend"],
     "setId": "ironwall_ward",
     "effects": [
-      { "stat": "outerAttack", "mode": "multiplier", "value": 0.14 },
-      { "stat": "breakPower", "mode": "flat", "value": 0.015 }
+      { "stat": "kineticAttack", "mode": "multiplier", "value": 0.14 },
+      { "stat": "breachPower", "mode": "flat", "value": 0.015 }
     ],
     "affixes": [
       {
         "id": "heavy_edge",
         "name": "Heavy Edge",
         "effects": [
-          { "stat": "outerAttack", "mode": "multiplier", "value": 0.04 }
+          { "stat": "kineticAttack", "mode": "multiplier", "value": 0.04 }
         ]
       }
     ]
@@ -138,15 +138,15 @@
     "allowedStyles": ["impact", "brace"],
     "setId": "ironwall_ward",
     "effects": [
-      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.08 },
-      { "stat": "outerDefense", "mode": "multiplier", "value": 0.08 }
+      { "stat": "maxBodyIntegrity", "mode": "multiplier", "value": 0.08 },
+      { "stat": "kineticDefense", "mode": "multiplier", "value": 0.08 }
     ],
     "affixes": [
       {
         "id": "body_conditioning",
         "name": "Body Conditioning",
         "effects": [
-          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+          { "stat": "overloadResist", "mode": "flat", "value": 0.01 }
         ]
       }
     ]
@@ -159,15 +159,15 @@
     "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "setId": "ironwall_ward",
     "effects": [
-      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.07 },
-      { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.08 }
+      { "stat": "maxContextStability", "mode": "multiplier", "value": 0.07 },
+      { "stat": "contextRebuildRate", "mode": "multiplier", "value": 0.08 }
     ],
     "affixes": [
       {
         "id": "forge_warmed",
         "name": "Forge-Warmed",
         "effects": [
-          { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.03 }
+          { "stat": "maxBodyIntegrity", "mode": "multiplier", "value": 0.03 }
         ]
       }
     ]
@@ -179,8 +179,8 @@
     "rarity": "common",
     "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
-      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.08 },
-      { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.001 }
+      { "stat": "maxContextStability", "mode": "multiplier", "value": 0.08 },
+      { "stat": "contextRebuildRate", "mode": "flat", "value": 0.001 }
     ]
   },
   {
@@ -190,16 +190,16 @@
     "rarity": "uncommon",
     "allowedStyles": ["pulse", "brace", "ghostware"],
     "effects": [
-      { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
-      { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },
-      { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.0015 }
+      { "stat": "maxBodyIntegrity", "mode": "multiplier", "value": 0.06 },
+      { "stat": "maxContextStability", "mode": "multiplier", "value": 0.06 },
+      { "stat": "contextRebuildRate", "mode": "flat", "value": 0.0015 }
     ],
     "affixes": [
       {
         "id": "fresh_ground",
         "name": "Fresh-Ground",
         "effects": [
-          { "stat": "breakResist", "mode": "flat", "value": 0.01 }
+          { "stat": "overloadResist", "mode": "flat", "value": 0.01 }
         ]
       }
     ]

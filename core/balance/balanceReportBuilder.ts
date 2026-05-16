@@ -261,8 +261,8 @@ function estimateCombatantDps(
 ): number {
   const skill = skillById.get(combatant.skillIds[0]);
   const fallbackMultiplier = team === "player" ? 1 : 0.85;
-  const outerMultiplier = skill?.outerMultiplier ?? fallbackMultiplier;
-  const innerMultiplier = skill?.innerMultiplier ?? 0.1;
+  const kineticMultiplier = skill?.kineticMultiplier ?? fallbackMultiplier;
+  const cognitiveMultiplier = skill?.cognitiveMultiplier ?? 0.1;
   const interval = Math.max(
     calculateAttackInterval(combatant.baseStats.speed),
     skill?.cooldownSeconds ?? 0
@@ -272,12 +272,12 @@ function estimateCombatantDps(
     calculateOuterDamage({
       attacker: combatant.baseStats,
       target,
-      skillMultiplier: outerMultiplier
+      skillMultiplier: kineticMultiplier
     }) +
     calculateInnerDamage({
       attacker: combatant.baseStats,
       target,
-      skillMultiplier: innerMultiplier
+      skillMultiplier: cognitiveMultiplier
     }) *
       0.35
   ) / Math.max(0.5, interval);

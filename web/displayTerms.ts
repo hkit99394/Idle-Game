@@ -110,11 +110,11 @@ const statDisplayNames: Record<string, string> = {
 
 const tacticModifierDisplayNames: Record<string, string> = {
   boss_damage_multiplier: "Boss damage",
-  break_power_multiplier: displayTerms.combat.breachPower,
+  breach_power_multiplier: displayTerms.combat.breachPower,
   guard_multiplier: "Guard",
   healing_multiplier: "Healing",
-  inner_damage_multiplier: displayTerms.combat.cognitiveDamage,
-  outer_damage_multiplier: displayTerms.combat.kineticDamage,
+  cognitive_damage_multiplier: displayTerms.combat.cognitiveDamage,
+  kinetic_damage_multiplier: displayTerms.combat.kineticDamage,
   protection_multiplier: "Protection",
   status_resistance_bonus: "Status Resistance"
 };

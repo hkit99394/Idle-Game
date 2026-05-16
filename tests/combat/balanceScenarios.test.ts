@@ -116,8 +116,8 @@ describe("balance-critical combat scenarios", () => {
           id: "lotus_stabilizer_pulse",
           name: "Lotus Stabilizer Pulse",
           cooldownSeconds: 2,
-          outerMultiplier: 0.25,
-          innerMultiplier: 0,
+          kineticMultiplier: 0.25,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {

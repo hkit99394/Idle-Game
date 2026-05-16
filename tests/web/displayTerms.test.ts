@@ -56,10 +56,10 @@ describe("Path of Neon display terms", () => {
   it("formats style and tactic ids through the vocabulary layer", () => {
     expect(formatStyleFamilyName("impact")).toBe("Impact Style");
     expect(formatStyleFamilyName("ghostware")).toBe("Ghostware Style");
-    expect(formatTacticModifierLabel("outer_damage_multiplier")).toBe(
+    expect(formatTacticModifierLabel("kinetic_damage_multiplier")).toBe(
       displayTerms.combat.kineticDamage
     );
-    expect(formatTacticModifierLabel("break_power_multiplier")).toBe(
+    expect(formatTacticModifierLabel("breach_power_multiplier")).toBe(
       displayTerms.combat.breachPower
     );
   });

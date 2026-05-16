@@ -126,9 +126,9 @@ function formatSkillUpgradeEffect(
       return `${effect.valuePerLevel < 0 ? "" : "+"}${effect.valuePerLevel.toFixed(
         2
       )}s cooldown per level`;
-    case "outer_multiplier":
+    case "kinetic_multiplier":
       return `${formatMasteryPercent(effect.valuePerLevel)} Kinetic ratio per level`;
-    case "inner_multiplier":
+    case "cognitive_multiplier":
       return `${formatMasteryPercent(effect.valuePerLevel)} Cognitive ratio per level`;
     case "add_skill_effect":
       return `Adds ${effect.effect.type.replaceAll("_", " ")} at level ${effect.unlockLevel}`;

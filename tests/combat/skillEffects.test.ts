@@ -118,8 +118,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_slow",
           name: "Scenario Slow",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "speed_down", value: 0.5, durationSeconds: 10 }]
         },
@@ -127,8 +127,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_empty",
           name: "Scenario Empty",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         },
@@ -136,8 +136,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_enemy_hit",
           name: "Scenario Enemy Hit",
           cooldownSeconds: 0.1,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
@@ -190,8 +190,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_inner_break",
           name: "Scenario Inner Break",
           cooldownSeconds: 0.1,
-          outerMultiplier: 0,
-          innerMultiplier: 1,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 1,
           targetRule: "first_living",
           effects: [
             { type: "inner_defense_down", value: 0.5, durationSeconds: 10 }
@@ -242,8 +242,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_poison",
           name: "Scenario Corruption",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -293,8 +293,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_low_chance",
           name: "Scenario Low Chance",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -341,8 +341,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_poison",
           name: "Scenario Corruption",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -358,8 +358,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_cleanse_ally",
           name: "Scenario Cleanse Ally",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {

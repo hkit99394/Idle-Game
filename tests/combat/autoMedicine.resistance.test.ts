@@ -114,8 +114,8 @@ const statusPressureSkills: SkillDefinition[] = [
     id: "test_poison_hex",
     name: "Test Corruption Hex",
     cooldownSeconds: 1,
-    outerMultiplier: 0,
-    innerMultiplier: 0,
+    kineticMultiplier: 0,
+    cognitiveMultiplier: 0,
     targetRule: "first_living",
     effects: [
       {
@@ -131,8 +131,8 @@ const statusPressureSkills: SkillDefinition[] = [
     id: "test_vulnerability_hex",
     name: "Test Vulnerability Hex",
     cooldownSeconds: 1,
-    outerMultiplier: 0,
-    innerMultiplier: 0,
+    kineticMultiplier: 0,
+    cognitiveMultiplier: 0,
     targetRule: "first_living",
     effects: [
       {

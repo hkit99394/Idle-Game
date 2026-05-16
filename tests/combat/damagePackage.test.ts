@@ -107,8 +107,8 @@ describe("damage package", () => {
   it("creates attack packages with family, vulnerability, and armor-break modifiers", () => {
     const skill = createScenarioSkill({
       id: "scenario_damage",
-      outerMultiplier: 1,
-      innerMultiplier: 1
+      kineticMultiplier: 1,
+      cognitiveMultiplier: 1
     });
     const attacker = createDamageCombatant({
       instanceId: "scenario_attacker",
@@ -169,8 +169,8 @@ describe("damage package", () => {
   it("keeps Qi-broken damage scaling inside the attack package", () => {
     const skill = createScenarioSkill({
       id: "scenario_qi_damage",
-      outerMultiplier: 1,
-      innerMultiplier: 1
+      kineticMultiplier: 1,
+      cognitiveMultiplier: 1
     });
     const attacker = createDamageCombatant({
       instanceId: "scenario_attacker",
@@ -202,7 +202,7 @@ describe("damage package", () => {
   it("resolves protectors as the damage recipient before package creation", () => {
     const skill = createScenarioSkill({
       id: "scenario_protected_damage",
-      outerMultiplier: 1,
+      kineticMultiplier: 1,
       targetRule: "weakest_hp"
     });
     const attacker = createDamageCombatant({

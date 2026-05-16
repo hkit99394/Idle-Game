@@ -142,8 +142,8 @@ export type SkillDefinition = {
   id: string;
   name: string;
   cooldownSeconds: number;
-  outerMultiplier: number;
-  innerMultiplier: number;
+  kineticMultiplier: number;
+  cognitiveMultiplier: number;
   targetRule: TargetRule;
   effects: SkillEffect[];
 };
@@ -159,9 +159,9 @@ export const TACTIC_BEHAVIOR_FLAGS = [
 export type TacticBehaviorFlag = (typeof TACTIC_BEHAVIOR_FLAGS)[number];
 
 export const TACTIC_MODIFIER_TYPES = [
-  "outer_damage_multiplier",
-  "inner_damage_multiplier",
-  "break_power_multiplier",
+  "kinetic_damage_multiplier",
+  "cognitive_damage_multiplier",
+  "breach_power_multiplier",
   "boss_damage_multiplier",
   "guard_multiplier",
   "protection_multiplier",
@@ -192,11 +192,11 @@ export type SkillUpgradeEffect =
       valuePerLevel: number;
     }
   | {
-      type: "outer_multiplier";
+      type: "kinetic_multiplier";
       valuePerLevel: number;
     }
   | {
-      type: "inner_multiplier";
+      type: "cognitive_multiplier";
       valuePerLevel: number;
     }
   | {

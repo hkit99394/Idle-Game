@@ -13,8 +13,8 @@ const prototypeDemonPoisonPalm: SkillDefinition = {
   id: "prototype_demon_poison_palm",
   name: "Prototype Redline Corruption Pulse",
   cooldownSeconds: 4.5,
-  outerMultiplier: 0.55,
-  innerMultiplier: 1.15,
+  kineticMultiplier: 0.55,
+  cognitiveMultiplier: 1.15,
   targetRule: "first_living",
   effects: [
     {
@@ -31,8 +31,8 @@ const prototypeDemonBloodSeal: SkillDefinition = {
   id: "prototype_demon_blood_seal",
   name: "Prototype Demon Blood Seal",
   cooldownSeconds: 5.5,
-  outerMultiplier: 0.7,
-  innerMultiplier: 1.25,
+  kineticMultiplier: 0.7,
+  cognitiveMultiplier: 1.25,
   targetRule: "highest_cp",
   effects: [
     {
@@ -222,8 +222,8 @@ const prototypeLotusSkill: SkillDefinition = {
   id: "prototype_lotus_purifying_staff",
   name: "Prototype Lotus Purifying Staff",
   cooldownSeconds: 7,
-  outerMultiplier: 0.35,
-  innerMultiplier: 0.55,
+  kineticMultiplier: 0.35,
+  cognitiveMultiplier: 0.55,
   targetRule: "first_living",
   effects: [
     {
