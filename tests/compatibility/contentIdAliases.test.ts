@@ -57,6 +57,11 @@ const expectedKindCounts = {
   operation: 4,
   routine: 6
 } as const satisfies Record<ContentIdAliasKind, number>;
+const landedStaticRenameKinds = new Set<ContentIdAliasKind>([
+  "hostile_family",
+  "hostile",
+  "status"
+]);
 
 function parsePreflightRows(): PreflightRow[] {
   return [...preflightSource.matchAll(/^\| `([^`]+)` \| `([^`]+)` \| (Migrate|Keep) \|/gm)]
@@ -69,6 +74,17 @@ function parsePreflightRows(): PreflightRow[] {
 
 function pairKey(currentId: string, targetId: string): string {
   return `${currentId}->${targetId}`;
+}
+
+function expectedConfiguredContentId(row: PreflightRow): string {
+  const landedAlias = CONTENT_ID_ALIASES.find(
+    (alias) =>
+      landedStaticRenameKinds.has(alias.kind) &&
+      alias.legacyId === row.currentId &&
+      alias.targetId === row.targetId
+  );
+
+  return landedAlias?.targetId ?? row.currentId;
 }
 
 function configuredContentIds(): string[] {
@@ -244,7 +260,7 @@ describe("content id compatibility aliases", () => {
     const configuredIds = configuredContentIds();
 
     expect(preflightRows).toHaveLength(116);
-    expect(new Set(preflightRows.map((row) => row.currentId))).toEqual(
+    expect(new Set(preflightRows.map(expectedConfiguredContentId))).toEqual(
       new Set(configuredIds)
     );
 
@@ -281,15 +297,30 @@ describe("content id compatibility aliases", () => {
     }
   });
 
-  it("keeps canonical static data unchanged until static rename slices land", () => {
+  it("keeps landed hostile/status ids canonical while later static rename slices wait", () => {
     expect(staticData.enemies.map((enemy) => enemy.id)).toContain(
-      "bamboo_bandit"
+      "greenline_cutter"
+    );
+    expect(staticData.enemies.map((enemy) => enemy.family)).toContain(
+      "greenline"
+    );
+    expect(staticData.statusEffects.map((status) => status.id)).toContain(
+      "corruption"
     );
     expect(staticData.heroes.map((hero) => hero.id)).toContain(
       "iron_fist_disciple"
     );
     expect(staticData.tactics.map((tactic) => tactic.id)).toContain(
       "outer_pressure"
+    );
+    expect(staticData.enemies.map((enemy) => enemy.id)).not.toContain(
+      "bamboo_bandit"
+    );
+    expect(staticData.enemies.map((enemy) => enemy.family)).not.toContain(
+      "bandit"
+    );
+    expect(staticData.statusEffects.map((status) => status.id)).not.toContain(
+      "poison"
     );
 
     expect(normalizeContentId("hostile", "bamboo_bandit")).toBe(

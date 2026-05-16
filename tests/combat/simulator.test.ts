@@ -23,7 +23,7 @@ describe("combat simulator", () => {
       playerTeam: mvpPlayerTeam,
       enemyTeam: {
         id: "enemy",
-        combatants: [{ kind: "enemy", definitionId: "bamboo_bandit" }]
+        combatants: [{ kind: "enemy", definitionId: "greenline_cutter" }]
       },
       maxDurationSeconds: 60
     });
@@ -46,12 +46,12 @@ describe("combat simulator", () => {
       enemyTeam: {
         id: "enemy",
         combatants: [
-          { kind: "enemy", definitionId: "bamboo_bandit" },
+          { kind: "enemy", definitionId: "greenline_cutter" },
           {
             kind: "enemy",
-            definitionId: "bamboo_bandit",
+            definitionId: "greenline_cutter",
             formationSlot: "back",
-            instanceId: "enemy_second_bandit"
+            instanceId: "enemy_second_cutter"
           }
         ]
       },
@@ -69,7 +69,7 @@ describe("combat simulator", () => {
     ]);
     expect(
       result.events.some(
-        (event) => "targetId" in event && event.targetId === "enemy_second_bandit"
+        (event) => "targetId" in event && event.targetId === "enemy_second_cutter"
       )
     ).toBe(true);
   });
@@ -78,7 +78,7 @@ describe("combat simulator", () => {
     const qiBreakData: StaticGameData = {
       ...staticData,
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "bamboo_bandit"
+        enemy.id === "greenline_cutter"
           ? {
               ...enemy,
               baseStats: {
@@ -101,7 +101,7 @@ describe("combat simulator", () => {
       },
       enemyTeam: {
         id: "enemy",
-        combatants: [{ kind: "enemy", definitionId: "bamboo_bandit" }]
+        combatants: [{ kind: "enemy", definitionId: "greenline_cutter" }]
       },
       maxDurationSeconds: 30
     });
@@ -131,7 +131,7 @@ describe("combat simulator", () => {
     const durableEnemyData: StaticGameData = {
       ...staticData,
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "bamboo_bandit"
+        enemy.id === "greenline_cutter"
           ? {
               ...enemy,
               baseStats: {
@@ -163,7 +163,7 @@ describe("combat simulator", () => {
 
     const enemyTeam = {
       id: "enemy" as const,
-      combatants: [{ kind: "enemy" as const, definitionId: "bamboo_bandit" }]
+      combatants: [{ kind: "enemy" as const, definitionId: "greenline_cutter" }]
     };
     const baseBattle = simulateBattle(durableEnemyData, {
       playerTeam: baseTeam.team,
@@ -197,7 +197,7 @@ describe("combat simulator", () => {
           : hero
       ),
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "bamboo_bandit"
+        enemy.id === "greenline_cutter"
           ? {
               ...enemy,
               baseStats: {
@@ -217,7 +217,7 @@ describe("combat simulator", () => {
       },
       enemyTeam: {
         id: "enemy",
-        combatants: [{ kind: "enemy", definitionId: "bamboo_bandit" }]
+        combatants: [{ kind: "enemy", definitionId: "greenline_cutter" }]
       },
       maxDurationSeconds: 5
     });

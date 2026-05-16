@@ -27,7 +27,7 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "qi_suppression",
+        "statusId": "context_suppression",
         "chance": 0.75,
         "durationSeconds": 6,
         "stacks": 1
@@ -412,7 +412,7 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "poison",
+        "statusId": "corruption",
         "chance": 0.72,
         "durationSeconds": 8,
         "stacks": 1
@@ -429,7 +429,7 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "wound",
+        "statusId": "trauma",
         "chance": 0.62,
         "durationSeconds": 6,
         "stacks": 1
@@ -446,14 +446,14 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "qi_suppression",
+        "statusId": "context_suppression",
         "chance": 0.68,
         "durationSeconds": 6,
         "stacks": 1
       },
       {
         "type": "apply_status",
-        "statusId": "vulnerable",
+        "statusId": "exposed",
         "chance": 0.42,
         "durationSeconds": 5,
         "stacks": 1
@@ -477,7 +477,7 @@
       },
       {
         "type": "apply_status",
-        "statusId": "poison",
+        "statusId": "corruption",
         "chance": 0.52,
         "durationSeconds": 8,
         "stacks": 1

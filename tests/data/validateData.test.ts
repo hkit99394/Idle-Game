@@ -194,12 +194,12 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "bamboo_bandit" ? { ...enemy, level: 0 } : enemy
+        enemy.id === "greenline_cutter" ? { ...enemy, level: 0 } : enemy
       )
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Enemy bamboo_bandit level must be an integer >= 1"
+      "Enemy greenline_cutter level must be an integer >= 1"
     );
   });
 
@@ -212,7 +212,7 @@ describe("static game data validation", () => {
           : hero
       ),
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "bamboo_bandit"
+        enemy.id === "greenline_cutter"
           ? { ...enemy, combatRole: "ambusher" }
           : enemy
       ),
@@ -226,7 +226,7 @@ describe("static game data validation", () => {
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
         "Hero iron_fist_disciple combatRole must be one of tank, breaker, striker, support",
-        "Enemy bamboo_bandit combatRole must be one of tank, breaker, striker, support",
+        "Enemy greenline_cutter combatRole must be one of tank, breaker, striker, support",
         "Skill iron_fist_combo targetRule must be one of first_living, weakest_hp, highest_cp, inner_broken"
       ])
     );
@@ -551,7 +551,7 @@ describe("static game data validation", () => {
                   maxApplications: 2,
                   maxExpectedDamage: -1,
                   maxMedicineConsumed: "none",
-                  expectedStatusIds: ["poison", 7]
+                  expectedStatusIds: ["corruption", 7]
                 },
                 defensePressure: {
                   minGuardAbsorbs: -1
@@ -826,7 +826,7 @@ describe("static game data validation", () => {
                 bossGate: region.balanceTargets?.bossGate,
                 statusPressure: {
                   ...region.balanceTargets?.statusPressure,
-                  expectedStatusIds: ["poison", "missing_status"]
+                  expectedStatusIds: ["corruption", "missing_status"]
                 }
               }
             }

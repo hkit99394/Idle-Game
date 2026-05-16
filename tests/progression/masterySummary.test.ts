@@ -112,10 +112,10 @@ describe("active mastery summary", () => {
       "greenline_approach_10"
     );
 
-    expect(getStageEnemyFamilies(staticData, "greenline_approach_1")).toEqual(["bandit"]);
+    expect(getStageEnemyFamilies(staticData, "greenline_approach_1")).toEqual(["greenline"]);
     expect(getStageEnemyFamilies(staticData, "greenline_approach_10")).toEqual([
-      "iron_fort",
-      "bandit"
+      "ironwall",
+      "greenline"
     ]);
     expect(normalResult.ok).toBe(true);
     expect(bossResult.ok).toBe(true);
@@ -131,11 +131,11 @@ describe("active mastery summary", () => {
     expect(normalResult.summary.nextThreshold).toBeNull();
     expect(normalResult.summary.enemyFamilyDamageMultiplier).toBeCloseTo(0.03);
     expect(normalResult.summary.damageMultipliersByFamily).toEqual({
-      bandit: 0.03
+      greenline: 0.03
     });
     expect(bossResult.summary.damageMultipliersByFamily).toEqual({
-      bandit: 0.03,
-      iron_fort: 0.03
+      greenline: 0.03,
+      ironwall: 0.03
     });
     expect(normalResult.summary.activeBonuses).toContainEqual({
       type: "enemy_family_damage_multiplier",

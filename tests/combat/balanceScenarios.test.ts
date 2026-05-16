@@ -39,14 +39,14 @@ describe("balance-critical combat scenarios", () => {
         combatants: [
           {
             kind: "enemy",
-            definitionId: "bamboo_bandit",
-            instanceId: "back_bandit",
+            definitionId: "greenline_cutter",
+            instanceId: "back_cutter",
             formationSlot: "back"
           },
           {
             kind: "enemy",
-            definitionId: "bamboo_bandit",
-            instanceId: "front_bandit",
+            definitionId: "greenline_cutter",
+            instanceId: "front_cutter",
             formationSlot: "front"
           }
         ]
@@ -59,7 +59,7 @@ describe("balance-critical combat scenarios", () => {
 
     expect(firstAttack).toMatchObject({
       type: "attack",
-      targetId: "front_bandit"
+      targetId: "front_cutter"
     });
   });
 

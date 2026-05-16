@@ -58,10 +58,10 @@ describe("Redline Outpost content", () => {
 
     expect(statusIds).toEqual(
       new Set([
-        "poison",
-        "vulnerable",
-        "qi_suppression",
-        "wound",
+        "corruption",
+        "exposed",
+        "context_suppression",
+        "trauma",
         "burning_blood"
       ])
     );

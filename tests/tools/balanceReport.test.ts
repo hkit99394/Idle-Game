@@ -66,7 +66,7 @@ describe("balance report", () => {
       enemyFormationSlots: ["front", "middle"]
     });
     expect(report.bambooRoadBalance.formationScenarios).toEqual({
-      firstLivingFrontlineTargetId: "front_bandit",
+      firstLivingFrontlineTargetId: "front_cutter",
       highestCpBacklineTargetId: "back_threat"
     });
   });

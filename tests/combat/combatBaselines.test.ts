@@ -121,7 +121,7 @@ describe("combat baseline traces", () => {
         sourceId: "enemy_scenario_trace_poisoner_3",
         targetId: "player_scenario_trace_striker_1",
         skillId: "scenario_poison_touch",
-        statusId: "poison"
+        statusId: "corruption"
       },
       {
         type: "guard_absorb",
@@ -215,7 +215,7 @@ describe("combat baseline traces", () => {
         sourceId: "enemy_scenario_auto_medicine_poisoner_1",
         targetId: ids.targetId,
         skillId: ids.skillId,
-        statusId: "poison"
+        statusId: "corruption"
       },
       {
         type: "auto_medicine",
@@ -230,7 +230,7 @@ describe("combat baseline traces", () => {
         trigger: "battle_cleanse",
         medicineId: "clear_heart_pill",
         targetId: ids.targetId,
-        cleansedStatusIds: ["poison"]
+        cleansedStatusIds: ["corruption"]
       })
     ]);
   });

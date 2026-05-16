@@ -29,7 +29,7 @@ function createTwoRegionData(): StaticGameData {
         ? {
             ...stage,
             enemyTeam: {
-              combatantIds: ["bamboo_bandit"]
+              combatantIds: ["greenline_cutter"]
             }
           }
         : stage

@@ -82,7 +82,7 @@ export function createStatusPressureScenarioData(
   const baseData = input.baseData ?? staticData;
   const statusEffects = input.statusEffects ?? [
     {
-      statusId: "poison",
+      statusId: "corruption",
       chance: 0.85,
       durationSeconds: 4,
       stacks: 1
@@ -250,7 +250,7 @@ export function createAutoMedicineCorruptionScenarioData(
     },
     statusEffects: [
       {
-        statusId: "poison",
+        statusId: "corruption",
         chance: 1,
         durationSeconds: 6,
         stacks: 1

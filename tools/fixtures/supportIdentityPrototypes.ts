@@ -19,7 +19,7 @@ const prototypeDemonPoisonPalm: SkillDefinition = {
   effects: [
     {
       type: "apply_status",
-      statusId: "poison",
+      statusId: "corruption",
       chance: 0.75,
       durationSeconds: 8,
       stacks: 1
@@ -37,7 +37,7 @@ const prototypeDemonBloodSeal: SkillDefinition = {
   effects: [
     {
       type: "apply_status",
-      statusId: "wound",
+      statusId: "trauma",
       chance: 0.68,
       durationSeconds: 6,
       stacks: 1
@@ -56,7 +56,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
   {
     id: "prototype_demon_poisoner",
     name: "Prototype Redline Corruptor",
-    family: "demon_cult",
+    family: "redline",
     type: "normal",
     style: "palm",
     combatRole: "breaker",
@@ -83,7 +83,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
   {
     id: "prototype_demon_blood_adept",
     name: "Prototype Demon Blood Adept",
-    family: "demon_cult",
+    family: "redline",
     type: "elite",
     style: "blade",
     combatRole: "striker",
@@ -110,7 +110,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
   {
     id: "prototype_demon_cult_boss",
     name: "Prototype Redline Boss",
-    family: "demon_cult",
+    family: "redline",
     type: "boss",
     style: "blade",
     combatRole: "striker",
@@ -228,7 +228,7 @@ const prototypeLotusSkill: SkillDefinition = {
   effects: [
     {
       type: "apply_status",
-      statusId: "vulnerable",
+      statusId: "exposed",
       chance: 0.35,
       durationSeconds: 5,
       stacks: 1

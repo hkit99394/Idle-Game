@@ -170,7 +170,7 @@ describe("stage battle resolution", () => {
           ? {
               ...stage,
               enemyTeam: {
-                combatantIds: ["black_iron_guard"]
+                combatantIds: ["ironwall_guard"]
               }
             }
           : stage
@@ -268,7 +268,7 @@ describe("stage battle resolution", () => {
         medicineId: "clear_heart_pill",
         timeSeconds: 1,
         targetId: ids.targetId,
-        cleansedStatusIds: ["poison"]
+        cleansedStatusIds: ["corruption"]
       })
     ]);
     expect(enabledResult.battle.events).toEqual(
@@ -279,7 +279,7 @@ describe("stage battle resolution", () => {
           targetId: ids.targetId,
           trigger: "battle_cleanse",
           medicineId: "clear_heart_pill",
-          cleansedStatusIds: ["poison"]
+          cleansedStatusIds: ["corruption"]
         })
       ])
     );
@@ -308,7 +308,7 @@ describe("stage battle resolution", () => {
       {
         type: "status_apply",
         targetId: ids.targetId,
-        statusId: "poison",
+        statusId: "corruption",
         medicineId: null,
         trigger: null
       },
@@ -344,8 +344,8 @@ describe("stage battle resolution", () => {
       skillCooldownSeconds: 0.1,
       statusEffects: [
         {
-          statusId: "poison",
-          chance: 0.85,
+          statusId: "corruption",
+          chance: 1,
           durationSeconds: 4,
           stacks: 1
         }
@@ -432,7 +432,7 @@ describe("stage battle resolution", () => {
       skillCooldownSeconds: 0.1,
       statusEffects: [
         {
-          statusId: "poison",
+          statusId: "corruption",
           chance: 0.85,
           durationSeconds: 4,
           stacks: 1
@@ -491,7 +491,7 @@ describe("stage battle resolution", () => {
           targetId: "player_scenario_cleanse_patient_1",
           trigger: "battle_cleanse",
           medicineId,
-          cleansedStatusIds: ["poison"],
+          cleansedStatusIds: ["corruption"],
           statusResistanceBonus: 0.8,
           statusResistanceDurationSeconds: 1.5
         })
@@ -508,7 +508,7 @@ describe("stage battle resolution", () => {
     expect(result.battle.finalPlayerTeam[0]?.activeStatuses).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          statusId: "poison"
+          statusId: "corruption"
         })
       ])
     );

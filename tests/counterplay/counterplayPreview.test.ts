@@ -68,7 +68,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "poison",
+          statusId: "corruption",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -85,7 +85,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "qi_suppression",
+          statusId: "context_suppression",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -102,7 +102,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "vulnerable",
+          statusId: "exposed",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -119,7 +119,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "wound",
+          statusId: "trauma",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -205,14 +205,14 @@ describe("counterplay preview", () => {
     });
 
     expect(preview.statusPressureIds).toEqual([
-      "poison",
-      "qi_suppression",
-      "vulnerable",
-      "wound"
+      "context_suppression",
+      "corruption",
+      "exposed",
+      "trauma"
     ]);
     expect(preview.statusCategories).toEqual([
-      "damage",
       "control",
+      "damage",
       "vulnerability",
       "recovery"
     ]);
@@ -227,7 +227,7 @@ describe("counterplay preview", () => {
       preBattleResistancePolicyReason: null
     });
     expect(preview.recommendationText).toBe(
-      "Expected Corruption, Context Suppression, Exposed, Trauma. Recommended auto medicine: Quiet Context Powder, Clear Heart Countermeasure, Purity Countermeasure."
+      "Expected Context Suppression, Corruption, Exposed, Trauma. Recommended auto medicine: Quiet Context Powder, Clear Heart Countermeasure, Purity Countermeasure."
     );
     expect(preview.supportResistanceBonus).toBeCloseTo(0.08);
     expect(preview.supportContributionText).toBe(

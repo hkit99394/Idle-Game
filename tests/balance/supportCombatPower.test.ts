@@ -16,7 +16,7 @@ const applyStatusSkill: SkillDefinition = {
   effects: [
     {
       type: "apply_status",
-      statusId: "vulnerable",
+      statusId: "exposed",
       chance: 1,
       durationSeconds: 5,
       stacks: 2

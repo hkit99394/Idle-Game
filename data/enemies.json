@@ -1,8 +1,8 @@
 [
   {
-    "id": "bamboo_bandit",
+    "id": "greenline_cutter",
     "name": "Greenline Cutter",
-    "family": "bandit",
+    "family": "greenline",
     "type": "normal",
     "style": "blade",
     "combatRole": "striker",
@@ -27,9 +27,9 @@
     "traitIds": []
   },
   {
-    "id": "mist_palm_thug",
+    "id": "veil_pulse_bruiser",
     "name": "Veil Pulse Bruiser",
-    "family": "bandit",
+    "family": "greenline",
     "type": "elite",
     "style": "palm",
     "combatRole": "breaker",
@@ -54,9 +54,9 @@
     "traitIds": []
   },
   {
-    "id": "black_iron_guard",
+    "id": "ironwall_guard",
     "name": "Ironwall Guard",
-    "family": "iron_fort",
+    "family": "ironwall",
     "type": "boss",
     "style": "blade",
     "combatRole": "tank",
@@ -81,9 +81,9 @@
     "traitIds": ["boss"]
   },
   {
-    "id": "mist_valley_acolyte",
+    "id": "veil_district_acolyte",
     "name": "Veil District Acolyte",
-    "family": "mist_valley",
+    "family": "veil_district",
     "type": "normal",
     "style": "palm",
     "combatRole": "breaker",
@@ -110,7 +110,7 @@
   {
     "id": "veilstep_needler",
     "name": "Veilstep Needler",
-    "family": "mist_valley",
+    "family": "veil_district",
     "type": "elite",
     "style": "hidden_weapons",
     "combatRole": "striker",
@@ -135,9 +135,9 @@
     "traitIds": []
   },
   {
-    "id": "fog_staff_ward",
+    "id": "fogline_brace_ward",
     "name": "Fogline Brace Ward",
-    "family": "mist_valley",
+    "family": "veil_district",
     "type": "normal",
     "style": "staff",
     "combatRole": "tank",
@@ -162,9 +162,9 @@
     "traitIds": []
   },
   {
-    "id": "mist_palm_adept",
+    "id": "veil_pulse_adept",
     "name": "Veil Pulse Adept",
-    "family": "mist_valley",
+    "family": "veil_district",
     "type": "elite",
     "style": "palm",
     "combatRole": "breaker",
@@ -189,9 +189,9 @@
     "traitIds": []
   },
   {
-    "id": "mist_valley_elder",
+    "id": "veil_district_elder",
     "name": "Veil District Elder",
-    "family": "mist_valley",
+    "family": "veil_district",
     "type": "boss",
     "style": "palm",
     "combatRole": "breaker",
@@ -216,9 +216,9 @@
     "traitIds": ["boss"]
   },
   {
-    "id": "iron_fort_sentry",
+    "id": "ironwall_sentry",
     "name": "Ironwall Sentry",
-    "family": "iron_fort",
+    "family": "ironwall",
     "type": "normal",
     "style": "blade",
     "combatRole": "tank",
@@ -245,7 +245,7 @@
   {
     "id": "shieldwall_guard",
     "name": "Shieldwall Guard",
-    "family": "iron_fort",
+    "family": "ironwall",
     "type": "normal",
     "style": "staff",
     "combatRole": "tank",
@@ -270,9 +270,9 @@
     "traitIds": []
   },
   {
-    "id": "black_iron_saber",
+    "id": "ironwall_saber",
     "name": "Ironwall Saber",
-    "family": "iron_fort",
+    "family": "ironwall",
     "type": "elite",
     "style": "blade",
     "combatRole": "striker",
@@ -299,7 +299,7 @@
   {
     "id": "forge_chain_hook",
     "name": "Forge Chain Hook",
-    "family": "iron_fort",
+    "family": "ironwall",
     "type": "normal",
     "style": "staff",
     "combatRole": "support",
@@ -324,9 +324,9 @@
     "traitIds": []
   },
   {
-    "id": "iron_armor_captain",
+    "id": "iron_plating_captain",
     "name": "Iron Plating Captain",
-    "family": "iron_fort",
+    "family": "ironwall",
     "type": "elite",
     "style": "blade",
     "combatRole": "tank",
@@ -351,9 +351,9 @@
     "traitIds": []
   },
   {
-    "id": "black_fort_commander",
+    "id": "black_foundry_commander",
     "name": "Black Foundry Commander",
-    "family": "iron_fort",
+    "family": "ironwall",
     "type": "boss",
     "style": "blade",
     "combatRole": "tank",
@@ -378,9 +378,9 @@
     "traitIds": ["boss"]
   },
   {
-    "id": "lotus_outer_disciple",
+    "id": "lotus_kinetic_initiate",
     "name": "Lotus Kinetic Initiate",
-    "family": "lotus_monastery",
+    "family": "lotus_clinic",
     "type": "normal",
     "style": "palm",
     "combatRole": "breaker",
@@ -405,9 +405,9 @@
     "traitIds": []
   },
   {
-    "id": "lotus_mender",
+    "id": "lotus_clinic_stabilizer",
     "name": "Lotus Stabilizer",
-    "family": "lotus_monastery",
+    "family": "lotus_clinic",
     "type": "normal",
     "style": "palm",
     "combatRole": "support",
@@ -432,9 +432,9 @@
     "traitIds": []
   },
   {
-    "id": "lotus_staff_keeper",
+    "id": "lotus_brace_keeper",
     "name": "Lotus Brace Keeper",
-    "family": "lotus_monastery",
+    "family": "lotus_clinic",
     "type": "normal",
     "style": "staff",
     "combatRole": "tank",
@@ -459,9 +459,9 @@
     "traitIds": []
   },
   {
-    "id": "jade_needle_sister",
+    "id": "jade_needle_operator",
     "name": "Jade Needle Operator",
-    "family": "lotus_monastery",
+    "family": "lotus_clinic",
     "type": "elite",
     "style": "hidden_weapons",
     "combatRole": "striker",
@@ -486,9 +486,9 @@
     "traitIds": []
   },
   {
-    "id": "lotus_sword_warden",
+    "id": "lotus_edge_warden",
     "name": "Lotus Edge Warden",
-    "family": "lotus_monastery",
+    "family": "lotus_clinic",
     "type": "elite",
     "style": "sword",
     "combatRole": "striker",
@@ -513,9 +513,9 @@
     "traitIds": []
   },
   {
-    "id": "lotus_abbot",
+    "id": "lotus_clinic_director",
     "name": "Lotus Clinic Director",
-    "family": "lotus_monastery",
+    "family": "lotus_clinic",
     "type": "boss",
     "style": "palm",
     "combatRole": "support",
@@ -540,9 +540,9 @@
     "traitIds": ["boss"]
   },
   {
-    "id": "miasma_palm_apprentice",
+    "id": "miasma_pulse_apprentice",
     "name": "Miasma Pulse Apprentice",
-    "family": "demon_cult",
+    "family": "redline",
     "type": "normal",
     "style": "palm",
     "combatRole": "breaker",
@@ -569,7 +569,7 @@
   {
     "id": "blood_brand_duelist",
     "name": "Blood Brand Duelist",
-    "family": "demon_cult",
+    "family": "redline",
     "type": "elite",
     "style": "blade",
     "combatRole": "striker",
@@ -596,7 +596,7 @@
   {
     "id": "marrow_lock_supplicant",
     "name": "Marrow Lock Supplicant",
-    "family": "demon_cult",
+    "family": "redline",
     "type": "normal",
     "style": "hidden_weapons",
     "combatRole": "support",
@@ -623,7 +623,7 @@
   {
     "id": "burning_blood_captain",
     "name": "Burning Blood Captain",
-    "family": "demon_cult",
+    "family": "redline",
     "type": "elite",
     "style": "blade",
     "combatRole": "striker",
@@ -648,9 +648,9 @@
     "traitIds": []
   },
   {
-    "id": "demon_cult_ritualist",
+    "id": "redline_ritualist",
     "name": "Redline Ritualist",
-    "family": "demon_cult",
+    "family": "redline",
     "type": "normal",
     "style": "palm",
     "combatRole": "breaker",
@@ -675,9 +675,9 @@
     "traitIds": []
   },
   {
-    "id": "demon_cult_overseer",
+    "id": "redline_overseer",
     "name": "Redline Overseer",
-    "family": "demon_cult",
+    "family": "redline",
     "type": "boss",
     "style": "blade",
     "combatRole": "striker",

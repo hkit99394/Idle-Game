@@ -1,6 +1,6 @@
 [
   {
-    "id": "poison",
+    "id": "corruption",
     "name": "Corruption",
     "category": "damage",
     "durationSeconds": 8,
@@ -13,7 +13,7 @@
     }
   },
   {
-    "id": "wound",
+    "id": "trauma",
     "name": "Trauma",
     "category": "recovery",
     "durationSeconds": 6,
@@ -25,7 +25,7 @@
     }
   },
   {
-    "id": "qi_suppression",
+    "id": "context_suppression",
     "name": "Context Suppression",
     "category": "control",
     "durationSeconds": 6,
@@ -37,7 +37,7 @@
     }
   },
   {
-    "id": "vulnerable",
+    "id": "exposed",
     "name": "Exposed",
     "category": "vulnerability",
     "durationSeconds": 5,

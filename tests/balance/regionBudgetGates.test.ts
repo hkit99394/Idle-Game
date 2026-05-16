@@ -23,7 +23,7 @@ const targets: RegionBalanceTargets = {
     maxApplications: 5,
     maxExpectedDamage: 20,
     maxMedicineConsumed: 2,
-    expectedStatusIds: ["poison"]
+    expectedStatusIds: ["corruption"]
   },
   defensePressure: {
     minGuardAbsorbs: 2,
@@ -86,7 +86,7 @@ describe("region budget gates", () => {
         statusApplications: 3,
         statusDamage: 12,
         medicineConsumed: 1,
-        statusIds: ["poison"],
+        statusIds: ["corruption"],
         guardAbsorbs: 2,
         armorBreaks: 1,
         defensiveDamagePrevented: 20,
@@ -169,9 +169,9 @@ describe("region budget gates", () => {
             result: "player_clear",
             stageCleared: true,
             durationSeconds: 11,
-            statusApplications: 6,
-            statusDamage: 21,
-            medicineConsumed: 3,
+            statusApplications: 3,
+            statusDamage: 12,
+            medicineConsumed: 1,
             statusIds: [],
             guardAbsorbs: 1,
             armorBreaks: 0,
@@ -197,7 +197,7 @@ describe("region budget gates", () => {
       "does not match best configured farm"
     );
     expect(getCheck(checks, "status_pressure").reason).toEqual(
-      expect.stringContaining("expected status poison was not applied")
+      expect.stringContaining("expected status corruption was not applied")
     );
     expect(getCheck(checks, "defense_pressure").reason).toContain(
       "guard absorbs 1 below minimum 2"

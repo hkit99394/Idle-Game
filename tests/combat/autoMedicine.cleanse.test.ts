@@ -120,7 +120,7 @@ const statusPressureSkills: SkillDefinition[] = [
     effects: [
       {
         type: "apply_status",
-        statusId: "poison",
+        statusId: "corruption",
         chance: 1,
         durationSeconds: 8,
         stacks: 1
@@ -137,7 +137,7 @@ const statusPressureSkills: SkillDefinition[] = [
     effects: [
       {
         type: "apply_status",
-        statusId: "vulnerable",
+        statusId: "exposed",
         chance: 1,
         durationSeconds: 5,
         stacks: 1
@@ -203,7 +203,7 @@ describe("auto medicine cleanse", () => {
       inventory: {
         clear_heart_pill: 1
       },
-      activeStatuses: [status("poison")],
+      activeStatuses: [status("corruption")],
       statusDefinitions,
       trigger: "battle_cleanse",
       automationUnlocked: false
@@ -219,7 +219,7 @@ describe("auto medicine cleanse", () => {
   });
 
   it("prefers narrow cleanse medicine before broad debuff cleanse", () => {
-    const activeStatuses = [status("poison"), status("wound")];
+    const activeStatuses = [status("corruption"), status("trauma")];
 
     expect(
       selectAutoCleanseMedicine({
@@ -247,7 +247,7 @@ describe("auto medicine cleanse", () => {
     expect(result.usedMedicine).toMatchObject({
       trigger: "battle_cleanse",
       medicineId: "clear_heart_pill",
-      cleansedStatusIds: ["poison", "wound"]
+      cleansedStatusIds: ["corruption", "trauma"]
     });
     expect(result.inventory.clear_heart_pill).toBeUndefined();
     expect(result.inventory.purity_draught).toBe(1);
@@ -261,7 +261,7 @@ describe("auto medicine cleanse", () => {
         clear_heart_pill: 1,
         purity_draught: 1
       },
-      activeStatuses: [status("qi_suppression")],
+      activeStatuses: [status("context_suppression")],
       statusDefinitions,
       trigger: "post_battle_cleanse"
     });
@@ -269,7 +269,7 @@ describe("auto medicine cleanse", () => {
     expect(result.usedMedicine).toMatchObject({
       trigger: "post_battle_cleanse",
       medicineId: "purity_draught",
-      cleansedStatusIds: ["qi_suppression"],
+      cleansedStatusIds: ["context_suppression"],
       statusResistanceBonus: 0.08,
       statusResistanceDurationSeconds: 10
     });
@@ -280,9 +280,9 @@ describe("auto medicine cleanse", () => {
 
   it("skips disabled cleanse medicine and can re-enable it", () => {
     const activeStatuses = [
-      status("poison"),
-      status("wound"),
-      status("qi_suppression")
+      status("corruption"),
+      status("trauma"),
+      status("context_suppression")
     ];
     const disabledClearHeartPill = setMedicineAutoUsePreference(
       undefined,
@@ -346,7 +346,7 @@ describe("auto medicine cleanse", () => {
         inventory: {
           clear_heart_pill: 1
         },
-        activeStatuses: [status("qi_suppression")],
+        activeStatuses: [status("context_suppression")],
         statusDefinitions,
         trigger: "battle_cleanse"
       })
@@ -379,7 +379,7 @@ describe("auto medicine cleanse", () => {
   });
 
   it("does not consume the same medicine twice in one trigger window", () => {
-    const poisoned = status("poison");
+    const poisoned = status("corruption");
     const firstUse = applyAutoCleanseMedicine({
       medicines: medicineDefinitions,
       inventory: {

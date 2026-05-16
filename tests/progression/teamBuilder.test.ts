@@ -202,11 +202,11 @@ describe("progress-based player team builder", () => {
     }
 
     expect(normalResult.team.combatants[0].damageMultipliersByFamily).toEqual({
-      bandit: 0.03
+      greenline: 0.03
     });
     expect(bossResult.team.combatants[0].damageMultipliersByFamily).toEqual({
-      bandit: 0.03,
-      iron_fort: 0.03
+      greenline: 0.03,
+      ironwall: 0.03
     });
   });
 
@@ -226,7 +226,7 @@ describe("progress-based player team builder", () => {
 
     const enemyTeam = {
       id: "enemy" as const,
-      combatants: [{ kind: "enemy" as const, definitionId: "bamboo_bandit" }]
+      combatants: [{ kind: "enemy" as const, definitionId: "greenline_cutter" }]
     };
     const baseBattle = simulateBattle(staticData, {
       playerTeam: baseTeam.team,
@@ -263,7 +263,7 @@ describe("progress-based player team builder", () => {
 
     const enemyTeam = {
       id: "enemy" as const,
-      combatants: [{ kind: "enemy" as const, definitionId: "bamboo_bandit" }]
+      combatants: [{ kind: "enemy" as const, definitionId: "greenline_cutter" }]
     };
     const baseBattle = simulateBattle(staticData, {
       playerTeam: baseTeam.team,

@@ -418,7 +418,7 @@ describe("recovery and wound effects", () => {
       },
       enemyTeam: {
         id: "enemy",
-        combatants: [{ kind: "enemy", definitionId: "lotus_mender" }]
+        combatants: [{ kind: "enemy", definitionId: "lotus_clinic_stabilizer" }]
       },
       maxDurationSeconds: 6
     });

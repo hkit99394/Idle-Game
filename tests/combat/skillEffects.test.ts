@@ -248,7 +248,7 @@ describe("skill effect combat coverage", () => {
           effects: [
             {
               type: "apply_status",
-              statusId: "poison",
+              statusId: "corruption",
               chance: 1,
               durationSeconds: 4,
               stacks: 1
@@ -281,7 +281,7 @@ describe("skill effect combat coverage", () => {
     expect(result.events.some((event) => event.type === "status_apply")).toBe(true);
     expect(result.events.some((event) => event.type === "status_tick")).toBe(true);
     expect(target.activeStatuses.map((status) => status.statusId)).toContain(
-      "poison"
+      "corruption"
     );
     expect(target.outerHp).toBeLessThan(target.maxOuterHp);
   });
@@ -299,7 +299,7 @@ describe("skill effect combat coverage", () => {
           effects: [
             {
               type: "apply_status",
-              statusId: "poison",
+              statusId: "corruption",
               chance: 0.01,
               durationSeconds: 4,
               stacks: 1
@@ -347,7 +347,7 @@ describe("skill effect combat coverage", () => {
           effects: [
             {
               type: "apply_status",
-              statusId: "poison",
+              statusId: "corruption",
               chance: 1,
               durationSeconds: 4,
               stacks: 1
@@ -405,7 +405,7 @@ describe("skill effect combat coverage", () => {
     expect(cleanse).toMatchObject({
       type: "cleanse",
       targetId: "player_scenario_poisoned_ally_1",
-      statusesRemoved: ["poison"]
+      statusesRemoved: ["corruption"]
     });
     expect(result.finalPlayerTeam[0]?.activeStatuses).toEqual([]);
   });

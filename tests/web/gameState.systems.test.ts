@@ -436,7 +436,7 @@ describe("web game state systems", () => {
           effects: [
             {
               type: "apply_status" as const,
-              statusId: "poison",
+              statusId: "corruption",
               chance: 1,
               durationSeconds: 8,
               stacks: 1

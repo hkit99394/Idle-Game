@@ -23,7 +23,7 @@ describe("battle event view models", () => {
             targetId: "player_iron_fist_disciple_1",
             trigger: "battle_cleanse",
             medicineId: "clear_heart_pill",
-            cleansedStatusIds: ["poison"],
+            cleansedStatusIds: ["corruption"],
             statusResistanceBonus: 0,
             statusResistanceDurationSeconds: 0
           },
@@ -44,7 +44,7 @@ describe("battle event view models", () => {
       {
         id: "0-auto_medicine-1",
         category: "auto_medicine",
-        statusId: "poison",
+        statusId: "corruption",
         timeSeconds: 1,
         timeLabel: "1s",
         headline: "Iron Fist Initiate (Front) uses Clear Heart Countermeasure",

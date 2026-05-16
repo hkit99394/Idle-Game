@@ -120,7 +120,7 @@ const statusPressureSkills: SkillDefinition[] = [
     effects: [
       {
         type: "apply_status",
-        statusId: "poison",
+        statusId: "corruption",
         chance: 1,
         durationSeconds: 8,
         stacks: 1
@@ -137,7 +137,7 @@ const statusPressureSkills: SkillDefinition[] = [
     effects: [
       {
         type: "apply_status",
-        statusId: "vulnerable",
+        statusId: "exposed",
         chance: 1,
         durationSeconds: 5,
         stacks: 1
@@ -167,7 +167,7 @@ describe("auto medicine resistance", () => {
         enemies: statusPressureEnemies,
         skills: statusPressureSkills
       })
-    ).toEqual(["poison", "vulnerable"]);
+    ).toEqual(["corruption", "exposed"]);
     expect(
       getStageStatusPressureProfile({
         stage: statusPressureStage,

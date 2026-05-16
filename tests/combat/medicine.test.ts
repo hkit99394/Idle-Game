@@ -28,17 +28,17 @@ function getMedicine(medicineId: string): MedicineDefinition {
 
 describe("medicine counterplay", () => {
   it("cleanses poison and wound while consuming one medicine", () => {
-    const poisoned = applyStatusEffect({
+    const corrupted = applyStatusEffect({
       activeStatuses: [],
-      definition: statusDefinitions.poison
+      definition: statusDefinitions.corruption
     }).applied;
-    const wounded = applyStatusEffect({
+    const traumatized = applyStatusEffect({
       activeStatuses: [],
-      definition: statusDefinitions.wound
+      definition: statusDefinitions.trauma
     }).applied;
     const suppressed = applyStatusEffect({
       activeStatuses: [],
-      definition: statusDefinitions.qi_suppression
+      definition: statusDefinitions.context_suppression
     }).applied;
 
     const result = useMedicineCounterplay({
@@ -46,7 +46,7 @@ describe("medicine counterplay", () => {
       inventory: {
         clear_heart_pill: 2
       },
-      activeStatuses: [poisoned, wounded, suppressed],
+      activeStatuses: [corrupted, traumatized, suppressed],
       statusDefinitions
     });
 
@@ -56,11 +56,11 @@ describe("medicine counterplay", () => {
     }
     expect(result.inventory.clear_heart_pill).toBe(1);
     expect(result.cleansed.map((status) => status.statusId)).toEqual([
-      "poison",
-      "wound"
+      "corruption",
+      "trauma"
     ]);
     expect(result.statuses.map((status) => status.statusId)).toEqual([
-      "qi_suppression"
+      "context_suppression"
     ]);
   });
 

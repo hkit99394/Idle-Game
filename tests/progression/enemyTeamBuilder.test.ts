@@ -25,13 +25,13 @@ describe("stage enemy team builder", () => {
     expect(result.team.combatants).toEqual([
       expect.objectContaining({
         kind: "enemy",
-        definitionId: "bamboo_bandit",
+        definitionId: "greenline_cutter",
         formationSlot: "front",
         level: 1
       }),
       expect.objectContaining({
         kind: "enemy",
-        definitionId: "bamboo_bandit",
+        definitionId: "greenline_cutter",
         formationSlot: "middle",
         level: 1
       })
@@ -49,11 +49,11 @@ describe("stage enemy team builder", () => {
 
     expect(result.team.combatants).toEqual([
       expect.objectContaining({
-        definitionId: "mist_palm_thug",
+        definitionId: "veil_pulse_bruiser",
         formationSlot: "middle"
       }),
       expect.objectContaining({
-        definitionId: "bamboo_bandit",
+        definitionId: "greenline_cutter",
         formationSlot: "front"
       })
     ]);
@@ -67,7 +67,7 @@ describe("stage enemy team builder", () => {
           ? {
               ...stage,
               enemyTeam: {
-                combatantIds: ["bamboo_bandit", "mist_palm_thug"]
+                combatantIds: ["greenline_cutter", "veil_pulse_bruiser"]
               }
             }
           : stage
@@ -84,13 +84,13 @@ describe("stage enemy team builder", () => {
     expect(result.team.combatants).toEqual([
       expect.objectContaining({
         kind: "enemy",
-        definitionId: "bamboo_bandit",
+        definitionId: "greenline_cutter",
         formationSlot: "front",
         level: 1
       }),
       expect.objectContaining({
         kind: "enemy",
-        definitionId: "mist_palm_thug",
+        definitionId: "veil_pulse_bruiser",
         formationSlot: "middle",
         level: 1
       })
@@ -105,7 +105,7 @@ describe("stage enemy team builder", () => {
           ? {
               ...stage,
               enemyTeam: {
-                combatantIds: ["bamboo_bandit", "missing_enemy"]
+                combatantIds: ["greenline_cutter", "missing_enemy"]
               }
             }
           : stage
