@@ -17,6 +17,43 @@ const mvpPlayerTeam = {
   ]
 };
 
+function createIntrusionWindowData(enableIntrusion: boolean): StaticGameData {
+  return {
+    ...staticData,
+    enemies: staticData.enemies.map((enemy) =>
+      enemy.id === "greenline_cutter"
+        ? {
+            ...enemy,
+            baseStats: {
+              ...enemy.baseStats,
+              maxBodyIntegrity: 5000,
+              maxContextStability: 75,
+              kineticAttack: 0,
+              cognitiveAttack: 0,
+              cognitiveDefense: 0,
+              contextRebuildRate: 0,
+              statusResistance: 0
+            }
+          }
+        : enemy
+    ),
+    skillUpgrades: staticData.skillUpgrades.map((upgrade) =>
+      upgrade.id === "context_shock_refinement"
+        ? {
+            ...upgrade,
+            effects: enableIntrusion
+              ? upgrade.effects
+              : upgrade.effects.filter((effect) => effect.type !== "add_skill_effect")
+          }
+        : upgrade
+    )
+  };
+}
+
+function getFirstAiOverloadTime(result: ReturnType<typeof simulateBattle>): number {
+  return result.events.find((event) => event.type === "ai_overload")?.time ?? Number.POSITIVE_INFINITY;
+}
+
 describe("combat simulator", () => {
   it("runs the MVP team against a normal enemy", () => {
     const result = simulateBattle(staticData, {
@@ -179,6 +216,54 @@ describe("combat simulator", () => {
     expect(upgradedBattle.metrics.playerOuterDamage).toBeGreaterThan(
       baseBattle.metrics.playerOuterDamage
     );
+  });
+
+  it("uses Intrusion to accelerate the first AI Overload window", () => {
+    const baseData = createIntrusionWindowData(false);
+    const intrusionData = createIntrusionWindowData(true);
+    const playerTeam = {
+      id: "player" as const,
+      combatants: [
+        {
+          kind: "hero" as const,
+          definitionId: "azure_pulse_monk",
+          skillUpgradeLevels: {
+            context_shock_refinement: 3
+          }
+        }
+      ]
+    };
+    const enemyTeam = {
+      id: "enemy" as const,
+      combatants: [{ kind: "enemy" as const, definitionId: "greenline_cutter" }]
+    };
+
+    const baseBattle = simulateBattle(baseData, {
+      playerTeam,
+      enemyTeam,
+      maxDurationSeconds: 12
+    });
+    const intrusionBattle = simulateBattle(intrusionData, {
+      playerTeam,
+      enemyTeam,
+      maxDurationSeconds: 12
+    });
+    const baseFirstOverloadAt = getFirstAiOverloadTime(baseBattle);
+    const intrusionFirstOverloadAt = getFirstAiOverloadTime(intrusionBattle);
+
+    expect(
+      intrusionBattle.events.some(
+        (event) =>
+          event.type === "status_apply" &&
+          event.statusId === "cognitive_intrusion"
+      )
+    ).toBe(true);
+    expect(intrusionBattle.metrics.playerInnerDamage).toBeGreaterThan(
+      baseBattle.metrics.playerInnerDamage
+    );
+    expect(intrusionFirstOverloadAt).toBeLessThan(baseFirstOverloadAt);
+    expect(intrusionFirstOverloadAt).toBeLessThanOrEqual(7.2);
+    expect(baseFirstOverloadAt).toBeGreaterThanOrEqual(9);
   });
 
   it("returns timeout when neither side wins before max duration", () => {

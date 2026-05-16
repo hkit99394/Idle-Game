@@ -6,7 +6,7 @@ Stage 3.0 is the active post-migration mechanic milestone. It implements Epics 9
 
 [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md) closed the cleanup and handoff work. Stage 2.9 kept compatibility-sensitive transition fields stable, refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md), and confirmed the first implementation should be one small data-driven status mechanic with no save, export, event, taxonomy, storage-key, or internal-id migration.
 
-Slices 95.1, 96.1, 96.2, 96.3, and 96.4 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage; Slice 96.3 added the live Intrusion status and Azure Pulse Monk upgrade hook; Slice 96.4 verified Intrusion visibility through existing presentation, counterplay, battle event, and tactic comparison surfaces.
+Slices 95.1, 96.1, 96.2, 96.3, 96.4, and 96.5 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage; Slice 96.3 added the live Intrusion status and Azure Pulse Monk upgrade hook; Slice 96.4 verified Intrusion visibility through existing presentation, counterplay, battle event, and tactic comparison surfaces; Slice 96.5 proved Intrusion accelerates the first AI Overload window in a focused simulator regression while keeping known Black Iron Foundry and Redline Outpost tuning debt visible.
 
 ## Stage Theme
 
@@ -63,7 +63,7 @@ The milestone should prove that Path of Neon is more than renamed combat vocabul
 | 96.2 | 96 | Cognitive Damage Application | Complete |
 | 96.3 | 96 | Static Data And Upgrade Hook | Complete |
 | 96.4 | 96 | Presentation And Counterplay Visibility | Complete |
-| 96.5 | 96 | Simulator, Balance, And Regression Review | Planned |
+| 96.5 | 96 | Simulator, Balance, And Regression Review | Complete |
 | 96.6 | 96 | Release Hardening And Archive Readiness | Planned |
 
 ## Slice 95.1: Cognitive Intrusion Contract Adoption
@@ -262,6 +262,13 @@ Use simulator and focused combat tests to tune the prototype without turning the
 - Tune only Intrusion numbers unless a blocking bug is uncovered.
 - Document any remaining balance debt and defer broad retuning.
 
+### Implementation Notes
+
+- `tests/combat/simulator.test.ts` now compares Azure Pulse Monk with `context_shock_refinement` level 3 against the same setup with only the Intrusion-granting `add_skill_effect` removed.
+- The Intrusion scenario proves `cognitive_intrusion` applies, increases player Cognitive damage, and reaches first AI Overload earlier than the baseline (`<= 7.2s` versus `>= 9s`).
+- `npm run simulate` still reports the known Black Iron Foundry and Redline Outpost budget debt; no Intrusion tuning or broader combat retune was needed for this slice.
+- No hostile Intrusion, District Heat, exported field, event schema, or compatibility-sensitive rename was added.
+
 ### Acceptance
 
 - A focused regression proves the mechanic has a visible Cognitive/AI Overload effect.
@@ -271,10 +278,10 @@ Use simulator and focused combat tests to tune the prototype without turning the
 
 ### Verification
 
-- `npm test -- tests/combat/simulator.test.ts`
-- `npm run simulate`
-- `npm run typecheck`
-- `git diff --check`
+- Passed: `npm test -- tests/combat/simulator.test.ts`
+- Passed: `npm run simulate`
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 96.6: Release Hardening And Archive Readiness
 
