@@ -56,6 +56,7 @@ Stage 3.0 added the first post-migration mechanic as data-driven combat content:
 
 - stage results, clear times, formations, rewards, and target bands;
 - region farm recommendations;
+- report-only District Heat projection by district and recommended farm route;
 - mastery milestones;
 - difficulty-curve summaries with trend counts, target misses, and spike reasons;
 - boss gates for baseline, trained, or farmed states;
@@ -73,7 +74,7 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `districtHeatProjection`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.1 keeps District Heat out of compact JSON/CSV exports until a later schema decision.
 
 Stage 2.7 save-field migration does not change the static content reward schema or generated balance export reward columns. Simulator and support-decision tooling should consume current runtime progress/save fields when they read progress, but authored rewards and report columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` remain static authoring metrics until a later balance/report schema migration explicitly changes them.
 

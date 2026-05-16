@@ -40,7 +40,15 @@ Recommended projected output:
 - `affectedDistrictId`: canonical district id.
 - `affectedRouteId`: canonical route id when route-specific.
 
-The exact field names and export location should be finalized in the report-only slice. Until then, this contract defines the meaning and boundaries rather than a stable export schema.
+Slice 97.4 finalized the first report-only surface:
+
+- `npm run simulate` prints an author-facing `District Heat Projection` section.
+- Full debug JSON from `npm run simulate -- --json` includes `districtHeatProjection` on each region balance.
+- Compact authoring JSON from `npm run --silent simulate -- --export-json` does not include heat fields and keeps `schemaVersion: 3`.
+- Stage CSV from `npm run --silent simulate -- --csv` does not include heat columns.
+- Tactic comparison exports do not include heat fields in Stage 3.1.
+
+The field names are report-only authoring names, not save or live UI names: `affectedDistrictId`, `affectedRouteId`, `activityType`, `activityCount`, `elapsedSeconds`, `clearTimeSeconds`, `projectedHeat`, `heatBand`, `gainReason`, and `decayReason`.
 
 ## Gain, Decay, And Caps
 
@@ -116,7 +124,9 @@ Preferred implementation order:
 Default posture:
 
 - `npm run simulate` may include an author-facing heat projection section after the contract/pacing slices approve it.
-- Stable compact JSON/CSV exports should not gain heat columns without an explicit schema decision.
+- `npm run simulate` now includes an author-facing `District Heat Projection` section for each region.
+- Full debug JSON includes region-level `districtHeatProjection` for authoring review.
+- Stable compact JSON/CSV exports do not gain heat columns in Stage 3.1 and keep the existing compact export schema version.
 - Tactic comparison exports should not gain heat fields in Stage 3.1.
 - Existing Black Iron Foundry and Redline Outpost budget debt must remain visible by stable ids in the same report run.
 

@@ -6,7 +6,7 @@ Stage 3.1 is the active post-Intrusion planning and hardening milestone. [Archiv
 
 This stage prepares **District Heat** as the preferred second Path of Neon prototype, but it should not ship live heat penalties, persisted heat, or UI promises before the contract and pacing evidence are ready. District Heat touches offline farming, assignments, rewards, region UI, save posture, and balance gates, so the first milestone should make those boundaries explicit.
 
-Slices 97.1, 97.2, and 97.3 are complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path, defers derived or persisted live heat until later evidence justifies it, records the offline/assignment pacing baseline, and classifies known balance debt before heat can modify live rewards or risk.
+Slices 97.1, 97.2, 97.3, and 97.4 are complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path, defers derived or persisted live heat until later evidence justifies it, records the offline/assignment pacing baseline, classifies known balance debt before heat can modify live rewards or risk, and now exposes author-only projected heat in the simulator report.
 
 ## Stage Theme
 
@@ -59,7 +59,7 @@ The milestone should turn District Heat from a theme-bible candidate into an imp
 | 97.1 | 97 | District Heat Contract Preflight | Complete |
 | 97.2 | 97 | Offline And Pacing Baseline Audit | Complete |
 | 97.3 | 97 | Known Balance Debt Gate Review | Complete |
-| 97.4 | 97 | Report-Only Heat Projection Surface | Planned |
+| 97.4 | 97 | Report-Only Heat Projection Surface | Complete |
 | 97.5 | 97 | Save, UI, And Export Boundary Proof | Planned |
 | 97.6 | 97 | Release Hardening And Archive Readiness | Planned |
 
@@ -180,6 +180,16 @@ Design, and optionally implement, report-only District Heat projection before li
 - Add focused balance/tooling tests if any report rows or schemas change.
 - Document whether report-only output is enough to start a later live implementation slice.
 
+### Implementation Notes
+
+- Added a deterministic report-only projection helper in `core/balance/districtHeatProjection.ts`.
+- Added `districtHeatProjection` to each region balance in the full simulator report. It projects one authoring hour of recommended offline farming using the active simulated clear time, the report-only gain defaults, a repetition bonus after 20 route clears, a `100` heat cap, and no inactive decay during the activity window.
+- Added a default `npm run simulate` section titled `District Heat Projection` with affected route, activity count, projected heat, heat band, gain reason, and decay reason.
+- Kept compact authoring JSON and CSV exports unchanged: `BALANCE_EXPORT_SCHEMA_VERSION` remains `3`, stage CSV headers do not gain heat columns, and tactic comparison exports remain heat-free.
+- Added focused tests for projection math, report rows, formatter output, and compact export stability.
+- Existing Black Iron Foundry and Redline Outpost budget debt remains visible in the same simulator run.
+- No save data, web UI, live reward multiplier, route unlock behavior, balance target, or content tuning changed in this slice.
+
 ### Acceptance
 
 - The projection can explain heat gain/decay and affected district without changing live progression.
@@ -188,11 +198,13 @@ Design, and optionally implement, report-only District Heat projection before li
 
 ### Verification
 
-- `npm test -- tests/tools/balanceReport.test.ts`
-- `npm run simulate`
-- `npm run --silent simulate -- --export-json`
-- `npm run --silent simulate -- --csv`
-- `git diff --check`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run typecheck`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 97.5: Save, UI, And Export Boundary Proof
 

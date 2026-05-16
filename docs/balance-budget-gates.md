@@ -126,6 +126,8 @@ This compact export has `schemaVersion: 3` and four top-level tables:
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
 
+Stage 3.1 report-only District Heat projection is visible in the default report and full debug JSON, not in this compact export. Adding heat fields to compact JSON or CSV requires a later explicit schema decision.
+
 Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
 
 For spreadsheet review, run:

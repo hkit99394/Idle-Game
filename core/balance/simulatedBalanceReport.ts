@@ -31,6 +31,10 @@ import {
   buildRegionPressureMetrics,
   type RegionBudgetGateBattleOutcome
 } from "./regionBudgetGates";
+import {
+  DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
+  projectDistrictHeat
+} from "./districtHeatProjection";
 import type { PlayerProgress, ResolveStageBattleResult } from "../progression";
 
 export const BAMBOO_ROAD_REGION_ID = "greenline_approach";
@@ -259,6 +263,35 @@ function buildRegionFarmRecommendation(
     rewardPriority: [...OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY],
     reason: `best cleared farm by ${OFFLINE_FARM_RECOMMENDATION_REWARD_PRIORITY.join(" > ")} priority; weighted score ${formatNumber(score)}`
   };
+}
+
+function buildRegionDistrictHeatProjection(
+  regionId: string,
+  farmRecommendation: ReturnType<typeof buildRegionFarmRecommendation>,
+  stageResults: BattleSummary[]
+) {
+  const farmStage =
+    farmRecommendation === null
+      ? null
+      : stageResults.find(
+          (stage) => stage.stageId === farmRecommendation.stageId
+        ) ?? null;
+  const clearTimeSeconds = farmStage?.ok ? farmStage.durationSeconds : null;
+  const activityCount =
+    clearTimeSeconds === null
+      ? 0
+      : Math.floor(
+          DISTRICT_HEAT_REPORT_WINDOW_SECONDS / Math.max(1, clearTimeSeconds)
+        );
+
+  return projectDistrictHeat({
+    affectedDistrictId: regionId,
+    affectedRouteId: farmRecommendation?.stageId ?? null,
+    activityType: "offline_farm",
+    activityCount,
+    elapsedSeconds: DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
+    clearTimeSeconds
+  });
 }
 
 function buildRegionMasteryMilestone(
@@ -1291,6 +1324,11 @@ function buildRegionStageProgressionReport(
     },
     difficultyCurve: buildRegionDifficultyCurve(stageResults),
     farmRecommendation,
+    districtHeatProjection: buildRegionDistrictHeatProjection(
+      regionId,
+      farmRecommendation,
+      stageResults
+    ),
     masteryMilestone: buildRegionMasteryMilestone(
       data,
       progressBeforeBoss,
