@@ -93,6 +93,19 @@ const vulnerabilityDefinition: StatusEffectDefinition = {
   }
 };
 
+const intrusionDefinition: StatusEffectDefinition = {
+  id: "scenario_intrusion",
+  name: "Scenario Intrusion",
+  category: "control",
+  durationSeconds: 6,
+  maxStacks: 1,
+  stackPolicy: "refresh",
+  dispelTags: ["debuff"],
+  effects: {
+    cognitiveDamageTakenMultiplier: 1.2
+  }
+};
+
 function createTargetContext(
   target: CombatantState
 ): AttackDamageTargetContext {
@@ -161,9 +174,80 @@ describe("damage package", () => {
 
     expect(damagePackage.familyMultiplier).toBeCloseTo(1.2);
     expect(damagePackage.kineticDamageTakenMultiplier).toBe(1.5);
+    expect(damagePackage.cognitiveDamageTakenMultiplier).toBe(1);
     expect(damagePackage.outerDamage).toBeCloseTo(240);
     expect(damagePackage.innerDamage).toBeCloseTo(60);
     expect(damagePackage.intendedTargetId).toBeUndefined();
+  });
+
+  it("applies Cognitive damage taken modifiers only to Cognitive attack damage", () => {
+    const skill = createScenarioSkill({
+      id: "scenario_cognitive_damage",
+      kineticMultiplier: 1,
+      cognitiveMultiplier: 1
+    });
+    const attacker = createDamageCombatant({
+      instanceId: "scenario_attacker",
+      stats: {
+        kineticAttack: 120,
+        cognitiveAttack: 120
+      }
+    });
+    const baselineTarget = createDamageCombatant({
+      instanceId: "scenario_baseline_target",
+      kind: "enemy",
+      team: "enemy",
+      stats: {
+        kineticDefense: 60,
+        cognitiveDefense: 60
+      }
+    });
+    const intrusionTarget = createDamageCombatant({
+      instanceId: "scenario_intrusion_target",
+      kind: "enemy",
+      team: "enemy",
+      stats: {
+        kineticDefense: 60,
+        cognitiveDefense: 60
+      },
+      activeStatuses: [
+        {
+          statusId: "scenario_intrusion",
+          remainingSeconds: 6,
+          stacks: 1
+        }
+      ]
+    });
+
+    const baselineDamagePackage = createAttackDamagePackage({
+      attacker,
+      targets: createTargetContext(baselineTarget),
+      skill,
+      time: 2,
+      constants: defaultCombatFormulaConstants,
+      statusDefinitions: {
+        scenario_intrusion: intrusionDefinition
+      }
+    });
+    const intrusionDamagePackage = createAttackDamagePackage({
+      attacker,
+      targets: createTargetContext(intrusionTarget),
+      skill,
+      time: 2,
+      constants: defaultCombatFormulaConstants,
+      statusDefinitions: {
+        scenario_intrusion: intrusionDefinition
+      }
+    });
+
+    expect(intrusionDamagePackage.kineticDamageTakenMultiplier).toBe(1);
+    expect(intrusionDamagePackage.cognitiveDamageTakenMultiplier).toBe(1.2);
+    expect(intrusionDamagePackage.outerDamage).toBeCloseTo(
+      baselineDamagePackage.outerDamage
+    );
+    expect(intrusionDamagePackage.innerDamage).toBeCloseTo(
+      baselineDamagePackage.innerDamage * 1.2
+    );
   });
 
   it("keeps Qi-broken damage scaling inside the attack package", () => {
@@ -315,7 +399,8 @@ describe("damage package", () => {
       outerDamage: 120,
       innerDamage: 80,
       familyMultiplier: 1,
-      kineticDamageTakenMultiplier: 1
+      kineticDamageTakenMultiplier: 1,
+      cognitiveDamageTakenMultiplier: 1
     };
     const targets: AttackDamageTargetContext = {
       intendedTarget: protectedTarget,
@@ -392,7 +477,8 @@ describe("damage package", () => {
       outerDamage: 10,
       innerDamage: 0,
       familyMultiplier: 1,
-      kineticDamageTakenMultiplier: 1
+      kineticDamageTakenMultiplier: 1,
+      cognitiveDamageTakenMultiplier: 1
     };
 
     expect(() =>
@@ -426,7 +512,8 @@ describe("damage package", () => {
       outerDamage: 10,
       innerDamage: 0,
       familyMultiplier: 1,
-      kineticDamageTakenMultiplier: 1
+      kineticDamageTakenMultiplier: 1,
+      cognitiveDamageTakenMultiplier: 1
     };
     const intendedMismatchPackage: AttackDamagePackage = {
       ...sourceMismatchPackage,
@@ -473,7 +560,14 @@ describe("damage package", () => {
       team: "enemy",
       maxBodyIntegrity: 1000,
       maxContextStability: 100,
-      contextStability: 0
+      contextStability: 0,
+      activeStatuses: [
+        {
+          statusId: "scenario_intrusion",
+          remainingSeconds: 6,
+          stacks: 1
+        }
+      ]
     });
     const metrics = createInitialMetrics();
     const contributions = createInitialContributions([attacker, target]);

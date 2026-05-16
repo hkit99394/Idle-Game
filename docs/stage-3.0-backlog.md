@@ -6,7 +6,7 @@ Stage 3.0 is the active post-migration mechanic milestone. It implements Epics 9
 
 [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md) closed the cleanup and handoff work. Stage 2.9 kept compatibility-sensitive transition fields stable, refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md), and confirmed the first implementation should be one small data-driven status mechanic with no save, export, event, taxonomy, storage-key, or internal-id migration.
 
-Slices 95.1 and 96.1 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support needed before Cognitive damage application begins in Slice 96.2.
+Slices 95.1, 96.1, and 96.2 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage.
 
 ## Stage Theme
 
@@ -60,7 +60,7 @@ The milestone should prove that Path of Neon is more than renamed combat vocabul
 | --- | --- | --- | --- |
 | 95.1 | 95 | Cognitive Intrusion Contract Adoption | Complete |
 | 96.1 | 96 | Status Modifier Schema And Validation | Complete |
-| 96.2 | 96 | Cognitive Damage Application | Planned |
+| 96.2 | 96 | Cognitive Damage Application | Complete |
 | 96.3 | 96 | Static Data And Upgrade Hook | Planned |
 | 96.4 | 96 | Presentation And Counterplay Visibility | Planned |
 | 96.5 | 96 | Simulator, Balance, And Regression Review | Planned |
@@ -156,6 +156,16 @@ Apply the aggregated modifier only to Cognitive damage.
 - Add combat or damage-package tests that compare the same target with and without Intrusion for Cognitive and Kinetic damage.
 - Check battle summary contribution metrics still report current Kinetic/Cognitive names without new legacy aliases.
 
+### Implementation Notes
+
+Completed in runtime code and tests.
+
+- `core/combat/damagePackage.ts` now multiplies `innerDamage` by `targetStatusModifiers.cognitiveDamageTakenMultiplier` inside `createAttackDamagePackage`.
+- `AttackDamagePackage` now carries `cognitiveDamageTakenMultiplier` for internal package inspection, mirroring the existing Kinetic multiplier field without adding a battle event, report, export, or save field.
+- `tests/combat/damagePackage.test.ts` proves the modifier increases Cognitive attack damage while Kinetic attack damage remains unchanged under the same setup.
+- `tests/combat/statusEffects.test.ts` proves status tick damage does not read the Cognitive vulnerability modifier.
+- Existing AI Overload and backlash package creation remains independent of status combat modifiers.
+
 ### Acceptance
 
 - Intrusion increases Cognitive damage by the configured multiplier.
@@ -165,9 +175,9 @@ Apply the aggregated modifier only to Cognitive damage.
 
 ### Verification
 
-- `npm test -- tests/combat/damagePackage.test.ts tests/combat/statusEffects.test.ts`
-- `npm run typecheck`
-- `git diff --check`
+- Passed: `npm test -- tests/combat/damagePackage.test.ts tests/combat/statusEffects.test.ts`
+- Passed: `npm run typecheck`
+- Pending final slice check: `git diff --check`
 
 ## Slice 96.3: Static Data And Upgrade Hook
 

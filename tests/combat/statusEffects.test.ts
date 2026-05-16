@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   applyStatusEffect,
+  calculateStatusTickOuterDamage,
   cleanseCombatantStatuses,
   clearCleanseableStatusEffects,
   createBattleEventRecord,
@@ -49,6 +50,7 @@ const cognitiveIntrusionDefinition: StatusEffectDefinition = {
   stackPolicy: "stack_intensity",
   dispelTags: ["debuff"],
   effects: {
+    bodyIntegrityDamagePerSecond: 0.01,
     cognitiveDamageTakenMultiplier: 1.12,
     contextRebuildMultiplier: 0.85
   }
@@ -120,6 +122,32 @@ describe("status effects", () => {
     expect(modifiers.kineticDamageTakenMultiplier).toBeCloseTo(1.15 ** 2);
     expect(modifiers.cognitiveDamageTakenMultiplier).toBeCloseTo(1.12 ** 2);
     expect(modifiers.feedbackBodyIntegrityPercent).toBe(0);
+  });
+
+  it("keeps status tick damage independent from cognitive vulnerability", () => {
+    const baselineDefinition: StatusEffectDefinition = {
+      ...cognitiveIntrusionDefinition,
+      effects: {
+        bodyIntegrityDamagePerSecond:
+          cognitiveIntrusionDefinition.effects.bodyIntegrityDamagePerSecond
+      }
+    };
+
+    expect(
+      calculateStatusTickOuterDamage({
+        definition: cognitiveIntrusionDefinition,
+        targetMaxBodyIntegrity: 1000,
+        stacks: 1,
+        targetStatusResistance: 0
+      })
+    ).toBe(
+      calculateStatusTickOuterDamage({
+        definition: baselineDefinition,
+        targetMaxBodyIntegrity: 1000,
+        stacks: 1,
+        targetStatusResistance: 0
+      })
+    );
   });
 
   it("stores normalized status identity and deterministic duration", () => {

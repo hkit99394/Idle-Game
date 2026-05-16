@@ -41,6 +41,7 @@ export type AttackDamagePackage = {
   innerDamage: number;
   familyMultiplier: number;
   kineticDamageTakenMultiplier: number;
+  cognitiveDamageTakenMultiplier: number;
 };
 
 export type AiOverloadDamagePackage = {
@@ -213,6 +214,8 @@ export function createAttackDamagePackage(input: {
     ) *
     familyMultiplier *
     innerTacticMultiplier;
+  const modifiedInnerDamage =
+    innerDamage * targetStatusModifiers.cognitiveDamageTakenMultiplier;
 
   return {
     kind: "attack",
@@ -221,9 +224,10 @@ export function createAttackDamagePackage(input: {
     intendedTargetId: getIntendedTargetId(input.targets),
     skillId: input.skill.id,
     outerDamage,
-    innerDamage,
+    innerDamage: modifiedInnerDamage,
     familyMultiplier,
-    kineticDamageTakenMultiplier: targetStatusModifiers.kineticDamageTakenMultiplier
+    kineticDamageTakenMultiplier: targetStatusModifiers.kineticDamageTakenMultiplier,
+    cognitiveDamageTakenMultiplier: targetStatusModifiers.cognitiveDamageTakenMultiplier
   };
 }
 
