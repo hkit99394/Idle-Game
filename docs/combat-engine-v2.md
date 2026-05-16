@@ -103,7 +103,9 @@ Battle events are the detailed replay contract; metrics and contributions are ag
 - Initialize new aggregate fields in `createInitialMetrics` and update `finalizeMetrics` if derived fields depend on them.
 - Initialize new per-combatant fields in `createInitialContributions` and finalize survival in `finalizeContributions`.
 - Record metrics at the mutation point that owns the behavior: damage packages for damage, defensive pipeline for prevention, effect pipeline for healing/cleanse/status effects, simulator status advancement for data-status ticks.
-- Current simulator and tactic comparison report surfaces expose Kinetic/Cognitive damage-channel names. Temporary legacy `outer` / `inner` aggregate fields and CSV columns remain only for Stage 2.8 comparison compatibility.
+- Stage 2.9.2 keeps existing engine-level `outerDamage` / `innerDamage`, `playerOuterDamage` / `playerInnerDamage`, and contribution `outerDamage*` / `innerDamage*` payload keys stable for now. Treat them as internal replay/accounting fields, not as player-facing terminology.
+- Current simulator, web presentation, and tactic comparison report surfaces must translate those internals to Kinetic/Cognitive or Body Integrity/Context Stability wording according to the actual behavior. Attack damage uses Kinetic/Cognitive channel terms; status tick damage uses Body Integrity pool wording.
+- New external APIs, save payloads, export schemas, and player-visible docs should use current terminology. Only add new `outer` / `inner` payload keys when extending an existing stable engine event or metric shape that already uses those names.
 
 ## Boundary rules
 
