@@ -38,7 +38,7 @@ Stage 2.5 completed the region/stage static id migration while leaving content i
 - Canonical static data now emits Path of Neon region and route ids such as `greenline_approach`, `veil_district`, `black_iron_foundry`, `lotus_clinic`, `redline_outpost`, and their numeric `*_N` route ids.
 - Stage 2.5 moved saves to version `11`; legacy `progress.maps` keys, `progress.currentStageId`, and `selectedOfflineFarmStageId` values migrate through explicit region/stage aliases.
 - Static validation rejects legacy region/stage aliases in canonical data, while save import and browser storage paths still accept old values and rewrite them to canonical ids even when the payload is already labeled as the current save version.
-- Balance authoring and tactic comparison exports now use schema version `2`, keep canonical ids as primary fields, and include temporary legacy id context for report comparison.
+- Balance authoring and tactic comparison exports now use schema version `2`, keep canonical region/stage ids as primary fields, and include temporary legacy id context for report comparison.
 - Remaining old region words outside `docs/archive` are expected in alias data, old-save fixtures/tests, legacy export columns, migration docs, and later-stage save-field or combat-symbol work.
 
 ## Stage 2.6 Active Snapshot
@@ -51,7 +51,8 @@ Stage 2.6 is migrating static content ids in focused slices while preserving sav
 - Slice 91.4 renamed hostile ids, hostile family ids, and status ids in static data, stage enemy-team references, and skill `apply_status` references while keeping deterministic status rolls stable across aliases.
 - Slice 91.5 renamed initiate ids, protocol ids, skill-upgrade ids, style ids, and style-branch ids in static data and direct references while keeping old saves/imports alias-compatible.
 - Slice 91.6 renamed augment, augment-set, countermeasure, operation, and routine ids plus direct references in equipment drops, assignment rewards, auto-medicine preferences, and tactic defaults while preserving the `selectedTacticId` save field name.
-- No static content-id rename category remains open in Stage 2.6; the remaining slices are continuity, hardening, stale-scan, and archival work.
+- Slice 91.7 moved balance authoring and tactic comparison exports to schema version `3`, keeping canonical content ids primary while adding temporary legacy enemy/status/tactic comparison fields for Stage 2.5/2.6 review.
+- No static content-id rename category remains open in Stage 2.6; the remaining slice is hardening, stale-scan, and archival readiness work.
 
 ## Scope
 

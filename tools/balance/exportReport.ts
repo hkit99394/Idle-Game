@@ -3,6 +3,7 @@ import type {
   TacticComparisonReport
 } from "./progressionReport";
 import {
+  getLegacyContentId,
   getLegacyRegionId,
   getLegacyStageId
 } from "../../core";
@@ -10,7 +11,7 @@ import {
 type RegionSummary = GameBalanceReport["regionBalances"][number];
 type StageSummary = RegionSummary["stageResults"][number];
 
-export const BALANCE_EXPORT_SCHEMA_VERSION = 2;
+export const BALANCE_EXPORT_SCHEMA_VERSION = 3;
 
 export const BALANCE_STAGE_EXPORT_CSV_HEADERS = [
   "region_id",
@@ -21,7 +22,10 @@ export const BALANCE_STAGE_EXPORT_CSV_HEADERS = [
   "stage_name",
   "stage_index",
   "enemy_ids",
+  "legacy_enemy_ids",
   "enemy_types",
+  "status_ids",
+  "legacy_status_ids",
   "result",
   "duration_seconds",
   "target_min_seconds",
@@ -50,10 +54,11 @@ export const BALANCE_STAGE_EXPORT_CSV_HEADERS = [
   "recovery_prevented"
 ] as const;
 
-export const TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION = 2;
+export const TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION = 3;
 
 export const TACTIC_COMPARISON_CSV_HEADERS = [
   "tactic_id",
+  "legacy_tactic_id",
   "tactic_name",
   "is_default_tactic",
   "behavior_flags",
@@ -66,6 +71,8 @@ export const TACTIC_COMPARISON_CSV_HEADERS = [
   "stage_index",
   "result",
   "baseline_result",
+  "baseline_tactic_id",
+  "legacy_baseline_tactic_id",
   "result_changed",
   "duration_seconds",
   "baseline_duration_seconds",
@@ -171,7 +178,14 @@ function buildStageExportRow(region: RegionSummary, stage: StageSummary) {
     stageName: stage.name,
     stageIndex: stage.ok ? stage.index : null,
     enemyIds: stage.enemyIds,
+    legacyEnemyIds: stage.enemyIds.map((enemyId) =>
+      getLegacyContentId("hostile", enemyId)
+    ),
     enemyTypes: stage.enemyTypes,
+    statusIds: stage.statusIds,
+    legacyStatusIds: stage.statusIds.map((statusId) =>
+      getLegacyContentId("status", statusId)
+    ),
     result: getStageResult(stage),
     durationSeconds: getDurationSeconds(stage),
     targetMinSeconds: stage.targetSeconds?.[0] ?? null,
@@ -306,13 +320,22 @@ export function buildTacticComparisonExport(report: TacticComparisonReport) {
   return {
     schemaVersion: TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION,
     defaultTacticId: report.defaultTacticId,
-    tactics: report.tactics,
+    legacyDefaultTacticId: getLegacyContentId("routine", report.defaultTacticId),
+    tactics: report.tactics.map((tactic) => ({
+      ...tactic,
+      legacyTacticId: getLegacyContentId("routine", tactic.tacticId)
+    })),
     regions: report.regions.map((region) => ({
       ...region,
       legacyRegionId: getLegacyRegionId(region.regionId)
     })),
     rows: report.rows.map((row) => ({
       ...row,
+      legacyTacticId: getLegacyContentId("routine", row.tacticId),
+      legacyBaselineTacticId: getLegacyContentId(
+        "routine",
+        row.baselineTacticId
+      ),
       legacyRegionId: getLegacyRegionId(row.regionId),
       legacyStageId: getLegacyStageId(row.stageId)
     }))
@@ -360,7 +383,10 @@ function stageRowToCsvCells(row: BalanceStageExportRow): unknown[] {
     row.stageName,
     row.stageIndex,
     row.enemyIds,
+    row.legacyEnemyIds,
     row.enemyTypes,
+    row.statusIds,
+    row.legacyStatusIds,
     row.result,
     row.durationSeconds,
     row.targetMinSeconds,
@@ -405,6 +431,7 @@ export function formatBalanceStageExportCsv(report: GameBalanceReport): string {
 function tacticComparisonRowToCsvCells(row: TacticComparisonExportRow): unknown[] {
   return [
     row.tacticId,
+    row.legacyTacticId,
     row.tacticName,
     row.isDefaultTactic,
     row.behaviorFlags,
@@ -417,6 +444,8 @@ function tacticComparisonRowToCsvCells(row: TacticComparisonExportRow): unknown[
     row.stageIndex,
     row.result,
     row.baselineResult,
+    row.baselineTacticId,
+    row.legacyBaselineTacticId,
     row.resultChanged,
     row.durationSeconds,
     row.baselineDurationSeconds,

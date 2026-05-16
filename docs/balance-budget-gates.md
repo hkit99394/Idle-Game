@@ -113,14 +113,14 @@ For stable authoring JSON, run:
 npm run --silent simulate -- --export-json
 ```
 
-This compact export has `schemaVersion: 2` and four top-level tables:
+This compact export has `schemaVersion: 3` and four top-level tables:
 
 - `regions` for region totals, farm recommendations, mastery milestones, and pressure summaries.
 - `stages` for stage timing, rewards, farm recommendation markers, difficulty issues, difficulty spikes, and pressure fields.
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
 
-Stage 2.5 schema version 2 keeps canonical `regionId` and `stageId` as primary fields and adds temporary legacy id context for report comparison.
+Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns while the tactic comparison export includes temporary legacy tactic/baseline tactic id columns.
 
 For spreadsheet review, run:
 

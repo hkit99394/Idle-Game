@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.6 are complete: the content-id preflight, alias data, save-version migration, hostile/status static rename, initiate/protocol/style static rename, and augment/countermeasure/operation/routine static rename are now in place.
+Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.7 are complete: the content-id preflight, alias data, save-version migration, hostile/status static rename, initiate/protocol/style static rename, augment/countermeasure/operation/routine static rename, and report/tooling/web continuity work are now in place.
 
 This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
 
@@ -93,7 +93,7 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 | 91.4 | Hostile And Status Static Rename | Complete | Rename enemy/family/status ids and battle/status static references |
 | 91.5 | Initiate, Protocol, And Style Static Rename | Complete | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
 | 91.6 | Augment, Countermeasure, Operation, And Routine Static Rename | Complete | Rename equipment, set, medicine, assignment, and tactic ids plus direct references |
-| 91.7 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
+| 91.7 | Report, Tooling, And Web Continuity | Complete | Keep simulator exports, web state, diagnostics, and workflows coherent |
 | 91.8 | Content Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
 
 ---
@@ -355,6 +355,8 @@ Make equipment, equipment-set, medicine, assignment, and tactic ids canonical.
 
 ## Slice 91.7: Report, Tooling, And Web Continuity
 
+Status: complete.
+
 ### Goal
 
 Keep user workflows and downstream report consumers coherent while content ids change.
@@ -381,6 +383,13 @@ Keep user workflows and downstream report consumers coherent while content ids c
 - Support decision tests.
 - `npm run simulate`.
 - `npm run support-decision`.
+
+### Completion Notes
+
+- Balance authoring and tactic comparison exports now use schema version `3`.
+- Canonical ids remain the primary report fields while temporary legacy content-id context is included for comparison: stage enemy/status ids and tactic/baseline tactic ids.
+- Web save import/export and workflow coverage remains schema-based: current saves persist canonical content ids, while legacy content ids still normalize through the save migration path.
+- `npm run simulate` and `npm run support-decision` remain the continuity checks before Stage 2.6 hardening.
 
 ---
 

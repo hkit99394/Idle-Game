@@ -508,6 +508,8 @@ describe("balance report", () => {
       regionId: BLACK_IRON_FORT_REGION_ID,
       legacyRegionId: "black_iron_fort",
       legacyStageId: "black_iron_fort_4",
+      enemyIds: ["ironwall_saber", "shieldwall_guard"],
+      legacyEnemyIds: ["black_iron_saber", "shieldwall_guard"],
       targetStatus: "fail",
       difficultyIssue: expect.stringContaining("below"),
       pressure: {
@@ -517,7 +519,9 @@ describe("balance report", () => {
     expect(demonCultSpike).toMatchObject({
       targetStatus: "fail",
       difficultySpikeStatus: "fail",
-      difficultySpikeReason: expect.stringContaining("clear time")
+      difficultySpikeReason: expect.stringContaining("clear time"),
+      statusIds: expect.arrayContaining(["corruption", "trauma"]),
+      legacyStatusIds: expect.arrayContaining(["poison", "wound"])
     });
     expect(blackIronFarm).toMatchObject({
       farmRecommendation: true,
@@ -542,6 +546,12 @@ describe("balance report", () => {
     expect(csvLines).toHaveLength(staticData.stages.length + 1);
     expect(csv).toContain("redline_outpost_3");
     expect(csv).toContain("demon_cult_outpost_3");
+    expect(csv).toContain("legacy_enemy_ids");
+    expect(csv).toContain("black_iron_saber");
+    expect(csv).toContain("status_ids");
+    expect(csv).toContain("legacy_status_ids");
+    expect(csv).toContain("corruption");
+    expect(csv).toContain("poison");
     expect(csv).toContain("difficulty_spike_status");
     expect(csv).toContain("black_iron_foundry_6");
     expect(csv).toContain("black_iron_fort_6");
@@ -579,9 +589,18 @@ describe("balance report", () => {
       TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION
     );
     expect(exportReport.defaultTacticId).toBe("balanced_routine");
+    expect(exportReport.legacyDefaultTacticId).toBe("balanced");
     expect(exportReport.tactics.map((tactic) => tactic.tacticId)).toEqual(
       staticData.tactics.map((tactic) => tactic.id)
     );
+    expect(exportReport.tactics.map((tactic) => tactic.legacyTacticId)).toEqual([
+      "balanced",
+      "outer_pressure",
+      "inner_pressure",
+      "guard_support",
+      "sustain",
+      "boss_burst"
+    ]);
     expect(exportReport.regions.map((region) => region.regionId)).toEqual(
       staticData.regions.map((region) => region.id)
     );
@@ -591,8 +610,10 @@ describe("balance report", () => {
     expect(balancedBamboo).toMatchObject({
       legacyRegionId: "bamboo_road",
       legacyStageId: "bamboo_road_1",
+      legacyTacticId: "balanced",
       isDefaultTactic: true,
       baselineTacticId: "balanced_routine",
+      legacyBaselineTacticId: "balanced",
       durationDeltaSeconds: 0,
       pressureDeltas: {
         statusDamage: 0
@@ -603,6 +624,9 @@ describe("balance report", () => {
       }
     });
     expect(outerBamboo).toMatchObject({
+      legacyTacticId: "outer_pressure",
+      baselineTacticId: "balanced_routine",
+      legacyBaselineTacticId: "balanced",
       result: "player_clear",
       baselineResult: "player_clear",
       durationDeltaSeconds: -1,
@@ -614,6 +638,7 @@ describe("balance report", () => {
     expect(innerDemonCult).toMatchObject({
       legacyRegionId: "demon_cult_outpost",
       legacyStageId: "demon_cult_outpost_3",
+      legacyTacticId: "inner_pressure",
       baselineTargetStatus: "fail",
       targetStatus: "pass",
       targetStatusChange: "improved",
@@ -623,6 +648,7 @@ describe("balance report", () => {
       }
     });
     expect(sustainDemonBoss).toMatchObject({
+      legacyTacticId: "sustain",
       result: "player_clear",
       pressureDeltas: {
         statusDamage: expect.any(Number)
@@ -638,6 +664,9 @@ describe("balance report", () => {
     expect(csvLines[0]).toBe(TACTIC_COMPARISON_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("kinetic_crush");
+    expect(csv).toContain("outer_pressure");
+    expect(csv).toContain("baseline_tactic_id");
+    expect(csv).toContain("legacy_baseline_tactic_id");
     expect(csv).toContain("bamboo_road_1");
     expect(csv).toContain("demon_cult_outpost_7");
     expect(csv).toContain("improved_existing_miss");

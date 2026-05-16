@@ -71,13 +71,13 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review.
 
 Stage 2.1 adds opt-in tactic comparison exports without changing the default report or Stage 2.0 export shapes:
 
 - `npm run --silent simulate -- --tactics-json` returns stable rows for every configured stage and tactic.
 - `npm run --silent simulate -- --tactics-csv` returns the same rows for spreadsheet review.
-- Tactic rows include baseline result, result changes, duration deltas, target-status changes, `budgetShift`, pressure metrics, and contribution metric deltas.
+- Tactic rows include canonical tactic ids, temporary legacy tactic/baseline tactic ids, baseline result, result changes, duration deltas, target-status changes, `budgetShift`, pressure metrics, and contribution metric deltas.
 
 The active balance report is stage and region focused. It does not yet answer the longer-form pacing question of where a player should be after 5 minutes, 15 minutes, 1 hour, Day 1, Day 3, or Day 7. Use [Progression Pacing Roadmap](progression-pacing-roadmap.md) as the planning authority for that next layer until timeline simulation tooling exists.
 
