@@ -130,7 +130,7 @@ describe("balance report", () => {
     );
     const qiSuppressionStage = medicineScenario?.regions
       .flatMap((region) => region.stages)
-      .find((stage) => stage.statusMetrics.statusIds.includes("qi_suppression"));
+      .find((stage) => stage.statusMetrics.statusIds.includes("context_suppression"));
 
     expect(qiSuppressionStage).toBeDefined();
     expect(qiSuppressionStage?.statusMetrics.cleanses).toBeGreaterThan(0);
@@ -236,12 +236,12 @@ describe("balance report", () => {
       skillId,
       heroName: "Balance Status Patient",
       enemyName: "Balance Status Enemy",
-      enemyFamily: "demon_cult",
+      enemyFamily: "redline",
       enemyCombatRole: "breaker",
       heroStats: {
         maxOuterHp: 3000
       },
-      statusEffects: [{ statusId: "poison" }, { statusId: "qi_suppression" }],
+      statusEffects: [{ statusId: "corruption" }, { statusId: "context_suppression" }],
       stageName: "Balance Status Parity Stage",
       stageRegionId: "balance_status_parity_region",
       region: {
@@ -253,7 +253,7 @@ describe("balance report", () => {
           },
           statusPressure: {
             minApplications: 1,
-            expectedStatusIds: ["poison", "qi_suppression"]
+            expectedStatusIds: ["corruption", "context_suppression"]
           }
         }
       }
@@ -294,8 +294,8 @@ describe("balance report", () => {
     );
 
     expect(reportedStage.statusMetrics.statusIds).toEqual([
-      "poison",
-      "qi_suppression"
+      "context_suppression",
+      "corruption"
     ]);
     expect(actualStatusIds).toEqual(reportedStage.statusMetrics.statusIds);
     expect(reportedStage.statusMetrics.applications).toBeGreaterThan(0);
@@ -307,7 +307,7 @@ describe("balance report", () => {
     const slowData: StaticGameData = {
       ...staticData,
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "demon_cult_overseer"
+        enemy.id === "redline_overseer"
           ? {
               ...enemy,
               baseStats: {

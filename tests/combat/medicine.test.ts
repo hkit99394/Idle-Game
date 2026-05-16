@@ -28,25 +28,25 @@ function getMedicine(medicineId: string): MedicineDefinition {
 
 describe("medicine counterplay", () => {
   it("cleanses poison and wound while consuming one medicine", () => {
-    const poisoned = applyStatusEffect({
+    const corrupted = applyStatusEffect({
       activeStatuses: [],
-      definition: statusDefinitions.poison
+      definition: statusDefinitions.corruption
     }).applied;
-    const wounded = applyStatusEffect({
+    const traumatized = applyStatusEffect({
       activeStatuses: [],
-      definition: statusDefinitions.wound
+      definition: statusDefinitions.trauma
     }).applied;
     const suppressed = applyStatusEffect({
       activeStatuses: [],
-      definition: statusDefinitions.qi_suppression
+      definition: statusDefinitions.context_suppression
     }).applied;
 
     const result = useMedicineCounterplay({
-      medicine: getMedicine("clear_heart_pill"),
+      medicine: getMedicine("clear_heart_countermeasure"),
       inventory: {
-        clear_heart_pill: 2
+        clear_heart_countermeasure: 2
       },
-      activeStatuses: [poisoned, wounded, suppressed],
+      activeStatuses: [corrupted, traumatized, suppressed],
       statusDefinitions
     });
 
@@ -54,19 +54,19 @@ describe("medicine counterplay", () => {
     if (!result.ok) {
       return;
     }
-    expect(result.inventory.clear_heart_pill).toBe(1);
+    expect(result.inventory.clear_heart_countermeasure).toBe(1);
     expect(result.cleansed.map((status) => status.statusId)).toEqual([
-      "poison",
-      "wound"
+      "corruption",
+      "trauma"
     ]);
     expect(result.statuses.map((status) => status.statusId)).toEqual([
-      "qi_suppression"
+      "context_suppression"
     ]);
   });
 
   it("fails safely when medicine is not owned", () => {
     const result = useMedicineCounterplay({
-      medicine: getMedicine("clear_heart_pill"),
+      medicine: getMedicine("clear_heart_countermeasure"),
       inventory: {},
       activeStatuses: [],
       statusDefinitions
@@ -80,9 +80,9 @@ describe("medicine counterplay", () => {
 
   it("does not consume cleanse medicine when no matching status is active", () => {
     const result = useMedicineCounterplay({
-      medicine: getMedicine("clear_heart_pill"),
+      medicine: getMedicine("clear_heart_countermeasure"),
       inventory: {
-        clear_heart_pill: 1
+        clear_heart_countermeasure: 1
       },
       activeStatuses: [],
       statusDefinitions
@@ -96,9 +96,9 @@ describe("medicine counterplay", () => {
 
   it("applies a timed status resistance bonus", () => {
     const result = useMedicineCounterplay({
-      medicine: getMedicine("quiet_meridian_powder"),
+      medicine: getMedicine("quiet_context_powder"),
       inventory: {
-        quiet_meridian_powder: 1
+        quiet_context_powder: 1
       },
       activeStatuses: [],
       statusDefinitions
@@ -108,7 +108,7 @@ describe("medicine counterplay", () => {
     if (!result.ok) {
       return;
     }
-    expect(result.inventory.quiet_meridian_powder).toBeUndefined();
+    expect(result.inventory.quiet_context_powder).toBeUndefined();
     expect(result.statusResistanceBonus).toBeCloseTo(0.12);
     expect(result.statusResistanceDurationSeconds).toBe(12);
     expect(applyMedicineResistanceBonus(0.05, result)).toBeCloseTo(0.17);

@@ -1,99 +1,99 @@
 [
   {
-    "id": "training_wraps",
+    "id": "impact_training_wraps",
     "name": "Impact Training Wraps",
     "slot": "weapon",
     "rarity": "common",
-    "allowedStyles": ["fist", "leg"],
+    "allowedStyles": ["impact", "vector"],
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
       { "stat": "critChance", "mode": "flat", "value": 0.01 }
     ]
   },
   {
-    "id": "willow_palm_manual",
+    "id": "willow_pulse_protocol",
     "name": "Willow Pulse Protocol",
     "slot": "manual",
     "rarity": "common",
-    "allowedStyles": ["palm"],
+    "allowedStyles": ["pulse"],
     "effects": [
       { "stat": "innerAttack", "mode": "multiplier", "value": 0.08 },
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.05 }
     ]
   },
   {
-    "id": "crane_edge_sword",
+    "id": "crane_edge_cutter",
     "name": "Crane Edge Cutter",
     "slot": "weapon",
     "rarity": "uncommon",
-    "allowedStyles": ["sword"],
+    "allowedStyles": ["edge"],
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.12 },
       { "stat": "speed", "mode": "multiplier", "value": 0.06 }
     ]
   },
   {
-    "id": "guardian_staff",
+    "id": "guardian_brace_staff",
     "name": "Guardian Brace Staff",
     "slot": "weapon",
     "rarity": "uncommon",
-    "allowedStyles": ["staff"],
+    "allowedStyles": ["brace"],
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.1 },
       { "stat": "outerDefense", "mode": "multiplier", "value": 0.12 }
     ]
   },
   {
-    "id": "woven_travel_robe",
+    "id": "woven_travel_plating",
     "name": "Woven Travel Plating",
     "slot": "armor",
     "rarity": "common",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.04 }
     ]
   },
   {
-    "id": "calming_breath_pill",
+    "id": "calming_context_stim",
     "name": "Calming Context Stim",
     "slot": "medicine",
     "rarity": "common",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },
       { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.1 }
     ]
   },
   {
-    "id": "mist_needle_case",
+    "id": "veil_needle_case",
     "name": "Veil Needle Case",
     "slot": "weapon",
     "rarity": "uncommon",
-    "allowedStyles": ["hidden_weapons"],
+    "allowedStyles": ["ghostware"],
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
       { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 }
     ]
   },
   {
-    "id": "veil_palm_manual",
+    "id": "veil_pulse_protocol",
     "name": "Veil Pulse Protocol",
     "slot": "manual",
     "rarity": "uncommon",
-    "allowedStyles": ["palm"],
+    "allowedStyles": ["pulse"],
     "effects": [
       { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 },
       { "stat": "breakPower", "mode": "flat", "value": 0.01 }
     ]
   },
   {
-    "id": "iron_thread_armor",
+    "id": "iron_thread_plating",
     "name": "Iron Thread Plating",
     "slot": "armor",
     "rarity": "rare",
-    "allowedStyles": ["fist", "blade", "staff"],
-    "setId": "black_iron_ward",
+    "allowedStyles": ["impact", "rend", "brace"],
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.14 },
       { "stat": "outerDefense", "mode": "multiplier", "value": 0.16 },
@@ -110,12 +110,12 @@
     ]
   },
   {
-    "id": "black_iron_saber_blade",
+    "id": "black_iron_saber",
     "name": "Black Iron Saber",
     "slot": "weapon",
     "rarity": "rare",
-    "allowedStyles": ["sword", "blade"],
-    "setId": "black_iron_ward",
+    "allowedStyles": ["edge", "rend"],
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.14 },
       { "stat": "breakPower", "mode": "flat", "value": 0.015 }
@@ -131,12 +131,12 @@
     ]
   },
   {
-    "id": "fortress_guard_manual",
+    "id": "fortress_guard_protocol",
     "name": "Fortress Guard Protocol",
     "slot": "manual",
     "rarity": "uncommon",
-    "allowedStyles": ["fist", "staff"],
-    "setId": "black_iron_ward",
+    "allowedStyles": ["impact", "brace"],
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.08 },
       { "stat": "outerDefense", "mode": "multiplier", "value": 0.08 }
@@ -152,12 +152,12 @@
     ]
   },
   {
-    "id": "tempered_meridian_pill",
+    "id": "tempered_context_stim",
     "name": "Tempered Context Stim",
     "slot": "medicine",
     "rarity": "uncommon",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
-    "setId": "black_iron_ward",
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
+    "setId": "ironwall_ward",
     "effects": [
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.07 },
       { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.08 }
@@ -173,22 +173,22 @@
     ]
   },
   {
-    "id": "lotus_dew_pill",
+    "id": "lotus_dew_countermeasure",
     "name": "Lotus Dew Countermeasure",
     "slot": "medicine",
     "rarity": "common",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.08 },
       { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.001 }
     ]
   },
   {
-    "id": "mending_poultice",
+    "id": "mending_patch",
     "name": "Mending Patch",
     "slot": "medicine",
     "rarity": "uncommon",
-    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "allowedStyles": ["pulse", "brace", "ghostware"],
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },

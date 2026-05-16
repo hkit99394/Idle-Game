@@ -54,8 +54,8 @@ describe("Path of Neon display terms", () => {
   });
 
   it("formats style and tactic ids through the vocabulary layer", () => {
-    expect(formatStyleFamilyName("fist")).toBe("Impact Style");
-    expect(formatStyleFamilyName("hidden_weapons")).toBe("Ghostware Style");
+    expect(formatStyleFamilyName("impact")).toBe("Impact Style");
+    expect(formatStyleFamilyName("ghostware")).toBe("Ghostware Style");
     expect(formatTacticModifierLabel("outer_damage_multiplier")).toBe(
       displayTerms.combat.kineticDamage
     );

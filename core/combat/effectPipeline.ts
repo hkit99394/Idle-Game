@@ -12,6 +12,7 @@ import type {
   SkillEffectType,
   TacticPresetDefinition
 } from "../data/types";
+import { getLegacyContentId, type ContentIdAliasKind } from "../compatibility";
 import { clampDefensiveEffectValue, clampRecoveryEffectValue } from "./defensivePipeline";
 import {
   applyStatusEffect,
@@ -219,6 +220,17 @@ function getDeterministicStatusRoll(input: {
   }
 
   return (hash >>> 0) / 0x100000000;
+}
+
+function getLegacyRollCombatantId(combatant: CombatantState): string {
+  const kind: ContentIdAliasKind =
+    combatant.kind === "enemy" ? "hostile" : "initiate";
+  const legacyDefinitionId = getLegacyContentId(kind, combatant.definitionId);
+
+  // Keep probabilistic combat stable across internal id rename slices.
+  return combatant.definitionId === legacyDefinitionId
+    ? combatant.instanceId
+    : combatant.instanceId.replace(combatant.definitionId, legacyDefinitionId);
 }
 
 function recordRecovery(
@@ -480,10 +492,10 @@ function applyDataStatusEffect(
   }
 
   const roll = getDeterministicStatusRoll({
-    attackerId: attacker.instanceId,
-    targetId: target.instanceId,
-    skillId: skill.id,
-    statusId: definition.id,
+    attackerId: getLegacyRollCombatantId(attacker),
+    targetId: getLegacyRollCombatantId(target),
+    skillId: getLegacyContentId("protocol", skill.id),
+    statusId: getLegacyContentId("status", definition.id),
     time
   });
 

@@ -1,6 +1,6 @@
 [
   {
-    "id": "basic_strike",
+    "id": "baseline_strike",
     "name": "Baseline Strike",
     "cooldownSeconds": 0,
     "outerMultiplier": 1,
@@ -9,7 +9,7 @@
     "effects": []
   },
   {
-    "id": "iron_fist_combo",
+    "id": "impact_combo",
     "name": "Impact Combo",
     "cooldownSeconds": 4,
     "outerMultiplier": 1.65,
@@ -18,7 +18,7 @@
     "effects": []
   },
   {
-    "id": "meridian_shock",
+    "id": "context_shock",
     "name": "Context Shock",
     "cooldownSeconds": 5,
     "outerMultiplier": 0.25,
@@ -27,7 +27,7 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "qi_suppression",
+        "statusId": "context_suppression",
         "chance": 0.75,
         "durationSeconds": 6,
         "stacks": 1
@@ -35,7 +35,7 @@
     ]
   },
   {
-    "id": "white_crane_slash",
+    "id": "white_crane_edge",
     "name": "White Crane Edge",
     "cooldownSeconds": 4.5,
     "outerMultiplier": 1.2,
@@ -50,7 +50,7 @@
     ]
   },
   {
-    "id": "sweeping_staff",
+    "id": "brace_sweep",
     "name": "Brace Sweep",
     "cooldownSeconds": 6,
     "outerMultiplier": 0.9,
@@ -70,7 +70,7 @@
     ]
   },
   {
-    "id": "bandit_cut",
+    "id": "cutter_strike",
     "name": "Cutter Strike",
     "cooldownSeconds": 4,
     "outerMultiplier": 1.1,
@@ -88,7 +88,7 @@
     "effects": []
   },
   {
-    "id": "mist_palm_jab",
+    "id": "veil_pulse_jab",
     "name": "Veil Pulse Jab",
     "cooldownSeconds": 4.5,
     "outerMultiplier": 0.25,
@@ -112,7 +112,7 @@
     "effects": []
   },
   {
-    "id": "fog_staff_guard",
+    "id": "fogline_brace_guard",
     "name": "Fogline Brace Guard",
     "cooldownSeconds": 5.5,
     "outerMultiplier": 0.8,
@@ -127,7 +127,7 @@
     ]
   },
   {
-    "id": "cloud_meridian_press",
+    "id": "cloud_context_press",
     "name": "Cloud Context Press",
     "cooldownSeconds": 5,
     "outerMultiplier": 0.35,
@@ -142,7 +142,7 @@
     ]
   },
   {
-    "id": "valley_heart_seal",
+    "id": "valley_context_seal",
     "name": "Valley Context Seal",
     "cooldownSeconds": 6,
     "outerMultiplier": 0.45,
@@ -177,7 +177,7 @@
     ]
   },
   {
-    "id": "fortress_staff_lock",
+    "id": "fortress_brace_lock",
     "name": "Fortress Brace Lock",
     "cooldownSeconds": 5.8,
     "outerMultiplier": 0.85,
@@ -241,7 +241,7 @@
     ]
   },
   {
-    "id": "black_fort_edict",
+    "id": "black_foundry_edict",
     "name": "Black Foundry Edict",
     "cooldownSeconds": 6,
     "outerMultiplier": 1.65,
@@ -261,7 +261,7 @@
     ]
   },
   {
-    "id": "lotus_recovery_palm",
+    "id": "lotus_stabilizer_pulse",
     "name": "Lotus Stabilizer Pulse",
     "cooldownSeconds": 4.8,
     "outerMultiplier": 0.35,
@@ -281,7 +281,7 @@
     ]
   },
   {
-    "id": "lotus_staff_shelter",
+    "id": "lotus_brace_shelter",
     "name": "Lotus Brace Shelter",
     "cooldownSeconds": 5.8,
     "outerMultiplier": 0.75,
@@ -348,7 +348,7 @@
     ]
   },
   {
-    "id": "abbot_lotus_vow",
+    "id": "director_lotus_vow",
     "name": "Director Lotus Vow",
     "cooldownSeconds": 6.2,
     "outerMultiplier": 0.4,
@@ -378,7 +378,7 @@
     ]
   },
   {
-    "id": "lotus_mending_vow",
+    "id": "lotus_stabilizer_vow",
     "name": "Lotus Stabilizer Vow",
     "cooldownSeconds": 5.2,
     "outerMultiplier": 0.25,
@@ -403,7 +403,7 @@
     ]
   },
   {
-    "id": "miasma_palm",
+    "id": "miasma_pulse",
     "name": "Miasma Pulse",
     "cooldownSeconds": 4.4,
     "outerMultiplier": 0.55,
@@ -412,7 +412,7 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "poison",
+        "statusId": "corruption",
         "chance": 0.72,
         "durationSeconds": 8,
         "stacks": 1
@@ -429,7 +429,7 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "wound",
+        "statusId": "trauma",
         "chance": 0.62,
         "durationSeconds": 6,
         "stacks": 1
@@ -446,14 +446,14 @@
     "effects": [
       {
         "type": "apply_status",
-        "statusId": "qi_suppression",
+        "statusId": "context_suppression",
         "chance": 0.68,
         "durationSeconds": 6,
         "stacks": 1
       },
       {
         "type": "apply_status",
-        "statusId": "vulnerable",
+        "statusId": "exposed",
         "chance": 0.42,
         "durationSeconds": 5,
         "stacks": 1
@@ -477,7 +477,7 @@
       },
       {
         "type": "apply_status",
-        "statusId": "poison",
+        "statusId": "corruption",
         "chance": 0.52,
         "durationSeconds": 8,
         "stacks": 1

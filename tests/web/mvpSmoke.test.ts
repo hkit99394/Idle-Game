@@ -20,19 +20,19 @@ import { MemoryStorage } from "../helpers/memoryStorage";
 import { staticData } from "../helpers/staticData";
 
 const stage12SmokeChoices = {
-  assignmentId: "bamboo_road_patrol",
-  branchId: "cloud_meridian_palm",
-  equipmentId: "training_wraps",
-  heroId: "iron_fist_disciple",
-  styleId: "palm"
+  assignmentId: "greenline_sweep",
+  branchId: "cloud_context_pulse",
+  equipmentId: "impact_training_wraps",
+  heroId: "iron_fist_initiate",
+  styleId: "pulse"
 } as const;
 
 const stage13SmokeChoices = {
-  assignmentHeroId: "mountain_staff_guardian",
-  assignmentId: "lotus_medicine_pavilion",
+  assignmentHeroId: "mountain_brace_guardian",
+  assignmentId: "lotus_countermeasure_pavilion",
   entryBossStageId: "black_iron_foundry_7",
   farmStageId: "lotus_clinic_1",
-  supportHeroId: "lotus_mending_disciple"
+  supportHeroId: "lotus_stabilizer"
 } as const;
 
 function saveState(
@@ -182,14 +182,14 @@ describe("MVP smoke flow", () => {
 
     state = purchaseGameUpgrade(staticData, state, {
       upgradeId: "hero_outer_training",
-      heroId: "iron_fist_disciple"
+      heroId: "iron_fist_initiate"
     });
     saveState(storage, state, (nowMs += 1_000));
 
     expect(state.lastPurchase?.ok).toBe(true);
     expect(state.progress.resources.silver).toBe(12);
     expect(
-      state.progress.heroes.iron_fist_disciple.upgrades.hero_outer_training
+      state.progress.heroes.iron_fist_initiate.upgrades.hero_outer_training
     ).toBe(1);
 
     for (let stageIndex = 3; stageIndex <= 9; stageIndex += 1) {
@@ -403,8 +403,8 @@ describe("MVP smoke flow", () => {
 
     state = setGameActiveHeroTeam(staticData, state, {
       heroIds: [
-        "iron_fist_disciple",
-        "azure_palm_monk",
+        "iron_fist_initiate",
+        "azure_pulse_monk",
         stage13SmokeChoices.assignmentHeroId,
         stage13SmokeChoices.supportHeroId
       ]
@@ -473,12 +473,12 @@ describe("MVP smoke flow", () => {
       reloadedState.progress.resources.herbs
     );
     expect(
-      offlineState.progress.equipment?.inventory.lotus_dew_pill
+      offlineState.progress.equipment?.inventory.lotus_dew_countermeasure
     ).toBeGreaterThanOrEqual(1);
 
     const herbsAfterOffline = offlineState.progress.resources.herbs;
     const lotusDewAfterOffline =
-      offlineState.progress.equipment?.inventory.lotus_dew_pill;
+      offlineState.progress.equipment?.inventory.lotus_dew_countermeasure;
     const secondReloadState = createInitialWebGameStateFromStorage(
       staticData,
       storage,
@@ -487,7 +487,7 @@ describe("MVP smoke flow", () => {
 
     expect(secondReloadState.offlineSummary).toBeNull();
     expect(secondReloadState.progress.resources.herbs).toBe(herbsAfterOffline);
-    expect(secondReloadState.progress.equipment?.inventory.lotus_dew_pill).toBe(
+    expect(secondReloadState.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(
       lotusDewAfterOffline
     );
   });

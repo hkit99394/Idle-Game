@@ -68,7 +68,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "poison",
+          statusId: "corruption",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -85,7 +85,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "qi_suppression",
+          statusId: "context_suppression",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -102,7 +102,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "vulnerable",
+          statusId: "exposed",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -119,7 +119,7 @@ const statusPreviewData: StaticGameData = {
       effects: [
         {
           type: "apply_status",
-          statusId: "wound",
+          statusId: "trauma",
           chance: 1,
           durationSeconds: 8,
           stacks: 1
@@ -140,18 +140,18 @@ describe("counterplay preview", () => {
         }
       },
       inventory: {
-        clear_heart_pill: 3,
-        quiet_meridian_powder: 1
+        clear_heart_countermeasure: 3,
+        quiet_context_powder: 1
       },
       preferences: {
         ...defaultAutoMedicinePreferences,
-        disabledMedicineIds: ["clear_heart_pill"]
+        disabledMedicineIds: ["clear_heart_countermeasure"]
       }
     });
 
     expect(rows).toEqual([
       expect.objectContaining({
-        id: "clear_heart_pill",
+        id: "clear_heart_countermeasure",
         count: 3,
         unlocked: true,
         owned: true,
@@ -162,7 +162,7 @@ describe("counterplay preview", () => {
         availability: "disabled"
       }),
       expect.objectContaining({
-        id: "quiet_meridian_powder",
+        id: "quiet_context_powder",
         count: 1,
         unlocked: false,
         owned: true,
@@ -173,7 +173,7 @@ describe("counterplay preview", () => {
         availability: "locked"
       }),
       expect.objectContaining({
-        id: "purity_draught",
+        id: "purity_countermeasure",
         count: 0,
         unlocked: false,
         owned: false,
@@ -193,9 +193,9 @@ describe("counterplay preview", () => {
       data: statusPreviewData,
       stage: statusPreviewStage,
       inventory: {
-        clear_heart_pill: 2,
-        quiet_meridian_powder: 1,
-        purity_draught: 1
+        clear_heart_countermeasure: 2,
+        quiet_context_powder: 1,
+        purity_countermeasure: 1
       },
       progress,
       preferences: {
@@ -205,21 +205,21 @@ describe("counterplay preview", () => {
     });
 
     expect(preview.statusPressureIds).toEqual([
-      "poison",
-      "qi_suppression",
-      "vulnerable",
-      "wound"
+      "context_suppression",
+      "corruption",
+      "exposed",
+      "trauma"
     ]);
     expect(preview.statusCategories).toEqual([
-      "damage",
       "control",
+      "damage",
       "vulnerability",
       "recovery"
     ]);
     expect(preview.recommendedMedicineIds).toEqual([
-      "quiet_meridian_powder",
-      "clear_heart_pill",
-      "purity_draught"
+      "quiet_context_powder",
+      "clear_heart_countermeasure",
+      "purity_countermeasure"
     ]);
     expect(preview).toMatchObject({
       preBattleResistanceMode: "always_when_recommended",
@@ -227,7 +227,7 @@ describe("counterplay preview", () => {
       preBattleResistancePolicyReason: null
     });
     expect(preview.recommendationText).toBe(
-      "Expected Corruption, Context Suppression, Exposed, Trauma. Recommended auto medicine: Quiet Context Powder, Clear Heart Countermeasure, Purity Countermeasure."
+      "Expected Context Suppression, Corruption, Exposed, Trauma. Recommended auto medicine: Quiet Context Powder, Clear Heart Countermeasure, Purity Countermeasure."
     );
     expect(preview.supportResistanceBonus).toBeCloseTo(0.08);
     expect(preview.supportContributionText).toBe(
@@ -241,7 +241,7 @@ describe("counterplay preview", () => {
         data: staticData,
         stage: getStage("greenline_approach_1"),
         inventory: {
-          clear_heart_pill: 2
+          clear_heart_countermeasure: 2
         }
       })
     ).toMatchObject({
@@ -260,15 +260,15 @@ describe("counterplay preview", () => {
       data: statusPreviewData,
       stage: statusPreviewStage,
       inventory: {
-        clear_heart_pill: 2,
-        quiet_meridian_powder: 1
+        clear_heart_countermeasure: 2,
+        quiet_context_powder: 1
       },
       preferences: {
         ...defaultAutoMedicinePreferences,
-        disabledMedicineIds: ["quiet_meridian_powder"]
+        disabledMedicineIds: ["quiet_context_powder"]
       }
     });
 
-    expect(preview.recommendedMedicineIds).toEqual(["clear_heart_pill"]);
+    expect(preview.recommendedMedicineIds).toEqual(["clear_heart_countermeasure"]);
   });
 });

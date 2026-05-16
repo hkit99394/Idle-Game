@@ -1,11 +1,11 @@
 export const MARTIAL_STYLE_IDS = [
-  "fist",
-  "palm",
-  "leg",
-  "sword",
-  "blade",
-  "staff",
-  "hidden_weapons"
+  "impact",
+  "pulse",
+  "vector",
+  "edge",
+  "rend",
+  "brace",
+  "ghostware"
 ] as const;
 
 export type MartialStyleId = (typeof MARTIAL_STYLE_IDS)[number];

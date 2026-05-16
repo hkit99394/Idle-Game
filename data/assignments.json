@@ -1,42 +1,42 @@
 [
   {
-    "id": "bamboo_road_patrol",
+    "id": "greenline_sweep",
     "name": "Greenline Sweep",
     "type": "patrol",
     "unlockCondition": { "type": "always" },
     "durationBucket": "short",
     "allowedRoles": ["tank", "breaker", "striker"],
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "rewardProfile": {
       "silverPerHour": 24,
       "combatExperiencePerHour": 4,
       "mapRegionId": "greenline_approach",
       "equipmentRewardsPerHour": [
-        { "equipmentId": "training_wraps", "quantityPerHour": 0.25 }
+        { "equipmentId": "impact_training_wraps", "quantityPerHour": 0.25 }
       ]
     }
   },
   {
-    "id": "mist_valley_meditation",
+    "id": "veil_district_calibration",
     "name": "Veil District Calibration",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
     "durationBucket": "medium",
     "allowedRoles": ["breaker", "support"],
-    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "allowedStyles": ["pulse", "brace", "ghostware"],
     "rewardProfile": {
       "cultivationPerHour": 18,
       "styleMasteryExperiencePerHour": 12
     }
   },
   {
-    "id": "black_iron_drill_yard",
+    "id": "black_foundry_calibration_yard",
     "name": "Black Foundry Calibration Yard",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "black_iron_foundry_1" },
     "durationBucket": "long",
     "allowedRoles": ["tank", "breaker", "striker"],
-    "allowedStyles": ["fist", "sword", "blade", "staff"],
+    "allowedStyles": ["impact", "edge", "rend", "brace"],
     "rewardProfile": {
       "cultivationPerHour": 24,
       "combatExperiencePerHour": 6,
@@ -45,20 +45,20 @@
     }
   },
   {
-    "id": "lotus_medicine_pavilion",
+    "id": "lotus_countermeasure_pavilion",
     "name": "Lotus Countermeasure Pavilion",
     "type": "training_ground",
     "unlockCondition": { "type": "stage_cleared", "stageId": "lotus_clinic_3" },
     "durationBucket": "medium",
     "allowedRoles": ["support", "tank"],
-    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "allowedStyles": ["pulse", "brace", "ghostware"],
     "rewardProfile": {
       "cultivationPerHour": 12,
       "herbsPerHour": 18,
       "styleMasteryExperiencePerHour": 8,
       "equipmentRewardsPerHour": [
-        { "equipmentId": "lotus_dew_pill", "quantityPerHour": 0.25 },
-        { "equipmentId": "mending_poultice", "quantityPerHour": 0.08 }
+        { "equipmentId": "lotus_dew_countermeasure", "quantityPerHour": 0.25 },
+        { "equipmentId": "mending_patch", "quantityPerHour": 0.08 }
       ]
     }
   }

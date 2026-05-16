@@ -63,7 +63,7 @@ describe("web game state idle", () => {
     expect(viewModel.offlineFarmRecommendation.herbsPerClear).toBeGreaterThan(0);
     expect(
       viewModel.assignments.find(
-        (assignment) => assignment.assignmentId === "lotus_medicine_pavilion"
+        (assignment) => assignment.assignmentId === "lotus_countermeasure_pavilion"
       )
     ).toMatchObject({
       unlocked: true,

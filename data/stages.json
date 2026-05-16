@@ -5,7 +5,7 @@
     "index": 1,
     "name": "Greenline Route 1",
     "enemyTeam": {
-      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["greenline_cutter", "greenline_cutter"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
@@ -19,13 +19,13 @@
     "index": 2,
     "name": "Greenline Route 2",
     "enemyTeam": {
-      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["greenline_cutter", "greenline_cutter"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 14, "cultivation": 7, "combatExperience": 5 },
-    "equipmentDrops": [{ "equipmentId": "training_wraps", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "impact_training_wraps", "quantity": 1 }],
     "nextStageId": "greenline_approach_3"
   },
   {
@@ -34,7 +34,7 @@
     "index": 3,
     "name": "Greenline Route 3",
     "enemyTeam": {
-      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["greenline_cutter", "greenline_cutter"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
@@ -48,7 +48,7 @@
     "index": 4,
     "name": "Greenline Route 4",
     "enemyTeam": {
-      "combatantIds": ["bamboo_bandit", "bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["greenline_cutter", "greenline_cutter", "greenline_cutter"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
@@ -62,13 +62,13 @@
     "index": 5,
     "name": "Greenline Route 5",
     "enemyTeam": {
-      "combatantIds": ["mist_palm_thug", "bamboo_bandit"],
+      "combatantIds": ["veil_pulse_bruiser", "greenline_cutter"],
       "formation": { "front": [1], "middle": [0], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 32, "cultivation": 16, "combatExperience": 20 },
-    "equipmentDrops": [{ "equipmentId": "willow_palm_manual", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "willow_pulse_protocol", "quantity": 1 }],
     "nextStageId": "greenline_approach_6"
   },
   {
@@ -77,7 +77,7 @@
     "index": 6,
     "name": "Greenline Route 6",
     "enemyTeam": {
-      "combatantIds": ["bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["greenline_cutter", "greenline_cutter"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
@@ -91,7 +91,7 @@
     "index": 7,
     "name": "Greenline Route 7",
     "enemyTeam": {
-      "combatantIds": ["bamboo_bandit", "bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["greenline_cutter", "greenline_cutter", "greenline_cutter"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
@@ -105,13 +105,13 @@
     "index": 8,
     "name": "Greenline Route 8",
     "enemyTeam": {
-      "combatantIds": ["mist_palm_thug", "bamboo_bandit"],
+      "combatantIds": ["veil_pulse_bruiser", "greenline_cutter"],
       "formation": { "front": [1], "middle": [0], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 44, "cultivation": 22, "combatExperience": 20 },
-    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "crane_edge_cutter", "quantity": 1 }],
     "nextStageId": "greenline_approach_9"
   },
   {
@@ -120,7 +120,7 @@
     "index": 9,
     "name": "Greenline Route 9",
     "enemyTeam": {
-      "combatantIds": ["mist_palm_thug", "bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["veil_pulse_bruiser", "greenline_cutter", "greenline_cutter"],
       "formation": { "front": [1], "middle": [0], "back": [2] }
     },
     "isBoss": false,
@@ -134,13 +134,13 @@
     "index": 10,
     "name": "Ironwall Guard",
     "enemyTeam": {
-      "combatantIds": ["black_iron_guard", "bamboo_bandit", "bamboo_bandit"],
+      "combatantIds": ["ironwall_guard", "greenline_cutter", "greenline_cutter"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 100 },
-    "equipmentDrops": [{ "equipmentId": "guardian_staff", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "guardian_brace_staff", "quantity": 1 }],
     "nextStageId": null
   },
   {
@@ -149,13 +149,13 @@
     "index": 1,
     "name": "Veil District Gate",
     "enemyTeam": {
-      "combatantIds": ["mist_valley_acolyte", "mist_valley_acolyte"],
+      "combatantIds": ["veil_district_acolyte", "veil_district_acolyte"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 66, "cultivation": 34, "combatExperience": 24 },
-    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "calming_context_stim", "quantity": 1 }],
     "nextStageId": "veil_district_2"
   },
   {
@@ -164,7 +164,7 @@
     "index": 2,
     "name": "Reed-Fog Ambush",
     "enemyTeam": {
-      "combatantIds": ["mist_valley_acolyte", "veilstep_needler"],
+      "combatantIds": ["veil_district_acolyte", "veilstep_needler"],
       "formation": { "front": [0], "middle": [], "back": [1] }
     },
     "isBoss": false,
@@ -178,13 +178,13 @@
     "index": 3,
     "name": "Clouded Context Path",
     "enemyTeam": {
-      "combatantIds": ["fog_staff_ward", "mist_valley_acolyte", "mist_valley_acolyte"],
+      "combatantIds": ["fogline_brace_ward", "veil_district_acolyte", "veil_district_acolyte"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 92, "cultivation": 46, "combatExperience": 28 },
-    "equipmentDrops": [{ "equipmentId": "woven_travel_robe", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "woven_travel_plating", "quantity": 1 }],
     "nextStageId": "veil_district_4"
   },
   {
@@ -193,13 +193,13 @@
     "index": 4,
     "name": "Needle Rain Crossing",
     "enemyTeam": {
-      "combatantIds": ["mist_valley_acolyte", "veilstep_needler", "veilstep_needler"],
+      "combatantIds": ["veil_district_acolyte", "veilstep_needler", "veilstep_needler"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 116, "cultivation": 58, "combatExperience": 34 },
-    "equipmentDrops": [{ "equipmentId": "mist_needle_case", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "veil_needle_case", "quantity": 1 }],
     "nextStageId": "veil_district_5"
   },
   {
@@ -208,13 +208,13 @@
     "index": 5,
     "name": "Veil Pulse Shrine",
     "enemyTeam": {
-      "combatantIds": ["fog_staff_ward", "mist_palm_adept"],
+      "combatantIds": ["fogline_brace_ward", "veil_pulse_adept"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 140, "cultivation": 70, "combatExperience": 40 },
-    "equipmentDrops": [{ "equipmentId": "veil_palm_manual", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "veil_pulse_protocol", "quantity": 1 }],
     "nextStageId": "veil_district_6"
   },
   {
@@ -223,13 +223,13 @@
     "index": 6,
     "name": "Veil District Elder",
     "enemyTeam": {
-      "combatantIds": ["fog_staff_ward", "mist_valley_elder", "veilstep_needler"],
+      "combatantIds": ["fogline_brace_ward", "veil_district_elder", "veilstep_needler"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 340, "cultivation": 170, "combatExperience": 160 },
-    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "iron_thread_plating", "quantity": 1 }],
     "nextStageId": null
   },
   {
@@ -238,7 +238,7 @@
     "index": 1,
     "name": "Ironwall Gate",
     "enemyTeam": {
-      "combatantIds": ["iron_fort_sentry", "shieldwall_guard"],
+      "combatantIds": ["ironwall_sentry", "shieldwall_guard"],
       "formation": { "front": [1], "middle": [0], "back": [] }
     },
     "isBoss": false,
@@ -252,7 +252,7 @@
     "index": 2,
     "name": "Shieldwall Yard",
     "enemyTeam": {
-      "combatantIds": ["shieldwall_guard", "iron_fort_sentry", "iron_fort_sentry"],
+      "combatantIds": ["shieldwall_guard", "ironwall_sentry", "ironwall_sentry"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
@@ -266,7 +266,7 @@
     "index": 3,
     "name": "Hook Chain Foundry",
     "enemyTeam": {
-      "combatantIds": ["forge_chain_hook", "shieldwall_guard", "iron_fort_sentry"],
+      "combatantIds": ["forge_chain_hook", "shieldwall_guard", "ironwall_sentry"],
       "formation": { "front": [1], "middle": [0], "back": [2] }
     },
     "isBoss": false,
@@ -280,13 +280,13 @@
     "index": 4,
     "name": "Saber Drill Hall",
     "enemyTeam": {
-      "combatantIds": ["black_iron_saber", "shieldwall_guard"],
+      "combatantIds": ["ironwall_saber", "shieldwall_guard"],
       "formation": { "front": [1], "middle": [0], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 252, "cultivation": 126, "combatExperience": 64 },
-    "equipmentDrops": [{ "equipmentId": "black_iron_saber_blade", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "black_iron_saber", "quantity": 1 }],
     "nextStageId": "black_iron_foundry_5"
   },
   {
@@ -295,13 +295,13 @@
     "index": 5,
     "name": "Plating Barracks",
     "enemyTeam": {
-      "combatantIds": ["iron_armor_captain", "iron_fort_sentry"],
+      "combatantIds": ["iron_plating_captain", "ironwall_sentry"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 292, "cultivation": 146, "combatExperience": 78 },
-    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "iron_thread_plating", "quantity": 1 }],
     "nextStageId": "black_iron_foundry_6"
   },
   {
@@ -310,15 +310,15 @@
     "index": 6,
     "name": "Black Forge Approach",
     "enemyTeam": {
-      "combatantIds": ["iron_armor_captain", "black_iron_saber"],
+      "combatantIds": ["iron_plating_captain", "ironwall_saber"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 336, "cultivation": 168, "combatExperience": 88 },
     "equipmentDrops": [
-      { "equipmentId": "fortress_guard_manual", "quantity": 1 },
-      { "equipmentId": "tempered_meridian_pill", "quantity": 1 }
+      { "equipmentId": "fortress_guard_protocol", "quantity": 1 },
+      { "equipmentId": "tempered_context_stim", "quantity": 1 }
     ],
     "nextStageId": "black_iron_foundry_7"
   },
@@ -328,13 +328,13 @@
     "index": 7,
     "name": "Black Foundry Commander",
     "enemyTeam": {
-      "combatantIds": ["iron_armor_captain", "black_fort_commander", "black_iron_saber"],
+      "combatantIds": ["iron_plating_captain", "black_foundry_commander", "ironwall_saber"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 720, "cultivation": 360, "combatExperience": 260 },
-    "equipmentDrops": [{ "equipmentId": "iron_thread_armor", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "iron_thread_plating", "quantity": 1 }],
     "nextStageId": null
   },
   {
@@ -343,13 +343,13 @@
     "index": 1,
     "name": "Lotus Clinic Gate",
     "enemyTeam": {
-      "combatantIds": ["lotus_staff_keeper", "lotus_outer_disciple", "lotus_mender"],
+      "combatantIds": ["lotus_brace_keeper", "lotus_kinetic_initiate", "lotus_clinic_stabilizer"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 390, "cultivation": 196, "herbs": 6, "combatExperience": 96 },
-    "equipmentDrops": [{ "equipmentId": "lotus_dew_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "lotus_dew_countermeasure", "quantity": 1 }],
     "nextStageId": "lotus_clinic_2"
   },
   {
@@ -358,13 +358,13 @@
     "index": 2,
     "name": "Incense Stabilization Hall",
     "enemyTeam": {
-      "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_outer_disciple"],
+      "combatantIds": ["lotus_brace_keeper", "lotus_clinic_stabilizer", "lotus_kinetic_initiate"],
       "formation": { "front": [0], "middle": [2], "back": [1] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 440, "cultivation": 220, "herbs": 8, "combatExperience": 102 },
-    "equipmentDrops": [{ "equipmentId": "calming_breath_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "calming_context_stim", "quantity": 1 }],
     "nextStageId": "lotus_clinic_3"
   },
   {
@@ -373,15 +373,15 @@
     "index": 3,
     "name": "Jade Needle Clinic",
     "enemyTeam": {
-      "combatantIds": ["lotus_staff_keeper", "jade_needle_sister", "lotus_outer_disciple", "lotus_mender"],
+      "combatantIds": ["lotus_brace_keeper", "jade_needle_operator", "lotus_kinetic_initiate", "lotus_clinic_stabilizer"],
       "formation": { "front": [0], "middle": [1, 2], "back": [3] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 500, "cultivation": 250, "herbs": 10, "combatExperience": 112 },
     "equipmentDrops": [
-      { "equipmentId": "mist_needle_case", "quantity": 1 },
-      { "equipmentId": "lotus_dew_pill", "quantity": 1 }
+      { "equipmentId": "veil_needle_case", "quantity": 1 },
+      { "equipmentId": "lotus_dew_countermeasure", "quantity": 1 }
     ],
     "nextStageId": "lotus_clinic_4"
   },
@@ -391,13 +391,13 @@
     "index": 4,
     "name": "Blooming Edge Walk",
     "enemyTeam": {
-      "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "lotus_mender"],
+      "combatantIds": ["lotus_brace_keeper", "lotus_edge_warden", "lotus_clinic_stabilizer"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 570, "cultivation": 286, "herbs": 12, "combatExperience": 126 },
-    "equipmentDrops": [{ "equipmentId": "crane_edge_sword", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "crane_edge_cutter", "quantity": 1 }],
     "nextStageId": "lotus_clinic_5"
   },
   {
@@ -406,15 +406,15 @@
     "index": 5,
     "name": "Tranquil Context Garden",
     "enemyTeam": {
-      "combatantIds": ["lotus_staff_keeper", "lotus_mender", "lotus_mender"],
+      "combatantIds": ["lotus_brace_keeper", "lotus_clinic_stabilizer", "lotus_clinic_stabilizer"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 650, "cultivation": 326, "herbs": 16, "combatExperience": 140 },
     "equipmentDrops": [
-      { "equipmentId": "veil_palm_manual", "quantity": 1 },
-      { "equipmentId": "mending_poultice", "quantity": 1 }
+      { "equipmentId": "veil_pulse_protocol", "quantity": 1 },
+      { "equipmentId": "mending_patch", "quantity": 1 }
     ],
     "nextStageId": "lotus_clinic_6"
   },
@@ -424,13 +424,13 @@
     "index": 6,
     "name": "Lotus Director Approach",
     "enemyTeam": {
-      "combatantIds": ["lotus_staff_keeper", "lotus_sword_warden", "jade_needle_sister"],
+      "combatantIds": ["lotus_brace_keeper", "lotus_edge_warden", "jade_needle_operator"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,
     "rewards": { "silver": 740, "cultivation": 370, "herbs": 20, "combatExperience": 158 },
-    "equipmentDrops": [{ "equipmentId": "tempered_meridian_pill", "quantity": 1 }],
+    "equipmentDrops": [{ "equipmentId": "tempered_context_stim", "quantity": 1 }],
     "nextStageId": "lotus_clinic_7"
   },
   {
@@ -439,15 +439,15 @@
     "index": 7,
     "name": "Lotus Clinic Director",
     "enemyTeam": {
-      "combatantIds": ["lotus_staff_keeper", "lotus_abbot", "lotus_mender"],
+      "combatantIds": ["lotus_brace_keeper", "lotus_clinic_director", "lotus_clinic_stabilizer"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": true,
     "canFarmOffline": false,
     "rewards": { "silver": 1500, "cultivation": 750, "herbs": 40, "combatExperience": 420 },
     "equipmentDrops": [
-      { "equipmentId": "tempered_meridian_pill", "quantity": 1 },
-      { "equipmentId": "mending_poultice", "quantity": 1 }
+      { "equipmentId": "tempered_context_stim", "quantity": 1 },
+      { "equipmentId": "mending_patch", "quantity": 1 }
     ],
     "nextStageId": "redline_outpost_1"
   },
@@ -457,7 +457,7 @@
     "index": 1,
     "name": "Miasma Gate",
     "enemyTeam": {
-      "combatantIds": ["miasma_palm_apprentice", "miasma_palm_apprentice"],
+      "combatantIds": ["miasma_pulse_apprentice", "miasma_pulse_apprentice"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
@@ -471,7 +471,7 @@
     "index": 2,
     "name": "Blood Brand Yard",
     "enemyTeam": {
-      "combatantIds": ["blood_brand_duelist", "miasma_palm_apprentice"],
+      "combatantIds": ["blood_brand_duelist", "miasma_pulse_apprentice"],
       "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
@@ -485,7 +485,7 @@
     "index": 3,
     "name": "Marrow Lock Shrine",
     "enemyTeam": {
-      "combatantIds": ["blood_brand_duelist", "marrow_lock_supplicant", "miasma_palm_apprentice"],
+      "combatantIds": ["blood_brand_duelist", "marrow_lock_supplicant", "miasma_pulse_apprentice"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
@@ -499,7 +499,7 @@
     "index": 4,
     "name": "Burning Blood Hall",
     "enemyTeam": {
-      "combatantIds": ["burning_blood_captain", "marrow_lock_supplicant", "miasma_palm_apprentice"],
+      "combatantIds": ["burning_blood_captain", "marrow_lock_supplicant", "miasma_pulse_apprentice"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
@@ -513,7 +513,7 @@
     "index": 5,
     "name": "Ritual Smoke Crossing",
     "enemyTeam": {
-      "combatantIds": ["burning_blood_captain", "demon_cult_ritualist", "blood_brand_duelist"],
+      "combatantIds": ["burning_blood_captain", "redline_ritualist", "blood_brand_duelist"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
@@ -527,7 +527,7 @@
     "index": 6,
     "name": "Redline Inner Court",
     "enemyTeam": {
-      "combatantIds": ["burning_blood_captain", "demon_cult_ritualist", "marrow_lock_supplicant"],
+      "combatantIds": ["burning_blood_captain", "redline_ritualist", "marrow_lock_supplicant"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": false,
@@ -541,7 +541,7 @@
     "index": 7,
     "name": "Redline Overseer",
     "enemyTeam": {
-      "combatantIds": ["burning_blood_captain", "demon_cult_overseer", "demon_cult_ritualist"],
+      "combatantIds": ["burning_blood_captain", "redline_overseer", "redline_ritualist"],
       "formation": { "front": [0], "middle": [1], "back": [2] }
     },
     "isBoss": true,

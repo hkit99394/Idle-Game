@@ -1,6 +1,7 @@
 import {
   createInitialPlayerProgress,
   createSaveData,
+  getContentAliasIndexByKind,
   getLegacyRegionId,
   normalizeRegionId,
   normalizeRegionMapKeys,
@@ -9,6 +10,7 @@ import {
   SUPPORTED_SAVE_DATA_VERSIONS
 } from "../../core";
 import type {
+  ContentIdAliasKind,
   SaveData,
   SaveNormalization,
   StaticGameData,
@@ -144,19 +146,29 @@ function getExpectedNormalizationsForRawSave(
   const equipment = progress.equipment;
   const existingHeroes = isFixtureRecord(progress.heroes) ? progress.heroes : {};
   const existingMaps = isFixtureRecord(progress.maps) ? progress.maps : {};
+  const normalizedHeroIds = new Set<string>();
   const normalizedMapIds = new Set<string>();
 
   for (const [heroId, heroProgress] of Object.entries(existingHeroes)) {
+    const normalizedHeroId = normalizeFixtureContentId(data, "initiate", heroId);
+    normalizedHeroIds.add(normalizedHeroId);
+
+    if (normalizedHeroId !== heroId) {
+      normalizations.push(normalizedContentId(`progress.heroes.${heroId}`));
+    }
+
     if (!isFixtureRecord(heroProgress)) {
       continue;
     }
 
     if (heroProgress.level === undefined) {
-      normalizations.push(missingField(`progress.heroes.${heroId}.level`));
+      normalizations.push(missingField(`progress.heroes.${normalizedHeroId}.level`));
     }
 
     if (heroProgress.upgrades === undefined) {
-      normalizations.push(missingField(`progress.heroes.${heroId}.upgrades`));
+      normalizations.push(
+        missingField(`progress.heroes.${normalizedHeroId}.upgrades`)
+      );
     }
   }
 
@@ -195,24 +207,24 @@ function getExpectedNormalizationsForRawSave(
     normalizations.push(missingField("progress.resources.herbs"));
   }
 
-  if (equipment === undefined) {
-    normalizations.push(missingField("progress.equipment"));
-  } else if (isFixtureRecord(equipment)) {
-    if (equipment.inventory === undefined) {
-      normalizations.push(missingField("progress.equipment.inventory"));
-    }
-
-    if (equipment.equipped === undefined) {
-      normalizations.push(missingField("progress.equipment.equipped"));
-    }
-  }
+  const equipmentNormalizations = getExpectedEquipmentNormalizations(
+    data,
+    equipment
+  );
+  normalizations.push(...equipmentNormalizations);
 
   if (progress.selectedTacticId === undefined) {
     normalizations.push(missingField("progress.selectedTacticId"));
+  } else if (
+    typeof progress.selectedTacticId === "string" &&
+    normalizeFixtureContentId(data, "routine", progress.selectedTacticId) !==
+      progress.selectedTacticId
+  ) {
+    normalizations.push(normalizedContentId("progress.selectedTacticId"));
   }
 
   for (const heroId of Object.keys(defaultProgress.heroes)) {
-    if (!(heroId in existingHeroes)) {
+    if (!normalizedHeroIds.has(heroId)) {
       normalizations.push(missingField(`progress.heroes.${heroId}`));
     }
   }
@@ -246,6 +258,9 @@ function getExpectedNormalizationsForRawSave(
   }
 
   normalizations.push(
+    ...getExpectedProgressContentAliasNormalizations(data, progress)
+  );
+  normalizations.push(
     ...getExpectedAutoMedicinePreferenceNormalizations(raw.autoMedicinePreferences)
   );
 
@@ -267,6 +282,304 @@ function getExpectedNormalizationsForRawSave(
   }
 
   return normalizations;
+}
+
+function getExpectedProgressContentAliasNormalizations(
+  data: StaticGameData,
+  progress: Record<string, unknown>
+): SaveNormalization[] {
+  const normalizations: SaveNormalization[] = [];
+
+  if (Array.isArray(progress.activeHeroIds)) {
+    normalizations.push(
+      ...getExpectedContentIdArrayNormalizations(
+        data,
+        "initiate",
+        progress.activeHeroIds,
+        "progress.activeHeroIds"
+      )
+    );
+  }
+
+  if (isFixtureRecord(progress.formation)) {
+    normalizations.push(
+      ...getExpectedContentIdMapKeyNormalizations(
+        data,
+        "initiate",
+        progress.formation,
+        "progress.formation"
+      )
+    );
+  }
+
+  if (isFixtureRecord(progress.styleMastery)) {
+    normalizations.push(
+      ...getExpectedContentIdMapKeyNormalizations(
+        data,
+        "style",
+        progress.styleMastery,
+        "progress.styleMastery"
+      )
+    );
+  }
+
+  if (isFixtureRecord(progress.styleBranches)) {
+    const normalizedStyleBranches = getNormalizedFixtureMapEntries(
+      data,
+      "style",
+      progress.styleBranches,
+      "progress.styleBranches",
+      normalizations
+    );
+
+    for (const [styleId, branchId] of normalizedStyleBranches) {
+      if (typeof branchId !== "string") {
+        continue;
+      }
+
+      const normalizedBranchId = normalizeFixtureContentId(
+        data,
+        "style_branch",
+        branchId
+      );
+
+      if (normalizedBranchId !== branchId) {
+        normalizations.push(
+          normalizedContentId(`progress.styleBranches.${styleId}`)
+        );
+      }
+    }
+  }
+
+  if (isFixtureRecord(progress.skillUpgrades)) {
+    normalizations.push(
+      ...getExpectedContentIdMapKeyNormalizations(
+        data,
+        "skill_upgrade",
+        progress.skillUpgrades,
+        "progress.skillUpgrades"
+      )
+    );
+  }
+
+  if (isFixtureRecord(progress.medicineInventory)) {
+    normalizations.push(
+      ...getExpectedContentIdMapKeyNormalizations(
+        data,
+        "countermeasure",
+        progress.medicineInventory,
+        "progress.medicineInventory"
+      )
+    );
+  }
+
+  if (isFixtureRecord(progress.assignments)) {
+    const normalizedAssignments = getNormalizedFixtureMapEntries(
+      data,
+      "operation",
+      progress.assignments,
+      "progress.assignments",
+      normalizations
+    );
+
+    for (const [assignmentId, assignment] of normalizedAssignments) {
+      if (!isFixtureRecord(assignment) || !Array.isArray(assignment.heroIds)) {
+        continue;
+      }
+
+      normalizations.push(
+        ...getExpectedContentIdArrayNormalizations(
+          data,
+          "initiate",
+          assignment.heroIds,
+          `progress.assignments.${assignmentId}.heroIds`
+        )
+      );
+    }
+  }
+
+  return normalizations;
+}
+
+function getExpectedEquipmentNormalizations(
+  data: StaticGameData,
+  equipment: unknown
+): SaveNormalization[] {
+  if (equipment === undefined) {
+    return [missingField("progress.equipment")];
+  }
+
+  if (!isFixtureRecord(equipment)) {
+    return [];
+  }
+
+  const normalizations: SaveNormalization[] = [];
+
+  if (isFixtureRecord(equipment.inventory)) {
+    normalizations.push(
+      ...getExpectedContentIdMapKeyNormalizations(
+        data,
+        "augment",
+        equipment.inventory,
+        "progress.equipment.inventory"
+      )
+    );
+  }
+
+  if (isFixtureRecord(equipment.equipped)) {
+    for (const [heroId, slots] of Object.entries(equipment.equipped)) {
+      if (!isFixtureRecord(slots)) {
+        continue;
+      }
+
+      for (const [slot, equipmentId] of Object.entries(slots)) {
+        if (typeof equipmentId !== "string") {
+          continue;
+        }
+
+        const normalizedEquipmentId = normalizeFixtureContentId(
+          data,
+          "augment",
+          equipmentId
+        );
+
+        if (normalizedEquipmentId !== equipmentId) {
+          normalizations.push(
+            normalizedContentId(
+              `progress.equipment.equipped.${heroId}.${slot}`
+            )
+          );
+        }
+      }
+    }
+
+    normalizations.push(
+      ...getExpectedContentIdMapKeyNormalizations(
+        data,
+        "initiate",
+        equipment.equipped,
+        "progress.equipment.equipped"
+      )
+    );
+  }
+
+  if (equipment.inventory === undefined) {
+    normalizations.push(missingField("progress.equipment.inventory"));
+  }
+
+  if (equipment.equipped === undefined) {
+    normalizations.push(missingField("progress.equipment.equipped"));
+  }
+
+  return normalizations;
+}
+
+function getExpectedContentIdArrayNormalizations(
+  data: StaticGameData,
+  kind: ContentIdAliasKind,
+  value: unknown[],
+  field: string
+): SaveNormalization[] {
+  return value.flatMap((entry, index) =>
+    typeof entry === "string" &&
+    normalizeFixtureContentId(data, kind, entry) !== entry
+      ? [normalizedContentId(`${field}.${index}`)]
+      : []
+  );
+}
+
+function getExpectedContentIdMapKeyNormalizations(
+  data: StaticGameData,
+  kind: ContentIdAliasKind,
+  value: Record<string, unknown>,
+  field: string
+): SaveNormalization[] {
+  const normalizations: SaveNormalization[] = [];
+
+  getNormalizedFixtureMapEntries(data, kind, value, field, normalizations);
+
+  return normalizations;
+}
+
+function getNormalizedFixtureMapEntries(
+  data: StaticGameData,
+  kind: ContentIdAliasKind,
+  value: Record<string, unknown>,
+  field: string,
+  normalizations: SaveNormalization[]
+): Array<readonly [string, unknown]> {
+  return Object.entries(value).map(([contentId, contentValue]) => {
+    const normalizedId = normalizeFixtureContentId(data, kind, contentId);
+
+    if (normalizedId !== contentId) {
+      normalizations.push(normalizedContentId(`${field}.${contentId}`));
+    }
+
+    return [normalizedId, contentValue];
+  });
+}
+
+function normalizeFixtureContentId(
+  data: StaticGameData,
+  kind: ContentIdAliasKind,
+  id: string
+): string {
+  const configuredIds = getConfiguredContentIds(data, kind);
+
+  if (configuredIds.has(id)) {
+    return id;
+  }
+
+  const index = getContentAliasIndexByKind(kind);
+  const legacyAlias = index.getByLegacyId(id);
+
+  if (legacyAlias && configuredIds.has(legacyAlias.targetId)) {
+    return legacyAlias.targetId;
+  }
+
+  const targetAlias = index.getByTargetId(id);
+
+  if (targetAlias && configuredIds.has(targetAlias.legacyId)) {
+    return targetAlias.legacyId;
+  }
+
+  return id;
+}
+
+function getConfiguredContentIds(
+  data: StaticGameData,
+  kind: ContentIdAliasKind
+): ReadonlySet<string> {
+  switch (kind) {
+    case "initiate":
+      return new Set(data.heroes.map((hero) => hero.id));
+
+    case "style":
+      return new Set(data.styles.map((style) => style.id));
+
+    case "style_branch":
+      return new Set(
+        data.styles.flatMap((style) => style.branches.map((branch) => branch.id))
+      );
+
+    case "skill_upgrade":
+      return new Set(data.skillUpgrades.map((upgrade) => upgrade.id));
+
+    case "augment":
+      return new Set(data.equipment.map((equipment) => equipment.id));
+
+    case "countermeasure":
+      return new Set(data.medicines.map((medicine) => medicine.id));
+
+    case "operation":
+      return new Set((data.assignments ?? []).map((assignment) => assignment.id));
+
+    case "routine":
+      return new Set(data.tactics.map((tactic) => tactic.id));
+
+    default:
+      return new Set();
+  }
 }
 
 function getExpectedAutoMedicinePreferenceNormalizations(
@@ -343,6 +656,13 @@ function invalidField(field: string): SaveNormalization {
   return {
     field,
     reason: "defaulted invalid field"
+  };
+}
+
+function normalizedContentId(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "normalized content id alias"
   };
 }
 

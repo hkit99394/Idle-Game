@@ -149,7 +149,7 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
         effects: [
           {
             type: "apply_status",
-            statusId: "poison",
+            statusId: "corruption",
             chance: 1,
             durationSeconds: 6,
             stacks: 1

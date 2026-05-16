@@ -222,7 +222,7 @@ describe("status effects", () => {
       time: 3,
       sourceId: "enemy",
       targetId: "hero",
-      skillId: "basic_strike",
+      skillId: "baseline_strike",
       outerDamage: 10,
       innerDamage: 0
     };
@@ -262,11 +262,11 @@ describe("status effects", () => {
     target.activeStatuses = [
       applyStatusEffect({
         activeStatuses: [],
-        definition: statusDefinitions.poison
+        definition: statusDefinitions.corruption
       }).applied,
       applyStatusEffect({
         activeStatuses: [],
-        definition: statusDefinitions.qi_suppression
+        definition: statusDefinitions.context_suppression
       }).applied
     ];
 
@@ -278,7 +278,11 @@ describe("status effects", () => {
       maxCount: 3
     });
 
-    expect(cleanse.cleansedStatusIds).toEqual(["wound", "armor_break", "poison"]);
+    expect(cleanse.cleansedStatusIds).toEqual([
+      "wound",
+      "armor_break",
+      "corruption"
+    ]);
     expect(cleanse.descriptors.map((status) => status.label)).toEqual([
       "Trauma",
       "Armor Break",
@@ -287,7 +291,7 @@ describe("status effects", () => {
     expect(target.wound).toBeNull();
     expect(target.armorBreak).toBeNull();
     expect(target.activeStatuses.map((status) => status.statusId)).toEqual([
-      "qi_suppression"
+      "context_suppression"
     ]);
   });
 });

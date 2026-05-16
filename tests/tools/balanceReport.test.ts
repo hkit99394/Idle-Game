@@ -66,7 +66,7 @@ describe("balance report", () => {
       enemyFormationSlots: ["front", "middle"]
     });
     expect(report.bambooRoadBalance.formationScenarios).toEqual({
-      firstLivingFrontlineTargetId: "front_bandit",
+      firstLivingFrontlineTargetId: "front_cutter",
       highestCpBacklineTargetId: "back_threat"
     });
   });
@@ -222,7 +222,7 @@ describe("balance report", () => {
     });
   });
 
-  it("includes Lotus Clinic as a sustain post-Fort region", () => {
+  it("includes Lotus Clinic as a Long Stabilization post-Fort region", () => {
     const report = buildGameBalanceReport(staticData);
     const lotusMonastery = staticData.regions.find(
       (region) => region.id === LOTUS_MONASTERY_REGION_ID
@@ -508,6 +508,8 @@ describe("balance report", () => {
       regionId: BLACK_IRON_FORT_REGION_ID,
       legacyRegionId: "black_iron_fort",
       legacyStageId: "black_iron_fort_4",
+      enemyIds: ["ironwall_saber", "shieldwall_guard"],
+      legacyEnemyIds: ["black_iron_saber", "shieldwall_guard"],
       targetStatus: "fail",
       difficultyIssue: expect.stringContaining("below"),
       pressure: {
@@ -517,7 +519,9 @@ describe("balance report", () => {
     expect(demonCultSpike).toMatchObject({
       targetStatus: "fail",
       difficultySpikeStatus: "fail",
-      difficultySpikeReason: expect.stringContaining("clear time")
+      difficultySpikeReason: expect.stringContaining("clear time"),
+      statusIds: expect.arrayContaining(["corruption", "trauma"]),
+      legacyStatusIds: expect.arrayContaining(["poison", "wound"])
     });
     expect(blackIronFarm).toMatchObject({
       farmRecommendation: true,
@@ -542,6 +546,12 @@ describe("balance report", () => {
     expect(csvLines).toHaveLength(staticData.stages.length + 1);
     expect(csv).toContain("redline_outpost_3");
     expect(csv).toContain("demon_cult_outpost_3");
+    expect(csv).toContain("legacy_enemy_ids");
+    expect(csv).toContain("black_iron_saber");
+    expect(csv).toContain("status_ids");
+    expect(csv).toContain("legacy_status_ids");
+    expect(csv).toContain("corruption");
+    expect(csv).toContain("poison");
     expect(csv).toContain("difficulty_spike_status");
     expect(csv).toContain("black_iron_foundry_6");
     expect(csv).toContain("black_iron_fort_6");
@@ -554,34 +564,43 @@ describe("balance report", () => {
     const csvLines = csv.split("\n");
     const balancedBamboo = exportReport.rows.find(
       (row) =>
-        row.stageId === "greenline_approach_1" && row.tacticId === "balanced"
+        row.stageId === "greenline_approach_1" && row.tacticId === "balanced_routine"
     );
     const outerBamboo = exportReport.rows.find(
       (row) =>
-        row.stageId === "greenline_approach_1" && row.tacticId === "outer_pressure"
+        row.stageId === "greenline_approach_1" && row.tacticId === "kinetic_crush"
     );
     const innerDemonCult = exportReport.rows.find(
       (row) =>
         row.stageId === "redline_outpost_3" &&
-        row.tacticId === "inner_pressure"
+        row.tacticId === "context_break"
     );
     const sustainDemonBoss = exportReport.rows.find(
       (row) =>
-        row.stageId === "redline_outpost_7" && row.tacticId === "sustain"
+        row.stageId === "redline_outpost_7" && row.tacticId === "long_stabilization"
     );
     const bossBurstDemonBoss = exportReport.rows.find(
       (row) =>
         row.stageId === "redline_outpost_7" &&
-        row.tacticId === "boss_burst"
+        row.tacticId === "gatekeeper_burst"
     );
 
     expect(exportReport.schemaVersion).toBe(
       TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION
     );
-    expect(exportReport.defaultTacticId).toBe("balanced");
+    expect(exportReport.defaultTacticId).toBe("balanced_routine");
+    expect(exportReport.legacyDefaultTacticId).toBe("balanced");
     expect(exportReport.tactics.map((tactic) => tactic.tacticId)).toEqual(
       staticData.tactics.map((tactic) => tactic.id)
     );
+    expect(exportReport.tactics.map((tactic) => tactic.legacyTacticId)).toEqual([
+      "balanced",
+      "outer_pressure",
+      "inner_pressure",
+      "guard_support",
+      "sustain",
+      "boss_burst"
+    ]);
     expect(exportReport.regions.map((region) => region.regionId)).toEqual(
       staticData.regions.map((region) => region.id)
     );
@@ -591,8 +610,10 @@ describe("balance report", () => {
     expect(balancedBamboo).toMatchObject({
       legacyRegionId: "bamboo_road",
       legacyStageId: "bamboo_road_1",
+      legacyTacticId: "balanced",
       isDefaultTactic: true,
-      baselineTacticId: "balanced",
+      baselineTacticId: "balanced_routine",
+      legacyBaselineTacticId: "balanced",
       durationDeltaSeconds: 0,
       pressureDeltas: {
         statusDamage: 0
@@ -603,6 +624,9 @@ describe("balance report", () => {
       }
     });
     expect(outerBamboo).toMatchObject({
+      legacyTacticId: "outer_pressure",
+      baselineTacticId: "balanced_routine",
+      legacyBaselineTacticId: "balanced",
       result: "player_clear",
       baselineResult: "player_clear",
       durationDeltaSeconds: -1,
@@ -614,6 +638,7 @@ describe("balance report", () => {
     expect(innerDemonCult).toMatchObject({
       legacyRegionId: "demon_cult_outpost",
       legacyStageId: "demon_cult_outpost_3",
+      legacyTacticId: "inner_pressure",
       baselineTargetStatus: "fail",
       targetStatus: "pass",
       targetStatusChange: "improved",
@@ -623,6 +648,7 @@ describe("balance report", () => {
       }
     });
     expect(sustainDemonBoss).toMatchObject({
+      legacyTacticId: "sustain",
       result: "player_clear",
       pressureDeltas: {
         statusDamage: expect.any(Number)
@@ -637,7 +663,10 @@ describe("balance report", () => {
     });
     expect(csvLines[0]).toBe(TACTIC_COMPARISON_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
+    expect(csv).toContain("kinetic_crush");
     expect(csv).toContain("outer_pressure");
+    expect(csv).toContain("baseline_tactic_id");
+    expect(csv).toContain("legacy_baseline_tactic_id");
     expect(csv).toContain("bamboo_road_1");
     expect(csv).toContain("demon_cult_outpost_7");
     expect(csv).toContain("improved_existing_miss");

@@ -1,6 +1,6 @@
 [
   {
-    "id": "clear_heart_pill",
+    "id": "clear_heart_countermeasure",
     "name": "Clear Heart Countermeasure",
     "unlock": {
       "type": "stage_cleared",
@@ -16,7 +16,7 @@
     ]
   },
   {
-    "id": "quiet_meridian_powder",
+    "id": "quiet_context_powder",
     "name": "Quiet Context Powder",
     "unlock": {
       "type": "stage_cleared",
@@ -32,7 +32,7 @@
     ]
   },
   {
-    "id": "purity_draught",
+    "id": "purity_countermeasure",
     "name": "Purity Countermeasure",
     "unlock": {
       "type": "stage_cleared",

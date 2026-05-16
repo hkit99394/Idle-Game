@@ -10,7 +10,7 @@ describe("battle event view models", () => {
       battle: {
         finalPlayerTeam: [
           {
-            instanceId: "player_iron_fist_disciple_1",
+            instanceId: "player_iron_fist_initiate_1",
             name: "Iron Fist Initiate",
             formationSlot: "front"
           }
@@ -20,10 +20,10 @@ describe("battle event view models", () => {
           {
             type: "auto_medicine",
             time: 1,
-            targetId: "player_iron_fist_disciple_1",
+            targetId: "player_iron_fist_initiate_1",
             trigger: "battle_cleanse",
-            medicineId: "clear_heart_pill",
-            cleansedStatusIds: ["poison"],
+            medicineId: "clear_heart_countermeasure",
+            cleansedStatusIds: ["corruption"],
             statusResistanceBonus: 0,
             statusResistanceDurationSeconds: 0
           },
@@ -31,7 +31,7 @@ describe("battle event view models", () => {
             type: "auto_medicine",
             time: 0,
             trigger: "pre_battle_resistance",
-            medicineId: "quiet_meridian_powder",
+            medicineId: "quiet_context_powder",
             cleansedStatusIds: [],
             statusResistanceBonus: 0.12,
             statusResistanceDurationSeconds: 12
@@ -44,7 +44,7 @@ describe("battle event view models", () => {
       {
         id: "0-auto_medicine-1",
         category: "auto_medicine",
-        statusId: "poison",
+        statusId: "corruption",
         timeSeconds: 1,
         timeLabel: "1s",
         headline: "Iron Fist Initiate (Front) uses Clear Heart Countermeasure",

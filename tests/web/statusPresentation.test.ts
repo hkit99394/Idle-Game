@@ -40,17 +40,17 @@ describe("status presentation", () => {
   it("sorts active statuses by severity and exposes chip display fields", () => {
     const statuses: ActiveStatusEffect[] = [
       {
-        statusId: "qi_suppression",
+        statusId: "context_suppression",
         remainingSeconds: 2,
         stacks: 1
       },
       {
-        statusId: "poison",
+        statusId: "corruption",
         remainingSeconds: 8,
         stacks: 3
       },
       {
-        statusId: "wound",
+        statusId: "trauma",
         remainingSeconds: 3,
         stacks: 1
       }
@@ -58,7 +58,7 @@ describe("status presentation", () => {
 
     expect(buildStatusChipViewModels(statuses, statusDefinitions)).toEqual([
       {
-        statusId: "poison",
+        statusId: "corruption",
         label: "Corruption",
         category: "damage",
         categoryLabel: "Damage",
@@ -70,7 +70,7 @@ describe("status presentation", () => {
         ariaLabel: "Corruption, Damage, High severity, 8 seconds remaining"
       },
       {
-        statusId: "wound",
+        statusId: "trauma",
         label: "Trauma",
         category: "recovery",
         categoryLabel: "Recovery",
@@ -82,7 +82,7 @@ describe("status presentation", () => {
         ariaLabel: "Trauma, Recovery, Medium severity, 3 seconds remaining"
       },
       {
-        statusId: "qi_suppression",
+        statusId: "context_suppression",
         label: "Context Suppression",
         category: "control",
         categoryLabel: "Control",
@@ -117,14 +117,14 @@ describe("status presentation", () => {
       tickEvents: [
         {
           type: "status_tick",
-          statusId: "poison",
+          statusId: "corruption",
           stacks: 2,
           outerDamage: 24,
           targetName: "Iron Fist Initiate"
         },
         {
           type: "status_tick",
-          statusId: "poison",
+          statusId: "corruption",
           stacks: 2,
           outerDamage: 24,
           targetName: "Iron Fist Initiate"
@@ -133,11 +133,11 @@ describe("status presentation", () => {
       cleanses: [
         {
           combatantName: "Mountain Brace Guardian",
-          statusId: "poison"
+          statusId: "corruption"
         },
         {
           combatantName: "Mountain Brace Guardian",
-          statusId: "wound"
+          statusId: "trauma"
         }
       ]
     });

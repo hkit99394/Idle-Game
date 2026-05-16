@@ -18,8 +18,8 @@ describe("offline assignment rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
     const assigned = setAssignmentHeroes(staticData, {
       progress,
-      assignmentId: "bamboo_road_patrol",
-      heroIds: ["iron_fist_disciple"]
+      assignmentId: "greenline_sweep",
+      heroIds: ["iron_fist_initiate"]
     });
 
     expect(assigned.ok).toBe(true);
@@ -44,14 +44,14 @@ describe("offline assignment rewards", () => {
     });
     expect(result.rewards.equipmentRewards).toEqual([
       {
-        equipmentId: "training_wraps",
+        equipmentId: "impact_training_wraps",
         quantity: 6
       }
     ]);
     expect(result.progress.resources.silver).toBe(600);
     expect(result.progress.maps.greenline_approach.combatExperience).toBe(100);
-    expect(result.progress.equipment?.inventory.training_wraps).toBe(6);
-    expect(result.progress.heroes.iron_fist_disciple.level).toBeGreaterThan(1);
+    expect(result.progress.equipment?.inventory.impact_training_wraps).toBe(6);
+    expect(result.progress.heroes.iron_fist_initiate.level).toBeGreaterThan(1);
   });
 
   it("applies training ground style mastery to assigned hero styles", () => {
@@ -59,8 +59,8 @@ describe("offline assignment rewards", () => {
     progress.maps.greenline_approach.highestClearedStageIndex = 10;
     const assigned = setAssignmentHeroes(staticData, {
       progress,
-      assignmentId: "mist_valley_meditation",
-      heroIds: ["azure_palm_monk"]
+      assignmentId: "veil_district_calibration",
+      heroIds: ["azure_pulse_monk"]
     });
 
     expect(assigned.ok).toBe(true);
@@ -81,8 +81,8 @@ describe("offline assignment rewards", () => {
       styleMasteryExperience: 24
     });
     expect(result.progress.resources.cultivation).toBe(36);
-    expect(result.progress.styleMastery?.palm?.experience).toBe(24);
-    expect(result.progress.styleMastery?.fist?.experience ?? 0).toBe(0);
+    expect(result.progress.styleMastery?.pulse?.experience).toBe(24);
+    expect(result.progress.styleMastery?.impact?.experience ?? 0).toBe(0);
   });
 
   it("applies Lotus medicine pavilion herbs and medicine rewards", () => {
@@ -93,8 +93,8 @@ describe("offline assignment rewards", () => {
     progress.maps.lotus_clinic.highestClearedStageIndex = 3;
     const assigned = setAssignmentHeroes(staticData, {
       progress,
-      assignmentId: "lotus_medicine_pavilion",
-      heroIds: ["mountain_staff_guardian"]
+      assignmentId: "lotus_countermeasure_pavilion",
+      heroIds: ["mountain_brace_guardian"]
     });
 
     expect(assigned.ok).toBe(true);
@@ -117,17 +117,17 @@ describe("offline assignment rewards", () => {
     });
     expect(result.rewards.equipmentRewards).toEqual([
       {
-        equipmentId: "lotus_dew_pill",
+        equipmentId: "lotus_dew_countermeasure",
         quantity: 3
       },
       {
-        equipmentId: "mending_poultice",
+        equipmentId: "mending_patch",
         quantity: 1
       }
     ]);
     expect(result.progress.resources.herbs).toBe(234);
     expect(result.progress.resources.cultivation).toBe(156);
-    expect(result.progress.equipment?.inventory.lotus_dew_pill).toBe(3);
-    expect(result.progress.equipment?.inventory.mending_poultice).toBe(1);
+    expect(result.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(3);
+    expect(result.progress.equipment?.inventory.mending_patch).toBe(1);
   });
 });

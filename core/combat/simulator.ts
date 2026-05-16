@@ -76,7 +76,7 @@ import {
   resolvePlayerTactic
 } from "./tactics";
 
-const BASIC_SKILL_ID = "basic_strike";
+const BASIC_SKILL_ID = "baseline_strike";
 type DefinitionLookup = {
   heroes: Map<string, HeroDefinition>;
   enemies: Map<string, EnemyDefinition>;

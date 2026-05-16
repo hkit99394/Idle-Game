@@ -23,7 +23,7 @@ describe("web game state progression", () => {
     expect(state.selectedStageId).toBe("greenline_approach_1");
     expect(state.selectedOfflineFarmStageId).toBeNull();
     expect(state.offlineFarmPreset).toBe("balanced");
-    expect(state.progress.selectedTacticId).toBe("balanced");
+    expect(state.progress.selectedTacticId).toBe("balanced_routine");
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("greenline_approach_1");
     expect(viewModel.selectedStageRegionName).toBe("Greenline Approach");
@@ -37,13 +37,13 @@ describe("web game state progression", () => {
     });
     expect(viewModel.tactics).toHaveLength(staticData.tactics.length);
     expect(viewModel.tactics[0]).toMatchObject({
-      tacticId: "balanced",
+      tacticId: "balanced_routine",
       name: "Balanced Routine",
       selected: true,
       modifierSummary: []
     });
     expect(
-      viewModel.tactics.find((tactic) => tactic.tacticId === "outer_pressure")
+      viewModel.tactics.find((tactic) => tactic.tacticId === "kinetic_crush")
     ).toMatchObject({
       selected: false,
       behaviorTags: ["targeting", "damage"],
@@ -77,7 +77,7 @@ describe("web game state progression", () => {
       resistanceModeLabel: "Boss And Elite"
     });
     expect(viewModel.counterplaySettings.medicineRows[0]).toMatchObject({
-      id: "clear_heart_pill",
+      id: "clear_heart_countermeasure",
       canToggle: false,
       autoUseLabel: "Auto On"
     });
@@ -133,7 +133,7 @@ describe("web game state progression", () => {
       viewModel.upgrades.find(
         (upgrade) =>
           upgrade.upgradeId === "hero_outer_training" &&
-          upgrade.heroId === "iron_fist_disciple"
+          upgrade.heroId === "iron_fist_initiate"
       )
     ).toMatchObject({
       level: 0,
@@ -174,20 +174,20 @@ describe("web game state progression", () => {
     expect(viewModel.skillUpgrades).toHaveLength(4);
     expect(viewModel.activeTeamSize).toBe(4);
     expect(viewModel.roster).toHaveLength(staticData.heroes.length);
-    expect(viewModel.roster.find((hero) => hero.heroId === "iron_fist_disciple")).toMatchObject({
+    expect(viewModel.roster.find((hero) => hero.heroId === "iron_fist_initiate")).toMatchObject({
       active: true,
       unlocked: true,
       canDeactivate: true,
       combatRole: "striker"
     });
-    expect(viewModel.roster.find((hero) => hero.heroId === "lotus_mending_disciple")).toMatchObject({
+    expect(viewModel.roster.find((hero) => hero.heroId === "lotus_stabilizer")).toMatchObject({
       active: false,
       unlocked: false,
       canActivate: false,
       lockReason: "Clear Jade Needle Clinic"
     });
     expect(viewModel.assignments[0]).toMatchObject({
-      assignmentId: "bamboo_road_patrol",
+      assignmentId: "greenline_sweep",
       unlocked: true,
       assignedHeroIds: [],
       rewardSummary: expect.arrayContaining([
@@ -196,14 +196,14 @@ describe("web game state progression", () => {
       ])
     });
     expect(viewModel.assignments[1]).toMatchObject({
-      assignmentId: "mist_valley_meditation",
+      assignmentId: "veil_district_calibration",
       unlocked: false,
       lockReason: "Clear Ironwall Guard"
     });
     expect(viewModel.equipmentInventory).toEqual([]);
     expect(viewModel.heroEquipment).toHaveLength(4);
     expect(viewModel.heroEquipment[0]).toMatchObject({
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       activeSetBonuses: [],
       slots: expect.arrayContaining([
         expect.objectContaining({
@@ -218,13 +218,13 @@ describe("web game state progression", () => {
     });
     expect(viewModel.styleMastery).toHaveLength(7);
     expect(viewModel.styleMastery[0]).toMatchObject({
-      styleId: "fist",
+      styleId: "impact",
       name: "Impact Style",
       level: 0,
       experience: 0,
       branches: [
         {
-          id: "iron_body_fist",
+          id: "iron_body_impact",
           isUnlocked: false,
           isSelected: false,
           canSelect: false,
@@ -277,15 +277,15 @@ describe("web game state progression", () => {
   it("selects unlocked style branches and applies them to hero previews", () => {
     const state = createInitialWebGameState(staticData);
     const lockedState = selectGameStyleBranch(staticData, state, {
-      styleId: "fist",
-      branchId: "iron_body_fist"
+      styleId: "impact",
+      branchId: "iron_body_impact"
     });
 
     expect(lockedState.lastStyleBranchAction).toMatchObject({
       ok: false,
       reason: "locked_branch"
     });
-    expect(lockedState.progress.styleBranches?.fist).toBeUndefined();
+    expect(lockedState.progress.styleBranches?.impact).toBeUndefined();
 
     const leveledState = webGameStateReducer(
       staticData,
@@ -296,8 +296,8 @@ describe("web game state progression", () => {
           ...state.progress,
           heroes: {
             ...state.progress.heroes,
-            iron_fist_disciple: {
-              ...state.progress.heroes.iron_fist_disciple,
+            iron_fist_initiate: {
+              ...state.progress.heroes.iron_fist_initiate,
               level: 3
             }
           }
@@ -305,27 +305,27 @@ describe("web game state progression", () => {
       }
     );
     const selectedState = selectGameStyleBranch(staticData, leveledState, {
-      styleId: "fist",
-      branchId: "iron_body_fist"
+      styleId: "impact",
+      branchId: "iron_body_impact"
     });
     const viewModel = getWebGameViewModel(staticData, selectedState);
     const fistBranch = viewModel.styleMastery
-      .find((style) => style.styleId === "fist")
-      ?.branches.find((branch) => branch.id === "iron_body_fist");
+      .find((style) => style.styleId === "impact")
+      ?.branches.find((branch) => branch.id === "iron_body_impact");
 
     expect(selectedState.lastStyleBranchAction).toMatchObject({
       ok: true,
-      styleId: "fist",
-      branchId: "iron_body_fist"
+      styleId: "impact",
+      branchId: "iron_body_impact"
     });
-    expect(selectedState.progress.styleBranches?.fist).toBe("iron_body_fist");
+    expect(selectedState.progress.styleBranches?.impact).toBe("iron_body_impact");
     expect(fistBranch).toMatchObject({
       isUnlocked: true,
       isSelected: true,
       canSelect: false
     });
     expect(viewModel.playerCombatants[0]).toMatchObject({
-      definitionId: "iron_fist_disciple",
+      definitionId: "iron_fist_initiate",
       level: 3
     });
     expect(viewModel.playerCombatants[0].maxOuterHp).toBeCloseTo(
@@ -337,20 +337,20 @@ describe("web game state progression", () => {
     const state = createInitialWebGameState(staticData);
     const nextState = webGameStateReducer(staticData, state, {
       type: "set_hero_formation_slot",
-      heroId: "white_crane_swordsman",
+      heroId: "white_crane_edge_runner",
       slot: "front"
     });
     const viewModel = getWebGameViewModel(staticData, nextState);
 
-    expect(nextState.progress.formation?.white_crane_swordsman).toBe("front");
+    expect(nextState.progress.formation?.white_crane_edge_runner).toBe("front");
     expect(
       viewModel.playerFormation.find(
-        (hero) => hero.heroId === "white_crane_swordsman"
+        (hero) => hero.heroId === "white_crane_edge_runner"
       )?.formationSlot
     ).toBe("front");
     expect(
       viewModel.playerCombatants.find(
-        (combatant) => combatant.definitionId === "white_crane_swordsman"
+        (combatant) => combatant.definitionId === "white_crane_edge_runner"
       )?.formationSlot
     ).toBe("front");
   });
@@ -358,7 +358,7 @@ describe("web game state progression", () => {
   it("selects tactics and applies them to stage battles", () => {
     const state = createInitialWebGameState(staticData);
     const selectedState = selectGameTactic(staticData, state, {
-      tacticId: "outer_pressure"
+      tacticId: "kinetic_crush"
     });
     const invalidState = selectGameTactic(staticData, selectedState, {
       tacticId: "missing_tactic"
@@ -368,17 +368,17 @@ describe("web game state progression", () => {
 
     expect(selectedState.lastTacticAction).toMatchObject({
       ok: true,
-      tacticId: "outer_pressure"
+      tacticId: "kinetic_crush"
     });
-    expect(selectedState.progress.selectedTacticId).toBe("outer_pressure");
+    expect(selectedState.progress.selectedTacticId).toBe("kinetic_crush");
     expect(
       getWebGameViewModel(staticData, selectedState).tactics.find(
-        (tactic) => tactic.tacticId === "outer_pressure"
+        (tactic) => tactic.tacticId === "kinetic_crush"
       )
     ).toMatchObject({
       selected: true
     });
-    expect(invalidState.progress.selectedTacticId).toBe("outer_pressure");
+    expect(invalidState.progress.selectedTacticId).toBe("kinetic_crush");
     expect(invalidState.lastTacticAction).toMatchObject({
       ok: false,
       reason: "missing_tactic"
@@ -387,7 +387,7 @@ describe("web game state progression", () => {
     if (!battleState.lastBattle?.ok) {
       return;
     }
-    expect(battleState.lastBattle.battle.playerTactic.id).toBe("outer_pressure");
+    expect(battleState.lastBattle.battle.playerTactic.id).toBe("kinetic_crush");
     expect(viewModel.battleSummary?.details[0]).toBe("Tactic: Kinetic Crush.");
   });
 
@@ -420,23 +420,23 @@ describe("web game state progression", () => {
     });
     const selectedState = setGameActiveHeroTeam(staticData, progressedState, {
       heroIds: [
-        "iron_fist_disciple",
-        "azure_palm_monk",
-        "white_crane_swordsman",
-        "lotus_mending_disciple"
+        "iron_fist_initiate",
+        "azure_pulse_monk",
+        "white_crane_edge_runner",
+        "lotus_stabilizer"
       ]
     });
     const viewModel = getWebGameViewModel(staticData, selectedState);
 
     expect(selectedState.lastActiveTeamAction?.ok).toBe(true);
     expect(selectedState.progress.activeHeroIds).toEqual([
-      "iron_fist_disciple",
-      "azure_palm_monk",
-      "white_crane_swordsman",
-      "lotus_mending_disciple"
+      "iron_fist_initiate",
+      "azure_pulse_monk",
+      "white_crane_edge_runner",
+      "lotus_stabilizer"
     ]);
     expect(
-      viewModel.roster.find((hero) => hero.heroId === "lotus_mending_disciple")
+      viewModel.roster.find((hero) => hero.heroId === "lotus_stabilizer")
     ).toMatchObject({
       active: true,
       unlocked: true,
@@ -444,7 +444,7 @@ describe("web game state progression", () => {
     });
     expect(
       viewModel.playerCombatants.map((combatant) => combatant.definitionId)
-    ).toContain("lotus_mending_disciple");
+    ).toContain("lotus_stabilizer");
   });
 
   it("updates progress while staying on the selected stage after battle", () => {
@@ -528,7 +528,7 @@ describe("web game state progression", () => {
     const nextState = resolveSelectedStageBattle(staticData, readyToLevelState);
     const viewModel = getWebGameViewModel(staticData, nextState);
 
-    expect(nextState.progress.heroes.iron_fist_disciple.level).toBe(2);
+    expect(nextState.progress.heroes.iron_fist_initiate.level).toBe(2);
     expect(viewModel.playerCombatants[0].level).toBe(2);
   });
 

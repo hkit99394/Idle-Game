@@ -27,12 +27,12 @@ describe("equipment progression", () => {
 
     expect(firstClear.equipmentRewards).toEqual([
       {
-        equipmentId: "training_wraps",
+        equipmentId: "impact_training_wraps",
         quantity: 1
       }
     ]);
     expect(
-      getEquipmentInventoryCount(firstClear.progress, "training_wraps")
+      getEquipmentInventoryCount(firstClear.progress, "impact_training_wraps")
     ).toBe(1);
 
     const secondClear = applyStageClearRewards(staticData, {
@@ -46,7 +46,7 @@ describe("equipment progression", () => {
     }
 
     expect(
-      getEquipmentInventoryCount(secondClear.progress, "training_wraps")
+      getEquipmentInventoryCount(secondClear.progress, "impact_training_wraps")
     ).toBe(2);
   });
 
@@ -54,7 +54,7 @@ describe("equipment progression", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.equipment = {
       inventory: {
-        training_wraps: 1
+        impact_training_wraps: 1
       },
       equipped: {}
     };
@@ -70,13 +70,13 @@ describe("equipment progression", () => {
     }
 
     const beforeHero = beforeTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const beforeCp = calculateCombatPower(beforeHero?.statsOverride ?? staticData.heroes[0].baseStats);
     const equipResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
-      equipmentId: "training_wraps"
+      heroId: "iron_fist_initiate",
+      equipmentId: "impact_training_wraps"
     });
 
     expect(equipResult.ok).toBe(true);
@@ -96,13 +96,13 @@ describe("equipment progression", () => {
     }
 
     const afterHero = afterTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const afterCp = calculateCombatPower(afterHero?.statsOverride ?? staticData.heroes[0].baseStats);
 
     expect(
-      equipResult.progress.equipment?.equipped.iron_fist_disciple?.weapon
-    ).toBe("training_wraps");
+      equipResult.progress.equipment?.equipped.iron_fist_initiate?.weapon
+    ).toBe("impact_training_wraps");
     expect(afterCp).toBeGreaterThan(beforeCp);
   });
 
@@ -110,7 +110,7 @@ describe("equipment progression", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.equipment = {
       inventory: {
-        lotus_dew_pill: 1
+        lotus_dew_countermeasure: 1
       },
       equipped: {}
     };
@@ -126,12 +126,12 @@ describe("equipment progression", () => {
     }
 
     const beforeHero = beforeTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "azure_palm_monk"
+      (combatant) => combatant.definitionId === "azure_pulse_monk"
     );
     const equipResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "azure_palm_monk",
-      equipmentId: "lotus_dew_pill"
+      heroId: "azure_pulse_monk",
+      equipmentId: "lotus_dew_countermeasure"
     });
 
     expect(equipResult.ok).toBe(true);
@@ -151,11 +151,11 @@ describe("equipment progression", () => {
     }
 
     const afterHero = afterTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "azure_palm_monk"
+      (combatant) => combatant.definitionId === "azure_pulse_monk"
     );
 
-    expect(equipResult.progress.equipment?.equipped.azure_palm_monk?.medicine)
-      .toBe("lotus_dew_pill");
+    expect(equipResult.progress.equipment?.equipped.azure_pulse_monk?.medicine)
+      .toBe("lotus_dew_countermeasure");
     expect(afterHero?.statsOverride?.maxInnerQi).toBeGreaterThan(
       beforeHero?.statsOverride?.maxInnerQi ?? 0
     );
@@ -172,8 +172,8 @@ describe("equipment progression", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.equipment = {
       inventory: {
-        training_wraps: 1,
-        woven_travel_robe: 1
+        impact_training_wraps: 1,
+        woven_travel_plating: 1
       },
       equipped: {}
     };
@@ -181,8 +181,8 @@ describe("equipment progression", () => {
     expect(
       equipHeroEquipment(staticData, {
         progress,
-        heroId: "azure_palm_monk",
-        equipmentId: "training_wraps"
+        heroId: "azure_pulse_monk",
+        equipmentId: "impact_training_wraps"
       })
     ).toMatchObject({
       ok: false,
@@ -191,8 +191,8 @@ describe("equipment progression", () => {
 
     const firstEquip = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
-      equipmentId: "woven_travel_robe"
+      heroId: "iron_fist_initiate",
+      equipmentId: "woven_travel_plating"
     });
 
     expect(firstEquip.ok).toBe(true);
@@ -203,8 +203,8 @@ describe("equipment progression", () => {
     expect(
       equipHeroEquipment(staticData, {
         progress: firstEquip.progress,
-        heroId: "azure_palm_monk",
-        equipmentId: "woven_travel_robe"
+        heroId: "azure_pulse_monk",
+        equipmentId: "woven_travel_plating"
       })
     ).toMatchObject({
       ok: false,
@@ -216,14 +216,14 @@ describe("equipment progression", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.equipment = {
       inventory: {
-        iron_thread_armor: 1
+        iron_thread_plating: 1
       },
       equipped: {}
     };
     const equipResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
-      equipmentId: "iron_thread_armor"
+      heroId: "iron_fist_initiate",
+      equipmentId: "iron_thread_plating"
     });
 
     expect(equipResult.ok).toBe(true);
@@ -234,7 +234,7 @@ describe("equipment progression", () => {
     const withoutAffixData: StaticGameData = {
       ...staticData,
       equipment: staticData.equipment.map((equipment) =>
-        equipment.id === "iron_thread_armor"
+        equipment.id === "iron_thread_plating"
           ? { ...equipment, affixes: [] }
           : equipment
       )
@@ -257,10 +257,10 @@ describe("equipment progression", () => {
     }
 
     const withoutAffixHero = withoutAffixTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withAffixHero = withAffixTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withoutAffixStats = withoutAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
     const withAffixStats = withAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
@@ -277,15 +277,15 @@ describe("equipment progression", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.equipment = {
       inventory: {
-        iron_thread_armor: 1,
-        fortress_guard_manual: 1
+        iron_thread_plating: 1,
+        fortress_guard_protocol: 1
       },
       equipped: {}
     };
     const armorResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
-      equipmentId: "iron_thread_armor"
+      heroId: "iron_fist_initiate",
+      equipmentId: "iron_thread_plating"
     });
 
     expect(armorResult.ok).toBe(true);
@@ -295,8 +295,8 @@ describe("equipment progression", () => {
 
     const manualResult = equipHeroEquipment(staticData, {
       progress: armorResult.progress,
-      heroId: "iron_fist_disciple",
-      equipmentId: "fortress_guard_manual"
+      heroId: "iron_fist_initiate",
+      equipmentId: "fortress_guard_protocol"
     });
 
     expect(manualResult.ok).toBe(true);
@@ -326,10 +326,10 @@ describe("equipment progression", () => {
     }
 
     const withoutSetHero = withoutSetTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withSetHero = withSetTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withoutSetStats = withoutSetHero?.statsOverride ?? staticData.heroes[0].baseStats;
     const withSetStats = withSetHero?.statsOverride ?? staticData.heroes[0].baseStats;

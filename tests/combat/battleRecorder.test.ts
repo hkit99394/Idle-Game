@@ -148,7 +148,7 @@ const sampleEventsByType = {
   auto_medicine: {
     type: "auto_medicine",
     time: 3,
-    medicineId: "clear_heart_pill",
+    medicineId: "clear_heart_countermeasure",
     trigger: "battle_cleanse",
     targetId: "player_a",
     cleansedStatusIds: ["poison"],

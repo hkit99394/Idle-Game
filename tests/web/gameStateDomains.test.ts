@@ -94,7 +94,7 @@ describe("web game state domains", () => {
       purchaseReadyState,
       createPurchaseResolvedAction(staticData, purchaseReadyState, {
         upgradeId: "hero_outer_training",
-        heroId: "iron_fist_disciple"
+        heroId: "iron_fist_initiate"
       })
     );
     const equipmentReadyState = webGameStateReducer(
@@ -104,7 +104,7 @@ describe("web game state domains", () => {
         ...state.progress,
         equipment: {
           inventory: {
-            training_wraps: 1
+            impact_training_wraps: 1
           },
           equipped: {}
         }
@@ -114,28 +114,28 @@ describe("web game state domains", () => {
       staticData,
       equipmentReadyState,
       createEquipmentEquipResolvedAction(staticData, equipmentReadyState, {
-        heroId: "iron_fist_disciple",
-        equipmentId: "training_wraps"
+        heroId: "iron_fist_initiate",
+        equipmentId: "impact_training_wraps"
       })
     );
     const assignedState = webGameStateReducer(
       staticData,
       state,
       createAssignmentUpdateResolvedAction(staticData, state, {
-        assignmentId: "bamboo_road_patrol",
-        heroIds: ["iron_fist_disciple"]
+        assignmentId: "greenline_sweep",
+        heroIds: ["iron_fist_initiate"]
       })
     );
     const counterplayState = webGameStateReducer(
       staticData,
       state,
-      createSetMedicineAutoUseAction("clear_heart_pill", false)
+      createSetMedicineAutoUseAction("clear_heart_countermeasure", false)
     );
     const tacticState = webGameStateReducer(
       staticData,
       state,
       createTacticSelectResolvedAction(staticData, state, {
-        tacticId: "sustain"
+        tacticId: "long_stabilization"
       })
     );
 
@@ -144,16 +144,16 @@ describe("web game state domains", () => {
     expect(purchasedState.progress.resources.silver).toBe(8);
     expect(equippedState.lastEquipmentAction?.ok).toBe(true);
     expect(
-      equippedState.progress.equipment?.equipped.iron_fist_disciple?.weapon
-    ).toBe("training_wraps");
+      equippedState.progress.equipment?.equipped.iron_fist_initiate?.weapon
+    ).toBe("impact_training_wraps");
     expect(assignedState.lastAssignmentAction?.ok).toBe(true);
     expect(
-      assignedState.progress.assignments?.bamboo_road_patrol?.heroIds
-    ).toEqual(["iron_fist_disciple"]);
+      assignedState.progress.assignments?.greenline_sweep?.heroIds
+    ).toEqual(["iron_fist_initiate"]);
     expect(counterplayState.autoMedicinePreferences.disabledMedicineIds).toEqual([
-      "clear_heart_pill"
+      "clear_heart_countermeasure"
     ]);
-    expect(tacticState.progress.selectedTacticId).toBe("sustain");
+    expect(tacticState.progress.selectedTacticId).toBe("long_stabilization");
   });
 
   it("keeps save/reset helpers behind the save command surface", () => {

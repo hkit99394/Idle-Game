@@ -13,7 +13,7 @@ import {
   TACTIC_BEHAVIOR_FLAGS,
   TACTIC_MODIFIER_TYPES
 } from "../types";
-import { TARGET_RULES, isTargetRule } from "../../combat";
+import { DEFAULT_TACTIC_ID, TARGET_RULES, isTargetRule } from "../../combat";
 import {
   isRecord,
   validateStats,
@@ -502,18 +502,18 @@ export function validateTacticPreset(tactic: TacticPresetDefinition): string[] {
 export function validateTacticPresets(tactics: TacticPresetDefinition[]): string[] {
   const errors: string[] = [];
   const defaultTactics = tactics.filter((tactic) => tactic.isDefault === true);
-  const balanced = tactics.find((tactic) => tactic.id === "balanced");
+  const balanced = tactics.find((tactic) => tactic.id === DEFAULT_TACTIC_ID);
 
   if (defaultTactics.length !== 1) {
     errors.push("Tactics must define exactly one default preset");
-  } else if (defaultTactics[0].id !== "balanced") {
-    errors.push("Default tactic must be balanced");
+  } else if (defaultTactics[0].id !== DEFAULT_TACTIC_ID) {
+    errors.push("Default tactic must be balanced_routine");
   }
 
   if (balanced === undefined) {
-    errors.push("Tactics must include balanced default preset");
+    errors.push("Tactics must include balanced_routine default preset");
   } else if (balanced.isDefault !== true) {
-    errors.push("Tactic balanced must be marked as the default preset");
+    errors.push("Tactic balanced_routine must be marked as the default preset");
   }
 
   for (const tactic of tactics) {

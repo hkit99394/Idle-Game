@@ -31,12 +31,12 @@ describe("status estimation helpers", () => {
   it("matches core status chance, duration, and tick formulas", () => {
     const effect: ApplyStatusSkillEffect = {
       type: "apply_status",
-      statusId: "poison",
+      statusId: "corruption",
       chance: 0.7,
       durationSeconds: 8,
       stacks: 2
     };
-    const definition = statusDefinitions.poison;
+    const definition = statusDefinitions.corruption;
     const casts = 3.5;
     const application = estimateStatusApplication({
       effect,

@@ -37,7 +37,7 @@ describe("web game state systems", () => {
     const affordableUpgrade = affordableViewModel.upgrades.find(
       (upgrade) =>
         upgrade.upgradeId === "hero_outer_training" &&
-        upgrade.heroId === "iron_fist_disciple"
+        upgrade.heroId === "iron_fist_initiate"
     );
 
     expect(affordableUpgrade).toMatchObject({
@@ -53,24 +53,24 @@ describe("web game state systems", () => {
       },
       {
         upgradeId: "hero_outer_training",
-        heroId: "iron_fist_disciple"
+        heroId: "iron_fist_initiate"
       }
     );
 
     expect(nextState.lastPurchase?.ok).toBe(true);
     expect(nextState.progress.resources.silver).toBe(8);
     expect(
-      nextState.progress.heroes.iron_fist_disciple.upgrades.hero_outer_training
+      nextState.progress.heroes.iron_fist_initiate.upgrades.hero_outer_training
     ).toBe(1);
 
     const viewModel = getWebGameViewModel(staticData, nextState);
     const ironFist = viewModel.playerCombatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const nextUpgrade = viewModel.upgrades.find(
       (upgrade) =>
         upgrade.upgradeId === "hero_outer_training" &&
-        upgrade.heroId === "iron_fist_disciple"
+        upgrade.heroId === "iron_fist_initiate"
     );
 
     expect(ironFist?.outerAttack).toBeCloseTo(19.8);
@@ -99,7 +99,7 @@ describe("web game state systems", () => {
       progress
     });
     const skillUpgrade = affordableViewModel.skillUpgrades.find(
-      (upgrade) => upgrade.skillUpgradeId === "iron_fist_combo_refinement"
+      (upgrade) => upgrade.skillUpgradeId === "impact_combo_refinement"
     );
 
     expect(skillUpgrade).toMatchObject({
@@ -116,13 +116,13 @@ describe("web game state systems", () => {
         progress
       },
       {
-        skillUpgradeId: "iron_fist_combo_refinement"
+        skillUpgradeId: "impact_combo_refinement"
       }
     );
 
     expect(nextState.lastSkillPurchase?.ok).toBe(true);
     expect(nextState.progress.resources.cultivation).toBe(12);
-    expect(nextState.progress.skillUpgrades?.iron_fist_combo_refinement).toBe(1);
+    expect(nextState.progress.skillUpgrades?.impact_combo_refinement).toBe(1);
   });
 
   it("shows equipment inventory and equips compatible gear", () => {
@@ -133,7 +133,7 @@ describe("web game state systems", () => {
         ...state.progress,
         equipment: {
           inventory: {
-            training_wraps: 1
+            impact_training_wraps: 1
           },
           equipped: {}
         }
@@ -142,35 +142,35 @@ describe("web game state systems", () => {
     const viewModel = getWebGameViewModel(staticData, lootState);
 
     expect(viewModel.equipmentInventory[0]).toMatchObject({
-      equipmentId: "training_wraps",
+      equipmentId: "impact_training_wraps",
       name: "Impact Training Wraps",
       slot: "weapon",
       rarity: "common",
       count: 1,
       availableCount: 1,
-      compatibleHeroIds: ["iron_fist_disciple"]
+      compatibleHeroIds: ["iron_fist_initiate"]
     });
 
     const beforeCp = viewModel.playerCombatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     )?.combatPower;
     const equippedState = equipGameEquipment(staticData, lootState, {
-      heroId: "iron_fist_disciple",
-      equipmentId: "training_wraps"
+      heroId: "iron_fist_initiate",
+      equipmentId: "impact_training_wraps"
     });
 
     expect(equippedState.lastEquipmentAction?.ok).toBe(true);
 
     const equippedViewModel = getWebGameViewModel(staticData, equippedState);
     const afterCp = equippedViewModel.playerCombatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     )?.combatPower;
 
     expect(equippedViewModel.heroEquipment[0].slots).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           slot: "weapon",
-          equipmentId: "training_wraps",
+          equipmentId: "impact_training_wraps",
           name: "Impact Training Wraps",
           rarity: "common"
         })
@@ -178,7 +178,7 @@ describe("web game state systems", () => {
     );
     expect(equippedViewModel.equipmentInventory[0]).toMatchObject({
       availableCount: 0,
-      compatibleHeroIds: ["iron_fist_disciple"]
+      compatibleHeroIds: ["iron_fist_initiate"]
     });
     expect(afterCp).toBeGreaterThan(beforeCp ?? 0);
   });
@@ -191,8 +191,8 @@ describe("web game state systems", () => {
         ...state.progress,
         equipment: {
           inventory: {
-            iron_thread_armor: 1,
-            fortress_guard_manual: 1
+            iron_thread_plating: 1,
+            fortress_guard_protocol: 1
           },
           equipped: {}
         }
@@ -200,7 +200,7 @@ describe("web game state systems", () => {
     });
     const inventoryViewModel = getWebGameViewModel(staticData, lootState);
     const armorView = inventoryViewModel.equipmentInventory.find(
-      (item) => item.equipmentId === "iron_thread_armor"
+      (item) => item.equipmentId === "iron_thread_plating"
     );
 
     expect(armorView).toMatchObject({
@@ -214,16 +214,16 @@ describe("web game state systems", () => {
     });
 
     const armorState = equipGameEquipment(staticData, lootState, {
-      heroId: "iron_fist_disciple",
-      equipmentId: "iron_thread_armor"
+      heroId: "iron_fist_initiate",
+      equipmentId: "iron_thread_plating"
     });
     const manualState = equipGameEquipment(staticData, armorState, {
-      heroId: "iron_fist_disciple",
-      equipmentId: "fortress_guard_manual"
+      heroId: "iron_fist_initiate",
+      equipmentId: "fortress_guard_protocol"
     });
     const equippedViewModel = getWebGameViewModel(staticData, manualState);
     const heroView = equippedViewModel.heroEquipment.find(
-      (hero) => hero.heroId === "iron_fist_disciple"
+      (hero) => hero.heroId === "iron_fist_initiate"
     );
 
     expect(heroView?.activeSetBonuses).toEqual(
@@ -236,40 +236,40 @@ describe("web game state systems", () => {
   it("shows and updates patrol assignments", () => {
     const state = createInitialWebGameState(staticData);
     const assignedState = setGameAssignmentHeroes(staticData, state, {
-      assignmentId: "bamboo_road_patrol",
-      heroIds: ["iron_fist_disciple"]
+      assignmentId: "greenline_sweep",
+      heroIds: ["iron_fist_initiate"]
     });
 
     expect(assignedState.lastAssignmentAction?.ok).toBe(true);
     expect(
-      assignedState.progress.assignments?.bamboo_road_patrol?.heroIds
-    ).toEqual(["iron_fist_disciple"]);
+      assignedState.progress.assignments?.greenline_sweep?.heroIds
+    ).toEqual(["iron_fist_initiate"]);
 
     const viewModel = getWebGameViewModel(staticData, assignedState);
     const patrol = viewModel.assignments.find(
-      (assignment) => assignment.assignmentId === "bamboo_road_patrol"
+      (assignment) => assignment.assignmentId === "greenline_sweep"
     );
 
     expect(patrol).toMatchObject({
-      assignedHeroIds: ["iron_fist_disciple"]
+      assignedHeroIds: ["iron_fist_initiate"]
     });
     expect(
-      patrol?.heroOptions.find((hero) => hero.heroId === "iron_fist_disciple")
+      patrol?.heroOptions.find((hero) => hero.heroId === "iron_fist_initiate")
     ).toMatchObject({
       assignedHere: true
     });
 
     const rejectedState = setGameAssignmentHeroes(staticData, assignedState, {
-      assignmentId: "mist_valley_meditation",
-      heroIds: ["iron_fist_disciple"]
+      assignmentId: "veil_district_calibration",
+      heroIds: ["iron_fist_initiate"]
     });
 
     expect(rejectedState.lastAssignmentAction).toMatchObject({
       ok: false,
       reason: "locked_assignment"
     });
-    expect(rejectedState.progress.assignments?.bamboo_road_patrol?.heroIds).toEqual([
-      "iron_fist_disciple"
+    expect(rejectedState.progress.assignments?.greenline_sweep?.heroIds).toEqual([
+      "iron_fist_initiate"
     ]);
   });
 
@@ -298,7 +298,7 @@ describe("web game state systems", () => {
       unlockedState,
       {
         type: "set_medicine_auto_use",
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         enabled: false
       }
     );
@@ -317,7 +317,7 @@ describe("web game state systems", () => {
     expect(disabledGlobalState.autoMedicinePreferences.enabled).toBe(false);
     expect(
       disabledMedicineState.autoMedicinePreferences.disabledMedicineIds
-    ).toEqual(["clear_heart_pill"]);
+    ).toEqual(["clear_heart_countermeasure"]);
     expect(modeState.autoMedicinePreferences.preBattleResistanceMode).toBe(
       "status_heavy"
     );
@@ -328,7 +328,7 @@ describe("web game state systems", () => {
     });
     expect(
       viewModel.counterplaySettings.medicineRows.find(
-        (medicine) => medicine.id === "clear_heart_pill"
+        (medicine) => medicine.id === "clear_heart_countermeasure"
       )
     ).toMatchObject({
       disabled: true,
@@ -353,7 +353,7 @@ describe("web game state systems", () => {
     const enabledState = resolveSelectedStageBattle(data, selectedState);
     const disabledPreferenceState = webGameStateReducer(data, selectedState, {
       type: "set_medicine_auto_use",
-      medicineId: "clear_heart_pill",
+      medicineId: "clear_heart_countermeasure",
       enabled: false
     });
     const disabledState = resolveSelectedStageBattle(
@@ -386,9 +386,9 @@ describe("web game state systems", () => {
       )
     ).toBe(true);
     expect(
-      enabledState.progress.medicineInventory?.clear_heart_pill
+      enabledState.progress.medicineInventory?.clear_heart_countermeasure
     ).toBeUndefined();
-    expect(disabledState.progress.medicineInventory?.clear_heart_pill).toBe(1);
+    expect(disabledState.progress.medicineInventory?.clear_heart_countermeasure).toBe(1);
 
     const enabledViewModel = getWebGameViewModel(data, enabledState);
     const autoMedicineEvent = enabledViewModel.battleEvents.find(
@@ -436,7 +436,7 @@ describe("web game state systems", () => {
           effects: [
             {
               type: "apply_status" as const,
-              statusId: "poison",
+              statusId: "corruption",
               chance: 1,
               durationSeconds: 8,
               stacks: 1

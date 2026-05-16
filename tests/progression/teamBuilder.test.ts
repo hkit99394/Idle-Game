@@ -35,17 +35,17 @@ describe("progress-based player team builder", () => {
   it("keeps locked roster heroes out of active team selection", () => {
     const progress = createInitialPlayerProgress(staticData);
 
-    expect(isHeroUnlocked(staticData, progress, "lotus_mending_disciple")).toBe(
+    expect(isHeroUnlocked(staticData, progress, "lotus_stabilizer")).toBe(
       false
     );
 
     const lockedResult = setActiveHeroTeam(staticData, {
       progress,
       heroIds: [
-        "iron_fist_disciple",
-        "azure_palm_monk",
-        "white_crane_swordsman",
-        "lotus_mending_disciple"
+        "iron_fist_initiate",
+        "azure_pulse_monk",
+        "white_crane_edge_runner",
+        "lotus_stabilizer"
       ]
     });
 
@@ -66,7 +66,7 @@ describe("progress-based player team builder", () => {
     }
     expect(
       teamResult.team.combatants.map((combatant) => combatant.definitionId)
-    ).not.toContain("lotus_mending_disciple");
+    ).not.toContain("lotus_stabilizer");
   });
 
   it("allows the Lotus support hero after the unlock stage is cleared", () => {
@@ -77,17 +77,17 @@ describe("progress-based player team builder", () => {
     progress.maps.lotus_clinic.highestClearedStageIndex = 3;
     progress.currentStageId = "lotus_clinic_4";
 
-    expect(isHeroUnlocked(staticData, progress, "lotus_mending_disciple")).toBe(
+    expect(isHeroUnlocked(staticData, progress, "lotus_stabilizer")).toBe(
       true
     );
 
     const activeResult = setActiveHeroTeam(staticData, {
       progress,
       heroIds: [
-        "iron_fist_disciple",
-        "azure_palm_monk",
-        "white_crane_swordsman",
-        "lotus_mending_disciple"
+        "iron_fist_initiate",
+        "azure_pulse_monk",
+        "white_crane_edge_runner",
+        "lotus_stabilizer"
       ]
     });
 
@@ -107,21 +107,21 @@ describe("progress-based player team builder", () => {
       return;
     }
     expect(teamResult.team.combatants.map((combatant) => combatant.definitionId)).toEqual([
-      "iron_fist_disciple",
-      "azure_palm_monk",
-      "white_crane_swordsman",
-      "lotus_mending_disciple"
+      "iron_fist_initiate",
+      "azure_pulse_monk",
+      "white_crane_edge_runner",
+      "lotus_stabilizer"
     ]);
     expect(
       teamResult.team.combatants.find(
-        (combatant) => combatant.definitionId === "lotus_mending_disciple"
+        (combatant) => combatant.definitionId === "lotus_stabilizer"
       )?.formationSlot
     ).toBe("back");
   });
 
   it("applies hero upgrades, sect upgrades, and map attack mastery", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.heroes.iron_fist_disciple.upgrades.hero_outer_training = 2;
+    progress.heroes.iron_fist_initiate.upgrades.hero_outer_training = 2;
     progress.sect.upgrades.sect_outer_training = 1;
     progress.sect.upgrades.sect_inner_training = 1;
     progress.maps.greenline_approach.combatExperience = 100;
@@ -134,10 +134,10 @@ describe("progress-based player team builder", () => {
     }
 
     const ironFist = result.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const baseIronFist = staticData.heroes.find(
-      (hero) => hero.id === "iron_fist_disciple"
+      (hero) => hero.id === "iron_fist_initiate"
     );
 
     expect(ironFist?.statsOverride).toBeDefined();
@@ -160,7 +160,7 @@ describe("progress-based player team builder", () => {
     const formationResult = setPlayerFormationSlot(
       staticData,
       progress,
-      "azure_palm_monk",
+      "azure_pulse_monk",
       "front"
     );
 
@@ -182,10 +182,10 @@ describe("progress-based player team builder", () => {
 
     expect(
       teamResult.team.combatants.find(
-        (combatant) => combatant.definitionId === "azure_palm_monk"
+        (combatant) => combatant.definitionId === "azure_pulse_monk"
       )?.formationSlot
     ).toBe("front");
-    expect(formationResult.progress.formation?.azure_palm_monk).toBe("front");
+    expect(formationResult.progress.formation?.azure_pulse_monk).toBe("front");
   });
 
   it("adds enemy-family mastery damage multipliers for the current stage enemy family", () => {
@@ -202,11 +202,11 @@ describe("progress-based player team builder", () => {
     }
 
     expect(normalResult.team.combatants[0].damageMultipliersByFamily).toEqual({
-      bandit: 0.03
+      greenline: 0.03
     });
     expect(bossResult.team.combatants[0].damageMultipliersByFamily).toEqual({
-      bandit: 0.03,
-      iron_fort: 0.03
+      greenline: 0.03,
+      ironwall: 0.03
     });
   });
 
@@ -226,7 +226,7 @@ describe("progress-based player team builder", () => {
 
     const enemyTeam = {
       id: "enemy" as const,
-      combatants: [{ kind: "enemy" as const, definitionId: "bamboo_bandit" }]
+      combatants: [{ kind: "enemy" as const, definitionId: "greenline_cutter" }]
     };
     const baseBattle = simulateBattle(staticData, {
       playerTeam: baseTeam.team,
@@ -263,7 +263,7 @@ describe("progress-based player team builder", () => {
 
     const enemyTeam = {
       id: "enemy" as const,
-      combatants: [{ kind: "enemy" as const, definitionId: "bamboo_bandit" }]
+      combatants: [{ kind: "enemy" as const, definitionId: "greenline_cutter" }]
     };
     const baseBattle = simulateBattle(staticData, {
       playerTeam: baseTeam.team,

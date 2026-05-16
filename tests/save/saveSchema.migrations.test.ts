@@ -59,7 +59,7 @@ describe("save schema migrations", () => {
       ).toBeGreaterThanOrEqual(result.save.createdAtMs);
       expect(result.save.offlineFarmPreset, fixture.description).toBe("balanced");
       expect(result.save.progress.selectedTacticId, fixture.description).toBe(
-        "balanced"
+        "balanced_routine"
       );
       expect(result.save.autoMedicinePreferences.preBattleResistanceMode).toBe(
         "boss_and_elite"
@@ -142,7 +142,7 @@ describe("save schema migrations", () => {
       cultivation: 950,
       herbs: 0
     });
-    expect(result.save.progress.heroes.lotus_mending_disciple).toEqual({
+    expect(result.save.progress.heroes.lotus_stabilizer).toEqual({
       level: 1,
       upgrades: {}
     });
@@ -151,19 +151,23 @@ describe("save schema migrations", () => {
       highestClearedStageIndex: 0
     });
     expect(result.save.progress.activeHeroIds).toEqual([
-      "iron_fist_disciple",
-      "azure_palm_monk",
-      "white_crane_swordsman",
-      "mountain_staff_guardian"
+      "iron_fist_initiate",
+      "azure_pulse_monk",
+      "white_crane_edge_runner",
+      "mountain_brace_guardian"
     ]);
     expect(result.save.progress.activeHeroIds).not.toContain(
-      "lotus_mending_disciple"
+      "lotus_stabilizer"
     );
     expect(result.save.progress.equipment?.inventory).toMatchObject({
-      tempered_meridian_pill: 1
+      tempered_context_stim: 1
     });
-    expect(result.save.progress.equipment?.inventory.lotus_dew_pill).toBeUndefined();
-    expect(result.save.progress.assignments?.lotus_medicine_pavilion).toBeUndefined();
+    expect(
+      result.save.progress.equipment?.inventory.lotus_dew_countermeasure
+    ).toBeUndefined();
+    expect(
+      result.save.progress.assignments?.lotus_countermeasure_pavilion
+    ).toBeUndefined();
     expect(result.save.selectedOfflineFarmStageId).toBe("black_iron_foundry_6");
   });
 
@@ -271,6 +275,278 @@ describe("save schema migrations", () => {
         }
       ])
     );
+  });
+
+  it("normalizes content alias ids to the currently configured static id side", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress: {
+        ...progress,
+        heroes: {
+          iron_fist_disciple: {
+            level: 3,
+            upgrades: {}
+          },
+          azure_palm_monk: {
+            level: 1,
+            upgrades: {}
+          }
+        },
+        activeHeroIds: [
+          "iron_fist_disciple",
+          "iron_fist_initiate",
+          "azure_palm_monk"
+        ],
+        formation: {
+          iron_fist_disciple: "front",
+          azure_palm_monk: "middle"
+        },
+        styleMastery: {
+          fist: {
+            experience: 300
+          }
+        },
+        styleBranches: {
+          fist: "iron_body_fist"
+        },
+        skillUpgrades: {
+          iron_fist_combo_refinement: 2
+        },
+        equipment: {
+          inventory: {
+            impact_training_wraps: 1
+          },
+          equipped: {
+            iron_fist_initiate: {
+              weapon: "impact_training_wraps"
+            }
+          }
+        },
+        medicineInventory: {
+          clear_heart_countermeasure: 2
+        },
+        assignments: {
+          greenline_sweep: {
+            heroIds: ["iron_fist_disciple", "iron_fist_initiate"]
+          }
+        },
+        selectedTacticId: "kinetic_crush"
+      },
+      autoMedicinePreferences: {
+        enabled: true,
+        battleCleanseEnabled: true,
+        postBattleCleanseEnabled: true,
+        preBattleResistanceEnabled: true,
+        preBattleResistanceMode: "boss_and_elite",
+        disabledMedicineIds: ["clear_heart_pill", "clear_heart_countermeasure"]
+      },
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const result = parseSaveData(staticData, save);
+
+    expect(save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.progress.heroes.iron_fist_initiate).toEqual({
+      level: 3,
+      upgrades: {}
+    });
+    expect(result.save.progress.heroes.iron_fist_disciple).toBeUndefined();
+    expect(result.save.progress.activeHeroIds).toEqual([
+      "iron_fist_initiate",
+      "azure_pulse_monk"
+    ]);
+    expect(result.save.progress.formation).toMatchObject({
+      iron_fist_initiate: "front",
+      azure_pulse_monk: "middle"
+    });
+    expect(result.save.progress.styleMastery).toEqual({
+      impact: {
+        experience: 300
+      }
+    });
+    expect(result.save.progress.styleBranches).toEqual({
+      impact: "iron_body_impact"
+    });
+    expect(result.save.progress.skillUpgrades).toEqual({
+      impact_combo_refinement: 2
+    });
+    expect(result.save.progress.equipment).toEqual({
+      inventory: {
+        impact_training_wraps: 1
+      },
+      equipped: {
+        iron_fist_initiate: {
+          weapon: "impact_training_wraps"
+        }
+      }
+    });
+    expect(result.save.progress.medicineInventory).toEqual({
+      clear_heart_countermeasure: 2
+    });
+    expect(result.save.progress.assignments).toEqual({
+      greenline_sweep: {
+        heroIds: ["iron_fist_initiate"]
+      }
+    });
+    expect(result.save.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(result.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
+      "clear_heart_countermeasure"
+    ]);
+    expect(result.migration.migrated).toBe(false);
+    expect(result.migration.normalized).toBe(true);
+    expect(result.migration.normalizations).toEqual(
+      expect.arrayContaining([
+        {
+          field: "progress.heroes.iron_fist_disciple",
+          reason: "normalized content id alias"
+        },
+        {
+          field: "progress.activeHeroIds.0",
+          reason: "normalized content id alias"
+        },
+        {
+          field: "progress.activeHeroIds.2",
+          reason: "normalized content id alias"
+        },
+        {
+          field: "autoMedicinePreferences.disabledMedicineIds.0",
+          reason: "normalized content id alias"
+        }
+      ])
+    );
+
+    const secondParse = parseSaveData(staticData, result.save);
+
+    expect(secondParse.ok).toBe(true);
+    if (!secondParse.ok) {
+      return;
+    }
+    expect(secondParse.migration.normalized).toBe(false);
+    expect(secondParse.save).toEqual(result.save);
+  });
+
+  it("migrates legacy content ids to target ids", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const rawSave = {
+      ...createSaveData({
+        progress: {
+          ...progress,
+          heroes: {
+            iron_fist_disciple: {
+              level: 3,
+              upgrades: {}
+            }
+          },
+          activeHeroIds: ["iron_fist_disciple"],
+          formation: {
+            iron_fist_disciple: "front"
+          },
+          styleMastery: {
+            fist: {
+              experience: 300
+            }
+          },
+          styleBranches: {
+            fist: "iron_body_fist"
+          },
+          skillUpgrades: {
+            iron_fist_combo_refinement: 2
+          },
+          equipment: {
+            inventory: {
+              training_wraps: 1
+            },
+            equipped: {
+              iron_fist_disciple: {
+                weapon: "training_wraps"
+              }
+            }
+          },
+          medicineInventory: {
+            clear_heart_pill: 2
+          },
+          assignments: {
+            bamboo_road_patrol: {
+              heroIds: ["iron_fist_disciple"]
+            }
+          },
+          selectedTacticId: "outer_pressure"
+        },
+        autoMedicinePreferences: {
+          enabled: true,
+          battleCleanseEnabled: true,
+          postBattleCleanseEnabled: true,
+          preBattleResistanceEnabled: true,
+          preBattleResistanceMode: "boss_and_elite",
+          disabledMedicineIds: ["clear_heart_pill"]
+        },
+        selectedOfflineFarmStageId: null,
+        nowMs: 1000
+      }),
+      version: 11
+    };
+    const migration = migrateSaveData(staticData, rawSave);
+
+    expect(migration.ok).toBe(true);
+    if (!migration.ok) {
+      return;
+    }
+
+    const migratedSave = migration.save as ReturnType<typeof createSaveData>;
+
+    expect(migratedSave.progress.heroes.iron_fist_initiate).toEqual({
+      level: 3,
+      upgrades: {}
+    });
+    expect(migratedSave.progress.heroes.iron_fist_disciple).toBeUndefined();
+    expect(migratedSave.progress.activeHeroIds).toEqual(["iron_fist_initiate"]);
+    expect(migratedSave.progress.formation).toMatchObject({
+      iron_fist_initiate: "front"
+    });
+    expect(migratedSave.progress.styleMastery).toEqual({
+      impact: {
+        experience: 300
+      }
+    });
+    expect(migratedSave.progress.styleBranches).toEqual({
+      impact: "iron_body_impact"
+    });
+    expect(migratedSave.progress.skillUpgrades).toEqual({
+      impact_combo_refinement: 2
+    });
+    expect(migratedSave.progress.equipment).toEqual({
+      inventory: {
+        impact_training_wraps: 1
+      },
+      equipped: {
+        iron_fist_initiate: {
+          weapon: "impact_training_wraps"
+        }
+      }
+    });
+    expect(migratedSave.progress.medicineInventory).toEqual({
+      clear_heart_countermeasure: 2
+    });
+    expect(migratedSave.progress.assignments).toEqual({
+      greenline_sweep: {
+        heroIds: ["iron_fist_initiate"]
+      }
+    });
+    expect(migratedSave.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(migratedSave.autoMedicinePreferences.disabledMedicineIds).toEqual([
+      "clear_heart_countermeasure"
+    ]);
+    expect(migration).toMatchObject({
+      fromVersion: 11,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true,
+      normalized: true
+    });
   });
 
   it("preserves canonical map entries when legacy and canonical keys collide", () => {
@@ -394,14 +670,14 @@ describe("save schema migrations", () => {
       ...save,
       autoMedicinePreferences: {
         ...save.autoMedicinePreferences,
-        disabledMedicineIds: ["clear_heart_pill"]
+        disabledMedicineIds: ["clear_heart_countermeasure"]
       }
     };
     const invalidSave = {
       ...validSave,
       autoMedicinePreferences: {
         ...validSave.autoMedicinePreferences,
-        disabledMedicineIds: ["clear_heart_pill", "missing_medicine"]
+        disabledMedicineIds: ["clear_heart_countermeasure", "missing_medicine"]
       }
     };
     const result = parseSaveData(staticData, validSave);
@@ -412,7 +688,7 @@ describe("save schema migrations", () => {
       return;
     }
     expect(result.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
-      "clear_heart_pill"
+      "clear_heart_countermeasure"
     ]);
     expect(validateSaveData(staticData, invalidSave)).toContain(
       "autoMedicinePreferences.disabledMedicineIds.1 must reference an existing medicine"
@@ -487,14 +763,14 @@ describe("save schema migrations", () => {
         ...save.progress,
         formation: {
           ...save.progress.formation,
-          iron_fist_disciple: "left"
+          iron_fist_initiate: "left"
         }
       }
     };
 
     expect(validateSaveData(staticData, oldSave)).toEqual([]);
     expect(validateSaveData(staticData, badSave)).toContain(
-      "progress.formation.iron_fist_disciple must be front, middle, or back"
+      "progress.formation.iron_fist_initiate must be front, middle, or back"
     );
   });
 
@@ -570,10 +846,10 @@ describe("save schema migrations", () => {
       "progress.activeHeroIds.missing_hero must reference an existing hero"
     );
     expect(validateSaveData(staticData, lockedHeroSave)).toContain(
-      "progress.activeHeroIds.lotus_mending_disciple must be unlocked by saved progress"
+      "progress.activeHeroIds.lotus_stabilizer must be unlocked by saved progress"
     );
     expect(validateSaveData(staticData, duplicateHeroSave)).toContain(
-      "progress.activeHeroIds.iron_fist_disciple is duplicated"
+      "progress.activeHeroIds.iron_fist_initiate is duplicated"
     );
     expect(
       validateSaveData(staticData, {
@@ -624,8 +900,8 @@ describe("save schema migrations", () => {
       expect.arrayContaining([
         "progress.styleMastery.missing_style must reference an existing style",
         "progress.styleBranches.missing_style must reference an existing style",
-        "progress.styleBranches.fist must be unlocked by saved progress",
-        "progress.styleBranches.palm must select a branch from style palm",
+        "progress.styleBranches.impact must be unlocked by saved progress",
+        "progress.styleBranches.pulse must select a branch from style pulse",
         "progress.skillUpgrades.missing_skill_upgrade must reference an existing skill upgrade"
       ])
     );
@@ -711,14 +987,14 @@ describe("save schema migrations", () => {
         equipment: {
           inventory: {
             missing_equipment: 1,
-            training_wraps: 1.5
+            impact_training_wraps: 1.5
           },
           equipped: {
             missing_hero: {
-              weapon: "training_wraps"
+              weapon: "impact_training_wraps"
             },
             iron_fist_disciple: {
-              trinket: "training_wraps",
+              trinket: "impact_training_wraps",
               armor: "missing_equipment"
             }
           }
@@ -730,10 +1006,10 @@ describe("save schema migrations", () => {
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
         "progress.equipment.inventory.missing_equipment must reference an existing equipment item",
-        "progress.equipment.inventory.training_wraps must be an integer >= 0",
+        "progress.equipment.inventory.impact_training_wraps must be an integer >= 0",
         "progress.equipment.equipped.missing_hero must reference an existing hero",
-        "progress.equipment.equipped.iron_fist_disciple.trinket must be weapon, armor, manual, or medicine",
-        "progress.equipment.equipped.iron_fist_disciple.armor must reference an existing equipment item"
+        "progress.equipment.equipped.iron_fist_initiate.trinket must be weapon, armor, manual, or medicine",
+        "progress.equipment.equipped.iron_fist_initiate.armor must reference an existing equipment item"
       ])
     );
   });
@@ -774,10 +1050,10 @@ describe("save schema migrations", () => {
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
         "progress.assignments.missing_assignment must reference an existing assignment",
-        "progress.assignments.bamboo_road_patrol.heroIds.missing_hero must reference an existing hero",
-        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_disciple is already assigned",
-        "progress.assignments.mist_valley_meditation.heroIds.iron_fist_disciple is not eligible",
-        "progress.assignments.mist_valley_meditation must be unlocked by saved progress"
+        "progress.assignments.greenline_sweep.heroIds.missing_hero must reference an existing hero",
+        "progress.assignments.veil_district_calibration.heroIds.iron_fist_initiate is already assigned",
+        "progress.assignments.veil_district_calibration.heroIds.iron_fist_initiate is not eligible",
+        "progress.assignments.veil_district_calibration must be unlocked by saved progress"
       ])
     );
   });

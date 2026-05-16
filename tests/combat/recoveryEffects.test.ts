@@ -409,16 +409,16 @@ describe("recovery and wound effects", () => {
         combatants: [
           {
             kind: "hero",
-            definitionId: "white_crane_swordsman",
+            definitionId: "white_crane_edge_runner",
             skillUpgradeLevels: {
-              white_crane_slash_refinement: 3
+              white_crane_edge_refinement: 3
             }
           }
         ]
       },
       enemyTeam: {
         id: "enemy",
-        combatants: [{ kind: "enemy", definitionId: "lotus_mender" }]
+        combatants: [{ kind: "enemy", definitionId: "lotus_clinic_stabilizer" }]
       },
       maxDurationSeconds: 6
     });
@@ -427,7 +427,7 @@ describe("recovery and wound effects", () => {
       result.events.some(
         (event) =>
           event.type === "wound" &&
-          event.sourceId === "player_white_crane_swordsman_1"
+          event.sourceId === "player_white_crane_edge_runner_1"
       )
     ).toBe(true);
     expect(result.metrics.woundsTriggeredByPlayer).toBeGreaterThan(0);

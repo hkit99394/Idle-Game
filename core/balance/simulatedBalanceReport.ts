@@ -811,30 +811,30 @@ function getFirstPlayerAttackTargetId(
 }
 
 function buildFormationScenarioReport(data: StaticGameData) {
-  const bandit = data.enemies.find((enemy) => enemy.id === "bamboo_bandit");
+  const cutter = data.enemies.find((enemy) => enemy.id === "greenline_cutter");
 
-  if (!bandit) {
-    throw new Error("Missing enemy bamboo_bandit");
+  if (!cutter) {
+    throw new Error("Missing enemy greenline_cutter");
   }
 
   const frontLineScenario = simulateBattle(data, {
     playerTeam: {
       id: "player",
-      combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+      combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
     },
     enemyTeam: {
       id: "enemy",
       combatants: [
         {
           kind: "enemy",
-          definitionId: "bamboo_bandit",
-          instanceId: "back_bandit",
+          definitionId: "greenline_cutter",
+          instanceId: "back_cutter",
           formationSlot: "back"
         },
         {
           kind: "enemy",
-          definitionId: "bamboo_bandit",
-          instanceId: "front_bandit",
+          definitionId: "greenline_cutter",
+          instanceId: "front_cutter",
           formationSlot: "front"
         }
       ]
@@ -844,7 +844,7 @@ function buildFormationScenarioReport(data: StaticGameData) {
   const highestCpData: StaticGameData = {
     ...data,
     skills: data.skills.map((skill) =>
-      skill.id === "iron_fist_combo"
+      skill.id === "impact_combo"
         ? {
             ...skill,
             targetRule: "highest_cp" as const
@@ -855,25 +855,25 @@ function buildFormationScenarioReport(data: StaticGameData) {
   const highestCpScenario = simulateBattle(highestCpData, {
     playerTeam: {
       id: "player",
-      combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+      combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
     },
     enemyTeam: {
       id: "enemy",
       combatants: [
         {
           kind: "enemy",
-          definitionId: "bamboo_bandit",
+          definitionId: "greenline_cutter",
           instanceId: "front_guard",
           formationSlot: "front"
         },
         {
           kind: "enemy",
-          definitionId: "bamboo_bandit",
+          definitionId: "greenline_cutter",
           instanceId: "back_threat",
           formationSlot: "back",
           statsOverride: {
-            ...bandit.baseStats,
-            outerAttack: bandit.baseStats.outerAttack * 8
+            ...cutter.baseStats,
+            outerAttack: cutter.baseStats.outerAttack * 8
           }
         }
       ]

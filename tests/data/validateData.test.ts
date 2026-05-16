@@ -65,7 +65,7 @@ describe("static game data validation", () => {
           : stage
       ),
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "lotus_mending_disciple"
+        hero.id === "lotus_stabilizer"
           ? {
               ...hero,
               unlock: { type: "stage_cleared", stageId: "lotus_monastery_3" }
@@ -73,7 +73,7 @@ describe("static game data validation", () => {
           : hero
       ),
       medicines: staticData.medicines.map((medicine) =>
-        medicine.id === "clear_heart_pill"
+        medicine.id === "clear_heart_countermeasure"
           ? {
               ...medicine,
               unlock: { type: "stage_cleared", stageId: "bamboo_road_10" }
@@ -81,7 +81,7 @@ describe("static game data validation", () => {
           : medicine
       ),
       assignments: staticData.assignments?.map((assignment) => {
-        if (assignment.id === "bamboo_road_patrol") {
+        if (assignment.id === "greenline_sweep") {
           return {
             ...assignment,
             rewardProfile: {
@@ -91,7 +91,7 @@ describe("static game data validation", () => {
           };
         }
 
-        if (assignment.id === "mist_valley_meditation") {
+        if (assignment.id === "veil_district_calibration") {
           return {
             ...assignment,
             unlockCondition: {
@@ -104,11 +104,11 @@ describe("static game data validation", () => {
         return assignment;
       }),
       styles: staticData.styles.map((style) =>
-        style.id === "leg"
+        style.id === "vector"
           ? {
               ...style,
               branches: style.branches.map((branch) =>
-                branch.id === "wind_step_leg"
+                branch.id === "wind_step_vector"
                   ? {
                       ...branch,
                       unlock: {
@@ -133,11 +133,11 @@ describe("static game data validation", () => {
         "Stage bamboo_road_1 id must use canonical stage id greenline_approach_1 instead of legacy bamboo_road_1",
         "Stage bamboo_road_1 regionId must use canonical region id greenline_approach instead of legacy bamboo_road",
         "Stage bamboo_road_1 nextStageId must use canonical stage id greenline_approach_2 instead of legacy bamboo_road_2",
-        "Hero lotus_mending_disciple unlock.stageId must use canonical stage id lotus_clinic_3 instead of legacy lotus_monastery_3",
-        "Medicine clear_heart_pill unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
-        "Assignment bamboo_road_patrol rewardProfile.mapRegionId must use canonical region id greenline_approach instead of legacy bamboo_road",
-        "Assignment mist_valley_meditation unlockCondition.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
-        "Style branch leg.wind_step_leg unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10"
+        "Hero lotus_stabilizer unlock.stageId must use canonical stage id lotus_clinic_3 instead of legacy lotus_monastery_3",
+        "Medicine clear_heart_countermeasure unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
+        "Assignment greenline_sweep rewardProfile.mapRegionId must use canonical region id greenline_approach instead of legacy bamboo_road",
+        "Assignment veil_district_calibration unlockCondition.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
+        "Style branch vector.wind_step_vector unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10"
       ])
     );
   });
@@ -170,7 +170,7 @@ describe("static game data validation", () => {
           : stage
       ),
       assignments: staticData.assignments?.map((assignment) =>
-        assignment.id === "lotus_medicine_pavilion"
+        assignment.id === "lotus_countermeasure_pavilion"
           ? {
               ...assignment,
               rewardProfile: {
@@ -185,7 +185,7 @@ describe("static game data validation", () => {
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
         "Stage lotus_clinic_1 rewards must be non-negative",
-        "Assignment lotus_medicine_pavilion reward values must be non-negative numbers"
+        "Assignment lotus_countermeasure_pavilion reward values must be non-negative numbers"
       ])
     );
   });
@@ -194,12 +194,12 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "bamboo_bandit" ? { ...enemy, level: 0 } : enemy
+        enemy.id === "greenline_cutter" ? { ...enemy, level: 0 } : enemy
       )
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Enemy bamboo_bandit level must be an integer >= 1"
+      "Enemy greenline_cutter level must be an integer >= 1"
     );
   });
 
@@ -207,17 +207,17 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "iron_fist_disciple"
+        hero.id === "iron_fist_initiate"
           ? { ...hero, combatRole: "duelist" }
           : hero
       ),
       enemies: staticData.enemies.map((enemy) =>
-        enemy.id === "bamboo_bandit"
+        enemy.id === "greenline_cutter"
           ? { ...enemy, combatRole: "ambusher" }
           : enemy
       ),
       skills: staticData.skills.map((skill) =>
-        skill.id === "iron_fist_combo"
+        skill.id === "impact_combo"
           ? { ...skill, targetRule: "nearest" }
           : skill
       )
@@ -225,9 +225,9 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Hero iron_fist_disciple combatRole must be one of tank, breaker, striker, support",
-        "Enemy bamboo_bandit combatRole must be one of tank, breaker, striker, support",
-        "Skill iron_fist_combo targetRule must be one of first_living, weakest_hp, highest_cp, inner_broken"
+        "Hero iron_fist_initiate combatRole must be one of tank, breaker, striker, support",
+        "Enemy greenline_cutter combatRole must be one of tank, breaker, striker, support",
+        "Skill impact_combo targetRule must be one of first_living, weakest_hp, highest_cp, inner_broken"
       ])
     );
   });
@@ -236,7 +236,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "iron_fist_disciple"
+        hero.id === "iron_fist_initiate"
           ? {
               ...hero,
               style: "missing_style"
@@ -244,7 +244,7 @@ describe("static game data validation", () => {
           : hero
       ),
       skillUpgrades: staticData.skillUpgrades.map((upgrade) =>
-        upgrade.id === "iron_fist_combo_refinement"
+        upgrade.id === "impact_combo_refinement"
           ? {
               ...upgrade,
               skillId: "missing_skill"
@@ -255,8 +255,8 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Hero iron_fist_disciple references missing style missing_style",
-        "Skill upgrade iron_fist_combo_refinement references missing skill missing_skill"
+        "Hero iron_fist_initiate references missing style missing_style",
+        "Skill upgrade impact_combo_refinement references missing skill missing_skill"
       ])
     );
   });
@@ -265,7 +265,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "lotus_mending_disciple"
+        hero.id === "lotus_stabilizer"
           ? {
               ...hero,
               unlock: {
@@ -278,7 +278,7 @@ describe("static game data validation", () => {
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Hero lotus_mending_disciple references missing unlock stage missing_stage"
+      "Hero lotus_stabilizer references missing unlock stage missing_stage"
     );
   });
 
@@ -286,7 +286,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       skills: staticData.skills.map((skill) =>
-        skill.id === "iron_fist_combo"
+        skill.id === "impact_combo"
           ? {
               ...skill,
               effects: [
@@ -306,9 +306,9 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break, apply_status",
-        "Skill iron_fist_combo effect unknown_effect value must be a number",
-        "Skill iron_fist_combo effect guard durationSeconds must be a positive number"
+        "Skill impact_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break, apply_status",
+        "Skill impact_combo effect unknown_effect value must be a number",
+        "Skill impact_combo effect guard durationSeconds must be a positive number"
       ])
     );
   });
@@ -317,7 +317,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       skills: staticData.skills.map((skill) =>
-        skill.id === "iron_fist_combo"
+        skill.id === "impact_combo"
           ? {
               ...skill,
               effects: [
@@ -337,11 +337,11 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Skill iron_fist_combo effect apply_status references missing status missing_status",
-        "Skill iron_fist_combo effect apply_status chance must be 0-1",
-        "Skill iron_fist_combo effect apply_status stacks must be positive",
-        "Skill iron_fist_combo effect apply_status target must be one of self, target, lowest_outer_hp_ally, lowest_inner_qi_ally, wounded_or_armor_broken_ally",
-        "Skill iron_fist_combo effect apply_status durationSeconds must be a positive number"
+        "Skill impact_combo effect apply_status references missing status missing_status",
+        "Skill impact_combo effect apply_status chance must be 0-1",
+        "Skill impact_combo effect apply_status stacks must be positive",
+        "Skill impact_combo effect apply_status target must be one of self, target, lowest_outer_hp_ally, lowest_inner_qi_ally, wounded_or_armor_broken_ally",
+        "Skill impact_combo effect apply_status durationSeconds must be a positive number"
       ])
     );
   });
@@ -351,7 +351,7 @@ describe("static game data validation", () => {
       ...staticData,
       tactics: [
         ...staticData.tactics.map((tactic) =>
-          tactic.id === "balanced" ? { ...tactic, isDefault: false } : tactic
+          tactic.id === "balanced_routine" ? { ...tactic, isDefault: false } : tactic
         ),
         {
           id: "broken_tactic",
@@ -385,7 +385,7 @@ describe("static game data validation", () => {
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
         "Tactics must define exactly one default preset",
-        "Tactic balanced must be marked as the default preset",
+        "Tactic balanced_routine must be marked as the default preset",
         "Tactic broken_tactic must define a name",
         "Tactic broken_tactic must define a description",
         "Tactic broken_tactic isDefault must be a boolean",
@@ -408,14 +408,14 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       tactics: staticData.tactics.map((tactic) =>
-        tactic.id === "outer_pressure"
+        tactic.id === "kinetic_crush"
           ? {
               ...tactic,
               behaviorFlags: ["damage"],
               targetPriorities: ["weakest_hp"],
               modifiers: []
             }
-          : tactic.id === "balanced"
+          : tactic.id === "balanced_routine"
             ? {
                 ...tactic,
                 behaviorFlags: ["targeting"],
@@ -433,11 +433,11 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Tactic balanced is the default tactic and must not define behavior flags",
-        "Tactic balanced is the default tactic and must not define target priorities",
-        "Tactic balanced is the default tactic and must not define modifiers",
-        "Tactic outer_pressure targetPriorities requires behavior flag targeting",
-        "Tactic outer_pressure behavior flag damage requires at least one matching modifier"
+        "Tactic balanced_routine is the default tactic and must not define behavior flags",
+        "Tactic balanced_routine is the default tactic and must not define target priorities",
+        "Tactic balanced_routine is the default tactic and must not define modifiers",
+        "Tactic kinetic_crush targetPriorities requires behavior flag targeting",
+        "Tactic kinetic_crush behavior flag damage requires at least one matching modifier"
       ])
     );
   });
@@ -446,7 +446,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       styles: staticData.styles.map((style) =>
-        style.id === "fist"
+        style.id === "impact"
           ? {
               ...style,
               branches: style.branches.map((branch) => ({
@@ -467,10 +467,10 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Style branch fist.iron_body_fist hiddenInMvp must be a boolean",
-        "Style branch fist.iron_body_fist effect type must be stat_multiplier",
-        "Style branch fist.iron_body_fist effect stat luck must be a valid base stat",
-        "Style branch fist.iron_body_fist effect value must be a number"
+        "Style branch impact.iron_body_impact hiddenInMvp must be a boolean",
+        "Style branch impact.iron_body_impact effect type must be stat_multiplier",
+        "Style branch impact.iron_body_impact effect stat luck must be a valid base stat",
+        "Style branch impact.iron_body_impact effect value must be a number"
       ])
     );
   });
@@ -551,7 +551,7 @@ describe("static game data validation", () => {
                   maxApplications: 2,
                   maxExpectedDamage: -1,
                   maxMedicineConsumed: "none",
-                  expectedStatusIds: ["poison", 7]
+                  expectedStatusIds: ["corruption", 7]
                 },
                 defensePressure: {
                   minGuardAbsorbs: -1
@@ -826,7 +826,7 @@ describe("static game data validation", () => {
                 bossGate: region.balanceTargets?.bossGate,
                 statusPressure: {
                   ...region.balanceTargets?.statusPressure,
-                  expectedStatusIds: ["poison", "missing_status"]
+                  expectedStatusIds: ["corruption", "missing_status"]
                 }
               }
             }
@@ -843,7 +843,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       equipment: staticData.equipment.map((equipment) =>
-        equipment.id === "training_wraps"
+        equipment.id === "impact_training_wraps"
           ? {
               ...equipment,
               slot: "trinket",
@@ -876,12 +876,12 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Equipment training_wraps slot must be one of weapon, armor, manual, medicine",
-        "Equipment training_wraps rarity must be one of common, uncommon, rare",
-        "Equipment training_wraps references missing style missing_style",
-        "Equipment training_wraps effect stat luck must be a valid base stat",
-        "Equipment training_wraps effect mode must be one of flat, multiplier",
-        "Equipment training_wraps effect value must be a number",
+        "Equipment impact_training_wraps slot must be one of weapon, armor, manual, medicine",
+        "Equipment impact_training_wraps rarity must be one of common, uncommon, rare",
+        "Equipment impact_training_wraps references missing style missing_style",
+        "Equipment impact_training_wraps effect stat luck must be a valid base stat",
+        "Equipment impact_training_wraps effect mode must be one of flat, multiplier",
+        "Equipment impact_training_wraps effect value must be a number",
         "Stage greenline_approach_1 references missing equipment missing_equipment",
         "Stage greenline_approach_1 equipment drop quantity must be an integer >= 1"
       ])
@@ -892,7 +892,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       equipment: staticData.equipment.map((equipment) =>
-        equipment.id === "training_wraps"
+        equipment.id === "impact_training_wraps"
           ? {
               ...equipment,
               setId: "missing_set",
@@ -944,13 +944,13 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Equipment training_wraps references missing equipment set missing_set",
-        "Equipment training_wraps affix cracked must define a name",
-        "Equipment training_wraps affix cracked effect stat luck must be a valid base stat",
-        "Equipment training_wraps affix cracked effect mode must be one of flat, multiplier",
-        "Equipment training_wraps affix cracked effect value must be a number",
-        "Equipment training_wraps affix cracked is duplicated",
-        "Equipment training_wraps affix cracked must define at least one effect",
+        "Equipment impact_training_wraps references missing equipment set missing_set",
+        "Equipment impact_training_wraps affix cracked must define a name",
+        "Equipment impact_training_wraps affix cracked effect stat luck must be a valid base stat",
+        "Equipment impact_training_wraps affix cracked effect mode must be one of flat, multiplier",
+        "Equipment impact_training_wraps affix cracked effect value must be a number",
+        "Equipment impact_training_wraps affix cracked is duplicated",
+        "Equipment impact_training_wraps affix cracked must define at least one effect",
         "Equipment set broken_set must define a name",
         "Equipment set broken_set bonus pieces must be an integer >= 2",
         "Equipment set broken_set bonus 1 effect stat luck must be a valid base stat",

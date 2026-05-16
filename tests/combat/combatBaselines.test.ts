@@ -121,7 +121,7 @@ describe("combat baseline traces", () => {
         sourceId: "enemy_scenario_trace_poisoner_3",
         targetId: "player_scenario_trace_striker_1",
         skillId: "scenario_poison_touch",
-        statusId: "poison"
+        statusId: "corruption"
       },
       {
         type: "guard_absorb",
@@ -215,22 +215,22 @@ describe("combat baseline traces", () => {
         sourceId: "enemy_scenario_auto_medicine_poisoner_1",
         targetId: ids.targetId,
         skillId: ids.skillId,
-        statusId: "poison"
+        statusId: "corruption"
       },
       {
         type: "auto_medicine",
         time: 1,
         targetId: ids.targetId,
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         trigger: "battle_cleanse"
       }
     ]);
     expect(result.battle.autoMedicine.uses).toEqual([
       expect.objectContaining({
         trigger: "battle_cleanse",
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         targetId: ids.targetId,
-        cleansedStatusIds: ["poison"]
+        cleansedStatusIds: ["corruption"]
       })
     ]);
   });

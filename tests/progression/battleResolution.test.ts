@@ -71,11 +71,11 @@ describe("stage battle resolution", () => {
     });
     expect(result.equipmentRewards).toEqual([
       {
-        equipmentId: "training_wraps",
+        equipmentId: "impact_training_wraps",
         quantity: 1
       }
     ]);
-    expect(getEquipmentInventoryCount(result.progress, "training_wraps")).toBe(1);
+    expect(getEquipmentInventoryCount(result.progress, "impact_training_wraps")).toBe(1);
     expect(result.masteryRanksBefore).toEqual([]);
     expect(result.masteryRanksAfter).toEqual([]);
     expect(result.newlyReachedMasteryRanks).toEqual([]);
@@ -170,7 +170,7 @@ describe("stage battle resolution", () => {
           ? {
               ...stage,
               enemyTeam: {
-                combatantIds: ["black_iron_guard"]
+                combatantIds: ["ironwall_guard"]
               }
             }
           : stage
@@ -265,10 +265,10 @@ describe("stage battle resolution", () => {
     expect(enabledResult.battle.autoMedicine.uses).toEqual([
       expect.objectContaining({
         trigger: "battle_cleanse",
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         timeSeconds: 1,
         targetId: ids.targetId,
-        cleansedStatusIds: ["poison"]
+        cleansedStatusIds: ["corruption"]
       })
     ]);
     expect(enabledResult.battle.events).toEqual(
@@ -278,8 +278,8 @@ describe("stage battle resolution", () => {
           time: 1,
           targetId: ids.targetId,
           trigger: "battle_cleanse",
-          medicineId: "clear_heart_pill",
-          cleansedStatusIds: ["poison"]
+          medicineId: "clear_heart_countermeasure",
+          cleansedStatusIds: ["corruption"]
         })
       ])
     );
@@ -308,7 +308,7 @@ describe("stage battle resolution", () => {
       {
         type: "status_apply",
         targetId: ids.targetId,
-        statusId: "poison",
+        statusId: "corruption",
         medicineId: null,
         trigger: null
       },
@@ -316,12 +316,12 @@ describe("stage battle resolution", () => {
         type: "auto_medicine",
         targetId: ids.targetId,
         statusId: null,
-        medicineId: "clear_heart_pill",
+        medicineId: "clear_heart_countermeasure",
         trigger: "battle_cleanse"
       }
     ]);
-    expect(enabledResult.progress.medicineInventory?.clear_heart_pill).toBeUndefined();
-    expect(disabledResult.progress.medicineInventory?.clear_heart_pill).toBe(1);
+    expect(enabledResult.progress.medicineInventory?.clear_heart_countermeasure).toBeUndefined();
+    expect(disabledResult.progress.medicineInventory?.clear_heart_countermeasure).toBe(1);
     expect(enabledResult.battle.finalPlayerTeam[0]?.outerHp).toBeGreaterThan(
       disabledResult.battle.finalPlayerTeam[0]?.outerHp ?? 0
     );
@@ -344,8 +344,8 @@ describe("stage battle resolution", () => {
       skillCooldownSeconds: 0.1,
       statusEffects: [
         {
-          statusId: "poison",
-          chance: 0.85,
+          statusId: "corruption",
+          chance: 1,
           durationSeconds: 4,
           stacks: 1
         }
@@ -432,7 +432,7 @@ describe("stage battle resolution", () => {
       skillCooldownSeconds: 0.1,
       statusEffects: [
         {
-          statusId: "poison",
+          statusId: "corruption",
           chance: 0.85,
           durationSeconds: 4,
           stacks: 1
@@ -491,7 +491,7 @@ describe("stage battle resolution", () => {
           targetId: "player_scenario_cleanse_patient_1",
           trigger: "battle_cleanse",
           medicineId,
-          cleansedStatusIds: ["poison"],
+          cleansedStatusIds: ["corruption"],
           statusResistanceBonus: 0.8,
           statusResistanceDurationSeconds: 1.5
         })
@@ -508,7 +508,7 @@ describe("stage battle resolution", () => {
     expect(result.battle.finalPlayerTeam[0]?.activeStatuses).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          statusId: "poison"
+          statusId: "corruption"
         })
       ])
     );

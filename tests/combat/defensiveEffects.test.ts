@@ -24,7 +24,7 @@ function createHero(id: string, skillIds: string[], stats: Partial<BaseStats> = 
   return {
     id,
     name: id,
-    style: "fist" as const,
+    style: "impact" as const,
     role: "Scenario",
     combatRole: "striker" as const,
     baseStats: {
@@ -43,7 +43,7 @@ function createEnemy(id: string, skillIds: string[], stats: Partial<BaseStats> =
     name: id,
     family: "scenario",
     type: "normal" as const,
-    style: "blade" as const,
+    style: "rend" as const,
     combatRole: "striker" as const,
     level: 1,
     baseStats: {
@@ -134,14 +134,14 @@ function createDefensiveData(): StaticGameData {
         speed: 100,
         maxOuterHp: 2000
       }),
-      createHero("scenario_front_target", ["basic_strike"], {
+      createHero("scenario_front_target", ["baseline_strike"], {
         maxOuterHp: 2000
       }),
-      createHero("scenario_middle_target", ["basic_strike"], {
+      createHero("scenario_middle_target", ["baseline_strike"], {
         maxOuterHp: 2000,
         outerAttack: 80
       }),
-      createHero("scenario_back_target", ["basic_strike"], {
+      createHero("scenario_back_target", ["baseline_strike"], {
         maxOuterHp: 2000,
         outerAttack: 100
       })

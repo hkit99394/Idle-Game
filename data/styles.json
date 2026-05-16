@@ -1,15 +1,15 @@
 [
   {
-    "id": "fist",
+    "id": "impact",
     "name": "Impact Style",
     "bonuses": [
       { "stat": "outerAttack", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
-        "id": "iron_body_fist",
+        "id": "iron_body_impact",
         "name": "Iron Body Impact",
-        "unlock": { "type": "hero_level", "heroId": "iron_fist_disciple", "level": 3 },
+        "unlock": { "type": "hero_level", "heroId": "iron_fist_initiate", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
           { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.06 },
@@ -19,16 +19,16 @@
     ]
   },
   {
-    "id": "palm",
+    "id": "pulse",
     "name": "Pulse Style",
     "bonuses": [
       { "stat": "innerAttack", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
-        "id": "cloud_meridian_palm",
+        "id": "cloud_context_pulse",
         "name": "Cloud Context Pulse",
-        "unlock": { "type": "style_mastery_level", "styleId": "palm", "level": 2 },
+        "unlock": { "type": "style_mastery_level", "styleId": "pulse", "level": 2 },
         "hiddenInMvp": false,
         "effects": [
           { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.05 },
@@ -38,14 +38,14 @@
     ]
   },
   {
-    "id": "leg",
+    "id": "vector",
     "name": "Vector Style",
     "bonuses": [
       { "stat": "speed", "effectPerLevel": 0.01 }
     ],
     "branches": [
       {
-        "id": "wind_step_leg",
+        "id": "wind_step_vector",
         "name": "Wind Step Vector",
         "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
@@ -56,7 +56,7 @@
     ]
   },
   {
-    "id": "sword",
+    "id": "edge",
     "name": "Edge Style",
     "bonuses": [
       { "stat": "outerAttack", "effectPerLevel": 0.006 },
@@ -64,9 +64,9 @@
     ],
     "branches": [
       {
-        "id": "white_crane_sword",
+        "id": "white_crane_edge_branch",
         "name": "White Crane Edge",
-        "unlock": { "type": "hero_level", "heroId": "white_crane_swordsman", "level": 3 },
+        "unlock": { "type": "hero_level", "heroId": "white_crane_edge_runner", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
           { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.03 },
@@ -77,7 +77,7 @@
     ]
   },
   {
-    "id": "blade",
+    "id": "rend",
     "name": "Rend Style",
     "bonuses": [
       { "stat": "outerAttack", "effectPerLevel": 0.008 },
@@ -85,7 +85,7 @@
     ],
     "branches": [
       {
-        "id": "black_iron_blade",
+        "id": "black_iron_rend",
         "name": "Black Iron Rend",
         "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
@@ -97,7 +97,7 @@
     ]
   },
   {
-    "id": "staff",
+    "id": "brace",
     "name": "Brace Style",
     "bonuses": [
       { "stat": "maxOuterHp", "effectPerLevel": 0.008 },
@@ -105,9 +105,9 @@
     ],
     "branches": [
       {
-        "id": "mountain_guard_staff",
+        "id": "mountain_guard_brace",
         "name": "Mountain Guard Brace",
-        "unlock": { "type": "hero_level", "heroId": "mountain_staff_guardian", "level": 3 },
+        "unlock": { "type": "hero_level", "heroId": "mountain_brace_guardian", "level": 3 },
         "hiddenInMvp": false,
         "effects": [
           { "type": "stat_multiplier", "stat": "maxOuterHp", "value": 0.04 },
@@ -117,7 +117,7 @@
     ]
   },
   {
-    "id": "hidden_weapons",
+    "id": "ghostware",
     "name": "Ghostware Style",
     "bonuses": [
       { "stat": "innerAttack", "effectPerLevel": 0.006 },
@@ -125,7 +125,7 @@
     ],
     "branches": [
       {
-        "id": "rain_needle_art",
+        "id": "rain_needle_ghostware",
         "name": "Rain Needle Ghostware",
         "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
