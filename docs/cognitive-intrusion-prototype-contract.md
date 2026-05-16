@@ -24,8 +24,8 @@ Add one live mechanic: **Intrusion** is a Cognitive status that makes a target m
 Recommended first implementation:
 
 - Add a new static status id, `cognitive_intrusion`, with display name **Intrusion**.
-- Add a status effect modifier for Cognitive damage taken, for example `innerDamageTakenMultiplier`, so Intrusion can make Context Stability pressure visibly stronger.
-- Keep the existing `innerRecoveryMultiplier` effect available for the same status, but avoid adding more status effect keys in the first slice.
+- Add a status effect modifier for Cognitive damage taken, for example `cognitiveDamageTakenMultiplier`, so Intrusion can make Context Stability pressure visibly stronger.
+- Keep the existing `contextRebuildMultiplier` effect available for the same status, but avoid adding more status effect keys in the first slice.
 - Attach Intrusion through a narrow player-side upgrade path, preferably Azure Pulse Monk's `context_shock_refinement`, so the player can opt into the mechanic through existing Resonance spending.
 - Optionally add one hostile Redline or Veil skill application only if the player-side prototype is too invisible in simulator output.
 
@@ -41,7 +41,8 @@ Recommended first implementation:
 
 - No save schema migration is allowed for the prototype.
 - Existing saves must load without adapters because the mechanic is driven by static data, purchased skill-upgrade levels, and transient battle status state.
-- Do not rename `innerQi`, `innerAttack`, `innerDefense`, `innerRecoveryRate`, `qi_break`, existing status ids, skill ids, tactic ids, or save fields.
+- Do not add a save schema migration for `bodyIntegrity`, `contextStability`, AI Overload, or transient battle status state.
+- Do not rename existing status ids, skill ids, tactic ids, or save fields as part of the prototype.
 - New static ids may use Path of Neon names, but existing ids remain compatibility keys.
 
 ## Data Shape
@@ -58,8 +59,8 @@ The first implementation should prefer this shape:
   "stackPolicy": "refresh",
   "dispelTags": ["inner", "debuff"],
   "effects": {
-    "innerDamageTakenMultiplier": 1.12,
-    "innerRecoveryMultiplier": 0.85
+    "cognitiveDamageTakenMultiplier": 1.12,
+    "contextRebuildMultiplier": 0.85
   }
 }
 ```
@@ -70,7 +71,7 @@ The exact numbers are tuning knobs. The first pass should be small enough that k
 
 Required tests before implementation closure:
 
-- Data validation rejects unsupported status effect keys and accepts `innerDamageTakenMultiplier`.
+- Data validation rejects unsupported status effect keys and accepts `cognitiveDamageTakenMultiplier`.
 - Damage package or simulator tests prove Intrusion increases Cognitive damage without changing Kinetic damage.
 - Status presentation tests show **Intrusion** through existing status chip and cleanse/purge paths.
 - A focused combat/simulator test proves Intrusion can create or accelerate an AI Overload window.

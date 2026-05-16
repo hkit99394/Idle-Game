@@ -277,10 +277,10 @@ Save-version strategy:
 - Static id migration needs a new `SAVE_DATA_VERSION` because persisted fields store ids in `currentRouteId`, `selectedOfflineFarmRouteId`, `progress.maps`, hero progress keys, active team ids, assignment hero ids, equipment inventory/equipped ids, disabled medicine ids, and `selectedRoutineId`.
 - Resource and progress field migration used a separate `SAVE_DATA_VERSION` after static ids stabilized. Stage 2.7 completed that work in [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md), including `silver` -> `credits`, `cultivation` -> `resonance`, `herbs` -> `reagents`, `maps` -> `districts`, and map-level `combatExperience` -> `combatData`.
 - Selected farm route migration should happen with the resource/progress field migration unless stage ids have not landed yet. Do not rename `selectedOfflineFarmRouteId` while it still stores legacy stage ids.
-- Combat stat field migration should be later than resource/progress fields. It touches broader combat, reports, and possible future backend payloads, and should not be coupled to storage-key migration.
+- Combat stat field migration was completed after resource/progress fields in Stage 2.8. It touched broader combat, reports, and possible future backend payloads, and was intentionally not coupled to storage-key migration.
 - Every version bump needs fixtures for the immediately previous version and for at least one old pre-retheme save that still uses legacy ids and fields.
 
-Combat stat field migration is larger and should be its own sub-phase:
+Combat stat field migration was completed as its own Stage 2.8 sub-phase:
 
 | Current field family | Target direction |
 | --- | --- |
@@ -289,7 +289,7 @@ Combat stat field migration is larger and should be its own sub-phase:
 | `qiBreak*` | `aiOverload*`. |
 | `innerRecovery*` | `contextRebuild*` or `cognitiveReboot*`, depending on baseline versus boost behavior. |
 
-Do not rename combat stat fields until the naming split is final. `outerAttack` maps more naturally to `kineticAttack`, while `outerHp` maps better to `bodyIntegrity`; a single prefix replacement would make the model less clear.
+The Stage 2.8 naming split is now locked: `outerAttack` mapped to `kineticAttack`, while `outerHp` mapped to `bodyIntegrity`; a single prefix replacement would have made the model less clear. Remaining `outer` / `inner` hits are compatibility aliases, tests, temporary export fields, deferred static taxonomy, or engine transition fields tracked by [Stage 2.9 Backlog](stage-2.9-backlog.md).
 
 ### 4. Code Symbols And Report Fields
 
@@ -382,16 +382,16 @@ Keep implementation slices narrow. A safe backlog shape:
 2. Region/stage alias migration: alias helpers, region/stage static ids, save `currentRouteId`, `selectedOfflineFarmRouteId`, `progress.maps`, simulator report ids, and fixtures. Completed in Stage 2.5.
 3. Content id migration: hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines in small batches with static validation and save/import coverage. Completed in Stage 2.6.
 4. Save resource/progress field migration: resources, districts, Combat Data, selected farm route field, diagnostics labels, the legacy schema term visibility decision, and export/import fixtures. Completed in [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md).
-5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with `legacy*` report columns where downstream consumers need them. This work is now planned in [Stage 2.8 Backlog](stage-2.8-backlog.md).
-6. Legacy cleanup: stale-name scans, docs cleanup outside `docs/archive`, and removal of temporary dual-write behavior only after old-key import/read tests prove enough compatibility time has passed.
+5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with legacy report columns where downstream consumers need them. Completed in [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md).
+6. Legacy cleanup: stale-name scans, docs cleanup outside `docs/archive`, and removal of temporary transition fields only after compatibility policy says enough comparison time has passed. Tracked in [Stage 2.9 Backlog](stage-2.9-backlog.md).
 
-Cognitive Intrusion implementation is separate from these migration slices. It should begin from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) once the naming and compatibility surface is stable enough to avoid churn.
+Cognitive Intrusion implementation is separate from these migration slices. It should begin from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) after the Stage 2.9 handoff confirms the current combat vocabulary is stable enough to avoid churn.
 
 ## Recommended Backlog Placement
 
 Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. Stage 2.6 completed static content id migration as focused slices, not as a project-wide replacement, and [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md) records the 91.1 migrate/keep/defer matrix. Stage 2.7 completed save resource/progress field migration with save version `13`.
 
-[Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) is the completed closure record for region/stage static id migration. [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) is the completed closure record for static content id migration. [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) is the completed closure record for save resource/progress field migration. [Stage 2.8 Backlog](stage-2.8-backlog.md) is the active planning record for combat save/stat, combat-symbol, and report-field migration.
+[Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) is the completed closure record for region/stage static id migration. [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) is the completed closure record for static content id migration. [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) is the completed closure record for save resource/progress field migration. [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md) is the completed closure record for combat save/stat, combat-symbol, and report-field migration. [Stage 2.9 Backlog](stage-2.9-backlog.md) owns cleanup and Cognitive Intrusion handoff decisions.
 
 Recommended sequence:
 
@@ -400,8 +400,8 @@ Recommended sequence:
 3. Stage 2.5: region/stage static id migration, completed in [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
 4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, completed in [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) with 91.1 preflight recorded in [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md).
 5. Stage 2.7: save resource/progress field migration, completed in [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md).
-6. Stage 2.8: combat save/stat, combat-symbol, and report-field migration, active in [Stage 2.8 Backlog](stage-2.8-backlog.md).
-7. Stage 2.9: cleanup of temporary legacy adapters when compatibility policy allows.
-8. Prototype implementation: Cognitive Intrusion, starting from the completed Stage 2.3 contract once it can avoid naming or compatibility churn.
+6. Stage 2.8: combat save/stat, combat-symbol, and report-field migration, completed in [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md).
+7. Stage 2.9: cleanup of temporary legacy adapters and report/export transition fields when compatibility policy allows, tracked in [Stage 2.9 Backlog](stage-2.9-backlog.md).
+8. Prototype implementation: Cognitive Intrusion, starting from the refreshed contract once it can avoid naming or compatibility churn.
 
 If the team wants a faster route, combine stages 2.4 and 2.5, but keep save-field and combat-symbol migration separate. That is the highest-risk layer.

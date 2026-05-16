@@ -9,11 +9,11 @@ This document does not rename schema code. It classifies current combat save, st
 ## Source Contracts
 
 - [Stage 2.8 Backlog](stage-2.8-backlog.md) owns Epics 93 and 94.
-- [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) defines the combat stat naming split, report transition period, and post-migration cleanup path.
-- [Path Of Neon Terminology Map](path-of-neon-terminology-map.md) defines Body Integrity, Context Stability, AI Overload, Context Rebuild, Kinetic Art, Cognitive Art, Breach Power, and Overload Resist.
-- [Save API](save-api.md) defines save-version, import/export, validation, migration, and cloud-envelope behavior.
-- [Combat Engine V2](combat-engine-v2.md) defines battle event, metric, contribution, and deterministic combat-extension contracts.
-- [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) completed resource/progress save-field migration and explicitly deferred combat fields to Stage 2.8.
+- [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) defines the combat stat naming split, report transition period, and post-migration cleanup path.
+- [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md) defines Body Integrity, Context Stability, AI Overload, Context Rebuild, Kinetic Art, Cognitive Art, Breach Power, and Overload Resist.
+- [Save API](../save-api.md) defines save-version, import/export, validation, migration, and cloud-envelope behavior.
+- [Combat Engine V2](../combat-engine-v2.md) defines battle event, metric, contribution, and deterministic combat-extension contracts.
+- [Archived Stage 2.7 Backlog](stage-2.7-backlog.md) completed resource/progress save-field migration and explicitly deferred combat fields to Stage 2.8.
 
 ## Inventory Summary
 

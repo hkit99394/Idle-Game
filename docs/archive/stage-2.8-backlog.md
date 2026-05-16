@@ -2,11 +2,11 @@
 
 ## Current Status
 
-Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1, 93.2, 93.3, 94.1, 94.2, 94.3, and 94.4 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`; Slice 93.3 moved owned combat runtime stat fields to the approved Path of Neon names; Slice 94.1 moved AI Overload event and aggregate symbols to current names; Slice 94.2 moved Context Rebuild and restoration payload/report symbols to current names; Slice 94.3 migrated authored static combat schema keys to current names while keeping legacy aliases; Slice 94.4 updated web/tooling/report exports with current Kinetic/Cognitive damage-channel fields and temporary legacy comparison aliases.
+Stage 2.8 is complete and archived for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1, 93.2, 93.3, 94.1, 94.2, 94.3, 94.4, and 94.5 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 completed without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`; Slice 93.3 moved owned combat runtime stat fields to the approved Path of Neon names; Slice 94.1 moved AI Overload event and aggregate symbols to current names; Slice 94.2 moved Context Rebuild and restoration payload/report symbols to current names; Slice 94.3 migrated authored static combat schema keys to current names while keeping legacy aliases; Slice 94.4 updated web/tooling/report exports with current Kinetic/Cognitive damage-channel fields and temporary legacy comparison aliases; Slice 94.5 classified remaining legacy hits, ran release-readiness validation, updated active docs, and prepared the Stage 2.9 cleanup handoff.
 
-[Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) completed save resource/progress field migration and left combat stat fields, combat event names, battle metrics, and report/code symbols explicitly deferred. Stage 2.8 starts from that save version `13` baseline and should not reopen Stage 2.7 resource/progress decisions.
+[Archived Stage 2.7 Backlog](stage-2.7-backlog.md) completed save resource/progress field migration and left combat stat fields, combat event names, battle metrics, and report/code symbols explicitly deferred. Stage 2.8 starts from that save version `13` baseline and should not reopen Stage 2.7 resource/progress decisions.
 
-This backlog turns the combat migration guidance from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md), [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), [Save API](save-api.md), and [Combat Engine V2](combat-engine-v2.md) into focused implementation slices.
+This backlog turned the combat migration guidance from [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md), [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md), [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md), [Save API](../save-api.md), and [Combat Engine V2](../combat-engine-v2.md) into focused implementation slices.
 
 ## Stage Theme
 
@@ -27,6 +27,7 @@ Migrate owned combat stat, combat event, battle metric, and report/code symbols 
 - Slice 94.3 migrated authored static JSON for combat stats, stat references, skill damage multipliers, skill recovery effects/targets, tactic modifiers/target rules, skill-upgrade multipliers, status modifier fields, and healing pressure targets. Legacy authored payloads remain accepted by `core/data/combatSchemaAliases.ts`.
 - Runtime targeting now uses `overloaded`; legacy static `inner_broken` target rules still normalize through `core/data/combatSchemaAliases.ts`.
 - Slice 94.4 bumped tactic comparison export schema version to `4`; JSON rows now expose `playerKineticDamage` / `playerCognitiveDamage`, CSV rows expose `player_kinetic_damage` / `player_cognitive_damage`, and temporary legacy `playerOuterDamage` / `playerInnerDamage` plus `player_outer_damage` / `player_inner_damage` remain for one comparison period.
+- Slice 94.5 classified remaining legacy combat-symbol hits as compatibility adapters/tests, engine transition fields, temporary legacy export columns, deferred static taxonomy, docs/history, or Stage 2.9 cleanup.
 - Current combat display terms already use Body Integrity, Context Stability, AI Overload, Context Rebuild, Kinetic Art, and Cognitive Art in player-facing UI where appropriate.
 - Combat event records and metrics are stable tooling contracts. Any symbol rename must either preserve legacy compatibility, add temporary legacy report columns, or record an explicit keep/defer decision.
 - Authored static JSON now uses current combat schema keys such as `maxBodyIntegrity`, `maxContextStability`, `kineticMultiplier`, `body_integrity_restore_percent`, `contextRebuildMultiplier`, and `minBodyIntegrityRestored`; legacy aliases remain import/validation compatibility, not the canonical authoring style.
@@ -48,7 +49,7 @@ Slice 93.1 locked the final Stage 2.8 directions in [Stage 2.8 Combat Save And S
 
 ## Non-Goals
 
-- No Cognitive Intrusion implementation. Use [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) only as a future consumer of the stabilized combat vocabulary.
+- No Cognitive Intrusion implementation. Use [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) only as a future consumer of the stabilized combat vocabulary.
 - No combat balance retune, difficulty retune, reward economy retune, or CP formula behavior change beyond symbol names.
 - No removal of Stage 2.4, Stage 2.5, Stage 2.6, or Stage 2.7 compatibility adapters.
 - No legacy export/report column removal unless the same slice proves downstream comparison no longer needs it.
@@ -64,7 +65,7 @@ Slice 93.1 locked the final Stage 2.8 directions in [Stage 2.8 Combat Save And S
 - Core combat behavior remains deterministic and numerically unchanged outside intentional naming adapters.
 - Battle event records, metrics, contributions, simulator reports, tactic comparison exports, and web battle view models use approved current terms or documented transition fields.
 - Stale legacy combat-symbol scans are classified, with remaining hits limited to compatibility adapters, fixtures/tests, archived docs, static authoring fields intentionally kept by 93.1, or Stage 2.9 cleanup.
-- Active docs point to this backlog until Stage 2.8 closure archives it.
+- Active docs point to this archived backlog and to [Stage 2.9 Backlog](../stage-2.9-backlog.md) for cleanup follow-up.
 
 ## Epic Summary
 
@@ -79,7 +80,7 @@ Stage 2.8 implements Epics 93 and 94 from the retheme migration plan as focused 
 | 94.2 | Context Rebuild And Recovery Symbols | Complete | Renamed baseline recovery/restoration symbols while keeping boost/status behavior clear. |
 | 94.3 | Static Data And Validation Continuity | Complete | Applied static stat/effect schema key migration with data validation and aliases. |
 | 94.4 | Web, Tooling, And Export Continuity | Complete | Keep web battle panels, diagnostics, simulator output, JSON/CSV exports, and support tooling coherent. |
-| 94.5 | Hardening And Archive Readiness | Planned | Run stale scans, full validation, docs closure, and prepare Stage 2.8 for archive. |
+| 94.5 | Hardening And Archive Readiness | Complete | Ran stale scans, full validation, docs closure, and prepared Stage 2.8 for archive. |
 
 ## Slice 93.1: Combat Save And Symbol Preflight
 
@@ -255,14 +256,14 @@ Completed in code: authored static JSON now uses current Stage 2.8 combat schema
 
 Keep non-core consumers coherent after combat symbol migration.
 
-Completed in code: full simulator stage metrics now include current `playerKineticDamage`, `playerCognitiveDamage`, `enemyKineticDamage`, and `enemyCognitiveDamage` fields alongside transition legacy aggregate fields. Tactic comparison export schema version `4` adds current JSON fields and CSV columns for Kinetic/Cognitive player damage while retaining temporary legacy `playerOuterDamage` / `playerInnerDamage` JSON fields and `player_outer_damage` / `player_inner_damage` CSV columns. Web battle status-tick copy now describes status ticks as Body Integrity damage instead of Kinetic damage. [Save API](save-api.md), [Balance Budget Gates](balance-budget-gates.md), [Content Pipeline Inventory](content-pipeline-inventory.md), and [Combat Engine V2](combat-engine-v2.md) document the current report/export contract and transition fields.
+Completed in code: full simulator stage metrics now include current `playerKineticDamage`, `playerCognitiveDamage`, `enemyKineticDamage`, and `enemyCognitiveDamage` fields alongside transition legacy aggregate fields. Tactic comparison export schema version `4` adds current JSON fields and CSV columns for Kinetic/Cognitive player damage while retaining temporary legacy `playerOuterDamage` / `playerInnerDamage` JSON fields and `player_outer_damage` / `player_inner_damage` CSV columns. Web battle status-tick copy now describes status ticks as Body Integrity damage instead of Kinetic damage. [Save API](../save-api.md), [Balance Budget Gates](../balance-budget-gates.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), and [Combat Engine V2](../combat-engine-v2.md) document the current report/export contract and transition fields.
 
 ### Tasks
 
 - Update web battle panel props, view models, summaries, aria labels, diagnostics, and display helpers for approved current terms.
 - Update simulator, balance, tactic comparison, support-decision, and authoring export paths.
 - Add temporary legacy JSON/CSV columns where 93.1 requires a transition period.
-- Update [Save API](save-api.md), [Balance Budget Gates](balance-budget-gates.md), [Content Pipeline Inventory](content-pipeline-inventory.md), and [Combat Engine V2](combat-engine-v2.md) where behavior or contract names change.
+- Update [Save API](../save-api.md), [Balance Budget Gates](../balance-budget-gates.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), and [Combat Engine V2](../combat-engine-v2.md) where behavior or contract names change.
 - Smoke the built app battle panel after runtime/view-model changes.
 
 ### Acceptance
@@ -286,12 +287,23 @@ Completed in code: full simulator stage metrics now include current `playerKinet
 
 Close Stage 2.8 with compatibility proof, stale-scan classification, and docs cleanup.
 
+Completed in code/docs: remaining active legacy combat-symbol hits were classified, active docs were updated to treat Stage 2.8 as complete, [Stage 2.9 Backlog](../stage-2.9-backlog.md) was prepared for cleanup and Cognitive Intrusion handoff, and release-readiness validation passed during archive closure.
+
+Remaining active hits are intentional:
+
+- `core/data/combatSchemaAliases.ts` and static validation tests retain legacy static schema aliases.
+- `core/combat/battleRecorder.ts` and battle recorder tests retain `qi_break` / `qi_recover` replay normalization.
+- Core combat damage package, event, metric, and contribution payloads retain `outerDamage` / `innerDamage` transition fields behind current report/export aliases.
+- Tactic comparison exports retain temporary legacy damage fields and CSV columns for one comparison period.
+- `inner_defense_down`, `innerDefenseDown`, `inner` dispel tags, `outer` / `inner` upgrade art buckets, and `map_outer_and_inner_attack_multiplier` are deferred static taxonomy cleanup.
+- Archived or historical docs retain old terms as closure evidence.
+
 ### Tasks
 
 - Run stale scans for legacy combat stat, event, metric, recovery, and report names.
 - Classify every remaining active hit as compatibility adapter, fixture/test, static authoring field intentionally kept, temporary legacy report field, docs/history, or Stage 2.9 cleanup.
 - Run the full release-readiness validation set.
-- Update [Current Implemented Systems](current-implemented-systems.md), [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md), [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md), [Path Of Neon Terminology Map](path-of-neon-terminology-map.md), [Save API](save-api.md), and any touched tooling docs with closure status.
+- Update [Current Implemented Systems](../current-implemented-systems.md), [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md), [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md), [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md), [Save API](../save-api.md), and any touched tooling docs with closure status.
 - Move completed Stage 2.8 active docs into `docs/archive` only after validation passes.
 - Prepare the Stage 2.9 cleanup handoff and Cognitive Intrusion prototype handoff.
 
