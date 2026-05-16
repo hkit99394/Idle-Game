@@ -16,6 +16,7 @@ Start with the current contributor docs:
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
 - [Stage 3.1 Backlog: District Heat Contract And Pacing Hardening](docs/stage-3.1-backlog.md)
+- [District Heat Contract](docs/district-heat-contract.md)
 - [Archived Stage 3.0 Backlog: Cognitive Intrusion Prototype](docs/archive/stage-3.0-backlog.md)
 - [Cognitive Intrusion Prototype Contract](docs/cognitive-intrusion-prototype-contract.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
