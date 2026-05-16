@@ -130,6 +130,37 @@ District Heat should not become live until these questions are answered:
 - Does heat reward pressure make farming choices clearer, or does it simply punish idle play?
 - Can report-only heat explain a useful next decision without creating a save migration?
 
+## Offline And Assignment Baseline
+
+Slice 97.2 audited the current offline and assignment reward paths.
+
+Owner files:
+
+| Surface | Owner files | Current behavior |
+| --- | --- | --- |
+| Offline farm rewards | `core/offline/offlineRewards.ts`, `tests/offline/offlineRewards.test.ts` | Uses global `estimatedClearTimeSeconds: 10`, `minimumClearTimeSeconds: 5`, and `offlineEfficiency: 0.6`; does not use simulated or target clear time for the selected route. |
+| Offline farm target validity | `core/progression/stages.ts`, `tests/offline/offlineRewards.test.ts` | Requires an existing, cleared, non-boss, `canFarmOffline` route. |
+| Offline preview UI | `web/state/viewModels/offline.ts` | Displays preview output from the same formula; does not expose active/offline parity or District Heat. |
+| Assignment rewards | `core/offline/assignmentRewards.ts`, `data/assignments.json`, `tests/offline/assignmentRewards.test.ts` | Uses per-hour reward profiles, hero eligibility, unlock gates, and optional `mapRegionId` for Combat Data district credit. |
+
+Current active/offline parity risk:
+
+| Recommended farm | Active clear | Offline/active reward-rate ratio with default config | Decision |
+| --- | ---: | ---: | --- |
+| `greenline_approach_8` | `25.2s` | `1.51x` | Report as parity risk. |
+| `veil_district_5` | `16.2s` | `0.97x` | Near parity. |
+| `black_iron_foundry_6` | `45s` | `2.70x` | Report as parity risk. |
+| `lotus_clinic_6` | `40.8s` | `2.45x` | Report as parity risk. |
+| `redline_outpost_6` | `36s` | `2.16x` | Report as parity risk. |
+
+Stage 3.1 should **report** the parity risk before replacing the offline formula. Replacing the fixed 10s estimate with stage-specific simulated or target clear time remains deferred until a dedicated pacing/report slice proves the desired active-vs-offline behavior.
+
+Assignment heat participation is report-only and should be conservative:
+
+- Assignments with `rewardProfile.mapRegionId` may contribute projected heat to that district.
+- Assignments without `mapRegionId` contribute no projected heat until a future contract defines a district target for them.
+- Assignment heat must not modify per-hour assignment rewards, equipment rolls, unlocks, or assigned hero eligibility in Stage 3.1.
+
 ## Verification Requirements
 
 For contract and report-only work:

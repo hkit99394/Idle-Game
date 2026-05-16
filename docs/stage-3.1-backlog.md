@@ -6,7 +6,7 @@ Stage 3.1 is the active post-Intrusion planning and hardening milestone. [Archiv
 
 This stage prepares **District Heat** as the preferred second Path of Neon prototype, but it should not ship live heat penalties, persisted heat, or UI promises before the contract and pacing evidence are ready. District Heat touches offline farming, assignments, rewards, region UI, save posture, and balance gates, so the first milestone should make those boundaries explicit.
 
-Slice 97.1 is complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path and defers derived or persisted live heat until later evidence justifies it.
+Slices 97.1 and 97.2 are complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path, defers derived or persisted live heat until later evidence justifies it, and now records the offline/assignment pacing baseline that must gate live reward changes.
 
 ## Stage Theme
 
@@ -57,7 +57,7 @@ The milestone should turn District Heat from a theme-bible candidate into an imp
 | Slice | Epic | Title | Status |
 | --- | --- | --- | --- |
 | 97.1 | 97 | District Heat Contract Preflight | Complete |
-| 97.2 | 97 | Offline And Pacing Baseline Audit | Planned |
+| 97.2 | 97 | Offline And Pacing Baseline Audit | Complete |
 | 97.3 | 97 | Known Balance Debt Gate Review | Planned |
 | 97.4 | 97 | Report-Only Heat Projection Surface | Planned |
 | 97.5 | 97 | Save, UI, And Export Boundary Proof | Planned |
@@ -109,6 +109,15 @@ Prove the current offline and pacing assumptions before heat changes route rewar
 - Identify where assignment rewards should or should not participate in heat gain.
 - Add or update focused tests only if the audit finds an existing mismatch that should be locked before heat work.
 
+### Implementation Notes
+
+- Audited `core/offline/offlineRewards.ts`, `core/offline/assignmentRewards.ts`, `core/progression/types.ts`, `core/progression/stages.ts`, `web/state/viewModels/offline.ts`, `tests/offline/offlineRewards.test.ts`, `tests/offline/assignmentRewards.test.ts`, and `data/assignments.json`.
+- Recorded the current offline farm formula in [District Heat Contract](district-heat-contract.md): default `estimatedClearTimeSeconds: 10`, `minimumClearTimeSeconds: 5`, and `offlineEfficiency: 0.6`, with no stage-specific active or target clear time.
+- Compared active simulator clear times against default offline reward rate for current recommended farm routes. Offline currently exceeds active reward rate on `greenline_approach_8` (`1.51x`), `black_iron_foundry_6` (`2.70x`), `lotus_clinic_6` (`2.45x`), and `redline_outpost_6` (`2.16x`); `veil_district_5` is near parity (`0.97x`).
+- Decision: Stage 3.1 should report the parity risk before replacing the offline formula. District Heat cannot modify live offline rewards until the parity decision is explicit in a later slice.
+- Decision: assignments may contribute report-only projected heat only when `rewardProfile.mapRegionId` exists; assignments without a district target contribute no projected heat for now.
+- No runtime behavior or tests changed because the audit found documented current behavior, not an implementation mismatch.
+
 ### Acceptance
 
 - The backlog or contract records the current active/offline parity risk with concrete owner files.
@@ -117,9 +126,9 @@ Prove the current offline and pacing assumptions before heat changes route rewar
 
 ### Verification
 
-- `npm test -- tests/offline/offlineRewards.test.ts tests/offline/assignmentRewards.test.ts`
-- `npm run simulate`
-- `git diff --check`
+- Passed: `npm test -- tests/offline/offlineRewards.test.ts tests/offline/assignmentRewards.test.ts`
+- Passed: `npm run simulate`
+- Passed: `git diff --check`
 
 ## Slice 97.3: Known Balance Debt Gate Review
 
