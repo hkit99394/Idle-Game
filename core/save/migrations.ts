@@ -471,19 +471,19 @@ export function normalizeProgressForMigration(
   const normalizedSelectedTacticInput = normalizeContentIdValueForMigration(
     data,
     "routine",
-    value.selectedTacticId,
-    "progress.selectedTacticId",
+    value.selectedRoutineId,
+    "progress.selectedRoutineId",
     normalizations
   );
-  const selectedTacticId = normalizeSelectedTacticId(
+  const selectedRoutineId = normalizeSelectedTacticId(
     data,
     normalizedSelectedTacticInput
   );
 
-  if (value.selectedTacticId === undefined) {
-    normalizations.push(missingField("progress.selectedTacticId"));
-  } else if (normalizedSelectedTacticInput !== selectedTacticId) {
-    normalizations.push(invalidField("progress.selectedTacticId"));
+  if (value.selectedRoutineId === undefined) {
+    normalizations.push(missingField("progress.selectedRoutineId"));
+  } else if (normalizedSelectedTacticInput !== selectedRoutineId) {
+    normalizations.push(invalidField("progress.selectedRoutineId"));
   }
 
   for (const heroId of Object.keys(defaultProgress.heroes)) {
@@ -514,17 +514,17 @@ export function normalizeProgressForMigration(
     }
   }
 
-  const currentStageId =
-    shouldMigrateRegionStageIds && typeof value.currentStageId === "string"
-      ? normalizeStageId(value.currentStageId)
-      : value.currentStageId;
+  const currentRouteId =
+    shouldMigrateRegionStageIds && typeof value.currentRouteId === "string"
+      ? normalizeStageId(value.currentRouteId)
+      : value.currentRouteId;
 
   if (
     shouldMigrateRegionStageIds &&
-    typeof value.currentStageId === "string" &&
-    currentStageId !== value.currentStageId
+    typeof value.currentRouteId === "string" &&
+    currentRouteId !== value.currentRouteId
   ) {
-    normalizations.push(migratedStageId("progress.currentStageId"));
+    normalizations.push(migratedStageId("progress.currentRouteId"));
   }
 
   return {
@@ -535,12 +535,12 @@ export function normalizeProgressForMigration(
         ...defaultProgress.heroes,
         ...heroes
       },
-      sect: value.sect,
+      technoSect: value.technoSect,
       districts: {
         ...defaultDistricts,
         ...districts
       },
-      selectedTacticId,
+      selectedRoutineId,
       activeHeroIds:
         normalizeContentIdArrayForMigration(
           data,
@@ -635,7 +635,7 @@ export function normalizeProgressForMigration(
             ])
           )
         : value.assignments ?? {},
-      currentStageId
+      currentRouteId
     },
     normalizations
   };
@@ -696,29 +696,29 @@ export function migrateSaveData(
       normalizations
     ) as string[];
 
-  if (normalizedRaw.selectedOfflineFarmStageId === undefined) {
-    normalizations.push(missingField("selectedOfflineFarmStageId"));
+  if (normalizedRaw.selectedOfflineFarmRouteId === undefined) {
+    normalizations.push(missingField("selectedOfflineFarmRouteId"));
   }
 
   if (normalizedRaw.offlineFarmPreset === undefined) {
     normalizations.push(missingField("offlineFarmPreset"));
   }
 
-  const selectedOfflineFarmStageId =
-    normalizedRaw.selectedOfflineFarmStageId === undefined
+  const selectedOfflineFarmRouteId =
+    normalizedRaw.selectedOfflineFarmRouteId === undefined
       ? null
-      : normalizedRaw.selectedOfflineFarmStageId;
+      : normalizedRaw.selectedOfflineFarmRouteId;
   const normalizedSelectedOfflineFarmStageId =
-    shouldNormalizeRegionStageIds && typeof selectedOfflineFarmStageId === "string"
-      ? normalizeStageId(selectedOfflineFarmStageId)
-      : selectedOfflineFarmStageId;
+    shouldNormalizeRegionStageIds && typeof selectedOfflineFarmRouteId === "string"
+      ? normalizeStageId(selectedOfflineFarmRouteId)
+      : selectedOfflineFarmRouteId;
 
   if (
     shouldNormalizeRegionStageIds &&
-    typeof selectedOfflineFarmStageId === "string" &&
-    normalizedSelectedOfflineFarmStageId !== selectedOfflineFarmStageId
+    typeof selectedOfflineFarmRouteId === "string" &&
+    normalizedSelectedOfflineFarmStageId !== selectedOfflineFarmRouteId
   ) {
-    normalizations.push(migratedStageId("selectedOfflineFarmStageId"));
+    normalizations.push(migratedStageId("selectedOfflineFarmRouteId"));
   }
 
   const normalizedSave = {
@@ -726,7 +726,7 @@ export function migrateSaveData(
     version: SAVE_DATA_VERSION,
     progress: progress.value,
     autoMedicinePreferences: autoMedicinePreferences.value,
-    selectedOfflineFarmStageId: normalizedSelectedOfflineFarmStageId,
+    selectedOfflineFarmRouteId: normalizedSelectedOfflineFarmStageId,
     offlineFarmPreset:
       normalizedRaw.offlineFarmPreset === undefined
         ? DEFAULT_OFFLINE_FARM_PRESET

@@ -39,9 +39,9 @@ export function normalizeSelectedTacticId(
 
 export function getSelectedTacticId(
   data: Pick<StaticGameData, "tactics">,
-  progress: Pick<PlayerProgress, "selectedTacticId">
+  progress: Pick<PlayerProgress, "selectedRoutineId">
 ): string {
-  return normalizeSelectedTacticId(data, progress.selectedTacticId);
+  return normalizeSelectedTacticId(data, progress.selectedRoutineId);
 }
 
 export function selectPlayerTactic(
@@ -61,7 +61,7 @@ export function selectPlayerTactic(
     ok: true,
     progress: {
       ...cloneProgress(input.progress),
-      selectedTacticId: input.tacticId
+      selectedRoutineId: input.tacticId
     },
     tacticId: input.tacticId
   };

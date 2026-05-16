@@ -122,8 +122,8 @@ describe("web workflow baselines", () => {
     expect(saveDiagnostics).toMatchObject({
       storageAvailable: false,
       status: "storage_unavailable",
-      currentStageId: expect.any(String),
-      selectedOfflineFarmStageId:
+      currentRouteId: expect.any(String),
+      selectedOfflineFarmRouteId:
         webWorkflowBaselineIds.offlineSummaryStageId
     });
   });

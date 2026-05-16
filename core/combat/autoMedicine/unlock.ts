@@ -57,7 +57,7 @@ function isMedicineUnlockConditionMet(
   }
 
   const districts =
-    typeof (progress as PlayerProgress).currentStageId === "string" &&
+    typeof (progress as PlayerProgress).currentRouteId === "string" &&
     typeof (progress as PlayerProgress).districts === "object"
       ? (progress as PlayerProgress).districts
       : (progress as RegionProgress);

@@ -58,7 +58,7 @@ describe("save schema migrations", () => {
         fixture.description
       ).toBeGreaterThanOrEqual(result.save.createdAtMs);
       expect(result.save.offlineFarmPreset, fixture.description).toBe("balanced");
-      expect(result.save.progress.selectedTacticId, fixture.description).toBe(
+      expect(result.save.progress.selectedRoutineId, fixture.description).toBe(
         "balanced_routine"
       );
       expect(result.save.autoMedicinePreferences.preBattleResistanceMode).toBe(
@@ -86,7 +86,7 @@ describe("save schema migrations", () => {
     const stageOneOneSave = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: null,
+        selectedOfflineFarmRouteId: null,
         nowMs: 1000
       }),
       version: 3,
@@ -168,7 +168,7 @@ describe("save schema migrations", () => {
     expect(
       result.save.progress.assignments?.lotus_countermeasure_pavilion
     ).toBeUndefined();
-    expect(result.save.selectedOfflineFarmStageId).toBe("black_iron_foundry_6");
+    expect(result.save.selectedOfflineFarmRouteId).toBe("black_iron_foundry_6");
   });
 
   it("migrates legacy region map keys and stage ids to Path of Neon ids", () => {
@@ -181,13 +181,13 @@ describe("save schema migrations", () => {
           highestClearedStageIndex: 2
         }
       },
-      currentStageId: "bamboo_road_3"
+      currentRouteId: "bamboo_road_3"
     } as any;
     delete legacyProgress.districts;
     const save = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: "bamboo_road_1",
+        selectedOfflineFarmRouteId: "bamboo_road_1",
         nowMs: 1000
       }),
       progress: legacyProgress,
@@ -206,8 +206,8 @@ describe("save schema migrations", () => {
       highestClearedRouteIndex: 2
     });
     expect(result.save.progress.districts.bamboo_road).toBeUndefined();
-    expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
-    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(result.save.progress.currentRouteId).toBe("greenline_approach_3");
+    expect(result.save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(result.migration.normalizations).toEqual(
       expect.arrayContaining([
         {
@@ -215,11 +215,11 @@ describe("save schema migrations", () => {
           reason: "migrated legacy region id"
         },
         {
-          field: "progress.currentStageId",
+          field: "progress.currentRouteId",
           reason: "migrated legacy stage id"
         },
         {
-          field: "selectedOfflineFarmStageId",
+          field: "selectedOfflineFarmRouteId",
           reason: "migrated legacy stage id"
         }
       ])
@@ -236,17 +236,17 @@ describe("save schema migrations", () => {
           highestClearedStageIndex: 2
         }
       },
-      currentStageId: "bamboo_road_3"
+      currentRouteId: "bamboo_road_3"
     } as any;
     delete legacyProgress.districts;
     const save = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: "bamboo_road_2",
+        selectedOfflineFarmRouteId: "bamboo_road_2",
         nowMs: 1000
       }),
       progress: legacyProgress,
-      selectedOfflineFarmStageId: "bamboo_road_2",
+      selectedOfflineFarmRouteId: "bamboo_road_2",
     };
     const result = parseSaveData(staticData, save);
 
@@ -262,8 +262,8 @@ describe("save schema migrations", () => {
       highestClearedRouteIndex: 2
     });
     expect(result.save.progress.districts.bamboo_road).toBeUndefined();
-    expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
-    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_2");
+    expect(result.save.progress.currentRouteId).toBe("greenline_approach_3");
+    expect(result.save.selectedOfflineFarmRouteId).toBe("greenline_approach_2");
     expect(result.migration.migrated).toBe(false);
     expect(result.migration.normalized).toBe(true);
     expect(result.migration.normalizations).toEqual(
@@ -273,11 +273,11 @@ describe("save schema migrations", () => {
           reason: "migrated legacy region id"
         },
         {
-          field: "progress.currentStageId",
+          field: "progress.currentRouteId",
           reason: "migrated legacy stage id"
         },
         {
-          field: "selectedOfflineFarmStageId",
+          field: "selectedOfflineFarmRouteId",
           reason: "migrated legacy stage id"
         }
       ])
@@ -291,12 +291,12 @@ describe("save schema migrations", () => {
     progress.resources.reagents = 4;
     progress.districts.greenline_approach.combatData = 30;
     progress.districts.greenline_approach.highestClearedRouteIndex = 2;
-    progress.currentStageId = "greenline_approach_3";
-    progress.selectedTacticId = "kinetic_crush";
+    progress.currentRouteId = "greenline_approach_3";
+    progress.selectedRoutineId = "kinetic_crush";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
-      offlineFarmPreset: "combatExperience",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
+      offlineFarmPreset: "combatData",
       nowMs: 1000
     });
     const serialized = JSON.parse(JSON.stringify(save));
@@ -321,10 +321,10 @@ describe("save schema migrations", () => {
       combatData: 30,
       highestClearedRouteIndex: 2
     });
-    expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
-    expect(result.save.progress.selectedTacticId).toBe("kinetic_crush");
-    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
-    expect(result.save.offlineFarmPreset).toBe("combatExperience");
+    expect(result.save.progress.currentRouteId).toBe("greenline_approach_3");
+    expect(result.save.progress.selectedRoutineId).toBe("kinetic_crush");
+    expect(result.save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
+    expect(result.save.offlineFarmPreset).toBe("combatData");
   });
 
   it("normalizes current-version legacy save fields into the Stage 2.7 schema boundary", () => {
@@ -335,8 +335,8 @@ describe("save schema migrations", () => {
       JSON.stringify(
         createSaveData({
           progress,
-          selectedOfflineFarmStageId: "greenline_approach_1",
-          offlineFarmPreset: "silver",
+          selectedOfflineFarmRouteId: "greenline_approach_1",
+          offlineFarmPreset: "credits",
           nowMs: 1000
         })
       )
@@ -410,7 +410,7 @@ describe("save schema migrations", () => {
     progress.resources.credits = 12;
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const serialized = JSON.parse(JSON.stringify(save));
@@ -487,7 +487,7 @@ describe("save schema migrations", () => {
             heroIds: ["iron_fist_disciple", "iron_fist_initiate"]
           }
         },
-        selectedTacticId: "kinetic_crush"
+        selectedRoutineId: "kinetic_crush"
       },
       autoMedicinePreferences: {
         enabled: true,
@@ -497,7 +497,7 @@ describe("save schema migrations", () => {
         preBattleResistanceMode: "boss_and_elite",
         disabledMedicineIds: ["clear_heart_pill", "clear_heart_countermeasure"]
       },
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const result = parseSaveData(staticData, save);
@@ -550,7 +550,7 @@ describe("save schema migrations", () => {
         heroIds: ["iron_fist_initiate"]
       }
     });
-    expect(result.save.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(result.save.progress.selectedRoutineId).toBe("kinetic_crush");
     expect(result.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
       "clear_heart_countermeasure"
     ]);
@@ -632,7 +632,7 @@ describe("save schema migrations", () => {
               heroIds: ["iron_fist_disciple"]
             }
           },
-          selectedTacticId: "outer_pressure"
+          selectedRoutineId: "outer_pressure"
         },
         autoMedicinePreferences: {
           enabled: true,
@@ -642,7 +642,7 @@ describe("save schema migrations", () => {
           preBattleResistanceMode: "boss_and_elite",
           disabledMedicineIds: ["clear_heart_pill"]
         },
-        selectedOfflineFarmStageId: null,
+        selectedOfflineFarmRouteId: null,
         nowMs: 1000
       }),
       version: 11
@@ -694,7 +694,7 @@ describe("save schema migrations", () => {
         heroIds: ["iron_fist_initiate"]
       }
     });
-    expect(migratedSave.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(migratedSave.progress.selectedRoutineId).toBe("kinetic_crush");
     expect(migratedSave.autoMedicinePreferences.disabledMedicineIds).toEqual([
       "clear_heart_countermeasure"
     ]);
@@ -711,7 +711,7 @@ describe("save schema migrations", () => {
     const save = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: null,
+        selectedOfflineFarmRouteId: null,
         nowMs: 1000
       }),
       version: 10,
@@ -727,7 +727,7 @@ describe("save schema migrations", () => {
             highestClearedStageIndex: 1
           }
         },
-        currentStageId: "greenline_approach_3"
+        currentRouteId: "greenline_approach_3"
       }
     };
     const result = parseSaveData(staticData, save);
@@ -749,7 +749,7 @@ describe("save schema migrations", () => {
     const unknownRegionSave = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: null,
+        selectedOfflineFarmRouteId: null,
         nowMs: 1000
       }),
       version: 10,
@@ -762,19 +762,19 @@ describe("save schema migrations", () => {
             highestClearedStageIndex: 1
           }
         },
-        currentStageId: "old_missing_region_1"
+        currentRouteId: "old_missing_region_1"
       }
     };
     const unknownStageSave = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: null,
+        selectedOfflineFarmRouteId: null,
         nowMs: 1000
       }),
       version: 10,
       progress: {
         ...progress,
-        currentStageId: "old_missing_region_1"
+        currentRouteId: "old_missing_region_1"
       }
     };
 
@@ -783,7 +783,7 @@ describe("save schema migrations", () => {
     );
     expect(validateSaveData(staticData, unknownStageSave)).toEqual(
       expect.arrayContaining([
-        "progress.currentStageId must reference an existing stage"
+        "progress.currentRouteId must reference an existing stage"
       ])
     );
   });
@@ -792,7 +792,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {
@@ -820,7 +820,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const validSave = {
@@ -860,7 +860,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {
@@ -904,7 +904,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {
@@ -935,7 +935,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {
@@ -1020,7 +1020,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {
@@ -1068,7 +1068,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {
@@ -1089,7 +1089,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const badSave = {
@@ -1127,7 +1127,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {
@@ -1175,7 +1175,7 @@ describe("save schema migrations", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const oldSave = {

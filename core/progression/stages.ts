@@ -18,9 +18,9 @@ export type RegionProgress = Record<
 
 export const OFFLINE_FARM_PRESETS = [
   "balanced",
-  "silver",
-  "cultivation",
-  "combatExperience",
+  "credits",
+  "resonance",
+  "combatData",
   "mastery"
 ] as const;
 
@@ -47,21 +47,21 @@ export const OFFLINE_FARM_PRESET_POLICIES = [
     rewardPriority: ["combatExperience", "silver", "cultivation"]
   },
   {
-    id: "silver",
-    label: "Silver",
-    description: "Prioritizes silver income for Outer and Inner Art training.",
+    id: "credits",
+    label: "Credits",
+    description: "Prioritizes credit income for Outer and Inner Art training.",
     rewardPriority: ["silver", "combatExperience", "cultivation"]
   },
   {
-    id: "cultivation",
-    label: "Cultivation",
-    description: "Prioritizes cultivation for skill refinement.",
+    id: "resonance",
+    label: "Resonance",
+    description: "Prioritizes resonance for skill refinement.",
     rewardPriority: ["cultivation", "combatExperience", "silver"]
   },
   {
-    id: "combatExperience",
-    label: "Combat XP",
-    description: "Prioritizes Combat XP for levels and map mastery.",
+    id: "combatData",
+    label: "Combat Data",
+    description: "Prioritizes Combat Data for levels and map mastery.",
     rewardPriority: ["combatExperience", "silver", "cultivation"]
   },
   {
@@ -121,7 +121,7 @@ export function getCurrentStage(
   data: Pick<StaticGameData, "stages">,
   progress: PlayerProgress
 ): StageDefinition | null {
-  return getStageById(data, progress.currentStageId);
+  return getStageById(data, progress.currentRouteId);
 }
 
 export function hasClearedStage(
@@ -177,7 +177,7 @@ function isPlayerProgress(
   progress: PlayerProgress | RegionProgress
 ): progress is PlayerProgress {
   return (
-    typeof (progress as PlayerProgress).currentStageId === "string" &&
+    typeof (progress as PlayerProgress).currentRouteId === "string" &&
     typeof (progress as PlayerProgress).districts === "object"
   );
 }
@@ -270,15 +270,15 @@ export function isStageUnlocked(
 export function getNextCurrentStageId(
   data: Pick<StaticGameData, "regions" | "stages">,
   stage: StageDefinition,
-  currentStageId: string,
+  currentRouteId: string,
   progressAfterClear: PlayerProgress
 ): string {
-  if (!areStageIdsEquivalent(stage.id, currentStageId)) {
-    return currentStageId;
+  if (!areStageIdsEquivalent(stage.id, currentRouteId)) {
+    return currentRouteId;
   }
 
   const formatStageIdForCurrentProgress = (stageId: string): string =>
-    getLegacyStageId(currentStageId) !== currentStageId
+    getLegacyStageId(currentRouteId) !== currentRouteId
       ? normalizeStageId(stageId)
       : stageId;
 
@@ -295,7 +295,7 @@ export function getNextCurrentStageId(
 
   return nextRegion?.stageIds[0]
     ? formatStageIdForCurrentProgress(nextRegion.stageIds[0])
-    : currentStageId;
+    : currentRouteId;
 }
 
 export type OfflineFarmStageTargetValidationResult =
@@ -468,7 +468,7 @@ export function setOfflineFarmStageTarget(
   )?.id;
 
   return recommendedStageId
-    ? getLegacyStageId(progress.currentStageId) !== progress.currentStageId
+    ? getLegacyStageId(progress.currentRouteId) !== progress.currentRouteId
       ? normalizeStageId(recommendedStageId)
       : recommendedStageId
     : null;

@@ -19,11 +19,11 @@ describe("web game state progression", () => {
     const state = createInitialWebGameState(staticData);
     const viewModel = getWebGameViewModel(staticData, state);
 
-    expect(state.progress.currentStageId).toBe("greenline_approach_1");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_1");
     expect(state.selectedStageId).toBe("greenline_approach_1");
-    expect(state.selectedOfflineFarmStageId).toBeNull();
+    expect(state.selectedOfflineFarmRouteId).toBeNull();
     expect(state.offlineFarmPreset).toBe("balanced");
-    expect(state.progress.selectedTacticId).toBe("balanced_routine");
+    expect(state.progress.selectedRoutineId).toBe("balanced_routine");
     expect(state.offlineSummary).toBeNull();
     expect(viewModel.selectedStage?.id).toBe("greenline_approach_1");
     expect(viewModel.selectedStageRegionName).toBe("Greenline Approach");
@@ -370,7 +370,7 @@ describe("web game state progression", () => {
       ok: true,
       tacticId: "kinetic_crush"
     });
-    expect(selectedState.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(selectedState.progress.selectedRoutineId).toBe("kinetic_crush");
     expect(
       getWebGameViewModel(staticData, selectedState).tactics.find(
         (tactic) => tactic.tacticId === "kinetic_crush"
@@ -378,7 +378,7 @@ describe("web game state progression", () => {
     ).toMatchObject({
       selected: true
     });
-    expect(invalidState.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(invalidState.progress.selectedRoutineId).toBe("kinetic_crush");
     expect(invalidState.lastTacticAction).toMatchObject({
       ok: false,
       reason: "missing_tactic"
@@ -454,9 +454,9 @@ describe("web game state progression", () => {
     expect(nextState.lastBattle?.ok).toBe(true);
     expect(nextState.progress.resources.credits).toBe(10);
     expect(nextState.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(1);
-    expect(nextState.progress.currentStageId).toBe("greenline_approach_2");
+    expect(nextState.progress.currentRouteId).toBe("greenline_approach_2");
     expect(nextState.selectedStageId).toBe("greenline_approach_1");
-    expect(nextState.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(nextState.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(nextState.lastBattleStageId).toBe("greenline_approach_1");
 
     const viewModel = getWebGameViewModel(staticData, nextState);
@@ -553,7 +553,7 @@ describe("web game state progression", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "veil_district_1",
+        currentRouteId: "veil_district_1",
         districts: {
           ...state.progress.districts,
           greenline_approach: {

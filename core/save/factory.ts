@@ -10,7 +10,7 @@ export function cloneSaveData(save: SaveData): SaveData {
     autoMedicinePreferences: normalizeAutoMedicinePreferences(
       save.autoMedicinePreferences
     ),
-    selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
+    selectedOfflineFarmRouteId: save.selectedOfflineFarmRouteId,
     offlineFarmPreset: normalizeOfflineFarmPreset(save.offlineFarmPreset),
     createdAtMs: save.createdAtMs,
     updatedAtMs: save.updatedAtMs,
@@ -26,11 +26,10 @@ export function createSaveData(input: CreateSaveDataInput): SaveData {
       input.autoMedicinePreferences ??
         input.previousSave?.autoMedicinePreferences
     ),
-    selectedOfflineFarmStageId: input.selectedOfflineFarmStageId,
-    offlineFarmPreset:
-      input.offlineFarmPreset ??
-      input.previousSave?.offlineFarmPreset ??
-      normalizeOfflineFarmPreset(undefined),
+    selectedOfflineFarmRouteId: input.selectedOfflineFarmRouteId,
+    offlineFarmPreset: normalizeOfflineFarmPreset(
+      input.offlineFarmPreset ?? input.previousSave?.offlineFarmPreset
+    ),
     createdAtMs: input.previousSave?.createdAtMs ?? input.nowMs,
     updatedAtMs: input.nowMs,
     lastOfflineRewardAtMs:

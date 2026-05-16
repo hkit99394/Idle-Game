@@ -77,10 +77,10 @@ function validateMigratedSaveData(
   );
 
   if (
-    migratedRaw.selectedOfflineFarmStageId !== null &&
-    typeof migratedRaw.selectedOfflineFarmStageId !== "string"
+    migratedRaw.selectedOfflineFarmRouteId !== null &&
+    typeof migratedRaw.selectedOfflineFarmRouteId !== "string"
   ) {
-    errors.push("selectedOfflineFarmStageId must be a string or null");
+    errors.push("selectedOfflineFarmRouteId must be a string or null");
   }
 
   if (

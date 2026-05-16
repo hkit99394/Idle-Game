@@ -16,7 +16,7 @@ describe("save schema validation", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       autoMedicinePreferences: {
         enabled: true,
         battleCleanseEnabled: true,
@@ -70,9 +70,9 @@ describe("save schema validation", () => {
     const save = createSaveData({
       progress: {
         ...progress,
-        selectedTacticId: "kinetic_crush"
+        selectedRoutineId: "kinetic_crush"
       },
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const missingTacticSave = {
@@ -80,14 +80,14 @@ describe("save schema validation", () => {
       version: 9,
       progress: {
         ...save.progress,
-        selectedTacticId: undefined
+        selectedRoutineId: undefined
       }
     };
     const invalidTacticSave = {
       ...save,
       progress: {
         ...save.progress,
-        selectedTacticId: "missing_tactic"
+        selectedRoutineId: "missing_tactic"
       }
     };
 
@@ -95,7 +95,7 @@ describe("save schema validation", () => {
       ok: true,
       save: {
         progress: {
-          selectedTacticId: "kinetic_crush"
+          selectedRoutineId: "kinetic_crush"
         }
       }
     });
@@ -104,14 +104,14 @@ describe("save schema validation", () => {
       save: {
         version: SAVE_DATA_VERSION,
         progress: {
-          selectedTacticId: "balanced_routine"
+          selectedRoutineId: "balanced_routine"
         }
       },
       migration: {
         normalized: true,
         normalizations: expect.arrayContaining([
           {
-            field: "progress.selectedTacticId",
+            field: "progress.selectedRoutineId",
             reason: "defaulted missing field"
           }
         ])
@@ -121,14 +121,14 @@ describe("save schema validation", () => {
       ok: true,
       save: {
         progress: {
-          selectedTacticId: "balanced_routine"
+          selectedRoutineId: "balanced_routine"
         }
       },
       migration: {
         normalized: true,
         normalizations: expect.arrayContaining([
           {
-            field: "progress.selectedTacticId",
+            field: "progress.selectedRoutineId",
             reason: "defaulted invalid field"
           }
         ])
@@ -141,7 +141,7 @@ describe("save schema validation", () => {
     const result = parseSaveData(staticData, {
       version: SAVE_DATA_VERSION,
       progress: null,
-      selectedOfflineFarmStageId: 5,
+      selectedOfflineFarmRouteId: 5,
       offlineFarmPreset: 5,
       createdAtMs: 2000,
       updatedAtMs: 1000,
@@ -156,7 +156,7 @@ describe("save schema validation", () => {
     expect(result.reason).toBe("invalid_save");
     expect(result.errors).toContain("progress must be an object");
     expect(result.errors).toContain(
-      "selectedOfflineFarmStageId must be a string or null"
+      "selectedOfflineFarmRouteId must be a string or null"
     );
     expect(result.errors).toContain(
       "offlineFarmPreset must be a supported offline farm preset"
@@ -171,11 +171,11 @@ describe("save schema validation", () => {
 
   it("rejects unsupported versions and locked current stages", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.currentStageId = "greenline_approach_5";
+    progress.currentRouteId = "greenline_approach_5";
     const save = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: null,
+        selectedOfflineFarmRouteId: null,
         nowMs: 1000
       }),
       version: 999
@@ -186,7 +186,7 @@ describe("save schema validation", () => {
       `version must be a supported save version (1-${SAVE_DATA_VERSION})`
     );
     expect(errors).toContain(
-      "progress.currentStageId must be unlocked by saved progress"
+      "progress.currentRouteId must be unlocked by saved progress"
     );
   });
 
@@ -194,7 +194,7 @@ describe("save schema validation", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
 

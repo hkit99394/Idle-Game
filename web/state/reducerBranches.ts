@@ -51,7 +51,7 @@ export function normalizeSelectedStageId(
 
   return selectedStage && isStageUnlocked(data, progress, selectedStage)
     ? selectedStage.id
-    : progress.currentStageId;
+    : progress.currentRouteId;
 }
 
 function clearTransientActionState(
@@ -89,7 +89,7 @@ export function reduceStageIdleAction(
       return {
         ...state,
         selectedStageId,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
+        selectedOfflineFarmRouteId: normalizeFarmStageId(
           data,
           state.progress,
           selectedStageId,
@@ -101,7 +101,7 @@ export function reduceStageIdleAction(
     case "select_offline_farm_stage":
       return {
         ...state,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
+        selectedOfflineFarmRouteId: normalizeFarmStageId(
           data,
           state.progress,
           action.stageId,
@@ -115,7 +115,7 @@ export function reduceStageIdleAction(
       return {
         ...state,
         offlineFarmPreset: preset,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
+        selectedOfflineFarmRouteId: normalizeFarmStageId(
           data,
           state.progress,
           null,
@@ -137,7 +137,7 @@ export function reduceStageIdleAction(
           nextProgress,
           selectedStageId
         ),
-        selectedOfflineFarmStageId: normalizeFarmStageId(
+        selectedOfflineFarmRouteId: normalizeFarmStageId(
           data,
           nextProgress,
           selectedStageId,
@@ -169,10 +169,10 @@ export function reduceProgressionAction(
 
       return clearTransientActionState(state, {
         progress: nextProgress,
-        selectedOfflineFarmStageId: normalizeFarmStageId(
+        selectedOfflineFarmRouteId: normalizeFarmStageId(
           data,
           nextProgress,
-          state.selectedOfflineFarmStageId,
+          state.selectedOfflineFarmRouteId,
           state.offlineFarmPreset
         ),
         lastPurchase: action.result
@@ -344,10 +344,10 @@ export function reduceSaveStateAction(
           action.progress,
           state.selectedStageId
         ),
-        selectedOfflineFarmStageId: normalizeFarmStageId(
+        selectedOfflineFarmRouteId: normalizeFarmStageId(
           data,
           action.progress,
-          state.selectedOfflineFarmStageId,
+          state.selectedOfflineFarmRouteId,
           state.offlineFarmPreset
         )
       });

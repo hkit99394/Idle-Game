@@ -151,7 +151,7 @@ export function createWebWorkflowBaselineState(
   const initialState = createInitialWebGameState(data);
   const baselineProgress = {
     ...initialState.progress,
-    currentStageId: webWorkflowBaselineIds.stageId,
+    currentRouteId: webWorkflowBaselineIds.stageId,
     resources: {
       credits: 120,
       resonance: 80,

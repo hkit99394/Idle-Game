@@ -60,7 +60,7 @@ function battleAndSave(
     battleState.lastBattle?.ok && battleState.lastBattle.stageCleared
       ? webGameStateReducer(staticData, battleState, {
           type: "select_stage",
-          stageId: battleState.progress.currentStageId
+          stageId: battleState.progress.currentRouteId
         })
       : battleState;
 
@@ -114,7 +114,7 @@ function createStage13BlackIronBossReadyState(
         }
       ])
     ),
-    sect: {
+    technoSect: {
       upgrades: {
         sect_outer_training: 24,
         sect_inner_training: 20
@@ -139,7 +139,7 @@ function createStage13BlackIronBossReadyState(
         highestClearedRouteIndex: 0
       }
     },
-    currentStageId: stage13SmokeChoices.entryBossStageId
+    currentRouteId: stage13SmokeChoices.entryBossStageId
   };
   const progressedState = webGameStateReducer(staticData, state, {
     type: "replace_progress",
@@ -171,12 +171,12 @@ describe("MVP smoke flow", () => {
       return;
     }
     expect(missingSave.reason).toBe("missing_save");
-    expect(state.progress.currentStageId).toBe("greenline_approach_1");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_1");
 
     state = battleAndSave(storage, state, (nowMs += 1_000));
     state = battleAndSave(storage, state, (nowMs += 1_000));
 
-    expect(state.progress.currentStageId).toBe("greenline_approach_3");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_3");
     expect(state.progress.resources.credits).toBe(24);
     expect(state.progress.districts.greenline_approach.combatData).toBe(10);
 
@@ -205,7 +205,7 @@ describe("MVP smoke flow", () => {
 
     const preBossViewModel = getWebGameViewModel(staticData, state);
 
-    expect(state.progress.currentStageId).toBe("greenline_approach_10");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_10");
     expect(
       state.progress.districts.greenline_approach.highestClearedRouteIndex
     ).toBe(9);
@@ -235,7 +235,7 @@ describe("MVP smoke flow", () => {
       throw new Error("Boss battle did not resolve successfully");
     }
     expect(bossBattleResult.stageCleared).toBe(false);
-    expect(state.progress.currentStageId).toBe("greenline_approach_10");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_10");
     expect(state.selectedStageId).toBe("greenline_approach_10");
 
     state = equipGameEquipment(staticData, state, {
@@ -288,7 +288,7 @@ describe("MVP smoke flow", () => {
     saveState(storage, state, (nowMs += 1_000));
 
     expect(state.selectedStageId).toBe("greenline_approach_1");
-    expect(state.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(state.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
 
     const reloadedState = createInitialWebGameStateFromStorage(
       staticData,
@@ -296,12 +296,12 @@ describe("MVP smoke flow", () => {
       nowMs
     );
 
-    expect(reloadedState.progress.currentStageId).toBe("greenline_approach_10");
+    expect(reloadedState.progress.currentRouteId).toBe("greenline_approach_10");
     expect(
       reloadedState.progress.districts.greenline_approach.highestClearedRouteIndex
     ).toBe(9);
     expectStage12SmokeChoices(reloadedState);
-    expect(reloadedState.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(reloadedState.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(reloadedState.offlineSummary).toBeNull();
 
     const offlineState = createInitialWebGameStateFromStorage(
@@ -342,7 +342,7 @@ describe("MVP smoke flow", () => {
     let nowMs = 10_000;
     let state = createStage13BlackIronBossReadyState(storage, nowMs);
 
-    expect(state.progress.currentStageId).toBe(
+    expect(state.progress.currentRouteId).toBe(
       stage13SmokeChoices.entryBossStageId
     );
     expect(state.selectedStageId).toBe(stage13SmokeChoices.entryBossStageId);
@@ -354,7 +354,7 @@ describe("MVP smoke flow", () => {
       throw new Error("Black Iron boss did not resolve successfully");
     }
     expect(state.lastBattle.stageCleared).toBe(true);
-    expect(state.progress.currentStageId).toBe("lotus_clinic_1");
+    expect(state.progress.currentRouteId).toBe("lotus_clinic_1");
     expect(state.selectedStageId).toBe("lotus_clinic_1");
     expect(
       state.progress.districts.black_iron_foundry.highestClearedRouteIndex
@@ -376,7 +376,7 @@ describe("MVP smoke flow", () => {
       expect(state.lastBattle.stageCleared, stageId).toBe(true);
     }
 
-    expect(state.progress.currentStageId).toBe("lotus_clinic_4");
+    expect(state.progress.currentRouteId).toBe("lotus_clinic_4");
     expect(
       state.progress.districts.lotus_clinic.highestClearedRouteIndex
     ).toBe(3);
@@ -434,7 +434,7 @@ describe("MVP smoke flow", () => {
     saveState(storage, state, (nowMs += 1_000));
 
     expect(state.selectedStageId).toBe(stage13SmokeChoices.farmStageId);
-    expect(state.selectedOfflineFarmStageId).toBe(
+    expect(state.selectedOfflineFarmRouteId).toBe(
       stage13SmokeChoices.farmStageId
     );
 
@@ -444,14 +444,14 @@ describe("MVP smoke flow", () => {
       nowMs
     );
 
-    expect(reloadedState.progress.currentStageId).toBe("lotus_clinic_4");
+    expect(reloadedState.progress.currentRouteId).toBe("lotus_clinic_4");
     expect(reloadedState.progress.activeHeroIds).toContain(
       stage13SmokeChoices.supportHeroId
     );
     expect(
       reloadedState.progress.assignments?.[stage13SmokeChoices.assignmentId]?.heroIds
     ).toEqual([stage13SmokeChoices.assignmentHeroId]);
-    expect(reloadedState.selectedOfflineFarmStageId).toBe(
+    expect(reloadedState.selectedOfflineFarmRouteId).toBe(
       stage13SmokeChoices.farmStageId
     );
     expect(reloadedState.progress.resources.reagents).toBe(

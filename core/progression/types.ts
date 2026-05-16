@@ -52,9 +52,9 @@ export type AssignmentProgress = Record<string, { heroIds: string[] }>;
 export type PlayerProgress = {
   resources: ResourceState;
   heroes: Record<string, HeroProgress>;
-  sect: SectProgress;
+  technoSect: SectProgress;
   districts: Record<string, DistrictProgress>;
-  selectedTacticId?: string;
+  selectedRoutineId?: string;
   activeHeroIds?: string[];
   formation?: Record<string, FormationSlot>;
   styleMastery?: Record<string, StyleMasteryProgress>;
@@ -63,7 +63,7 @@ export type PlayerProgress = {
   equipment?: EquipmentProgress;
   medicineInventory?: MedicineInventory;
   assignments?: AssignmentProgress;
-  currentStageId: string;
+  currentRouteId: string;
 };
 
 export type PurchaseUpgradeInput = {

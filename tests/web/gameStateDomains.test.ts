@@ -153,7 +153,7 @@ describe("web game state domains", () => {
     expect(counterplayState.autoMedicinePreferences.disabledMedicineIds).toEqual([
       "clear_heart_countermeasure"
     ]);
-    expect(tacticState.progress.selectedTacticId).toBe("long_stabilization");
+    expect(tacticState.progress.selectedRoutineId).toBe("long_stabilization");
   });
 
   it("keeps save/reset helpers behind the save command surface", () => {

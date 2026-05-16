@@ -92,10 +92,10 @@ describe("web save storage", () => {
     }
 
     expect(loadResult.reason).toBe("missing_save");
-    expect(state.progress.currentStageId).toBe("greenline_approach_1");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_1");
     expect(state.progress.resources.credits).toBe(0);
     expect(state.selectedStageId).toBe("greenline_approach_1");
-    expect(state.selectedOfflineFarmStageId).toBeNull();
+    expect(state.selectedOfflineFarmRouteId).toBeNull();
     expect(state.offlineFarmPreset).toBe("balanced");
   });
 
@@ -104,11 +104,11 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.resources.credits = 123;
     progress.districts.greenline_approach.highestClearedRouteIndex = 2;
-    progress.currentStageId = "greenline_approach_3";
+    progress.currentRouteId = "greenline_approach_3";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
-      offlineFarmPreset: "silver",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
+      offlineFarmPreset: "credits",
       nowMs: 1000
     });
 
@@ -151,9 +151,9 @@ describe("web save storage", () => {
           districts: {
             bamboo_road: progress.districts.greenline_approach
           },
-          currentStageId: "bamboo_road_3"
+          currentRouteId: "bamboo_road_3"
         },
-        selectedOfflineFarmStageId: "bamboo_road_1",
+        selectedOfflineFarmRouteId: "bamboo_road_1",
         nowMs: 1000
       }),
       version: 10
@@ -182,10 +182,10 @@ describe("web save storage", () => {
       combatData: 0,
       highestClearedRouteIndex: 2
     });
-    expect(copiedSave.save.progress.currentStageId).toBe(
+    expect(copiedSave.save.progress.currentRouteId).toBe(
       "greenline_approach_3"
     );
-    expect(copiedSave.save.selectedOfflineFarmStageId).toBe(
+    expect(copiedSave.save.selectedOfflineFarmRouteId).toBe(
       "greenline_approach_1"
     );
     expect(storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY)).toBe(
@@ -199,7 +199,7 @@ describe("web save storage", () => {
     canonicalProgress.resources.credits = 456;
     const canonicalSave = createSaveData({
       progress: canonicalProgress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 2000
     });
 
@@ -243,7 +243,7 @@ describe("web save storage", () => {
     progress.resources.credits = 123;
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
 
@@ -276,10 +276,10 @@ describe("web save storage", () => {
     const storage = new FailingWriteStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1000
     });
 
@@ -317,7 +317,7 @@ describe("web save storage", () => {
     const storage = new FailingReadStorage();
     const save = createSaveData({
       progress: createInitialPlayerProgress(staticData),
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
 
@@ -345,11 +345,11 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.resources.credits = 123;
     progress.districts.greenline_approach.highestClearedRouteIndex = 2;
-    progress.currentStageId = "greenline_approach_3";
+    progress.currentRouteId = "greenline_approach_3";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
-      offlineFarmPreset: "silver",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
+      offlineFarmPreset: "credits",
       nowMs: 1000
     });
 
@@ -358,10 +358,10 @@ describe("web save storage", () => {
     const state = createInitialWebGameStateFromStorage(staticData, storage, 1000);
 
     expect(state.progress.resources.credits).toBe(123);
-    expect(state.progress.currentStageId).toBe("greenline_approach_3");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_3");
     expect(state.selectedStageId).toBe("greenline_approach_3");
-    expect(state.selectedOfflineFarmStageId).toBe("greenline_approach_1");
-    expect(state.offlineFarmPreset).toBe("silver");
+    expect(state.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
+    expect(state.offlineFarmPreset).toBe("credits");
   });
 
   it("rewrites migrated legacy saves even when no offline rewards are applied", () => {
@@ -440,11 +440,11 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.resources.credits = 321;
     progress.districts.greenline_approach.highestClearedRouteIndex = 2;
-    progress.currentStageId = "greenline_approach_3";
+    progress.currentRouteId = "greenline_approach_3";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_2",
-      offlineFarmPreset: "cultivation",
+      selectedOfflineFarmRouteId: "greenline_approach_2",
+      offlineFarmPreset: "resonance",
       autoMedicinePreferences: {
         enabled: true,
         battleCleanseEnabled: true,
@@ -485,9 +485,9 @@ describe("web save storage", () => {
       return;
     }
     expect(importedSave.save.progress.resources.credits).toBe(321);
-    expect(importedSave.save.progress.currentStageId).toBe("greenline_approach_3");
-    expect(importedSave.save.selectedOfflineFarmStageId).toBe("greenline_approach_2");
-    expect(importedSave.save.offlineFarmPreset).toBe("cultivation");
+    expect(importedSave.save.progress.currentRouteId).toBe("greenline_approach_3");
+    expect(importedSave.save.selectedOfflineFarmRouteId).toBe("greenline_approach_2");
+    expect(importedSave.save.offlineFarmPreset).toBe("resonance");
     expect(importedSave.save.autoMedicinePreferences).toMatchObject({
       preBattleResistanceMode: "status_heavy",
       disabledMedicineIds: ["clear_heart_countermeasure"]
@@ -506,10 +506,10 @@ describe("web save storage", () => {
           districts: {
             bamboo_road: progress.districts.greenline_approach
           },
-          currentStageId: "bamboo_road_3"
+          currentRouteId: "bamboo_road_3"
         },
-        selectedOfflineFarmStageId: "bamboo_road_2",
-        offlineFarmPreset: "combatExperience",
+        selectedOfflineFarmRouteId: "bamboo_road_2",
+        offlineFarmPreset: "combatData",
         nowMs: 1000
       }),
       version: 10
@@ -533,16 +533,16 @@ describe("web save storage", () => {
       highestClearedRouteIndex: 2
     });
     expect(importResult.save.progress.districts.bamboo_road).toBeUndefined();
-    expect(importResult.save.progress.currentStageId).toBe(
+    expect(importResult.save.progress.currentRouteId).toBe(
       "greenline_approach_3"
     );
-    expect(importResult.save.selectedOfflineFarmStageId).toBe(
+    expect(importResult.save.selectedOfflineFarmRouteId).toBe(
       "greenline_approach_2"
     );
-    expect(importedSave.save.progress.currentStageId).toBe(
+    expect(importedSave.save.progress.currentRouteId).toBe(
       "greenline_approach_3"
     );
-    expect(importedSave.save.selectedOfflineFarmStageId).toBe(
+    expect(importedSave.save.selectedOfflineFarmRouteId).toBe(
       "greenline_approach_2"
     );
   });
@@ -558,10 +558,10 @@ describe("web save storage", () => {
         districts: {
           bamboo_road: progress.districts.greenline_approach
         },
-        currentStageId: "bamboo_road_3"
+        currentRouteId: "bamboo_road_3"
       },
-      selectedOfflineFarmStageId: "bamboo_road_2",
-      offlineFarmPreset: "combatExperience",
+      selectedOfflineFarmRouteId: "bamboo_road_2",
+      offlineFarmPreset: "combatData",
       nowMs: 1000
     });
 
@@ -584,16 +584,16 @@ describe("web save storage", () => {
       highestClearedRouteIndex: 2
     });
     expect(importResult.save.progress.districts.bamboo_road).toBeUndefined();
-    expect(importResult.save.progress.currentStageId).toBe(
+    expect(importResult.save.progress.currentRouteId).toBe(
       "greenline_approach_3"
     );
-    expect(importResult.save.selectedOfflineFarmStageId).toBe(
+    expect(importResult.save.selectedOfflineFarmRouteId).toBe(
       "greenline_approach_2"
     );
-    expect(importedSave.save.progress.currentStageId).toBe(
+    expect(importedSave.save.progress.currentRouteId).toBe(
       "greenline_approach_3"
     );
-    expect(importedSave.save.selectedOfflineFarmStageId).toBe(
+    expect(importedSave.save.selectedOfflineFarmRouteId).toBe(
       "greenline_approach_2"
     );
   });
@@ -643,7 +643,7 @@ describe("web save storage", () => {
             heroIds: ["iron_fist_initiate"]
           }
         },
-        selectedTacticId: "kinetic_crush"
+        selectedRoutineId: "kinetic_crush"
       },
       autoMedicinePreferences: {
         enabled: true,
@@ -653,7 +653,7 @@ describe("web save storage", () => {
         preBattleResistanceMode: "boss_and_elite",
         disabledMedicineIds: ["clear_heart_countermeasure"]
       },
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
 
@@ -676,7 +676,7 @@ describe("web save storage", () => {
       upgrades: {}
     });
     expect(importResult.save.progress.heroes.iron_fist_disciple).toBeUndefined();
-    expect(importResult.save.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(importResult.save.progress.selectedRoutineId).toBe("kinetic_crush");
     expect(importResult.save.progress.equipment?.inventory).toEqual({
       impact_training_wraps: 1
     });
@@ -688,7 +688,7 @@ describe("web save storage", () => {
     expect(importResult.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
       "clear_heart_countermeasure"
     ]);
-    expect(importedSave.save.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(importedSave.save.progress.selectedRoutineId).toBe("kinetic_crush");
     expect(importedSave.save.progress.assignments).toEqual({
       greenline_sweep: {
         heroIds: ["iron_fist_initiate"]
@@ -700,10 +700,10 @@ describe("web save storage", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_10",
+      selectedOfflineFarmRouteId: "greenline_approach_10",
       nowMs: 1000
     });
 
@@ -719,8 +719,8 @@ describe("web save storage", () => {
     if (!importResult.ok || !importedSave.ok) {
       return;
     }
-    expect(importResult.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
-    expect(importedSave.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(importResult.save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
+    expect(importedSave.save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(importedSave.save.updatedAtMs).toBe(1000);
     expect(importedSave.save.lastOfflineRewardAtMs).toBe(1000);
   });
@@ -731,7 +731,7 @@ describe("web save storage", () => {
     progress.resources.credits = 50;
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
 
@@ -758,7 +758,7 @@ describe("web save storage", () => {
     progress.resources.credits = 50;
     const currentSave = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const invalidImport = {
@@ -800,7 +800,7 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     const currentSave = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const invalidImport = {
@@ -842,12 +842,12 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.resources.credits = 999;
     progress.districts.greenline_approach.highestClearedRouteIndex = 2;
-    progress.currentStageId = "greenline_approach_3";
+    progress.currentRouteId = "greenline_approach_3";
     storage.setItem(
       WEB_SAVE_STORAGE_KEY,
       JSON.stringify(createSaveData({
         progress,
-        selectedOfflineFarmStageId: "greenline_approach_1",
+        selectedOfflineFarmRouteId: "greenline_approach_1",
         nowMs: 1000
       }))
     );
@@ -861,8 +861,8 @@ describe("web save storage", () => {
       return;
     }
     expect(currentSave.save.progress.resources.credits).toBe(0);
-    expect(currentSave.save.progress.currentStageId).toBe("greenline_approach_1");
-    expect(currentSave.save.selectedOfflineFarmStageId).toBeNull();
+    expect(currentSave.save.progress.currentRouteId).toBe("greenline_approach_1");
+    expect(currentSave.save.selectedOfflineFarmRouteId).toBeNull();
     expect(currentSave.save.offlineFarmPreset).toBe("balanced");
     expect(currentSave.save.updatedAtMs).toBe(2000);
   });
@@ -871,10 +871,10 @@ describe("web save storage", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 100_000
     });
     storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
@@ -948,7 +948,7 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
@@ -976,10 +976,10 @@ describe("web save storage", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1000
     });
     storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(save));
@@ -1002,7 +1002,7 @@ describe("web save storage", () => {
       firstLoadState.progress.districts.greenline_approach.combatData
     ).toBeCloseTo(9);
     expect(firstLoadState.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(1);
-    expect(firstLoadState.progress.currentStageId).toBe("greenline_approach_2");
+    expect(firstLoadState.progress.currentRouteId).toBe("greenline_approach_2");
     expect(firstLoadState.offlineSummary).toMatchObject({
       stageId: "greenline_approach_1",
       offlineSeconds: 30,
@@ -1045,7 +1045,7 @@ describe("web save storage", () => {
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1_000
     });
 
@@ -1093,10 +1093,10 @@ describe("web save storage", () => {
     const storage = new FailingWriteStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1_000
     });
 
@@ -1169,10 +1169,10 @@ describe("web save storage", () => {
     const storage = new FailingWriteStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1_000
     });
 
@@ -1196,8 +1196,8 @@ describe("web save storage", () => {
       progress: changedStateBeforeOrdinarySave.progress,
       autoMedicinePreferences:
         changedStateBeforeOrdinarySave.autoMedicinePreferences,
-      selectedOfflineFarmStageId:
-        changedStateBeforeOrdinarySave.selectedOfflineFarmStageId,
+      selectedOfflineFarmRouteId:
+        changedStateBeforeOrdinarySave.selectedOfflineFarmRouteId,
       offlineFarmPreset: changedStateBeforeOrdinarySave.offlineFarmPreset,
       nowMs: 45_000,
       previousSave: save
@@ -1296,10 +1296,10 @@ describe("web save storage", () => {
     const storage = new FailingWriteStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1000
     });
     const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
@@ -1372,10 +1372,10 @@ describe("web save storage", () => {
     const storage = new FailingWriteStorage();
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1000
     });
     const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
@@ -1400,8 +1400,8 @@ describe("web save storage", () => {
       progress: changedStateBeforeOrdinarySave.progress,
       autoMedicinePreferences:
         changedStateBeforeOrdinarySave.autoMedicinePreferences,
-      selectedOfflineFarmStageId:
-        changedStateBeforeOrdinarySave.selectedOfflineFarmStageId,
+      selectedOfflineFarmRouteId:
+        changedStateBeforeOrdinarySave.selectedOfflineFarmRouteId,
       offlineFarmPreset: changedStateBeforeOrdinarySave.offlineFarmPreset,
       nowMs: 45_000,
       previousSave: save
@@ -1528,7 +1528,7 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
@@ -1565,7 +1565,7 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
@@ -1596,23 +1596,23 @@ describe("web save storage", () => {
     const cases = [
       {
         name: "missing",
-        selectedOfflineFarmStageId: "missing_stage",
+        selectedOfflineFarmRouteId: "missing_stage",
         highestClearedRouteIndex: 9,
-        currentStageId: "greenline_approach_10",
+        currentRouteId: "greenline_approach_10",
         expectedFarmStageId: "greenline_approach_8"
       },
       {
         name: "locked",
-        selectedOfflineFarmStageId: "greenline_approach_3",
+        selectedOfflineFarmRouteId: "greenline_approach_3",
         highestClearedRouteIndex: 1,
-        currentStageId: "greenline_approach_2",
+        currentRouteId: "greenline_approach_2",
         expectedFarmStageId: "greenline_approach_1"
       },
       {
         name: "boss",
-        selectedOfflineFarmStageId: "greenline_approach_10",
+        selectedOfflineFarmRouteId: "greenline_approach_10",
         highestClearedRouteIndex: 10,
-        currentStageId: "greenline_approach_10",
+        currentRouteId: "greenline_approach_10",
         expectedFarmStageId: "greenline_approach_8"
       }
     ];
@@ -1622,10 +1622,10 @@ describe("web save storage", () => {
       const progress = createInitialPlayerProgress(staticData);
       progress.districts.greenline_approach.highestClearedRouteIndex =
         testCase.highestClearedRouteIndex;
-      progress.currentStageId = testCase.currentStageId;
+      progress.currentRouteId = testCase.currentRouteId;
       const save = createSaveData({
         progress,
-        selectedOfflineFarmStageId: testCase.selectedOfflineFarmStageId,
+        selectedOfflineFarmRouteId: testCase.selectedOfflineFarmRouteId,
         nowMs: 1000
       });
 
@@ -1638,7 +1638,7 @@ describe("web save storage", () => {
       );
       const normalizedSave = loadSaveDataFromStorage(staticData, storage);
 
-      expect(state.selectedOfflineFarmStageId, testCase.name).toBe(
+      expect(state.selectedOfflineFarmRouteId, testCase.name).toBe(
         testCase.expectedFarmStageId
       );
       expect(normalizedSave.ok, testCase.name).toBe(true);
@@ -1646,7 +1646,7 @@ describe("web save storage", () => {
         return;
       }
       expect(
-        normalizedSave.save.selectedOfflineFarmStageId,
+        normalizedSave.save.selectedOfflineFarmRouteId,
         testCase.name
       ).toBe(testCase.expectedFarmStageId);
     }
@@ -1665,7 +1665,7 @@ describe("web save storage", () => {
     }
 
     expect(loadResult.reason).toBe("invalid_json");
-    expect(state.progress.currentStageId).toBe("greenline_approach_1");
+    expect(state.progress.currentRouteId).toBe("greenline_approach_1");
     expect(state.progress.resources.credits).toBe(0);
   });
 
@@ -1674,7 +1674,7 @@ describe("web save storage", () => {
     const progress = createInitialPlayerProgress(staticData);
     const previousSave = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     storage.setItem(WEB_SAVE_STORAGE_KEY, JSON.stringify(previousSave));
@@ -1739,7 +1739,7 @@ describe("web save storage", () => {
       createInitialWebGameStateFromStorage(staticData, storage, 1000),
       {
         type: "set_offline_farm_preset",
-        preset: "silver"
+        preset: "credits"
       }
     );
     const saveResult = saveWebGameStateToStorage(
@@ -1755,8 +1755,8 @@ describe("web save storage", () => {
     if (!saveResult.ok || !loadResult.ok) {
       return;
     }
-    expect(saveResult.save.offlineFarmPreset).toBe("silver");
-    expect(loadResult.save.offlineFarmPreset).toBe("silver");
+    expect(saveResult.save.offlineFarmPreset).toBe("credits");
+    expect(loadResult.save.offlineFarmPreset).toBe("credits");
   });
 
   it("uses an autosave interval within the MVP range", () => {

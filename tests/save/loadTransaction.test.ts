@@ -24,7 +24,7 @@ describe("save load transaction", () => {
     }
 
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
-    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(result.save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(result.save.offlineFarmPreset).toBe("balanced");
     expect(result.changed).toBe(true);
     expect(result.writeReasons).toEqual(["migrated"]);
@@ -41,7 +41,7 @@ describe("save load transaction", () => {
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1_000
     });
     const firstLoad = applySaveLoadTransaction({
@@ -75,7 +75,7 @@ describe("save load transaction", () => {
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1_000
     });
     const firstLoad = loadSaveTransaction({
@@ -119,7 +119,7 @@ describe("save load transaction", () => {
     const save = {
       ...createSaveData({
         progress,
-        selectedOfflineFarmStageId: "bamboo_road_1",
+        selectedOfflineFarmRouteId: "bamboo_road_1",
         nowMs: 1_000
       }),
       progress: {
@@ -127,7 +127,7 @@ describe("save load transaction", () => {
         districts: {
           bamboo_road: progress.districts.greenline_approach
         },
-        currentStageId: "bamboo_road_2"
+        currentRouteId: "bamboo_road_2"
       },
       version: 10
     };
@@ -156,8 +156,8 @@ describe("save load transaction", () => {
     expect(firstLoad.save.progress.districts.greenline_approach.combatData).toBeGreaterThan(
       0
     );
-    expect(firstLoad.save.progress.currentStageId).toBe("greenline_approach_2");
-    expect(firstLoad.save.selectedOfflineFarmStageId).toBe(
+    expect(firstLoad.save.progress.currentRouteId).toBe("greenline_approach_2");
+    expect(firstLoad.save.selectedOfflineFarmRouteId).toBe(
       "greenline_approach_1"
     );
     expect(firstLoad.offlineRewards?.ok).toBe(true);
@@ -180,7 +180,7 @@ describe("save load transaction", () => {
     };
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1_000
     });
     const firstLoad = applySaveLoadTransaction({
@@ -221,7 +221,7 @@ describe("save load transaction", () => {
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_10",
+      selectedOfflineFarmRouteId: "greenline_approach_10",
       offlineFarmPreset: "balanced",
       nowMs: 1_000
     });
@@ -234,7 +234,7 @@ describe("save load transaction", () => {
     expect(result.ok).toBe(true);
     expect(result.changed).toBe(true);
     expect(result.writeReasons).toEqual(["normalizedFarmTarget"]);
-    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(result.save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(result.save.updatedAtMs).toBe(1_000);
     expect(result.save.lastOfflineRewardAtMs).toBe(1_000);
     expect(result.offlineRewards?.ok).toBe(true);
@@ -245,7 +245,7 @@ describe("save load transaction", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1_000
     });
     const serializedSave = JSON.parse(JSON.stringify(save));
@@ -279,7 +279,7 @@ describe("save load transaction", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1_000
     });
     const result = loadSaveTransaction({

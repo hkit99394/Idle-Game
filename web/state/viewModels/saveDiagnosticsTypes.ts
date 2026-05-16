@@ -20,8 +20,8 @@ export type SaveDiagnosticsView = {
   createdAtMs: number | null;
   updatedAtMs: number | null;
   lastOfflineRewardAtMs: number | null;
-  currentStageId: string;
-  selectedOfflineFarmStageId: string | null;
+  currentRouteId: string;
+  selectedOfflineFarmRouteId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
   highestClearedRouteIndex: number;
   autosaveIntervalMs: number;

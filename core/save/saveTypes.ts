@@ -33,7 +33,7 @@ export type SaveData = {
   version: typeof SAVE_DATA_VERSION;
   progress: PlayerProgress;
   autoMedicinePreferences: AutoMedicinePreferences;
-  selectedOfflineFarmStageId: string | null;
+  selectedOfflineFarmRouteId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
   createdAtMs: number;
   updatedAtMs: number;
@@ -42,7 +42,7 @@ export type SaveData = {
 
 export type CreateSaveDataInput = {
   progress: PlayerProgress;
-  selectedOfflineFarmStageId: string | null;
+  selectedOfflineFarmRouteId: string | null;
   offlineFarmPreset?: OfflineFarmPreset;
   nowMs: number;
   lastOfflineRewardAtMs?: number;

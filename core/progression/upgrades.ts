@@ -30,7 +30,7 @@ export function getUpgradeLevel(
     return heroId ? progress.heroes[heroId]?.upgrades[upgrade.id] ?? 0 : 0;
   }
 
-  return progress.sect.upgrades[upgrade.id] ?? 0;
+  return progress.technoSect.upgrades[upgrade.id] ?? 0;
 }
 
 export function purchaseUpgrade(
@@ -74,7 +74,7 @@ export function purchaseUpgrade(
     const hero = nextProgress.heroes[input.heroId as string];
     hero.upgrades[upgrade.id] = currentLevel + 1;
   } else {
-    nextProgress.sect.upgrades[upgrade.id] = currentLevel + 1;
+    nextProgress.technoSect.upgrades[upgrade.id] = currentLevel + 1;
   }
 
   return {

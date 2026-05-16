@@ -74,7 +74,7 @@ export function buildOfflineFarmPresetViews(
 export function buildOfflineFarmRecommendationView(
   data: StaticGameData,
   progress: PlayerProgress,
-  selectedOfflineFarmStageId: string | null,
+  selectedOfflineFarmRouteId: string | null,
   preset: OfflineFarmPreset
 ): OfflineFarmRecommendationView {
   const policy = getOfflineFarmPresetPolicy(preset);
@@ -101,8 +101,8 @@ export function buildOfflineFarmRecommendationView(
     description: policy.description,
     rewardPriority: policy.rewardPriority.map(formatOfflineFarmPriority),
     herbsPerClear: recommendedStage.rewards.herbs ?? 0,
-    isSelected: selectedOfflineFarmStageId
-      ? areStageIdsEquivalent(recommendedStage.id, selectedOfflineFarmStageId)
+    isSelected: selectedOfflineFarmRouteId
+      ? areStageIdsEquivalent(recommendedStage.id, selectedOfflineFarmRouteId)
       : false
   };
 }
@@ -121,15 +121,15 @@ function formatOfflinePreviewReason(reason: string): string {
 export function buildOfflineRewardPreviewView(
   data: StaticGameData,
   progress: PlayerProgress,
-  selectedOfflineFarmStageId: string | null
+  selectedOfflineFarmRouteId: string | null
 ): OfflineRewardPreviewView {
-  const stage = selectedOfflineFarmStageId
-    ? getStageById(data, selectedOfflineFarmStageId)
+  const stage = selectedOfflineFarmRouteId
+    ? getStageById(data, selectedOfflineFarmRouteId)
     : null;
   const preview = previewOfflineRewards({
     data,
     progress,
-    selectedOfflineFarmStageId,
+    selectedOfflineFarmRouteId,
     previewSeconds: OFFLINE_TIME_TRAVEL_SECONDS
   });
 

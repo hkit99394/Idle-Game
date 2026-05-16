@@ -93,11 +93,11 @@ export function validateHeroes(
 }
 
 export function validateSect(value: unknown, errors: string[]): value is SectProgress {
-  if (!validateRecord(value, "progress.sect", errors)) {
+  if (!validateRecord(value, "progress.technoSect", errors)) {
     return false;
   }
 
-  validateNumberMap(value.upgrades, "progress.sect.upgrades", errors);
+  validateNumberMap(value.upgrades, "progress.technoSect.upgrades", errors);
 
   return true;
 }
@@ -633,13 +633,13 @@ export function validateSelectedTacticId(
   data: Pick<StaticGameData, "tactics">,
   value: unknown,
   errors: string[]
-): value is PlayerProgress["selectedTacticId"] {
+): value is PlayerProgress["selectedRoutineId"] {
   if (value === undefined) {
     return true;
   }
 
   if (!isKnownTacticId(data, value)) {
-    errors.push("progress.selectedTacticId must reference an existing tactic");
+    errors.push("progress.selectedRoutineId must reference an existing tactic");
     return false;
   }
 
@@ -651,15 +651,15 @@ export function validateCurrentStage(
   progress: PlayerProgress,
   errors: string[]
 ): void {
-  const stage = getStageById(data, progress.currentStageId);
+  const stage = getStageById(data, progress.currentRouteId);
 
   if (!stage) {
-    errors.push("progress.currentStageId must reference an existing stage");
+    errors.push("progress.currentRouteId must reference an existing stage");
     return;
   }
 
   if (!isStageUnlocked(data, progress, stage)) {
-    errors.push("progress.currentStageId must be unlocked by saved progress");
+    errors.push("progress.currentRouteId must be unlocked by saved progress");
   }
 }
 
@@ -676,9 +676,9 @@ export function validateProgress(
 
   validateResources(value.resources, errors);
   validateHeroes(data, value.heroes, errors);
-  validateSect(value.sect, errors);
+  validateSect(value.technoSect, errors);
   validateDistricts(data, value.districts, errors);
-  validateSelectedTacticId(data, value.selectedTacticId, errors);
+  validateSelectedTacticId(data, value.selectedRoutineId, errors);
   validateActiveHeroIds(data, value as PlayerProgress, value.activeHeroIds, errors);
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);
@@ -688,8 +688,8 @@ export function validateProgress(
   validateMedicineInventory(data, value.medicineInventory, errors);
   validateAssignmentProgress(data, value, value.assignments, errors);
 
-  if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {
-    errors.push("progress.currentStageId must be a non-empty string");
+  if (typeof value.currentRouteId !== "string" || value.currentRouteId.length === 0) {
+    errors.push("progress.currentRouteId must be a non-empty string");
     return false;
   }
 

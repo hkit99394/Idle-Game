@@ -17,7 +17,7 @@ describe("cloud save contract", () => {
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1_000
     });
     const envelope = createCloudSaveEnvelope({
@@ -59,7 +59,7 @@ describe("cloud save contract", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1_000
     });
     const envelope = createCloudSaveEnvelope({

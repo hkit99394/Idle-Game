@@ -793,7 +793,7 @@ function summarizeBattle(
       )
     },
     rewards: result.rewards,
-    currentStageId: result.progress.currentStageId,
+    currentRouteId: result.progress.currentRouteId,
     highestClearedRouteIndex:
       result.progress.districts[stage.regionId]?.highestClearedRouteIndex ?? 0,
     suggestedFarmStageId: result.suggestedFarmStageId

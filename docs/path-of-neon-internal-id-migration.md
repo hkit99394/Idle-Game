@@ -55,6 +55,16 @@ Stage 2.6 completed static content id migration in focused slices while preservi
 - Slice 91.8 completed compatibility hardening, stale-scan classification, release-readiness validation, and archival of the Stage 2.6 backlog and preflight.
 - No static content-id rename category remains open in Stage 2.6. Stage 2.7 should own save resource/progress field migration.
 
+## Stage 2.7 In-Progress Snapshot
+
+Stage 2.7 has moved saves to version `13` for owned resource/progress field migration.
+
+- Slice 92.1 locked the save-field target matrix.
+- Slice 92.2 added save-field alias normalization and current-schema serialization.
+- Slice 92.3 moved runtime resources and district progress to `credits`, `resonance`, `reagents`, `districts`, `combatData`, and `highestClearedRouteIndex`.
+- Slice 92.4 moved route/farm/routine/techno-sect runtime and save fields to `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`, and migrated `offlineFarmPreset` values to `credits`, `resonance`, and `combatData`.
+- Legacy save fields such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, `currentStageId`, `selectedOfflineFarmStageId`, `selectedTacticId`, and `sect` remain import-compatible aliases.
+
 ## Scope
 
 Internal names include three different categories.
@@ -62,7 +72,7 @@ Internal names include three different categories.
 | Category | Examples | Migration risk |
 | --- | --- | --- |
 | Static ids | `greenline_approach`, `redline_outpost`, `greenline_cutter`, `iron_fist_initiate`, `impact_combo`, `corruption`, `impact_training_wraps`, `clear_heart_countermeasure`, `greenline_sweep`, `balanced_routine` | Breaks stage unlock refs, save refs, reports, tests, and data validation if renamed without aliasing. Region/stage and Stage 2.6 static content categories have migrated; remaining internal rename work belongs to later save-field, code-symbol, report-field, or cleanup stages. |
-| Persisted save fields | `silver`, `cultivation`, `herbs`, `combatExperience`, `sect`, `maps`, `innerQi`, `selectedOfflineFarmStageId` | Requires a save schema version bump and fixture coverage. |
+| Persisted save fields | Current fields such as `credits`, `resonance`, `reagents`, `combatData`, `technoSect`, `districts`, and legacy aliases such as `silver`, `cultivation`, `herbs`, `combatExperience`, `sect`, `maps`, and `selectedOfflineFarmStageId` | Requires a save schema version bump and fixture coverage. |
 | Product/runtime keys | `path-of-jianghu.save.v1`, `path-of-jianghu-shell-v1`, `path-of-jianghu.svg`, package/app metadata | Requires dual-read/write or cleanup behavior so existing local players and installed PWAs do not lose state. |
 
 ## Migration Principles
@@ -86,7 +96,7 @@ Minimum alias entry shape:
 | `legacyId` | Existing id accepted from saves, exports, fixtures, static refs, reports, and old URLs if any. |
 | `targetId` | New canonical id emitted by current saves, exports, static data, and reports after the owning phase. |
 | `displayName` | Current player-facing name used to confirm the target id matches Stage 2.3 vocabulary. |
-| `referenceFields` | Fields that can contain this id, such as `stageId`, `regionId`, `heroId`, `skillId`, `equipmentId`, `statusId`, `selectedTacticId`, or map keys. |
+| `referenceFields` | Fields that can contain this id, such as `stageId`, `regionId`, `heroId`, `skillId`, `equipmentId`, `statusId`, `selectedRoutineId`, or map keys. |
 | `phase` | One of `product_keys`, `region_stage_ids`, `content_ids`, `save_fields`, or `combat_symbols`. |
 
 The first implementation should expose alias maps through reusable helpers, then route save migration, static-data validation, report formatting, and import normalization through the same source of truth.
@@ -115,7 +125,7 @@ Start static ids with region and stage aliases, then move through content ids in
 | Countermeasures | One alias per medicine id; migrate inventory keys and auto-medicine disabled lists together. |
 | Statuses | One alias per status id and a separate decision for battle event ids such as `qi_break`. |
 | Operations | One alias per assignment id; migrate assignment progress keys and unlock refs together. |
-| Routines | One alias per tactic id; migrate `selectedTacticId` only when the save-field phase owns the field rename. |
+| Routines | One alias per tactic id; migrate `selectedRoutineId` only when the save-field phase owns the field rename. |
 
 Representative content alias targets from the Stage 2.3 display retheme:
 
@@ -255,15 +265,15 @@ Likely target fields:
 | `combatExperience` | `combatData` |
 | `sect` | `technoSect` |
 | `maps` | `districts` |
-| `selectedOfflineFarmStageId` | `selectedOfflineFarmRouteId` |
-| `selectedTacticId` | `selectedRoutineId` only if tactics become routines in UI and data |
+| `selectedOfflineFarmRouteId` | `selectedOfflineFarmRouteId` |
+| `selectedRoutineId` | `selectedRoutineId` only if tactics become routines in UI and data |
 
 Save-version strategy:
 
 - Product/storage-key migration can reuse the current save schema if the payload shape does not change; it still needs browser-storage tests proving old-key saves copy to the new key safely.
-- Static id migration needs a new `SAVE_DATA_VERSION` because persisted fields store ids in `currentStageId`, `selectedOfflineFarmStageId`, `progress.maps`, hero progress keys, active team ids, assignment hero ids, equipment inventory/equipped ids, disabled medicine ids, and `selectedTacticId`.
+- Static id migration needs a new `SAVE_DATA_VERSION` because persisted fields store ids in `currentRouteId`, `selectedOfflineFarmRouteId`, `progress.maps`, hero progress keys, active team ids, assignment hero ids, equipment inventory/equipped ids, disabled medicine ids, and `selectedRoutineId`.
 - Resource and progress field migration should be a separate `SAVE_DATA_VERSION` after static ids are stable. Stage 2.7 is now planned in [Stage 2.7 Backlog](stage-2.7-backlog.md) and owns `silver` -> `credits`, `cultivation` -> `resonance`, `herbs` -> `reagents`, `maps` -> `districts`, and map-level `combatExperience` -> `combatData`.
-- Selected farm route migration should happen with the resource/progress field migration unless stage ids have not landed yet. Do not rename `selectedOfflineFarmStageId` while it still stores legacy stage ids.
+- Selected farm route migration should happen with the resource/progress field migration unless stage ids have not landed yet. Do not rename `selectedOfflineFarmRouteId` while it still stores legacy stage ids.
 - Combat stat field migration should be later than resource/progress fields. It touches broader combat, reports, and possible future backend payloads, and should not be coupled to storage-key migration.
 - Every version bump needs fixtures for the immediately previous version and for at least one old pre-retheme save that still uses legacy ids and fields.
 
@@ -366,7 +376,7 @@ Expected remaining hits after migration should be limited to:
 Keep implementation slices narrow. A safe backlog shape:
 
 1. Product/storage key migration: package name, browser save key dual-read/copy, PWA cache prefix cleanup, icon path compatibility, and PWA tests.
-2. Region/stage alias migration: alias helpers, region/stage static ids, save `currentStageId`, `selectedOfflineFarmStageId`, `progress.maps`, simulator report ids, and fixtures. Completed in Stage 2.5.
+2. Region/stage alias migration: alias helpers, region/stage static ids, save `currentRouteId`, `selectedOfflineFarmRouteId`, `progress.maps`, simulator report ids, and fixtures. Completed in Stage 2.5.
 3. Content id migration: hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines in small batches with static validation and save/import coverage. Completed in Stage 2.6.
 4. Save resource/progress field migration: resources, districts, Combat Data, selected farm route field, diagnostics labels, the legacy schema term visibility decision, and export/import fixtures. Active in [Stage 2.7 Backlog](stage-2.7-backlog.md).
 5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with `legacy*` report columns where downstream consumers need them.

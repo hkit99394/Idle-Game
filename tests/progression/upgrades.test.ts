@@ -61,7 +61,7 @@ describe("upgrades", () => {
 
     expect(sectPurchase.cost).toBe(48);
     expect(sectPurchase.progress.resources.credits).toBe(140);
-    expect(sectPurchase.progress.sect.upgrades.sect_inner_training).toBe(1);
+    expect(sectPurchase.progress.technoSect.upgrades.sect_inner_training).toBe(1);
   });
 
   it("rejects upgrades without enough silver", () => {
@@ -120,8 +120,8 @@ describe("upgrades", () => {
   it("derives hero stats from hero, sect, and map upgrades", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.heroes.iron_fist_initiate.upgrades.hero_outer_training = 2;
-    progress.sect.upgrades.sect_outer_training = 1;
-    progress.sect.upgrades.sect_inner_training = 1;
+    progress.technoSect.upgrades.sect_outer_training = 1;
+    progress.technoSect.upgrades.sect_inner_training = 1;
 
     const hero = staticData.heroes.find(
       (candidate) => candidate.id === "iron_fist_initiate"
@@ -135,7 +135,7 @@ describe("upgrades", () => {
     const stats = deriveHeroStatsFromProgress({
       baseStats: hero.baseStats,
       heroProgress: progress.heroes.iron_fist_initiate,
-      sectProgress: progress.sect,
+      sectProgress: progress.technoSect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
       ),
@@ -169,7 +169,7 @@ describe("upgrades", () => {
     const stats = deriveHeroStatsFromProgress({
       baseStats: hero.baseStats,
       heroProgress: progress.heroes.iron_fist_initiate,
-      sectProgress: progress.sect,
+      sectProgress: progress.technoSect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
       ),
@@ -196,7 +196,7 @@ describe("upgrades", () => {
     const commonInput = {
       baseStats: guardian.baseStats,
       heroProgress: progress.heroes.mountain_brace_guardian,
-      sectProgress: progress.sect,
+      sectProgress: progress.technoSect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
       ),
@@ -206,10 +206,10 @@ describe("upgrades", () => {
     };
     const before = deriveHeroStatsFromProgress(commonInput);
 
-    progress.sect.upgrades.lotus_purity_training = 2;
+    progress.technoSect.upgrades.lotus_purity_training = 2;
     const after = deriveHeroStatsFromProgress({
       ...commonInput,
-      sectProgress: progress.sect
+      sectProgress: progress.technoSect
     });
 
     expect(after.statusResistance).toBeCloseTo(
@@ -219,10 +219,10 @@ describe("upgrades", () => {
       calculateCombatPower(before)
     );
 
-    progress.sect.upgrades.lotus_purity_training = 30;
+    progress.technoSect.upgrades.lotus_purity_training = 30;
     const capped = deriveHeroStatsFromProgress({
       ...commonInput,
-      sectProgress: progress.sect
+      sectProgress: progress.technoSect
     });
 
     expect(capped.statusResistance).toBe(0.8);
@@ -252,7 +252,7 @@ describe("upgrades", () => {
       baseStats: ironFist.baseStats,
       style: ironFist.style,
       heroProgress: progress.heroes.iron_fist_initiate,
-      sectProgress: progress.sect,
+      sectProgress: progress.technoSect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
       ),
@@ -266,7 +266,7 @@ describe("upgrades", () => {
       baseStats: palmMonk.baseStats,
       style: palmMonk.style,
       heroProgress: progress.heroes.azure_pulse_monk,
-      sectProgress: progress.sect,
+      sectProgress: progress.technoSect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
       ),
@@ -364,7 +364,7 @@ describe("upgrades", () => {
       baseStats: ironFist.baseStats,
       style: ironFist.style,
       heroProgress: selectedResult.progress.heroes.iron_fist_initiate,
-      sectProgress: selectedResult.progress.sect,
+      sectProgress: selectedResult.progress.technoSect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
       ),
@@ -378,7 +378,7 @@ describe("upgrades", () => {
       baseStats: palmMonk.baseStats,
       style: palmMonk.style,
       heroProgress: selectedResult.progress.heroes.azure_pulse_monk,
-      sectProgress: selectedResult.progress.sect,
+      sectProgress: selectedResult.progress.technoSect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
       ),

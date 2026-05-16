@@ -27,7 +27,7 @@ These are non-goals for the display-safe retheme pass, not permanent product dec
 - Tests should only update expected strings when they assert player-facing copy. Tests asserting ids or schema fields should keep legacy names.
 - Future mechanic terms such as District Heat, Trace, Firewall, and Calibration Debt should stay out of player-facing UI until the selected prototype exists.
 
-Internal identifiers means the stable machine-readable names used by saves, static data, tests, reports, and future backend payloads. Examples include JSON ids such as `greenline_approach`, `redline_outpost`, `hero_outer_training`, and `balanced_routine`, plus reference fields such as `stageId`, `regionId`, `heroId`, `skillId`, and saved fields such as `silver`, `cultivation`, `innerQi`, and `selectedTacticId`. These can display as Path of Neon terms before the dedicated internal-id migration changes the underlying ids for their category.
+Internal identifiers means the stable machine-readable names used by saves, static data, tests, reports, and future backend payloads. Examples include JSON ids such as `greenline_approach`, `redline_outpost`, `hero_outer_training`, and `balanced_routine`, plus reference fields such as `stageId`, `regionId`, `heroId`, `skillId`, and saved fields such as `silver`, `cultivation`, `innerQi`, and `selectedRoutineId`. These can display as Path of Neon terms before the dedicated internal-id migration changes the underlying ids for their category.
 
 ## Recommended Stage 2.3 Theme
 

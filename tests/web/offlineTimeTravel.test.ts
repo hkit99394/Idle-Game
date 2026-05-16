@@ -41,10 +41,10 @@ describe("offline time travel save state", () => {
     const state = createInitialWebGameState(staticData);
     const travelReadyState = {
       ...state,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       progress: {
         ...state.progress,
-        currentStageId: "greenline_approach_2",
+        currentRouteId: "greenline_approach_2",
         districts: {
           ...state.progress.districts,
           greenline_approach: {
@@ -90,10 +90,10 @@ describe("offline time travel save state", () => {
     const state = createInitialWebGameState(staticData);
     const travelReadyState = {
       ...state,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       progress: {
         ...state.progress,
-        currentStageId: "greenline_approach_2",
+        currentRouteId: "greenline_approach_2",
         districts: {
           ...state.progress.districts,
           greenline_approach: {

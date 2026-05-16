@@ -147,7 +147,7 @@ const OPERATION_REFERENCE_FIELDS = [
 
 const ROUTINE_REFERENCE_FIELDS = [
   "data/tactics.json:id",
-  "core/progression/types.ts:selectedTacticId",
+  "core/progression/types.ts:selectedRoutineId",
   "core/progression/types.ts:ResolveStageBattleInput.tacticId",
   "core/combat:playerTactic",
   "tools:tacticId"

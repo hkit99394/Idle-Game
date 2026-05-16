@@ -58,11 +58,11 @@ function createCurrentSaveFixture(data: StaticGameData): SaveData {
   );
   progress.districts.bamboo_road.combatData = 12;
   progress.districts.bamboo_road.highestClearedRouteIndex = 1;
-  progress.currentStageId = "bamboo_road_2";
+  progress.currentRouteId = "bamboo_road_2";
 
   return createSaveData({
     progress,
-    selectedOfflineFarmStageId: "bamboo_road_1",
+    selectedOfflineFarmRouteId: "bamboo_road_1",
     nowMs: 2000
   });
 }
@@ -85,7 +85,7 @@ function createRawSaveForVersion(
   if (version <= 2) {
     delete save.autoMedicinePreferences;
     delete save.offlineFarmPreset;
-    delete save.progress.selectedTacticId;
+    delete save.progress.selectedRoutineId;
     delete save.progress.resources.reagents;
     delete save.progress.activeHeroIds;
     delete save.progress.formation;
@@ -121,7 +121,7 @@ function createRawSaveForVersion(
   }
 
   if (version <= 9) {
-    delete save.progress.selectedTacticId;
+    delete save.progress.selectedRoutineId;
   }
 
   return save;
@@ -225,14 +225,15 @@ function getExpectedNormalizationsForRawSave(
   );
   normalizations.push(...equipmentNormalizations);
 
-  if (progress.selectedTacticId === undefined) {
-    normalizations.push(missingField("progress.selectedTacticId"));
+  const selectedRoutineId = progress.selectedRoutineId ?? progress.selectedTacticId;
+  if (selectedRoutineId === undefined) {
+    normalizations.push(missingField("progress.selectedRoutineId"));
   } else if (
-    typeof progress.selectedTacticId === "string" &&
-    normalizeFixtureContentId(data, "routine", progress.selectedTacticId) !==
-      progress.selectedTacticId
+    typeof selectedRoutineId === "string" &&
+    normalizeFixtureContentId(data, "routine", selectedRoutineId) !==
+      selectedRoutineId
   ) {
-    normalizations.push(normalizedContentId("progress.selectedTacticId"));
+    normalizations.push(normalizedContentId("progress.selectedRoutineId"));
   }
 
   for (const heroId of Object.keys(defaultProgress.heroes)) {
@@ -263,10 +264,11 @@ function getExpectedNormalizationsForRawSave(
 
   if (
     shouldMigrateRegionStageIds &&
-    typeof progress.currentStageId === "string" &&
-    normalizeStageId(progress.currentStageId) !== progress.currentStageId
+    typeof (progress.currentRouteId ?? progress.currentStageId) === "string" &&
+    normalizeStageId((progress.currentRouteId ?? progress.currentStageId) as string) !==
+      (progress.currentRouteId ?? progress.currentStageId)
   ) {
-    normalizations.push(migratedStageId("progress.currentStageId"));
+    normalizations.push(migratedStageId("progress.currentRouteId"));
   }
 
   normalizations.push(
@@ -276,8 +278,11 @@ function getExpectedNormalizationsForRawSave(
     ...getExpectedAutoMedicinePreferenceNormalizations(raw.autoMedicinePreferences)
   );
 
-  if (raw.selectedOfflineFarmStageId === undefined) {
-    normalizations.push(missingField("selectedOfflineFarmStageId"));
+  const selectedOfflineFarmRouteId =
+    raw.selectedOfflineFarmRouteId ?? raw.selectedOfflineFarmStageId;
+
+  if (selectedOfflineFarmRouteId === undefined) {
+    normalizations.push(missingField("selectedOfflineFarmRouteId"));
   }
 
   if (raw.offlineFarmPreset === undefined) {
@@ -286,11 +291,11 @@ function getExpectedNormalizationsForRawSave(
 
   if (
     shouldMigrateRegionStageIds &&
-    typeof raw.selectedOfflineFarmStageId === "string" &&
-    normalizeStageId(raw.selectedOfflineFarmStageId) !==
-      raw.selectedOfflineFarmStageId
+    typeof selectedOfflineFarmRouteId === "string" &&
+    normalizeStageId(selectedOfflineFarmRouteId) !==
+      selectedOfflineFarmRouteId
   ) {
-    normalizations.push(migratedStageId("selectedOfflineFarmStageId"));
+    normalizations.push(migratedStageId("selectedOfflineFarmRouteId"));
   }
 
   return normalizations;

@@ -15,7 +15,7 @@ function getCurrentRegionHighestClearedRouteIndex(
   data: StaticGameData,
   progress: PlayerProgress
 ): number {
-  const currentStage = getStageById(data, progress.currentStageId);
+  const currentStage = getStageById(data, progress.currentRouteId);
 
   return currentStage
     ? getRegionMapProgress(progress.districts, currentStage.regionId)
@@ -83,8 +83,8 @@ export function buildSaveDiagnostics(
       createdAtMs: null,
       updatedAtMs: null,
       lastOfflineRewardAtMs: null,
-      currentStageId: state.progress.currentStageId,
-      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      currentRouteId: state.progress.currentRouteId,
+      selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId,
       offlineFarmPreset: state.offlineFarmPreset,
       highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
@@ -115,8 +115,8 @@ export function buildSaveDiagnostics(
       createdAtMs: null,
       updatedAtMs: null,
       lastOfflineRewardAtMs: null,
-      currentStageId: state.progress.currentStageId,
-      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      currentRouteId: state.progress.currentRouteId,
+      selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId,
       offlineFarmPreset: state.offlineFarmPreset,
       highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
@@ -140,8 +140,8 @@ export function buildSaveDiagnostics(
       createdAtMs: null,
       updatedAtMs: null,
       lastOfflineRewardAtMs: null,
-      currentStageId: state.progress.currentStageId,
-      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      currentRouteId: state.progress.currentRouteId,
+      selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId,
       offlineFarmPreset: state.offlineFarmPreset,
       highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
@@ -167,8 +167,8 @@ export function buildSaveDiagnostics(
     createdAtMs: save.createdAtMs,
     updatedAtMs: save.updatedAtMs,
     lastOfflineRewardAtMs: save.lastOfflineRewardAtMs,
-    currentStageId: save.progress.currentStageId,
-    selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
+    currentRouteId: save.progress.currentRouteId,
+    selectedOfflineFarmRouteId: save.selectedOfflineFarmRouteId,
     offlineFarmPreset: save.offlineFarmPreset,
     highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
       data,

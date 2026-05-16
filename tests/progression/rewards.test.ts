@@ -32,7 +32,7 @@ describe("stage clear rewards", () => {
     expect(result.progress.styleMastery?.edge.experience).toBe(5);
     expect(result.progress.styleMastery?.brace.experience).toBe(5);
     expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(1);
-    expect(result.progress.currentStageId).toBe("greenline_approach_1");
+    expect(result.progress.currentRouteId).toBe("greenline_approach_1");
   });
 
   it("reports newly reached mastery ranks", () => {
@@ -79,7 +79,7 @@ describe("stage clear rewards", () => {
     progress.districts.greenline_approach.highestClearedRouteIndex = 10;
     progress.districts.veil_district.highestClearedRouteIndex = 10;
     progress.districts.black_iron_foundry.highestClearedRouteIndex = 10;
-    progress.currentStageId = "lotus_clinic_1";
+    progress.currentRouteId = "lotus_clinic_1";
 
     const result = applyStageClearRewards(staticData, {
       progress,

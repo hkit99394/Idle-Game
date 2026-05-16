@@ -19,12 +19,6 @@ const OFFLINE_FARM_PRESET_LEGACY_TO_TARGET = {
   combatExperience: "combatData"
 } as const;
 
-const OFFLINE_FARM_PRESET_TARGET_TO_LEGACY = {
-  credits: "silver",
-  resonance: "cultivation",
-  combatData: "combatExperience"
-} as const;
-
 function migratedLegacySaveField(
   field: string,
   targetField: string
@@ -123,19 +117,12 @@ function normalizeOfflineFarmPresetForRuntime(
   normalizations: SaveNormalization[]
 ): unknown {
   if (
-    value === "credits" ||
-    value === "resonance" ||
-    value === "combatData"
-  ) {
-    return OFFLINE_FARM_PRESET_TARGET_TO_LEGACY[value];
-  }
-
-  if (
     value === "silver" ||
     value === "cultivation" ||
     value === "combatExperience"
   ) {
     normalizations.push(normalizedLegacyOfflineFarmPresetValue());
+    return OFFLINE_FARM_PRESET_LEGACY_TO_TARGET[value];
   }
 
   return value;
@@ -401,7 +388,8 @@ function normalizeProgressForRuntime(
     "currentRouteId",
     {
       legacyPath: "progress.currentStageId",
-      targetPath: "progress.currentRouteId"
+      targetPath: "progress.currentRouteId",
+      runtimeField: "target"
     }
   );
   copyAliasedField(
@@ -413,7 +401,8 @@ function normalizeProgressForRuntime(
     "selectedRoutineId",
     {
       legacyPath: "progress.selectedTacticId",
-      targetPath: "progress.selectedRoutineId"
+      targetPath: "progress.selectedRoutineId",
+      runtimeField: "target"
     }
   );
   copyAliasedField(
@@ -425,14 +414,15 @@ function normalizeProgressForRuntime(
     "technoSect",
     {
       legacyPath: "progress.sect",
-      targetPath: "progress.technoSect"
+      targetPath: "progress.technoSect",
+      runtimeField: "target"
     }
   );
 
   delete progress.maps;
-  delete progress.currentRouteId;
-  delete progress.selectedRoutineId;
-  delete progress.technoSect;
+  delete progress.currentStageId;
+  delete progress.selectedTacticId;
+  delete progress.sect;
 
   return progress;
 }
@@ -456,9 +446,14 @@ export function normalizeSaveFieldAliasesForRuntime(
     normalizations,
     errors,
     "selectedOfflineFarmStageId",
-    "selectedOfflineFarmRouteId"
+    "selectedOfflineFarmRouteId",
+    {
+      legacyPath: "selectedOfflineFarmStageId",
+      targetPath: "selectedOfflineFarmRouteId",
+      runtimeField: "target"
+    }
   );
-  delete save.selectedOfflineFarmRouteId;
+  delete save.selectedOfflineFarmStageId;
 
   if (raw.offlineFarmPreset !== undefined) {
     save.offlineFarmPreset = normalizeOfflineFarmPresetForRuntime(
@@ -491,7 +486,7 @@ export function serializeSaveData(save: SaveData): UnknownRecord {
         reagents: save.progress.resources.reagents
       },
       heroes: save.progress.heroes,
-      technoSect: save.progress.sect,
+      technoSect: save.progress.technoSect,
       districts: Object.fromEntries(
         Object.entries(save.progress.districts).map(([districtId, progress]) => [
           districtId,
@@ -501,7 +496,7 @@ export function serializeSaveData(save: SaveData): UnknownRecord {
           }
         ])
       ),
-      selectedRoutineId: save.progress.selectedTacticId,
+      selectedRoutineId: save.progress.selectedRoutineId,
       activeHeroIds: save.progress.activeHeroIds,
       formation: save.progress.formation,
       styleMastery: save.progress.styleMastery,
@@ -510,10 +505,10 @@ export function serializeSaveData(save: SaveData): UnknownRecord {
       equipment: save.progress.equipment,
       medicineInventory: save.progress.medicineInventory,
       assignments: save.progress.assignments,
-      currentRouteId: save.progress.currentStageId
+      currentRouteId: save.progress.currentRouteId
     },
     autoMedicinePreferences: save.autoMedicinePreferences,
-    selectedOfflineFarmRouteId: save.selectedOfflineFarmStageId,
+    selectedOfflineFarmRouteId: save.selectedOfflineFarmRouteId,
     offlineFarmPreset: serializeOfflineFarmPreset(save.offlineFarmPreset),
     createdAtMs: save.createdAtMs,
     updatedAtMs: save.updatedAtMs,

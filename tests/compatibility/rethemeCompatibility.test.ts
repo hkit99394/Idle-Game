@@ -256,7 +256,7 @@ describe("Path of Neon retheme compatibility keys", () => {
   it("keeps internal compatibility fields stable and tracks runtime key migration", () => {
     const save = createSaveData({
       progress: createInitialPlayerProgress(staticGameData),
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1_000
     });
 

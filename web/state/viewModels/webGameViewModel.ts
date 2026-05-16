@@ -34,8 +34,8 @@ function getSelectedStageContext(data: StaticGameData, state: WebGameState) {
   const selectedStageRegion = data.regions.find(
     (region) => region.id === selectedStage?.regionId
   );
-  const selectedOfflineFarmStage = state.selectedOfflineFarmStageId
-    ? getStageById(data, state.selectedOfflineFarmStageId)
+  const selectedOfflineFarmStage = state.selectedOfflineFarmRouteId
+    ? getStageById(data, state.selectedOfflineFarmRouteId)
     : null;
   const lastBattleStage = state.lastBattleStageId
     ? getStageById(data, state.lastBattleStageId)
@@ -69,19 +69,19 @@ function buildMapIdleFeatureView(data: StaticGameData, state: WebGameState) {
     offlineFarmRecommendation: buildOfflineFarmRecommendationView(
       data,
       state.progress,
-      state.selectedOfflineFarmStageId,
+      state.selectedOfflineFarmRouteId,
       state.offlineFarmPreset
     ),
     offlineRewardPreview: buildOfflineRewardPreviewView(
       data,
       state.progress,
-      state.selectedOfflineFarmStageId
+      state.selectedOfflineFarmRouteId
     ),
     stageOptions: buildStageOptions(
       data,
       state.progress,
       state.selectedStageId,
-      state.selectedOfflineFarmStageId
+      state.selectedOfflineFarmRouteId
     ),
     offlineSummary: buildOfflineRewardSummaryView(data, state.offlineSummary)
   };

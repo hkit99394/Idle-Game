@@ -20,11 +20,11 @@ describe("offline reward idempotency", () => {
     const firstLoadAtMs = savedAtMs + 10 * 60 * 60 * 1000;
 
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: savedAtMs
     });
 
@@ -81,11 +81,11 @@ describe("offline reward idempotency", () => {
     progress.districts.black_iron_foundry.highestClearedRouteIndex = 7;
     progress.districts.lotus_clinic.highestClearedRouteIndex = 7;
     progress.districts.redline_outpost.highestClearedRouteIndex = 6;
-    progress.currentStageId = "redline_outpost_7";
+    progress.currentRouteId = "redline_outpost_7";
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "redline_outpost_6",
+      selectedOfflineFarmRouteId: "redline_outpost_6",
       nowMs: savedAtMs
     });
 
@@ -123,7 +123,7 @@ describe("offline reward idempotency", () => {
     expect(firstLoad.activeSave.progress.districts.redline_outpost.combatData).toBeCloseTo(
       1101.6
     );
-    expect(firstLoad.activeSave.progress.currentStageId).toBe("redline_outpost_7");
+    expect(firstLoad.activeSave.progress.currentRouteId).toBe("redline_outpost_7");
 
     const secondOfflineRewards = secondLoad.offlineRewards;
 
@@ -157,7 +157,7 @@ describe("offline reward idempotency", () => {
 
     const save = createSaveData({
       progress: assigned.progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: savedAtMs
     });
 
@@ -229,7 +229,7 @@ describe("offline reward idempotency", () => {
 
     const save = createSaveData({
       progress: assigned.progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: savedAtMs
     });
 

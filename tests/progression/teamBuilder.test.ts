@@ -75,7 +75,7 @@ describe("progress-based player team builder", () => {
     progress.districts.veil_district.highestClearedRouteIndex = 10;
     progress.districts.black_iron_foundry.highestClearedRouteIndex = 10;
     progress.districts.lotus_clinic.highestClearedRouteIndex = 3;
-    progress.currentStageId = "lotus_clinic_4";
+    progress.currentRouteId = "lotus_clinic_4";
 
     expect(isHeroUnlocked(staticData, progress, "lotus_stabilizer")).toBe(
       true
@@ -122,8 +122,8 @@ describe("progress-based player team builder", () => {
   it("applies hero upgrades, sect upgrades, and map attack mastery", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.heroes.iron_fist_initiate.upgrades.hero_outer_training = 2;
-    progress.sect.upgrades.sect_outer_training = 1;
-    progress.sect.upgrades.sect_inner_training = 1;
+    progress.technoSect.upgrades.sect_outer_training = 1;
+    progress.technoSect.upgrades.sect_inner_training = 1;
     progress.districts.greenline_approach.combatData = 100;
 
     const result = buildPlayerTeamForStage(staticData, progress, "greenline_approach_1");

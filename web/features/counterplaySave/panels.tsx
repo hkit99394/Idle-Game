@@ -226,9 +226,9 @@ export function SaveToolsPanel({
           <span>Offline checkpoint</span>
           <strong>{formatTimestamp(diagnostics.lastOfflineRewardAtMs)}</strong>
           <span>Current route id</span>
-          <strong>{diagnostics.currentStageId}</strong>
+          <strong>{diagnostics.currentRouteId}</strong>
           <span>Farm route id</span>
-          <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
+          <strong>{diagnostics.selectedOfflineFarmRouteId ?? "-"}</strong>
           <span>Farm preset id</span>
           <strong>{diagnostics.offlineFarmPreset}</strong>
           <span>Highest route clear</span>
@@ -265,7 +265,7 @@ export function SaveToolsPanel({
           type="button"
           disabled={
             !diagnostics.storageAvailable ||
-            !diagnostics.selectedOfflineFarmStageId
+            !diagnostics.selectedOfflineFarmRouteId
           }
           onClick={onTimeTravelOfflineFarm}
         >

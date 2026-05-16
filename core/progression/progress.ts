@@ -32,7 +32,7 @@ export function createInitialPlayerProgress(
     heroes: Object.fromEntries(
       data.heroes.map((hero: HeroDefinition) => [hero.id, createInitialHeroProgress()])
     ),
-    sect: {
+    technoSect: {
       upgrades: {}
     },
     districts: Object.fromEntries(
@@ -44,7 +44,7 @@ export function createInitialPlayerProgress(
         }
       ])
     ),
-    selectedTacticId: DEFAULT_TACTIC_ID,
+    selectedRoutineId: DEFAULT_TACTIC_ID,
     activeHeroIds: createDefaultActiveHeroIds(heroIds),
     formation: createDefaultPlayerFormation(heroIds),
     styleMastery: {},
@@ -56,7 +56,7 @@ export function createInitialPlayerProgress(
     },
     medicineInventory: {},
     assignments: {},
-    currentStageId: firstStageId
+    currentRouteId: firstStageId
   };
 }
 
@@ -75,8 +75,8 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
         }
       ])
     ),
-    sect: {
-      upgrades: { ...progress.sect.upgrades }
+    technoSect: {
+      upgrades: { ...progress.technoSect.upgrades }
     },
     districts: Object.fromEntries(
       Object.entries(progress.districts).map(([districtId, district]) => [
@@ -87,7 +87,7 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
         }
       ])
     ),
-    selectedTacticId: progress.selectedTacticId ?? DEFAULT_TACTIC_ID,
+    selectedRoutineId: progress.selectedRoutineId ?? DEFAULT_TACTIC_ID,
     activeHeroIds: progress.activeHeroIds
       ? [...progress.activeHeroIds]
       : undefined,
@@ -128,6 +128,6 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
           ])
         )
       : undefined,
-    currentStageId: progress.currentStageId
+    currentRouteId: progress.currentRouteId
   };
 }

@@ -279,7 +279,7 @@ describe("web game state systems", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "veil_district_1",
+        currentRouteId: "veil_district_1",
         districts: {
           ...state.progress.districts,
           greenline_approach: {
@@ -470,8 +470,8 @@ describe("web game state systems", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: stageId,
-        sect: {
+        currentRouteId: stageId,
+        technoSect: {
           upgrades: {
             lotus_purity_training: 2
           }

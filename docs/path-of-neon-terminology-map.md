@@ -4,7 +4,7 @@
 
 This map is the display-language contract for the Path of Neon retheme. It keeps mechanics recognizable while allowing player-facing copy, content names, and visual design to move away from pure martial fantasy.
 
-Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them in compatibility-backed slices, not during casual UI copy replacement. Stage 2.5 has migrated region and route id values such as `greenline_approach` and `redline_outpost`; Stage 2.6 has migrated static content ids such as `greenline_cutter`, `corruption`, `iron_fist_initiate`, `impact_combo`, `impact_training_wraps`, `clear_heart_countermeasure`, `greenline_sweep`, and `balanced_routine`. Save fields, test fixture keys, and API envelope fields may still keep technical names such as `cultivation`, `silver`, `sect`, `innerQi`, or `selectedTacticId` until their owning migration stage lands. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
+Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them in compatibility-backed slices, not during casual UI copy replacement. Stage 2.5 has migrated region and route id values such as `greenline_approach` and `redline_outpost`; Stage 2.6 has migrated static content ids such as `greenline_cutter`, `corruption`, `iron_fist_initiate`, `impact_combo`, `impact_training_wraps`, `clear_heart_countermeasure`, `greenline_sweep`, and `balanced_routine`; Stage 2.7 has started migrating owned save resource/progress fields. Static-data fields, test fixture compatibility inputs, API envelope fields, and combat fields may still keep technical names such as `cultivation`, `silver`, `sect`, or `innerQi` until their owning migration stage lands. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
 
 Use this map in three different ways:
 
@@ -19,7 +19,7 @@ Use this map in three different ways:
 | Path of Jianghu | Path of Neon | Product/app display name. |
 | Jianghu | Path of Neon / neon underworld | Use Path of Neon for product/world identity. "Neon underworld" is only a descriptive setting phrase; do not use "Neon Jianghu". |
 | Martial idle RPG | Cyber-sect idle RPG / Path of Neon idle RPG | README/marketing language. |
-| Sect | Techno-sect / sect | Keep `sect` until save-field migration; compact UI may still use "sect". |
+| Sect | Techno-sect / sect | Current saves use `technoSect`; static upgrade scopes and compact UI may still use "sect". |
 | Disciple | Initiate | Primary character-role display term. |
 | Master | Operator / master | Keep "master" where it preserves Jianghu flavor. |
 
@@ -27,13 +27,13 @@ Use this map in three different ways:
 
 | Current Term | Path of Neon Term | Migration Rule |
 | --- | --- | --- |
-| Silver | Credits | Use display term first; migrate `silver` to `credits` during save-field migration. |
-| Cultivation | Resonance | Use display term first; migrate `cultivation` to `resonance` during save-field migration. |
-| Herbs | Reagents | Use display term first; migrate `herbs` to `reagents` during save-field migration. |
-| Combat XP | Combat Data | Preferred main UI display term; migrate `combatExperience` to `combatData` during save-field migration. |
+| Silver | Credits | Use display term first; current saves use `credits`; static reward fields can still use `silver`. |
+| Cultivation | Resonance | Use display term first; current saves use `resonance`; static reward fields can still use `cultivation`. |
+| Herbs | Reagents | Use display term first; current saves use `reagents`; static reward fields can still use `herbs`. |
+| Combat XP | Combat Data | Preferred main UI display term; current district progress saves use `combatData`; static reward fields can still use `combatExperience`. |
 | CP | CP / Combat Power | Keep CP in compact UI. |
 | Hero level | Initiate level | Display rename only. |
-| Sect upgrades | Techno-sect upgrades | Keep `progress.sect` until save-field migration. |
+| Sect upgrades | Techno-sect upgrades | Current saves use `progress.technoSect`; static upgrade ids and `scope: "sect"` remain deferred. |
 | Skill upgrades | Protocol upgrades | Keep skill upgrade ids until static id migration. |
 | Style mastery | Protocol Mastery | Display term first; migrate ids/fields during the internal-id migration. |
 | Map mastery | District Mastery | Display term first; migrate map/district fields during the internal-id migration. |
@@ -117,8 +117,8 @@ Style families and combat roles are separate. Do not use Anchor, Breacher, Strik
 Do not retheme these in schema docs until a migration changes them:
 
 - `SaveData`, `PlayerProgress`, `StaticGameData`
-- `silver`, `cultivation`, `herbs`, `combatExperience`
-- `sect`, `maps`, `selectedFarmStageId`, `selectedTacticId`
+- Static reward fields such as `silver`, `cultivation`, `herbs`, and `combatExperience`
+- Legacy save/import compatibility fields such as `sect`, `maps`, `selectedFarmStageId`, and `selectedTacticId`
 - `outerHp`, `innerQi`, `maxOuterHp`, `maxInnerQi`
 - Static content JSON `id` fields and all save/static reference field names ending in `Id`, including `regionId`, `stageId`, `enemyId`, `heroId`, `skillId`, `styleId`, `equipmentId`, `equipmentSetId`, `assignmentId`, `medicineId`, `statusId`, and `tacticId`. Stage 2.5 migrated region/stage values, but the field names remain technical.
 - Exported constants such as `WEB_SAVE_STORAGE_KEY`

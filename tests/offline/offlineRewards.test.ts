@@ -50,12 +50,12 @@ describe("offline rewards", () => {
   it("applies rewards from a selected cleared non-boss farm stage", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 2;
-    progress.currentStageId = "greenline_approach_3";
+    progress.currentRouteId = "greenline_approach_3";
 
     const result = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       lastSavedAtMs: 1000,
       currentTimeMs: 31_000,
       config: {
@@ -76,7 +76,7 @@ describe("offline rewards", () => {
     expect(result.progress.resources.resonance).toBeCloseTo(7.5);
     expect(result.progress.districts.greenline_approach.combatData).toBeCloseTo(7.5);
     expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(2);
-    expect(result.progress.currentStageId).toBe("greenline_approach_3");
+    expect(result.progress.currentRouteId).toBe("greenline_approach_3");
   });
 
   it("updates hero levels after offline combat experience is granted", () => {
@@ -86,7 +86,7 @@ describe("offline rewards", () => {
     const result = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       lastSavedAtMs: 0,
       currentTimeMs: 200_000,
       config: {
@@ -113,7 +113,7 @@ describe("offline rewards", () => {
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       previewSeconds: 30,
       config: {
         offlineCapSeconds: 100,
@@ -147,12 +147,12 @@ describe("offline rewards", () => {
     progress.districts.veil_district.highestClearedRouteIndex = 10;
     progress.districts.black_iron_foundry.highestClearedRouteIndex = 10;
     progress.districts.lotus_clinic.highestClearedRouteIndex = 1;
-    progress.currentStageId = "lotus_clinic_2";
+    progress.currentRouteId = "lotus_clinic_2";
 
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "lotus_clinic_1",
+      selectedOfflineFarmRouteId: "lotus_clinic_1",
       previewSeconds: 30,
       config: {
         offlineCapSeconds: 100,
@@ -164,7 +164,7 @@ describe("offline rewards", () => {
     const applied = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "lotus_clinic_1",
+      selectedOfflineFarmRouteId: "lotus_clinic_1",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000,
       config: {
@@ -192,7 +192,7 @@ describe("offline rewards", () => {
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_10",
+      selectedOfflineFarmRouteId: "greenline_approach_10",
       previewSeconds: 60
     });
 
@@ -214,24 +214,24 @@ describe("offline rewards", () => {
     const missingResult = applyOfflineRewards({
       data: staticData,
       progress: lockedProgress,
-      selectedOfflineFarmStageId: "missing_stage",
+      selectedOfflineFarmRouteId: "missing_stage",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
     const lockedResult = applyOfflineRewards({
       data: staticData,
       progress: lockedProgress,
-      selectedOfflineFarmStageId: "greenline_approach_2",
+      selectedOfflineFarmRouteId: "greenline_approach_2",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
     const bossProgress = createInitialPlayerProgress(staticData);
     bossProgress.districts.greenline_approach.highestClearedRouteIndex = 10;
-    bossProgress.currentStageId = "greenline_approach_10";
+    bossProgress.currentRouteId = "greenline_approach_10";
     const bossResult = applyOfflineRewards({
       data: staticData,
       progress: bossProgress,
-      selectedOfflineFarmStageId: "greenline_approach_10",
+      selectedOfflineFarmRouteId: "greenline_approach_10",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
@@ -251,7 +251,7 @@ describe("offline rewards", () => {
     const notFarmableResult = applyOfflineRewards({
       data: notFarmableData,
       progress: notFarmableProgress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });

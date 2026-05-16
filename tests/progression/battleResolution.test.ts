@@ -43,13 +43,13 @@ describe("stage battle resolution", () => {
     expect(result.progress.resources.credits).toBe(10);
     expect(result.progress.resources.resonance).toBe(5);
     expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(1);
-    expect(result.progress.currentStageId).toBe("greenline_approach_2");
+    expect(result.progress.currentRouteId).toBe("greenline_approach_2");
   });
 
   it("preserves battle, reward, mastery, and equipment adapter fields on stage clear", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 1;
-    progress.currentStageId = "greenline_approach_2";
+    progress.currentRouteId = "greenline_approach_2";
 
     const result = resolveStageBattle(staticData, {
       progress,
@@ -117,7 +117,7 @@ describe("stage battle resolution", () => {
   it("does not move current stage backward when replaying an older cleared stage", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 3;
-    progress.currentStageId = "greenline_approach_4";
+    progress.currentRouteId = "greenline_approach_4";
 
     const result = resolveStageBattle(staticData, {
       progress,
@@ -133,13 +133,13 @@ describe("stage battle resolution", () => {
     expect(result.battle.winner).toBe("player");
     expect(result.stageCleared).toBe(true);
     expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(3);
-    expect(result.progress.currentStageId).toBe("greenline_approach_4");
+    expect(result.progress.currentRouteId).toBe("greenline_approach_4");
   });
 
   it("does not grant rewards or unlock next stage on defeat", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 9;
-    progress.currentStageId = "greenline_approach_10";
+    progress.currentRouteId = "greenline_approach_10";
 
     const result = resolveStageBattle(staticData, {
       progress,
@@ -159,7 +159,7 @@ describe("stage battle resolution", () => {
     expect(result.progress).toBe(progress);
     expect(result.progress.resources.credits).toBe(0);
     expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(9);
-    expect(result.progress.currentStageId).toBe("greenline_approach_10");
+    expect(result.progress.currentRouteId).toBe("greenline_approach_10");
   });
 
   it("returns no farm suggestion when the player has not cleared a farmable stage", () => {
@@ -196,7 +196,7 @@ describe("stage battle resolution", () => {
     expect(result.progress).toBe(progress);
     expect(result.progress.resources.credits).toBe(0);
     expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(0);
-    expect(result.progress.currentStageId).toBe("greenline_approach_1");
+    expect(result.progress.currentRouteId).toBe("greenline_approach_1");
   });
 
   it("returns a missing enemy error before simulating bad stage data", () => {

@@ -112,8 +112,8 @@ export function createInitialWebGameState(data: StaticGameData): WebGameState {
         ...defaultAutoMedicinePreferences.disabledMedicineIds
       ]
     },
-    selectedStageId: progress.currentStageId,
-    selectedOfflineFarmStageId: getDefaultFarmStageId(
+    selectedStageId: progress.currentRouteId,
+    selectedOfflineFarmRouteId: getDefaultFarmStageId(
       data,
       progress,
       DEFAULT_OFFLINE_FARM_PRESET
@@ -152,12 +152,12 @@ export function createWebGameStateFromSave(
     selectedStageId: normalizeSelectedStageId(
       data,
       save.progress,
-      save.progress.currentStageId
+      save.progress.currentRouteId
     ),
-    selectedOfflineFarmStageId: normalizeFarmStageId(
+    selectedOfflineFarmRouteId: normalizeFarmStageId(
       data,
       save.progress,
-      save.selectedOfflineFarmStageId,
+      save.selectedOfflineFarmRouteId,
       offlineFarmPreset
     ),
     offlineFarmPreset,

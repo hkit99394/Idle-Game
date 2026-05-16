@@ -25,7 +25,7 @@ This document does not rename schema code. It classifies the current save fields
 | Routine selection | `progress.selectedTacticId` | `core/progression/tactics.ts`, `core/save/migrations.ts`, `core/save/progressValidation.ts`, strategy web state/view models | Migrate field name. Values are routine ids after Stage 2.6. |
 | Techno-sect progress | `progress.sect` | `core/progression/types.ts`, `core/progression/upgrades.ts`, `core/progression/supportGrowth.ts`, save validation/migration, progression web state/view models | Migrate field name only. Static upgrade ids and `scope: "sect"` are deferred. |
 | Offline farm preset policy | `offlineFarmPreset`; values `balanced`, `silver`, `cultivation`, `combatExperience`, `mastery` | `core/progression/stages.ts`, `core/save/*`, `web/state/viewModels/offline.ts` | Keep the field name. Migrate resource-named preset values. |
-| Save diagnostics and tools | `currentStageId`, `selectedOfflineFarmStageId`, `highestClearedStageIndex`, `offlineFarmPreset` view fields | `web/state/viewModels/saveDiagnostics.ts`, `web/features/counterplaySave/panels.tsx`, `web/state/saveToolCommands.ts` | Update schema labels and import/export output after core migration. |
+| Save diagnostics and tools | `currentRouteId`, `selectedOfflineFarmRouteId`, `highestClearedStageIndex`, `offlineFarmPreset` view fields | `web/state/viewModels/saveDiagnostics.ts`, `web/features/counterplaySave/panels.tsx`, `web/state/saveToolCommands.ts` | Update schema labels and import/export output after core migration. |
 
 ## Target Matrix
 
