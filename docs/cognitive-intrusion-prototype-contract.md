@@ -4,7 +4,7 @@
 
 Stage 2.3 selects **Cognitive Intrusion** as the first neon-native gameplay prototype.
 
-The prototype should make Cognitive Art feel like hostile system pressure, not only renamed Inner damage. It should reuse the existing combat loop: Context Stability, AI Overload, data-driven statuses, target priorities, battle summaries, and simulator reports.
+Stage 2.9.4 refreshes the implementation contract after the combat vocabulary and cleanup decisions from Stages 2.8 and 2.9. The prototype should make Cognitive Art feel like hostile system pressure, not only renamed Inner damage. It should reuse the existing combat loop: Context Stability, AI Overload, data-driven statuses, target priorities, battle summaries, and simulator reports.
 
 ## Candidate Comparison
 
@@ -24,10 +24,25 @@ Add one live mechanic: **Intrusion** is a Cognitive status that makes a target m
 Recommended first implementation:
 
 - Add a new static status id, `cognitive_intrusion`, with display name **Intrusion**.
-- Add a status effect modifier for Cognitive damage taken, for example `cognitiveDamageTakenMultiplier`, so Intrusion can make Context Stability pressure visibly stronger.
-- Keep the existing `contextRebuildMultiplier` effect available for the same status, but avoid adding more status effect keys in the first slice.
-- Attach Intrusion through a narrow player-side upgrade path, preferably Azure Pulse Monk's `context_shock_refinement`, so the player can opt into the mechanic through existing Resonance spending.
-- Optionally add one hostile Redline or Veil skill application only if the player-side prototype is too invisible in simulator output.
+- Add exactly one new status effect modifier for Cognitive damage taken: `cognitiveDamageTakenMultiplier`.
+- Reuse the existing `contextRebuildMultiplier` effect on the same status; avoid adding more status effect keys in the first slice.
+- Attach Intrusion through Azure Pulse Monk's existing `context_shock_refinement` upgrade, preferably as an `add_skill_effect` unlock at level 3 so the player opts in through existing Resonance spending.
+- Do not add hostile Redline or Veil Intrusion application in the first implementation. Add hostile application later only if simulator output proves the player-side prototype is too invisible.
+
+## Minimum Schema Addition
+
+The prototype needs one new schema key and no other schema expansion:
+
+| Surface | Minimum change |
+| --- | --- |
+| `StatusEffectModifiers` | Add optional `cognitiveDamageTakenMultiplier?: number`. |
+| `StatusCombatModifiers` | Add aggregate `cognitiveDamageTakenMultiplier: number` with default `1`. |
+| Static validation | Add `cognitiveDamageTakenMultiplier` to supported status effect keys. |
+| Status modifier aggregation | Multiply stacked `cognitiveDamageTakenMultiplier` values like the existing healing, Context Rebuild, and Kinetic damage taken modifiers. |
+| Damage package | Apply the aggregated modifier only to Cognitive damage calculation, not Kinetic damage, feedback, status ticks, or AI Overload burst damage. |
+| Static data | Add `cognitive_intrusion`; add one `context_shock_refinement` `add_skill_effect` that applies it. |
+
+No new status category, dispel tag, timed status id, tactic modifier, save field, export field, or battle event type is part of the minimum slice.
 
 ## Affected Systems
 
@@ -44,6 +59,7 @@ Recommended first implementation:
 - Do not add a save schema migration for `bodyIntegrity`, `contextStability`, AI Overload, or transient battle status state.
 - Do not rename existing status ids, skill ids, tactic ids, or save fields as part of the prototype.
 - New static ids may use Path of Neon names, but existing ids remain compatibility keys.
+- Do not rename `inner_defense_down`, `innerDefenseDown`, `outerDamage` / `innerDamage`, upgrade `art` buckets, or the `inner` dispel tag as part of the prototype; Stage 2.9 already made keep decisions for those contracts.
 
 ## Data Shape
 
@@ -75,6 +91,7 @@ Required tests before implementation closure:
 - Damage package or simulator tests prove Intrusion increases Cognitive damage without changing Kinetic damage.
 - Status presentation tests show **Intrusion** through existing status chip and cleanse/purge paths.
 - A focused combat/simulator test proves Intrusion can create or accelerate an AI Overload window.
+- A skill-upgrade or progression test proves `context_shock_refinement` applies Intrusion only after the selected unlock level.
 - Save fixture/import tests pass without schema changes.
 - `npm run simulate` still reports known Black Iron Foundry and Redline budget debt by stable ids.
 

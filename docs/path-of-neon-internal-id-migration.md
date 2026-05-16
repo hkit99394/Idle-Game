@@ -385,7 +385,7 @@ Keep implementation slices narrow. A safe backlog shape:
 5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with legacy report columns where downstream consumers need them. Completed in [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md).
 6. Legacy cleanup: stale-name scans, docs cleanup outside `docs/archive`, and removal of temporary transition fields only after compatibility policy says enough comparison time has passed. Tracked in [Stage 2.9 Backlog](stage-2.9-backlog.md).
 
-Cognitive Intrusion implementation is separate from these migration slices. It should begin from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) after the Stage 2.9 handoff confirms the current combat vocabulary is stable enough to avoid churn.
+Cognitive Intrusion implementation is separate from these migration slices. It should begin from the refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) after Stage 2.9 hardening confirms the current combat vocabulary is stable enough to avoid churn.
 
 ## Recommended Backlog Placement
 

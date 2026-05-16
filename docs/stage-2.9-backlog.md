@@ -4,7 +4,7 @@
 
 Stage 2.9 is active as the post-Stage 2.8 cleanup and Cognitive Intrusion handoff stage. [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md) completed Epics 93 and 94: combat save/stat field migration plus combat/report symbol migration. Stage 2.8 confirmed current saves do not persist live combat stat/event state, so no combat save-version bump was needed.
 
-Slices 2.9.1, 2.9.2, and 2.9.3 are complete. Tactic comparison legacy damage fields and CSV columns stay for one more review cycle; `TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION` remains `4`. Engine-level `outerDamage` / `innerDamage` payload keys also stay as stable internal replay/accounting fields for now. Static taxonomy keys such as `inner_defense_down`, upgrade `art` buckets, and mastery bonus type names stay stable after 2.9.3, with safe display/docs cleanup applied. Stage 2.9 should stay conservative: do not remove compatibility adapters, temporary report/export columns, stable engine payload fields, or static taxonomy keys until downstream comparison, replay, and static-schema needs have been checked and the affected schema or event contract has an explicit migration path.
+Slices 2.9.1, 2.9.2, 2.9.3, and 2.9.4 are complete. Tactic comparison legacy damage fields and CSV columns stay for one more review cycle; `TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION` remains `4`. Engine-level `outerDamage` / `innerDamage` payload keys also stay as stable internal replay/accounting fields for now. Static taxonomy keys such as `inner_defense_down`, upgrade `art` buckets, and mastery bonus type names stay stable after 2.9.3, with safe display/docs cleanup applied. Cognitive Intrusion's refreshed contract now locks the minimum implementation shape: one new `cognitive_intrusion` status, one new `cognitiveDamageTakenMultiplier` status modifier, reused `contextRebuildMultiplier`, and no save/export/event/taxonomy churn. Stage 2.9 should stay conservative: do not remove compatibility adapters, temporary report/export columns, stable engine payload fields, or static taxonomy keys until downstream comparison, replay, and static-schema needs have been checked and the affected schema or event contract has an explicit migration path.
 
 ## Stage Theme
 
@@ -28,7 +28,7 @@ Clean up the remaining transition vocabulary from the combat migration, decide w
 | `outerDamage` / `innerDamage`, `playerOuterDamage` / `playerInnerDamage`, and contribution `outerDamage*` / `innerDamage*` | Stable engine replay/accounting payloads; current report/export aliases exist | Keep after 2.9.2; rename only with an explicit event/report contract migration. |
 | Tactic comparison legacy damage columns | Temporary downstream comparison fields | Keep through one more review cycle after 2.9.1; remove only with a schema bump after docs/tooling no longer need them. |
 | `inner_defense_down`, `innerDefenseDown`, dispel tag `inner`, upgrade art buckets `outer` / `inner`, and `map_outer_and_inner_attack_multiplier` | Stable static taxonomy/status schema keys; display/docs cleanup applied where safe | Keep after 2.9.3; rename only with static-schema aliases, save/reference audit, and cleanse compatibility. |
-| Cognitive Intrusion draft status examples | Future mechanic contract | Use current Stage 2.8 terminology before implementation. |
+| Cognitive Intrusion draft status examples | Future mechanic contract | Refreshed in 2.9.4; use `cognitive_intrusion`, add only `cognitiveDamageTakenMultiplier`, reuse `contextRebuildMultiplier`, and avoid save/export/event/taxonomy churn. |
 
 ## Slice Plan
 
@@ -37,7 +37,7 @@ Clean up the remaining transition vocabulary from the combat migration, decide w
 | 2.9.1 | Legacy Export Column Retirement Decision | Complete | Decided tactic comparison legacy damage columns stay through another review cycle. |
 | 2.9.2 | Engine Damage Channel Internal Rename Decision | Complete | Decided core damage/event/metric internals remain stable internal `outer` / `inner` payload fields for now. |
 | 2.9.3 | Deferred Static Taxonomy Cleanup | Complete | Reviewed upgrade art buckets, timed status ids, and dispel tags; kept stable schema keys and cleaned safe display/docs language. |
-| 2.9.4 | Cognitive Intrusion Preflight | Planned | Refresh the prototype contract against current combat terminology and decide the minimum static/status schema addition. |
+| 2.9.4 | Cognitive Intrusion Preflight | Complete | Refreshed the prototype contract against current combat terminology and locked the minimum static/status schema addition. |
 | 2.9.5 | Cleanup Hardening | Planned | Run stale scans, full validation, docs update, and archive any completed Stage 2.9 planning docs. |
 
 ## Slice 2.9.1: Legacy Export Column Retirement Decision
@@ -142,6 +142,47 @@ Future cleanup criteria:
 
 - `npm test -- tests/data/validateData.test.ts tests/combat/skillEffects.test.ts tests/progression/battleResolution.test.ts tests/web/battleEventView.test.ts`
 - `npm run typecheck`
+- `git diff --check`
+
+## Slice 2.9.4: Cognitive Intrusion Preflight
+
+Refresh the Cognitive Intrusion prototype contract against the current combat vocabulary and the keep decisions from 2.9.1 through 2.9.3.
+
+Completed in docs contract. Decision: the first implementation should be a narrow player-side Intrusion prototype, not a broader combat-schema migration. Add one new static status id, `cognitive_intrusion`, and exactly one new status modifier, `cognitiveDamageTakenMultiplier`. Reuse the existing `contextRebuildMultiplier` on the same status to slow Context Rebuild, and attach Intrusion through Azure Pulse Monk's existing `context_shock_refinement` upgrade, preferably as a level 3 `add_skill_effect` unlock.
+
+Minimum implementation contract:
+
+- `StatusEffectModifiers` adds optional `cognitiveDamageTakenMultiplier?: number`.
+- `StatusCombatModifiers` adds aggregate `cognitiveDamageTakenMultiplier: number` with default `1`.
+- Static validation accepts `cognitiveDamageTakenMultiplier` as a supported status effect key.
+- Status modifier aggregation multiplies stacked `cognitiveDamageTakenMultiplier` values like existing healing, Context Rebuild, and Kinetic damage taken modifiers.
+- Cognitive damage calculation applies the aggregate multiplier only to Cognitive damage, not Kinetic damage, feedback, status ticks, or AI Overload burst damage.
+- Static data adds `cognitive_intrusion` and one `context_shock_refinement` `add_skill_effect` that applies it.
+
+Evidence:
+
+- `contextRebuildMultiplier` already exists in status effect types, validation, status aggregation, and simulator Context Rebuild handling, so the prototype does not need a second rebuild-related schema key.
+- No code path currently implements `cognitiveDamageTakenMultiplier`, so it is the only required new status modifier for the future mechanic.
+- Azure Pulse Monk's `context_shock_refinement` upgrade already modifies the Cognitive skill path and is the smallest progression hook for an opt-in player-side prototype.
+- The Stage 2.9 compatibility decisions keep `outerDamage` / `innerDamage`, `inner_defense_down`, `innerDefenseDown`, upgrade `art` buckets, and the `inner` dispel tag stable, so the prototype should not rename those contracts.
+
+Non-goals:
+
+- No save version, save field, export schema, battle event type, tactic modifier, status category, dispel tag, timed status id, static taxonomy rename, hostile Redline application, or broad retune belongs in the first implementation.
+- Do not rename `inner_defense_down`, `innerDefenseDown`, `outerDamage` / `innerDamage`, upgrade `art` buckets, or the `inner` dispel tag as part of Intrusion.
+
+### Acceptance
+
+- [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) uses current Body Integrity, Context Stability, Kinetic/Cognitive, AI Overload, and Context Rebuild terminology.
+- The contract identifies `cognitiveDamageTakenMultiplier` as the only new status modifier required for the first implementation.
+- The contract records that `contextRebuildMultiplier` should be reused and that save/export/event/static-taxonomy contracts should stay unchanged.
+- The future implementation test list covers validation, Cognitive-only damage behavior, status presentation, AI Overload visibility, skill-upgrade gating, save compatibility, and simulator stability.
+
+### Verification
+
+- `rg -n "cognitiveDamageTakenMultiplier|contextRebuildMultiplier|context_shock_refinement|inner_defense_down|outerDamage|innerDamage" core data docs tests`
+- `npm run typecheck`
+- `npm test`
 - `git diff --check`
 
 ## Verification Baseline
