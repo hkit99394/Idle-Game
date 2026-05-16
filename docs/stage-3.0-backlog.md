@@ -6,7 +6,7 @@ Stage 3.0 is the active post-migration mechanic milestone. It implements Epics 9
 
 [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md) closed the cleanup and handoff work. Stage 2.9 kept compatibility-sensitive transition fields stable, refreshed [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md), and confirmed the first implementation should be one small data-driven status mechanic with no save, export, event, taxonomy, storage-key, or internal-id migration.
 
-Slices 95.1, 96.1, and 96.2 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage.
+Slices 95.1, 96.1, 96.2, and 96.3 are complete. Epic 95 found no blocker or contract mismatch; Slice 96.1 added the `cognitiveDamageTakenMultiplier` schema, validation, aggregation, and estimation support; Slice 96.2 applies the aggregate only to Cognitive attack damage; Slice 96.3 added the live Intrusion status and Azure Pulse Monk upgrade hook.
 
 ## Stage Theme
 
@@ -61,7 +61,7 @@ The milestone should prove that Path of Neon is more than renamed combat vocabul
 | 95.1 | 95 | Cognitive Intrusion Contract Adoption | Complete |
 | 96.1 | 96 | Status Modifier Schema And Validation | Complete |
 | 96.2 | 96 | Cognitive Damage Application | Complete |
-| 96.3 | 96 | Static Data And Upgrade Hook | Planned |
+| 96.3 | 96 | Static Data And Upgrade Hook | Complete |
 | 96.4 | 96 | Presentation And Counterplay Visibility | Planned |
 | 96.5 | 96 | Simulator, Balance, And Regression Review | Planned |
 | 96.6 | 96 | Release Hardening And Archive Readiness | Planned |
@@ -190,6 +190,16 @@ Add the live `cognitive_intrusion` status and make Azure Pulse Monk apply it thr
 - Keep the first implementation player-side only. Do not add hostile Redline or Veil Intrusion application.
 - Update static-data validation references and tests for the new status and upgrade hook.
 
+### Implementation Notes
+
+Completed in static data and tests.
+
+- `data/statusEffects.json` now defines `cognitive_intrusion` as **Intrusion**, category `control`, duration `6`, `maxStacks: 1`, `stackPolicy: "refresh"`, `dispelTags: ["debuff"]`, `cognitiveDamageTakenMultiplier: 1.12`, and `contextRebuildMultiplier: 0.85`.
+- `data/skillUpgrades.json` now adds a level 3 `add_skill_effect` to `context_shock_refinement`, applying `cognitive_intrusion` through the existing `apply_status` effect path.
+- `tests/data/validateData.test.ts` asserts the static status shape and upgrade hook.
+- `tests/progression/upgrades.test.ts` proves Context Shock refinement level 2 does not add Intrusion and level 3 does.
+- `tests/compatibility/rethemeCompatibility.test.ts` and [Content Pipeline Inventory](content-pipeline-inventory.md) now include the new canonical status id/count.
+
 ### Acceptance
 
 - The new status is reachable only through the intended upgrade path.
@@ -199,9 +209,10 @@ Add the live `cognitive_intrusion` status and make Azure Pulse Monk apply it thr
 
 ### Verification
 
-- `npm test -- tests/data/validateData.test.ts tests/combat/simulator.test.ts`
-- `npm run simulate`
-- `git diff --check`
+- Passed: `npm test -- tests/data/validateData.test.ts tests/progression/upgrades.test.ts tests/compatibility/rethemeCompatibility.test.ts tests/combat/simulator.test.ts tests/web/statusPresentation.test.ts`
+- Passed: `npm run typecheck`
+- Passed: `npm run simulate`
+- Passed: `git diff --check`
 
 ## Slice 96.4: Presentation And Counterplay Visibility
 

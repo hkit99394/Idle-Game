@@ -223,6 +223,7 @@ describe("Path of Neon retheme compatibility keys", () => {
         "corruption",
         "trauma",
         "context_suppression",
+        "cognitive_intrusion",
         "exposed",
         "burning_blood"
       ],

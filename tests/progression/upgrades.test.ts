@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  applySkillUpgradesToSkill,
   calculateCombatPower,
   calculateEffectiveStatusResistance,
   calculateUpgradeCost,
@@ -308,6 +309,41 @@ describe("upgrades", () => {
     expect(result.cost).toBe(8);
     expect(result.progress.resources.resonance).toBe(12);
     expect(result.progress.skillUpgrades?.impact_combo_refinement).toBe(1);
+  });
+
+  it("gates Intrusion behind Context Shock refinement level 3", () => {
+    const contextShock = staticData.skills.find(
+      (skill) => skill.id === "context_shock"
+    );
+
+    expect(contextShock).toBeDefined();
+    if (!contextShock) {
+      return;
+    }
+
+    const lockedSkill = applySkillUpgradesToSkill(
+      contextShock,
+      staticData.skillUpgrades,
+      { context_shock_refinement: 2 }
+    );
+    const unlockedSkill = applySkillUpgradesToSkill(
+      contextShock,
+      staticData.skillUpgrades,
+      { context_shock_refinement: 3 }
+    );
+    const isIntrusionEffect = (effect: (typeof unlockedSkill.effects)[number]) =>
+      effect.type === "apply_status" &&
+      effect.statusId === "cognitive_intrusion";
+
+    expect(lockedSkill.effects.some(isIntrusionEffect)).toBe(false);
+    expect(unlockedSkill.effects.find(isIntrusionEffect)).toEqual({
+      type: "apply_status",
+      statusId: "cognitive_intrusion",
+      chance: 0.7,
+      durationSeconds: 6,
+      stacks: 1,
+      target: "target"
+    });
   });
 
   it("selects unlocked style branches and applies effects only to matching styles", () => {
