@@ -5,6 +5,7 @@ import {
   calculateStatusTickOuterDamage,
   createStatusDictionary,
   estimateStatusApplication,
+  estimateStatusModifierDamage,
   estimateStatusTickDamage
 } from "../../core";
 import type {
@@ -82,5 +83,33 @@ describe("status estimation helpers", () => {
         expectedApplications: application.expectedApplications
       })
     ).toBeCloseTo(expectedDamage);
+  });
+
+  it("estimates Cognitive vulnerability modifier damage", () => {
+    const definition: StatusEffectDefinition = {
+      id: "scenario_intrusion",
+      name: "Scenario Intrusion",
+      category: "control",
+      durationSeconds: 6,
+      maxStacks: 2,
+      stackPolicy: "stack_intensity",
+      dispelTags: ["debuff"],
+      effects: {
+        cognitiveDamageTakenMultiplier: 1.2
+      }
+    };
+
+    expect(
+      estimateStatusModifierDamage({
+        definition,
+        stacks: 2,
+        expectedApplications: 1.5,
+        resistedDurationSeconds: 4,
+        targetMaxBodyIntegrity: 1200,
+        enemyDps: 100,
+        cognitiveDps: 80,
+        playerAttackEventsPerSecond: 0.35
+      })
+    ).toBeCloseTo(80 * (1.2 ** 2 - 1) * 4 * 1.5);
   });
 });

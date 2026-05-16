@@ -22,7 +22,19 @@
     "maxLevel": 5,
     "effects": [
       { "type": "cooldown_seconds", "valuePerLevel": -0.12 },
-      { "type": "cognitive_multiplier", "valuePerLevel": 0.08 }
+      { "type": "cognitive_multiplier", "valuePerLevel": 0.08 },
+      {
+        "type": "add_skill_effect",
+        "unlockLevel": 3,
+        "effect": {
+          "type": "apply_status",
+          "statusId": "cognitive_intrusion",
+          "chance": 0.7,
+          "durationSeconds": 6,
+          "stacks": 1,
+          "target": "target"
+        }
+      }
     ]
   },
   {

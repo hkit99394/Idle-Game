@@ -41,6 +41,7 @@ const statusEffectKeys = new Set([
   "healingReceivedMultiplier",
   "contextRebuildMultiplier",
   "kineticDamageTakenMultiplier",
+  "cognitiveDamageTakenMultiplier",
   "feedbackBodyIntegrityPercent"
 ]);
 const medicineEffectTypes = new Set([

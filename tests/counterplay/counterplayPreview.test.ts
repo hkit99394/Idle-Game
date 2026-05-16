@@ -50,6 +50,7 @@ const statusPreviewData: StaticGameData = {
       id: "test_status_counterplay_enemy",
       skillIds: [
         "test_poison_hex",
+        "test_intrusion_probe",
         "test_meridian_lock",
         "test_vulnerability_hex",
         "test_wound_hex"
@@ -71,6 +72,23 @@ const statusPreviewData: StaticGameData = {
           statusId: "corruption",
           chance: 1,
           durationSeconds: 8,
+          stacks: 1
+        }
+      ]
+    },
+    {
+      id: "test_intrusion_probe",
+      name: "Test Intrusion Probe",
+      cooldownSeconds: 1,
+      kineticMultiplier: 0,
+      cognitiveMultiplier: 0,
+      targetRule: "first_living",
+      effects: [
+        {
+          type: "apply_status",
+          statusId: "cognitive_intrusion",
+          chance: 1,
+          durationSeconds: 6,
           stacks: 1
         }
       ]
@@ -205,6 +223,7 @@ describe("counterplay preview", () => {
     });
 
     expect(preview.statusPressureIds).toEqual([
+      "cognitive_intrusion",
       "context_suppression",
       "corruption",
       "exposed",
@@ -227,7 +246,7 @@ describe("counterplay preview", () => {
       preBattleResistancePolicyReason: null
     });
     expect(preview.recommendationText).toBe(
-      "Expected Context Suppression, Corruption, Exposed, Trauma. Recommended auto medicine: Quiet Context Powder, Clear Heart Countermeasure, Purity Countermeasure."
+      "Expected Intrusion, Context Suppression, Corruption, Exposed, Trauma. Recommended auto medicine: Quiet Context Powder, Clear Heart Countermeasure, Purity Countermeasure."
     );
     expect(preview.supportResistanceBonus).toBeCloseTo(0.08);
     expect(preview.supportContributionText).toBe(

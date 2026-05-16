@@ -12,12 +12,11 @@ import {
 } from "../../web/displayTerms";
 
 const webRootUrl = new URL("../../web/", import.meta.url);
-const futureMechanicTerms = [
+const futureOnlyMechanicTerms = [
   "District Heat",
   "Trace",
   "Firewall",
   "Calibration Debt",
-  "Cognitive Intrusion",
   "AI Raid"
 ] as const;
 
@@ -82,13 +81,13 @@ describe("Path of Neon display terms", () => {
     expect(formatStyleFamilyName("customStyleId")).toBe("Custom Style Id");
   });
 
-  it("does not ship future mechanic terms in live web source", () => {
+  it("does not ship future-only mechanic terms in live web source", () => {
     const sourceByFile = collectWebSourceFiles(webRootUrl).map((fileUrl) => ({
       file: fileUrl.pathname,
       source: readFileSync(fileUrl, "utf8")
     }));
 
-    for (const term of futureMechanicTerms) {
+    for (const term of futureOnlyMechanicTerms) {
       const matches = sourceByFile
         .filter(({ source }) => source.includes(term))
         .map(({ file }) => file);

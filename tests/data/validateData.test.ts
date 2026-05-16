@@ -37,6 +37,89 @@ describe("static game data validation", () => {
     expect(validateStaticGameData(staticData)).toEqual([]);
   });
 
+  it("defines the Intrusion status and Azure Pulse Monk upgrade hook", () => {
+    const intrusion = staticData.statusEffects.find(
+      (status) => status.id === "cognitive_intrusion"
+    );
+    const contextShockUpgrade = staticData.skillUpgrades.find(
+      (upgrade) => upgrade.id === "context_shock_refinement"
+    );
+
+    expect(intrusion).toEqual(
+      expect.objectContaining({
+        id: "cognitive_intrusion",
+        name: "Intrusion",
+        category: "control",
+        durationSeconds: 6,
+        maxStacks: 1,
+        stackPolicy: "refresh",
+        dispelTags: ["debuff"],
+        effects: {
+          cognitiveDamageTakenMultiplier: 1.12,
+          contextRebuildMultiplier: 0.85
+        }
+      })
+    );
+    expect(contextShockUpgrade?.effects).toEqual(
+      expect.arrayContaining([
+        {
+          type: "add_skill_effect",
+          unlockLevel: 3,
+          effect: {
+            type: "apply_status",
+            statusId: "cognitive_intrusion",
+            chance: 0.7,
+            durationSeconds: 6,
+            stacks: 1,
+            target: "target"
+          }
+        }
+      ])
+    );
+  });
+
+  it("accepts Cognitive damage taken status effect modifiers", () => {
+    const data = {
+      ...staticData,
+      statusEffects: staticData.statusEffects.map((status) =>
+        status.id === "exposed"
+          ? {
+              ...status,
+              effects: {
+                ...status.effects,
+                cognitiveDamageTakenMultiplier: 1.12
+              }
+            }
+          : status
+      )
+    } as StaticGameData;
+
+    expect(validateStaticGameData(data)).toEqual([]);
+  });
+
+  it("rejects unsupported status effect modifier keys", () => {
+    const data = {
+      ...staticData,
+      statusEffects: staticData.statusEffects.map((status) =>
+        status.id === "exposed"
+          ? {
+              ...status,
+              effects: {
+                ...status.effects,
+                intrusionBonus: 1.12
+              }
+            }
+          : status
+      )
+    } as unknown as StaticGameData;
+
+    expect(validateStaticGameData(data)).toEqual(
+      expect.arrayContaining([
+        "Status exposed effect intrusionBonus must be supported"
+      ])
+    );
+  });
+
   it("accepts Stage 2.8 combat schema aliases during validation", () => {
     const aliasedData = {
       ...staticData,

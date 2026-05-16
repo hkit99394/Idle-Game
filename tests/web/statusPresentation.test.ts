@@ -96,6 +96,34 @@ describe("status presentation", () => {
     ]);
   });
 
+  it("shows Intrusion through the generic data-status chip path", () => {
+    expect(
+      buildStatusChipViewModels(
+        [
+          {
+            statusId: "cognitive_intrusion",
+            remainingSeconds: 6,
+            stacks: 1
+          }
+        ],
+        statusDefinitions
+      )
+    ).toEqual([
+      {
+        statusId: "cognitive_intrusion",
+        label: "Intrusion",
+        category: "control",
+        categoryLabel: "Control",
+        severity: "high",
+        severityLabel: "High severity",
+        toneClassName: "tone-control",
+        remainingLabel: "6s",
+        stacksLabel: null,
+        ariaLabel: "Intrusion, Control, High severity, 6 seconds remaining"
+      }
+    ]);
+  });
+
   it("ignores unknown active status ids", () => {
     expect(
       buildStatusChipViewModels(
@@ -172,6 +200,45 @@ describe("status presentation", () => {
       {
         label: "Debuffs",
         value: "Corruption, Trauma",
+        toneClassName: "tone-control"
+      }
+    ]);
+  });
+
+  it("shows Intrusion in purge summaries by status metadata name", () => {
+    const summary = buildStatusSummaryViewModel({
+      statusDefinitions,
+      tickEvents: [],
+      cleanses: [
+        {
+          combatantName: "Azure Pulse Monk",
+          statusId: "cognitive_intrusion"
+        }
+      ]
+    });
+
+    expect(summary.callouts).toEqual([
+      {
+        id: "purges",
+        label: "Azure Pulse Monk purged 1 status",
+        toneClassName: "tone-cleanse",
+        ariaLabel: "Purge summary: Azure Pulse Monk purged 1 status"
+      }
+    ]);
+    expect(summary.rows).toEqual([
+      {
+        label: "Status Damage",
+        value: "0",
+        toneClassName: "tone-damage"
+      },
+      {
+        label: "Purges",
+        value: "1 by Azure Pulse Monk",
+        toneClassName: "tone-cleanse"
+      },
+      {
+        label: "Debuffs",
+        value: "Intrusion",
         toneClassName: "tone-control"
       }
     ]);

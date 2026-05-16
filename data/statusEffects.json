@@ -37,6 +37,19 @@
     }
   },
   {
+    "id": "cognitive_intrusion",
+    "name": "Intrusion",
+    "category": "control",
+    "durationSeconds": 6,
+    "maxStacks": 1,
+    "stackPolicy": "refresh",
+    "dispelTags": ["debuff"],
+    "effects": {
+      "cognitiveDamageTakenMultiplier": 1.12,
+      "contextRebuildMultiplier": 0.85
+    }
+  },
+  {
     "id": "exposed",
     "name": "Exposed",
     "category": "vulnerability",

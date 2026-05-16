@@ -100,6 +100,7 @@ export type StatusEffectModifiers = {
   healingReceivedMultiplier?: number;
   contextRebuildMultiplier?: number;
   kineticDamageTakenMultiplier?: number;
+  cognitiveDamageTakenMultiplier?: number;
   feedbackBodyIntegrityPercent?: number;
 };
 
@@ -200,6 +201,7 @@ export type StatusCombatModifiers = {
   healingReceivedMultiplier: number;
   contextRebuildMultiplier: number;
   kineticDamageTakenMultiplier: number;
+  cognitiveDamageTakenMultiplier: number;
   feedbackBodyIntegrityPercent: number;
 };
 

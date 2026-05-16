@@ -681,6 +681,8 @@ describe("balance report", () => {
     expect(csvLines[0]).toContain("player_cognitive_damage");
     expect(csvLines[0]).toContain("player_outer_damage");
     expect(csvLines[0]).toContain("player_inner_damage");
+    expect(csvLines[0]).not.toContain("intrusion");
+    expect(csvLines[0]).not.toContain("cognitive_damage_taken");
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("kinetic_crush");
     expect(csv).toContain("outer_pressure");

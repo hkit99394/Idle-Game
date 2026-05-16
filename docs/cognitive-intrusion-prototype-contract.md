@@ -6,6 +6,8 @@ Stage 2.3 selects **Cognitive Intrusion** as the first neon-native gameplay prot
 
 Stage 2.9.4 refreshes the implementation contract after the combat vocabulary and cleanup decisions from Stages 2.8 and 2.9. The prototype should make Cognitive Art feel like hostile system pressure, not only renamed Inner damage. It should reuse the existing combat loop: Context Stability, AI Overload, data-driven statuses, target priorities, battle summaries, and simulator reports.
 
+Stage 3.0 implemented this contract and archived the closure record at [Archived Stage 3.0 Backlog](archive/stage-3.0-backlog.md). This document remains the boundary for later Intrusion extensions unless a new backlog records an explicit contract clarification first.
+
 ## Candidate Comparison
 
 | Candidate | Fit | Save Risk | Implementation Footprint | Decision |
@@ -17,17 +19,17 @@ Stage 2.9.4 refreshes the implementation contract after the combat vocabulary an
 | Countermeasure Economy | Good Lotus/Redline counterplay identity. | Medium. Inventory and auto-countermeasure behavior become broader economy work. | Touches medicines, auto policy, status pressure, and resource pacing. | Defer. |
 | AI Raid Event | Strong long-term product identity. | High. Requires backend/API event contracts. | Depends on online boss transport and account/cloud assumptions. | Defer. |
 
-## Smallest Useful Slice
+## Implemented Smallest Useful Slice
 
 Add one live mechanic: **Intrusion** is a Cognitive status that makes a target more vulnerable to Context Stability pressure and slows Context Rebuild long enough to create clearer AI Overload windows.
 
-Recommended first implementation:
+Implemented first slice:
 
 - Add a new static status id, `cognitive_intrusion`, with display name **Intrusion**.
 - Add exactly one new status effect modifier for Cognitive damage taken: `cognitiveDamageTakenMultiplier`.
 - Reuse the existing `contextRebuildMultiplier` effect on the same status; avoid adding more status effect keys in the first slice.
 - Attach Intrusion through Azure Pulse Monk's existing `context_shock_refinement` upgrade, preferably as an `add_skill_effect` unlock at level 3 so the player opts in through existing Resonance spending.
-- Do not add hostile Redline or Veil Intrusion application in the first implementation. Add hostile application later only if simulator output proves the player-side prototype is too invisible.
+- Do not add hostile Redline or Veil Intrusion application in the first implementation. Stage 3.0's simulator regression proved the player-side prototype is visible enough to close; hostile application remains a future backlog decision.
 
 ## Minimum Schema Addition
 
@@ -61,9 +63,9 @@ No new status category, dispel tag, timed status id, tactic modifier, save field
 - New static ids may use Path of Neon names, but existing ids remain compatibility keys.
 - Do not rename `inner_defense_down`, `innerDefenseDown`, `outerDamage` / `innerDamage`, upgrade `art` buckets, or the `inner` dispel tag as part of the prototype; Stage 2.9 already made keep decisions for those contracts.
 
-## Data Shape
+## Implemented Data Shape
 
-The first implementation should prefer this shape:
+The first implementation uses this shape:
 
 ```json
 {
@@ -85,7 +87,7 @@ The exact numbers are tuning knobs. The first pass should be small enough that k
 
 ## Tests And Reports
 
-Required tests before implementation closure:
+Closure tests covered:
 
 - Data validation rejects unsupported status effect keys and accepts `cognitiveDamageTakenMultiplier`.
 - Damage package or simulator tests prove Intrusion increases Cognitive damage without changing Kinetic damage.

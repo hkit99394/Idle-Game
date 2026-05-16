@@ -43,7 +43,7 @@ These systems are the recommended deeper design targets. They should be introduc
 
 | System | Player Value | Reuses Current Surface | New Design Work |
 | --- | --- | --- | --- |
-| Cognitive Intrusion | Makes Cognitive Art feel like hostile AI/context pressure rather than renamed Qi damage. | Inner damage, AI Overload, statuses, target rules. | Add intrusion statuses, firewall-style counterplay, and enemies that punish careless Cognitive builds. |
+| Cognitive Intrusion | Makes Cognitive Art feel like hostile AI/context pressure rather than renamed Qi damage. | Cognitive damage, Context Stability, AI Overload, statuses, target rules. | Stage 3.0 implemented the first Intrusion status; later work can extend hostile application, firewall-style counterplay, or enemies that punish careless Cognitive builds. |
 | Augment Loadouts | Gives equipment a tech identity and creates build choices beyond stat bumps. | Equipment slots, affixes, set bonuses, CP, style branches. | Split gear fantasy into implants, plating, weapons, protocol manuals, and countermeasure kits. |
 | District Heat | Makes idle farming and route choice feel like underworld operations. | Regions, stages, offline farms, assignments, boss gates. | Add heat/attention as a district pressure track that changes rewards, risk, or enemy pressure. |
 | Network Operations | Turns assignments into more than passive patrol/training. | Assignments, offline rewards, hero eligibility, mastery XP. | Add operation types such as Sweep, Scrape, Jam, Calibrate, and Clinic Shift with different outputs. |
@@ -52,7 +52,7 @@ These systems are the recommended deeper design targets. They should be introduc
 | Faction Reputation | Makes districts and sects feel socially alive. | Region progress, boss clears, unlocks. | Add reputation or contact tracks only after current save/cloud contracts are ready. |
 | AI Raid Events | Makes online boss direction native to the new theme. | Epic 77 online boss decision, deterministic combat, cloud-save envelope. | Build async server-authoritative event bosses as hostile AI raids, not generic boss fights. |
 
-Prototype order: start with **Cognitive Intrusion**, then follow with **District Heat**. Cognitive Intrusion gives the combat system an immediate Path of Neon identity by making Context Stability, AI Overload, and hostile AI pressure matter. District Heat should follow once route/offline economy pacing is ready for a broader progression change.
+Prototype order: **Cognitive Intrusion** first, then **District Heat**. Stage 3.0 implemented the first Intrusion slice, giving the combat system a Path of Neon identity through Context Stability, AI Overload, and hostile system pressure. District Heat remains the preferred next prototype once route/offline economy pacing is ready for a broader progression change.
 
 ## Content Transformation Strategy
 
@@ -219,4 +219,4 @@ Style mastery should display as **Protocol Mastery** when the surrounding UI is 
 
 Epic 81 completed the initial style taxonomy. Broad style-bearing copy should use the style-family display names above, keep old martial terms as lineage flavor where useful, and avoid role-forward labels as style replacements.
 
-Epic 85 selected Cognitive Intrusion first, with District Heat second. Use [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) for the implementation boundary: one status/effect path that enriches Context Stability and AI Overload without save-field, storage-key, or internal-id migration.
+Epic 85 selected Cognitive Intrusion first, with District Heat second. Stage 3.0 implemented the first Intrusion slice through [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md): one status/effect path that enriches Context Stability and AI Overload without save-field, storage-key, or internal-id migration.

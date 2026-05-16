@@ -4,6 +4,8 @@ Region-level budget gates were added in Stage 1.7 to make `npm run simulate` exp
 
 Stage 2.0 tracks the current authoring surface and known tuning debt in [Content Pipeline Inventory](content-pipeline-inventory.md) while tightening the static validation contract for future content. Use [Content Authoring Checklist](content-authoring-checklist.md) for the practical region-addition workflow.
 
+Stage 3.0 added player-side Intrusion as a data-driven status mechanic without changing the region budget contract or retuning the known Black Iron Foundry and Redline Outpost misses.
+
 ## Configuration
 
 Budgets live in each region's required `balanceTargets` entry in `data/regions.json`.
@@ -67,7 +69,7 @@ Use `budgetExceptions` only for named deferrals that should remain visible in da
 
 An exception must reference a boss stage in the same region, include a non-empty reason, and is rejected once a boss clear-time target is configured.
 
-The simulator counts status pressure from enemy-applied `status_apply` events and `status_tick` damage against player combatants. Player-applied effects such as armor break are still shown in defensive summaries, but they do not inflate enemy status-pressure gates.
+The simulator counts status pressure from enemy-applied `status_apply` events and `status_tick` damage against player combatants. Player-applied effects such as armor break and Intrusion are still shown in defensive/status summaries, but they do not inflate enemy status-pressure gates.
 
 ## Current Gate Intent
 

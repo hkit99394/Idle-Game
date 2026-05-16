@@ -81,6 +81,9 @@ const landedStaticRenameKinds = new Set<ContentIdAliasKind>([
   "operation",
   "routine"
 ]);
+const postPreflightCurrentContentIds = new Set([
+  "cognitive_intrusion"
+]);
 const dataDirectory = new URL("../../data/", import.meta.url);
 
 function parsePreflightRows(): PreflightRow[] {
@@ -328,7 +331,9 @@ describe("content id compatibility aliases", () => {
 
   it("matches the 91.1 preflight migrate and keep decisions", () => {
     const preflightRows = parsePreflightRows();
-    const configuredIds = configuredContentIds();
+    const configuredIds = configuredContentIds().filter(
+      (id) => !postPreflightCurrentContentIds.has(id)
+    );
 
     expect(preflightRows).toHaveLength(116);
     expect(new Set(preflightRows.map(expectedConfiguredContentId))).toEqual(
