@@ -2,7 +2,7 @@
 
 ## Status
 
-Slice 91.1 is complete. This preflight expands the Stage 2.6 content-id target draft into an implementation contract for the alias, save-migration, static-data, report, and compatibility slices that follow.
+Slice 91.1 is complete, and Stage 2.6 is complete. This archived preflight records the implementation contract used by the alias, save-migration, static-data, report, and compatibility slices.
 
 This document does not rename data. It classifies the current configured content ids, the target ids, the persisted fields that can contain those ids, and the legacy terms that must stay deferred to later save-field or combat-symbol stages.
 

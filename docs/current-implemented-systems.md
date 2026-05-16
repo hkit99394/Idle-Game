@@ -90,9 +90,10 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - `npm run simulate` and `npm run support-decision` are the main tuning tools.
 - Stage 2.4 product/storage key migration is closed and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md), including package metadata, browser save storage, PWA cache/icon identity, and shared alias-map helpers.
 - Stage 2.5 region/stage static id migration is closed and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md), including save-version fixtures, `progress.maps`, selected/current stage ids, simulator report ids, and compatibility aliases.
-- The active Stage 2.6 planning backlog is [Stage 2.6 Backlog](stage-2.6-backlog.md), focused on static content id migration for enemies, heroes, skills, styles, equipment, assignments, medicines, statuses, and tactics. Slices 91.1 through 91.7 are complete: [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md) owns the migrate/keep/defer matrix, `core/compatibility/contentIdAliases.ts` owns the alias data, save version `12` normalizes save-stored content aliases, static hostile/status/initiate/protocol/style/augment/countermeasure/operation/routine ids now use their canonical Path of Neon ids, and report exports keep canonical ids primary with temporary legacy comparison columns.
+- Stage 2.6 static content id migration is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md), with the target matrix retained in [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md). Save version `12` normalizes save-stored content aliases, static hostile/status/initiate/protocol/style/augment/countermeasure/operation/routine ids now use their canonical Path of Neon ids, and report exports keep canonical ids primary with temporary legacy comparison columns.
+- Stage 2.7 save resource/progress field migration is the active backlog in [Stage 2.7 Backlog](stage-2.7-backlog.md). It prepares Epic 92 for fields such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, selected/current route fields, routine selection, and techno-sect progress with a planned save-version bump.
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md), covering the display-safe Path of Neon design pivot.
-- Completed backlogs through Stage 2.5 live in `docs/archive`.
+- Completed backlogs through Stage 2.6 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
@@ -100,6 +101,8 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md); `docs/stage-2.3-backlog.md` should not exist as an active backlog unless Stage 2.3 is explicitly reopened.
 - Stage 2.4 is closed and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md); `docs/stage-2.4-backlog.md` should not exist as an active backlog unless Stage 2.4 is explicitly reopened.
 - Stage 2.5 is closed and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md); `docs/stage-2.5-backlog.md` should not exist as an active backlog unless Stage 2.5 is explicitly reopened.
+- Stage 2.6 is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md); `docs/stage-2.6-backlog.md` should not exist as an active backlog unless Stage 2.6 is explicitly reopened.
+- Stage 2.7 is active at [Stage 2.7 Backlog](stage-2.7-backlog.md); `docs/stage-2.7-backlog.md` should remain active until Stage 2.7 closure validation archives it.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules

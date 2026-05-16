@@ -2,9 +2,9 @@
 
 ## Current Status
 
-Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.7 are complete: the content-id preflight, alias data, save-version migration, hostile/status static rename, initiate/protocol/style static rename, augment/countermeasure/operation/routine static rename, and report/tooling/web continuity work are now in place.
+Stage 2.6 is complete. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](stage-2.5-backlog.md). Slices 91.1 through 91.8 are complete: the content-id preflight, alias data, save-version migration, hostile/status static rename, initiate/protocol/style static rename, augment/countermeasure/operation/routine static rename, report/tooling/web continuity work, and closure hardening are now in place.
 
-This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
+This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
 
 ## Theme
 
@@ -94,7 +94,7 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 | 91.5 | Initiate, Protocol, And Style Static Rename | Complete | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
 | 91.6 | Augment, Countermeasure, Operation, And Routine Static Rename | Complete | Rename equipment, set, medicine, assignment, and tactic ids plus direct references |
 | 91.7 | Report, Tooling, And Web Continuity | Complete | Keep simulator exports, web state, diagnostics, and workflows coherent |
-| 91.8 | Content Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
+| 91.8 | Content Compatibility Hardening | Complete | Run full compatibility proof, stale scans, docs updates, and archive readiness |
 
 ---
 
@@ -395,6 +395,8 @@ Keep user workflows and downstream report consumers coherent while content ids c
 
 ## Slice 91.8: Content Compatibility Hardening
 
+Status: complete.
+
 ### Goal
 
 Close Stage 2.6 with proof that static content id migration is safe and later migration stages remain isolated.
@@ -403,7 +405,7 @@ Close Stage 2.6 with proof that static content id migration is safe and later mi
 
 - Run stale-name scans for legacy content ids and classify every remaining hit.
 - Confirm remaining old ids outside archive are aliases, fixtures, tests, temporary report columns, or migration docs.
-- Update [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) with Stage 2.6 closure notes.
+- Update [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md) with Stage 2.6 closure notes.
 - Update active docs with the next recommended stage: Stage 2.7 save resource/progress field migration.
 - Prepare archive notes and release-readiness evidence when the stage is complete.
 
@@ -426,9 +428,52 @@ Close Stage 2.6 with proof that static content id migration is safe and later mi
 - Markdown path/link check.
 - Stale content-id scan.
 
+### Implementation Decisions
+
+- Stage 2.6 closure keeps the content alias map, save normalization, old-save fixtures, current-version import normalization, and temporary legacy report columns. Removing those adapters belongs to Stage 2.9 or a later compatibility cleanup, not this stage.
+- The exact static-data scan over all 98 legacy content aliases has only intentional hits: `black_iron_saber` is now the canonical augment id while also being the legacy hostile id for `ironwall_saber`, and `poison`/`wound` remain deferred combat/dispel taxonomy symbols.
+- Browser smoke is covered by source-level save import/export workflow tests for this docs/tooling closure slice. No visible UI or web-state transition changed in 91.8, so in-app browser smoke is not required by the release checklist.
+- Stage 2.7 should begin with save resource/progress field migration. Stage 2.6 intentionally leaves field names such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, `selectedOfflineFarmStageId`, and `selectedTacticId` unchanged.
+
+### Stale-Scan Classification
+
+Remaining legacy content-id hits outside `docs/archive` are intentional in these buckets:
+
+| Bucket | Expected locations | Disposition |
+| --- | --- | --- |
+| Content aliases | `core/compatibility/contentIdAliases.ts` and alias tests | Required compatibility surface for old saves/imports/report comparison. |
+| Region/stage aliases inherited from Stage 2.5 | `core/compatibility/regionStageAliases.ts` and region/stage compatibility tests | Required compatibility surface for old route saves/imports/report comparison. |
+| Legacy save fixtures and import tests | `tests/fixtures/`, `tests/save/`, `tests/web/saveStorage.test.ts`, and compatibility tests | Required proof that pre-Stage 2.6 and current-version legacy content ids normalize to canonical ids. |
+| Temporary legacy export columns | `tools/balance/exportReport.ts` and `tests/tools/balanceReport.test.ts` | Intentional schema v3 comparison fields from Slice 91.7. |
+| Deferred combat/dispel taxonomy | `core/combat/**`, `data/skillUpgrades.json`, `data/statusEffects.json`, `data/medicines.json`, related tests, and battle view models | `SkillEffect.type = "wound"` and `StatusDispelTag` values such as `poison` and `wound` are combat-symbol work for Stage 2.8, not static content ids. |
+| Alias collision | `data/equipment.json` and `data/stages.json` for `black_iron_saber` | Intentional: the old hostile id maps to `ironwall_saber`, while `black_iron_saber` is the canonical augment id after Slice 91.6. |
+| Migration, planning, and historical prose docs | this backlog, [Path Of Neon Internal Id Migration](../path-of-neon-internal-id-migration.md), [Path Of Neon Retheme Migration Plan](../retheme-migration-plan.md), [Path Of Neon Terminology Map](../path-of-neon-terminology-map.md), [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md), and older design/reference docs | Intentional history, alias mapping, ordinary prose such as "balanced" or "sustain", and next-stage planning. |
+
+### Progress Notes
+
+- Ran an alias-derived scan over all 98 Stage 2.6 legacy content aliases and classified remaining hits as compatibility aliases, fixtures/tests, temporary report columns, deferred combat/dispel symbols, the `black_iron_saber` cross-category alias collision, migration docs, or ordinary prose.
+- Ran an exact static-data scan over all 98 legacy aliases and confirmed no stale migrated static content ids remain; the only exact hits are the intentional `black_iron_saber` canonical augment id and deferred `poison`/`wound` combat/dispel taxonomy.
+- Confirmed focused compatibility, save migration, web save workflow, and balance export tests pass after the 91.7 export schema changes.
+- Updated the internal-id migration, retheme planning, onboarding, and current-system docs to mark Stage 2.6 closed and set Stage 2.7 save resource/progress field migration as the next recommended stage.
+
+### Release Readiness Evidence
+
+Validated for Stage 2.6 closure:
+
+- `npm run typecheck` passed.
+- `npm test` passed.
+- `npm run build` passed.
+- `npm run simulate` passed and reports canonical content ids with the expected known balance debt still visible.
+- `npm run support-decision` passed.
+- Export smoke passed for `npm run --silent simulate -- --export-json`, `--csv`, `--tactics-json`, and `--tactics-csv`: authoring JSON and tactic exports have `schemaVersion: 3`, canonical ids remain primary, and temporary legacy comparison fields are present.
+- Focused compatibility smoke passed for content aliases, retheme compatibility, save migrations, web save storage, web workflow baselines, and balance report exports.
+- Markdown path/link check passed after archival.
+- `git diff --check` passed.
+- Stale content-id scans passed by classification: remaining hits outside `docs/archive` are aliases, fixtures/tests, temporary legacy export fields, migration docs, the intentional `black_iron_saber` alias collision, deferred combat/dispel symbols, or ordinary prose.
+
 ## Carried Forward
 
 - Stage 2.7 should own save resource/progress field migration, including `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, and the `selectedOfflineFarmStageId` and `selectedTacticId` field-name decisions.
 - Stage 2.8 should own combat stat fields and code/report symbol migration.
 - Stage 2.9 should own cleanup of temporary legacy adapters and report columns after compatibility policy allows.
-- Cognitive Intrusion implementation remains separate from id migration and should start from [Cognitive Intrusion Prototype Contract](cognitive-intrusion-prototype-contract.md) once naming and compatibility churn is stable.
+- Cognitive Intrusion implementation remains separate from id migration and should start from [Cognitive Intrusion Prototype Contract](../cognitive-intrusion-prototype-contract.md) once naming and compatibility churn is stable.

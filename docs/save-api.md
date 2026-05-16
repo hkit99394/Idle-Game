@@ -4,7 +4,7 @@
 
 Save loading should be owned by `core/` so web storage, tools, tests, and a future backend use the same migration, validation, normalization, offline reward, and timestamp behavior.
 
-Theme note: Path of Neon display terms do not rename save schema fields during the display-safe retheme. Persisted fields such as `silver`, `cultivation`, `herbs`, `sect`, `outerHp`, and `innerQi` remain compatibility contracts until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them with a save-version bump and fixture coverage.
+Theme note: Path of Neon display terms do not rename save schema fields during the display-safe retheme. Persisted fields such as `silver`, `cultivation`, `herbs`, `sect`, `outerHp`, and `innerQi` remain compatibility contracts until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them with a save-version bump and fixture coverage. [Stage 2.7 Backlog](stage-2.7-backlog.md) is the active plan for resource/progress save fields; combat stat fields remain deferred.
 
 ## Preferred Core Entry Points
 
@@ -91,7 +91,7 @@ Supported legacy versions are listed in `SUPPORTED_SAVE_DATA_VERSIONS`. Tests sh
 
 When a save version is added, add or update the migration fixture path before changing import/export behavior.
 
-Save version `12` adds content-id alias normalization for Stage 2.6 without renaming save fields. The migration covers save-stored hero, style, style-branch, skill-upgrade, equipment, medicine, assignment, tactic, and auto-medicine disabled ids. Normalization is data-aware: it writes whichever alias side is configured by the active static data, so current imports can be repaired before and after the static content id rename slices land.
+Save version `12` adds content-id alias normalization for Stage 2.6 without renaming save fields. The migration covers save-stored hero, style, style-branch, skill-upgrade, equipment, medicine, assignment, tactic, and auto-medicine disabled ids. Normalization is data-aware: it writes whichever alias side is configured by the active static data, so current imports can be repaired before and after the static content id rename slices land. Stage 2.7 is expected to add the next save-version bump for resource/progress field migration.
 
 ## Import And Future Versions
 

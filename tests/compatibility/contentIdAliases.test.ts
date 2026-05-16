@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   CONTENT_ID_ALIASES,
@@ -25,8 +25,17 @@ type PreflightRow = Readonly<{
   decision: PreflightDecision;
 }>;
 
+type LegacyDataHit = Readonly<{
+  file: string;
+  legacyId: string;
+  text: string;
+}>;
+
 const preflightSource = readFileSync(
-  new URL("../../docs/stage-2.6-content-id-preflight.md", import.meta.url),
+  new URL(
+    "../../docs/archive/stage-2.6-content-id-preflight.md",
+    import.meta.url
+  ),
   "utf8"
 );
 
@@ -72,6 +81,7 @@ const landedStaticRenameKinds = new Set<ContentIdAliasKind>([
   "operation",
   "routine"
 ]);
+const dataDirectory = new URL("../../data/", import.meta.url);
 
 function parsePreflightRows(): PreflightRow[] {
   return [...preflightSource.matchAll(/^\| `([^`]+)` \| `([^`]+)` \| (Migrate|Keep) \|/gm)]
@@ -115,6 +125,57 @@ function configuredContentIds(): string[] {
     ...(staticData.assignments ?? []).map((assignment) => assignment.id),
     ...staticData.tactics.map((tactic) => tactic.id)
   ];
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function listDataJsonFiles(directory = dataDirectory): URL[] {
+  return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const entryUrl = new URL(entry.name, directory);
+
+    if (entry.isDirectory()) {
+      return listDataJsonFiles(new URL(`${entry.name}/`, directory));
+    }
+
+    return entry.name.endsWith(".json") ? [entryUrl] : [];
+  });
+}
+
+function getDataRelativePath(file: URL): string {
+  const dataPath = decodeURIComponent(dataDirectory.pathname);
+  const filePath = decodeURIComponent(file.pathname);
+
+  return `data/${filePath.slice(dataPath.length)}`;
+}
+
+function findQuotedLegacyContentIdsInData(): LegacyDataHit[] {
+  const legacyIds = [...new Set(CONTENT_ID_ALIASES.map((alias) => alias.legacyId))];
+  const quotedLegacyIdPattern = new RegExp(
+    `"(${legacyIds.map(escapeRegExp).join("|")})"`,
+    "g"
+  );
+
+  return listDataJsonFiles()
+    .flatMap((file) =>
+      readFileSync(file, "utf8")
+        .split(/\r?\n/)
+        .flatMap((line) => {
+          const hits = [...line.matchAll(quotedLegacyIdPattern)];
+
+          return hits.map((hit) => ({
+            file: getDataRelativePath(file),
+            legacyId: hit[1],
+            text: line.trim()
+          }));
+        })
+    )
+    .sort((left, right) =>
+      `${left.file}:${left.legacyId}:${left.text}`.localeCompare(
+        `${right.file}:${right.legacyId}:${right.text}`
+      )
+    );
 }
 
 describe("content id compatibility aliases", () => {
@@ -384,5 +445,45 @@ describe("content id compatibility aliases", () => {
     expect(normalizeContentId("routine", "outer_pressure")).toBe(
       "kinetic_crush"
     );
+  });
+
+  it("limits exact legacy content-id strings in data to documented exceptions", () => {
+    expect(findQuotedLegacyContentIdsInData()).toEqual([
+      {
+        file: "data/equipment.json",
+        legacyId: "black_iron_saber",
+        text: '"id": "black_iron_saber",'
+      },
+      {
+        file: "data/medicines.json",
+        legacyId: "poison",
+        text: '"dispelTags": ["poison", "wound"],'
+      },
+      {
+        file: "data/medicines.json",
+        legacyId: "wound",
+        text: '"dispelTags": ["poison", "wound"],'
+      },
+      {
+        file: "data/skillUpgrades.json",
+        legacyId: "wound",
+        text: '"type": "wound",'
+      },
+      {
+        file: "data/stages.json",
+        legacyId: "black_iron_saber",
+        text: '"equipmentDrops": [{ "equipmentId": "black_iron_saber", "quantity": 1 }],'
+      },
+      {
+        file: "data/statusEffects.json",
+        legacyId: "poison",
+        text: '"dispelTags": ["poison", "debuff"],'
+      },
+      {
+        file: "data/statusEffects.json",
+        legacyId: "wound",
+        text: '"dispelTags": ["wound", "debuff"],'
+      }
+    ]);
   });
 });

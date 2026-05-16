@@ -15,8 +15,7 @@ Start with the current contributor docs:
 - [Path Of Neon Terminology Map](docs/path-of-neon-terminology-map.md)
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
-- [Stage 2.6 Backlog](docs/stage-2.6-backlog.md)
-- [Stage 2.6 Content Id Preflight](docs/stage-2.6-content-id-preflight.md)
+- [Stage 2.7 Backlog](docs/stage-2.7-backlog.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Archived Roadmap: Stage 1.7 To 2.2](docs/archive/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)
@@ -33,6 +32,8 @@ Historical planning and archived backlogs:
 
 - [Planning Questions Before Analysis Stage](docs/archive/planning-questions.md)
 - [Analysis Stage](docs/archive/analysis-stage.md)
+- [Archived Stage 2.6 Backlog](docs/archive/stage-2.6-backlog.md)
+- [Archived Stage 2.6 Content Id Preflight](docs/archive/stage-2.6-content-id-preflight.md)
 - [Archived Stage 2.5 Backlog](docs/archive/stage-2.5-backlog.md)
 - [Archived Stage 2.4 Backlog](docs/archive/stage-2.4-backlog.md)
 - [Archived Stage 2.3 Backlog](docs/archive/stage-2.3-backlog.md)
