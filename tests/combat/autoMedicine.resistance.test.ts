@@ -28,7 +28,7 @@ import stages from "../../data/stages.json" with { type: "json" };
 import statusEffects from "../../data/statusEffects.json" with { type: "json" };
 
 const medicineDefinitions = medicines as MedicineDefinition[];
-const enemyDefinitions = enemies as EnemyDefinition[];
+const enemyDefinitions = enemies as unknown as EnemyDefinition[];
 const skillDefinitions = skills as SkillDefinition[];
 const stageDefinitions = stages as StageDefinition[];
 const statusDefinitions = createStatusDictionary(
@@ -114,8 +114,8 @@ const statusPressureSkills: SkillDefinition[] = [
     id: "test_poison_hex",
     name: "Test Corruption Hex",
     cooldownSeconds: 1,
-    outerMultiplier: 0,
-    innerMultiplier: 0,
+    kineticMultiplier: 0,
+    cognitiveMultiplier: 0,
     targetRule: "first_living",
     effects: [
       {
@@ -131,8 +131,8 @@ const statusPressureSkills: SkillDefinition[] = [
     id: "test_vulnerability_hex",
     name: "Test Vulnerability Hex",
     cooldownSeconds: 1,
-    outerMultiplier: 0,
-    innerMultiplier: 0,
+    kineticMultiplier: 0,
+    cognitiveMultiplier: 0,
     targetRule: "first_living",
     effects: [
       {

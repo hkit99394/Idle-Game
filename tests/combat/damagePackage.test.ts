@@ -3,11 +3,11 @@ import {
   applyDamagePackageMitigation,
   commitBacklashDamagePackage,
   commitDamagePackage,
-  commitQiBreakDamagePackage,
+  commitAiOverloadDamagePackage,
   createAttackDamagePackage,
   createBacklashDamagePackage,
-  createQiBreakBacklashDamagePackage,
-  createQiBreakDamagePackage,
+  createAiOverloadFeedbackDamagePackage,
+  createAiOverloadDamagePackage,
   resolveAttackDamageTargets
 } from "../../core/combat/damagePackage";
 import type {
@@ -37,8 +37,8 @@ type CombatantInput = Omit<Partial<CombatantState>, "stats"> & {
 };
 
 function createDamageCombatant(input: CombatantInput = {}): CombatantState {
-  const maxOuterHp = input.maxOuterHp ?? combatScenarioBaseStats.maxOuterHp;
-  const maxInnerQi = input.maxInnerQi ?? combatScenarioBaseStats.maxInnerQi;
+  const maxBodyIntegrity = input.maxBodyIntegrity ?? combatScenarioBaseStats.maxBodyIntegrity;
+  const maxContextStability = input.maxContextStability ?? combatScenarioBaseStats.maxContextStability;
   const { stats, ...stateOverrides } = input;
 
   return {
@@ -50,10 +50,10 @@ function createDamageCombatant(input: CombatantInput = {}): CombatantState {
     combatRole: "striker",
     name: "Scenario Damage",
     team: "player",
-    outerHp: maxOuterHp,
-    innerQi: maxInnerQi,
-    maxOuterHp,
-    maxInnerQi,
+    bodyIntegrity: maxBodyIntegrity,
+    contextStability: maxContextStability,
+    maxBodyIntegrity,
+    maxContextStability,
     stats: {
       ...combatScenarioBaseStats,
       ...stats
@@ -63,9 +63,9 @@ function createDamageCombatant(input: CombatantInput = {}): CombatantState {
     skillIds: [],
     nextActionAt: 1,
     skillCooldowns: {},
-    isQiBroken: false,
-    qiBreakEndsAt: null,
-    lastInnerDamageAt: null,
+    isOverloaded: false,
+    overloadEndsAt: null,
+    lastCognitiveDamageAt: null,
     guard: null,
     protection: null,
     armorBreak: null,
@@ -89,7 +89,7 @@ const vulnerabilityDefinition: StatusEffectDefinition = {
   stackPolicy: "refresh",
   dispelTags: ["vulnerability"],
   effects: {
-    outerDamageTakenMultiplier: 1.5
+    kineticDamageTakenMultiplier: 1.5
   }
 };
 
@@ -107,8 +107,8 @@ describe("damage package", () => {
   it("creates attack packages with family, vulnerability, and armor-break modifiers", () => {
     const skill = createScenarioSkill({
       id: "scenario_damage",
-      outerMultiplier: 1,
-      innerMultiplier: 1
+      kineticMultiplier: 1,
+      cognitiveMultiplier: 1
     });
     const attacker = createDamageCombatant({
       instanceId: "scenario_attacker",
@@ -116,8 +116,8 @@ describe("damage package", () => {
         scenario: 0.2
       },
       stats: {
-        outerAttack: 200,
-        innerAttack: 100
+        kineticAttack: 200,
+        cognitiveAttack: 100
       }
     });
     const target = createDamageCombatant({
@@ -127,8 +127,8 @@ describe("damage package", () => {
       team: "enemy",
       family: "scenario",
       stats: {
-        outerDefense: 100,
-        innerDefense: 100
+        kineticDefense: 100,
+        cognitiveDefense: 100
       },
       armorBreak: createTimedStatusEffect({
         id: "armor_break",
@@ -160,7 +160,7 @@ describe("damage package", () => {
     });
 
     expect(damagePackage.familyMultiplier).toBeCloseTo(1.2);
-    expect(damagePackage.outerDamageTakenMultiplier).toBe(1.5);
+    expect(damagePackage.kineticDamageTakenMultiplier).toBe(1.5);
     expect(damagePackage.outerDamage).toBeCloseTo(240);
     expect(damagePackage.innerDamage).toBeCloseTo(60);
     expect(damagePackage.intendedTargetId).toBeUndefined();
@@ -169,21 +169,21 @@ describe("damage package", () => {
   it("keeps Qi-broken damage scaling inside the attack package", () => {
     const skill = createScenarioSkill({
       id: "scenario_qi_damage",
-      outerMultiplier: 1,
-      innerMultiplier: 1
+      kineticMultiplier: 1,
+      cognitiveMultiplier: 1
     });
     const attacker = createDamageCombatant({
       instanceId: "scenario_attacker",
       stats: {
-        outerAttack: 100,
-        innerAttack: 80
+        kineticAttack: 100,
+        cognitiveAttack: 80
       }
     });
     const target = createDamageCombatant({
       instanceId: "scenario_qi_broken",
       team: "enemy",
       kind: "enemy",
-      isQiBroken: true
+      isOverloaded: true
     });
 
     const damagePackage = createAttackDamagePackage({
@@ -202,7 +202,7 @@ describe("damage package", () => {
   it("resolves protectors as the damage recipient before package creation", () => {
     const skill = createScenarioSkill({
       id: "scenario_protected_damage",
-      outerMultiplier: 1,
+      kineticMultiplier: 1,
       targetRule: "weakest_hp"
     });
     const attacker = createDamageCombatant({
@@ -214,7 +214,7 @@ describe("damage package", () => {
       kind: "enemy",
       team: "enemy",
       formationSlot: "back",
-      outerHp: 300
+      bodyIntegrity: 300
     });
     const protector = createDamageCombatant({
       instanceId: "scenario_protector",
@@ -278,8 +278,8 @@ describe("damage package", () => {
       name: "Scenario Protector",
       kind: "enemy",
       team: "enemy",
-      maxOuterHp: 100,
-      maxInnerQi: 100,
+      maxBodyIntegrity: 100,
+      maxContextStability: 100,
       guard: createTimedStatusEffect({
         id: "guard",
         value: 0.25,
@@ -315,7 +315,7 @@ describe("damage package", () => {
       outerDamage: 120,
       innerDamage: 80,
       familyMultiplier: 1,
-      outerDamageTakenMultiplier: 1
+      kineticDamageTakenMultiplier: 1
     };
     const targets: AttackDamageTargetContext = {
       intendedTarget: protectedTarget,
@@ -349,9 +349,9 @@ describe("damage package", () => {
       events
     });
 
-    expect(protector.outerHp).toBe(55);
-    expect(protector.innerQi).toBe(60);
-    expect(protector.lastInnerDamageAt).toBe(2);
+    expect(protector.bodyIntegrity).toBe(55);
+    expect(protector.contextStability).toBe(60);
+    expect(protector.lastCognitiveDamageAt).toBe(2);
     expect(metrics.playerOuterDamage).toBe(45);
     expect(metrics.playerInnerDamage).toBe(40);
     expect(contributions.get(attacker.instanceId)).toMatchObject({
@@ -392,7 +392,7 @@ describe("damage package", () => {
       outerDamage: 10,
       innerDamage: 0,
       familyMultiplier: 1,
-      outerDamageTakenMultiplier: 1
+      kineticDamageTakenMultiplier: 1
     };
 
     expect(() =>
@@ -406,7 +406,7 @@ describe("damage package", () => {
         events: []
       })
     ).toThrow(/does not match committed target/);
-    expect(target.outerHp).toBe(target.maxOuterHp);
+    expect(target.bodyIntegrity).toBe(target.maxBodyIntegrity);
   });
 
   it("rejects committing a package with a different source or intended target", () => {
@@ -426,7 +426,7 @@ describe("damage package", () => {
       outerDamage: 10,
       innerDamage: 0,
       familyMultiplier: 1,
-      outerDamageTakenMultiplier: 1
+      kineticDamageTakenMultiplier: 1
     };
     const intendedMismatchPackage: AttackDamagePackage = {
       ...sourceMismatchPackage,
@@ -459,27 +459,27 @@ describe("damage package", () => {
     ).toThrow(/intended target/);
   });
 
-  it("commits Qi Break burst damage through package recording", () => {
+  it("commits AI Overload burst damage through package recording", () => {
     const attacker = createDamageCombatant({
       instanceId: "scenario_breaker",
       team: "player",
       stats: {
-        breakPower: 0.05
+        breachPower: 0.05
       }
     });
     const target = createDamageCombatant({
       instanceId: "scenario_qi_target",
       kind: "enemy",
       team: "enemy",
-      maxOuterHp: 1000,
-      maxInnerQi: 100,
-      innerQi: 0
+      maxBodyIntegrity: 1000,
+      maxContextStability: 100,
+      contextStability: 0
     });
     const metrics = createInitialMetrics();
     const contributions = createInitialContributions([attacker, target]);
     const events: BattleEvent[] = [];
 
-    const damagePackage = createQiBreakDamagePackage({
+    const damagePackage = createAiOverloadDamagePackage({
       attacker,
       target,
       time: 4,
@@ -487,7 +487,7 @@ describe("damage package", () => {
     });
 
     expect(damagePackage).toMatchObject({
-      kind: "qi_break",
+      kind: "ai_overload",
       sourceId: attacker.instanceId,
       targetId: target.instanceId,
       innerDamage: 0,
@@ -496,7 +496,7 @@ describe("damage package", () => {
     expect(damagePackage.outerDamage).toBeCloseTo(150);
     expect(damagePackage.burstPercent).toBeCloseTo(0.15);
 
-    commitQiBreakDamagePackage({
+    commitAiOverloadDamagePackage({
       damagePackage,
       attacker,
       target,
@@ -507,47 +507,47 @@ describe("damage package", () => {
     });
 
     expect(target).toMatchObject({
-      outerHp: 850,
-      innerQi: 0,
-      isQiBroken: true,
-      qiBreakEndsAt: 10
+      bodyIntegrity: 850,
+      contextStability: 0,
+      isOverloaded: true,
+      overloadEndsAt: 10
     });
-    expect(metrics.qiBreaksTriggeredByPlayer).toBe(1);
-    expect(metrics.playerQiBreakBurstDamage).toBeCloseTo(150);
+    expect(metrics.aiOverloadsTriggeredByPlayer).toBe(1);
+    expect(metrics.playerAiOverloadBurstDamage).toBeCloseTo(150);
     expect(contributions.get(attacker.instanceId)).toMatchObject({
-      qiBreaksTriggered: 1
+      aiOverloadsTriggered: 1
     });
     expect(
-      contributions.get(attacker.instanceId)?.qiBreakBurstDamageDealt
+      contributions.get(attacker.instanceId)?.aiOverloadBurstDamageDealt
     ).toBeCloseTo(150);
     expect(contributions.get(target.instanceId)?.outerDamageTaken).toBeCloseTo(150);
     expect(events[0]).toMatchObject({
-      type: "qi_break",
+      type: "ai_overload",
       time: 4,
       sourceId: attacker.instanceId,
       targetId: target.instanceId,
       endsAt: 10
     });
-    expect(events[0].type === "qi_break" ? events[0].burstDamage : 0).toBeCloseTo(150);
-    expect(events[0].type === "qi_break" ? events[0].burstPercent : 0).toBeCloseTo(0.15);
+    expect(events[0].type === "ai_overload" ? events[0].burstDamage : 0).toBeCloseTo(150);
+    expect(events[0].type === "ai_overload" ? events[0].burstPercent : 0).toBeCloseTo(0.15);
   });
 
   it("commits backlash damage through package recording", () => {
     const target = createDamageCombatant({
       instanceId: "scenario_backlash_target",
       team: "player",
-      maxOuterHp: 1000
+      maxBodyIntegrity: 1000
     });
     const metrics = createInitialMetrics();
     const contributions = createInitialContributions([target]);
     const events: BattleEvent[] = [];
 
-    const qiBreakBacklashPackage = createQiBreakBacklashDamagePackage({
+    const aiOverloadFeedbackPackage = createAiOverloadFeedbackDamagePackage({
       target,
       constants: defaultCombatFormulaConstants
     });
 
-    expect(qiBreakBacklashPackage).toMatchObject({
+    expect(aiOverloadFeedbackPackage).toMatchObject({
       kind: "backlash",
       sourceId: target.instanceId,
       targetId: target.instanceId,
@@ -561,7 +561,7 @@ describe("damage package", () => {
     });
 
     commitBacklashDamagePackage({
-      damagePackage: qiBreakBacklashPackage,
+      damagePackage: aiOverloadFeedbackPackage,
       target,
       time: 5,
       metrics,
@@ -577,7 +577,7 @@ describe("damage package", () => {
       events
     });
 
-    expect(target.outerHp).toBe(945);
+    expect(target.bodyIntegrity).toBe(945);
     expect(metrics.backlashDamageToPlayers).toBe(55);
     expect(contributions.get(target.instanceId)).toMatchObject({
       outerDamageTaken: 55,

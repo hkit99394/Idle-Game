@@ -32,7 +32,7 @@ const targets: RegionBalanceTargets = {
   },
   healingPressure: {
     minHeals: 2,
-    minOuterHealing: 50,
+    minBodyIntegrityRestored: 50,
     minCleanses: 1,
     maxRecoveryPrevented: 10
   },
@@ -91,7 +91,7 @@ describe("region budget gates", () => {
         armorBreaks: 1,
         defensiveDamagePrevented: 20,
         heals: 2,
-        outerHealing: 50,
+        bodyIntegrityRestored: 50,
         cleanses: 1,
         recoveryPrevented: 5
       }
@@ -177,7 +177,7 @@ describe("region budget gates", () => {
             armorBreaks: 0,
             defensiveDamagePrevented: 19,
             heals: 1,
-            outerHealing: 49,
+            bodyIntegrityRestored: 49,
             cleanses: 0,
             recoveryPrevented: 11
           }

@@ -19,8 +19,8 @@ import type {
   TacticPresetDefinition
 } from "../data/types";
 import {
-  calculateInnerRecovery,
-  calculateQiBreakRecovery,
+  calculateContextRebuild,
+  calculateAiOverloadContextRebuild,
   defaultCombatFormulaConstants,
   deriveStats,
   scaleStatsForLevel
@@ -48,11 +48,11 @@ import {
   applyDamagePackageMitigation,
   commitBacklashDamagePackage,
   commitDamagePackage,
-  commitQiBreakDamagePackage,
+  commitAiOverloadDamagePackage,
   createAttackDamagePackage,
   createBacklashDamagePackage,
-  createQiBreakBacklashDamagePackage,
-  createQiBreakDamagePackage,
+  createAiOverloadFeedbackDamagePackage,
+  createAiOverloadDamagePackage,
   resolveAttackDamageTargets
 } from "./damagePackage";
 import {
@@ -127,8 +127,8 @@ function applySkillUpgradesToSkill(
   levels: Record<string, number>
 ): SkillDefinition {
   let cooldownSeconds = skill.cooldownSeconds;
-  let outerMultiplier = skill.outerMultiplier;
-  let innerMultiplier = skill.innerMultiplier;
+  let kineticMultiplier = skill.kineticMultiplier;
+  let cognitiveMultiplier = skill.cognitiveMultiplier;
   const effects = [...skill.effects];
 
   for (const upgrade of skillUpgrades) {
@@ -148,12 +148,12 @@ function applySkillUpgradesToSkill(
           cooldownSeconds += effect.valuePerLevel * level;
           break;
 
-        case "outer_multiplier":
-          outerMultiplier += effect.valuePerLevel * level;
+        case "kinetic_multiplier":
+          kineticMultiplier += effect.valuePerLevel * level;
           break;
 
-        case "inner_multiplier":
-          innerMultiplier += effect.valuePerLevel * level;
+        case "cognitive_multiplier":
+          cognitiveMultiplier += effect.valuePerLevel * level;
           break;
 
         case "add_skill_effect":
@@ -168,8 +168,8 @@ function applySkillUpgradesToSkill(
   return {
     ...skill,
     cooldownSeconds: Math.max(0, cooldownSeconds),
-    outerMultiplier: Math.max(0, outerMultiplier),
-    innerMultiplier: Math.max(0, innerMultiplier),
+    kineticMultiplier: Math.max(0, kineticMultiplier),
+    cognitiveMultiplier: Math.max(0, cognitiveMultiplier),
     effects
   };
 }
@@ -220,19 +220,19 @@ function createCombatantState(
     enemyType,
     name: definition.name,
     team,
-    outerHp: stats.maxOuterHp,
-    innerQi: stats.maxInnerQi,
-    maxOuterHp: stats.maxOuterHp,
-    maxInnerQi: stats.maxInnerQi,
+    bodyIntegrity: stats.maxBodyIntegrity,
+    contextStability: stats.maxContextStability,
+    maxBodyIntegrity: stats.maxBodyIntegrity,
+    maxContextStability: stats.maxContextStability,
     stats,
     damageMultipliersByFamily: instance.damageMultipliersByFamily ?? {},
     skillUpgradeLevels: instance.skillUpgradeLevels ?? {},
     skillIds: definition.skillIds,
     nextActionAt: getInitialActionTime(stats.speed, constants),
     skillCooldowns: Object.fromEntries(definition.skillIds.map((skillId) => [skillId, 0])),
-    isQiBroken: false,
-    qiBreakEndsAt: null,
-    lastInnerDamageAt: null,
+    isOverloaded: false,
+    overloadEndsAt: null,
+    lastCognitiveDamageAt: null,
     guard: null,
     protection: null,
     armorBreak: null,
@@ -492,7 +492,7 @@ function chooseSkill(
   );
 }
 
-function applyQiBreakIfNeeded(
+function applyAiOverloadIfNeeded(
   attacker: CombatantState,
   target: CombatantState,
   time: number,
@@ -502,18 +502,18 @@ function applyQiBreakIfNeeded(
   events: BattleEvent[],
   playerTactic: TacticPresetDefinition
 ): void {
-  if (target.innerQi > 0 || target.isQiBroken || !isLiving(target)) {
+  if (target.contextStability > 0 || target.isOverloaded || !isLiving(target)) {
     return;
   }
 
-  const damagePackage = createQiBreakDamagePackage({
+  const damagePackage = createAiOverloadDamagePackage({
     attacker,
     target,
     time,
     constants,
     tactic: playerTactic
   });
-  commitQiBreakDamagePackage({
+  commitAiOverloadDamagePackage({
     damagePackage,
     attacker,
     target,
@@ -525,7 +525,7 @@ function applyQiBreakIfNeeded(
   markDefeated(target, time, events);
 }
 
-function recoverQiBreaks(
+function recoverAiOverloads(
   combatants: CombatantState[],
   time: number,
   constants: CombatFormulaConstants,
@@ -534,25 +534,28 @@ function recoverQiBreaks(
   for (const combatant of combatants) {
     if (
       isLiving(combatant) &&
-      combatant.isQiBroken &&
-      combatant.qiBreakEndsAt !== null &&
-      time >= combatant.qiBreakEndsAt
+      combatant.isOverloaded &&
+      combatant.overloadEndsAt !== null &&
+      time >= combatant.overloadEndsAt
     ) {
-      combatant.isQiBroken = false;
-      combatant.qiBreakEndsAt = null;
-      combatant.innerQi = calculateQiBreakRecovery(combatant.maxInnerQi, constants);
-      combatant.lastInnerDamageAt = time;
+      combatant.isOverloaded = false;
+      combatant.overloadEndsAt = null;
+      combatant.contextStability = calculateAiOverloadContextRebuild(
+        combatant.maxContextStability,
+        constants
+      );
+      combatant.lastCognitiveDamageAt = time;
       events.push({
-        type: "qi_recover",
+        type: "context_rebuild",
         time,
         targetId: combatant.instanceId,
-        innerQi: combatant.innerQi
+        contextStability: combatant.contextStability
       });
     }
   }
 }
 
-function recoverInnerQi(
+function rebuildContextStability(
   combatants: CombatantState[],
   statusDefinitions: Record<string, StatusEffectDefinition>,
   time: number,
@@ -560,15 +563,15 @@ function recoverInnerQi(
   constants: CombatFormulaConstants
 ): void {
   for (const combatant of combatants) {
-    if (!isLiving(combatant) || combatant.isQiBroken) {
+    if (!isLiving(combatant) || combatant.isOverloaded) {
       continue;
     }
 
     const canRecover =
-      combatant.lastInnerDamageAt === null ||
-      time - combatant.lastInnerDamageAt >= constants.innerRecoveryDelaySeconds;
+      combatant.lastCognitiveDamageAt === null ||
+      time - combatant.lastCognitiveDamageAt >= constants.contextRebuildDelaySeconds;
 
-    if (!canRecover || combatant.innerQi >= combatant.maxInnerQi) {
+    if (!canRecover || combatant.contextStability >= combatant.maxContextStability) {
       continue;
     }
 
@@ -576,11 +579,11 @@ function recoverInnerQi(
       combatant.activeStatuses,
       statusDefinitions
     );
-    combatant.innerQi = calculateInnerRecovery({
-      maxInnerQi: combatant.maxInnerQi,
-      currentInnerQi: combatant.innerQi,
-      innerRecoveryRate:
-        combatant.stats.innerRecoveryRate * modifiers.innerRecoveryMultiplier,
+    combatant.contextStability = calculateContextRebuild({
+      maxContextStability: combatant.maxContextStability,
+      currentContextStability: combatant.contextStability,
+      contextRebuildRate:
+        combatant.stats.contextRebuildRate * modifiers.contextRebuildMultiplier,
       deltaSeconds
     });
   }
@@ -605,7 +608,7 @@ function advanceCombatantDataStatuses(
       activeStatuses: combatant.activeStatuses,
       definitions: statusDefinitions,
       deltaSeconds,
-      targetMaxOuterHp: combatant.maxOuterHp,
+      targetMaxBodyIntegrity: combatant.maxBodyIntegrity,
       targetStatusResistance: getCombatantStatusResistance(combatant, time)
     });
 
@@ -636,7 +639,7 @@ function advanceCombatantDataStatuses(
           )
         : undefined;
 
-      combatant.outerHp = Math.max(0, combatant.outerHp - event.outerDamage);
+      combatant.bodyIntegrity = Math.max(0, combatant.bodyIntegrity - event.outerDamage);
 
       if (source) {
         recordDamage(metrics, contributions, source, combatant, event.outerDamage, 0);
@@ -737,7 +740,7 @@ function executeAction(
     events,
     playerTactic
   );
-  applyQiBreakIfNeeded(
+  applyAiOverloadIfNeeded(
     attacker,
     target,
     time,
@@ -749,8 +752,8 @@ function executeAction(
   );
   markDefeated(target, time, events);
 
-  if (attacker.isQiBroken && isLiving(attacker)) {
-    const backlashPackage = createQiBreakBacklashDamagePackage({
+  if (attacker.isOverloaded && isLiving(attacker)) {
+    const backlashPackage = createAiOverloadFeedbackDamagePackage({
       target: attacker,
       constants
     });
@@ -770,7 +773,7 @@ function executeAction(
     lookup.statusDefinitions
   );
   const statusBacklashDamage =
-    attacker.maxOuterHp * attackerStatusModifiers.attackBacklashOuterHpPercent;
+    attacker.maxBodyIntegrity * attackerStatusModifiers.feedbackBodyIntegrityPercent;
 
   if (statusBacklashDamage > 0 && isLiving(attacker)) {
     const backlashPackage = createBacklashDamagePackage({
@@ -829,13 +832,13 @@ function advanceSimulationPhase(
     runtime.contributions,
     runtime.events
   );
-  recoverQiBreaks(
+  recoverAiOverloads(
     runtime.combatants,
     time,
     runtime.constants,
     runtime.events
   );
-  recoverInnerQi(
+  rebuildContextStability(
     runtime.combatants,
     runtime.lookup.statusDefinitions,
     time,

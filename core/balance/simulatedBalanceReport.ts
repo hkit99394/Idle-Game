@@ -729,7 +729,7 @@ function summarizeBattle(
         ? ("player_clear" as const)
         : ("enemy_hold" as const),
     durationSeconds,
-    qiBreaks: result.battle.events.filter((event) => event.type === "qi_break").length,
+    aiOverloads: result.battle.events.filter((event) => event.type === "ai_overload").length,
     guardAbsorbs: guardEvents.length,
     protections: protectEvents.length,
     armorBreaks: armorBreakEvents.length,
@@ -750,13 +750,13 @@ function summarizeBattle(
       ...new Set(statusApplyEvents.map((event) => event.statusId))
     ].sort(),
     medicineConsumed: autoMedicineEvents.length,
-    outerHealing: roundBalanceNumber(
-      result.battle.metrics.playerOuterHealing +
-        result.battle.metrics.enemyOuterHealing
+    bodyIntegrityRestored: roundBalanceNumber(
+      result.battle.metrics.playerBodyIntegrityRestored +
+        result.battle.metrics.enemyBodyIntegrityRestored
     ),
-    innerQiRestored: roundBalanceNumber(
-      result.battle.metrics.playerInnerQiRestored +
-        result.battle.metrics.enemyInnerQiRestored
+    contextStabilityRestored: roundBalanceNumber(
+      result.battle.metrics.playerContextStabilityRestored +
+        result.battle.metrics.enemyContextStabilityRestored
     ),
     overhealing: roundBalanceNumber(
       result.battle.metrics.playerOverhealing +
@@ -779,6 +779,18 @@ function summarizeBattle(
         result.battle.metrics.protectionDamagePreventedByEnemy
     ),
     metrics: {
+      playerKineticDamage: roundBalanceNumber(
+        result.battle.metrics.playerOuterDamage
+      ),
+      playerCognitiveDamage: roundBalanceNumber(
+        result.battle.metrics.playerInnerDamage
+      ),
+      enemyKineticDamage: roundBalanceNumber(
+        result.battle.metrics.enemyOuterDamage
+      ),
+      enemyCognitiveDamage: roundBalanceNumber(
+        result.battle.metrics.enemyInnerDamage
+      ),
       playerOuterDamage: roundBalanceNumber(
         result.battle.metrics.playerOuterDamage
       ),
@@ -873,7 +885,7 @@ function buildFormationScenarioReport(data: StaticGameData) {
           formationSlot: "back",
           statsOverride: {
             ...cutter.baseStats,
-            outerAttack: cutter.baseStats.outerAttack * 8
+            kineticAttack: cutter.baseStats.kineticAttack * 8
           }
         }
       ]
@@ -1637,9 +1649,18 @@ function getTacticComparisonPressure(summary: TacticComparisonBattleSummary) {
 }
 
 function getTacticComparisonMetrics(summary: TacticComparisonBattleSummary) {
+  const playerKineticDamage = summary.ok
+    ? summary.metrics.playerOuterDamage
+    : null;
+  const playerCognitiveDamage = summary.ok
+    ? summary.metrics.playerInnerDamage
+    : null;
+
   return {
-    playerOuterDamage: summary.ok ? summary.metrics.playerOuterDamage : null,
-    playerInnerDamage: summary.ok ? summary.metrics.playerInnerDamage : null,
+    playerKineticDamage,
+    playerCognitiveDamage,
+    playerOuterDamage: playerKineticDamage,
+    playerInnerDamage: playerCognitiveDamage,
     playerEffectiveDps: summary.ok ? summary.metrics.playerEffectiveDps : null,
     enemyEffectiveDps: summary.ok ? summary.metrics.enemyEffectiveDps : null
   };
@@ -1754,6 +1775,14 @@ function buildTacticComparisonRow({
     },
     contributionMetrics: metrics,
     contributionDeltas: {
+      playerKineticDamage: getTacticComparisonNumberDelta(
+        metrics.playerKineticDamage,
+        baselineMetrics.playerKineticDamage
+      ),
+      playerCognitiveDamage: getTacticComparisonNumberDelta(
+        metrics.playerCognitiveDamage,
+        baselineMetrics.playerCognitiveDamage
+      ),
       playerOuterDamage: getTacticComparisonNumberDelta(
         metrics.playerOuterDamage,
         baselineMetrics.playerOuterDamage

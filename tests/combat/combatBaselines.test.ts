@@ -23,7 +23,7 @@ function summarizeEvent(event: ReturnType<typeof simulateBattle>["events"][numbe
     statusId: "statusId" in event ? event.statusId : undefined,
     outerDamage: "outerDamage" in event ? event.outerDamage : undefined,
     innerDamage: "innerDamage" in event ? event.innerDamage : undefined,
-    outerHealing: "outerHealing" in event ? event.outerHealing : undefined,
+    bodyIntegrityRestored: "bodyIntegrityRestored" in event ? event.bodyIntegrityRestored : undefined,
     burstDamage: "burstDamage" in event ? event.burstDamage : undefined,
     medicineId: "medicineId" in event ? event.medicineId : undefined,
     trigger: event.type === "auto_medicine" ? event.trigger : undefined
@@ -78,7 +78,7 @@ describe("combat baseline traces", () => {
         sourceId: "player_scenario_trace_support_3",
         targetId: "player_scenario_trace_striker_1",
         skillId: "scenario_heal",
-        outerHealing: 0
+        bodyIntegrityRestored: 0
       },
       {
         type: "attack",
@@ -156,7 +156,7 @@ describe("combat baseline traces", () => {
         innerDamage: 90
       },
       {
-        type: "qi_break",
+        type: "ai_overload",
         time: 2,
         sourceId: "player_scenario_trace_breaker_2",
         targetId: "enemy_scenario_trace_guardian_1",
@@ -170,9 +170,9 @@ describe("combat baseline traces", () => {
         statusId: "guard"
       }
     ]);
-    expect(result.metrics.qiBreaksTriggeredByPlayer).toBe(1);
+    expect(result.metrics.aiOverloadsTriggeredByPlayer).toBe(1);
     expect(result.metrics.guardDamagePreventedByEnemy).toBeGreaterThan(0);
-    expect(result.metrics.enemyOuterHealing).toBe(0);
+    expect(result.metrics.enemyBodyIntegrityRestored).toBe(0);
   });
 
   it("locks battle-cleanse medicine ordering around status application", () => {

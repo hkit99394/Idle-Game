@@ -156,11 +156,11 @@ describe("equipment progression", () => {
 
     expect(equipResult.progress.equipment?.equipped.azure_pulse_monk?.medicine)
       .toBe("lotus_dew_countermeasure");
-    expect(afterHero?.statsOverride?.maxInnerQi).toBeGreaterThan(
-      beforeHero?.statsOverride?.maxInnerQi ?? 0
+    expect(afterHero?.statsOverride?.maxContextStability).toBeGreaterThan(
+      beforeHero?.statsOverride?.maxContextStability ?? 0
     );
-    expect(afterHero?.statsOverride?.innerRecoveryRate).toBeGreaterThan(
-      beforeHero?.statsOverride?.innerRecoveryRate ?? 0
+    expect(afterHero?.statsOverride?.contextRebuildRate).toBeGreaterThan(
+      beforeHero?.statsOverride?.contextRebuildRate ?? 0
     );
     expect(calculateCombatPower(afterHero?.statsOverride ?? staticData.heroes[1].baseStats))
       .toBeGreaterThan(
@@ -265,8 +265,8 @@ describe("equipment progression", () => {
     const withoutAffixStats = withoutAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
     const withAffixStats = withAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
 
-    expect(withAffixStats.outerDefense).toBeGreaterThan(
-      withoutAffixStats.outerDefense
+    expect(withAffixStats.kineticDefense).toBeGreaterThan(
+      withoutAffixStats.kineticDefense
     );
     expect(calculateCombatPower(withAffixStats)).toBeGreaterThan(
       calculateCombatPower(withoutAffixStats)
@@ -334,11 +334,11 @@ describe("equipment progression", () => {
     const withoutSetStats = withoutSetHero?.statsOverride ?? staticData.heroes[0].baseStats;
     const withSetStats = withSetHero?.statsOverride ?? staticData.heroes[0].baseStats;
 
-    expect(withSetStats.outerDefense).toBeGreaterThan(
-      withoutSetStats.outerDefense
+    expect(withSetStats.kineticDefense).toBeGreaterThan(
+      withoutSetStats.kineticDefense
     );
-    expect(withSetStats.breakResist).toBeGreaterThan(
-      withoutSetStats.breakResist
+    expect(withSetStats.overloadResist).toBeGreaterThan(
+      withoutSetStats.overloadResist
     );
     expect(calculateCombatPower(withSetStats)).toBeGreaterThan(
       calculateCombatPower(withoutSetStats)

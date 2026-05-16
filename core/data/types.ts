@@ -17,10 +17,10 @@ export type UnlockCondition =
   | { type: "style_mastery_level"; styleId: MartialStyleId; level: number };
 
 export const SKILL_EFFECT_TYPES = [
-  "outer_heal_percent",
-  "inner_heal_percent",
-  "outer_regeneration_percent",
-  "inner_regeneration_percent",
+  "body_integrity_restore_percent",
+  "context_stability_restore_percent",
+  "body_integrity_regeneration_percent",
+  "context_stability_regeneration_percent",
   "wound",
   "cleanse",
   "speed_down",
@@ -36,8 +36,8 @@ export type SkillEffectType = (typeof SKILL_EFFECT_TYPES)[number];
 export type SkillEffectTarget =
   | "self"
   | "target"
-  | "lowest_outer_hp_ally"
-  | "lowest_inner_qi_ally"
+  | "lowest_body_integrity_ally"
+  | "lowest_context_stability_ally"
   | "wounded_or_armor_broken_ally";
 
 export type DirectSkillEffect = {
@@ -142,8 +142,8 @@ export type SkillDefinition = {
   id: string;
   name: string;
   cooldownSeconds: number;
-  outerMultiplier: number;
-  innerMultiplier: number;
+  kineticMultiplier: number;
+  cognitiveMultiplier: number;
   targetRule: TargetRule;
   effects: SkillEffect[];
 };
@@ -159,9 +159,9 @@ export const TACTIC_BEHAVIOR_FLAGS = [
 export type TacticBehaviorFlag = (typeof TACTIC_BEHAVIOR_FLAGS)[number];
 
 export const TACTIC_MODIFIER_TYPES = [
-  "outer_damage_multiplier",
-  "inner_damage_multiplier",
-  "break_power_multiplier",
+  "kinetic_damage_multiplier",
+  "cognitive_damage_multiplier",
+  "breach_power_multiplier",
   "boss_damage_multiplier",
   "guard_multiplier",
   "protection_multiplier",
@@ -192,11 +192,11 @@ export type SkillUpgradeEffect =
       valuePerLevel: number;
     }
   | {
-      type: "outer_multiplier";
+      type: "kinetic_multiplier";
       valuePerLevel: number;
     }
   | {
-      type: "inner_multiplier";
+      type: "cognitive_multiplier";
       valuePerLevel: number;
     }
   | {
@@ -330,7 +330,7 @@ export type RegionBalanceTargets = {
   };
   healingPressure?: {
     minHeals?: number;
-    minOuterHealing?: number;
+    minBodyIntegrityRestored?: number;
     minCleanses?: number;
     maxRecoveryPrevented?: number;
   };
@@ -408,13 +408,13 @@ export type MartialStyleDefinition = {
 export type UpgradeEffect = {
   stat: keyof Pick<
     BaseStats,
-    | "maxOuterHp"
-    | "maxInnerQi"
-    | "outerAttack"
-    | "innerAttack"
-    | "outerDefense"
-    | "innerDefense"
-    | "innerRecoveryRate"
+    | "maxBodyIntegrity"
+    | "maxContextStability"
+    | "kineticAttack"
+    | "cognitiveAttack"
+    | "kineticDefense"
+    | "cognitiveDefense"
+    | "contextRebuildRate"
     | "statusResistance"
   >;
   mode?: "multiplier" | "flat";

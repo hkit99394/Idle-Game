@@ -3,8 +3,8 @@
     "id": "baseline_strike",
     "name": "Baseline Strike",
     "cooldownSeconds": 0,
-    "outerMultiplier": 1,
-    "innerMultiplier": 0.15,
+    "kineticMultiplier": 1,
+    "cognitiveMultiplier": 0.15,
     "targetRule": "first_living",
     "effects": []
   },
@@ -12,8 +12,8 @@
     "id": "impact_combo",
     "name": "Impact Combo",
     "cooldownSeconds": 4,
-    "outerMultiplier": 1.65,
-    "innerMultiplier": 0.1,
+    "kineticMultiplier": 1.65,
+    "cognitiveMultiplier": 0.1,
     "targetRule": "first_living",
     "effects": []
   },
@@ -21,8 +21,8 @@
     "id": "context_shock",
     "name": "Context Shock",
     "cooldownSeconds": 5,
-    "outerMultiplier": 0.25,
-    "innerMultiplier": 1.65,
+    "kineticMultiplier": 0.25,
+    "cognitiveMultiplier": 1.65,
     "targetRule": "first_living",
     "effects": [
       {
@@ -38,8 +38,8 @@
     "id": "white_crane_edge",
     "name": "White Crane Edge",
     "cooldownSeconds": 4.5,
-    "outerMultiplier": 1.2,
-    "innerMultiplier": 0.35,
+    "kineticMultiplier": 1.2,
+    "cognitiveMultiplier": 0.35,
     "targetRule": "first_living",
     "effects": [
       {
@@ -53,8 +53,8 @@
     "id": "brace_sweep",
     "name": "Brace Sweep",
     "cooldownSeconds": 6,
-    "outerMultiplier": 0.9,
-    "innerMultiplier": 0.45,
+    "kineticMultiplier": 0.9,
+    "cognitiveMultiplier": 0.45,
     "targetRule": "first_living",
     "effects": [
       {
@@ -73,8 +73,8 @@
     "id": "cutter_strike",
     "name": "Cutter Strike",
     "cooldownSeconds": 4,
-    "outerMultiplier": 1.1,
-    "innerMultiplier": 0.05,
+    "kineticMultiplier": 1.1,
+    "cognitiveMultiplier": 0.05,
     "targetRule": "first_living",
     "effects": []
   },
@@ -82,8 +82,8 @@
     "id": "guarding_saber",
     "name": "Guarding Saber",
     "cooldownSeconds": 5,
-    "outerMultiplier": 1.25,
-    "innerMultiplier": 0.1,
+    "kineticMultiplier": 1.25,
+    "cognitiveMultiplier": 0.1,
     "targetRule": "first_living",
     "effects": []
   },
@@ -91,8 +91,8 @@
     "id": "veil_pulse_jab",
     "name": "Veil Pulse Jab",
     "cooldownSeconds": 4.5,
-    "outerMultiplier": 0.25,
-    "innerMultiplier": 1.25,
+    "kineticMultiplier": 0.25,
+    "cognitiveMultiplier": 1.25,
     "targetRule": "first_living",
     "effects": [
       {
@@ -106,8 +106,8 @@
     "id": "needle_flurry",
     "name": "Needle Flurry",
     "cooldownSeconds": 3.8,
-    "outerMultiplier": 0.7,
-    "innerMultiplier": 0.75,
+    "kineticMultiplier": 0.7,
+    "cognitiveMultiplier": 0.75,
     "targetRule": "weakest_hp",
     "effects": []
   },
@@ -115,8 +115,8 @@
     "id": "fogline_brace_guard",
     "name": "Fogline Brace Guard",
     "cooldownSeconds": 5.5,
-    "outerMultiplier": 0.8,
-    "innerMultiplier": 0.35,
+    "kineticMultiplier": 0.8,
+    "cognitiveMultiplier": 0.35,
     "targetRule": "first_living",
     "effects": [
       {
@@ -130,9 +130,9 @@
     "id": "cloud_context_press",
     "name": "Cloud Context Press",
     "cooldownSeconds": 5,
-    "outerMultiplier": 0.35,
-    "innerMultiplier": 1.8,
-    "targetRule": "inner_broken",
+    "kineticMultiplier": 0.35,
+    "cognitiveMultiplier": 1.8,
+    "targetRule": "overloaded",
     "effects": [
       {
         "type": "inner_defense_down",
@@ -145,8 +145,8 @@
     "id": "valley_context_seal",
     "name": "Valley Context Seal",
     "cooldownSeconds": 6,
-    "outerMultiplier": 0.45,
-    "innerMultiplier": 2,
+    "kineticMultiplier": 0.45,
+    "cognitiveMultiplier": 2,
     "targetRule": "highest_cp",
     "effects": [
       {
@@ -160,8 +160,8 @@
     "id": "shieldwall_chop",
     "name": "Shieldwall Chop",
     "cooldownSeconds": 5,
-    "outerMultiplier": 1.05,
-    "innerMultiplier": 0.08,
+    "kineticMultiplier": 1.05,
+    "cognitiveMultiplier": 0.08,
     "targetRule": "first_living",
     "effects": [
       {
@@ -180,8 +180,8 @@
     "id": "fortress_brace_lock",
     "name": "Fortress Brace Lock",
     "cooldownSeconds": 5.8,
-    "outerMultiplier": 0.85,
-    "innerMultiplier": 0.25,
+    "kineticMultiplier": 0.85,
+    "cognitiveMultiplier": 0.25,
     "targetRule": "first_living",
     "effects": [
       {
@@ -200,8 +200,8 @@
     "id": "black_iron_counter",
     "name": "Black Iron Counter",
     "cooldownSeconds": 5.2,
-    "outerMultiplier": 1.45,
-    "innerMultiplier": 0.12,
+    "kineticMultiplier": 1.45,
+    "cognitiveMultiplier": 0.12,
     "targetRule": "highest_cp",
     "effects": []
   },
@@ -209,8 +209,8 @@
     "id": "chain_hook_pressure",
     "name": "Chain Hook Pressure",
     "cooldownSeconds": 4.8,
-    "outerMultiplier": 1.05,
-    "innerMultiplier": 0.35,
+    "kineticMultiplier": 1.05,
+    "cognitiveMultiplier": 0.35,
     "targetRule": "weakest_hp",
     "effects": [
       {
@@ -224,8 +224,8 @@
     "id": "iron_wall_command",
     "name": "Iron Wall Command",
     "cooldownSeconds": 6.5,
-    "outerMultiplier": 1.25,
-    "innerMultiplier": 0.18,
+    "kineticMultiplier": 1.25,
+    "cognitiveMultiplier": 0.18,
     "targetRule": "first_living",
     "effects": [
       {
@@ -244,8 +244,8 @@
     "id": "black_foundry_edict",
     "name": "Black Foundry Edict",
     "cooldownSeconds": 6,
-    "outerMultiplier": 1.65,
-    "innerMultiplier": 0.25,
+    "kineticMultiplier": 1.65,
+    "cognitiveMultiplier": 0.25,
     "targetRule": "highest_cp",
     "effects": [
       {
@@ -264,19 +264,19 @@
     "id": "lotus_stabilizer_pulse",
     "name": "Lotus Stabilizer Pulse",
     "cooldownSeconds": 4.8,
-    "outerMultiplier": 0.35,
-    "innerMultiplier": 1.05,
+    "kineticMultiplier": 0.35,
+    "cognitiveMultiplier": 1.05,
     "targetRule": "first_living",
     "effects": [
       {
-        "type": "outer_heal_percent",
+        "type": "body_integrity_restore_percent",
         "value": 0.05,
-        "target": "lowest_outer_hp_ally"
+        "target": "lowest_body_integrity_ally"
       },
       {
-        "type": "inner_heal_percent",
+        "type": "context_stability_restore_percent",
         "value": 0.03,
-        "target": "lowest_inner_qi_ally"
+        "target": "lowest_context_stability_ally"
       }
     ]
   },
@@ -284,8 +284,8 @@
     "id": "lotus_brace_shelter",
     "name": "Lotus Brace Shelter",
     "cooldownSeconds": 5.8,
-    "outerMultiplier": 0.75,
-    "innerMultiplier": 0.35,
+    "kineticMultiplier": 0.75,
+    "cognitiveMultiplier": 0.35,
     "targetRule": "first_living",
     "effects": [
       {
@@ -299,10 +299,10 @@
         "durationSeconds": 4
       },
       {
-        "type": "outer_regeneration_percent",
+        "type": "body_integrity_regeneration_percent",
         "value": 0.015,
         "durationSeconds": 3,
-        "target": "lowest_outer_hp_ally"
+        "target": "lowest_body_integrity_ally"
       }
     ]
   },
@@ -310,8 +310,8 @@
     "id": "jade_needle_flurry",
     "name": "Jade Needle Flurry",
     "cooldownSeconds": 4.2,
-    "outerMultiplier": 0.65,
-    "innerMultiplier": 0.85,
+    "kineticMultiplier": 0.65,
+    "cognitiveMultiplier": 0.85,
     "targetRule": "weakest_hp",
     "effects": [
       {
@@ -325,9 +325,9 @@
     "id": "tranquil_bloom_seal",
     "name": "Tranquil Bloom Seal",
     "cooldownSeconds": 5.4,
-    "outerMultiplier": 0.25,
-    "innerMultiplier": 1.45,
-    "targetRule": "inner_broken",
+    "kineticMultiplier": 0.25,
+    "cognitiveMultiplier": 1.45,
+    "targetRule": "overloaded",
     "effects": [
       {
         "type": "inner_defense_down",
@@ -335,15 +335,15 @@
         "durationSeconds": 6
       },
       {
-        "type": "outer_heal_percent",
+        "type": "body_integrity_restore_percent",
         "value": 0.035,
-        "target": "lowest_outer_hp_ally"
+        "target": "lowest_body_integrity_ally"
       },
       {
-        "type": "inner_regeneration_percent",
+        "type": "context_stability_regeneration_percent",
         "value": 0.015,
         "durationSeconds": 3,
-        "target": "lowest_inner_qi_ally"
+        "target": "lowest_context_stability_ally"
       }
     ]
   },
@@ -351,14 +351,14 @@
     "id": "director_lotus_vow",
     "name": "Director Lotus Vow",
     "cooldownSeconds": 6.2,
-    "outerMultiplier": 0.4,
-    "innerMultiplier": 1.55,
+    "kineticMultiplier": 0.4,
+    "cognitiveMultiplier": 1.55,
     "targetRule": "highest_cp",
     "effects": [
       {
-        "type": "outer_heal_percent",
+        "type": "body_integrity_restore_percent",
         "value": 0.07,
-        "target": "lowest_outer_hp_ally"
+        "target": "lowest_body_integrity_ally"
       },
       {
         "type": "guard",
@@ -381,19 +381,19 @@
     "id": "lotus_stabilizer_vow",
     "name": "Lotus Stabilizer Vow",
     "cooldownSeconds": 5.2,
-    "outerMultiplier": 0.25,
-    "innerMultiplier": 0.75,
+    "kineticMultiplier": 0.25,
+    "cognitiveMultiplier": 0.75,
     "targetRule": "first_living",
     "effects": [
       {
-        "type": "outer_heal_percent",
+        "type": "body_integrity_restore_percent",
         "value": 0.055,
-        "target": "lowest_outer_hp_ally"
+        "target": "lowest_body_integrity_ally"
       },
       {
-        "type": "inner_heal_percent",
+        "type": "context_stability_restore_percent",
         "value": 0.04,
-        "target": "lowest_inner_qi_ally"
+        "target": "lowest_context_stability_ally"
       },
       {
         "type": "cleanse",
@@ -406,8 +406,8 @@
     "id": "miasma_pulse",
     "name": "Miasma Pulse",
     "cooldownSeconds": 4.4,
-    "outerMultiplier": 0.55,
-    "innerMultiplier": 1.2,
+    "kineticMultiplier": 0.55,
+    "cognitiveMultiplier": 1.2,
     "targetRule": "first_living",
     "effects": [
       {
@@ -423,8 +423,8 @@
     "id": "blood_brand_cut",
     "name": "Blood Brand Cut",
     "cooldownSeconds": 5.2,
-    "outerMultiplier": 1.05,
-    "innerMultiplier": 0.7,
+    "kineticMultiplier": 1.05,
+    "cognitiveMultiplier": 0.7,
     "targetRule": "weakest_hp",
     "effects": [
       {
@@ -440,8 +440,8 @@
     "id": "marrow_lock_hex",
     "name": "Marrow Lock Hex",
     "cooldownSeconds": 5.8,
-    "outerMultiplier": 0.35,
-    "innerMultiplier": 1.35,
+    "kineticMultiplier": 0.35,
+    "cognitiveMultiplier": 1.35,
     "targetRule": "highest_cp",
     "effects": [
       {
@@ -464,8 +464,8 @@
     "id": "burning_blood_edict",
     "name": "Burning Blood Edict",
     "cooldownSeconds": 6.4,
-    "outerMultiplier": 0.9,
-    "innerMultiplier": 1.15,
+    "kineticMultiplier": 0.9,
+    "cognitiveMultiplier": 1.15,
     "targetRule": "highest_cp",
     "effects": [
       {

@@ -36,10 +36,10 @@ const RECOVERY_TICK_INTERVAL_SECONDS = 1;
 const SKILL_CLEANSE_DISPEL_TAGS: StatusDispelTag[] = ["debuff"];
 
 export const COMBAT_SKILL_EFFECT_HANDLERS = {
-  outer_heal_percent: "recovery",
-  inner_heal_percent: "recovery",
-  outer_regeneration_percent: "recovery",
-  inner_regeneration_percent: "recovery",
+  body_integrity_restore_percent: "recovery",
+  context_stability_restore_percent: "recovery",
+  body_integrity_regeneration_percent: "recovery",
+  context_stability_regeneration_percent: "recovery",
   wound: "timed_status",
   cleanse: "recovery",
   speed_down: "timed_status",
@@ -104,12 +104,12 @@ function getWoundReduction(target: CombatantState, time: number): number {
   );
 }
 
-function getMissingOuterHp(combatant: CombatantState): number {
-  return Math.max(0, combatant.maxOuterHp - combatant.outerHp);
+function getMissingBodyIntegrity(combatant: CombatantState): number {
+  return Math.max(0, combatant.maxBodyIntegrity - combatant.bodyIntegrity);
 }
 
-function getMissingInnerQi(combatant: CombatantState): number {
-  return Math.max(0, combatant.maxInnerQi - combatant.innerQi);
+function getMissingContextStability(combatant: CombatantState): number {
+  return Math.max(0, combatant.maxContextStability - combatant.contextStability);
 }
 
 function hasCleanseableStatus(
@@ -165,11 +165,11 @@ function selectEffectTarget(
     case "target":
       return offensiveTarget;
 
-    case "lowest_outer_hp_ally":
-      return selectAllyByScore(combatants, attacker, getMissingOuterHp);
+    case "lowest_body_integrity_ally":
+      return selectAllyByScore(combatants, attacker, getMissingBodyIntegrity);
 
-    case "lowest_inner_qi_ally":
-      return selectAllyByScore(combatants, attacker, getMissingInnerQi);
+    case "lowest_context_stability_ally":
+      return selectAllyByScore(combatants, attacker, getMissingContextStability);
 
     case "wounded_or_armor_broken_ally":
       return selectAllyByScore(combatants, attacker, (combatant) =>
@@ -237,20 +237,20 @@ function recordRecovery(
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>,
   source: CombatantState,
-  outerHealing: number,
-  innerQiRestored: number,
+  bodyIntegrityRestored: number,
+  contextStabilityRestored: number,
   overhealing: number,
   recoveryPrevented: number,
   recoveryPreventedById?: string
 ): void {
   if (source.team === "player") {
-    metrics.playerOuterHealing += outerHealing;
-    metrics.playerInnerQiRestored += innerQiRestored;
+    metrics.playerBodyIntegrityRestored += bodyIntegrityRestored;
+    metrics.playerContextStabilityRestored += contextStabilityRestored;
     metrics.playerOverhealing += overhealing;
     metrics.recoveryPreventedByEnemy += recoveryPrevented;
   } else {
-    metrics.enemyOuterHealing += outerHealing;
-    metrics.enemyInnerQiRestored += innerQiRestored;
+    metrics.enemyBodyIntegrityRestored += bodyIntegrityRestored;
+    metrics.enemyContextStabilityRestored += contextStabilityRestored;
     metrics.enemyOverhealing += overhealing;
     metrics.recoveryPreventedByPlayer += recoveryPrevented;
   }
@@ -258,8 +258,8 @@ function recordRecovery(
   const sourceContribution = contributions.get(source.instanceId);
 
   if (sourceContribution) {
-    sourceContribution.outerHealingDone += outerHealing;
-    sourceContribution.innerQiRestored += innerQiRestored;
+    sourceContribution.bodyIntegrityRestoredDone += bodyIntegrityRestored;
+    sourceContribution.contextStabilityRestored += contextStabilityRestored;
     sourceContribution.overhealingDone += overhealing;
   }
 
@@ -275,15 +275,15 @@ function recordRecovery(
 function applyRecoveryToTarget(
   source: CombatantState,
   target: CombatantState,
-  rawOuterRecovery: number,
-  rawInnerRecovery: number,
+  rawBodyIntegrityRestore: number,
+  rawContextStabilityRestore: number,
   statusDefinitions: Record<string, StatusEffectDefinition>,
   time: number,
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>
 ): {
-  outerHealing: number;
-  innerQiRestored: number;
+  bodyIntegrityRestored: number;
+  contextStabilityRestored: number;
   overhealing: number;
   recoveryPrevented: number;
 } {
@@ -295,41 +295,46 @@ function applyRecoveryToTarget(
   );
   const recoveryMultiplier =
     (1 - woundReduction) * statusModifiers.healingReceivedMultiplier;
-  const reducedOuterRecovery = rawOuterRecovery * recoveryMultiplier;
-  const reducedInnerRecovery = rawInnerRecovery * recoveryMultiplier;
+  const reducedBodyIntegrityRestore =
+    rawBodyIntegrityRestore * recoveryMultiplier;
+  const reducedContextStabilityRestore =
+    rawContextStabilityRestore * recoveryMultiplier;
   const recoveryPrevented =
-    rawOuterRecovery +
-    rawInnerRecovery -
-    reducedOuterRecovery -
-    reducedInnerRecovery;
-  const outerHealing = Math.min(getMissingOuterHp(target), reducedOuterRecovery);
-  const innerQiRestored = Math.min(
-    getMissingInnerQi(target),
-    reducedInnerRecovery
+    rawBodyIntegrityRestore +
+    rawContextStabilityRestore -
+    reducedBodyIntegrityRestore -
+    reducedContextStabilityRestore;
+  const bodyIntegrityRestored = Math.min(
+    getMissingBodyIntegrity(target),
+    reducedBodyIntegrityRestore
+  );
+  const contextStabilityRestored = Math.min(
+    getMissingContextStability(target),
+    reducedContextStabilityRestore
   );
   const overhealing =
-    reducedOuterRecovery -
-    outerHealing +
-    reducedInnerRecovery -
-    innerQiRestored;
+    reducedBodyIntegrityRestore -
+    bodyIntegrityRestored +
+    reducedContextStabilityRestore -
+    contextStabilityRestored;
 
-  target.outerHp += outerHealing;
-  target.innerQi += innerQiRestored;
+  target.bodyIntegrity += bodyIntegrityRestored;
+  target.contextStability += contextStabilityRestored;
 
   recordRecovery(
     metrics,
     contributions,
     source,
-    outerHealing,
-    innerQiRestored,
+    bodyIntegrityRestored,
+    contextStabilityRestored,
     overhealing,
     recoveryPrevented,
     wound?.sourceId
   );
 
   return {
-    outerHealing,
-    innerQiRestored,
+    bodyIntegrityRestored,
+    contextStabilityRestored,
     overhealing,
     recoveryPrevented
   };
@@ -875,7 +880,9 @@ function applyRegenerationEffect(
   }
 
   const restores =
-    effect.type === "outer_regeneration_percent" ? "outer" : "inner";
+    effect.type === "body_integrity_regeneration_percent"
+      ? "body_integrity"
+      : "context_stability";
   const endsAt = time + durationSeconds;
 
   setStatusEffect(
@@ -908,8 +915,8 @@ function applyRegenerationEffect(
 
 function applyHealEffect(
   effect:
-    | SkillEffectForType<"outer_heal_percent">
-    | SkillEffectForType<"inner_heal_percent">,
+    | SkillEffectForType<"body_integrity_restore_percent">
+    | SkillEffectForType<"context_stability_restore_percent">,
   context: SkillEffectResolutionContext
 ): void {
   const value = clampRecoveryEffectValue(getDirectEffectValue(effect));
@@ -933,8 +940,8 @@ function applyHealEffect(
   const result = applyRecoveryToTarget(
     context.attacker,
     target,
-    effect.type === "outer_heal_percent"
-      ? target.maxOuterHp *
+    effect.type === "body_integrity_restore_percent"
+      ? target.maxBodyIntegrity *
           value *
           getPlayerTacticModifierValue(
             context.tactic,
@@ -943,8 +950,8 @@ function applyHealEffect(
             1
           )
       : 0,
-    effect.type === "inner_heal_percent"
-      ? target.maxInnerQi *
+    effect.type === "context_stability_restore_percent"
+      ? target.maxContextStability *
           value *
           getPlayerTacticModifierValue(
             context.tactic,
@@ -971,8 +978,8 @@ function applyHealEffect(
 
 function applyRegenerationSkillEffect(
   effect:
-    | SkillEffectForType<"outer_regeneration_percent">
-    | SkillEffectForType<"inner_regeneration_percent">,
+    | SkillEffectForType<"body_integrity_regeneration_percent">
+    | SkillEffectForType<"context_stability_regeneration_percent">,
   context: SkillEffectResolutionContext
 ): void {
   applyRegenerationEffect(
@@ -1015,10 +1022,10 @@ function applyCleanseSkillEffect(
 }
 
 export const RECOVERY_SKILL_EFFECT_HANDLERS = {
-  outer_heal_percent: applyHealEffect,
-  inner_heal_percent: applyHealEffect,
-  outer_regeneration_percent: applyRegenerationSkillEffect,
-  inner_regeneration_percent: applyRegenerationSkillEffect,
+  body_integrity_restore_percent: applyHealEffect,
+  context_stability_restore_percent: applyHealEffect,
+  body_integrity_regeneration_percent: applyRegenerationSkillEffect,
+  context_stability_regeneration_percent: applyRegenerationSkillEffect,
   cleanse: applyCleanseSkillEffect
 } as const satisfies SkillEffectHandlerRegistry;
 
@@ -1084,11 +1091,11 @@ export function tickRegeneration(
       const result = applyRecoveryToTarget(
         source,
         combatant,
-        regeneration.restores === "outer"
-          ? combatant.maxOuterHp * regeneration.value
+        regeneration.restores === "body_integrity"
+          ? combatant.maxBodyIntegrity * regeneration.value
           : 0,
-        regeneration.restores === "inner"
-          ? combatant.maxInnerQi * regeneration.value
+        regeneration.restores === "context_stability"
+          ? combatant.maxContextStability * regeneration.value
           : 0,
         statusDefinitions,
         tickTime,

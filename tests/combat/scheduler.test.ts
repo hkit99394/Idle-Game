@@ -14,8 +14,8 @@ import { combatScenarioBaseStats } from "../helpers/combatScenarios";
 function createScheduledCombatant(
   input: Partial<CombatantState> = {}
 ): CombatantState {
-  const maxOuterHp = input.maxOuterHp ?? combatScenarioBaseStats.maxOuterHp;
-  const maxInnerQi = input.maxInnerQi ?? combatScenarioBaseStats.maxInnerQi;
+  const maxBodyIntegrity = input.maxBodyIntegrity ?? combatScenarioBaseStats.maxBodyIntegrity;
+  const maxContextStability = input.maxContextStability ?? combatScenarioBaseStats.maxContextStability;
 
   return {
     instanceId: "scenario_scheduled_combatant",
@@ -26,10 +26,10 @@ function createScheduledCombatant(
     combatRole: "striker",
     name: "Scenario Scheduled",
     team: "player",
-    outerHp: maxOuterHp,
-    innerQi: maxInnerQi,
-    maxOuterHp,
-    maxInnerQi,
+    bodyIntegrity: maxBodyIntegrity,
+    contextStability: maxContextStability,
+    maxBodyIntegrity,
+    maxContextStability,
     stats: {
       ...combatScenarioBaseStats,
       speed: 100,
@@ -40,9 +40,9 @@ function createScheduledCombatant(
     skillIds: [],
     nextActionAt: 1,
     skillCooldowns: {},
-    isQiBroken: false,
-    qiBreakEndsAt: null,
-    lastInnerDamageAt: null,
+    isOverloaded: false,
+    overloadEndsAt: null,
+    lastCognitiveDamageAt: null,
     guard: null,
     protection: null,
     armorBreak: null,
@@ -87,7 +87,7 @@ describe("combat scheduler", () => {
     expect(canCombatantActAt(combatant, 1.9)).toBe(false);
     expect(canCombatantActAt(combatant, 2)).toBe(true);
 
-    combatant.outerHp = 0;
+    combatant.bodyIntegrity = 0;
     combatant.defeatedAt = 2;
 
     expect(canCombatantActAt(combatant, 2)).toBe(false);

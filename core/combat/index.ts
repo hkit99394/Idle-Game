@@ -4,7 +4,9 @@ export {
   createBattleEventRecord,
   createBattleEventRecords,
   type BattleEventCategory,
-  type BattleEventRecord
+  type BattleEventRecord,
+  type BattleEventRecordInput,
+  type LegacyBattleEvent
 } from "./battleRecorder";
 export * from "./cleansePolicy";
 export * from "./formulas";

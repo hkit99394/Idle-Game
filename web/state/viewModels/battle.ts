@@ -115,13 +115,13 @@ function getContributionTotalDamage(contribution?: BattleContribution): number {
   return contribution
     ? contribution.outerDamageDealt +
         contribution.innerDamageDealt +
-        contribution.qiBreakBurstDamageDealt
+        contribution.aiOverloadBurstDamageDealt
     : 0;
 }
 
 function getContributionRecovery(contribution?: BattleContribution): number {
   return contribution
-    ? contribution.outerHealingDone + contribution.innerQiRestored
+    ? contribution.bodyIntegrityRestoredDone + contribution.contextStabilityRestored
     : 0;
 }
 
@@ -164,12 +164,12 @@ function createCombatantView(
     combatRole: input.combatRole,
     formationSlot: finalState?.formationSlot ?? input.formationSlot,
     level: Math.max(finalState?.level ?? input.level, input.level),
-    outerHp: finalState?.outerHp ?? input.stats.maxOuterHp,
-    innerQi: finalState?.innerQi ?? input.stats.maxInnerQi,
-    maxOuterHp: finalState?.maxOuterHp ?? input.stats.maxOuterHp,
-    maxInnerQi: finalState?.maxInnerQi ?? input.stats.maxInnerQi,
-    outerAttack: stats.outerAttack,
-    innerAttack: stats.innerAttack,
+    bodyIntegrity: finalState?.bodyIntegrity ?? input.stats.maxBodyIntegrity,
+    contextStability: finalState?.contextStability ?? input.stats.maxContextStability,
+    maxBodyIntegrity: finalState?.maxBodyIntegrity ?? input.stats.maxBodyIntegrity,
+    maxContextStability: finalState?.maxContextStability ?? input.stats.maxContextStability,
+    kineticAttack: stats.kineticAttack,
+    cognitiveAttack: stats.cognitiveAttack,
     speed: stats.speed,
     combatPower: Math.round(
       calculateCombatPower(stats) + (input.combatPowerBonus ?? 0)
@@ -178,7 +178,7 @@ function createCombatantView(
     contributionRecovery: getContributionRecovery(contribution),
     contributionProtection: getContributionProtection(contribution),
     contributionRecoveryPrevented: contribution?.recoveryPrevented ?? 0,
-    isQiBroken: finalState?.isQiBroken ?? false,
+    isOverloaded: finalState?.isOverloaded ?? false,
     isDefeated: finalState?.defeatedAt != null
   };
 }
@@ -321,7 +321,9 @@ function buildStatusTickEventDetail(
 
   return {
     headline: `${target} suffers ${statusName}`,
-    detail: `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.kineticDamage} from ${statusName}`,
+    detail:
+      `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.bodyIntegrity} ` +
+      `damage from ${statusName}`,
     badges: [
       {
         label: statusName,
@@ -429,7 +431,7 @@ function buildAutoMedicineEventDetail(
               label: `${formatBattlePercent(
                 event.statusResistanceBonus
               )} resistance`,
-              tone: "qi" as const
+              tone: "inner" as const
             }
           ]
         : [])
@@ -611,7 +613,7 @@ function buildBattleEventDetail(
       };
     }
 
-    case "qi_break": {
+    case "ai_overload": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
 
@@ -633,21 +635,21 @@ function buildBattleEventDetail(
           },
           {
             label: `${formatBattleSeconds(event.endsAt)} recovery`,
-            tone: "qi"
+            tone: "overload"
           }
         ]
       };
     }
 
-    case "qi_recover": {
+    case "context_rebuild": {
       const target = getName(names, event.targetId);
 
       return {
         headline: `${target} restores ${displayTerms.combat.contextStability}`,
-        detail: `${displayTerms.combat.contextStability} returns to ${formatBattleNumber(event.innerQi)}`,
+        detail: `${displayTerms.combat.contextStability} returns to ${formatBattleNumber(event.contextStability)}`,
         badges: [
           {
-            label: `${formatBattleNumber(event.innerQi)} ${displayTerms.combat.contextStability}`,
+            label: `${formatBattleNumber(event.contextStability)} ${displayTerms.combat.contextStability}`,
             tone: "inner"
           }
         ]
@@ -667,7 +669,7 @@ function buildBattleEventDetail(
           },
           {
             label: "Overloaded",
-            tone: "qi"
+            tone: "overload"
           }
         ]
       };
@@ -676,13 +678,13 @@ function buildBattleEventDetail(
     case "heal": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
-      const restored = event.outerHealing + event.innerQiRestored;
+      const restored = event.bodyIntegrityRestored + event.contextStabilityRestored;
       const detail = [
-        event.outerHealing > 0
-          ? `${formatBattleNumber(event.outerHealing)} ${displayTerms.combat.bodyIntegrity}`
+        event.bodyIntegrityRestored > 0
+          ? `${formatBattleNumber(event.bodyIntegrityRestored)} ${displayTerms.combat.bodyIntegrity}`
           : null,
-        event.innerQiRestored > 0
-          ? `${formatBattleNumber(event.innerQiRestored)} ${displayTerms.combat.contextStability}`
+        event.contextStabilityRestored > 0
+          ? `${formatBattleNumber(event.contextStabilityRestored)} ${displayTerms.combat.contextStability}`
           : null,
         event.overhealing > 0
           ? `${formatBattleNumber(event.overhealing)} overheal`
@@ -788,7 +790,7 @@ function buildBattleEventDetail(
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
       const barLabel =
-        event.restores === "outer"
+        event.restores === "body_integrity"
           ? displayTerms.combat.bodyIntegrity
           : displayTerms.combat.contextStability;
 
@@ -808,7 +810,7 @@ function buildBattleEventDetail(
           },
           {
             label: `${formatBattlePercent(event.percentPerTick)} ${barLabel}`,
-            tone: event.restores === "outer" ? "outer" : "inner"
+            tone: event.restores === "body_integrity" ? "outer" : "inner"
           }
         ]
       };
@@ -816,13 +818,13 @@ function buildBattleEventDetail(
 
     case "regeneration_tick": {
       const target = getName(names, event.targetId);
-      const restored = event.outerHealing + event.innerQiRestored;
+      const restored = event.bodyIntegrityRestored + event.contextStabilityRestored;
       const detail = [
-        event.outerHealing > 0
-          ? `${formatBattleNumber(event.outerHealing)} ${displayTerms.combat.bodyIntegrity}`
+        event.bodyIntegrityRestored > 0
+          ? `${formatBattleNumber(event.bodyIntegrityRestored)} ${displayTerms.combat.bodyIntegrity}`
           : null,
-        event.innerQiRestored > 0
-          ? `${formatBattleNumber(event.innerQiRestored)} ${displayTerms.combat.contextStability}`
+        event.contextStabilityRestored > 0
+          ? `${formatBattleNumber(event.contextStabilityRestored)} ${displayTerms.combat.contextStability}`
           : null,
         event.overhealing > 0
           ? `${formatBattleNumber(event.overhealing)} overheal`
@@ -932,14 +934,14 @@ function getContributionDamage(contribution: BattleContribution): number {
   return (
     contribution.outerDamageDealt +
     contribution.innerDamageDealt +
-    contribution.qiBreakBurstDamageDealt
+    contribution.aiOverloadBurstDamageDealt
   );
 }
 
 function getContributionSupport(contribution: BattleContribution): number {
   return (
-    contribution.outerHealingDone +
-    contribution.innerQiRestored +
+    contribution.bodyIntegrityRestoredDone +
+    contribution.contextStabilityRestored +
     contribution.guardDamagePrevented +
     contribution.protectionDamagePrevented +
     contribution.recoveryPrevented +
@@ -984,13 +986,13 @@ function buildContributionSummaryDetails(
   const topBreaker = getTopContribution(
     battle.contributions,
     (contribution) =>
-      contribution.qiBreaksTriggered * 1000 +
-      contribution.qiBreakBurstDamageDealt
+      contribution.aiOverloadsTriggered * 1000 +
+      contribution.aiOverloadBurstDamageDealt
   );
   const topHealer = getTopContribution(
     battle.contributions,
     (contribution) =>
-      contribution.outerHealingDone + contribution.innerQiRestored
+      contribution.bodyIntegrityRestoredDone + contribution.contextStabilityRestored
   );
   const topProtector = getTopContribution(
     battle.contributions,
@@ -1011,7 +1013,7 @@ function buildContributionSummaryDetails(
     carryPool,
     (contribution) =>
       getContributionDamage(contribution) +
-      contribution.qiBreaksTriggered * 100 +
+      contribution.aiOverloadsTriggered * 100 +
       (contribution.survived ? 50 : 0)
   );
   const supportCarry = getTopContribution(carryPool, getContributionSupport);
@@ -1025,23 +1027,23 @@ function buildContributionSummaryDetails(
     );
   }
 
-  if (topBreaker && topBreaker.qiBreaksTriggered > 0) {
+  if (topBreaker && topBreaker.aiOverloadsTriggered > 0) {
     details.push(
-      `Qi breaker: ${formatContributionName(topBreaker)} triggered ${
-        topBreaker.qiBreaksTriggered
-      } break${topBreaker.qiBreaksTriggered === 1 ? "" : "s"}.`
+      `AI Overload: ${formatContributionName(topBreaker)} triggered ${
+        topBreaker.aiOverloadsTriggered
+      } overload${topBreaker.aiOverloadsTriggered === 1 ? "" : "s"}.`
     );
   } else {
-    details.push("Qi breaker: none.");
+    details.push("AI Overload: none.");
   }
 
   if (
     topHealer &&
-    topHealer.outerHealingDone + topHealer.innerQiRestored > 0
+    topHealer.bodyIntegrityRestoredDone + topHealer.contextStabilityRestored > 0
   ) {
     details.push(
       `Top recovery: ${formatContributionName(topHealer)} restored ${formatBattleNumber(
-        topHealer.outerHealingDone + topHealer.innerQiRestored
+        topHealer.bodyIntegrityRestoredDone + topHealer.contextStabilityRestored
       )} total recovery.`
     );
   }
@@ -1128,16 +1130,16 @@ export function buildBattleSummary(
       )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.playerInnerDamage
       )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
-        battle.metrics.playerQiBreakBurstDamage
+        battle.metrics.playerAiOverloadBurstDamage
       )} ${displayTerms.combat.aiOverload} burst damage.`,
       `Hostiles dealt ${formatBattleNumber(
         battle.metrics.enemyOuterDamage
       )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.enemyInnerDamage
       )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
-        battle.metrics.enemyQiBreakBurstDamage
+        battle.metrics.enemyAiOverloadBurstDamage
       )} ${displayTerms.combat.aiOverload} burst damage.`,
-      `${displayTerms.combat.aiOverloads}: ${battle.metrics.qiBreaksTriggeredByPlayer} by initiates, ${battle.metrics.qiBreaksTriggeredByEnemy} by hostiles.`,
+      `${displayTerms.combat.aiOverloads}: ${battle.metrics.aiOverloadsTriggeredByPlayer} by initiates, ${battle.metrics.aiOverloadsTriggeredByEnemy} by hostiles.`,
       ...buildContributionSummaryDetails(battle),
       rewardText
     ]

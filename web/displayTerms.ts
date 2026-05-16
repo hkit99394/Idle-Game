@@ -92,17 +92,17 @@ type EquipmentSlotDisplayKey = keyof typeof displayTerms.equipment.slots;
 type StyleDisplayKey = keyof typeof displayTerms.styles;
 
 const statDisplayNames: Record<string, string> = {
-  breakPower: displayTerms.combat.breachPower,
-  breakResist: displayTerms.combat.overloadResist,
+  breachPower: displayTerms.combat.breachPower,
+  overloadResist: displayTerms.combat.overloadResist,
   critChance: "Crit Chance",
   critDamage: "Crit Damage",
-  innerAttack: displayTerms.combat.cognitiveAttack,
-  innerDefense: "Cognitive Defense",
-  innerRecoveryRate: displayTerms.combat.contextRebuild,
-  maxInnerQi: `Max ${displayTerms.combat.contextStability}`,
-  maxOuterHp: `Max ${displayTerms.combat.bodyIntegrity}`,
-  outerAttack: displayTerms.combat.kineticAttack,
-  outerDefense: "Kinetic Defense",
+  cognitiveAttack: displayTerms.combat.cognitiveAttack,
+  cognitiveDefense: "Cognitive Defense",
+  contextRebuildRate: displayTerms.combat.contextRebuild,
+  maxContextStability: `Max ${displayTerms.combat.contextStability}`,
+  maxBodyIntegrity: `Max ${displayTerms.combat.bodyIntegrity}`,
+  kineticAttack: displayTerms.combat.kineticAttack,
+  kineticDefense: "Kinetic Defense",
   speed: "Speed",
   statusAccuracy: "Status Accuracy",
   statusResistance: "Status Resistance"
@@ -110,11 +110,11 @@ const statDisplayNames: Record<string, string> = {
 
 const tacticModifierDisplayNames: Record<string, string> = {
   boss_damage_multiplier: "Boss damage",
-  break_power_multiplier: displayTerms.combat.breachPower,
+  breach_power_multiplier: displayTerms.combat.breachPower,
   guard_multiplier: "Guard",
   healing_multiplier: "Healing",
-  inner_damage_multiplier: displayTerms.combat.cognitiveDamage,
-  outer_damage_multiplier: displayTerms.combat.kineticDamage,
+  cognitive_damage_multiplier: displayTerms.combat.cognitiveDamage,
+  kinetic_damage_multiplier: displayTerms.combat.kineticDamage,
   protection_multiplier: "Protection",
   status_resistance_bonus: "Status Resistance"
 };

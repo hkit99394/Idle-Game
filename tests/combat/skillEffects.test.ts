@@ -15,18 +15,18 @@ import {
 import { staticData } from "../helpers/staticData";
 
 const baseStats: BaseStats = {
-  maxOuterHp: 1000,
-  maxInnerQi: 500,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 1000,
+  maxContextStability: 500,
+  kineticAttack: 0,
+  cognitiveAttack: 0,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 100,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -118,8 +118,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_slow",
           name: "Scenario Slow",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "speed_down", value: 0.5, durationSeconds: 10 }]
         },
@@ -127,8 +127,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_empty",
           name: "Scenario Empty",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         },
@@ -136,8 +136,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_enemy_hit",
           name: "Scenario Enemy Hit",
           cooldownSeconds: 0.1,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
@@ -148,7 +148,7 @@ describe("skill effect combat coverage", () => {
       ],
       enemies: [
         createEnemy("scenario_speed_target", ["scenario_enemy_hit"], {
-          outerAttack: 20
+          kineticAttack: 20
         })
       ]
     });
@@ -190,8 +190,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_inner_break",
           name: "Scenario Inner Break",
           cooldownSeconds: 0.1,
-          outerMultiplier: 0,
-          innerMultiplier: 1,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 1,
           targetRule: "first_living",
           effects: [
             { type: "inner_defense_down", value: 0.5, durationSeconds: 10 }
@@ -200,13 +200,13 @@ describe("skill effect combat coverage", () => {
       ],
       heroes: [
         createHero("scenario_inner_breaker", ["scenario_inner_break"], {
-          innerAttack: 100
+          cognitiveAttack: 100
         })
       ],
       enemies: [
         createEnemy("scenario_inner_defender", [], {
-          maxInnerQi: 1000,
-          innerDefense: 100,
+          maxContextStability: 1000,
+          cognitiveDefense: 100,
           speed: 0
         })
       ]
@@ -242,8 +242,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_poison",
           name: "Scenario Corruption",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -259,7 +259,7 @@ describe("skill effect combat coverage", () => {
       heroes: [createHero("scenario_poisoner", ["scenario_poison"])],
       enemies: [
         createEnemy("scenario_poison_target", [], {
-          maxOuterHp: 1000,
+          maxBodyIntegrity: 1000,
           speed: 0
         })
       ]
@@ -283,7 +283,7 @@ describe("skill effect combat coverage", () => {
     expect(target.activeStatuses.map((status) => status.statusId)).toContain(
       "corruption"
     );
-    expect(target.outerHp).toBeLessThan(target.maxOuterHp);
+    expect(target.bodyIntegrity).toBeLessThan(target.maxBodyIntegrity);
   });
 
   it("apply_status respects deterministic application chance", () => {
@@ -293,8 +293,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_low_chance",
           name: "Scenario Low Chance",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -310,7 +310,7 @@ describe("skill effect combat coverage", () => {
       heroes: [createHero("scenario_low_chance_user", ["scenario_low_chance"])],
       enemies: [
         createEnemy("scenario_low_chance_target", [], {
-          maxOuterHp: 1000,
+          maxBodyIntegrity: 1000,
           speed: 0
         })
       ]
@@ -331,7 +331,7 @@ describe("skill effect combat coverage", () => {
 
     expect(result.events.some((event) => event.type === "status_apply")).toBe(false);
     expect(target.activeStatuses).toEqual([]);
-    expect(target.outerHp).toBe(target.maxOuterHp);
+    expect(target.bodyIntegrity).toBe(target.maxBodyIntegrity);
   });
 
   it("cleanse removes data-driven debuffs applied through skill effects", () => {
@@ -341,8 +341,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_poison",
           name: "Scenario Corruption",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -358,8 +358,8 @@ describe("skill effect combat coverage", () => {
           id: "scenario_cleanse_ally",
           name: "Scenario Cleanse Ally",
           cooldownSeconds: 20,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {

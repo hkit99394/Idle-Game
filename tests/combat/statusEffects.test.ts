@@ -23,18 +23,18 @@ const statusDefinitions = createStatusDictionary(
 );
 
 const baseStats = {
-  maxOuterHp: 100,
-  maxInnerQi: 100,
-  outerAttack: 10,
-  innerAttack: 5,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 100,
+  maxContextStability: 100,
+  kineticAttack: 10,
+  cognitiveAttack: 5,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 0,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -42,7 +42,7 @@ const baseStats = {
 function combatant(input: {
   id: string;
   team?: TeamId;
-  outerHp?: number;
+  bodyIntegrity?: number;
 }): CombatantState {
   return {
     instanceId: input.id,
@@ -53,19 +53,19 @@ function combatant(input: {
     combatRole: "striker",
     name: input.id,
     team: input.team ?? "player",
-    outerHp: input.outerHp ?? baseStats.maxOuterHp,
-    innerQi: baseStats.maxInnerQi,
-    maxOuterHp: baseStats.maxOuterHp,
-    maxInnerQi: baseStats.maxInnerQi,
+    bodyIntegrity: input.bodyIntegrity ?? baseStats.maxBodyIntegrity,
+    contextStability: baseStats.maxContextStability,
+    maxBodyIntegrity: baseStats.maxBodyIntegrity,
+    maxContextStability: baseStats.maxContextStability,
     stats: baseStats,
     damageMultipliersByFamily: {},
     skillUpgradeLevels: {},
     skillIds: [],
     nextActionAt: 0,
     skillCooldowns: {},
-    isQiBroken: false,
-    qiBreakEndsAt: null,
-    lastInnerDamageAt: null,
+    isOverloaded: false,
+    overloadEndsAt: null,
+    lastCognitiveDamageAt: null,
     guard: null,
     protection: null,
     armorBreak: null,

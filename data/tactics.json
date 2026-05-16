@@ -15,7 +15,7 @@
     "targetPriorities": ["weakest_hp"],
     "modifiers": [
       {
-        "type": "outer_damage_multiplier",
+        "type": "kinetic_damage_multiplier",
         "value": 1.08
       }
     ]
@@ -25,14 +25,14 @@
     "name": "Context Break",
     "description": "Pressure Context Stability, exploit overloaded hostiles, and threaten high-value targets.",
     "behaviorFlags": ["targeting", "damage"],
-    "targetPriorities": ["inner_broken", "highest_cp"],
+    "targetPriorities": ["overloaded", "highest_cp"],
     "modifiers": [
       {
-        "type": "inner_damage_multiplier",
+        "type": "cognitive_damage_multiplier",
         "value": 1.08
       },
       {
-        "type": "break_power_multiplier",
+        "type": "breach_power_multiplier",
         "value": 1.05
       }
     ]

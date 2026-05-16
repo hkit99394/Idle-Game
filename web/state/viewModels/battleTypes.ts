@@ -11,19 +11,19 @@ export type BattleCombatantView = {
   combatRole: CombatRole;
   formationSlot: FormationSlot;
   level: number;
-  outerHp: number;
-  innerQi: number;
-  maxOuterHp: number;
-  maxInnerQi: number;
-  outerAttack: number;
-  innerAttack: number;
+  bodyIntegrity: number;
+  contextStability: number;
+  maxBodyIntegrity: number;
+  maxContextStability: number;
+  kineticAttack: number;
+  cognitiveAttack: number;
   speed: number;
   combatPower: number;
   contributionDamage: number;
   contributionRecovery: number;
   contributionProtection: number;
   contributionRecoveryPrevented: number;
-  isQiBroken: boolean;
+  isOverloaded: boolean;
   isDefeated: boolean;
 };
 
@@ -33,7 +33,7 @@ export type BattleEventBadgeTone =
   | "skill"
   | "outer"
   | "inner"
-  | "qi"
+  | "overload"
   | "danger"
   | "neutral";
 

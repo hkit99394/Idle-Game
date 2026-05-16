@@ -37,11 +37,11 @@ const statusDispelTags = new Set([
   "debuff"
 ]);
 const statusEffectKeys = new Set([
-  "outerDamagePerSecond",
+  "bodyIntegrityDamagePerSecond",
   "healingReceivedMultiplier",
-  "innerRecoveryMultiplier",
-  "outerDamageTakenMultiplier",
-  "attackBacklashOuterHpPercent"
+  "contextRebuildMultiplier",
+  "kineticDamageTakenMultiplier",
+  "feedbackBodyIntegrityPercent"
 ]);
 const medicineEffectTypes = new Set([
   "cleanse_status",
@@ -50,18 +50,18 @@ const medicineEffectTypes = new Set([
 const tacticBehaviorFlags = new Set(TACTIC_BEHAVIOR_FLAGS);
 const tacticModifierTypes = new Set(TACTIC_MODIFIER_TYPES);
 const tacticMultiplierModifierTypes = new Set<TacticModifierType>([
-  "outer_damage_multiplier",
-  "inner_damage_multiplier",
-  "break_power_multiplier",
+  "kinetic_damage_multiplier",
+  "cognitive_damage_multiplier",
+  "breach_power_multiplier",
   "boss_damage_multiplier",
   "guard_multiplier",
   "protection_multiplier",
   "healing_multiplier"
 ]);
 const tacticModifierBehaviorFlags = {
-  outer_damage_multiplier: "damage",
-  inner_damage_multiplier: "damage",
-  break_power_multiplier: "damage",
+  kinetic_damage_multiplier: "damage",
+  cognitive_damage_multiplier: "damage",
+  breach_power_multiplier: "damage",
   boss_damage_multiplier: "damage",
   guard_multiplier: "defense",
   protection_multiplier: "defense",
@@ -72,13 +72,13 @@ const tacticModifierBehaviorFlags = {
 const SKILL_EFFECT_TARGETS = [
   "self",
   "target",
-  "lowest_outer_hp_ally",
-  "lowest_inner_qi_ally",
+  "lowest_body_integrity_ally",
+  "lowest_context_stability_ally",
   "wounded_or_armor_broken_ally"
 ] as const;
 const TIMED_SKILL_EFFECT_TYPES = [
-  "outer_regeneration_percent",
-  "inner_regeneration_percent",
+  "body_integrity_regeneration_percent",
+  "context_stability_regeneration_percent",
   "wound",
   "speed_down",
   "inner_defense_down",
@@ -223,7 +223,7 @@ export function validateSkill(
     errors.push(`Skill ${skill.id} cooldownSeconds must be non-negative`);
   }
 
-  if (skill.outerMultiplier < 0 || skill.innerMultiplier < 0) {
+  if (skill.kineticMultiplier < 0 || skill.cognitiveMultiplier < 0) {
     errors.push(`Skill ${skill.id} damage multipliers must be non-negative`);
   }
 

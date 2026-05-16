@@ -32,18 +32,18 @@ export function buildStaticDataIndexes(
 }
 
 export const BASE_STAT_KEYS = [
-  "maxOuterHp",
-  "maxInnerQi",
-  "outerAttack",
-  "innerAttack",
-  "outerDefense",
-  "innerDefense",
+  "maxBodyIntegrity",
+  "maxContextStability",
+  "kineticAttack",
+  "cognitiveAttack",
+  "kineticDefense",
+  "cognitiveDefense",
   "speed",
   "critChance",
   "critDamage",
-  "breakPower",
-  "breakResist",
-  "innerRecoveryRate",
+  "breachPower",
+  "overloadResist",
+  "contextRebuildRate",
   "statusAccuracy",
   "statusResistance"
 ] as const;
@@ -84,17 +84,17 @@ export function validateStats(
       continue;
     }
 
-    if (stat !== "breakPower" && stat !== "breakResist" && value < 0) {
+    if (stat !== "breachPower" && stat !== "overloadResist" && value < 0) {
       errors.push(`${ownerId} stat ${stat} must be non-negative`);
     }
   }
 
-  if (stats.maxOuterHp <= 0) {
-    errors.push(`${ownerId} maxOuterHp must be greater than zero`);
+  if (stats.maxBodyIntegrity <= 0) {
+    errors.push(`${ownerId} maxBodyIntegrity must be greater than zero`);
   }
 
-  if (stats.maxInnerQi <= 0) {
-    errors.push(`${ownerId} maxInnerQi must be greater than zero`);
+  if (stats.maxContextStability <= 0) {
+    errors.push(`${ownerId} maxContextStability must be greater than zero`);
   }
 
   return errors;

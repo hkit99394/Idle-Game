@@ -62,7 +62,7 @@ function formatStageRow(stage: StageSummary): string {
     stage.enemyIds.join("+").padEnd(16),
     `${stage.winner}${stage.stageCleared ? " clear" : " hold"}`.padEnd(13),
     `${stage.durationSeconds}s`.padStart(6),
-    String(stage.qiBreaks).padStart(5),
+    String(stage.aiOverloads).padStart(5),
     `g${stage.guardAbsorbs}/p${stage.protections}/a${stage.armorBreaks}`.padEnd(13),
     formation.padEnd(14),
     formatReward(stage.rewards).padEnd(28),
@@ -75,7 +75,7 @@ function formatBossLine(stage: StageSummary): string {
     return `${stage.stageId}: ${stage.reason ?? "unknown"}`;
   }
 
-  return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.qiBreaks} Qi Breaks, g${stage.guardAbsorbs}/p${stage.protections}/a${stage.armorBreaks}`;
+  return `${stage.winner}${stage.stageCleared ? " clear" : " hold"} in ${stage.durationSeconds}s, ${stage.aiOverloads} AI Overloads, g${stage.guardAbsorbs}/p${stage.protections}/a${stage.armorBreaks}`;
 }
 
 function formatRegionFarmLine(region: RegionSummary): string {
@@ -225,7 +225,7 @@ function formatRegionRecoveryEventLine(region: RegionSummary): string {
 
   return (
     `- ${region.regionName}: ${events.heals} heals/regen ticks, ` +
-    `${events.outerHealing} Outer HP and ${events.innerQiRestored} Inner Qi restored, ` +
+    `${events.bodyIntegrityRestored} Body Integrity and ${events.contextStabilityRestored} Context Stability restored, ` +
     `${events.overhealing} overheal, ${events.recoveryPrevented} recovery denied, ` +
     `${events.wounds} wounds, ${events.woundUptimeSeconds}s wound uptime, ` +
     `${events.cleanses} cleanses`
@@ -241,7 +241,7 @@ function formatRegionStageTable(
     "enemy".padEnd(16),
     "result".padEnd(13),
     "time".padStart(6),
-    "break".padStart(5),
+    "ovld".padStart(5),
     "defense".padEnd(13),
     "formation".padEnd(14),
     "rewards".padEnd(28),

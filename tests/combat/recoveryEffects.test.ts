@@ -10,18 +10,18 @@ import type {
 import { staticData } from "../helpers/staticData";
 
 const baseStats: BaseStats = {
-  maxOuterHp: 240,
-  maxInnerQi: 180,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 240,
+  maxContextStability: 180,
+  kineticAttack: 0,
+  cognitiveAttack: 0,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 100,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -81,35 +81,35 @@ function withScenarioData(input: {
 }
 
 describe("recovery and wound effects", () => {
-  it("heals the damaged ally selected by lowest Outer HP", () => {
+  it("heals the damaged ally selected by lowest Body Integrity", () => {
     const data = withScenarioData({
       skills: [
         {
           id: "scenario_ally_heal",
           name: "Scenario Ally Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_heal_percent",
+              type: "body_integrity_restore_percent",
               value: 0.25,
-              target: "lowest_outer_hp_ally"
+              target: "lowest_body_integrity_ally"
             }
           ]
         }
       ],
       heroes: [
         createHero("scenario_recovery_tank", [], {
-          maxOuterHp: 240,
+          maxBodyIntegrity: 240,
           speed: 0
         }, "tank"),
         createHero("scenario_ally_healer", ["scenario_ally_heal"])
       ],
       enemies: [
         createEnemy("scenario_outer_attacker", [], {
-          outerAttack: 70,
+          kineticAttack: 70,
           speed: 300
         })
       ]
@@ -141,21 +141,21 @@ describe("recovery and wound effects", () => {
       sourceId: "player_scenario_ally_healer_2",
       targetId: "player_scenario_recovery_tank_1"
     });
-    expect(heal?.outerHealing).toBeGreaterThan(0);
-    expect(result.metrics.playerOuterHealing).toBeGreaterThan(0);
+    expect(heal?.bodyIntegrityRestored).toBeGreaterThan(0);
+    expect(result.metrics.playerBodyIntegrityRestored).toBeGreaterThan(0);
   });
 
-  it("records overheal when a full HP recovery has no effective healing", () => {
+  it("records overheal when a full Body Integrity recovery has no effective healing", () => {
     const data = withScenarioData({
       skills: [
         {
           id: "scenario_full_heal",
           name: "Scenario Full Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
-          effects: [{ type: "outer_heal_percent", value: 0.2 }]
+          effects: [{ type: "body_integrity_restore_percent", value: 0.2 }]
         }
       ],
       heroes: [
@@ -181,27 +181,27 @@ describe("recovery and wound effects", () => {
 
     expect(heal).toMatchObject({
       type: "heal",
-      outerHealing: 0
+      bodyIntegrityRestored: 0
     });
     expect(heal?.overhealing).toBeGreaterThan(0);
     expect(result.metrics.playerOverhealing).toBeGreaterThan(0);
   });
 
-  it("restores damaged Inner Qi without exceeding the max bar", () => {
+  it("restores damaged Context Stability without exceeding the max bar", () => {
     const data = withScenarioData({
       skills: [
         {
           id: "scenario_inner_heal",
           name: "Scenario Inner Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
-              type: "inner_heal_percent",
+              type: "context_stability_restore_percent",
               value: 0.3,
-              target: "lowest_inner_qi_ally"
+              target: "lowest_context_stability_ally"
             }
           ]
         },
@@ -209,22 +209,22 @@ describe("recovery and wound effects", () => {
           id: "scenario_inner_hit",
           name: "Scenario Inner Hit",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 1,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 1,
           targetRule: "first_living",
           effects: []
         }
       ],
       heroes: [
         createHero("scenario_inner_tank", [], {
-          maxInnerQi: 180,
+          maxContextStability: 180,
           speed: 0
         }, "tank"),
         createHero("scenario_inner_healer", ["scenario_inner_heal"])
       ],
       enemies: [
         createEnemy("scenario_inner_attacker", ["scenario_inner_hit"], {
-          innerAttack: 70,
+          cognitiveAttack: 70,
           speed: 300
         })
       ]
@@ -250,15 +250,15 @@ describe("recovery and wound effects", () => {
     });
     const heal = result.events
       .filter((event) => event.type === "heal")
-      .find((event) => event.innerQiRestored > 0);
+      .find((event) => event.contextStabilityRestored > 0);
 
     expect(heal).toMatchObject({
       type: "heal",
       targetId: "player_scenario_inner_tank_1"
     });
-    expect(heal?.innerQiRestored).toBeGreaterThan(0);
-    expect(result.finalPlayerTeam[0].innerQi).toBeLessThanOrEqual(
-      result.finalPlayerTeam[0].maxInnerQi
+    expect(heal?.contextStabilityRestored).toBeGreaterThan(0);
+    expect(result.finalPlayerTeam[0].contextStability).toBeLessThanOrEqual(
+      result.finalPlayerTeam[0].maxContextStability
     );
   });
 
@@ -269,12 +269,12 @@ describe("recovery and wound effects", () => {
           id: "scenario_regenerate",
           name: "Scenario Regenerate",
           cooldownSeconds: 10,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_regeneration_percent",
+              type: "body_integrity_regeneration_percent",
               value: 0.1,
               durationSeconds: 3
             }
@@ -288,7 +288,7 @@ describe("recovery and wound effects", () => {
       ],
       enemies: [
         createEnemy("scenario_regen_attacker", [], {
-          outerAttack: 45,
+          kineticAttack: 45,
           speed: 300
         })
       ]
@@ -311,7 +311,7 @@ describe("recovery and wound effects", () => {
 
     expect(result.events.some((event) => event.type === "regeneration")).toBe(true);
     expect(ticks.map((event) => event.time)).toEqual([2, 3]);
-    expect(ticks.every((event) => event.outerHealing > 0)).toBe(true);
+    expect(ticks.every((event) => event.bodyIntegrityRestored > 0)).toBe(true);
   });
 
   it("uses wound to reduce recovery and improve clear time against a healer", () => {
@@ -321,8 +321,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_plain_strike",
           name: "Scenario Plain Strike",
           cooldownSeconds: 1,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         },
@@ -330,8 +330,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_wounding_strike",
           name: "Scenario Trauma Strike",
           cooldownSeconds: 1,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
@@ -346,25 +346,25 @@ describe("recovery and wound effects", () => {
           id: "scenario_enemy_heal",
           name: "Scenario Enemy Heal",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
-          effects: [{ type: "outer_heal_percent", value: 0.2 }]
+          effects: [{ type: "body_integrity_restore_percent", value: 0.2 }]
         }
       ],
       heroes: [
         createHero("scenario_plain_recovery_counter", ["scenario_plain_strike"], {
-          outerAttack: 70,
+          kineticAttack: 70,
           speed: 100
         }, "striker"),
         createHero("scenario_wound_recovery_counter", ["scenario_wounding_strike"], {
-          outerAttack: 70,
+          kineticAttack: 70,
           speed: 100
         }, "striker")
       ],
       enemies: [
         createEnemy("scenario_healing_enemy", ["scenario_enemy_heal"], {
-          maxOuterHp: 520,
+          maxBodyIntegrity: 520,
           speed: 100
         }, "support")
       ]
@@ -440,8 +440,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_status_cut",
           name: "Scenario Status Cut",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             { type: "armor_break", value: 0.4, durationSeconds: 5 },
@@ -452,8 +452,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_enemy_guard",
           name: "Scenario Enemy Guard",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "guard", value: 0.3, durationSeconds: 5 }]
         },
@@ -461,8 +461,8 @@ describe("recovery and wound effects", () => {
           id: "scenario_cleanse",
           name: "Scenario Cleanse",
           cooldownSeconds: 1,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {

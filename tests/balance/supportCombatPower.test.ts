@@ -10,8 +10,8 @@ const applyStatusSkill: SkillDefinition = {
   id: "scenario_support_apply_status",
   name: "Scenario Support Status",
   cooldownSeconds: 10,
-  outerMultiplier: 0,
-  innerMultiplier: 0,
+  kineticMultiplier: 0,
+  cognitiveMultiplier: 0,
   targetRule: "first_living",
   effects: [
     {

@@ -58,7 +58,7 @@ const DEFENSE_PRESSURE_TARGET_KEYS = [
 ] as const;
 const HEALING_PRESSURE_TARGET_KEYS = [
   "minHeals",
-  "minOuterHealing",
+  "minBodyIntegrityRestored",
   "minCleanses",
   "maxRecoveryPrevented"
 ] as const;
@@ -575,8 +575,8 @@ function validateHealingPressureTargets(region: RegionDefinition): string[] {
   );
   validateOptionalNonNegativeNumber(
     errors,
-    targets.minOuterHealing,
-    `Region ${region.id} balanceTargets.healingPressure.minOuterHealing`
+    targets.minBodyIntegrityRestored,
+    `Region ${region.id} balanceTargets.healingPressure.minBodyIntegrityRestored`
   );
   validateOptionalNonNegativeNumber(
     errors,

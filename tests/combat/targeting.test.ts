@@ -3,18 +3,18 @@ import { selectTarget } from "../../core";
 import type { CombatantState, FormationSlot, TeamId } from "../../core";
 
 const baseStats = {
-  maxOuterHp: 100,
-  maxInnerQi: 100,
-  outerAttack: 10,
-  innerAttack: 5,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 100,
+  maxContextStability: 100,
+  kineticAttack: 10,
+  cognitiveAttack: 5,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 0,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -23,15 +23,15 @@ function combatant(input: {
   id: string;
   team: TeamId;
   formationSlot: FormationSlot;
-  outerHp?: number;
-  maxOuterHp?: number;
-  outerAttack?: number;
-  isQiBroken?: boolean;
+  bodyIntegrity?: number;
+  maxBodyIntegrity?: number;
+  kineticAttack?: number;
+  isOverloaded?: boolean;
 }): CombatantState {
   const stats = {
     ...baseStats,
-    maxOuterHp: input.maxOuterHp ?? baseStats.maxOuterHp,
-    outerAttack: input.outerAttack ?? baseStats.outerAttack
+    maxBodyIntegrity: input.maxBodyIntegrity ?? baseStats.maxBodyIntegrity,
+    kineticAttack: input.kineticAttack ?? baseStats.kineticAttack
   };
 
   return {
@@ -43,19 +43,19 @@ function combatant(input: {
     combatRole: "striker",
     name: input.id,
     team: input.team,
-    outerHp: input.outerHp ?? stats.maxOuterHp,
-    innerQi: stats.maxInnerQi,
-    maxOuterHp: stats.maxOuterHp,
-    maxInnerQi: stats.maxInnerQi,
+    bodyIntegrity: input.bodyIntegrity ?? stats.maxBodyIntegrity,
+    contextStability: stats.maxContextStability,
+    maxBodyIntegrity: stats.maxBodyIntegrity,
+    maxContextStability: stats.maxContextStability,
     stats,
     damageMultipliersByFamily: {},
     skillUpgradeLevels: {},
     skillIds: [],
     nextActionAt: 0,
     skillCooldowns: {},
-    isQiBroken: input.isQiBroken ?? false,
-    qiBreakEndsAt: input.isQiBroken ? 6 : null,
-    lastInnerDamageAt: null,
+    isOverloaded: input.isOverloaded ?? false,
+    overloadEndsAt: input.isOverloaded ? 6 : null,
+    lastCognitiveDamageAt: null,
     guard: null,
     protection: null,
     armorBreak: null,
@@ -92,13 +92,13 @@ describe("targeting", () => {
           id: "front_enemy",
           team: "enemy",
           formationSlot: "front",
-          outerHp: 90
+          bodyIntegrity: 90
         }),
         combatant({
           id: "back_enemy",
           team: "enemy",
           formationSlot: "back",
-          outerHp: 10
+          bodyIntegrity: 10
         })
       ],
       "player",
@@ -117,7 +117,7 @@ describe("targeting", () => {
           id: "middle_enemy",
           team: "enemy",
           formationSlot: "middle",
-          outerAttack: 50
+          kineticAttack: 50
         })
       ],
       "player",
@@ -127,26 +127,26 @@ describe("targeting", () => {
     expect(target?.instanceId).toBe("middle_enemy");
   });
 
-  it("prefers Qi Broken enemies and falls back to formation order", () => {
+  it("prefers overloaded enemies and falls back to formation order", () => {
     const combatants = [
       combatant({ id: "hero", team: "player", formationSlot: "front" }),
       combatant({ id: "front_enemy", team: "enemy", formationSlot: "front" }),
       combatant({
-        id: "back_broken_enemy",
+        id: "back_overloaded_enemy",
         team: "enemy",
         formationSlot: "back",
-        isQiBroken: true
+        isOverloaded: true
       })
     ];
 
     expect(
-      selectTarget(combatants, "player", "inner_broken")?.instanceId
-    ).toBe("back_broken_enemy");
+      selectTarget(combatants, "player", "overloaded")?.instanceId
+    ).toBe("back_overloaded_enemy");
 
-    combatants[2].isQiBroken = false;
+    combatants[2].isOverloaded = false;
 
     expect(
-      selectTarget(combatants, "player", "inner_broken")?.instanceId
+      selectTarget(combatants, "player", "overloaded")?.instanceId
     ).toBe("front_enemy");
   });
 });

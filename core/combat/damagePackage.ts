@@ -1,14 +1,14 @@
 import type { SkillDefinition, TacticPresetDefinition } from "../data/types";
 import {
-  calculateQiBreakBacklashDamage,
-  calculateQiBreakBurst,
+  calculateAiOverloadBurst,
+  calculateAiOverloadFeedbackDamage,
   calculateInnerDamage,
   calculateOuterDamage
 } from "./formulas";
 import {
   recordBacklash,
   recordDamage,
-  recordQiBreak
+  recordAiOverload
 } from "./battleRecorder";
 import {
   applyGuardReduction,
@@ -40,11 +40,11 @@ export type AttackDamagePackage = {
   outerDamage: number;
   innerDamage: number;
   familyMultiplier: number;
-  outerDamageTakenMultiplier: number;
+  kineticDamageTakenMultiplier: number;
 };
 
-export type QiBreakDamagePackage = {
-  kind: "qi_break";
+export type AiOverloadDamagePackage = {
+  kind: "ai_overload";
   sourceId: string;
   targetId: string;
   outerDamage: number;
@@ -63,7 +63,7 @@ export type BacklashDamagePackage = {
 
 export type DamagePackage =
   | AttackDamagePackage
-  | QiBreakDamagePackage
+  | AiOverloadDamagePackage
   | BacklashDamagePackage;
 
 export type AttackDamageTargetContext = {
@@ -178,14 +178,14 @@ export function createAttackDamagePackage(input: {
     getPlayerTacticModifierValue(
       input.tactic,
       input.attacker,
-      "outer_damage_multiplier",
+      "kinetic_damage_multiplier",
       1
     ) * bossDamageMultiplier;
   const innerTacticMultiplier =
     getPlayerTacticModifierValue(
       input.tactic,
       input.attacker,
-      "inner_damage_multiplier",
+      "cognitive_damage_multiplier",
       1
     ) * bossDamageMultiplier;
   const outerDamage =
@@ -193,21 +193,21 @@ export function createAttackDamagePackage(input: {
       {
         attacker: input.attacker.stats,
         target: effectiveTargetStats,
-        skillMultiplier: input.skill.outerMultiplier,
-        targetIsQiBroken: target.isQiBroken
+        skillMultiplier: input.skill.kineticMultiplier,
+        targetIsOverloaded: target.isOverloaded
       },
       input.constants
     ) *
     familyMultiplier *
     outerTacticMultiplier *
-    targetStatusModifiers.outerDamageTakenMultiplier;
+    targetStatusModifiers.kineticDamageTakenMultiplier;
   const innerDamage =
     calculateInnerDamage(
       {
         attacker: input.attacker.stats,
         target: effectiveTargetStats,
-        skillMultiplier: input.skill.innerMultiplier,
-        targetIsQiBroken: target.isQiBroken
+        skillMultiplier: input.skill.cognitiveMultiplier,
+        targetIsOverloaded: target.isOverloaded
       },
       input.constants
     ) *
@@ -223,7 +223,7 @@ export function createAttackDamagePackage(input: {
     outerDamage,
     innerDamage,
     familyMultiplier,
-    outerDamageTakenMultiplier: targetStatusModifiers.outerDamageTakenMultiplier
+    kineticDamageTakenMultiplier: targetStatusModifiers.kineticDamageTakenMultiplier
   };
 }
 
@@ -286,17 +286,17 @@ export function commitDamagePackage(input: {
 
   const target = input.targets.damageTarget;
 
-  target.outerHp = Math.max(
+  target.bodyIntegrity = Math.max(
     0,
-    target.outerHp - input.damagePackage.outerDamage
+    target.bodyIntegrity - input.damagePackage.outerDamage
   );
-  target.innerQi = Math.max(
+  target.contextStability = Math.max(
     0,
-    target.innerQi - input.damagePackage.innerDamage
+    target.contextStability - input.damagePackage.innerDamage
   );
 
   if (input.damagePackage.innerDamage > 0) {
-    target.lastInnerDamageAt = input.time;
+    target.lastCognitiveDamageAt = input.time;
   }
 
   recordDamage(
@@ -319,43 +319,43 @@ export function commitDamagePackage(input: {
   });
 }
 
-export function createQiBreakDamagePackage(input: {
+export function createAiOverloadDamagePackage(input: {
   attacker: CombatantState;
   target: CombatantState;
   time: number;
   constants: CombatFormulaConstants;
   tactic?: TacticPresetDefinition | null;
-}): QiBreakDamagePackage {
-  const attackerBreakPower =
-    input.attacker.stats.breakPower *
+}): AiOverloadDamagePackage {
+  const attackerBreachPower =
+    input.attacker.stats.breachPower *
     getPlayerTacticModifierValue(
       input.tactic,
       input.attacker,
-      "break_power_multiplier",
+      "breach_power_multiplier",
       1
     );
-  const burst = calculateQiBreakBurst(
+  const burst = calculateAiOverloadBurst(
     {
-      targetMaxOuterHp: input.target.maxOuterHp,
-      attackerBreakPower,
-      targetBreakResist: input.target.stats.breakResist
+      targetMaxBodyIntegrity: input.target.maxBodyIntegrity,
+      attackerBreachPower,
+      targetOverloadResist: input.target.stats.overloadResist
     },
     input.constants
   );
 
   return {
-    kind: "qi_break",
+    kind: "ai_overload",
     sourceId: input.attacker.instanceId,
     targetId: input.target.instanceId,
     outerDamage: burst.damage,
     innerDamage: 0,
     burstPercent: burst.percent,
-    endsAt: input.time + input.constants.qiBreakDurationSeconds
+    endsAt: input.time + input.constants.aiOverloadDurationSeconds
   };
 }
 
-export function commitQiBreakDamagePackage(input: {
-  damagePackage: QiBreakDamagePackage;
+export function commitAiOverloadDamagePackage(input: {
+  damagePackage: AiOverloadDamagePackage;
   attacker: CombatantState;
   target: CombatantState;
   time: number;
@@ -367,19 +367,19 @@ export function commitQiBreakDamagePackage(input: {
 
   if (input.damagePackage.sourceId !== input.attacker.instanceId) {
     throw new Error(
-      `Qi Break package source ${input.damagePackage.sourceId} does not match attacking source ${input.attacker.instanceId}`
+      `AI Overload package source ${input.damagePackage.sourceId} does not match attacking source ${input.attacker.instanceId}`
     );
   }
 
-  input.target.innerQi = 0;
-  input.target.isQiBroken = true;
-  input.target.qiBreakEndsAt = input.damagePackage.endsAt;
-  input.target.outerHp = Math.max(
+  input.target.contextStability = 0;
+  input.target.isOverloaded = true;
+  input.target.overloadEndsAt = input.damagePackage.endsAt;
+  input.target.bodyIntegrity = Math.max(
     0,
-    input.target.outerHp - input.damagePackage.outerDamage
+    input.target.bodyIntegrity - input.damagePackage.outerDamage
   );
 
-  recordQiBreak(
+  recordAiOverload(
     input.metrics,
     input.contributions,
     input.attacker,
@@ -387,7 +387,7 @@ export function commitQiBreakDamagePackage(input: {
     input.damagePackage.outerDamage
   );
   input.events.push({
-    type: "qi_break",
+    type: "ai_overload",
     time: input.time,
     sourceId: input.attacker.instanceId,
     targetId: input.target.instanceId,
@@ -397,13 +397,13 @@ export function commitQiBreakDamagePackage(input: {
   });
 }
 
-export function createQiBreakBacklashDamagePackage(input: {
+export function createAiOverloadFeedbackDamagePackage(input: {
   target: CombatantState;
   constants: CombatFormulaConstants;
 }): BacklashDamagePackage {
   return createBacklashDamagePackage({
     target: input.target,
-    outerDamage: calculateQiBreakBacklashDamage(input.target.maxOuterHp, input.constants)
+    outerDamage: calculateAiOverloadFeedbackDamage(input.target.maxBodyIntegrity, input.constants)
   });
 }
 
@@ -436,9 +436,9 @@ export function commitBacklashDamagePackage(input: {
     );
   }
 
-  input.target.outerHp = Math.max(
+  input.target.bodyIntegrity = Math.max(
     0,
-    input.target.outerHp - input.damagePackage.outerDamage
+    input.target.bodyIntegrity - input.damagePackage.outerDamage
   );
   recordBacklash(
     input.metrics,

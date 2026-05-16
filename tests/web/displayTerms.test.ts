@@ -46,20 +46,20 @@ describe("Path of Neon display terms", () => {
   });
 
   it("formats internal combat stats without renaming contracts", () => {
-    expect(formatInternalStatName("outerAttack")).toBe("Kinetic Attack");
-    expect(formatInternalStatName("innerAttack")).toBe("Cognitive Attack");
-    expect(formatInternalStatName("maxOuterHp")).toBe("Max Body Integrity");
-    expect(formatInternalStatName("maxInnerQi")).toBe("Max Context Stability");
-    expect(formatInternalStatName("breakPower")).toBe("Breach Power");
+    expect(formatInternalStatName("kineticAttack")).toBe("Kinetic Attack");
+    expect(formatInternalStatName("cognitiveAttack")).toBe("Cognitive Attack");
+    expect(formatInternalStatName("maxBodyIntegrity")).toBe("Max Body Integrity");
+    expect(formatInternalStatName("maxContextStability")).toBe("Max Context Stability");
+    expect(formatInternalStatName("breachPower")).toBe("Breach Power");
   });
 
   it("formats style and tactic ids through the vocabulary layer", () => {
     expect(formatStyleFamilyName("impact")).toBe("Impact Style");
     expect(formatStyleFamilyName("ghostware")).toBe("Ghostware Style");
-    expect(formatTacticModifierLabel("outer_damage_multiplier")).toBe(
+    expect(formatTacticModifierLabel("kinetic_damage_multiplier")).toBe(
       displayTerms.combat.kineticDamage
     );
-    expect(formatTacticModifierLabel("break_power_multiplier")).toBe(
+    expect(formatTacticModifierLabel("breach_power_multiplier")).toBe(
       displayTerms.combat.breachPower
     );
   });

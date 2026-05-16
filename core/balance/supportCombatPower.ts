@@ -27,21 +27,21 @@ export function calculateSkillSupportCombatPower(
       const durationMultiplier = Math.max(1, effect.durationSeconds ?? 1);
 
       switch (effect.type) {
-        case "outer_heal_percent":
-          return effectTotal + stats.maxOuterHp * effect.value * 0.5;
-        case "inner_heal_percent":
-          return effectTotal + stats.maxInnerQi * effect.value * 0.45;
-        case "outer_regeneration_percent":
+        case "body_integrity_restore_percent":
+          return effectTotal + stats.maxBodyIntegrity * effect.value * 0.5;
+        case "context_stability_restore_percent":
+          return effectTotal + stats.maxContextStability * effect.value * 0.45;
+        case "body_integrity_regeneration_percent":
           return effectTotal +
-            stats.maxOuterHp * effect.value * durationMultiplier * 0.35;
-        case "inner_regeneration_percent":
+            stats.maxBodyIntegrity * effect.value * durationMultiplier * 0.35;
+        case "context_stability_regeneration_percent":
           return effectTotal +
-            stats.maxInnerQi * effect.value * durationMultiplier * 0.32;
+            stats.maxContextStability * effect.value * durationMultiplier * 0.32;
         case "cleanse":
           return effectTotal + 80 * Math.max(1, effect.value);
         case "guard":
         case "protect":
-          return effectTotal + stats.maxOuterHp * effect.value * 0.25;
+          return effectTotal + stats.maxBodyIntegrity * effect.value * 0.25;
         case "apply_status": {
           const definition = statusDefinitions[effect.statusId];
 
@@ -60,7 +60,7 @@ export function calculateSkillSupportCombatPower(
             estimateStatusTickDamage({
               definition,
               resistedDurationSeconds: application.resistedDurationSeconds,
-              targetMaxOuterHp: stats.maxOuterHp,
+              targetMaxBodyIntegrity: stats.maxBodyIntegrity,
               targetStatusResistance: 0,
               stacks: application.stacks,
               expectedApplications: application.expectedApplications
@@ -79,8 +79,8 @@ export function calculateSkillSupportCombatPower(
               stacks: application.stacks,
               expectedApplications: application.expectedApplications,
               resistedDurationSeconds: application.resistedDurationSeconds,
-              targetMaxOuterHp: stats.maxOuterHp,
-              enemyDps: stats.outerAttack * 0.25,
+              targetMaxBodyIntegrity: stats.maxBodyIntegrity,
+              enemyDps: stats.kineticAttack * 0.25,
               playerAttackEventsPerSecond: 0.35
             });
 

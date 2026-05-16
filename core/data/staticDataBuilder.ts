@@ -1,4 +1,5 @@
 import type { StaticGameData } from "./types";
+import { normalizeStaticCombatSchemaAliases } from "./combatSchemaAliases";
 
 export const staticGameDataPartKeys = [
   "assignments",
@@ -26,7 +27,9 @@ export type StaticGameDataParts = {
 };
 
 export function buildStaticGameData(parts: StaticGameDataParts): StaticGameData {
-  return Object.fromEntries(
-    staticGameDataPartKeys.map((key) => [key, parts[key]])
-  ) as StaticGameData;
+  return normalizeStaticCombatSchemaAliases(
+    Object.fromEntries(
+      staticGameDataPartKeys.map((key) => [key, parts[key]])
+    ) as StaticGameData
+  );
 }

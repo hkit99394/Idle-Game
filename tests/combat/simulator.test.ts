@@ -34,7 +34,7 @@ describe("combat simulator", () => {
     expect(result.metrics.playerOuterDamage).toBeGreaterThan(0);
     expect(result.metrics.playerInnerDamage).toBeGreaterThan(0);
     expect(result.events.some((event) => event.type === "attack")).toBe(true);
-    expect(result.finalEnemyTeam.every((enemy) => enemy.outerHp === 0)).toBe(true);
+    expect(result.finalEnemyTeam.every((enemy) => enemy.bodyIntegrity === 0)).toBe(true);
   });
 
   it("supports team-vs-team inputs even when the MVP enemy team has one unit", () => {
@@ -74,8 +74,8 @@ describe("combat simulator", () => {
     ).toBe(true);
   });
 
-  it("triggers Qi Break with burst, vulnerability, and recovery events", () => {
-    const qiBreakData: StaticGameData = {
+  it("triggers AI Overload with burst, vulnerability, and recovery events", () => {
+    const aiOverloadData: StaticGameData = {
       ...staticData,
       enemies: staticData.enemies.map((enemy) =>
         enemy.id === "greenline_cutter"
@@ -83,18 +83,18 @@ describe("combat simulator", () => {
               ...enemy,
               baseStats: {
                 ...enemy.baseStats,
-                maxOuterHp: 1200,
-                maxInnerQi: 45,
-                outerAttack: 0,
-                innerAttack: 0,
-                innerRecoveryRate: 0
+                maxBodyIntegrity: 1200,
+                maxContextStability: 45,
+                kineticAttack: 0,
+                cognitiveAttack: 0,
+                contextRebuildRate: 0
               }
             }
           : enemy
       )
     };
 
-    const result = simulateBattle(qiBreakData, {
+    const result = simulateBattle(aiOverloadData, {
       playerTeam: {
         id: "player",
         combatants: [{ kind: "hero", definitionId: "azure_pulse_monk" }]
@@ -106,18 +106,18 @@ describe("combat simulator", () => {
       maxDurationSeconds: 30
     });
 
-    const qiBreakEvents = result.events.filter((event) => event.type === "qi_break");
-    const recoverEvents = result.events.filter((event) => event.type === "qi_recover");
+    const aiOverloadEvents = result.events.filter((event) => event.type === "ai_overload");
+    const recoverEvents = result.events.filter((event) => event.type === "context_rebuild");
 
-    expect(qiBreakEvents.length).toBeGreaterThan(0);
+    expect(aiOverloadEvents.length).toBeGreaterThan(0);
     expect(recoverEvents.length).toBeGreaterThan(0);
-    expect(result.metrics.qiBreaksTriggeredByPlayer).toBeGreaterThan(0);
-    expect(result.metrics.playerQiBreakBurstDamage).toBeGreaterThan(0);
+    expect(result.metrics.aiOverloadsTriggeredByPlayer).toBeGreaterThan(0);
+    expect(result.metrics.playerAiOverloadBurstDamage).toBeGreaterThan(0);
     expect(
       result.contributions.some(
         (contribution) =>
           contribution.name === "Azure Pulse Monk" &&
-          contribution.qiBreaksTriggered > 0
+          contribution.aiOverloadsTriggered > 0
       )
     ).toBe(true);
   });
@@ -136,9 +136,9 @@ describe("combat simulator", () => {
               ...enemy,
               baseStats: {
                 ...enemy.baseStats,
-                maxOuterHp: 3000,
-                outerAttack: 0,
-                innerAttack: 0
+                maxBodyIntegrity: 3000,
+                kineticAttack: 0,
+                cognitiveAttack: 0
               }
             }
           : enemy
@@ -190,8 +190,8 @@ describe("combat simulator", () => {
               ...hero,
               baseStats: {
                 ...hero.baseStats,
-                outerAttack: 0,
-                innerAttack: 0
+                kineticAttack: 0,
+                cognitiveAttack: 0
               }
             }
           : hero
@@ -202,8 +202,8 @@ describe("combat simulator", () => {
               ...enemy,
               baseStats: {
                 ...enemy.baseStats,
-                outerAttack: 0,
-                innerAttack: 0
+                kineticAttack: 0,
+                cognitiveAttack: 0
               }
             }
           : enemy

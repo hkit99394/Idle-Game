@@ -145,12 +145,12 @@ describe("upgrades", () => {
       mapAttackMultiplier: 0.01
     });
 
-    expect(stats.outerAttack).toBeCloseTo(
-      hero.baseStats.outerAttack * 1.2 * 1.05 * 1.01
+    expect(stats.kineticAttack).toBeCloseTo(
+      hero.baseStats.kineticAttack * 1.2 * 1.05 * 1.01
     );
-    expect(stats.innerAttack).toBeCloseTo(hero.baseStats.innerAttack * 1.05 * 1.01);
-    expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.08 * 1.02);
-    expect(stats.maxInnerQi).toBeCloseTo(hero.baseStats.maxInnerQi * 1.02);
+    expect(stats.cognitiveAttack).toBeCloseTo(hero.baseStats.cognitiveAttack * 1.05 * 1.01);
+    expect(stats.maxBodyIntegrity).toBeCloseTo(hero.baseStats.maxBodyIntegrity * 1.08 * 1.02);
+    expect(stats.maxContextStability).toBeCloseTo(hero.baseStats.maxContextStability * 1.02);
   });
 
   it("applies hero level scaling before upgrade multipliers", () => {
@@ -178,8 +178,8 @@ describe("upgrades", () => {
       )
     });
 
-    expect(stats.outerAttack).toBeCloseTo(hero.baseStats.outerAttack * 1.06 * 1.1);
-    expect(stats.maxOuterHp).toBeCloseTo(hero.baseStats.maxOuterHp * 1.06 * 1.04);
+    expect(stats.kineticAttack).toBeCloseTo(hero.baseStats.kineticAttack * 1.06 * 1.1);
+    expect(stats.maxBodyIntegrity).toBeCloseTo(hero.baseStats.maxBodyIntegrity * 1.06 * 1.04);
   });
 
   it("applies Lotus purge training as capped team resistance with CP value", () => {
@@ -277,8 +277,8 @@ describe("upgrades", () => {
       styleMastery: progress.styleMastery
     });
 
-    expect(fistStats.outerAttack).toBeCloseTo(ironFist.baseStats.outerAttack * 1.02);
-    expect(palmStats.innerAttack).toBeCloseTo(palmMonk.baseStats.innerAttack);
+    expect(fistStats.kineticAttack).toBeCloseTo(ironFist.baseStats.kineticAttack * 1.02);
+    expect(palmStats.cognitiveAttack).toBeCloseTo(palmMonk.baseStats.cognitiveAttack);
   });
 
   it("purchases skill upgrades with cultivation", () => {
@@ -389,12 +389,12 @@ describe("upgrades", () => {
       styleBranches: selectedResult.progress.styleBranches
     });
 
-    expect(fistStats.maxOuterHp).toBeCloseTo(
-      ironFist.baseStats.maxOuterHp * 1.06 ** 2 * 1.06
+    expect(fistStats.maxBodyIntegrity).toBeCloseTo(
+      ironFist.baseStats.maxBodyIntegrity * 1.06 ** 2 * 1.06
     );
-    expect(fistStats.outerDefense).toBeCloseTo(
-      ironFist.baseStats.outerDefense * 1.06 ** 2 * 1.05
+    expect(fistStats.kineticDefense).toBeCloseTo(
+      ironFist.baseStats.kineticDefense * 1.06 ** 2 * 1.05
     );
-    expect(palmStats.maxOuterHp).toBeCloseTo(palmMonk.baseStats.maxOuterHp);
+    expect(palmStats.maxBodyIntegrity).toBeCloseTo(palmMonk.baseStats.maxBodyIntegrity);
   });
 });

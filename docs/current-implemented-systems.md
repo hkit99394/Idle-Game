@@ -23,16 +23,16 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 
 - Combat is deterministic team-vs-team battle.
 - Player and enemy combatants use formation slots: front, middle, and back.
-- Targeting supports first living, weakest HP, highest CP, and inner-broken target rules.
-- Combatants have Outer HP and Inner Qi. Dropping Outer HP to zero defeats a combatant; dropping Inner Qi to zero triggers Qi Break.
-- Qi Break applies burst HP damage, increases damage taken, causes backlash when attacking, and later restores part of Inner Qi.
+- Targeting supports first living, weakest HP, highest CP, and overloaded target rules.
+- Combatants have Body Integrity and Context Stability. Dropping Body Integrity to zero defeats a combatant; dropping Context Stability to zero triggers AI Overload.
+- AI Overload applies burst Body Integrity damage, increases damage taken, causes backlash when attacking, and later restores part of Context Stability.
 - Current combat roles are tank, breaker, striker, and support.
 - Implemented effect families include direct Outer/Inner damage, healing, regeneration, guard, protect, armor break, wound, cleanse, speed down, inner defense down, and status application.
-- Battle summaries track practical carry signals such as damage dealt, Qi breaks, protection, healing, status damage, cleanse activity, medicine use, and contribution metrics.
+- Battle summaries track practical carry signals such as damage dealt, AI Overloads, protection, healing, status damage, cleanse activity, medicine use, and contribution metrics.
 - Stage 1.8 split the combat engine into named core modules:
   - `core/combat/scheduler.ts` owns deterministic action timing and speed-down-adjusted rescheduling.
   - `core/combat/targeting.ts` owns target selection rules.
-  - `core/combat/damagePackage.ts` owns attack, Qi Break, and backlash damage packages plus guard/protection mitigation commits.
+  - `core/combat/damagePackage.ts` owns attack, AI Overload, and backlash damage packages plus guard/protection mitigation commits.
   - `core/combat/effectPipeline.ts` owns skill-effect dispatch for timed status, data status, recovery, regeneration, and cleanse behavior.
   - `core/combat/statusEffects.ts`, `statusMetadata.ts`, and `cleansePolicy.ts` own timed/data-driven status application, ticking, resistance, and cleanse metadata.
   - `core/combat/autoMedicine/` owns battle cleanse and pre-battle resistance medicine automation.
@@ -93,7 +93,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.6 static content id migration is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md), with the target matrix retained in [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md). Save version `12` normalizes save-stored content aliases, static hostile/status/initiate/protocol/style/augment/countermeasure/operation/routine ids now use their canonical Path of Neon ids, and report exports keep canonical ids primary with temporary legacy comparison columns.
 - Stage 2.7 save resource/progress field migration is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md), with the target matrix retained in [Archived Stage 2.7 Save Field Preflight](archive/stage-2.7-save-field-preflight.md). Save version `13` serializes current owned save fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `highestClearedRouteIndex`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`; legacy save fields remain import-compatible through core save aliases.
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md), covering the display-safe Path of Neon design pivot.
-- Completed backlogs through Stage 2.7 live in `docs/archive`.
+- Completed backlogs through Stage 2.8 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
@@ -103,7 +103,8 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.5 is closed and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md); `docs/stage-2.5-backlog.md` should not exist as an active backlog unless Stage 2.5 is explicitly reopened.
 - Stage 2.6 is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md); `docs/stage-2.6-backlog.md` should not exist as an active backlog unless Stage 2.6 is explicitly reopened.
 - Stage 2.7 is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md); `docs/stage-2.7-backlog.md` should not exist as an active backlog unless Stage 2.7 is explicitly reopened.
-- Stage 2.8 is active at [Stage 2.8 Backlog](stage-2.8-backlog.md), covering combat save/stat fields and combat/report symbols. `docs/stage-2.8-backlog.md` should remain active until Stage 2.8 closure validation archives it.
+- Stage 2.8 combat save/stat and report-symbol migration is closed and archived at [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md), with the target matrix retained in [Archived Stage 2.8 Combat Save And Symbol Preflight](archive/stage-2.8-combat-save-symbol-preflight.md). Stage 2.8 confirmed current saves do not persist live combat stat/event state, so save version `13` did not change; static combat schema aliases live in `core/data/combatSchemaAliases.ts`; runtime combat stats, authored static combat schema, web battle surfaces, simulator metrics, and tactic comparison exports now expose current Body Integrity, Context Stability, Kinetic/Cognitive, AI Overload, Context Rebuild, Breach Power, and Overload Resist vocabulary with documented transition fields where compatibility needs them.
+- Stage 2.9 cleanup and Cognitive Intrusion handoff is tracked at [Stage 2.9 Backlog](stage-2.9-backlog.md). It owns decisions about retiring temporary legacy tactic comparison columns, possibly renaming engine-level damage-channel internals, and refreshing the Cognitive Intrusion prototype contract on top of the current combat vocabulary.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules

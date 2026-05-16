@@ -15,18 +15,18 @@ import type {
 import { staticData } from "../helpers/staticData";
 
 const baseStats: BaseStats = {
-  maxOuterHp: 1000,
-  maxInnerQi: 500,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 1000,
+  maxContextStability: 500,
+  kineticAttack: 0,
+  cognitiveAttack: 0,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 0,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -104,21 +104,21 @@ describe("combat tactics", () => {
           id: "scenario_balanced_hit",
           name: "Scenario Balanced Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
       ],
       heroes: [
         createHero("scenario_balanced_attacker", ["scenario_balanced_hit"], {
-          outerAttack: 100,
+          kineticAttack: 100,
           speed: 1000
         })
       ],
       enemies: [
         createEnemy("scenario_balanced_target", [], {
-          maxOuterHp: 1000
+          maxBodyIntegrity: 1000
         })
       ]
     });
@@ -165,15 +165,15 @@ describe("combat tactics", () => {
           id: "scenario_outer_hit",
           name: "Scenario Outer Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
       ],
       heroes: [
         createHero("scenario_outer_attacker", ["scenario_outer_hit"], {
-          outerAttack: 100,
+          kineticAttack: 100,
           speed: 1000
         })
       ],
@@ -214,29 +214,29 @@ describe("combat tactics", () => {
           id: "scenario_boss_hit",
           name: "Scenario Boss Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
       ],
       heroes: [
         createHero("scenario_boss_attacker", ["scenario_boss_hit"], {
-          outerAttack: 100,
+          kineticAttack: 100,
           speed: 1000
         })
       ],
       enemies: [
         createEnemy("scenario_front_normal", [], {
-          maxOuterHp: 1000
+          maxBodyIntegrity: 1000
         }),
         createEnemy(
           "scenario_back_boss",
           [],
           {
-            maxOuterHp: 2000,
-            maxInnerQi: 1000,
-            outerAttack: 150
+            maxBodyIntegrity: 2000,
+            maxContextStability: 1000,
+            kineticAttack: 150
           },
           "boss"
         )
@@ -281,30 +281,30 @@ describe("combat tactics", () => {
     expect(bossBurstAttack.outerDamage).toBeCloseTo(110);
   });
 
-  it("amplifies Inner pressure Qi Break bursts deterministically", () => {
+  it("amplifies Inner pressure AI Overload bursts deterministically", () => {
     const data = withScenarioData({
       skills: [
         {
           id: "scenario_inner_hit",
           name: "Scenario Inner Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 0,
-          innerMultiplier: 1,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 1,
           targetRule: "first_living",
           effects: []
         }
       ],
       heroes: [
         createHero("scenario_inner_attacker", ["scenario_inner_hit"], {
-          innerAttack: 60,
-          breakPower: 0.1,
+          cognitiveAttack: 60,
+          breachPower: 0.1,
           speed: 1000
         })
       ],
       enemies: [
         createEnemy("scenario_elite_meridian", [], {
-          maxOuterHp: 1000,
-          maxInnerQi: 30
+          maxBodyIntegrity: 1000,
+          maxContextStability: 30
         }, "elite")
       ]
     });
@@ -329,8 +329,8 @@ describe("combat tactics", () => {
       ...battleInput,
       tacticId: "context_break"
     });
-    const balancedBreak = balanced.events.find((event) => event.type === "qi_break");
-    const tacticBreak = innerPressure.events.find((event) => event.type === "qi_break");
+    const balancedBreak = balanced.events.find((event) => event.type === "ai_overload");
+    const tacticBreak = innerPressure.events.find((event) => event.type === "ai_overload");
     const repeat = simulateBattle(data, {
       ...battleInput,
       tacticId: "context_break"
@@ -352,8 +352,8 @@ describe("combat tactics", () => {
           id: "scenario_guard",
           name: "Scenario Guard",
           cooldownSeconds: 4,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [{ type: "guard", value: 0.5, durationSeconds: 4 }]
         },
@@ -361,21 +361,21 @@ describe("combat tactics", () => {
           id: "scenario_enemy_hit",
           name: "Scenario Enemy Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
       ],
       heroes: [
         createHero("scenario_guardian", ["scenario_guard"], {
-          maxOuterHp: 1000,
+          maxBodyIntegrity: 1000,
           speed: 1000
         }, "tank")
       ],
       enemies: [
         createEnemy("scenario_guard_attacker", ["scenario_enemy_hit"], {
-          outerAttack: 100,
+          kineticAttack: 100,
           speed: 100
         })
       ]
@@ -420,14 +420,14 @@ describe("combat tactics", () => {
           id: "scenario_ally_heal",
           name: "Scenario Ally Heal",
           cooldownSeconds: 2,
-          outerMultiplier: 0,
-          innerMultiplier: 0,
+          kineticMultiplier: 0,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_heal_percent",
+              type: "body_integrity_restore_percent",
               value: 0.25,
-              target: "lowest_outer_hp_ally"
+              target: "lowest_body_integrity_ally"
             }
           ]
         },
@@ -435,23 +435,23 @@ describe("combat tactics", () => {
           id: "scenario_recovery_hit",
           name: "Scenario Recovery Hit",
           cooldownSeconds: 2,
-          outerMultiplier: 1,
-          innerMultiplier: 0,
+          kineticMultiplier: 1,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: []
         }
       ],
       heroes: [
         createHero("scenario_recovery_tank", [], {
-          maxOuterHp: 240
+          maxBodyIntegrity: 240
         }, "tank"),
         createHero("scenario_healer", ["scenario_ally_heal"], {
-          maxOuterHp: 240
+          maxBodyIntegrity: 240
         }, "support")
       ],
       enemies: [
         createEnemy("scenario_recovery_attacker", ["scenario_recovery_hit"], {
-          outerAttack: 100,
+          kineticAttack: 100,
           speed: 100
         })
       ]
@@ -490,8 +490,8 @@ describe("combat tactics", () => {
     );
 
     expect(longStabilization.finalPlayerTeam[0]?.stats.statusResistance).toBeCloseTo(0.08);
-    expect(longStabilizationHeal?.outerHealing).toBeGreaterThan(
-      balancedHeal?.outerHealing ?? 0
+    expect(longStabilizationHeal?.bodyIntegrityRestored).toBeGreaterThan(
+      balancedHeal?.bodyIntegrityRestored ?? 0
     );
   });
 

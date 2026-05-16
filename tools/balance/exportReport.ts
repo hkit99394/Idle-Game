@@ -54,7 +54,7 @@ export const BALANCE_STAGE_EXPORT_CSV_HEADERS = [
   "recovery_prevented"
 ] as const;
 
-export const TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION = 3;
+export const TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION = 4;
 
 export const TACTIC_COMPARISON_CSV_HEADERS = [
   "tactic_id",
@@ -105,6 +105,10 @@ export const TACTIC_COMPARISON_CSV_HEADERS = [
   "defensive_damage_prevented_delta",
   "recovery_prevented",
   "recovery_prevented_delta",
+  "player_kinetic_damage",
+  "player_kinetic_damage_delta",
+  "player_cognitive_damage",
+  "player_cognitive_damage_delta",
   "player_outer_damage",
   "player_outer_damage_delta",
   "player_inner_damage",
@@ -478,6 +482,10 @@ function tacticComparisonRowToCsvCells(row: TacticComparisonExportRow): unknown[
     row.pressureDeltas.defensiveDamagePrevented,
     row.pressure.recoveryPrevented,
     row.pressureDeltas.recoveryPrevented,
+    row.contributionMetrics.playerKineticDamage,
+    row.contributionDeltas.playerKineticDamage,
+    row.contributionMetrics.playerCognitiveDamage,
+    row.contributionDeltas.playerCognitiveDamage,
     row.contributionMetrics.playerOuterDamage,
     row.contributionDeltas.playerOuterDamage,
     row.contributionMetrics.playerInnerDamage,

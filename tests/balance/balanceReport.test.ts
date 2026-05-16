@@ -239,7 +239,7 @@ describe("balance report", () => {
       enemyFamily: "redline",
       enemyCombatRole: "breaker",
       heroStats: {
-        maxOuterHp: 3000
+        maxBodyIntegrity: 3000
       },
       statusEffects: [{ statusId: "corruption" }, { statusId: "context_suppression" }],
       stageName: "Balance Status Parity Stage",
@@ -312,9 +312,9 @@ describe("balance report", () => {
               ...enemy,
               baseStats: {
                 ...enemy.baseStats,
-                maxOuterHp: enemy.baseStats.maxOuterHp * 1.4,
-                outerAttack: enemy.baseStats.outerAttack * 0.4,
-                innerAttack: enemy.baseStats.innerAttack * 0.4
+                maxBodyIntegrity: enemy.baseStats.maxBodyIntegrity * 1.4,
+                kineticAttack: enemy.baseStats.kineticAttack * 0.4,
+                cognitiveAttack: enemy.baseStats.cognitiveAttack * 0.4
               }
             }
           : enemy

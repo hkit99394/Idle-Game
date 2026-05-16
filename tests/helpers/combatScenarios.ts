@@ -10,18 +10,18 @@ import {
 import { staticData } from "./staticData";
 
 export const combatScenarioBaseStats: BaseStats = {
-  maxOuterHp: 600,
-  maxInnerQi: 300,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 600,
+  maxContextStability: 300,
+  kineticAttack: 0,
+  cognitiveAttack: 0,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 100,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -32,8 +32,8 @@ export function createScenarioSkill(
   return {
     name: skill.id,
     cooldownSeconds: 1,
-    outerMultiplier: 0,
-    innerMultiplier: 0,
+    kineticMultiplier: 0,
+    cognitiveMultiplier: 0,
     targetRule: "first_living",
     effects: [],
     ...skill
@@ -115,12 +115,12 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
       createScenarioSkill({
         id: "scenario_outer_combo",
         name: "Scenario Outer Combo",
-        outerMultiplier: 1
+        kineticMultiplier: 1
       }),
       createScenarioSkill({
         id: "scenario_inner_break",
         name: "Scenario Inner Break",
-        innerMultiplier: 1
+        cognitiveMultiplier: 1
       }),
       createScenarioSkill({
         id: "scenario_guard",
@@ -137,9 +137,9 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
         name: "Scenario Heal",
         effects: [
           {
-            type: "outer_heal_percent",
+            type: "body_integrity_restore_percent",
             value: 0.25,
-            target: "lowest_outer_hp_ally"
+            target: "lowest_body_integrity_ally"
           }
         ]
       }),
@@ -159,12 +159,12 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
     ],
     heroes: [
       createScenarioHero("scenario_trace_striker", ["scenario_outer_combo"], {
-        outerAttack: 120,
+        kineticAttack: 120,
         speed: 100
       }),
       createScenarioHero("scenario_trace_breaker", ["scenario_inner_break"], {
-        innerAttack: 90,
-        breakPower: 30,
+        cognitiveAttack: 90,
+        breachPower: 30,
         speed: 100
       }, "breaker"),
       createScenarioHero("scenario_trace_support", ["scenario_heal"], {
@@ -173,17 +173,17 @@ export function createCombatBaselineFixture(): CombatBaselineFixture {
     ],
     enemies: [
       createScenarioEnemy("scenario_trace_guardian", ["scenario_guard"], {
-        maxOuterHp: 900,
-        maxInnerQi: 120,
+        maxBodyIntegrity: 900,
+        maxContextStability: 120,
         speed: 100
       }, "tank"),
       createScenarioEnemy("scenario_trace_protector", ["scenario_protect"], {
-        maxOuterHp: 900,
-        maxInnerQi: 180,
+        maxBodyIntegrity: 900,
+        maxContextStability: 180,
         speed: 100
       }, "tank"),
       createScenarioEnemy("scenario_trace_poisoner", ["scenario_poison_touch"], {
-        outerAttack: 80,
+        kineticAttack: 80,
         speed: 100,
         statusAccuracy: 1
       })

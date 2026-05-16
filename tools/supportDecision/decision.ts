@@ -332,13 +332,13 @@ function estimateHeroCp(
   scenarioResistanceBonus: number
 ): number {
   return (
-    stats.maxOuterHp * 0.6 +
-    stats.maxInnerQi * 0.25 +
-    (stats.outerAttack + stats.innerAttack) * 12 +
-    (stats.outerDefense + stats.innerDefense) * 7 +
+    stats.maxBodyIntegrity * 0.6 +
+    stats.maxContextStability * 0.25 +
+    (stats.kineticAttack + stats.cognitiveAttack) * 12 +
+    (stats.kineticDefense + stats.cognitiveDefense) * 7 +
     stats.speed * 4 +
-    stats.breakPower * 500 +
-    stats.breakResist * 350 +
+    stats.breachPower * 500 +
+    stats.overloadResist * 350 +
     stats.statusAccuracy * 600 +
     calculateEffectiveStatusResistance(
       stats.statusResistance,

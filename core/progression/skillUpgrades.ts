@@ -92,8 +92,8 @@ export function applySkillUpgradesToSkill(
   levels: Record<string, number>
 ): SkillDefinition {
   let cooldownSeconds = skill.cooldownSeconds;
-  let outerMultiplier = skill.outerMultiplier;
-  let innerMultiplier = skill.innerMultiplier;
+  let kineticMultiplier = skill.kineticMultiplier;
+  let cognitiveMultiplier = skill.cognitiveMultiplier;
   const effects = [...skill.effects];
 
   for (const upgrade of skillUpgrades) {
@@ -113,12 +113,12 @@ export function applySkillUpgradesToSkill(
           cooldownSeconds += effect.valuePerLevel * level;
           break;
 
-        case "outer_multiplier":
-          outerMultiplier += effect.valuePerLevel * level;
+        case "kinetic_multiplier":
+          kineticMultiplier += effect.valuePerLevel * level;
           break;
 
-        case "inner_multiplier":
-          innerMultiplier += effect.valuePerLevel * level;
+        case "cognitive_multiplier":
+          cognitiveMultiplier += effect.valuePerLevel * level;
           break;
 
         case "add_skill_effect":
@@ -133,8 +133,8 @@ export function applySkillUpgradesToSkill(
   return {
     ...skill,
     cooldownSeconds: Math.max(0, cooldownSeconds),
-    outerMultiplier: Math.max(0, outerMultiplier),
-    innerMultiplier: Math.max(0, innerMultiplier),
+    kineticMultiplier: Math.max(0, kineticMultiplier),
+    cognitiveMultiplier: Math.max(0, cognitiveMultiplier),
     effects
   };
 }

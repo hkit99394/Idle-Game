@@ -37,7 +37,7 @@ export function CombatantCard({ combatant }: CombatantCardProps) {
       className={`combatant-card ${combatant.kind} ${
         combatant.isDefeated ? "defeated" : ""
       } ${
-        combatant.isQiBroken ? "qi-broken" : ""
+        combatant.isOverloaded ? "overloaded" : ""
       }`}
     >
       <div className="combatant-heading">
@@ -56,21 +56,21 @@ export function CombatantCard({ combatant }: CombatantCardProps) {
       <StatBar
         className="outer"
         label={displayTerms.combat.bodyIntegrity}
-        current={combatant.outerHp}
-        max={combatant.maxOuterHp}
+        current={combatant.bodyIntegrity}
+        max={combatant.maxBodyIntegrity}
       />
       <StatBar
         className="inner"
         label={displayTerms.combat.contextStability}
-        current={combatant.innerQi}
-        max={combatant.maxInnerQi}
+        current={combatant.contextStability}
+        max={combatant.maxContextStability}
       />
       <div className="combatant-stats">
         <span>
-          {displayTerms.combat.kineticAttack} {formatNumber(combatant.outerAttack)}
+          {displayTerms.combat.kineticAttack} {formatNumber(combatant.kineticAttack)}
         </span>
         <span>
-          {displayTerms.combat.cognitiveAttack} {formatNumber(combatant.innerAttack)}
+          {displayTerms.combat.cognitiveAttack} {formatNumber(combatant.cognitiveAttack)}
         </span>
         <span>Speed {formatNumber(combatant.speed)}</span>
       </div>
@@ -81,10 +81,10 @@ export function CombatantCard({ combatant }: CombatantCardProps) {
           ))}
         </div>
       ) : null}
-      {combatant.isQiBroken || combatant.isDefeated ? (
+      {combatant.isOverloaded || combatant.isDefeated ? (
         <div
           className={`combatant-status ${
-            combatant.isDefeated ? "defeated-status" : "qi-broken-status"
+            combatant.isDefeated ? "defeated-status" : "overloaded-status"
           }`}
         >
           {combatant.isDefeated ? "Defeated" : "Overloaded"}

@@ -62,8 +62,8 @@ const statusPreviewData: StaticGameData = {
       id: "test_poison_hex",
       name: "Test Corruption Hex",
       cooldownSeconds: 1,
-      outerMultiplier: 0,
-      innerMultiplier: 0,
+      kineticMultiplier: 0,
+      cognitiveMultiplier: 0,
       targetRule: "first_living",
       effects: [
         {
@@ -79,8 +79,8 @@ const statusPreviewData: StaticGameData = {
       id: "test_meridian_lock",
       name: "Test Meridian Lock",
       cooldownSeconds: 1,
-      outerMultiplier: 0,
-      innerMultiplier: 0,
+      kineticMultiplier: 0,
+      cognitiveMultiplier: 0,
       targetRule: "first_living",
       effects: [
         {
@@ -96,8 +96,8 @@ const statusPreviewData: StaticGameData = {
       id: "test_vulnerability_hex",
       name: "Test Vulnerability Hex",
       cooldownSeconds: 1,
-      outerMultiplier: 0,
-      innerMultiplier: 0,
+      kineticMultiplier: 0,
+      cognitiveMultiplier: 0,
       targetRule: "first_living",
       effects: [
         {
@@ -113,8 +113,8 @@ const statusPreviewData: StaticGameData = {
       id: "test_wound_hex",
       name: "Test Trauma Hex",
       cooldownSeconds: 1,
-      outerMultiplier: 0,
-      innerMultiplier: 0,
+      kineticMultiplier: 0,
+      cognitiveMultiplier: 0,
       targetRule: "first_living",
       effects: [
         {

@@ -9,7 +9,7 @@
     "maxLevel": 5,
     "effects": [
       { "type": "cooldown_seconds", "valuePerLevel": -0.12 },
-      { "type": "outer_multiplier", "valuePerLevel": 0.08 }
+      { "type": "kinetic_multiplier", "valuePerLevel": 0.08 }
     ]
   },
   {
@@ -22,7 +22,7 @@
     "maxLevel": 5,
     "effects": [
       { "type": "cooldown_seconds", "valuePerLevel": -0.12 },
-      { "type": "inner_multiplier", "valuePerLevel": 0.08 }
+      { "type": "cognitive_multiplier", "valuePerLevel": 0.08 }
     ]
   },
   {
@@ -35,8 +35,8 @@
     "maxLevel": 5,
     "effects": [
       { "type": "cooldown_seconds", "valuePerLevel": -0.1 },
-      { "type": "outer_multiplier", "valuePerLevel": 0.04 },
-      { "type": "inner_multiplier", "valuePerLevel": 0.04 },
+      { "type": "kinetic_multiplier", "valuePerLevel": 0.04 },
+      { "type": "cognitive_multiplier", "valuePerLevel": 0.04 },
       {
         "type": "add_skill_effect",
         "unlockLevel": 3,
@@ -59,8 +59,8 @@
     "maxLevel": 5,
     "effects": [
       { "type": "cooldown_seconds", "valuePerLevel": -0.14 },
-      { "type": "outer_multiplier", "valuePerLevel": 0.04 },
-      { "type": "inner_multiplier", "valuePerLevel": 0.04 }
+      { "type": "kinetic_multiplier", "valuePerLevel": 0.04 },
+      { "type": "cognitive_multiplier", "valuePerLevel": 0.04 }
     ]
   },
   {
@@ -73,7 +73,7 @@
     "maxLevel": 5,
     "effects": [
       { "type": "cooldown_seconds", "valuePerLevel": -0.12 },
-      { "type": "inner_multiplier", "valuePerLevel": 0.04 }
+      { "type": "cognitive_multiplier", "valuePerLevel": 0.04 }
     ]
   }
 ]

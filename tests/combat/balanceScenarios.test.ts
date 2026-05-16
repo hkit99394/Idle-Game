@@ -63,7 +63,7 @@ describe("balance-critical combat scenarios", () => {
     });
   });
 
-  it("captures Inner Qi pressure enemies that can break a player hero", () => {
+  it("captures Context Stability pressure enemies that can overload a player hero", () => {
     const innerPressureData: StaticGameData = {
       ...staticData,
       enemies: [
@@ -76,12 +76,12 @@ describe("balance-critical combat scenarios", () => {
           skillIds: ["valley_context_seal"],
           baseStats: {
             ...staticData.enemies[0].baseStats,
-            maxOuterHp: 2000,
-            maxInnerQi: 500,
-            outerAttack: 0,
-            innerAttack: 120,
+            maxBodyIntegrity: 2000,
+            maxContextStability: 500,
+            kineticAttack: 0,
+            cognitiveAttack: 120,
             speed: 120,
-            breakPower: 0.2
+            breachPower: 0.2
           }
         }
       ]
@@ -99,10 +99,10 @@ describe("balance-critical combat scenarios", () => {
       maxDurationSeconds: 12
     });
 
-    expect(result.metrics.qiBreaksTriggeredByEnemy).toBeGreaterThan(0);
+    expect(result.metrics.aiOverloadsTriggeredByEnemy).toBeGreaterThan(0);
     expect(
       result.events.some(
-        (event) => event.type === "qi_break" && event.targetId.startsWith("player_")
+        (event) => event.type === "ai_overload" && event.targetId.startsWith("player_")
       )
     ).toBe(true);
   });
@@ -116,12 +116,12 @@ describe("balance-critical combat scenarios", () => {
           id: "lotus_stabilizer_pulse",
           name: "Lotus Stabilizer Pulse",
           cooldownSeconds: 2,
-          outerMultiplier: 0.25,
-          innerMultiplier: 0,
+          kineticMultiplier: 0.25,
+          cognitiveMultiplier: 0,
           targetRule: "first_living",
           effects: [
             {
-              type: "outer_heal_percent",
+              type: "body_integrity_restore_percent",
               value: 0.2
             }
           ]
@@ -137,12 +137,12 @@ describe("balance-critical combat scenarios", () => {
           skillIds: ["lotus_stabilizer_pulse"],
           baseStats: {
             ...staticData.enemies[0].baseStats,
-            maxOuterHp: 900,
-            maxInnerQi: 400,
-            outerAttack: 8,
-            innerAttack: 0,
+            maxBodyIntegrity: 900,
+            maxContextStability: 400,
+            kineticAttack: 8,
+            cognitiveAttack: 0,
             speed: 5,
-            innerRecoveryRate: 0.02
+            contextRebuildRate: 0.02
           }
         }
       ]

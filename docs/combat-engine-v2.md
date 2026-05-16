@@ -20,24 +20,24 @@ This guide is for new contributors working on the combat engine produced by Stag
    - `createLookup` indexes heroes, enemies, skills, skill upgrades, and status definitions.
    - `resolvePlayerTactic` resolves `input.tacticId` to a validated tactic preset, defaulting missing or unknown ids to `balanced_routine`.
    - `applyPreBattleAutoMedicine` may consume pre-battle resistance medicine before combatants are created.
-   - `createCombatantState` derives stats, applies player-side tactic status resistance, initial HP/Qi, cooldown state, formation slot, family multipliers, timed status fields, data status list, and first `nextActionAt`.
+   - `createCombatantState` derives stats, applies player-side tactic status resistance, initial Body Integrity/Context Stability, cooldown state, formation slot, family multipliers, timed status fields, data status list, and first `nextActionAt`.
 2. Step advance phase:
    - `expireStatusEffects` clears expired timed statuses and medicine resistance bonuses.
    - `advanceCombatantDataStatuses` advances `activeStatuses`, applies status tick damage, records `status_tick`/`status_expire`, and marks defeats.
-   - `recoverQiBreaks` ends Qi Break windows and restores inner Qi.
-   - `recoverInnerQi` restores inner Qi after the configured delay, with data-status recovery modifiers.
+   - `recoverAiOverloads` ends AI Overload windows and restores Context Stability.
+   - `rebuildContextStability` restores Context Stability after the configured delay, with data-status Context Rebuild modifiers.
    - `tickRegeneration` applies timed regeneration ticks.
 3. Action phase:
    - Combatants are visited in runtime array order.
    - `canCombatantActAt` checks living state and `nextActionAt`.
    - `chooseSkill` selects the first ready configured skill, applies skill upgrades, or falls back to `baseline_strike`.
    - `resolveAttackDamageTargets` selects the intended enemy target, applying player tactic target priorities when present, and may redirect damage to a protector.
-   - `createAttackDamagePackage` calculates outer/inner damage from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, Qi Break modifiers, and data status modifiers.
+   - `createAttackDamagePackage` calculates Kinetic/Cognitive damage-channel values from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, AI Overload modifiers, and data status modifiers.
    - `applyDamagePackageMitigation` applies guard first, then protection.
-   - `commitDamagePackage` mutates target HP/Qi and records attack damage.
+   - `commitDamagePackage` mutates target Body Integrity/Context Stability and records attack damage.
    - `applyTimedSkillEffects` handles post-attack timed/status effects.
    - `applyRecoverySkillEffects` handles heals, regeneration setup, and cleanse.
-   - `applyQiBreakIfNeeded`, defeat checks, Qi Break backlash, and data-status attack backlash run after skill effects.
+   - `applyAiOverloadIfNeeded`, defeat checks, AI Overload feedback/backlash, and data-status attack backlash run after skill effects.
    - Skill cooldown and `scheduleNextAction` update the attacker.
    - `applyBattleCleanseAutoMedicine` may cleanse player combatants after each combatant action.
    - Winner is checked after each combatant's action block.
@@ -55,7 +55,7 @@ Skill effects start in static data and end in `core/combat/effectPipeline.ts`.
 5. If the effect emits a battle event, extend `BattleEvent` in `core/combat/types.ts`, `BATTLE_EVENT_TYPES` in `battleRecorder.ts`, and `getBattleEventStatusId` in `statusMetadata.ts` when the event carries a status.
 6. Add focused tests under `tests/combat`, plus data validation coverage when the effect can appear in JSON.
 
-Inside `effectPipeline.ts`, use the local `selectEffectTarget`/`selectOffensiveEffectTarget` helpers for effect target semantics. Current supported targets are `self`, `target`, `lowest_outer_hp_ally`, `lowest_inner_qi_ally`, and `wounded_or_armor_broken_ally`.
+Inside `effectPipeline.ts`, use the local `selectEffectTarget`/`selectOffensiveEffectTarget` helpers for effect target semantics. Current supported targets are `self`, `target`, `lowest_body_integrity_ally`, `lowest_context_stability_ally`, and `wounded_or_armor_broken_ally`.
 
 ## Where to add a status hook
 
@@ -74,10 +74,10 @@ Auto-medicine interacts with status hooks through `core/combat/autoMedicine/appl
 - Raw package creation belongs in `core/combat/damagePackage.ts`. Keep package creation separate from mutation so target/source invariants stay enforceable.
 - Target stat reductions before damage belong in `getEffectiveTargetStats` in `core/combat/defensivePipeline.ts`.
 - Damage prevention or redirection belongs in `applyDamagePackageMitigation`, `applyGuardReduction`, `findProtector`, or `applyProtectionReduction`.
-- HP/Qi mutation and attack/Qi Break/backlash events belong in the commit functions in `damagePackage.ts`.
+- Body Integrity/Context Stability mutation and attack/AI Overload/backlash events belong in the commit functions in `damagePackage.ts`.
 - Aggregate and per-combatant accounting belongs in `battleRecorder.ts`.
 
-Guard currently reduces outer damage and is countered by armor break. Protection can redirect to a living ally in an earlier formation slot and reduces both outer and inner damage after guard.
+Guard currently reduces Kinetic damage and is countered by armor break. Protection can redirect to a living ally in an earlier formation slot and reduces both Kinetic and Cognitive damage after guard.
 
 Player tactic presets live in static data, are normalized for saves by `core/progression/tactics.ts`, and are resolved at battle runtime by `core/combat/tactics.ts`. Keep tactic behavior player-side for now and route new tactic effects through the existing targeting, damage package, defensive, recovery, status, or auto-medicine owners instead of mutating skill definitions.
 
@@ -103,6 +103,7 @@ Battle events are the detailed replay contract; metrics and contributions are ag
 - Initialize new aggregate fields in `createInitialMetrics` and update `finalizeMetrics` if derived fields depend on them.
 - Initialize new per-combatant fields in `createInitialContributions` and finalize survival in `finalizeContributions`.
 - Record metrics at the mutation point that owns the behavior: damage packages for damage, defensive pipeline for prevention, effect pipeline for healing/cleanse/status effects, simulator status advancement for data-status ticks.
+- Current simulator and tactic comparison report surfaces expose Kinetic/Cognitive damage-channel names. Temporary legacy `outer` / `inner` aggregate fields and CSV columns remain only for Stage 2.8 comparison compatibility.
 
 ## Boundary rules
 

@@ -4,18 +4,18 @@ import type { BaseStats, StaticGameData } from "../../core";
 import { staticData } from "../helpers/staticData";
 
 const baseStats: BaseStats = {
-  maxOuterHp: 1000,
-  maxInnerQi: 500,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 1000,
+  maxContextStability: 500,
+  kineticAttack: 0,
+  cognitiveAttack: 0,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 0,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -64,8 +64,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_guard_stance",
         name: "Scenario Guard Stance",
         cooldownSeconds: 4,
-        outerMultiplier: 0,
-        innerMultiplier: 0,
+        kineticMultiplier: 0,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: [{ type: "guard", value: 0.5, durationSeconds: 4 }]
       },
@@ -73,8 +73,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_protect_stance",
         name: "Scenario Protect Stance",
         cooldownSeconds: 4,
-        outerMultiplier: 0,
-        innerMultiplier: 0,
+        kineticMultiplier: 0,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: [{ type: "protect", value: 0.5, durationSeconds: 4 }]
       },
@@ -82,8 +82,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_heavy_strike",
         name: "Scenario Heavy Strike",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: []
       },
@@ -91,8 +91,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_highest_cp_strike",
         name: "Scenario Highest CP Strike",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "highest_cp",
         effects: []
       },
@@ -100,8 +100,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_armor_break_hit",
         name: "Scenario Armor Break Hit",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: [{ type: "armor_break", value: 0.5, durationSeconds: 5 }]
       },
@@ -109,8 +109,8 @@ function createDefensiveData(): StaticGameData {
         id: "scenario_plain_hit",
         name: "Scenario Plain Hit",
         cooldownSeconds: 2,
-        outerMultiplier: 1,
-        innerMultiplier: 0,
+        kineticMultiplier: 1,
+        cognitiveMultiplier: 0,
         targetRule: "first_living",
         effects: []
       }
@@ -118,53 +118,53 @@ function createDefensiveData(): StaticGameData {
     heroes: [
       ...staticData.heroes,
       createHero("scenario_striker", ["scenario_heavy_strike"], {
-        outerAttack: 100
+        kineticAttack: 100
       }),
       createHero("scenario_breaker", ["scenario_armor_break_hit"], {
-        outerAttack: 140
+        kineticAttack: 140
       }),
       createHero("scenario_plain_striker", ["scenario_plain_hit"], {
-        outerAttack: 140
+        kineticAttack: 140
       }),
       createHero("scenario_front_protector", ["scenario_protect_stance"], {
         speed: 100,
-        maxOuterHp: 2000
+        maxBodyIntegrity: 2000
       }),
       createHero("scenario_middle_protector", ["scenario_protect_stance"], {
         speed: 100,
-        maxOuterHp: 2000
+        maxBodyIntegrity: 2000
       }),
       createHero("scenario_front_target", ["baseline_strike"], {
-        maxOuterHp: 2000
+        maxBodyIntegrity: 2000
       }),
       createHero("scenario_middle_target", ["baseline_strike"], {
-        maxOuterHp: 2000,
-        outerAttack: 80
+        maxBodyIntegrity: 2000,
+        kineticAttack: 80
       }),
       createHero("scenario_back_target", ["baseline_strike"], {
-        maxOuterHp: 2000,
-        outerAttack: 100
+        maxBodyIntegrity: 2000,
+        kineticAttack: 100
       })
     ],
     enemies: [
       ...staticData.enemies,
       createEnemy("scenario_guardian", ["scenario_guard_stance"], {
         speed: 100,
-        maxOuterHp: 1000
+        maxBodyIntegrity: 1000
       }),
       createEnemy("scenario_attacker", ["scenario_highest_cp_strike"], {
-        outerAttack: 100,
-        maxOuterHp: 4000
+        kineticAttack: 100,
+        maxBodyIntegrity: 4000
       }),
       createEnemy("scenario_front_attacker", ["scenario_heavy_strike"], {
-        outerAttack: 100,
+        kineticAttack: 100,
         speed: 100,
-        maxOuterHp: 4000
+        maxBodyIntegrity: 4000
       }),
       createEnemy("scenario_defender", ["scenario_guard_stance"], {
         speed: 100,
-        maxOuterHp: 1200,
-        outerDefense: 80
+        maxBodyIntegrity: 1200,
+        kineticDefense: 80
       })
     ]
   };
@@ -302,8 +302,8 @@ describe("defensive combat effects", () => {
             formationSlot: "front",
             statsOverride: {
               ...baseStats,
-              maxOuterHp: 40,
-              maxInnerQi: 500,
+              maxBodyIntegrity: 40,
+              maxContextStability: 500,
               speed: 100
             }
           },
@@ -362,7 +362,7 @@ describe("defensive combat effects", () => {
     expect(armorBreakResult.events.some((event) => event.type === "armor_break")).toBe(
       true
     );
-    expect(armorBreakResult.events.some((event) => event.type === "qi_break")).toBe(
+    expect(armorBreakResult.events.some((event) => event.type === "ai_overload")).toBe(
       false
     );
     expect(armorBreakResult.durationSeconds).toBeLessThan(

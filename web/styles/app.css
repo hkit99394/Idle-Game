@@ -1620,7 +1620,7 @@ h2 {
   opacity: 0.64;
 }
 
-.combatant-card.qi-broken {
+.combatant-card.overloaded {
   border-color: var(--neon-magenta);
   background: var(--neon-magenta-soft);
 }
@@ -1815,7 +1815,7 @@ h2 {
   font-weight: 800;
 }
 
-.combatant-status.qi-broken-status {
+.combatant-status.overloaded-status {
   border-color: var(--neon-magenta);
   background: var(--neon-magenta-soft);
   color: #70265c;
@@ -1902,13 +1902,13 @@ h2 {
   border-color: var(--neon-cyan);
 }
 
-.event-row.qi_break {
+.event-row.ai_overload {
   border-color: var(--neon-magenta);
   background: linear-gradient(90deg, var(--neon-magenta-soft), #fff7fc);
   box-shadow: inset 0 0 0 1px #e7b7dc;
 }
 
-.event-row.qi_recover {
+.event-row.context_rebuild {
   border-color: var(--neon-cyan);
 }
 
@@ -2004,7 +2004,7 @@ h2 {
 }
 
 .event-badges .inner,
-.event-badges .qi {
+.event-badges .overload {
   border-color: #96cbd0;
   background: var(--neon-cyan-soft);
   color: var(--neon-cyan);

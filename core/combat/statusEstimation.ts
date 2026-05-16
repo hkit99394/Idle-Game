@@ -47,7 +47,7 @@ export function estimateStatusApplication(input: {
 export function estimateStatusTickDamage(input: {
   definition: StatusEffectDefinition;
   resistedDurationSeconds: number;
-  targetMaxOuterHp: number;
+  targetMaxBodyIntegrity: number;
   targetStatusResistance: number;
   stacks: number;
   expectedApplications: number;
@@ -58,7 +58,7 @@ export function estimateStatusTickDamage(input: {
 
   const damagePerTick = calculateStatusTickOuterDamage({
     definition: input.definition,
-    targetMaxOuterHp: input.targetMaxOuterHp,
+    targetMaxBodyIntegrity: input.targetMaxBodyIntegrity,
     stacks: input.stacks,
     targetStatusResistance: input.targetStatusResistance
   });
@@ -96,14 +96,14 @@ export function estimateStatusModifierDamage(input: {
   stacks: number;
   expectedApplications: number;
   resistedDurationSeconds: number;
-  targetMaxOuterHp: number;
+  targetMaxBodyIntegrity: number;
   enemyDps: number;
   playerAttackEventsPerSecond: number;
 }): number {
   const vulnerabilityMultiplier =
-    input.definition.effects.outerDamageTakenMultiplier === undefined
+    input.definition.effects.kineticDamageTakenMultiplier === undefined
       ? 1
-      : input.definition.effects.outerDamageTakenMultiplier ** input.stacks;
+      : input.definition.effects.kineticDamageTakenMultiplier ** input.stacks;
   const vulnerabilityDamage =
     vulnerabilityMultiplier > 1
       ? input.enemyDps *
@@ -112,10 +112,10 @@ export function estimateStatusModifierDamage(input: {
         input.expectedApplications
       : 0;
   const backlashDamage =
-    input.definition.effects.attackBacklashOuterHpPercent === undefined
+    input.definition.effects.feedbackBodyIntegrityPercent === undefined
       ? 0
-      : input.targetMaxOuterHp *
-        input.definition.effects.attackBacklashOuterHpPercent *
+      : input.targetMaxBodyIntegrity *
+        input.definition.effects.feedbackBodyIntegrityPercent *
         input.stacks *
         input.playerAttackEventsPerSecond *
         input.resistedDurationSeconds *

@@ -4,7 +4,7 @@
 
 This map is the display-language contract for the Path of Neon retheme. It keeps mechanics recognizable while allowing player-facing copy, content names, and visual design to move away from pure martial fantasy.
 
-Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them in compatibility-backed slices, not during casual UI copy replacement. Stage 2.5 migrated region and route id values such as `greenline_approach` and `redline_outpost`; Stage 2.6 migrated static content ids such as `greenline_cutter`, `corruption`, `iron_fist_initiate`, `impact_combo`, `impact_training_wraps`, `clear_heart_countermeasure`, `greenline_sweep`, and `balanced_routine`; Stage 2.7 migrated owned save resource/progress fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`. Static-data fields, test fixture compatibility inputs, API envelope fields, and combat fields may still keep technical names such as `cultivation`, `silver`, `sect`, or `innerQi` until their owning migration stage lands. [Stage 2.8 Backlog](stage-2.8-backlog.md) now owns the planning pass for combat save/stat fields, combat symbols, and report fields. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
+Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them in compatibility-backed slices, not during casual UI copy replacement. Stage 2.5 migrated region and route id values such as `greenline_approach` and `redline_outpost`; Stage 2.6 migrated static content ids such as `greenline_cutter`, `corruption`, `iron_fist_initiate`, `impact_combo`, `impact_training_wraps`, `clear_heart_countermeasure`, `greenline_sweep`, and `balanced_routine`; Stage 2.7 migrated owned save resource/progress fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`; Stage 2.8 migrated owned combat runtime/static/report fields such as `bodyIntegrity`, `contextStability`, `kineticAttack`, `cognitiveAttack`, `ai_overload`, and tactic comparison `playerKineticDamage` / `playerCognitiveDamage`. Static-data fields, test fixture compatibility inputs, API envelope fields, and deferred taxonomy fields may still keep technical names such as `cultivation`, `silver`, `sect`, `inner_defense_down`, or `inner` until their owning cleanup stage lands. [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md) and [Archived Stage 2.8 Combat Save And Symbol Preflight](archive/stage-2.8-combat-save-symbol-preflight.md) record the completed combat migration. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
 
 Use this map in three different ways:
 
@@ -45,15 +45,15 @@ Use this map in three different ways:
 | --- | --- | --- |
 | Outer Art | Kinetic Art | Display rename. |
 | Inner Art | Cognitive Art | Display rename. |
-| Outer HP | Body Integrity | Display term first; migrate `outerHp` / `maxOuterHp` only after combat stat naming is final. |
-| Inner Qi | Context Stability | Display term first; migrate `innerQi` / `maxInnerQi` only after combat stat naming is final. |
-| Qi Break | AI Overload | Display term first; migrate event/internal names during combat-symbol migration. |
-| Qi Broken | Overloaded | Display rename. |
+| Outer HP | Body Integrity | Stage 2.8 migrated owned runtime/static schema fields to `bodyIntegrity` / `maxBodyIntegrity`; legacy aliases remain compatibility-only. |
+| Inner Qi | Context Stability | Stage 2.8 migrated owned runtime/static schema fields to `contextStability` / `maxContextStability`; legacy aliases remain compatibility-only. |
+| Qi Break | AI Overload | Stage 2.8 migrated event/report names to `ai_overload` / `aiOverload*`; legacy event normalization remains compatibility-only. |
+| Qi Broken | Overloaded | Runtime targeting now uses `overloaded`; legacy static target rules normalize through aliases. |
 | Qi Suppression | Context Suppression | Display rename. |
 | Inner Defense Down | Context Defense Down | Display rename. |
-| Break Power | Breach Power | Display rename. |
-| Break Resistance | Overload Resist | Display rename. |
-| Inner Recovery | Context Rebuild | Baseline post-overload recovery. |
+| Break Power | Breach Power | Stage 2.8 migrated owned stat/schema fields to `breachPower`. |
+| Break Resistance | Overload Resist | Stage 2.8 migrated owned stat/schema fields to `overloadResist`. |
+| Inner Recovery | Context Rebuild | Baseline post-overload recovery; Stage 2.8 migrated owned fields to `contextRebuild*`. |
 | Inner recovery boost | Cognitive Reboot | Skill, protocol, or countermeasure effect that accelerates Context Rebuild. |
 | Backlash | Feedback | Optional display rename. |
 | Armor Break | Plating Break | Display rename. |
@@ -119,7 +119,7 @@ Do not retheme these in schema docs until a migration changes them:
 - `SaveData`, `PlayerProgress`, `StaticGameData`
 - Static reward fields such as `silver`, `cultivation`, `herbs`, and `combatExperience`
 - Legacy save/import compatibility fields such as `sect`, `maps`, `selectedOfflineFarmStageId`, and `selectedTacticId`
-- `outerHp`, `innerQi`, `maxOuterHp`, `maxInnerQi`
+- Legacy combat schema aliases such as `outerHp`, `innerQi`, `maxOuterHp`, and `maxInnerQi` should not be authored in new current data; they remain compatibility inputs only.
 - Static content JSON `id` fields and all save/static reference field names ending in `Id`, including `regionId`, `stageId`, `enemyId`, `heroId`, `skillId`, `styleId`, `equipmentId`, `equipmentSetId`, `assignmentId`, `medicineId`, `statusId`, and `tacticId`. Stage 2.5 migrated region/stage values, but the field names remain technical.
 - Exported constants such as `WEB_SAVE_STORAGE_KEY`
 - Legacy browser save key `path-of-jianghu.save.v1`, which remains a read/copy compatibility key after the canonical `path-of-neon.save.v1` migration

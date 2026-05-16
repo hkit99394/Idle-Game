@@ -84,7 +84,7 @@ describe("stage battle resolution", () => {
       instanceId: expect.stringMatching(/^player_/),
       outerDamageDealt: expect.any(Number),
       innerDamageDealt: expect.any(Number),
-      qiBreakBurstDamageDealt: expect.any(Number),
+      aiOverloadBurstDamageDealt: expect.any(Number),
       survived: expect.any(Boolean)
     });
     expect(createBattleEventRecords(result.battle.events)[0]).toMatchObject({
@@ -322,8 +322,8 @@ describe("stage battle resolution", () => {
     ]);
     expect(enabledResult.progress.medicineInventory?.clear_heart_countermeasure).toBeUndefined();
     expect(disabledResult.progress.medicineInventory?.clear_heart_countermeasure).toBe(1);
-    expect(enabledResult.battle.finalPlayerTeam[0]?.outerHp).toBeGreaterThan(
-      disabledResult.battle.finalPlayerTeam[0]?.outerHp ?? 0
+    expect(enabledResult.battle.finalPlayerTeam[0]?.bodyIntegrity).toBeGreaterThan(
+      disabledResult.battle.finalPlayerTeam[0]?.bodyIntegrity ?? 0
     );
   });
 
