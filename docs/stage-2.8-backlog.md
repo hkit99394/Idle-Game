@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.8 is the active planning backlog for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. No Stage 2.8 implementation slices are complete yet.
+Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slice 93.1 is complete in [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md). The preflight confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump; Slice 93.2 should focus on static/combat schema aliases unless new persisted evidence appears.
 
 [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) completed save resource/progress field migration and left combat stat fields, combat event names, battle metrics, and report/code symbols explicitly deferred. Stage 2.8 starts from that save version `13` baseline and should not reopen Stage 2.7 resource/progress decisions.
 
@@ -19,15 +19,16 @@ Migrate owned combat stat, combat event, battle metric, and report/code symbols 
 - Stage 2.6 completed static content id migration, with temporary legacy report columns still allowed where comparison needs them.
 - Stage 2.7 completed owned save resource/progress field migration and bumped `SAVE_DATA_VERSION` to `13`.
 - Stage 2.7 explicitly deferred combat stat fields such as `outerHp`, `innerQi`, max fields, recovery fields, and AI Overload state to Stage 2.8.
+- Slice 93.1 confirmed those combat fields are currently static authoring, transient runtime, event/report, web view-model, or tooling fields rather than persisted save payload fields.
 - Current combat display terms already use Body Integrity, Context Stability, AI Overload, Context Rebuild, Kinetic Art, and Cognitive Art in player-facing UI where appropriate.
 - Combat event records and metrics are stable tooling contracts. Any symbol rename must either preserve legacy compatibility, add temporary legacy report columns, or record an explicit keep/defer decision.
 - Static content still contains stat keys such as `maxOuterHp`, `maxInnerQi`, `outerAttack`, `innerAttack`, and `innerRecoveryRate`. Stage 2.8 must decide whether those static schema keys migrate now or stay deferred behind aliases.
 
-## Candidate Target Families
+## Target Families
 
-Slice 93.1 must lock final names before code changes. These are candidate directions, not completed decisions.
+Slice 93.1 locked the final Stage 2.8 directions in [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md).
 
-| Current family | Candidate target | Notes |
+| Current family | Target | Notes |
 | --- | --- | --- |
 | `outerHp`, `maxOuterHp` | `bodyIntegrity`, `maxBodyIntegrity` | Durability/current-state field direction. |
 | `innerQi`, `maxInnerQi` | `contextStability`, `maxContextStability` | Stability/current-state field direction. |
@@ -35,8 +36,8 @@ Slice 93.1 must lock final names before code changes. These are candidate direct
 | `innerAttack`, `innerDefense` | `cognitiveAttack`, `cognitiveDefense` | Cognitive pressure/defense stat direction. |
 | `breakPower`, `breakResist` | `breachPower`, `overloadResist` | Display terms already exist; schema/report rename needs preflight. |
 | `qi_break`, `qiBreak*`, `isQiBroken`, `qiBreakEndsAt` | `ai_overload`, `aiOverload*`, `isOverloaded`, `overloadEndsAt` | Event, metric, and runtime state direction. |
-| `innerRecoveryRate`, `innerQiRestored`, recovery effect fields | `contextRebuildRate`, `contextStabilityRestored`, `cognitiveReboot*` where boost-specific | Split baseline rebuild from boost behavior. |
-| `inner_broken` targeting | `overloaded` or `ai_overloaded` targeting | Only migrate if target-rule compatibility can be preserved. |
+| `innerRecoveryRate`, `innerQiRestored`, recovery effect fields | `contextRebuildRate`, `contextStabilityRestored`, `contextRebuild*` for baseline rebuild | Split baseline rebuild from generic recovery behavior. |
+| `inner_broken` targeting | `overloaded` targeting | Preserve the legacy target-rule alias during transition. |
 
 ## Non-Goals
 
@@ -46,7 +47,7 @@ Slice 93.1 must lock final names before code changes. These are candidate direct
 - No legacy export/report column removal unless the same slice proves downstream comparison no longer needs it.
 - No broad player-facing copy pass unless a view model or report symbol rename requires it.
 - No static id or content id migration outside the combat stat/effect fields approved by 93.1.
-- No save version bump unless 93.1 proves Stage 2.8 changes a persisted save payload shape.
+- No Stage 2.8 save-version bump unless a later slice proves a persisted combat payload field that 93.1 did not find; update the preflight before changing save migration code.
 
 ## Exit Criteria
 
@@ -64,7 +65,7 @@ Stage 2.8 implements Epics 93 and 94 from the retheme migration plan as focused 
 
 | Slice | Title | Status | Goal |
 | --- | --- | --- | --- |
-| 93.1 | Combat Save And Symbol Preflight | Planned | Lock target names, compatibility behavior, fixture needs, stale-scan rules, and whether a save version bump is required. |
+| 93.1 | Combat Save And Symbol Preflight | Complete | Locked target names, compatibility behavior, fixture needs, stale-scan rules, and confirmed no save-version bump is required. |
 | 93.2 | Combat Save Alias Foundation | Planned | Add save/static alias plumbing only for fields proven persisted or schema-owned by 93.1. |
 | 93.3 | Combat Runtime Stat Fields | Planned | Move owned combat runtime/view model stat fields to approved current names without changing combat math. |
 | 94.1 | AI Overload Event And Metric Symbols | Planned | Rename Qi Break event, metric, contribution, and report symbols with compatibility where needed. |
@@ -76,6 +77,8 @@ Stage 2.8 implements Epics 93 and 94 from the retheme migration plan as focused 
 ## Slice 93.1: Combat Save And Symbol Preflight
 
 Classify every combat stat, event, metric, and report symbol before editing schema or runtime code.
+
+Completed in [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md).
 
 ### Tasks
 
@@ -107,19 +110,19 @@ Add compatibility plumbing for any approved combat save/static schema rename wit
 ### Tasks
 
 - Add structured alias helpers for every combat save or static schema field approved by 93.1.
-- Bump `SAVE_DATA_VERSION` from `13` only if the persisted save payload shape changes.
+- Keep `SAVE_DATA_VERSION` at `13` because 93.1 found no persisted combat save payload fields; stop and update the preflight if new persisted evidence appears.
 - Keep every previously supported save version in `SUPPORTED_SAVE_DATA_VERSIONS`.
-- Add or update fixtures for the immediately previous version and at least one older pre-retheme save.
-- Normalize supported legacy combat fields to current schema during migration or static data loading.
+- Add static-data alias fixtures/tests rather than save-version fixtures unless a real save payload field appears.
+- Normalize supported legacy combat fields to current schema during static data loading and validation.
 - Fail ambiguous imports with conflicting legacy and target aliases instead of silently choosing one.
 - Keep runtime combat math and balance results unchanged.
 
 ### Acceptance
 
-- Supported old saves and current-version legacy-field imports normalize or fail according to 93.1.
-- Current save serialization emits approved current combat fields only if Stage 2.8 owns persisted combat fields.
-- Static data aliases, if added, are data-aware and do not break existing authored content.
-- Migration metadata reports useful normalized field names for renamed combat fields.
+- Static legacy combat schema payloads normalize or fail according to 93.1.
+- Current save serialization remains unchanged unless Stage 2.8 discovers a real persisted combat field.
+- Static data aliases are data-aware and do not break existing authored content.
+- Static validation reports useful errors for conflicting legacy/current combat schema aliases.
 
 ### Verification
 

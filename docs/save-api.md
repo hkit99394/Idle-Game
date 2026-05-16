@@ -4,7 +4,7 @@
 
 Save loading should be owned by `core/` so web storage, tools, tests, and a future backend use the same migration, validation, normalization, offline reward, and timestamp behavior.
 
-Theme note: Stage 2.7 migrated owned resource/progress save fields with compatibility adapters and fixture coverage. Current saves now emit fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`; legacy fields such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, `currentStageId`, `selectedOfflineFarmStageId`, `selectedTacticId`, and `sect` remain import compatibility contracts. Combat stat fields such as `outerHp` and `innerQi` are owned by the active [Stage 2.8 Backlog](stage-2.8-backlog.md), whose first slice must confirm whether any combat stat rename requires a save-version bump.
+Theme note: Stage 2.7 migrated owned resource/progress save fields with compatibility adapters and fixture coverage. Current saves now emit fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`; legacy fields such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, `currentStageId`, `selectedOfflineFarmStageId`, `selectedTacticId`, and `sect` remain import compatibility contracts. Combat stat fields such as `outerHp` and `innerQi` are owned by the active [Stage 2.8 Backlog](stage-2.8-backlog.md); [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current saves do not persist live combat stat/event state, so Stage 2.8 begins without a save-version bump.
 
 ## Preferred Core Entry Points
 

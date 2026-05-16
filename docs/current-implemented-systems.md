@@ -103,7 +103,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.5 is closed and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md); `docs/stage-2.5-backlog.md` should not exist as an active backlog unless Stage 2.5 is explicitly reopened.
 - Stage 2.6 is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md); `docs/stage-2.6-backlog.md` should not exist as an active backlog unless Stage 2.6 is explicitly reopened.
 - Stage 2.7 is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md); `docs/stage-2.7-backlog.md` should not exist as an active backlog unless Stage 2.7 is explicitly reopened.
-- Stage 2.8 is active at [Stage 2.8 Backlog](stage-2.8-backlog.md), covering combat save/stat fields and combat/report symbols. `docs/stage-2.8-backlog.md` should remain active until Stage 2.8 closure validation archives it.
+- Stage 2.8 is active at [Stage 2.8 Backlog](stage-2.8-backlog.md), covering combat save/stat fields and combat/report symbols. Slice 93.1 is complete in [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) and confirmed current saves do not persist live combat stat/event state. `docs/stage-2.8-backlog.md` should remain active until Stage 2.8 closure validation archives it.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules
