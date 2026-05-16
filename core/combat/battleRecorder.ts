@@ -9,6 +9,16 @@ import { isLiving } from "./targeting";
 
 export type BattleEventCategory = BattleEvent["type"];
 
+export type LegacyBattleEvent =
+  | (Omit<Extract<BattleEvent, { type: "ai_overload" }>, "type"> & {
+      type: "qi_break";
+    })
+  | (Omit<Extract<BattleEvent, { type: "context_rebuild" }>, "type"> & {
+      type: "qi_recover";
+    });
+
+export type BattleEventRecordInput = BattleEvent | LegacyBattleEvent;
+
 export type BattleEventRecord = {
   id: string;
   index: number;
@@ -34,29 +44,46 @@ export const BATTLE_EVENT_TYPES = [
   "regeneration_tick",
   "cleanse",
   "auto_medicine",
-  "qi_break",
-  "qi_recover",
+  "ai_overload",
+  "context_rebuild",
   "backlash",
   "heal",
   "defeat"
 ] as const satisfies readonly BattleEvent["type"][];
 
+const LEGACY_BATTLE_EVENT_TYPE_ALIASES = {
+  qi_break: "ai_overload",
+  qi_recover: "context_rebuild"
+} as const satisfies Record<LegacyBattleEvent["type"], BattleEvent["type"]>;
+
+function normalizeBattleEventType(
+  type: BattleEventRecordInput["type"]
+): BattleEvent["type"] {
+  if (Object.hasOwn(LEGACY_BATTLE_EVENT_TYPE_ALIASES, type)) {
+    return LEGACY_BATTLE_EVENT_TYPE_ALIASES[type as LegacyBattleEvent["type"]];
+  }
+
+  return type as BattleEvent["type"];
+}
+
 export function createBattleEventRecord(
-  event: BattleEvent,
+  event: BattleEventRecordInput,
   index: number
 ): BattleEventRecord {
+  const type = normalizeBattleEventType(event.type);
+
   return {
-    id: `${index}-${event.type}-${event.time}`,
+    id: `${index}-${type}-${event.time}`,
     index,
-    category: event.type,
-    type: event.type,
-    statusId: getBattleEventStatusId(event),
+    category: type,
+    type,
+    statusId: getBattleEventStatusId(event as BattleEvent),
     timeSeconds: event.time
   };
 }
 
 export function createBattleEventRecords(
-  events: BattleEvent[]
+  events: BattleEventRecordInput[]
 ): BattleEventRecord[] {
   return events.map(createBattleEventRecord);
 }
@@ -67,10 +94,10 @@ export function createInitialMetrics(): BattleMetrics {
     playerInnerDamage: 0,
     enemyOuterDamage: 0,
     enemyInnerDamage: 0,
-    playerQiBreakBurstDamage: 0,
-    enemyQiBreakBurstDamage: 0,
-    qiBreaksTriggeredByPlayer: 0,
-    qiBreaksTriggeredByEnemy: 0,
+    playerAiOverloadBurstDamage: 0,
+    enemyAiOverloadBurstDamage: 0,
+    aiOverloadsTriggeredByPlayer: 0,
+    aiOverloadsTriggeredByEnemy: 0,
     backlashDamageToEnemies: 0,
     backlashDamageToPlayers: 0,
     guardDamagePreventedByPlayer: 0,
@@ -112,8 +139,8 @@ export function createInitialContributions(
         combatRole: combatant.combatRole,
         outerDamageDealt: 0,
         innerDamageDealt: 0,
-        qiBreakBurstDamageDealt: 0,
-        qiBreaksTriggered: 0,
+        aiOverloadBurstDamageDealt: 0,
+        aiOverloadsTriggered: 0,
         outerDamageTaken: 0,
         innerDamageTaken: 0,
         backlashDamageTaken: 0,
@@ -163,7 +190,7 @@ export function recordDamage(
   }
 }
 
-export function recordQiBreak(
+export function recordAiOverload(
   metrics: BattleMetrics,
   contributions: Map<string, BattleContribution>,
   source: CombatantState,
@@ -171,19 +198,19 @@ export function recordQiBreak(
   burstDamage: number
 ): void {
   if (source.team === "player") {
-    metrics.qiBreaksTriggeredByPlayer += 1;
-    metrics.playerQiBreakBurstDamage += burstDamage;
+    metrics.aiOverloadsTriggeredByPlayer += 1;
+    metrics.playerAiOverloadBurstDamage += burstDamage;
   } else {
-    metrics.qiBreaksTriggeredByEnemy += 1;
-    metrics.enemyQiBreakBurstDamage += burstDamage;
+    metrics.aiOverloadsTriggeredByEnemy += 1;
+    metrics.enemyAiOverloadBurstDamage += burstDamage;
   }
 
   const sourceContribution = contributions.get(source.instanceId);
   const targetContribution = contributions.get(target.instanceId);
 
   if (sourceContribution) {
-    sourceContribution.qiBreaksTriggered += 1;
-    sourceContribution.qiBreakBurstDamageDealt += burstDamage;
+    sourceContribution.aiOverloadsTriggered += 1;
+    sourceContribution.aiOverloadBurstDamageDealt += burstDamage;
   }
 
   if (targetContribution) {
@@ -235,12 +262,12 @@ export function finalizeMetrics(metrics: BattleMetrics, durationSeconds: number)
     ...metrics,
     playerEffectiveDps:
       (metrics.playerOuterDamage +
-        metrics.playerQiBreakBurstDamage +
+        metrics.playerAiOverloadBurstDamage +
         metrics.backlashDamageToEnemies) /
       safeDuration,
     enemyEffectiveDps:
       (metrics.enemyOuterDamage +
-        metrics.enemyQiBreakBurstDamage +
+        metrics.enemyAiOverloadBurstDamage +
         metrics.backlashDamageToPlayers) /
       safeDuration
   };

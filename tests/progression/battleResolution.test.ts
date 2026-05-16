@@ -84,7 +84,7 @@ describe("stage battle resolution", () => {
       instanceId: expect.stringMatching(/^player_/),
       outerDamageDealt: expect.any(Number),
       innerDamageDealt: expect.any(Number),
-      qiBreakBurstDamageDealt: expect.any(Number),
+      aiOverloadBurstDamageDealt: expect.any(Number),
       survived: expect.any(Boolean)
     });
     expect(createBattleEventRecords(result.battle.events)[0]).toMatchObject({

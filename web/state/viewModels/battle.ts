@@ -115,7 +115,7 @@ function getContributionTotalDamage(contribution?: BattleContribution): number {
   return contribution
     ? contribution.outerDamageDealt +
         contribution.innerDamageDealt +
-        contribution.qiBreakBurstDamageDealt
+        contribution.aiOverloadBurstDamageDealt
     : 0;
 }
 
@@ -429,7 +429,7 @@ function buildAutoMedicineEventDetail(
               label: `${formatBattlePercent(
                 event.statusResistanceBonus
               )} resistance`,
-              tone: "qi" as const
+              tone: "inner" as const
             }
           ]
         : [])
@@ -611,7 +611,7 @@ function buildBattleEventDetail(
       };
     }
 
-    case "qi_break": {
+    case "ai_overload": {
       const source = getName(names, event.sourceId);
       const target = getName(names, event.targetId);
 
@@ -633,13 +633,13 @@ function buildBattleEventDetail(
           },
           {
             label: `${formatBattleSeconds(event.endsAt)} recovery`,
-            tone: "qi"
+            tone: "overload"
           }
         ]
       };
     }
 
-    case "qi_recover": {
+    case "context_rebuild": {
       const target = getName(names, event.targetId);
 
       return {
@@ -667,7 +667,7 @@ function buildBattleEventDetail(
           },
           {
             label: "Overloaded",
-            tone: "qi"
+            tone: "overload"
           }
         ]
       };
@@ -932,7 +932,7 @@ function getContributionDamage(contribution: BattleContribution): number {
   return (
     contribution.outerDamageDealt +
     contribution.innerDamageDealt +
-    contribution.qiBreakBurstDamageDealt
+    contribution.aiOverloadBurstDamageDealt
   );
 }
 
@@ -984,8 +984,8 @@ function buildContributionSummaryDetails(
   const topBreaker = getTopContribution(
     battle.contributions,
     (contribution) =>
-      contribution.qiBreaksTriggered * 1000 +
-      contribution.qiBreakBurstDamageDealt
+      contribution.aiOverloadsTriggered * 1000 +
+      contribution.aiOverloadBurstDamageDealt
   );
   const topHealer = getTopContribution(
     battle.contributions,
@@ -1011,7 +1011,7 @@ function buildContributionSummaryDetails(
     carryPool,
     (contribution) =>
       getContributionDamage(contribution) +
-      contribution.qiBreaksTriggered * 100 +
+      contribution.aiOverloadsTriggered * 100 +
       (contribution.survived ? 50 : 0)
   );
   const supportCarry = getTopContribution(carryPool, getContributionSupport);
@@ -1025,14 +1025,14 @@ function buildContributionSummaryDetails(
     );
   }
 
-  if (topBreaker && topBreaker.qiBreaksTriggered > 0) {
+  if (topBreaker && topBreaker.aiOverloadsTriggered > 0) {
     details.push(
-      `Qi breaker: ${formatContributionName(topBreaker)} triggered ${
-        topBreaker.qiBreaksTriggered
-      } break${topBreaker.qiBreaksTriggered === 1 ? "" : "s"}.`
+      `AI Overload: ${formatContributionName(topBreaker)} triggered ${
+        topBreaker.aiOverloadsTriggered
+      } overload${topBreaker.aiOverloadsTriggered === 1 ? "" : "s"}.`
     );
   } else {
-    details.push("Qi breaker: none.");
+    details.push("AI Overload: none.");
   }
 
   if (
@@ -1128,16 +1128,16 @@ export function buildBattleSummary(
       )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.playerInnerDamage
       )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
-        battle.metrics.playerQiBreakBurstDamage
+        battle.metrics.playerAiOverloadBurstDamage
       )} ${displayTerms.combat.aiOverload} burst damage.`,
       `Hostiles dealt ${formatBattleNumber(
         battle.metrics.enemyOuterDamage
       )} ${displayTerms.combat.kineticDamage}, ${formatBattleNumber(
         battle.metrics.enemyInnerDamage
       )} ${displayTerms.combat.cognitiveDamage}, and ${formatBattleNumber(
-        battle.metrics.enemyQiBreakBurstDamage
+        battle.metrics.enemyAiOverloadBurstDamage
       )} ${displayTerms.combat.aiOverload} burst damage.`,
-      `${displayTerms.combat.aiOverloads}: ${battle.metrics.qiBreaksTriggeredByPlayer} by initiates, ${battle.metrics.qiBreaksTriggeredByEnemy} by hostiles.`,
+      `${displayTerms.combat.aiOverloads}: ${battle.metrics.aiOverloadsTriggeredByPlayer} by initiates, ${battle.metrics.aiOverloadsTriggeredByEnemy} by hostiles.`,
       ...buildContributionSummaryDetails(battle),
       rewardText
     ]

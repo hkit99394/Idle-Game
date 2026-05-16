@@ -68,7 +68,7 @@ const SKILL_EFFECT_TARGET_ALIASES: Record<string, string> = {
 };
 
 const TARGET_RULE_ALIASES: Record<string, string> = {
-  overloaded: "inner_broken"
+  inner_broken: "overloaded"
 };
 
 const TACTIC_MODIFIER_TYPE_ALIASES: Record<string, string> = {

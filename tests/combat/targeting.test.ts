@@ -127,12 +127,12 @@ describe("targeting", () => {
     expect(target?.instanceId).toBe("middle_enemy");
   });
 
-  it("prefers Qi Broken enemies and falls back to formation order", () => {
+  it("prefers overloaded enemies and falls back to formation order", () => {
     const combatants = [
       combatant({ id: "hero", team: "player", formationSlot: "front" }),
       combatant({ id: "front_enemy", team: "enemy", formationSlot: "front" }),
       combatant({
-        id: "back_broken_enemy",
+        id: "back_overloaded_enemy",
         team: "enemy",
         formationSlot: "back",
         isOverloaded: true
@@ -140,13 +140,13 @@ describe("targeting", () => {
     ];
 
     expect(
-      selectTarget(combatants, "player", "inner_broken")?.instanceId
-    ).toBe("back_broken_enemy");
+      selectTarget(combatants, "player", "overloaded")?.instanceId
+    ).toBe("back_overloaded_enemy");
 
     combatants[2].isOverloaded = false;
 
     expect(
-      selectTarget(combatants, "player", "inner_broken")?.instanceId
+      selectTarget(combatants, "player", "overloaded")?.instanceId
     ).toBe("front_enemy");
   });
 });

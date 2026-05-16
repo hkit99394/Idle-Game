@@ -156,7 +156,7 @@ describe("combat baseline traces", () => {
         innerDamage: 90
       },
       {
-        type: "qi_break",
+        type: "ai_overload",
         time: 2,
         sourceId: "player_scenario_trace_breaker_2",
         targetId: "enemy_scenario_trace_guardian_1",
@@ -170,7 +170,7 @@ describe("combat baseline traces", () => {
         statusId: "guard"
       }
     ]);
-    expect(result.metrics.qiBreaksTriggeredByPlayer).toBe(1);
+    expect(result.metrics.aiOverloadsTriggeredByPlayer).toBe(1);
     expect(result.metrics.guardDamagePreventedByEnemy).toBeGreaterThan(0);
     expect(result.metrics.enemyOuterHealing).toBe(0);
   });

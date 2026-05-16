@@ -281,7 +281,7 @@ describe("combat tactics", () => {
     expect(bossBurstAttack.outerDamage).toBeCloseTo(110);
   });
 
-  it("amplifies Inner pressure Qi Break bursts deterministically", () => {
+  it("amplifies Inner pressure AI Overload bursts deterministically", () => {
     const data = withScenarioData({
       skills: [
         {
@@ -329,8 +329,8 @@ describe("combat tactics", () => {
       ...battleInput,
       tacticId: "context_break"
     });
-    const balancedBreak = balanced.events.find((event) => event.type === "qi_break");
-    const tacticBreak = innerPressure.events.find((event) => event.type === "qi_break");
+    const balancedBreak = balanced.events.find((event) => event.type === "ai_overload");
+    const tacticBreak = innerPressure.events.find((event) => event.type === "ai_overload");
     const repeat = simulateBattle(data, {
       ...battleInput,
       tacticId: "context_break"

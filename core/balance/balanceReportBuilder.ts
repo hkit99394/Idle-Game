@@ -234,7 +234,7 @@ function buildStageBalanceReport(input: {
     estimatedSurvivalSeconds,
     playerDps,
     enemyDps,
-    qiBreakPressure: enemies.reduce(
+    aiOverloadPressure: enemies.reduce(
       (total, enemy) => total + Math.max(0, enemy.baseStats.breachPower),
       0
     ),

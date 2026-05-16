@@ -75,7 +75,7 @@ describe("battle event view models", () => {
           },
           {
             label: "12% resistance",
-            tone: "qi"
+            tone: "inner"
           }
         ]
       }

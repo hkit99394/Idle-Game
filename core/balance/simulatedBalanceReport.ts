@@ -729,7 +729,7 @@ function summarizeBattle(
         ? ("player_clear" as const)
         : ("enemy_hold" as const),
     durationSeconds,
-    qiBreaks: result.battle.events.filter((event) => event.type === "qi_break").length,
+    aiOverloads: result.battle.events.filter((event) => event.type === "ai_overload").length,
     guardAbsorbs: guardEvents.length,
     protections: protectEvents.length,
     armorBreaks: armorBreakEvents.length,

@@ -3,11 +3,11 @@ import {
   applyDamagePackageMitigation,
   commitBacklashDamagePackage,
   commitDamagePackage,
-  commitQiBreakDamagePackage,
+  commitAiOverloadDamagePackage,
   createAttackDamagePackage,
   createBacklashDamagePackage,
-  createQiBreakBacklashDamagePackage,
-  createQiBreakDamagePackage,
+  createAiOverloadFeedbackDamagePackage,
+  createAiOverloadDamagePackage,
   resolveAttackDamageTargets
 } from "../../core/combat/damagePackage";
 import type {
@@ -459,7 +459,7 @@ describe("damage package", () => {
     ).toThrow(/intended target/);
   });
 
-  it("commits Qi Break burst damage through package recording", () => {
+  it("commits AI Overload burst damage through package recording", () => {
     const attacker = createDamageCombatant({
       instanceId: "scenario_breaker",
       team: "player",
@@ -479,7 +479,7 @@ describe("damage package", () => {
     const contributions = createInitialContributions([attacker, target]);
     const events: BattleEvent[] = [];
 
-    const damagePackage = createQiBreakDamagePackage({
+    const damagePackage = createAiOverloadDamagePackage({
       attacker,
       target,
       time: 4,
@@ -487,7 +487,7 @@ describe("damage package", () => {
     });
 
     expect(damagePackage).toMatchObject({
-      kind: "qi_break",
+      kind: "ai_overload",
       sourceId: attacker.instanceId,
       targetId: target.instanceId,
       innerDamage: 0,
@@ -496,7 +496,7 @@ describe("damage package", () => {
     expect(damagePackage.outerDamage).toBeCloseTo(150);
     expect(damagePackage.burstPercent).toBeCloseTo(0.15);
 
-    commitQiBreakDamagePackage({
+    commitAiOverloadDamagePackage({
       damagePackage,
       attacker,
       target,
@@ -512,24 +512,24 @@ describe("damage package", () => {
       isOverloaded: true,
       overloadEndsAt: 10
     });
-    expect(metrics.qiBreaksTriggeredByPlayer).toBe(1);
-    expect(metrics.playerQiBreakBurstDamage).toBeCloseTo(150);
+    expect(metrics.aiOverloadsTriggeredByPlayer).toBe(1);
+    expect(metrics.playerAiOverloadBurstDamage).toBeCloseTo(150);
     expect(contributions.get(attacker.instanceId)).toMatchObject({
-      qiBreaksTriggered: 1
+      aiOverloadsTriggered: 1
     });
     expect(
-      contributions.get(attacker.instanceId)?.qiBreakBurstDamageDealt
+      contributions.get(attacker.instanceId)?.aiOverloadBurstDamageDealt
     ).toBeCloseTo(150);
     expect(contributions.get(target.instanceId)?.outerDamageTaken).toBeCloseTo(150);
     expect(events[0]).toMatchObject({
-      type: "qi_break",
+      type: "ai_overload",
       time: 4,
       sourceId: attacker.instanceId,
       targetId: target.instanceId,
       endsAt: 10
     });
-    expect(events[0].type === "qi_break" ? events[0].burstDamage : 0).toBeCloseTo(150);
-    expect(events[0].type === "qi_break" ? events[0].burstPercent : 0).toBeCloseTo(0.15);
+    expect(events[0].type === "ai_overload" ? events[0].burstDamage : 0).toBeCloseTo(150);
+    expect(events[0].type === "ai_overload" ? events[0].burstPercent : 0).toBeCloseTo(0.15);
   });
 
   it("commits backlash damage through package recording", () => {
@@ -542,12 +542,12 @@ describe("damage package", () => {
     const contributions = createInitialContributions([target]);
     const events: BattleEvent[] = [];
 
-    const qiBreakBacklashPackage = createQiBreakBacklashDamagePackage({
+    const aiOverloadFeedbackPackage = createAiOverloadFeedbackDamagePackage({
       target,
       constants: defaultCombatFormulaConstants
     });
 
-    expect(qiBreakBacklashPackage).toMatchObject({
+    expect(aiOverloadFeedbackPackage).toMatchObject({
       kind: "backlash",
       sourceId: target.instanceId,
       targetId: target.instanceId,
@@ -561,7 +561,7 @@ describe("damage package", () => {
     });
 
     commitBacklashDamagePackage({
-      damagePackage: qiBreakBacklashPackage,
+      damagePackage: aiOverloadFeedbackPackage,
       target,
       time: 5,
       metrics,

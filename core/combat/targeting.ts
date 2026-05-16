@@ -6,7 +6,7 @@ export const TARGET_RULES = [
   "first_living",
   "weakest_hp",
   "highest_cp",
-  "inner_broken"
+  "overloaded"
 ] as const satisfies TargetRule[];
 
 const FORMATION_SLOT_ORDER = new Map(
@@ -89,12 +89,12 @@ function selectTargetFromCandidates(
         );
       })[0].combatant;
 
-    case "inner_broken": {
-      const brokenTarget = candidates
+    case "overloaded": {
+      const overloadedTarget = candidates
         .filter((candidate) => candidate.combatant.isOverloaded)
         .sort(compareFormationPriority)[0]?.combatant;
 
-      return brokenTarget ?? (
+      return overloadedTarget ?? (
         fallbackToFirstLiving ? selectFirstLivingByFormation(candidates) : null
       );
     }

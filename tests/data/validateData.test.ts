@@ -501,7 +501,7 @@ describe("static game data validation", () => {
       expect.arrayContaining([
         "Hero iron_fist_initiate combatRole must be one of tank, breaker, striker, support",
         "Enemy greenline_cutter combatRole must be one of tank, breaker, striker, support",
-        "Skill impact_combo targetRule must be one of first_living, weakest_hp, highest_cp, inner_broken"
+        "Skill impact_combo targetRule must be one of first_living, weakest_hp, highest_cp, overloaded"
       ])
     );
   });

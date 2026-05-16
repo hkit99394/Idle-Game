@@ -247,8 +247,8 @@ describe("web game state idle", () => {
     const attackEvent = viewModel.battleEvents.find(
       (event) => event.category === "attack"
     );
-    const qiBreakEvent = viewModel.battleEvents.find(
-      (event) => event.category === "qi_break"
+    const aiOverloadEvent = viewModel.battleEvents.find(
+      (event) => event.category === "ai_overload"
     );
 
     expect(attackEvent?.headline).toContain("attacks");
@@ -263,9 +263,9 @@ describe("web game state idle", () => {
         badge.label.includes("Body Integrity")
       )
     ).toBe(true);
-    expect(qiBreakEvent?.headline).toContain("AI Overload");
-    expect(qiBreakEvent?.detail).toContain("Context Stability");
-    expect(qiBreakEvent?.badges).toEqual(
+    expect(aiOverloadEvent?.headline).toContain("AI Overload");
+    expect(aiOverloadEvent?.detail).toContain("Context Stability");
+    expect(aiOverloadEvent?.badges).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           label: "AI Overload",

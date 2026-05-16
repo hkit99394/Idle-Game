@@ -99,10 +99,10 @@ describe("balance-critical combat scenarios", () => {
       maxDurationSeconds: 12
     });
 
-    expect(result.metrics.qiBreaksTriggeredByEnemy).toBeGreaterThan(0);
+    expect(result.metrics.aiOverloadsTriggeredByEnemy).toBeGreaterThan(0);
     expect(
       result.events.some(
-        (event) => event.type === "qi_break" && event.targetId.startsWith("player_")
+        (event) => event.type === "ai_overload" && event.targetId.startsWith("player_")
       )
     ).toBe(true);
   });

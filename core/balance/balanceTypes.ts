@@ -61,7 +61,7 @@ export type StageBalanceReport = {
   estimatedSurvivalSeconds: number;
   playerDps: number;
   enemyDps: number;
-  qiBreakPressure: number;
+  aiOverloadPressure: number;
   rewards: StageDefinition["rewards"];
   statusMetrics: StageStatusMetrics;
   balanceAssessment: StageBalanceAssessment;

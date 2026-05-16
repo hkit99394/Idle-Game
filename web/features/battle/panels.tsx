@@ -37,7 +37,7 @@ export function CombatantCard({ combatant }: CombatantCardProps) {
       className={`combatant-card ${combatant.kind} ${
         combatant.isDefeated ? "defeated" : ""
       } ${
-        combatant.isOverloaded ? "qi-broken" : ""
+        combatant.isOverloaded ? "overloaded" : ""
       }`}
     >
       <div className="combatant-heading">
@@ -84,7 +84,7 @@ export function CombatantCard({ combatant }: CombatantCardProps) {
       {combatant.isOverloaded || combatant.isDefeated ? (
         <div
           className={`combatant-status ${
-            combatant.isDefeated ? "defeated-status" : "qi-broken-status"
+            combatant.isDefeated ? "defeated-status" : "overloaded-status"
           }`}
         >
           {combatant.isDefeated ? "Defeated" : "Overloaded"}

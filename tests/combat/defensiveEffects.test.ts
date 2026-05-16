@@ -362,7 +362,7 @@ describe("defensive combat effects", () => {
     expect(armorBreakResult.events.some((event) => event.type === "armor_break")).toBe(
       true
     );
-    expect(armorBreakResult.events.some((event) => event.type === "qi_break")).toBe(
+    expect(armorBreakResult.events.some((event) => event.type === "ai_overload")).toBe(
       false
     );
     expect(armorBreakResult.durationSeconds).toBeLessThan(

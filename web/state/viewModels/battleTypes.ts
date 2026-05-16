@@ -33,7 +33,7 @@ export type BattleEventBadgeTone =
   | "skill"
   | "outer"
   | "inner"
-  | "qi"
+  | "overload"
   | "danger"
   | "neutral";
 

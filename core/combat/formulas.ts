@@ -4,7 +4,7 @@ import type {
   DamageInput,
   DerivedStats,
   InnerRecoveryInput,
-  QiBreakBurstInput
+  AiOverloadBurstInput
 } from "./types";
 
 export const LEVEL_STAT_GROWTH = 1.06;
@@ -22,9 +22,9 @@ export const defaultCombatFormulaConstants: CombatFormulaConstants = {
   baseAttackInterval: 2.0,
   minAttackInterval: 0.45,
   maxAttackInterval: 4.0,
-  baseQiBreakBurstPercent: 0.1,
-  minQiBreakBurstPercent: 0.05,
-  maxQiBreakBurstPercent: 0.25,
+  baseAiOverloadBurstPercent: 0.1,
+  minAiOverloadBurstPercent: 0.05,
+  maxAiOverloadBurstPercent: 0.25,
   overloadedKineticDamageTakenMultiplier: 1.25,
   overloadedCognitiveDamageTakenMultiplier: 0.5,
   aiOverloadFeedbackPercent: 0.03,
@@ -60,7 +60,7 @@ export function calculateCombatPower(stats: DerivedStats): number {
     calculateExpectedCritMultiplier(stats.critChance, stats.critDamage);
   const speedMultiplier = 1 + Math.max(0, stats.speed) / 100;
   const offense = expectedDamage * speedMultiplier * 10;
-  const qiControl =
+  const aiOverloadControl =
     (Math.max(0, stats.breachPower) + Math.max(0, stats.overloadResist)) * 500;
   const innerRecovery = stats.maxContextStability * Math.max(0, stats.contextRebuildRate) * 20;
   const statusTenacity = clamp(stats.statusResistance, 0, 0.8) * 600;
@@ -71,7 +71,7 @@ export function calculateCombatPower(stats: DerivedStats): number {
       outerDurability +
         innerDurability +
         offense +
-        qiControl +
+        aiOverloadControl +
         innerRecovery +
         statusTenacity
     )
@@ -130,16 +130,16 @@ export function calculateInnerDamage(
   return rawDamage * mitigation * brokenMultiplier;
 }
 
-export function calculateQiBreakBurst(
-  input: QiBreakBurstInput,
+export function calculateAiOverloadBurst(
+  input: AiOverloadBurstInput,
   constants: CombatFormulaConstants = defaultCombatFormulaConstants
 ): { percent: number; damage: number } {
   const percent = clamp(
-    constants.baseQiBreakBurstPercent +
+    constants.baseAiOverloadBurstPercent +
       (input.attackerBreachPower ?? 0) -
       (input.targetOverloadResist ?? 0),
-    constants.minQiBreakBurstPercent,
-    constants.maxQiBreakBurstPercent
+    constants.minAiOverloadBurstPercent,
+    constants.maxAiOverloadBurstPercent
   );
 
   return {
@@ -148,14 +148,14 @@ export function calculateQiBreakBurst(
   };
 }
 
-export function calculateQiBreakBacklashDamage(
+export function calculateAiOverloadFeedbackDamage(
   attackerMaxBodyIntegrity: number,
   constants: CombatFormulaConstants = defaultCombatFormulaConstants
 ): number {
   return attackerMaxBodyIntegrity * constants.aiOverloadFeedbackPercent;
 }
 
-export function calculateQiBreakRecovery(
+export function calculateAiOverloadContextRebuild(
   maxContextStability: number,
   constants: CombatFormulaConstants = defaultCombatFormulaConstants
 ): number {

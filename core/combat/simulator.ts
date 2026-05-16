@@ -20,7 +20,7 @@ import type {
 } from "../data/types";
 import {
   calculateInnerRecovery,
-  calculateQiBreakRecovery,
+  calculateAiOverloadContextRebuild,
   defaultCombatFormulaConstants,
   deriveStats,
   scaleStatsForLevel
@@ -48,11 +48,11 @@ import {
   applyDamagePackageMitigation,
   commitBacklashDamagePackage,
   commitDamagePackage,
-  commitQiBreakDamagePackage,
+  commitAiOverloadDamagePackage,
   createAttackDamagePackage,
   createBacklashDamagePackage,
-  createQiBreakBacklashDamagePackage,
-  createQiBreakDamagePackage,
+  createAiOverloadFeedbackDamagePackage,
+  createAiOverloadDamagePackage,
   resolveAttackDamageTargets
 } from "./damagePackage";
 import {
@@ -492,7 +492,7 @@ function chooseSkill(
   );
 }
 
-function applyQiBreakIfNeeded(
+function applyAiOverloadIfNeeded(
   attacker: CombatantState,
   target: CombatantState,
   time: number,
@@ -506,14 +506,14 @@ function applyQiBreakIfNeeded(
     return;
   }
 
-  const damagePackage = createQiBreakDamagePackage({
+  const damagePackage = createAiOverloadDamagePackage({
     attacker,
     target,
     time,
     constants,
     tactic: playerTactic
   });
-  commitQiBreakDamagePackage({
+  commitAiOverloadDamagePackage({
     damagePackage,
     attacker,
     target,
@@ -525,7 +525,7 @@ function applyQiBreakIfNeeded(
   markDefeated(target, time, events);
 }
 
-function recoverQiBreaks(
+function recoverAiOverloads(
   combatants: CombatantState[],
   time: number,
   constants: CombatFormulaConstants,
@@ -540,10 +540,10 @@ function recoverQiBreaks(
     ) {
       combatant.isOverloaded = false;
       combatant.overloadEndsAt = null;
-      combatant.contextStability = calculateQiBreakRecovery(combatant.maxContextStability, constants);
+      combatant.contextStability = calculateAiOverloadContextRebuild(combatant.maxContextStability, constants);
       combatant.lastCognitiveDamageAt = time;
       events.push({
-        type: "qi_recover",
+        type: "context_rebuild",
         time,
         targetId: combatant.instanceId,
         innerQi: combatant.contextStability
@@ -737,7 +737,7 @@ function executeAction(
     events,
     playerTactic
   );
-  applyQiBreakIfNeeded(
+  applyAiOverloadIfNeeded(
     attacker,
     target,
     time,
@@ -750,7 +750,7 @@ function executeAction(
   markDefeated(target, time, events);
 
   if (attacker.isOverloaded && isLiving(attacker)) {
-    const backlashPackage = createQiBreakBacklashDamagePackage({
+    const backlashPackage = createAiOverloadFeedbackDamagePackage({
       target: attacker,
       constants
     });
@@ -829,7 +829,7 @@ function advanceSimulationPhase(
     runtime.contributions,
     runtime.events
   );
-  recoverQiBreaks(
+  recoverAiOverloads(
     runtime.combatants,
     time,
     runtime.constants,

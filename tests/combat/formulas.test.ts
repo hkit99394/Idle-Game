@@ -6,9 +6,9 @@ import {
   calculateInnerDamage,
   calculateInnerRecovery,
   calculateOuterDamage,
-  calculateQiBreakBacklashDamage,
-  calculateQiBreakBurst,
-  calculateQiBreakRecovery,
+  calculateAiOverloadFeedbackDamage,
+  calculateAiOverloadBurst,
+  calculateAiOverloadContextRebuild,
   defaultCombatFormulaConstants
 } from "../../core";
 import type { DerivedStats } from "../../core";
@@ -76,7 +76,7 @@ describe("combat formulas", () => {
     expect(damage).toBeCloseTo(50);
   });
 
-  it("increases outer damage against Qi Broken targets", () => {
+  it("increases outer damage against overloaded targets", () => {
     const normalDamage = calculateOuterDamage({
       attacker,
       target,
@@ -94,7 +94,7 @@ describe("combat formulas", () => {
     expect(brokenDamage).toBeCloseTo(normalDamage * 1.25);
   });
 
-  it("mitigates inner damage and halves it against Qi Broken targets", () => {
+  it("mitigates inner damage and halves it against overloaded targets", () => {
     const normalDamage = calculateInnerDamage({
       attacker,
       target,
@@ -111,32 +111,32 @@ describe("combat formulas", () => {
     expect(brokenDamage).toBeCloseTo(25);
   });
 
-  it("calculates default Qi Break burst as 10% of max Outer HP", () => {
-    const burst = calculateQiBreakBurst({ targetMaxBodyIntegrity: 1000 });
+  it("calculates default AI Overload burst as 10% of max Outer HP", () => {
+    const burst = calculateAiOverloadBurst({ targetMaxBodyIntegrity: 1000 });
 
     expect(burst.percent).toBeCloseTo(0.1);
     expect(burst.damage).toBeCloseTo(100);
   });
 
-  it("clamps Qi Break burst modifiers", () => {
+  it("clamps AI Overload burst modifiers", () => {
     expect(
-      calculateQiBreakBurst({
+      calculateAiOverloadBurst({
         targetMaxBodyIntegrity: 1000,
         attackerBreachPower: 1
       }).percent
-    ).toBe(defaultCombatFormulaConstants.maxQiBreakBurstPercent);
+    ).toBe(defaultCombatFormulaConstants.maxAiOverloadBurstPercent);
 
     expect(
-      calculateQiBreakBurst({
+      calculateAiOverloadBurst({
         targetMaxBodyIntegrity: 1000,
         targetOverloadResist: 1
       }).percent
-    ).toBe(defaultCombatFormulaConstants.minQiBreakBurstPercent);
+    ).toBe(defaultCombatFormulaConstants.minAiOverloadBurstPercent);
   });
 
-  it("calculates Qi Break backlash and recovery", () => {
-    expect(calculateQiBreakBacklashDamage(1000)).toBeCloseTo(30);
-    expect(calculateQiBreakRecovery(400)).toBeCloseTo(140);
+  it("calculates AI Overload backlash and recovery", () => {
+    expect(calculateAiOverloadFeedbackDamage(1000)).toBeCloseTo(30);
+    expect(calculateAiOverloadContextRebuild(400)).toBeCloseTo(140);
   });
 
   it("recovers Inner Qi without exceeding maximum", () => {

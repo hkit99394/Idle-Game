@@ -4,7 +4,7 @@ import {
   createBattleEventRecord,
   createBattleEventRecords
 } from "../../core";
-import type { BattleEvent } from "../../core";
+import type { BattleEvent, LegacyBattleEvent } from "../../core";
 
 const sampleEventsByType = {
   attack: {
@@ -155,8 +155,8 @@ const sampleEventsByType = {
     statusResistanceBonus: 0,
     statusResistanceDurationSeconds: 0
   },
-  qi_break: {
-    type: "qi_break",
+  ai_overload: {
+    type: "ai_overload",
     time: 4,
     sourceId: "player_a",
     targetId: "enemy_a",
@@ -164,8 +164,8 @@ const sampleEventsByType = {
     burstPercent: 0.1,
     endsAt: 10
   },
-  qi_recover: {
-    type: "qi_recover",
+  context_rebuild: {
+    type: "context_rebuild",
     time: 10,
     targetId: "enemy_a",
     innerQi: 50
@@ -234,8 +234,8 @@ describe("battle event recorder contract", () => {
       cleanse: "poison",
       auto_medicine: "poison",
       attack: null,
-      qi_break: null,
-      qi_recover: null,
+      ai_overload: null,
+      context_rebuild: null,
       backlash: null,
       heal: null,
       defeat: null
@@ -243,11 +243,37 @@ describe("battle event recorder contract", () => {
   });
 
   it("keeps ids tied to event order, type, and timestamp", () => {
-    expect(createBattleEventRecord(sampleEventsByType.qi_break, 7)).toMatchObject({
-      id: "7-qi_break-4",
+    expect(createBattleEventRecord(sampleEventsByType.ai_overload, 7)).toMatchObject({
+      id: "7-ai_overload-4",
       index: 7,
-      category: "qi_break",
+      category: "ai_overload",
       timeSeconds: 4
     });
+  });
+
+  it("normalizes legacy Qi Break event record categories", () => {
+    const legacyEvents: LegacyBattleEvent[] = [
+      {
+        ...sampleEventsByType.ai_overload,
+        type: "qi_break"
+      },
+      {
+        ...sampleEventsByType.context_rebuild,
+        type: "qi_recover"
+      }
+    ];
+
+    expect(createBattleEventRecords(legacyEvents)).toEqual([
+      expect.objectContaining({
+        id: "0-ai_overload-4",
+        category: "ai_overload",
+        type: "ai_overload"
+      }),
+      expect.objectContaining({
+        id: "1-context_rebuild-10",
+        category: "context_rebuild",
+        type: "context_rebuild"
+      })
+    ]);
   });
 });

@@ -23,16 +23,16 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 
 - Combat is deterministic team-vs-team battle.
 - Player and enemy combatants use formation slots: front, middle, and back.
-- Targeting supports first living, weakest HP, highest CP, and inner-broken target rules.
-- Combatants have Outer HP and Inner Qi. Dropping Outer HP to zero defeats a combatant; dropping Inner Qi to zero triggers Qi Break.
-- Qi Break applies burst HP damage, increases damage taken, causes backlash when attacking, and later restores part of Inner Qi.
+- Targeting supports first living, weakest HP, highest CP, and overloaded target rules.
+- Combatants have Body Integrity and Context Stability. Dropping Body Integrity to zero defeats a combatant; dropping Context Stability to zero triggers AI Overload.
+- AI Overload applies burst Body Integrity damage, increases damage taken, causes backlash when attacking, and later restores part of Context Stability.
 - Current combat roles are tank, breaker, striker, and support.
 - Implemented effect families include direct Outer/Inner damage, healing, regeneration, guard, protect, armor break, wound, cleanse, speed down, inner defense down, and status application.
-- Battle summaries track practical carry signals such as damage dealt, Qi breaks, protection, healing, status damage, cleanse activity, medicine use, and contribution metrics.
+- Battle summaries track practical carry signals such as damage dealt, AI Overloads, protection, healing, status damage, cleanse activity, medicine use, and contribution metrics.
 - Stage 1.8 split the combat engine into named core modules:
   - `core/combat/scheduler.ts` owns deterministic action timing and speed-down-adjusted rescheduling.
   - `core/combat/targeting.ts` owns target selection rules.
-  - `core/combat/damagePackage.ts` owns attack, Qi Break, and backlash damage packages plus guard/protection mitigation commits.
+  - `core/combat/damagePackage.ts` owns attack, AI Overload, and backlash damage packages plus guard/protection mitigation commits.
   - `core/combat/effectPipeline.ts` owns skill-effect dispatch for timed status, data status, recovery, regeneration, and cleanse behavior.
   - `core/combat/statusEffects.ts`, `statusMetadata.ts`, and `cleansePolicy.ts` own timed/data-driven status application, ticking, resistance, and cleanse metadata.
   - `core/combat/autoMedicine/` owns battle cleanse and pre-battle resistance medicine automation.
@@ -103,7 +103,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.5 is closed and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md); `docs/stage-2.5-backlog.md` should not exist as an active backlog unless Stage 2.5 is explicitly reopened.
 - Stage 2.6 is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md); `docs/stage-2.6-backlog.md` should not exist as an active backlog unless Stage 2.6 is explicitly reopened.
 - Stage 2.7 is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md); `docs/stage-2.7-backlog.md` should not exist as an active backlog unless Stage 2.7 is explicitly reopened.
-- Stage 2.8 is active at [Stage 2.8 Backlog](stage-2.8-backlog.md), covering combat save/stat fields and combat/report symbols. Slice 93.1 is complete in [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) and confirmed current saves do not persist live combat stat/event state. Slice 93.2 added static/combat schema alias normalization in `core/data/combatSchemaAliases.ts` without changing save version `13`; Slice 93.3 moved owned runtime combat stat fields to Body Integrity, Context Stability, Kinetic/Cognitive, Breach Power, Overload Resist, and Context Rebuild symbols while keeping legacy-authored static JSON compatible through aliases. `docs/stage-2.8-backlog.md` should remain active until Stage 2.8 closure validation archives it.
+- Stage 2.8 is active at [Stage 2.8 Backlog](stage-2.8-backlog.md), covering combat save/stat fields and combat/report symbols. Slice 93.1 is complete in [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) and confirmed current saves do not persist live combat stat/event state. Slice 93.2 added static/combat schema alias normalization in `core/data/combatSchemaAliases.ts` without changing save version `13`; Slice 93.3 moved owned runtime combat stat fields to Body Integrity, Context Stability, Kinetic/Cognitive, Breach Power, Overload Resist, and Context Rebuild symbols while keeping legacy-authored static JSON compatible through aliases; Slice 94.1 moved AI Overload event/metric/contribution symbols to current names while preserving legacy event-record normalization. `docs/stage-2.8-backlog.md` should remain active until Stage 2.8 closure validation archives it.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules

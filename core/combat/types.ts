@@ -20,7 +20,7 @@ export type TargetRule =
   | "first_living"
   | "weakest_hp"
   | "highest_cp"
-  | "inner_broken";
+  | "overloaded";
 
 export type BaseStats = {
   maxBodyIntegrity: number;
@@ -45,9 +45,9 @@ export type CombatFormulaConstants = {
   baseAttackInterval: number;
   minAttackInterval: number;
   maxAttackInterval: number;
-  baseQiBreakBurstPercent: number;
-  minQiBreakBurstPercent: number;
-  maxQiBreakBurstPercent: number;
+  baseAiOverloadBurstPercent: number;
+  minAiOverloadBurstPercent: number;
+  maxAiOverloadBurstPercent: number;
   overloadedKineticDamageTakenMultiplier: number;
   overloadedCognitiveDamageTakenMultiplier: number;
   aiOverloadFeedbackPercent: number;
@@ -65,7 +65,7 @@ export type DamageInput = {
   critMultiplier?: number;
 };
 
-export type QiBreakBurstInput = {
+export type AiOverloadBurstInput = {
   targetMaxBodyIntegrity: number;
   attackerBreachPower?: number;
   targetOverloadResist?: number;
@@ -453,7 +453,7 @@ export type BattleEvent =
       statusResistanceDurationSeconds: number;
     }
   | {
-      type: "qi_break";
+      type: "ai_overload";
       time: number;
       sourceId: string;
       targetId: string;
@@ -462,7 +462,7 @@ export type BattleEvent =
       endsAt: number;
     }
   | {
-      type: "qi_recover";
+      type: "context_rebuild";
       time: number;
       targetId: string;
       innerQi: number;
@@ -496,10 +496,10 @@ export type BattleMetrics = {
   playerInnerDamage: number;
   enemyOuterDamage: number;
   enemyInnerDamage: number;
-  playerQiBreakBurstDamage: number;
-  enemyQiBreakBurstDamage: number;
-  qiBreaksTriggeredByPlayer: number;
-  qiBreaksTriggeredByEnemy: number;
+  playerAiOverloadBurstDamage: number;
+  enemyAiOverloadBurstDamage: number;
+  aiOverloadsTriggeredByPlayer: number;
+  aiOverloadsTriggeredByEnemy: number;
   backlashDamageToEnemies: number;
   backlashDamageToPlayers: number;
   guardDamagePreventedByPlayer: number;
@@ -534,8 +534,8 @@ export type BattleContribution = {
   combatRole: CombatRole;
   outerDamageDealt: number;
   innerDamageDealt: number;
-  qiBreakBurstDamageDealt: number;
-  qiBreaksTriggered: number;
+  aiOverloadBurstDamageDealt: number;
+  aiOverloadsTriggered: number;
   outerDamageTaken: number;
   innerDamageTaken: number;
   backlashDamageTaken: number;

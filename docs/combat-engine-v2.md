@@ -24,7 +24,7 @@ This guide is for new contributors working on the combat engine produced by Stag
 2. Step advance phase:
    - `expireStatusEffects` clears expired timed statuses and medicine resistance bonuses.
    - `advanceCombatantDataStatuses` advances `activeStatuses`, applies status tick damage, records `status_tick`/`status_expire`, and marks defeats.
-   - `recoverQiBreaks` ends Qi Break windows and restores inner Qi.
+   - `recoverAiOverloads` ends AI Overload windows and restores Context Stability.
    - `recoverInnerQi` restores inner Qi after the configured delay, with data-status recovery modifiers.
    - `tickRegeneration` applies timed regeneration ticks.
 3. Action phase:
@@ -32,12 +32,12 @@ This guide is for new contributors working on the combat engine produced by Stag
    - `canCombatantActAt` checks living state and `nextActionAt`.
    - `chooseSkill` selects the first ready configured skill, applies skill upgrades, or falls back to `baseline_strike`.
    - `resolveAttackDamageTargets` selects the intended enemy target, applying player tactic target priorities when present, and may redirect damage to a protector.
-   - `createAttackDamagePackage` calculates outer/inner damage from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, Qi Break modifiers, and data status modifiers.
+   - `createAttackDamagePackage` calculates outer/inner damage from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, AI Overload modifiers, and data status modifiers.
    - `applyDamagePackageMitigation` applies guard first, then protection.
    - `commitDamagePackage` mutates target HP/Qi and records attack damage.
    - `applyTimedSkillEffects` handles post-attack timed/status effects.
    - `applyRecoverySkillEffects` handles heals, regeneration setup, and cleanse.
-   - `applyQiBreakIfNeeded`, defeat checks, Qi Break backlash, and data-status attack backlash run after skill effects.
+   - `applyAiOverloadIfNeeded`, defeat checks, AI Overload feedback/backlash, and data-status attack backlash run after skill effects.
    - Skill cooldown and `scheduleNextAction` update the attacker.
    - `applyBattleCleanseAutoMedicine` may cleanse player combatants after each combatant action.
    - Winner is checked after each combatant's action block.
@@ -74,7 +74,7 @@ Auto-medicine interacts with status hooks through `core/combat/autoMedicine/appl
 - Raw package creation belongs in `core/combat/damagePackage.ts`. Keep package creation separate from mutation so target/source invariants stay enforceable.
 - Target stat reductions before damage belong in `getEffectiveTargetStats` in `core/combat/defensivePipeline.ts`.
 - Damage prevention or redirection belongs in `applyDamagePackageMitigation`, `applyGuardReduction`, `findProtector`, or `applyProtectionReduction`.
-- HP/Qi mutation and attack/Qi Break/backlash events belong in the commit functions in `damagePackage.ts`.
+- Body Integrity/Context Stability mutation and attack/AI Overload/backlash events belong in the commit functions in `damagePackage.ts`.
 - Aggregate and per-combatant accounting belongs in `battleRecorder.ts`.
 
 Guard currently reduces outer damage and is countered by armor break. Protection can redirect to a living ally in an earlier formation slot and reduces both outer and inner damage after guard.
