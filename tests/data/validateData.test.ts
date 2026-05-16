@@ -3,9 +3,283 @@ import { validateStaticGameData } from "../../core";
 import type { StaticGameData } from "../../core";
 import { staticData } from "../helpers/staticData";
 
+type BaseStatsRecord = StaticGameData["heroes"][number]["baseStats"];
+
+const targetStatAliases: Record<string, string> = {
+  breakPower: "breachPower",
+  breakResist: "overloadResist",
+  innerAttack: "cognitiveAttack",
+  innerDefense: "cognitiveDefense",
+  innerRecoveryRate: "contextRebuildRate",
+  maxInnerQi: "maxContextStability",
+  maxOuterHp: "maxBodyIntegrity",
+  outerAttack: "kineticAttack",
+  outerDefense: "kineticDefense"
+};
+
+function toTargetBaseStats(stats: BaseStatsRecord): BaseStatsRecord {
+  const targetStats: Record<string, unknown> = { ...stats };
+
+  for (const [legacyStat, targetStat] of Object.entries(targetStatAliases)) {
+    targetStats[targetStat] = targetStats[legacyStat];
+    delete targetStats[legacyStat];
+  }
+
+  return targetStats as unknown as BaseStatsRecord;
+}
+
+function toTargetStat(stat: string): string {
+  return targetStatAliases[stat] ?? stat;
+}
+
 describe("static game data validation", () => {
   it("accepts the starter MVP data set", () => {
     expect(validateStaticGameData(staticData)).toEqual([]);
+  });
+
+  it("accepts Stage 2.8 combat schema aliases during validation", () => {
+    const aliasedData = {
+      ...staticData,
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "iron_fist_initiate"
+          ? { ...hero, baseStats: toTargetBaseStats(hero.baseStats) }
+          : hero
+      ),
+      enemies: staticData.enemies.map((enemy) =>
+        enemy.id === "greenline_cutter"
+          ? { ...enemy, baseStats: toTargetBaseStats(enemy.baseStats) }
+          : enemy
+      ),
+      skills: staticData.skills.map((skill) => {
+        if (skill.id !== "cloud_context_press") {
+          return skill;
+        }
+
+        const { outerMultiplier, innerMultiplier, ...rest } = skill;
+
+        return {
+          ...rest,
+          kineticMultiplier: outerMultiplier,
+          cognitiveMultiplier: innerMultiplier,
+          targetRule: "overloaded",
+          effects: skill.effects.map((effect) =>
+            effect.type === "inner_defense_down"
+              ? { ...effect, type: "cognitive_defense_down" }
+              : effect
+          )
+        };
+      }),
+      tactics: staticData.tactics.map((tactic) =>
+        tactic.id === "context_break"
+          ? {
+              ...tactic,
+              targetPriorities: ["overloaded", "highest_cp"],
+              modifiers: tactic.modifiers.map((modifier) => {
+                if (modifier.type === "inner_damage_multiplier") {
+                  return { ...modifier, type: "cognitive_damage_multiplier" };
+                }
+
+                if (modifier.type === "break_power_multiplier") {
+                  return { ...modifier, type: "breach_power_multiplier" };
+                }
+
+                return modifier;
+              })
+            }
+          : tactic
+      ),
+      equipment: staticData.equipment.map((equipment) =>
+        equipment.id === "impact_training_wraps"
+          ? {
+              ...equipment,
+              effects: equipment.effects.map((effect) => ({
+                ...effect,
+                stat: toTargetStat(effect.stat)
+              }))
+            }
+          : equipment
+      ),
+      equipmentSets: staticData.equipmentSets?.map((set) =>
+        set.id === "ironwall_ward"
+          ? {
+              ...set,
+              bonuses: set.bonuses.map((bonus) => ({
+                ...bonus,
+                effects: bonus.effects.map((effect) => ({
+                  ...effect,
+                  stat: toTargetStat(effect.stat)
+                }))
+              }))
+            }
+          : set
+      ),
+      upgrades: staticData.upgrades.map((upgrade) =>
+        upgrade.id === "sect_outer_training"
+          ? {
+              ...upgrade,
+              effects: upgrade.effects.map((effect) => ({
+                ...effect,
+                stat: toTargetStat(effect.stat)
+              }))
+            }
+          : upgrade
+      ),
+      skillUpgrades: staticData.skillUpgrades.map((upgrade) =>
+        upgrade.id === "impact_combo_refinement"
+          ? {
+              ...upgrade,
+              effects: upgrade.effects.map((effect) =>
+                effect.type === "outer_multiplier"
+                  ? { ...effect, type: "kinetic_multiplier" }
+                  : effect
+              )
+            }
+          : upgrade
+      ),
+      styles: staticData.styles.map((style) =>
+        style.id === "impact"
+          ? {
+              ...style,
+              bonuses: style.bonuses.map((bonus) => ({
+                ...bonus,
+                stat: toTargetStat(bonus.stat)
+              })),
+              branches: style.branches.map((branch) => ({
+                ...branch,
+                effects: branch.effects.map((effect) => ({
+                  ...effect,
+                  stat: toTargetStat(effect.stat)
+                }))
+              }))
+            }
+          : style
+      ),
+      statusEffects: staticData.statusEffects.map((status) => {
+        if (status.id === "corruption") {
+          return {
+            ...status,
+            effects: {
+              bodyIntegrityDamagePerSecond: status.effects.outerDamagePerSecond
+            }
+          };
+        }
+
+        if (status.id === "context_suppression") {
+          return {
+            ...status,
+            effects: {
+              contextRebuildMultiplier: status.effects.innerRecoveryMultiplier
+            }
+          };
+        }
+
+        if (status.id === "exposed") {
+          return {
+            ...status,
+            effects: {
+              kineticDamageTakenMultiplier: status.effects.outerDamageTakenMultiplier
+            }
+          };
+        }
+
+        if (status.id === "burning_blood") {
+          return {
+            ...status,
+            effects: {
+              feedbackBodyIntegrityPercent:
+                status.effects.attackBacklashOuterHpPercent
+            }
+          };
+        }
+
+        return status;
+      })
+    } as unknown as StaticGameData;
+
+    expect(validateStaticGameData(aliasedData)).toEqual([]);
+  });
+
+  it("accepts equivalent legacy and Stage 2.8 combat schema aliases", () => {
+    const aliasedData = {
+      ...staticData,
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "iron_fist_initiate"
+          ? {
+              ...hero,
+              baseStats: {
+                ...hero.baseStats,
+                maxBodyIntegrity: hero.baseStats.maxOuterHp
+              }
+            }
+          : hero
+      ),
+      skills: staticData.skills.map((skill) =>
+        skill.id === "impact_combo"
+          ? {
+              ...skill,
+              kineticMultiplier: skill.outerMultiplier
+            }
+          : skill
+      ),
+      statusEffects: staticData.statusEffects.map((status) =>
+        status.id === "corruption"
+          ? {
+              ...status,
+              effects: {
+                ...status.effects,
+                bodyIntegrityDamagePerSecond: status.effects.outerDamagePerSecond
+              }
+            }
+          : status
+      )
+    } as unknown as StaticGameData;
+
+    expect(validateStaticGameData(aliasedData)).toEqual([]);
+  });
+
+  it("rejects conflicting Stage 2.8 combat schema aliases", () => {
+    const invalidData = {
+      ...staticData,
+      heroes: staticData.heroes.map((hero) =>
+        hero.id === "iron_fist_initiate"
+          ? {
+              ...hero,
+              baseStats: {
+                ...hero.baseStats,
+                maxBodyIntegrity: hero.baseStats.maxOuterHp + 1
+              }
+            }
+          : hero
+      ),
+      skills: staticData.skills.map((skill) =>
+        skill.id === "impact_combo"
+          ? {
+              ...skill,
+              kineticMultiplier: skill.outerMultiplier + 0.1
+            }
+          : skill
+      ),
+      statusEffects: staticData.statusEffects.map((status) =>
+        status.id === "corruption"
+          ? {
+              ...status,
+              effects: {
+                ...status.effects,
+                bodyIntegrityDamagePerSecond:
+                  (status.effects.outerDamagePerSecond ?? 0) + 0.1
+              }
+            }
+          : status
+      )
+    } as unknown as StaticGameData;
+
+    expect(validateStaticGameData(invalidData)).toEqual(
+      expect.arrayContaining([
+        "conflicting combat schema aliases: Hero iron_fist_initiate baseStats.maxBodyIntegrity and Hero iron_fist_initiate baseStats.maxOuterHp",
+        "conflicting combat schema aliases: Skill impact_combo.kineticMultiplier and Skill impact_combo.outerMultiplier",
+        "conflicting combat schema aliases: Status corruption effects.bodyIntegrityDamagePerSecond and Status corruption effects.outerDamagePerSecond"
+      ])
+    );
   });
 
   it("rejects legacy route ids in canonical static data references", () => {

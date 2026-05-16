@@ -4,6 +4,7 @@ import {
   staticGameDataParts
 } from "../../data/staticGameData";
 import {
+  buildStaticGameData,
   staticGameDataPartKeys,
   validateStaticGameData
 } from "../../core";
@@ -23,6 +24,36 @@ function getFixtureCounts(data: StaticGameData) {
       ];
     })
   ) as Record<(typeof staticGameDataPartKeys)[number], number>;
+}
+
+function toTargetBaseStats(
+  stats: StaticGameData["heroes"][number]["baseStats"]
+): StaticGameData["heroes"][number]["baseStats"] {
+  const {
+    maxOuterHp,
+    maxInnerQi,
+    outerAttack,
+    innerAttack,
+    outerDefense,
+    innerDefense,
+    breakPower,
+    breakResist,
+    innerRecoveryRate,
+    ...rest
+  } = stats;
+
+  return {
+    ...rest,
+    maxBodyIntegrity: maxOuterHp,
+    maxContextStability: maxInnerQi,
+    kineticAttack: outerAttack,
+    cognitiveAttack: innerAttack,
+    kineticDefense: outerDefense,
+    cognitiveDefense: innerDefense,
+    breachPower: breakPower,
+    overloadResist: breakResist,
+    contextRebuildRate: innerRecoveryRate
+  } as unknown as StaticGameData["heroes"][number]["baseStats"];
 }
 
 describe("static data builder", () => {
@@ -48,6 +79,39 @@ describe("static data builder", () => {
 
   it("validates the canonical bundle without errors", () => {
     expect(validateStaticGameData(staticGameData)).toEqual([]);
+  });
+
+  it("normalizes Stage 2.8 combat schema aliases for runtime consumers", () => {
+    const sourceHero = staticGameData.heroes.find(
+      (hero) => hero.id === "iron_fist_initiate"
+    )!;
+    const data = buildStaticGameData({
+      ...staticGameDataParts,
+      heroes: staticGameData.heroes.map((hero) =>
+        hero.id === sourceHero.id
+          ? {
+              ...hero,
+              baseStats: toTargetBaseStats(hero.baseStats)
+            }
+          : hero
+      )
+    });
+    const normalizedHero = data.heroes.find((hero) => hero.id === sourceHero.id)!;
+    const normalizedStats = normalizedHero.baseStats as unknown as Record<
+      string,
+      unknown
+    >;
+
+    expect(normalizedHero.baseStats.maxOuterHp).toBe(sourceHero.baseStats.maxOuterHp);
+    expect(normalizedHero.baseStats.maxInnerQi).toBe(
+      sourceHero.baseStats.maxInnerQi
+    );
+    expect(normalizedHero.baseStats.outerAttack).toBe(
+      sourceHero.baseStats.outerAttack
+    );
+    expect(normalizedStats.maxBodyIntegrity).toBeUndefined();
+    expect(normalizedStats.maxContextStability).toBeUndefined();
+    expect(normalizedStats.kineticAttack).toBeUndefined();
   });
 
   it("surfaces representative missing references through static data validation", () => {

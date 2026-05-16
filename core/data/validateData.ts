@@ -2,6 +2,10 @@ import {
   REGION_ALIAS_INDEX,
   STAGE_ALIAS_INDEX
 } from "../compatibility";
+import {
+  normalizeStaticCombatSchemaAliases,
+  validateStaticCombatSchemaAliases
+} from "./combatSchemaAliases";
 import type { StaticGameData, UnlockCondition } from "./types";
 import {
   buildStaticDataIndexes,
@@ -43,23 +47,24 @@ import {
 } from "./validation/progression";
 
 export function validateStaticGameData(data: StaticGameData): string[] {
-  const errors: string[] = [];
+  const errors: string[] = validateStaticCombatSchemaAliases(data);
+  const normalizedData = normalizeStaticCombatSchemaAliases(data);
   const entityGroups: Array<[string, EntityWithId[]]> = [
-    ["assignment", data.assignments ?? []],
-    ["hero", data.heroes],
-    ["skill", data.skills],
-    ["tactic", data.tactics],
-    ["enemy", data.enemies],
-    ["equipment", data.equipment],
-    ["equipment set", data.equipmentSets ?? []],
-    ["region", data.regions],
-    ["stage", data.stages],
-    ["upgrade", data.upgrades],
-    ["formation", data.formations],
-    ["style", data.styles],
-    ["skill upgrade", data.skillUpgrades],
-    ["status", data.statusEffects],
-    ["medicine", data.medicines]
+    ["assignment", normalizedData.assignments ?? []],
+    ["hero", normalizedData.heroes],
+    ["skill", normalizedData.skills],
+    ["tactic", normalizedData.tactics],
+    ["enemy", normalizedData.enemies],
+    ["equipment", normalizedData.equipment],
+    ["equipment set", normalizedData.equipmentSets ?? []],
+    ["region", normalizedData.regions],
+    ["stage", normalizedData.stages],
+    ["upgrade", normalizedData.upgrades],
+    ["formation", normalizedData.formations],
+    ["style", normalizedData.styles],
+    ["skill upgrade", normalizedData.skillUpgrades],
+    ["status", normalizedData.statusEffects],
+    ["medicine", normalizedData.medicines]
   ];
 
   for (const [label, entities] of entityGroups) {
@@ -68,28 +73,28 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     }
   }
 
-  errors.push(...validateCanonicalRegionStageIds(data));
+  errors.push(...validateCanonicalRegionStageIds(normalizedData));
 
-  const validationContext = buildStaticDataIndexes(data);
+  const validationContext = buildStaticDataIndexes(normalizedData);
 
-  errors.push(...validateHeroSkillRefs(data.heroes, validationContext));
-  errors.push(...validateHeroStyleRefs(data.heroes, validationContext));
-  errors.push(...validateEnemySkillRefs(data.enemies, validationContext));
-  errors.push(...validateEnemyStyleRefs(data.enemies, validationContext));
-  errors.push(...validateStageEnemyRefs(data.stages, validationContext));
-  errors.push(...validateStageEquipmentRefs(data.stages, validationContext));
-  errors.push(...validateStageRegionRefs(data.stages, validationContext));
-  errors.push(...validateStageNextRefs(data.stages, validationContext));
-  errors.push(...validateRegionStageRefs(data.regions, validationContext));
-  errors.push(...validateRegionStageOwnership(data.regions, data.stages));
-  for (const region of data.regions) {
+  errors.push(...validateHeroSkillRefs(normalizedData.heroes, validationContext));
+  errors.push(...validateHeroStyleRefs(normalizedData.heroes, validationContext));
+  errors.push(...validateEnemySkillRefs(normalizedData.enemies, validationContext));
+  errors.push(...validateEnemyStyleRefs(normalizedData.enemies, validationContext));
+  errors.push(...validateStageEnemyRefs(normalizedData.stages, validationContext));
+  errors.push(...validateStageEquipmentRefs(normalizedData.stages, validationContext));
+  errors.push(...validateStageRegionRefs(normalizedData.stages, validationContext));
+  errors.push(...validateStageNextRefs(normalizedData.stages, validationContext));
+  errors.push(...validateRegionStageRefs(normalizedData.regions, validationContext));
+  errors.push(...validateRegionStageOwnership(normalizedData.regions, normalizedData.stages));
+  for (const region of normalizedData.regions) {
     errors.push(
       ...validateRegionBalanceTargets(
         region,
         validationContext,
-        data.stages,
-        data.enemies,
-        data.skills
+        normalizedData.stages,
+        normalizedData.enemies,
+        normalizedData.skills
       )
     );
     errors.push(
@@ -101,64 +106,64 @@ export function validateStaticGameData(data: StaticGameData): string[] {
     );
   }
 
-  for (const hero of data.heroes) {
+  for (const hero of normalizedData.heroes) {
     errors.push(...validateStats(hero.id, hero.baseStats));
     errors.push(...validateCombatRole(`Hero ${hero.id}`, hero.combatRole));
     errors.push(...validateUnlockCondition(`Hero ${hero.id}`, hero.unlock, validationContext));
   }
 
-  for (const enemy of data.enemies) {
+  for (const enemy of normalizedData.enemies) {
     errors.push(...validateEnemy(enemy));
     errors.push(...validateCombatRole(`Enemy ${enemy.id}`, enemy.combatRole));
   }
 
-  for (const skill of data.skills) {
+  for (const skill of normalizedData.skills) {
     errors.push(...validateSkill(skill, validationContext));
   }
 
-  errors.push(...validateTacticPresets(data.tactics));
+  errors.push(...validateTacticPresets(normalizedData.tactics));
 
-  for (const status of data.statusEffects) {
+  for (const status of normalizedData.statusEffects) {
     errors.push(...validateStatusEffect(status));
   }
 
-  for (const medicine of data.medicines) {
+  for (const medicine of normalizedData.medicines) {
     errors.push(...validateMedicine(medicine, validationContext));
   }
 
-  for (const equipment of data.equipment) {
+  for (const equipment of normalizedData.equipment) {
     errors.push(...validateEquipment(equipment, validationContext));
   }
 
-  for (const set of data.equipmentSets ?? []) {
+  for (const set of normalizedData.equipmentSets ?? []) {
     errors.push(...validateEquipmentSet(set));
   }
 
-  for (const assignment of data.assignments ?? []) {
+  for (const assignment of normalizedData.assignments ?? []) {
     errors.push(...validateAssignment(assignment, validationContext));
   }
 
-  for (const skillUpgrade of data.skillUpgrades) {
+  for (const skillUpgrade of normalizedData.skillUpgrades) {
     errors.push(...validateSkillUpgrade(skillUpgrade, validationContext));
   }
 
-  for (const stage of data.stages) {
+  for (const stage of normalizedData.stages) {
     errors.push(...validateStage(stage));
   }
 
-  for (const upgrade of data.upgrades) {
+  for (const upgrade of normalizedData.upgrades) {
     errors.push(...validateUpgrade(upgrade));
   }
 
-  for (const formation of data.formations) {
+  for (const formation of normalizedData.formations) {
     errors.push(...validateFormation(formation));
   }
 
-  for (const style of data.styles) {
+  for (const style of normalizedData.styles) {
     errors.push(...validateMartialStyle(style, validationContext));
   }
 
-  const thresholds = data.mastery.thresholds;
+  const thresholds = normalizedData.mastery.thresholds;
   for (let index = 1; index < thresholds.length; index += 1) {
     if (thresholds[index].experience <= thresholds[index - 1].experience) {
       errors.push("Mastery thresholds must be sorted by increasing experience");
