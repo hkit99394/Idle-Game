@@ -4,7 +4,7 @@
     "name": "Impact Training Wraps",
     "slot": "weapon",
     "rarity": "common",
-    "allowedStyles": ["fist", "leg"],
+    "allowedStyles": ["impact", "vector"],
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
       { "stat": "critChance", "mode": "flat", "value": 0.01 }
@@ -15,7 +15,7 @@
     "name": "Willow Pulse Protocol",
     "slot": "manual",
     "rarity": "common",
-    "allowedStyles": ["palm"],
+    "allowedStyles": ["pulse"],
     "effects": [
       { "stat": "innerAttack", "mode": "multiplier", "value": 0.08 },
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.05 }
@@ -26,7 +26,7 @@
     "name": "Crane Edge Cutter",
     "slot": "weapon",
     "rarity": "uncommon",
-    "allowedStyles": ["sword"],
+    "allowedStyles": ["edge"],
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.12 },
       { "stat": "speed", "mode": "multiplier", "value": 0.06 }
@@ -37,7 +37,7 @@
     "name": "Guardian Brace Staff",
     "slot": "weapon",
     "rarity": "uncommon",
-    "allowedStyles": ["staff"],
+    "allowedStyles": ["brace"],
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.1 },
       { "stat": "outerDefense", "mode": "multiplier", "value": 0.12 }
@@ -48,7 +48,7 @@
     "name": "Woven Travel Plating",
     "slot": "armor",
     "rarity": "common",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.04 }
@@ -59,7 +59,7 @@
     "name": "Calming Context Stim",
     "slot": "medicine",
     "rarity": "common",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },
       { "stat": "innerRecoveryRate", "mode": "multiplier", "value": 0.1 }
@@ -70,7 +70,7 @@
     "name": "Veil Needle Case",
     "slot": "weapon",
     "rarity": "uncommon",
-    "allowedStyles": ["hidden_weapons"],
+    "allowedStyles": ["ghostware"],
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.08 },
       { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 }
@@ -81,7 +81,7 @@
     "name": "Veil Pulse Protocol",
     "slot": "manual",
     "rarity": "uncommon",
-    "allowedStyles": ["palm"],
+    "allowedStyles": ["pulse"],
     "effects": [
       { "stat": "innerAttack", "mode": "multiplier", "value": 0.12 },
       { "stat": "breakPower", "mode": "flat", "value": 0.01 }
@@ -92,7 +92,7 @@
     "name": "Iron Thread Plating",
     "slot": "armor",
     "rarity": "rare",
-    "allowedStyles": ["fist", "blade", "staff"],
+    "allowedStyles": ["impact", "rend", "brace"],
     "setId": "black_iron_ward",
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.14 },
@@ -114,7 +114,7 @@
     "name": "Black Iron Saber",
     "slot": "weapon",
     "rarity": "rare",
-    "allowedStyles": ["sword", "blade"],
+    "allowedStyles": ["edge", "rend"],
     "setId": "black_iron_ward",
     "effects": [
       { "stat": "outerAttack", "mode": "multiplier", "value": 0.14 },
@@ -135,7 +135,7 @@
     "name": "Fortress Guard Protocol",
     "slot": "manual",
     "rarity": "uncommon",
-    "allowedStyles": ["fist", "staff"],
+    "allowedStyles": ["impact", "brace"],
     "setId": "black_iron_ward",
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.08 },
@@ -156,7 +156,7 @@
     "name": "Tempered Context Stim",
     "slot": "medicine",
     "rarity": "uncommon",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "setId": "black_iron_ward",
     "effects": [
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.07 },
@@ -177,7 +177,7 @@
     "name": "Lotus Dew Countermeasure",
     "slot": "medicine",
     "rarity": "common",
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "effects": [
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.08 },
       { "stat": "innerRecoveryRate", "mode": "flat", "value": 0.001 }
@@ -188,7 +188,7 @@
     "name": "Mending Patch",
     "slot": "medicine",
     "rarity": "uncommon",
-    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "allowedStyles": ["pulse", "brace", "ghostware"],
     "effects": [
       { "stat": "maxOuterHp", "mode": "multiplier", "value": 0.06 },
       { "stat": "maxInnerQi", "mode": "multiplier", "value": 0.06 },

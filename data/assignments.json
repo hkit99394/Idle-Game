@@ -6,7 +6,7 @@
     "unlockCondition": { "type": "always" },
     "durationBucket": "short",
     "allowedRoles": ["tank", "breaker", "striker"],
-    "allowedStyles": ["fist", "palm", "leg", "sword", "blade", "staff", "hidden_weapons"],
+    "allowedStyles": ["impact", "pulse", "vector", "edge", "rend", "brace", "ghostware"],
     "rewardProfile": {
       "silverPerHour": 24,
       "combatExperiencePerHour": 4,
@@ -23,7 +23,7 @@
     "unlockCondition": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
     "durationBucket": "medium",
     "allowedRoles": ["breaker", "support"],
-    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "allowedStyles": ["pulse", "brace", "ghostware"],
     "rewardProfile": {
       "cultivationPerHour": 18,
       "styleMasteryExperiencePerHour": 12
@@ -36,7 +36,7 @@
     "unlockCondition": { "type": "stage_cleared", "stageId": "black_iron_foundry_1" },
     "durationBucket": "long",
     "allowedRoles": ["tank", "breaker", "striker"],
-    "allowedStyles": ["fist", "sword", "blade", "staff"],
+    "allowedStyles": ["impact", "edge", "rend", "brace"],
     "rewardProfile": {
       "cultivationPerHour": 24,
       "combatExperiencePerHour": 6,
@@ -51,7 +51,7 @@
     "unlockCondition": { "type": "stage_cleared", "stageId": "lotus_clinic_3" },
     "durationBucket": "medium",
     "allowedRoles": ["support", "tank"],
-    "allowedStyles": ["palm", "staff", "hidden_weapons"],
+    "allowedStyles": ["pulse", "brace", "ghostware"],
     "rewardProfile": {
       "cultivationPerHour": 12,
       "herbsPerHour": 18,

@@ -1,8 +1,8 @@
 [
   {
-    "id": "iron_fist_disciple",
+    "id": "iron_fist_initiate",
     "name": "Iron Fist Initiate",
-    "style": "fist",
+    "style": "impact",
     "role": "Kinetic bruiser",
     "combatRole": "striker",
     "baseStats": {
@@ -21,14 +21,14 @@
       "statusAccuracy": 0,
       "statusResistance": 0.02
     },
-    "skillIds": ["iron_fist_combo"],
+    "skillIds": ["impact_combo"],
     "passiveIds": [],
     "unlock": { "type": "always" }
   },
   {
-    "id": "azure_palm_monk",
+    "id": "azure_pulse_monk",
     "name": "Azure Pulse Monk",
-    "style": "palm",
+    "style": "pulse",
     "role": "Cognitive breacher",
     "combatRole": "breaker",
     "baseStats": {
@@ -47,14 +47,14 @@
       "statusAccuracy": 0.04,
       "statusResistance": 0.03
     },
-    "skillIds": ["meridian_shock"],
+    "skillIds": ["context_shock"],
     "passiveIds": [],
     "unlock": { "type": "always" }
   },
   {
-    "id": "white_crane_swordsman",
+    "id": "white_crane_edge_runner",
     "name": "White Crane Edge Runner",
-    "style": "sword",
+    "style": "edge",
     "role": "Hybrid duelist",
     "combatRole": "striker",
     "baseStats": {
@@ -73,14 +73,14 @@
       "statusAccuracy": 0.02,
       "statusResistance": 0.02
     },
-    "skillIds": ["white_crane_slash"],
+    "skillIds": ["white_crane_edge"],
     "passiveIds": [],
     "unlock": { "type": "always" }
   },
   {
-    "id": "mountain_staff_guardian",
+    "id": "mountain_brace_guardian",
     "name": "Mountain Brace Guardian",
-    "style": "staff",
+    "style": "brace",
     "role": "Defensive stabilizer",
     "combatRole": "tank",
     "baseStats": {
@@ -99,14 +99,14 @@
       "statusAccuracy": 0,
       "statusResistance": 0.05
     },
-    "skillIds": ["sweeping_staff"],
+    "skillIds": ["brace_sweep"],
     "passiveIds": [],
     "unlock": { "type": "always" }
   },
   {
-    "id": "lotus_mending_disciple",
+    "id": "lotus_stabilizer",
     "name": "Lotus Stabilizer",
-    "style": "palm",
+    "style": "pulse",
     "role": "Recovery stabilizer",
     "combatRole": "support",
     "baseStats": {
@@ -125,7 +125,7 @@
       "statusAccuracy": 0.02,
       "statusResistance": 0.08
     },
-    "skillIds": ["lotus_mending_vow"],
+    "skillIds": ["lotus_stabilizer_vow"],
     "passiveIds": [],
     "unlock": { "type": "stage_cleared", "stageId": "lotus_clinic_3" }
   }

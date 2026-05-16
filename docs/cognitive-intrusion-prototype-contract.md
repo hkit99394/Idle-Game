@@ -26,7 +26,7 @@ Recommended first implementation:
 - Add a new static status id, `cognitive_intrusion`, with display name **Intrusion**.
 - Add a status effect modifier for Cognitive damage taken, for example `innerDamageTakenMultiplier`, so Intrusion can make Context Stability pressure visibly stronger.
 - Keep the existing `innerRecoveryMultiplier` effect available for the same status, but avoid adding more status effect keys in the first slice.
-- Attach Intrusion through a narrow player-side upgrade path, preferably Azure Pulse Monk's `meridian_shock_refinement`, so the player can opt into the mechanic through existing Resonance spending.
+- Attach Intrusion through a narrow player-side upgrade path, preferably Azure Pulse Monk's `context_shock_refinement`, so the player can opt into the mechanic through existing Resonance spending.
 - Optionally add one hostile Redline or Veil skill application only if the player-side prototype is too invisible in simulator output.
 
 ## Affected Systems

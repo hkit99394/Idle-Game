@@ -58,6 +58,13 @@ export const displayTerms = {
     styleMastery: "Protocol Mastery"
   },
   styles: {
+    impact: "Impact Style",
+    pulse: "Pulse Style",
+    vector: "Vector Style",
+    edge: "Edge Style",
+    rend: "Rend Style",
+    brace: "Brace Style",
+    ghostware: "Ghostware Style",
     fist: "Impact Style",
     palm: "Pulse Style",
     leg: "Vector Style",

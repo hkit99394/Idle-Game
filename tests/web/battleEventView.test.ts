@@ -10,7 +10,7 @@ describe("battle event view models", () => {
       battle: {
         finalPlayerTeam: [
           {
-            instanceId: "player_iron_fist_disciple_1",
+            instanceId: "player_iron_fist_initiate_1",
             name: "Iron Fist Initiate",
             formationSlot: "front"
           }
@@ -20,7 +20,7 @@ describe("battle event view models", () => {
           {
             type: "auto_medicine",
             time: 1,
-            targetId: "player_iron_fist_disciple_1",
+            targetId: "player_iron_fist_initiate_1",
             trigger: "battle_cleanse",
             medicineId: "clear_heart_pill",
             cleansedStatusIds: ["corruption"],

@@ -103,7 +103,7 @@ describe("offline rewards", () => {
     }
 
     expect(result.rewards.combatExperience).toBe(100);
-    expect(result.progress.heroes.iron_fist_disciple.level).toBe(2);
+    expect(result.progress.heroes.iron_fist_initiate.level).toBe(2);
   });
 
   it("previews rewards with the same formula without mutating progress", () => {

@@ -174,7 +174,7 @@ describe("save load transaction", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.assignments = {
       bamboo_road_patrol: {
-        heroIds: ["iron_fist_disciple"]
+        heroIds: ["iron_fist_initiate"]
       }
     };
     const save = createSaveData({
@@ -193,7 +193,7 @@ describe("save load transaction", () => {
     expect(firstLoad.offlineAssignmentRewards?.rewards.assignments).toEqual([
       expect.objectContaining({
         assignmentId: "bamboo_road_patrol",
-        heroIds: ["iron_fist_disciple"]
+        heroIds: ["iron_fist_initiate"]
       })
     ]);
     expect(firstLoad.offlineAssignmentRewards?.rewards.silver).toBeGreaterThan(0);

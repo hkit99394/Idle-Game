@@ -1,7 +1,7 @@
 [
   {
-    "id": "iron_fist_combo_refinement",
-    "skillId": "iron_fist_combo",
+    "id": "impact_combo_refinement",
+    "skillId": "impact_combo",
     "name": "Impact Flow",
     "costResource": "cultivation",
     "baseCost": 8,
@@ -13,8 +13,8 @@
     ]
   },
   {
-    "id": "meridian_shock_refinement",
-    "skillId": "meridian_shock",
+    "id": "context_shock_refinement",
+    "skillId": "context_shock",
     "name": "Context Threading",
     "costResource": "cultivation",
     "baseCost": 8,
@@ -26,8 +26,8 @@
     ]
   },
   {
-    "id": "white_crane_slash_refinement",
-    "skillId": "white_crane_slash",
+    "id": "white_crane_edge_refinement",
+    "skillId": "white_crane_edge",
     "name": "White Crane Edge Rhythm",
     "costResource": "cultivation",
     "baseCost": 8,
@@ -50,8 +50,8 @@
     ]
   },
   {
-    "id": "sweeping_staff_refinement",
-    "skillId": "sweeping_staff",
+    "id": "brace_sweep_refinement",
+    "skillId": "brace_sweep",
     "name": "Brace Sweep Guard",
     "costResource": "cultivation",
     "baseCost": 8,
@@ -64,8 +64,8 @@
     ]
   },
   {
-    "id": "lotus_mending_vow_refinement",
-    "skillId": "lotus_mending_vow",
+    "id": "lotus_stabilizer_vow_refinement",
+    "skillId": "lotus_stabilizer_vow",
     "name": "Lotus Stabilizer Rhythm",
     "costResource": "cultivation",
     "baseCost": 12,

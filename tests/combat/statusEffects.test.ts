@@ -222,7 +222,7 @@ describe("status effects", () => {
       time: 3,
       sourceId: "enemy",
       targetId: "hero",
-      skillId: "basic_strike",
+      skillId: "baseline_strike",
       outerDamage: 10,
       innerDamage: 0
     };

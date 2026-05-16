@@ -137,7 +137,7 @@ describe("save schema factory", () => {
     });
     expect(result.save.offlineFarmPreset).toBe("balanced");
     expect(result.save.progress.resources.herbs).toBe(0);
-    expect(result.save.progress.heroes.iron_fist_disciple.level).toBe(1);
+    expect(result.save.progress.heroes.iron_fist_initiate.level).toBe(1);
     expect(result.save.progress.maps.veil_district).toMatchObject({
       combatExperience: 0,
       highestClearedStageIndex: 0
@@ -145,7 +145,7 @@ describe("save schema factory", () => {
     expect(result.save.progress.currentStageId).toBe("greenline_approach_2");
     expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(result.save.progress.formation).toMatchObject({
-      iron_fist_disciple: "front"
+      iron_fist_initiate: "front"
     });
     expect(result.save.progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
     expect(result.save.progress.selectedTacticId).toBe("balanced");

@@ -60,6 +60,11 @@ const expectedKindCounts = {
 const landedStaticRenameKinds = new Set<ContentIdAliasKind>([
   "hostile_family",
   "hostile",
+  "initiate",
+  "protocol",
+  "skill_upgrade",
+  "style",
+  "style_branch",
   "status"
 ]);
 
@@ -297,7 +302,7 @@ describe("content id compatibility aliases", () => {
     }
   });
 
-  it("keeps landed hostile/status ids canonical while later static rename slices wait", () => {
+  it("keeps landed 91.4/91.5 ids canonical while later static rename slices wait", () => {
     expect(staticData.enemies.map((enemy) => enemy.id)).toContain(
       "greenline_cutter"
     );
@@ -308,7 +313,13 @@ describe("content id compatibility aliases", () => {
       "corruption"
     );
     expect(staticData.heroes.map((hero) => hero.id)).toContain(
-      "iron_fist_disciple"
+      "iron_fist_initiate"
+    );
+    expect(staticData.skills.map((skill) => skill.id)).toContain(
+      "impact_combo"
+    );
+    expect(staticData.styles.map((style) => style.id)).toContain(
+      "impact"
     );
     expect(staticData.tactics.map((tactic) => tactic.id)).toContain(
       "outer_pressure"
@@ -321,6 +332,15 @@ describe("content id compatibility aliases", () => {
     );
     expect(staticData.statusEffects.map((status) => status.id)).not.toContain(
       "poison"
+    );
+    expect(staticData.heroes.map((hero) => hero.id)).not.toContain(
+      "iron_fist_disciple"
+    );
+    expect(staticData.skills.map((skill) => skill.id)).not.toContain(
+      "iron_fist_combo"
+    );
+    expect(staticData.styles.map((style) => style.id)).not.toContain(
+      "fist"
     );
 
     expect(normalizeContentId("hostile", "bamboo_bandit")).toBe(

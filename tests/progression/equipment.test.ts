@@ -70,12 +70,12 @@ describe("equipment progression", () => {
     }
 
     const beforeHero = beforeTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const beforeCp = calculateCombatPower(beforeHero?.statsOverride ?? staticData.heroes[0].baseStats);
     const equipResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "training_wraps"
     });
 
@@ -96,12 +96,12 @@ describe("equipment progression", () => {
     }
 
     const afterHero = afterTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const afterCp = calculateCombatPower(afterHero?.statsOverride ?? staticData.heroes[0].baseStats);
 
     expect(
-      equipResult.progress.equipment?.equipped.iron_fist_disciple?.weapon
+      equipResult.progress.equipment?.equipped.iron_fist_initiate?.weapon
     ).toBe("training_wraps");
     expect(afterCp).toBeGreaterThan(beforeCp);
   });
@@ -126,11 +126,11 @@ describe("equipment progression", () => {
     }
 
     const beforeHero = beforeTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "azure_palm_monk"
+      (combatant) => combatant.definitionId === "azure_pulse_monk"
     );
     const equipResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "azure_palm_monk",
+      heroId: "azure_pulse_monk",
       equipmentId: "lotus_dew_pill"
     });
 
@@ -151,10 +151,10 @@ describe("equipment progression", () => {
     }
 
     const afterHero = afterTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "azure_palm_monk"
+      (combatant) => combatant.definitionId === "azure_pulse_monk"
     );
 
-    expect(equipResult.progress.equipment?.equipped.azure_palm_monk?.medicine)
+    expect(equipResult.progress.equipment?.equipped.azure_pulse_monk?.medicine)
       .toBe("lotus_dew_pill");
     expect(afterHero?.statsOverride?.maxInnerQi).toBeGreaterThan(
       beforeHero?.statsOverride?.maxInnerQi ?? 0
@@ -181,7 +181,7 @@ describe("equipment progression", () => {
     expect(
       equipHeroEquipment(staticData, {
         progress,
-        heroId: "azure_palm_monk",
+        heroId: "azure_pulse_monk",
         equipmentId: "training_wraps"
       })
     ).toMatchObject({
@@ -191,7 +191,7 @@ describe("equipment progression", () => {
 
     const firstEquip = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "woven_travel_robe"
     });
 
@@ -203,7 +203,7 @@ describe("equipment progression", () => {
     expect(
       equipHeroEquipment(staticData, {
         progress: firstEquip.progress,
-        heroId: "azure_palm_monk",
+        heroId: "azure_pulse_monk",
         equipmentId: "woven_travel_robe"
       })
     ).toMatchObject({
@@ -222,7 +222,7 @@ describe("equipment progression", () => {
     };
     const equipResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "iron_thread_armor"
     });
 
@@ -257,10 +257,10 @@ describe("equipment progression", () => {
     }
 
     const withoutAffixHero = withoutAffixTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withAffixHero = withAffixTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withoutAffixStats = withoutAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
     const withAffixStats = withAffixHero?.statsOverride ?? staticData.heroes[0].baseStats;
@@ -284,7 +284,7 @@ describe("equipment progression", () => {
     };
     const armorResult = equipHeroEquipment(staticData, {
       progress,
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "iron_thread_armor"
     });
 
@@ -295,7 +295,7 @@ describe("equipment progression", () => {
 
     const manualResult = equipHeroEquipment(staticData, {
       progress: armorResult.progress,
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "fortress_guard_manual"
     });
 
@@ -326,10 +326,10 @@ describe("equipment progression", () => {
     }
 
     const withoutSetHero = withoutSetTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withSetHero = withSetTeam.team.combatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const withoutSetStats = withoutSetHero?.statsOverride ?? staticData.heroes[0].baseStats;
     const withSetStats = withSetHero?.statsOverride ?? staticData.heroes[0].baseStats;

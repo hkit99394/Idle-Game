@@ -4,7 +4,7 @@
 
 This map is the display-language contract for the Path of Neon retheme. It keeps mechanics recognizable while allowing player-facing copy, content names, and visual design to move away from pure martial fantasy.
 
-Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them in compatibility-backed slices, not during casual UI copy replacement. Stage 2.5 has migrated region and route id values such as `greenline_approach` and `redline_outpost`; save fields, content ids, test fixture keys, and API envelope fields may still keep legacy names such as `cultivation`, `silver`, `sect`, `innerQi`, or `iron_fist_disciple` until their owning migration stage lands. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
+Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them in compatibility-backed slices, not during casual UI copy replacement. Stage 2.5 has migrated region and route id values such as `greenline_approach` and `redline_outpost`; Stage 2.6 has migrated hostile/status/initiate/protocol/style ids such as `greenline_cutter`, `corruption`, `iron_fist_initiate`, and `impact_combo`. Save fields, test fixture keys, and API envelope fields may still keep technical names such as `cultivation`, `silver`, `sect`, `innerQi`, or `selectedTacticId` until their owning migration stage lands. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
 
 Use this map in three different ways:
 
@@ -86,13 +86,13 @@ Use this map in three different ways:
 
 | Current Term | Path of Neon Term | Migration Rule |
 | --- | --- | --- |
-| Fist | Impact Style | Display family first; keep `fist` and old Fist lineage until style-id migration. |
-| Palm | Pulse Style | Display family first; keep `palm` and old Palm lineage until style-id migration. |
-| Leg | Vector Style | Display family first; keep `leg` and old Leg lineage until style-id migration. |
-| Sword | Edge Style | Display family first; keep `sword` and old Sword lineage until style-id migration. |
-| Blade | Rend Style | Display family first; keep `blade` and old Blade lineage until style-id migration. |
-| Staff | Brace Style | Display family first; keep `staff` and old Staff lineage until style-id migration. |
-| Hidden weapon | Ghostware Style | Display family first; keep `hidden_weapons` until style-id migration. |
+| Fist | Impact Style | Canonical style id is `impact`; legacy alias `fist` remains save/import-compatible. |
+| Palm | Pulse Style | Canonical style id is `pulse`; legacy alias `palm` remains save/import-compatible. |
+| Leg | Vector Style | Canonical style id is `vector`; legacy alias `leg` remains save/import-compatible. |
+| Sword | Edge Style | Canonical style id is `edge`; legacy alias `sword` remains save/import-compatible. |
+| Blade | Rend Style | Canonical style id is `rend`; legacy alias `blade` remains save/import-compatible. |
+| Staff | Brace Style | Canonical style id is `brace`; legacy alias `staff` remains save/import-compatible. |
+| Hidden weapon | Ghostware Style | Canonical style id is `ghostware`; legacy alias `hidden_weapons` remains save/import-compatible. |
 | Tank | Anchor | Optional role flavor. |
 | Breaker | Breacher | Display rename. |
 | Striker | Striker | Can stay. |
@@ -110,7 +110,7 @@ Style families and combat roles are separate. Do not use Anchor, Breacher, Strik
 | Lotus Monastery | Lotus Clinic | Canonical region id is `lotus_clinic`; legacy alias `lotus_monastery` remains import-compatible. |
 | Demon Cult Outpost | Redline Outpost | Canonical region id is `redline_outpost`; legacy alias `demon_cult_outpost` remains import-compatible. Reserve Null Context for doctrine/status flavor. |
 | Black Iron Guard | Ironwall Guard | Canonical hostile id is `ironwall_guard`; legacy alias `black_iron_guard` remains save/import-compatible. |
-| Lotus Mending Disciple | Lotus Stabilizer | Stage 2.6 preflight targets `lotus_mending_disciple` -> `lotus_stabilizer`. |
+| Lotus Mending Disciple | Lotus Stabilizer | Canonical initiate id is `lotus_stabilizer`; legacy alias `lotus_mending_disciple` remains save/import-compatible. |
 
 ## Contract Terms That Should Stay Technical
 

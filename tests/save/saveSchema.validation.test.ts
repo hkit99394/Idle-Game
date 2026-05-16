@@ -198,10 +198,10 @@ describe("save schema validation", () => {
       nowMs: 1000
     });
 
-    save.progress.heroes.iron_fist_disciple.level = 0;
+    save.progress.heroes.iron_fist_initiate.level = 0;
 
     expect(validateSaveData(staticData, save)).toContain(
-      "progress.heroes.iron_fist_disciple.level must be an integer >= 1"
+      "progress.heroes.iron_fist_initiate.level must be an integer >= 1"
     );
   });
 });

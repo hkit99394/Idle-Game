@@ -30,7 +30,7 @@ This guide is for new contributors working on the combat engine produced by Stag
 3. Action phase:
    - Combatants are visited in runtime array order.
    - `canCombatantActAt` checks living state and `nextActionAt`.
-   - `chooseSkill` selects the first ready configured skill, applies skill upgrades, or falls back to `basic_strike`.
+   - `chooseSkill` selects the first ready configured skill, applies skill upgrades, or falls back to `baseline_strike`.
    - `resolveAttackDamageTargets` selects the intended enemy target, applying player tactic target priorities when present, and may redirect damage to a protector.
    - `createAttackDamagePackage` calculates outer/inner damage from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, Qi Break modifiers, and data status modifiers.
    - `applyDamagePackageMitigation` applies guard first, then protection.

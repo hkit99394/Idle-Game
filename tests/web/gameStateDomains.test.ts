@@ -94,7 +94,7 @@ describe("web game state domains", () => {
       purchaseReadyState,
       createPurchaseResolvedAction(staticData, purchaseReadyState, {
         upgradeId: "hero_outer_training",
-        heroId: "iron_fist_disciple"
+        heroId: "iron_fist_initiate"
       })
     );
     const equipmentReadyState = webGameStateReducer(
@@ -114,7 +114,7 @@ describe("web game state domains", () => {
       staticData,
       equipmentReadyState,
       createEquipmentEquipResolvedAction(staticData, equipmentReadyState, {
-        heroId: "iron_fist_disciple",
+        heroId: "iron_fist_initiate",
         equipmentId: "training_wraps"
       })
     );
@@ -123,7 +123,7 @@ describe("web game state domains", () => {
       state,
       createAssignmentUpdateResolvedAction(staticData, state, {
         assignmentId: "bamboo_road_patrol",
-        heroIds: ["iron_fist_disciple"]
+        heroIds: ["iron_fist_initiate"]
       })
     );
     const counterplayState = webGameStateReducer(
@@ -144,12 +144,12 @@ describe("web game state domains", () => {
     expect(purchasedState.progress.resources.silver).toBe(8);
     expect(equippedState.lastEquipmentAction?.ok).toBe(true);
     expect(
-      equippedState.progress.equipment?.equipped.iron_fist_disciple?.weapon
+      equippedState.progress.equipment?.equipped.iron_fist_initiate?.weapon
     ).toBe("training_wraps");
     expect(assignedState.lastAssignmentAction?.ok).toBe(true);
     expect(
       assignedState.progress.assignments?.bamboo_road_patrol?.heroIds
-    ).toEqual(["iron_fist_disciple"]);
+    ).toEqual(["iron_fist_initiate"]);
     expect(counterplayState.autoMedicinePreferences.disabledMedicineIds).toEqual([
       "clear_heart_pill"
     ]);

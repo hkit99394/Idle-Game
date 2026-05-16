@@ -147,7 +147,7 @@ describe("offline reward idempotency", () => {
     const assigned = setAssignmentHeroes(staticData, {
       progress,
       assignmentId: "bamboo_road_patrol",
-      heroIds: ["iron_fist_disciple"]
+      heroIds: ["iron_fist_initiate"]
     });
 
     expect(assigned.ok).toBe(true);
@@ -219,7 +219,7 @@ describe("offline reward idempotency", () => {
     const assigned = setAssignmentHeroes(staticData, {
       progress,
       assignmentId: "lotus_medicine_pavilion",
-      heroIds: ["mountain_staff_guardian"]
+      heroIds: ["mountain_brace_guardian"]
     });
 
     expect(assigned.ok).toBe(true);

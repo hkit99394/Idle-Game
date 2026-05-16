@@ -49,7 +49,8 @@ Stage 2.6 is migrating static content ids in focused slices while preserving sav
 - Slice 91.2 added category-aware content alias data for 98 migrated ids without changing static data.
 - Slice 91.3 moved `SAVE_DATA_VERSION` to `12` and normalizes save-stored content ids through the alias map. Current-version imports with target aliases normalize to the configured static id side, and legacy version `11` saves will normalize forward once the owning static data slices rename canonical ids.
 - Slice 91.4 renamed hostile ids, hostile family ids, and status ids in static data, stage enemy-team references, and skill `apply_status` references while keeping deterministic status rolls stable across aliases.
-- Remaining static content ids for initiates, protocols, styles, augments, countermeasures, operations, and routines still wait for Slices 91.5 and 91.6.
+- Slice 91.5 renamed initiate ids, protocol ids, skill-upgrade ids, style ids, and style-branch ids in static data and direct references while keeping old saves/imports alias-compatible.
+- Remaining static content ids for augments, countermeasures, operations, and routines still wait for Slice 91.6.
 
 ## Scope
 
@@ -57,7 +58,7 @@ Internal names include three different categories.
 
 | Category | Examples | Migration risk |
 | --- | --- | --- |
-| Static ids | `greenline_approach`, `redline_outpost`, `greenline_cutter`, `corruption`, `hero_outer_training`, `balanced` | Breaks stage unlock refs, save refs, reports, tests, and data validation if renamed without aliasing. Region/stage and hostile/status values have migrated; remaining content ids are later Stage 2.6 work. |
+| Static ids | `greenline_approach`, `redline_outpost`, `greenline_cutter`, `iron_fist_initiate`, `impact_combo`, `corruption`, `hero_outer_training`, `balanced` | Breaks stage unlock refs, save refs, reports, tests, and data validation if renamed without aliasing. Region/stage, hostile/status, and initiate/protocol/style values have migrated; remaining content ids are later Stage 2.6 work. |
 | Persisted save fields | `silver`, `cultivation`, `herbs`, `combatExperience`, `sect`, `maps`, `innerQi`, `selectedOfflineFarmStageId` | Requires a save schema version bump and fixture coverage. |
 | Product/runtime keys | `path-of-jianghu.save.v1`, `path-of-jianghu-shell-v1`, `path-of-jianghu.svg`, package/app metadata | Requires dual-read/write or cleanup behavior so existing local players and installed PWAs do not lose state. |
 

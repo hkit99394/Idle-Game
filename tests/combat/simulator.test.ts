@@ -10,10 +10,10 @@ import { staticData } from "../helpers/staticData";
 const mvpPlayerTeam = {
   id: "player" as const,
   combatants: [
-    { kind: "hero" as const, definitionId: "iron_fist_disciple" },
-    { kind: "hero" as const, definitionId: "azure_palm_monk" },
-    { kind: "hero" as const, definitionId: "white_crane_swordsman" },
-    { kind: "hero" as const, definitionId: "mountain_staff_guardian" }
+    { kind: "hero" as const, definitionId: "iron_fist_initiate" },
+    { kind: "hero" as const, definitionId: "azure_pulse_monk" },
+    { kind: "hero" as const, definitionId: "white_crane_edge_runner" },
+    { kind: "hero" as const, definitionId: "mountain_brace_guardian" }
   ]
 };
 
@@ -41,7 +41,7 @@ describe("combat simulator", () => {
     const result = simulateBattle(staticData, {
       playerTeam: {
         id: "player",
-        combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+        combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
       },
       enemyTeam: {
         id: "enemy",
@@ -97,7 +97,7 @@ describe("combat simulator", () => {
     const result = simulateBattle(qiBreakData, {
       playerTeam: {
         id: "player",
-        combatants: [{ kind: "hero", definitionId: "azure_palm_monk" }]
+        combatants: [{ kind: "hero", definitionId: "azure_pulse_monk" }]
       },
       enemyTeam: {
         id: "enemy",
@@ -126,7 +126,7 @@ describe("combat simulator", () => {
     const baseProgress = createInitialPlayerProgress(staticData);
     const upgradedProgress = createInitialPlayerProgress(staticData);
     upgradedProgress.skillUpgrades = {
-      iron_fist_combo_refinement: 3
+      impact_combo_refinement: 3
     };
     const durableEnemyData: StaticGameData = {
       ...staticData,
@@ -185,7 +185,7 @@ describe("combat simulator", () => {
     const timeoutData: StaticGameData = {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "iron_fist_disciple"
+        hero.id === "iron_fist_initiate"
           ? {
               ...hero,
               baseStats: {
@@ -213,7 +213,7 @@ describe("combat simulator", () => {
     const result = simulateBattle(timeoutData, {
       playerTeam: {
         id: "player",
-        combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+        combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
       },
       enemyTeam: {
         id: "enemy",

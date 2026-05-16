@@ -11,7 +11,7 @@ describe("assignment progression", () => {
     const assigned = setAssignmentHeroes(staticData, {
       progress,
       assignmentId: "bamboo_road_patrol",
-      heroIds: ["iron_fist_disciple"]
+      heroIds: ["iron_fist_initiate"]
     });
 
     expect(assigned.ok).toBe(true);
@@ -21,7 +21,7 @@ describe("assignment progression", () => {
 
     expect(
       assigned.progress.assignments?.bamboo_road_patrol?.heroIds
-    ).toEqual(["iron_fist_disciple"]);
+    ).toEqual(["iron_fist_initiate"]);
 
     const unassigned = setAssignmentHeroes(staticData, {
       progress: assigned.progress,
@@ -43,7 +43,7 @@ describe("assignment progression", () => {
       setAssignmentHeroes(staticData, {
         progress,
         assignmentId: "mist_valley_meditation",
-        heroIds: ["azure_palm_monk"]
+        heroIds: ["azure_pulse_monk"]
       })
     ).toMatchObject({
       ok: false,
@@ -54,7 +54,7 @@ describe("assignment progression", () => {
       setAssignmentHeroes(staticData, {
         progress,
         assignmentId: "bamboo_road_patrol",
-        heroIds: ["iron_fist_disciple", "iron_fist_disciple"]
+        heroIds: ["iron_fist_initiate", "iron_fist_initiate"]
       })
     ).toMatchObject({
       ok: false,
@@ -68,7 +68,7 @@ describe("assignment progression", () => {
       setAssignmentHeroes(staticData, {
         progress: unlockedProgress,
         assignmentId: "mist_valley_meditation",
-        heroIds: ["iron_fist_disciple"]
+        heroIds: ["iron_fist_initiate"]
       })
     ).toMatchObject({
       ok: false,
@@ -78,7 +78,7 @@ describe("assignment progression", () => {
     const firstAssignment = setAssignmentHeroes(staticData, {
       progress: unlockedProgress,
       assignmentId: "bamboo_road_patrol",
-      heroIds: ["azure_palm_monk"]
+      heroIds: ["azure_pulse_monk"]
     });
 
     expect(firstAssignment.ok).toBe(true);
@@ -90,7 +90,7 @@ describe("assignment progression", () => {
       setAssignmentHeroes(staticData, {
         progress: firstAssignment.progress,
         assignmentId: "mist_valley_meditation",
-        heroIds: ["azure_palm_monk"]
+        heroIds: ["azure_pulse_monk"]
       })
     ).toMatchObject({
       ok: false,

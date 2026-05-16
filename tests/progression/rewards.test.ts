@@ -27,10 +27,10 @@ describe("stage clear rewards", () => {
     expect(result.progress.resources.silver).toBe(10);
     expect(result.progress.resources.cultivation).toBe(5);
     expect(result.progress.maps.greenline_approach.combatExperience).toBe(5);
-    expect(result.progress.styleMastery?.fist.experience).toBe(5);
-    expect(result.progress.styleMastery?.palm.experience).toBe(5);
-    expect(result.progress.styleMastery?.sword.experience).toBe(5);
-    expect(result.progress.styleMastery?.staff.experience).toBe(5);
+    expect(result.progress.styleMastery?.impact.experience).toBe(5);
+    expect(result.progress.styleMastery?.pulse.experience).toBe(5);
+    expect(result.progress.styleMastery?.edge.experience).toBe(5);
+    expect(result.progress.styleMastery?.brace.experience).toBe(5);
     expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(1);
     expect(result.progress.currentStageId).toBe("greenline_approach_1");
   });
@@ -52,7 +52,7 @@ describe("stage clear rewards", () => {
     expect(result.masteryRanksBefore).toEqual([]);
     expect(result.masteryRanksAfter).toEqual(["familiar"]);
     expect(result.newlyReachedMasteryRanks).toEqual(["familiar"]);
-    expect(result.progress.heroes.iron_fist_disciple.level).toBe(2);
+    expect(result.progress.heroes.iron_fist_initiate.level).toBe(2);
   });
 
   it("applies map reward mastery bonus to silver and cultivation", () => {

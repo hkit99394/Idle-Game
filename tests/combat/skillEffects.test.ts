@@ -371,7 +371,7 @@ describe("skill effect combat coverage", () => {
         }
       ],
       heroes: [
-        createHero("scenario_poisoned_ally", ["basic_strike"], {
+        createHero("scenario_poisoned_ally", ["baseline_strike"], {
           speed: 0
         }),
         createHero("scenario_cleanser", ["scenario_cleanse_ally"], {

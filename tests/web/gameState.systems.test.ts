@@ -37,7 +37,7 @@ describe("web game state systems", () => {
     const affordableUpgrade = affordableViewModel.upgrades.find(
       (upgrade) =>
         upgrade.upgradeId === "hero_outer_training" &&
-        upgrade.heroId === "iron_fist_disciple"
+        upgrade.heroId === "iron_fist_initiate"
     );
 
     expect(affordableUpgrade).toMatchObject({
@@ -53,24 +53,24 @@ describe("web game state systems", () => {
       },
       {
         upgradeId: "hero_outer_training",
-        heroId: "iron_fist_disciple"
+        heroId: "iron_fist_initiate"
       }
     );
 
     expect(nextState.lastPurchase?.ok).toBe(true);
     expect(nextState.progress.resources.silver).toBe(8);
     expect(
-      nextState.progress.heroes.iron_fist_disciple.upgrades.hero_outer_training
+      nextState.progress.heroes.iron_fist_initiate.upgrades.hero_outer_training
     ).toBe(1);
 
     const viewModel = getWebGameViewModel(staticData, nextState);
     const ironFist = viewModel.playerCombatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     );
     const nextUpgrade = viewModel.upgrades.find(
       (upgrade) =>
         upgrade.upgradeId === "hero_outer_training" &&
-        upgrade.heroId === "iron_fist_disciple"
+        upgrade.heroId === "iron_fist_initiate"
     );
 
     expect(ironFist?.outerAttack).toBeCloseTo(19.8);
@@ -99,7 +99,7 @@ describe("web game state systems", () => {
       progress
     });
     const skillUpgrade = affordableViewModel.skillUpgrades.find(
-      (upgrade) => upgrade.skillUpgradeId === "iron_fist_combo_refinement"
+      (upgrade) => upgrade.skillUpgradeId === "impact_combo_refinement"
     );
 
     expect(skillUpgrade).toMatchObject({
@@ -116,13 +116,13 @@ describe("web game state systems", () => {
         progress
       },
       {
-        skillUpgradeId: "iron_fist_combo_refinement"
+        skillUpgradeId: "impact_combo_refinement"
       }
     );
 
     expect(nextState.lastSkillPurchase?.ok).toBe(true);
     expect(nextState.progress.resources.cultivation).toBe(12);
-    expect(nextState.progress.skillUpgrades?.iron_fist_combo_refinement).toBe(1);
+    expect(nextState.progress.skillUpgrades?.impact_combo_refinement).toBe(1);
   });
 
   it("shows equipment inventory and equips compatible gear", () => {
@@ -148,14 +148,14 @@ describe("web game state systems", () => {
       rarity: "common",
       count: 1,
       availableCount: 1,
-      compatibleHeroIds: ["iron_fist_disciple"]
+      compatibleHeroIds: ["iron_fist_initiate"]
     });
 
     const beforeCp = viewModel.playerCombatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     )?.combatPower;
     const equippedState = equipGameEquipment(staticData, lootState, {
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "training_wraps"
     });
 
@@ -163,7 +163,7 @@ describe("web game state systems", () => {
 
     const equippedViewModel = getWebGameViewModel(staticData, equippedState);
     const afterCp = equippedViewModel.playerCombatants.find(
-      (combatant) => combatant.definitionId === "iron_fist_disciple"
+      (combatant) => combatant.definitionId === "iron_fist_initiate"
     )?.combatPower;
 
     expect(equippedViewModel.heroEquipment[0].slots).toEqual(
@@ -178,7 +178,7 @@ describe("web game state systems", () => {
     );
     expect(equippedViewModel.equipmentInventory[0]).toMatchObject({
       availableCount: 0,
-      compatibleHeroIds: ["iron_fist_disciple"]
+      compatibleHeroIds: ["iron_fist_initiate"]
     });
     expect(afterCp).toBeGreaterThan(beforeCp ?? 0);
   });
@@ -214,16 +214,16 @@ describe("web game state systems", () => {
     });
 
     const armorState = equipGameEquipment(staticData, lootState, {
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "iron_thread_armor"
     });
     const manualState = equipGameEquipment(staticData, armorState, {
-      heroId: "iron_fist_disciple",
+      heroId: "iron_fist_initiate",
       equipmentId: "fortress_guard_manual"
     });
     const equippedViewModel = getWebGameViewModel(staticData, manualState);
     const heroView = equippedViewModel.heroEquipment.find(
-      (hero) => hero.heroId === "iron_fist_disciple"
+      (hero) => hero.heroId === "iron_fist_initiate"
     );
 
     expect(heroView?.activeSetBonuses).toEqual(
@@ -237,13 +237,13 @@ describe("web game state systems", () => {
     const state = createInitialWebGameState(staticData);
     const assignedState = setGameAssignmentHeroes(staticData, state, {
       assignmentId: "bamboo_road_patrol",
-      heroIds: ["iron_fist_disciple"]
+      heroIds: ["iron_fist_initiate"]
     });
 
     expect(assignedState.lastAssignmentAction?.ok).toBe(true);
     expect(
       assignedState.progress.assignments?.bamboo_road_patrol?.heroIds
-    ).toEqual(["iron_fist_disciple"]);
+    ).toEqual(["iron_fist_initiate"]);
 
     const viewModel = getWebGameViewModel(staticData, assignedState);
     const patrol = viewModel.assignments.find(
@@ -251,17 +251,17 @@ describe("web game state systems", () => {
     );
 
     expect(patrol).toMatchObject({
-      assignedHeroIds: ["iron_fist_disciple"]
+      assignedHeroIds: ["iron_fist_initiate"]
     });
     expect(
-      patrol?.heroOptions.find((hero) => hero.heroId === "iron_fist_disciple")
+      patrol?.heroOptions.find((hero) => hero.heroId === "iron_fist_initiate")
     ).toMatchObject({
       assignedHere: true
     });
 
     const rejectedState = setGameAssignmentHeroes(staticData, assignedState, {
       assignmentId: "mist_valley_meditation",
-      heroIds: ["iron_fist_disciple"]
+      heroIds: ["iron_fist_initiate"]
     });
 
     expect(rejectedState.lastAssignmentAction).toMatchObject({
@@ -269,7 +269,7 @@ describe("web game state systems", () => {
       reason: "locked_assignment"
     });
     expect(rejectedState.progress.assignments?.bamboo_road_patrol?.heroIds).toEqual([
-      "iron_fist_disciple"
+      "iron_fist_initiate"
     ]);
   });
 

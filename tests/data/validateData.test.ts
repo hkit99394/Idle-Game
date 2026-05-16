@@ -65,7 +65,7 @@ describe("static game data validation", () => {
           : stage
       ),
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "lotus_mending_disciple"
+        hero.id === "lotus_stabilizer"
           ? {
               ...hero,
               unlock: { type: "stage_cleared", stageId: "lotus_monastery_3" }
@@ -104,11 +104,11 @@ describe("static game data validation", () => {
         return assignment;
       }),
       styles: staticData.styles.map((style) =>
-        style.id === "leg"
+        style.id === "vector"
           ? {
               ...style,
               branches: style.branches.map((branch) =>
-                branch.id === "wind_step_leg"
+                branch.id === "wind_step_vector"
                   ? {
                       ...branch,
                       unlock: {
@@ -133,11 +133,11 @@ describe("static game data validation", () => {
         "Stage bamboo_road_1 id must use canonical stage id greenline_approach_1 instead of legacy bamboo_road_1",
         "Stage bamboo_road_1 regionId must use canonical region id greenline_approach instead of legacy bamboo_road",
         "Stage bamboo_road_1 nextStageId must use canonical stage id greenline_approach_2 instead of legacy bamboo_road_2",
-        "Hero lotus_mending_disciple unlock.stageId must use canonical stage id lotus_clinic_3 instead of legacy lotus_monastery_3",
+        "Hero lotus_stabilizer unlock.stageId must use canonical stage id lotus_clinic_3 instead of legacy lotus_monastery_3",
         "Medicine clear_heart_pill unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
         "Assignment bamboo_road_patrol rewardProfile.mapRegionId must use canonical region id greenline_approach instead of legacy bamboo_road",
         "Assignment mist_valley_meditation unlockCondition.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10",
-        "Style branch leg.wind_step_leg unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10"
+        "Style branch vector.wind_step_vector unlock.stageId must use canonical stage id greenline_approach_10 instead of legacy bamboo_road_10"
       ])
     );
   });
@@ -207,7 +207,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "iron_fist_disciple"
+        hero.id === "iron_fist_initiate"
           ? { ...hero, combatRole: "duelist" }
           : hero
       ),
@@ -217,7 +217,7 @@ describe("static game data validation", () => {
           : enemy
       ),
       skills: staticData.skills.map((skill) =>
-        skill.id === "iron_fist_combo"
+        skill.id === "impact_combo"
           ? { ...skill, targetRule: "nearest" }
           : skill
       )
@@ -225,9 +225,9 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Hero iron_fist_disciple combatRole must be one of tank, breaker, striker, support",
+        "Hero iron_fist_initiate combatRole must be one of tank, breaker, striker, support",
         "Enemy greenline_cutter combatRole must be one of tank, breaker, striker, support",
-        "Skill iron_fist_combo targetRule must be one of first_living, weakest_hp, highest_cp, inner_broken"
+        "Skill impact_combo targetRule must be one of first_living, weakest_hp, highest_cp, inner_broken"
       ])
     );
   });
@@ -236,7 +236,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "iron_fist_disciple"
+        hero.id === "iron_fist_initiate"
           ? {
               ...hero,
               style: "missing_style"
@@ -244,7 +244,7 @@ describe("static game data validation", () => {
           : hero
       ),
       skillUpgrades: staticData.skillUpgrades.map((upgrade) =>
-        upgrade.id === "iron_fist_combo_refinement"
+        upgrade.id === "impact_combo_refinement"
           ? {
               ...upgrade,
               skillId: "missing_skill"
@@ -255,8 +255,8 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Hero iron_fist_disciple references missing style missing_style",
-        "Skill upgrade iron_fist_combo_refinement references missing skill missing_skill"
+        "Hero iron_fist_initiate references missing style missing_style",
+        "Skill upgrade impact_combo_refinement references missing skill missing_skill"
       ])
     );
   });
@@ -265,7 +265,7 @@ describe("static game data validation", () => {
     const invalidData: StaticGameData = {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
-        hero.id === "lotus_mending_disciple"
+        hero.id === "lotus_stabilizer"
           ? {
               ...hero,
               unlock: {
@@ -278,7 +278,7 @@ describe("static game data validation", () => {
     };
 
     expect(validateStaticGameData(invalidData)).toContain(
-      "Hero lotus_mending_disciple references missing unlock stage missing_stage"
+      "Hero lotus_stabilizer references missing unlock stage missing_stage"
     );
   });
 
@@ -286,7 +286,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       skills: staticData.skills.map((skill) =>
-        skill.id === "iron_fist_combo"
+        skill.id === "impact_combo"
           ? {
               ...skill,
               effects: [
@@ -306,9 +306,9 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Skill iron_fist_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break, apply_status",
-        "Skill iron_fist_combo effect unknown_effect value must be a number",
-        "Skill iron_fist_combo effect guard durationSeconds must be a positive number"
+        "Skill impact_combo effect unknown_effect must be one of outer_heal_percent, inner_heal_percent, outer_regeneration_percent, inner_regeneration_percent, wound, cleanse, speed_down, inner_defense_down, guard, protect, armor_break, apply_status",
+        "Skill impact_combo effect unknown_effect value must be a number",
+        "Skill impact_combo effect guard durationSeconds must be a positive number"
       ])
     );
   });
@@ -317,7 +317,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       skills: staticData.skills.map((skill) =>
-        skill.id === "iron_fist_combo"
+        skill.id === "impact_combo"
           ? {
               ...skill,
               effects: [
@@ -337,11 +337,11 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Skill iron_fist_combo effect apply_status references missing status missing_status",
-        "Skill iron_fist_combo effect apply_status chance must be 0-1",
-        "Skill iron_fist_combo effect apply_status stacks must be positive",
-        "Skill iron_fist_combo effect apply_status target must be one of self, target, lowest_outer_hp_ally, lowest_inner_qi_ally, wounded_or_armor_broken_ally",
-        "Skill iron_fist_combo effect apply_status durationSeconds must be a positive number"
+        "Skill impact_combo effect apply_status references missing status missing_status",
+        "Skill impact_combo effect apply_status chance must be 0-1",
+        "Skill impact_combo effect apply_status stacks must be positive",
+        "Skill impact_combo effect apply_status target must be one of self, target, lowest_outer_hp_ally, lowest_inner_qi_ally, wounded_or_armor_broken_ally",
+        "Skill impact_combo effect apply_status durationSeconds must be a positive number"
       ])
     );
   });
@@ -446,7 +446,7 @@ describe("static game data validation", () => {
     const invalidData = {
       ...staticData,
       styles: staticData.styles.map((style) =>
-        style.id === "fist"
+        style.id === "impact"
           ? {
               ...style,
               branches: style.branches.map((branch) => ({
@@ -467,10 +467,10 @@ describe("static game data validation", () => {
 
     expect(validateStaticGameData(invalidData)).toEqual(
       expect.arrayContaining([
-        "Style branch fist.iron_body_fist hiddenInMvp must be a boolean",
-        "Style branch fist.iron_body_fist effect type must be stat_multiplier",
-        "Style branch fist.iron_body_fist effect stat luck must be a valid base stat",
-        "Style branch fist.iron_body_fist effect value must be a number"
+        "Style branch impact.iron_body_impact hiddenInMvp must be a boolean",
+        "Style branch impact.iron_body_impact effect type must be stat_multiplier",
+        "Style branch impact.iron_body_impact effect stat luck must be a valid base stat",
+        "Style branch impact.iron_body_impact effect value must be a number"
       ])
     );
   });

@@ -58,7 +58,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
     name: "Prototype Redline Corruptor",
     family: "redline",
     type: "normal",
-    style: "palm",
+    style: "pulse",
     combatRole: "breaker",
     level: 9,
     baseStats: {
@@ -85,7 +85,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
     name: "Prototype Demon Blood Adept",
     family: "redline",
     type: "elite",
-    style: "blade",
+    style: "rend",
     combatRole: "striker",
     level: 10,
     baseStats: {
@@ -112,7 +112,7 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
     name: "Prototype Redline Boss",
     family: "redline",
     type: "boss",
-    style: "blade",
+    style: "rend",
     combatRole: "striker",
     level: 11,
     baseStats: {
@@ -239,7 +239,7 @@ const prototypeLotusSkill: SkillDefinition = {
 const prototypeLotusHero: HeroDefinition = {
   id: "prototype_lotus_purity_adept",
   name: "Prototype Lotus Purity Adept",
-  style: "staff",
+  style: "brace",
   role: "Anti-status support",
   combatRole: "support",
   baseStats: {

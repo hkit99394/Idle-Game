@@ -820,7 +820,7 @@ function buildFormationScenarioReport(data: StaticGameData) {
   const frontLineScenario = simulateBattle(data, {
     playerTeam: {
       id: "player",
-      combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+      combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
     },
     enemyTeam: {
       id: "enemy",
@@ -844,7 +844,7 @@ function buildFormationScenarioReport(data: StaticGameData) {
   const highestCpData: StaticGameData = {
     ...data,
     skills: data.skills.map((skill) =>
-      skill.id === "iron_fist_combo"
+      skill.id === "impact_combo"
         ? {
             ...skill,
             targetRule: "highest_cp" as const
@@ -855,7 +855,7 @@ function buildFormationScenarioReport(data: StaticGameData) {
   const highestCpScenario = simulateBattle(highestCpData, {
     playerTeam: {
       id: "player",
-      combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+      combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
     },
     enemyTeam: {
       id: "enemy",

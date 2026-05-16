@@ -4,7 +4,7 @@
     "name": "Greenline Cutter",
     "family": "greenline",
     "type": "normal",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "striker",
     "level": 1,
     "baseStats": {
@@ -23,7 +23,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0
     },
-    "skillIds": ["bandit_cut"],
+    "skillIds": ["cutter_strike"],
     "traitIds": []
   },
   {
@@ -31,7 +31,7 @@
     "name": "Veil Pulse Bruiser",
     "family": "greenline",
     "type": "elite",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "breaker",
     "level": 1,
     "baseStats": {
@@ -50,7 +50,7 @@
       "statusAccuracy": 0.03,
       "statusResistance": 0.02
     },
-    "skillIds": ["meridian_shock"],
+    "skillIds": ["context_shock"],
     "traitIds": []
   },
   {
@@ -58,7 +58,7 @@
     "name": "Ironwall Guard",
     "family": "ironwall",
     "type": "boss",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "tank",
     "level": 1,
     "baseStats": {
@@ -85,7 +85,7 @@
     "name": "Veil District Acolyte",
     "family": "veil_district",
     "type": "normal",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "breaker",
     "level": 2,
     "baseStats": {
@@ -104,7 +104,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.02
     },
-    "skillIds": ["mist_palm_jab"],
+    "skillIds": ["veil_pulse_jab"],
     "traitIds": []
   },
   {
@@ -112,7 +112,7 @@
     "name": "Veilstep Needler",
     "family": "veil_district",
     "type": "elite",
-    "style": "hidden_weapons",
+    "style": "ghostware",
     "combatRole": "striker",
     "level": 2,
     "baseStats": {
@@ -139,7 +139,7 @@
     "name": "Fogline Brace Ward",
     "family": "veil_district",
     "type": "normal",
-    "style": "staff",
+    "style": "brace",
     "combatRole": "tank",
     "level": 2,
     "baseStats": {
@@ -158,7 +158,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.03
     },
-    "skillIds": ["fog_staff_guard"],
+    "skillIds": ["fogline_brace_guard"],
     "traitIds": []
   },
   {
@@ -166,7 +166,7 @@
     "name": "Veil Pulse Adept",
     "family": "veil_district",
     "type": "elite",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "breaker",
     "level": 3,
     "baseStats": {
@@ -185,7 +185,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.04
     },
-    "skillIds": ["cloud_meridian_press"],
+    "skillIds": ["cloud_context_press"],
     "traitIds": []
   },
   {
@@ -193,7 +193,7 @@
     "name": "Veil District Elder",
     "family": "veil_district",
     "type": "boss",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "breaker",
     "level": 3,
     "baseStats": {
@@ -212,7 +212,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.05
     },
-    "skillIds": ["valley_heart_seal"],
+    "skillIds": ["valley_context_seal"],
     "traitIds": ["boss"]
   },
   {
@@ -220,7 +220,7 @@
     "name": "Ironwall Sentry",
     "family": "ironwall",
     "type": "normal",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "tank",
     "level": 4,
     "baseStats": {
@@ -247,7 +247,7 @@
     "name": "Shieldwall Guard",
     "family": "ironwall",
     "type": "normal",
-    "style": "staff",
+    "style": "brace",
     "combatRole": "tank",
     "level": 4,
     "baseStats": {
@@ -266,7 +266,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.05
     },
-    "skillIds": ["fortress_staff_lock"],
+    "skillIds": ["fortress_brace_lock"],
     "traitIds": []
   },
   {
@@ -274,7 +274,7 @@
     "name": "Ironwall Saber",
     "family": "ironwall",
     "type": "elite",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "striker",
     "level": 4,
     "baseStats": {
@@ -301,7 +301,7 @@
     "name": "Forge Chain Hook",
     "family": "ironwall",
     "type": "normal",
-    "style": "staff",
+    "style": "brace",
     "combatRole": "support",
     "level": 4,
     "baseStats": {
@@ -328,7 +328,7 @@
     "name": "Iron Plating Captain",
     "family": "ironwall",
     "type": "elite",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "tank",
     "level": 5,
     "baseStats": {
@@ -355,7 +355,7 @@
     "name": "Black Foundry Commander",
     "family": "ironwall",
     "type": "boss",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "tank",
     "level": 5,
     "baseStats": {
@@ -374,7 +374,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.08
     },
-    "skillIds": ["black_fort_edict"],
+    "skillIds": ["black_foundry_edict"],
     "traitIds": ["boss"]
   },
   {
@@ -382,7 +382,7 @@
     "name": "Lotus Kinetic Initiate",
     "family": "lotus_clinic",
     "type": "normal",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "breaker",
     "level": 6,
     "baseStats": {
@@ -401,7 +401,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.07
     },
-    "skillIds": ["lotus_recovery_palm"],
+    "skillIds": ["lotus_stabilizer_pulse"],
     "traitIds": []
   },
   {
@@ -409,7 +409,7 @@
     "name": "Lotus Stabilizer",
     "family": "lotus_clinic",
     "type": "normal",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "support",
     "level": 6,
     "baseStats": {
@@ -436,7 +436,7 @@
     "name": "Lotus Brace Keeper",
     "family": "lotus_clinic",
     "type": "normal",
-    "style": "staff",
+    "style": "brace",
     "combatRole": "tank",
     "level": 6,
     "baseStats": {
@@ -455,7 +455,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.08
     },
-    "skillIds": ["lotus_staff_shelter"],
+    "skillIds": ["lotus_brace_shelter"],
     "traitIds": []
   },
   {
@@ -463,7 +463,7 @@
     "name": "Jade Needle Operator",
     "family": "lotus_clinic",
     "type": "elite",
-    "style": "hidden_weapons",
+    "style": "ghostware",
     "combatRole": "striker",
     "level": 7,
     "baseStats": {
@@ -490,7 +490,7 @@
     "name": "Lotus Edge Warden",
     "family": "lotus_clinic",
     "type": "elite",
-    "style": "sword",
+    "style": "edge",
     "combatRole": "striker",
     "level": 7,
     "baseStats": {
@@ -509,7 +509,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.06
     },
-    "skillIds": ["white_crane_slash"],
+    "skillIds": ["white_crane_edge"],
     "traitIds": []
   },
   {
@@ -517,7 +517,7 @@
     "name": "Lotus Clinic Director",
     "family": "lotus_clinic",
     "type": "boss",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "support",
     "level": 8,
     "baseStats": {
@@ -536,7 +536,7 @@
       "statusAccuracy": 0,
       "statusResistance": 0.1
     },
-    "skillIds": ["abbot_lotus_vow"],
+    "skillIds": ["director_lotus_vow"],
     "traitIds": ["boss"]
   },
   {
@@ -544,7 +544,7 @@
     "name": "Miasma Pulse Apprentice",
     "family": "redline",
     "type": "normal",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "breaker",
     "level": 9,
     "baseStats": {
@@ -563,7 +563,7 @@
       "statusAccuracy": 0.1,
       "statusResistance": 0.08
     },
-    "skillIds": ["miasma_palm"],
+    "skillIds": ["miasma_pulse"],
     "traitIds": []
   },
   {
@@ -571,7 +571,7 @@
     "name": "Blood Brand Duelist",
     "family": "redline",
     "type": "elite",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "striker",
     "level": 9,
     "baseStats": {
@@ -598,7 +598,7 @@
     "name": "Marrow Lock Supplicant",
     "family": "redline",
     "type": "normal",
-    "style": "hidden_weapons",
+    "style": "ghostware",
     "combatRole": "support",
     "level": 10,
     "baseStats": {
@@ -625,7 +625,7 @@
     "name": "Burning Blood Captain",
     "family": "redline",
     "type": "elite",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "striker",
     "level": 10,
     "baseStats": {
@@ -652,7 +652,7 @@
     "name": "Redline Ritualist",
     "family": "redline",
     "type": "normal",
-    "style": "palm",
+    "style": "pulse",
     "combatRole": "breaker",
     "level": 10,
     "baseStats": {
@@ -671,7 +671,7 @@
       "statusAccuracy": 0.1,
       "statusResistance": 0.11
     },
-    "skillIds": ["miasma_palm", "marrow_lock_hex"],
+    "skillIds": ["miasma_pulse", "marrow_lock_hex"],
     "traitIds": []
   },
   {
@@ -679,7 +679,7 @@
     "name": "Redline Overseer",
     "family": "redline",
     "type": "boss",
-    "style": "blade",
+    "style": "rend",
     "combatRole": "striker",
     "level": 11,
     "baseStats": {

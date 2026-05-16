@@ -35,7 +35,7 @@ describe("upgrades", () => {
     const heroPurchase = purchaseUpgrade(staticData.upgrades, {
       progress,
       upgradeId: "hero_outer_training",
-      heroId: "iron_fist_disciple"
+      heroId: "iron_fist_initiate"
     });
 
     expect(heroPurchase.ok).toBe(true);
@@ -46,7 +46,7 @@ describe("upgrades", () => {
     expect(heroPurchase.cost).toBe(12);
     expect(heroPurchase.progress.resources.silver).toBe(188);
     expect(
-      heroPurchase.progress.heroes.iron_fist_disciple.upgrades.hero_outer_training
+      heroPurchase.progress.heroes.iron_fist_initiate.upgrades.hero_outer_training
     ).toBe(1);
 
     const sectPurchase = purchaseUpgrade(staticData.upgrades, {
@@ -70,7 +70,7 @@ describe("upgrades", () => {
     const result = purchaseUpgrade(staticData.upgrades, {
       progress,
       upgradeId: "hero_outer_training",
-      heroId: "iron_fist_disciple"
+      heroId: "iron_fist_initiate"
     });
 
     expect(result.ok).toBe(false);
@@ -107,7 +107,7 @@ describe("upgrades", () => {
     const result = purchaseUpgrade(staticData.upgrades, {
       progress,
       upgradeId: "hero_outer_training",
-      heroId: "iron_fist_disciple"
+      heroId: "iron_fist_initiate"
     });
 
     expect(result.ok).toBe(false);
@@ -119,12 +119,12 @@ describe("upgrades", () => {
 
   it("derives hero stats from hero, sect, and map upgrades", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.heroes.iron_fist_disciple.upgrades.hero_outer_training = 2;
+    progress.heroes.iron_fist_initiate.upgrades.hero_outer_training = 2;
     progress.sect.upgrades.sect_outer_training = 1;
     progress.sect.upgrades.sect_inner_training = 1;
 
     const hero = staticData.heroes.find(
-      (candidate) => candidate.id === "iron_fist_disciple"
+      (candidate) => candidate.id === "iron_fist_initiate"
     );
 
     expect(hero).toBeDefined();
@@ -134,7 +134,7 @@ describe("upgrades", () => {
 
     const stats = deriveHeroStatsFromProgress({
       baseStats: hero.baseStats,
-      heroProgress: progress.heroes.iron_fist_disciple,
+      heroProgress: progress.heroes.iron_fist_initiate,
       sectProgress: progress.sect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
@@ -155,10 +155,10 @@ describe("upgrades", () => {
 
   it("applies hero level scaling before upgrade multipliers", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.heroes.iron_fist_disciple.level = 2;
-    progress.heroes.iron_fist_disciple.upgrades.hero_outer_training = 1;
+    progress.heroes.iron_fist_initiate.level = 2;
+    progress.heroes.iron_fist_initiate.upgrades.hero_outer_training = 1;
     const hero = staticData.heroes.find(
-      (candidate) => candidate.id === "iron_fist_disciple"
+      (candidate) => candidate.id === "iron_fist_initiate"
     );
 
     expect(hero).toBeDefined();
@@ -168,7 +168,7 @@ describe("upgrades", () => {
 
     const stats = deriveHeroStatsFromProgress({
       baseStats: hero.baseStats,
-      heroProgress: progress.heroes.iron_fist_disciple,
+      heroProgress: progress.heroes.iron_fist_initiate,
       sectProgress: progress.sect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
@@ -185,7 +185,7 @@ describe("upgrades", () => {
   it("applies Lotus purge training as capped team resistance with CP value", () => {
     const progress = createInitialPlayerProgress(staticData);
     const guardian = staticData.heroes.find(
-      (candidate) => candidate.id === "mountain_staff_guardian"
+      (candidate) => candidate.id === "mountain_brace_guardian"
     );
 
     expect(guardian).toBeDefined();
@@ -195,7 +195,7 @@ describe("upgrades", () => {
 
     const commonInput = {
       baseStats: guardian.baseStats,
-      heroProgress: progress.heroes.mountain_staff_guardian,
+      heroProgress: progress.heroes.mountain_brace_guardian,
       sectProgress: progress.sect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
@@ -231,15 +231,15 @@ describe("upgrades", () => {
   it("applies style mastery only to matching hero styles", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.styleMastery = {
-      fist: {
+      impact: {
         experience: 200
       }
     };
     const ironFist = staticData.heroes.find(
-      (candidate) => candidate.id === "iron_fist_disciple"
+      (candidate) => candidate.id === "iron_fist_initiate"
     );
     const palmMonk = staticData.heroes.find(
-      (candidate) => candidate.id === "azure_palm_monk"
+      (candidate) => candidate.id === "azure_pulse_monk"
     );
 
     expect(ironFist).toBeDefined();
@@ -251,7 +251,7 @@ describe("upgrades", () => {
     const fistStats = deriveHeroStatsFromProgress({
       baseStats: ironFist.baseStats,
       style: ironFist.style,
-      heroProgress: progress.heroes.iron_fist_disciple,
+      heroProgress: progress.heroes.iron_fist_initiate,
       sectProgress: progress.sect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
@@ -265,7 +265,7 @@ describe("upgrades", () => {
     const palmStats = deriveHeroStatsFromProgress({
       baseStats: palmMonk.baseStats,
       style: palmMonk.style,
-      heroProgress: progress.heroes.azure_palm_monk,
+      heroProgress: progress.heroes.azure_pulse_monk,
       sectProgress: progress.sect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
@@ -285,7 +285,7 @@ describe("upgrades", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.resources.cultivation = 20;
     const upgrade = staticData.skillUpgrades.find(
-      (candidate) => candidate.id === "iron_fist_combo_refinement"
+      (candidate) => candidate.id === "impact_combo_refinement"
     );
 
     expect(upgrade).toBeDefined();
@@ -307,17 +307,17 @@ describe("upgrades", () => {
 
     expect(result.cost).toBe(8);
     expect(result.progress.resources.cultivation).toBe(12);
-    expect(result.progress.skillUpgrades?.iron_fist_combo_refinement).toBe(1);
+    expect(result.progress.skillUpgrades?.impact_combo_refinement).toBe(1);
   });
 
   it("selects unlocked style branches and applies effects only to matching styles", () => {
     const progress = createInitialPlayerProgress(staticData);
-    const fistStyle = staticData.styles.find((style) => style.id === "fist");
+    const fistStyle = staticData.styles.find((style) => style.id === "impact");
     const ironFist = staticData.heroes.find(
-      (hero) => hero.id === "iron_fist_disciple"
+      (hero) => hero.id === "iron_fist_initiate"
     );
     const palmMonk = staticData.heroes.find(
-      (hero) => hero.id === "azure_palm_monk"
+      (hero) => hero.id === "azure_pulse_monk"
     );
 
     expect(fistStyle).toBeDefined();
@@ -334,7 +334,7 @@ describe("upgrades", () => {
 
     const lockedResult = selectStyleBranch(staticData, {
       progress,
-      styleId: "fist",
+      styleId: "impact",
       branchId: branch.id
     });
 
@@ -343,13 +343,13 @@ describe("upgrades", () => {
       reason: "locked_branch"
     });
 
-    progress.heroes.iron_fist_disciple.level = 3;
+    progress.heroes.iron_fist_initiate.level = 3;
 
     expect(isStyleBranchUnlocked(staticData, progress, branch)).toBe(true);
 
     const selectedResult = selectStyleBranch(staticData, {
       progress,
-      styleId: "fist",
+      styleId: "impact",
       branchId: branch.id
     });
 
@@ -358,12 +358,12 @@ describe("upgrades", () => {
       return;
     }
 
-    expect(selectedResult.progress.styleBranches?.fist).toBe("iron_body_fist");
+    expect(selectedResult.progress.styleBranches?.impact).toBe("iron_body_impact");
 
     const fistStats = deriveHeroStatsFromProgress({
       baseStats: ironFist.baseStats,
       style: ironFist.style,
-      heroProgress: selectedResult.progress.heroes.iron_fist_disciple,
+      heroProgress: selectedResult.progress.heroes.iron_fist_initiate,
       sectProgress: selectedResult.progress.sect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"
@@ -377,7 +377,7 @@ describe("upgrades", () => {
     const palmStats = deriveHeroStatsFromProgress({
       baseStats: palmMonk.baseStats,
       style: palmMonk.style,
-      heroProgress: selectedResult.progress.heroes.azure_palm_monk,
+      heroProgress: selectedResult.progress.heroes.azure_pulse_monk,
       sectProgress: selectedResult.progress.sect,
       heroUpgradeDefinitions: staticData.upgrades.filter(
         (upgrade) => upgrade.scope === "hero"

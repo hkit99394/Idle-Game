@@ -32,7 +32,7 @@ describe("balance-critical combat scenarios", () => {
     const result = simulateBattle(staticData, {
       playerTeam: {
         id: "player",
-        combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+        combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
       },
       enemyTeam: {
         id: "enemy",
@@ -73,7 +73,7 @@ describe("balance-critical combat scenarios", () => {
           id: "scenario_inner_adept",
           name: "Scenario Inner Adept",
           combatRole: "breaker",
-          skillIds: ["valley_heart_seal"],
+          skillIds: ["valley_context_seal"],
           baseStats: {
             ...staticData.enemies[0].baseStats,
             maxOuterHp: 2000,
@@ -90,7 +90,7 @@ describe("balance-critical combat scenarios", () => {
     const result = simulateBattle(innerPressureData, {
       playerTeam: {
         id: "player",
-        combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+        combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
       },
       enemyTeam: {
         id: "enemy",
@@ -113,7 +113,7 @@ describe("balance-critical combat scenarios", () => {
       skills: [
         ...staticData.skills,
         {
-          id: "lotus_recovery_palm",
+          id: "lotus_stabilizer_pulse",
           name: "Lotus Stabilizer Pulse",
           cooldownSeconds: 2,
           outerMultiplier: 0.25,
@@ -134,7 +134,7 @@ describe("balance-critical combat scenarios", () => {
           id: "scenario_lotus_healer",
           name: "Scenario Lotus Healer",
           combatRole: "support",
-          skillIds: ["lotus_recovery_palm"],
+          skillIds: ["lotus_stabilizer_pulse"],
           baseStats: {
             ...staticData.enemies[0].baseStats,
             maxOuterHp: 900,
@@ -151,7 +151,7 @@ describe("balance-critical combat scenarios", () => {
     const result = simulateBattle(recoveryData, {
       playerTeam: {
         id: "player",
-        combatants: [{ kind: "hero", definitionId: "iron_fist_disciple" }]
+        combatants: [{ kind: "hero", definitionId: "iron_fist_initiate" }]
       },
       enemyTeam: {
         id: "enemy",

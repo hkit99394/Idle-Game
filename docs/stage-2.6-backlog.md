@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.4 are complete: the content-id preflight, alias data, save-version migration, and hostile/status static rename are now in place.
+Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.5 are complete: the content-id preflight, alias data, save-version migration, hostile/status static rename, and initiate/protocol/style static rename are now in place.
 
 This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
 
@@ -91,7 +91,7 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 | 91.2 | Content Alias Data | Complete | Add explicit aliases and shared normalization helpers without changing canonical ids |
 | 91.3 | Save Version And Content Id Migration | Complete | Bump save version and migrate old content ids in saves/imports/browser storage |
 | 91.4 | Hostile And Status Static Rename | Complete | Rename enemy/family/status ids and battle/status static references |
-| 91.5 | Initiate, Protocol, And Style Static Rename | Planned | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
+| 91.5 | Initiate, Protocol, And Style Static Rename | Complete | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
 | 91.6 | Augment, Countermeasure, Operation, And Routine Static Rename | Planned | Rename equipment, set, medicine, assignment, and tactic ids plus direct references |
 | 91.7 | Report, Tooling, And Web Continuity | Planned | Keep simulator exports, web state, diagnostics, and workflows coherent |
 | 91.8 | Content Compatibility Hardening | Planned | Run full compatibility proof, stale scans, docs updates, and archive readiness |
@@ -222,7 +222,7 @@ Migrate old content ids in persisted saves without changing unrelated save field
 - Bumped `SAVE_DATA_VERSION` to `12` and retained version `11` as a supported legacy version.
 - Added data-aware content-id normalization across every save-stored Stage 2.6 content-id field: heroes, active team ids, formation keys, style mastery, style branches, skill upgrades, equipment inventory/equipped ids, medicine inventory, assignment ids and hero ids, selected tactic values, and auto-medicine disabled medicine ids.
 - Kept save field names, resources, combat stat fields, region/stage compatibility, browser storage keys, and report field names unchanged.
-- Static data still uses legacy content ids for the remaining 91.5 and 91.6 categories. During that transition, current-version imports using target aliases normalize back to the configured id side for categories that have not landed yet; after each static data rename lands, old saves normalize forward to target ids through the same helper path.
+- Static data still uses legacy content ids for the remaining 91.6 categories. During that transition, current-version imports using target aliases normalize back to the configured id side for categories that have not landed yet; after each static data rename lands, old saves normalize forward to target ids through the same helper path.
 - Added focused save migration and browser storage import coverage for content aliases, including current-version import normalization and legacy version `11` migration against target-id static data.
 
 ---
@@ -265,11 +265,13 @@ Make hostile and status ids canonical in static data and battle/report reference
 - Preserved timed combat symbols and cleanse taxonomy such as `wound`, `poison`, `guard`, `protection`, `armor_break`, `inner_defense_down`, `regeneration`, and `wounded_or_armor_broken_ally`.
 - Kept deterministic status-application rolls stable across id aliases so the rename does not rebalance combat outcomes.
 - Updated combat, counterplay, auto-medicine, balance/report, web presentation, support-decision prototype, and compatibility expectations to emit canonical hostile/status ids.
-- Added compatibility coverage proving landed hostile/status static ids are canonical while later 91.5/91.6 categories remain on their current configured ids.
+- Added compatibility coverage proving landed hostile/status static ids are canonical while later categories remain on their current configured ids.
 
 ---
 
 ## Slice 91.5: Initiate, Protocol, And Style Static Rename
+
+Status: complete.
 
 ### Goal
 
@@ -297,6 +299,14 @@ Make hero, skill, skill-upgrade, style, and style-branch ids canonical.
 - Web state workflow tests.
 - Save migration tests.
 - `npm run typecheck`.
+
+### Completion Notes
+
+- Renamed canonical initiate ids, protocol ids, skill-upgrade ids, style ids, and style-branch ids through the approved 91.1 target table.
+- Updated direct references in heroes, enemies, skill upgrades, styles, equipment `allowedStyles`, assignment `allowedStyles`, style branch unlocks, starter roster defaults, formation defaults, fallback combat skill selection, and balance formation scenarios.
+- Preserved 91.6 ids for augments, countermeasures, operations, and routines while ensuring current-version imports normalize 91.5 aliases forward and 91.6 target aliases back to the configured side.
+- Kept legacy save fixtures intentionally legacy so versioned migration coverage proves old teams, formations, style mastery, style branches, and skill-upgrade progress migrate to canonical ids.
+- Updated web progression, equipment compatibility, display terms, combat, offline rewards, save storage, and compatibility snapshots to use canonical 91.5 ids.
 
 ---
 

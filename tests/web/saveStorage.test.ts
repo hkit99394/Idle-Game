@@ -604,25 +604,25 @@ describe("web save storage", () => {
       progress: {
         ...progress,
         heroes: {
-          iron_fist_initiate: {
+          iron_fist_disciple: {
             level: 3,
             upgrades: {}
           }
         },
-        activeHeroIds: ["iron_fist_initiate"],
+        activeHeroIds: ["iron_fist_disciple"],
         formation: {
-          iron_fist_initiate: "front"
+          iron_fist_disciple: "front"
         },
         styleMastery: {
-          impact: {
+          fist: {
             experience: 300
           }
         },
         styleBranches: {
-          impact: "iron_body_impact"
+          fist: "iron_body_fist"
         },
         skillUpgrades: {
-          impact_combo_refinement: 2
+          iron_fist_combo_refinement: 2
         },
         equipment: {
           inventory: {
@@ -670,18 +670,18 @@ describe("web save storage", () => {
       return;
     }
 
-    expect(importResult.save.progress.heroes.iron_fist_disciple).toEqual({
+    expect(importResult.save.progress.heroes.iron_fist_initiate).toEqual({
       level: 3,
       upgrades: {}
     });
-    expect(importResult.save.progress.heroes.iron_fist_initiate).toBeUndefined();
+    expect(importResult.save.progress.heroes.iron_fist_disciple).toBeUndefined();
     expect(importResult.save.progress.selectedTacticId).toBe("outer_pressure");
     expect(importResult.save.progress.equipment?.inventory).toEqual({
       training_wraps: 1
     });
     expect(importResult.save.progress.assignments).toEqual({
       bamboo_road_patrol: {
-        heroIds: ["iron_fist_disciple"]
+        heroIds: ["iron_fist_initiate"]
       }
     });
     expect(importResult.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
@@ -690,7 +690,7 @@ describe("web save storage", () => {
     expect(importedSave.save.progress.selectedTacticId).toBe("outer_pressure");
     expect(importedSave.save.progress.assignments).toEqual({
       bamboo_road_patrol: {
-        heroIds: ["iron_fist_disciple"]
+        heroIds: ["iron_fist_initiate"]
       }
     });
   });
@@ -1703,7 +1703,7 @@ describe("web save storage", () => {
       },
       {
         upgradeId: "hero_outer_training",
-        heroId: "iron_fist_disciple"
+        heroId: "iron_fist_initiate"
       }
     );
     const purchaseSaveResult = saveWebGameStateToStorage(
