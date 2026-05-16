@@ -61,7 +61,7 @@ Inside `effectPipeline.ts`, use the local `selectEffectTarget`/`selectOffensiveE
 
 There are two status systems.
 
-- Timed combat statuses are fixed fields on `CombatantState`: guard, protection, armor break, wound, speed down, inner defense down, and regeneration. To add one, update the `StatusEffectId` union and `CombatantState` field in `core/combat/types.ts`, metadata in `statusMetadata.ts`, and the `getStatusEffect`, `setStatusEffect`, and `clearStatusEffect` switches in `statusEffects.ts`.
+- Timed combat statuses are fixed fields on `CombatantState`: guard, protection, armor break, wound, speed down, Cognitive Defense Down (`inner_defense_down` internally), and regeneration. To add one, update the `StatusEffectId` union and `CombatantState` field in `core/combat/types.ts`, metadata in `statusMetadata.ts`, and the `getStatusEffect`, `setStatusEffect`, and `clearStatusEffect` switches in `statusEffects.ts`.
 - Data statuses live in `activeStatuses` and are defined by `data/statusEffects.json`. They are applied by the `apply_status` skill effect, advanced by `advanceStatusEffects`, and interpreted through `getStatusCombatModifiers` and `calculateStatusTickOuterDamage`.
 
 Put recurring tick behavior in `advanceStatusEffects` for data statuses or `tickRegeneration` for the timed regeneration status. Put stat multipliers in `getStatusCombatModifiers`. Put application chance, duration, stack, and resistance behavior in `statusEffects.ts`.

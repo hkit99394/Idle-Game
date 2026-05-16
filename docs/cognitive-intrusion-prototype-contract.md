@@ -57,7 +57,7 @@ The first implementation should prefer this shape:
   "durationSeconds": 6,
   "maxStacks": 1,
   "stackPolicy": "refresh",
-  "dispelTags": ["inner", "debuff"],
+  "dispelTags": ["debuff"],
   "effects": {
     "cognitiveDamageTakenMultiplier": 1.12,
     "contextRebuildMultiplier": 0.85

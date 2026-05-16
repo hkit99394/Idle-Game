@@ -53,7 +53,7 @@ export const TIMED_STATUS_METADATA = {
   },
   inner_defense_down: {
     id: "inner_defense_down",
-    label: "Inner Defense Down",
+    label: "Cognitive Defense Down",
     field: "innerDefenseDown",
     dispelTags: ["inner", "vulnerability", "debuff"],
     cleansePriority: 40
