@@ -15,6 +15,7 @@ Start with the current contributor docs:
 - [Path Of Neon Terminology Map](docs/path-of-neon-terminology-map.md)
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
+- [Stage 3.1 Backlog: District Heat Contract And Pacing Hardening](docs/stage-3.1-backlog.md)
 - [Archived Stage 3.0 Backlog: Cognitive Intrusion Prototype](docs/archive/stage-3.0-backlog.md)
 - [Cognitive Intrusion Prototype Contract](docs/cognitive-intrusion-prototype-contract.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
@@ -61,7 +62,7 @@ Historical planning and archived backlogs:
 ## Current Prototype
 
 - Responsive web prototype with continuous stage fighting.
-- Product direction is now Path of Neon: techno-sects, neon districts, AI Overload combat, and future neon-native systems such as district heat, cognitive intrusion, augment loadouts, network operations, and AI raid events.
+- Product direction is now Path of Neon: techno-sects, neon districts, AI Overload combat, implemented Intrusion, and future neon-native systems such as District Heat, augment loadouts, network operations, and AI raid events.
 - Clicking a map route card selects where the team fights; cleared non-boss cards also become the offline farm target.
 - Bamboo Road, Mist Valley, Black Iron Fort, Lotus Monastery, and Demon Cult Outpost are implemented with team encounters, formation slots, targeting rules, CP, levels, rewards, equipment, medicine, status counterplay, and map mastery.
 - Save export/import, reset, diagnostics, offline reward preview, time travel testing, and farm presets are available in the web UI.
