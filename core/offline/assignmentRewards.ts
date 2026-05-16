@@ -3,8 +3,10 @@ import {
   addStyleMasteryExperience,
   cloneProgress,
   getAssignmentProgress,
+  getRegionMapProgress,
   isAssignmentUnlocked,
   isHeroEligibleForAssignment,
+  setRegionMapProgress,
   syncHeroLevelsWithCombatExperience
 } from "../progression";
 import type { PlayerProgress } from "../progression";
@@ -202,15 +204,19 @@ export function applyOfflineAssignmentRewards(
     });
 
     if (assignmentCombatExperience > 0 && rewardProfile.mapRegionId) {
-      const mapProgress = nextProgress.maps[rewardProfile.mapRegionId] ?? {
+      const mapProgress = getRegionMapProgress(
+        nextProgress.maps,
+        rewardProfile.mapRegionId
+      ) ?? {
         combatExperience: 0,
         highestClearedStageIndex: 0
       };
-      nextProgress.maps[rewardProfile.mapRegionId] = {
+      const mapCombatExperience = mapProgress.combatExperience ?? 0;
+
+      setRegionMapProgress(nextProgress, rewardProfile.mapRegionId, {
         ...mapProgress,
-        combatExperience:
-          mapProgress.combatExperience + assignmentCombatExperience
-      };
+        combatExperience: mapCombatExperience + assignmentCombatExperience
+      });
     }
 
     if (assignmentStyleMasteryExperience > 0) {

@@ -1,4 +1,4 @@
-import { getStageById } from "../../../core";
+import { getRegionMapProgress, getStageById } from "../../../core";
 import type { PlayerProgress, StaticGameData } from "../../../core";
 import {
   getBrowserSaveStorage,
@@ -18,7 +18,8 @@ function getCurrentRegionHighestClearedStageIndex(
   const currentStage = getStageById(data, progress.currentStageId);
 
   return currentStage
-    ? progress.maps[currentStage.regionId]?.highestClearedStageIndex ?? 0
+    ? getRegionMapProgress(progress.maps, currentStage.regionId)
+        ?.highestClearedStageIndex ?? 0
     : 0;
 }
 

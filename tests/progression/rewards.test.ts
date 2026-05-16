@@ -10,7 +10,7 @@ describe("stage clear rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
     const result = applyStageClearRewards(staticData, {
       progress,
-      stageId: "bamboo_road_1"
+      stageId: "greenline_approach_1"
     });
 
     expect(result.ok).toBe(true);
@@ -26,22 +26,22 @@ describe("stage clear rewards", () => {
     });
     expect(result.progress.resources.silver).toBe(10);
     expect(result.progress.resources.cultivation).toBe(5);
-    expect(result.progress.maps.bamboo_road.combatExperience).toBe(5);
+    expect(result.progress.maps.greenline_approach.combatExperience).toBe(5);
     expect(result.progress.styleMastery?.fist.experience).toBe(5);
     expect(result.progress.styleMastery?.palm.experience).toBe(5);
     expect(result.progress.styleMastery?.sword.experience).toBe(5);
     expect(result.progress.styleMastery?.staff.experience).toBe(5);
-    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(1);
-    expect(result.progress.currentStageId).toBe("bamboo_road_1");
+    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(1);
+    expect(result.progress.currentStageId).toBe("greenline_approach_1");
   });
 
   it("reports newly reached mastery ranks", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.combatExperience = 95;
+    progress.maps.greenline_approach.combatExperience = 95;
 
     const result = applyStageClearRewards(staticData, {
       progress,
-      stageId: "bamboo_road_1"
+      stageId: "greenline_approach_1"
     });
 
     expect(result.ok).toBe(true);
@@ -57,11 +57,11 @@ describe("stage clear rewards", () => {
 
   it("applies map reward mastery bonus to silver and cultivation", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.combatExperience = 500;
+    progress.maps.greenline_approach.combatExperience = 500;
 
     const result = applyStageClearRewards(staticData, {
       progress,
-      stageId: "bamboo_road_1"
+      stageId: "greenline_approach_1"
     });
 
     expect(result.ok).toBe(true);
@@ -76,14 +76,14 @@ describe("stage clear rewards", () => {
 
   it("grants Lotus herbs through stage rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 10;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
-    progress.currentStageId = "lotus_monastery_1";
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 10;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
+    progress.currentStageId = "lotus_clinic_1";
 
     const result = applyStageClearRewards(staticData, {
       progress,
-      stageId: "lotus_monastery_1"
+      stageId: "lotus_clinic_1"
     });
 
     expect(result.ok).toBe(true);
@@ -115,7 +115,7 @@ describe("stage clear rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
     const result = applyStageClearRewards(staticData, {
       progress,
-      stageId: "bamboo_road_3"
+      stageId: "greenline_approach_3"
     });
 
     expect(result.ok).toBe(false);
@@ -126,7 +126,7 @@ describe("stage clear rewards", () => {
     expect(result.reason).toBe("locked_stage");
     expect(result.progress).toBe(progress);
     expect(progress.resources.silver).toBe(0);
-    expect(progress.maps.bamboo_road.combatExperience).toBe(0);
-    expect(progress.maps.bamboo_road.highestClearedStageIndex).toBe(0);
+    expect(progress.maps.greenline_approach.combatExperience).toBe(0);
+    expect(progress.maps.greenline_approach.highestClearedStageIndex).toBe(0);
   });
 });

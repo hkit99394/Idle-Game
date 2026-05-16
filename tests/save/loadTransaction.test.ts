@@ -24,7 +24,7 @@ describe("save load transaction", () => {
     }
 
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
-    expect(result.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(result.save.offlineFarmPreset).toBe("balanced");
     expect(result.changed).toBe(true);
     expect(result.writeReasons).toEqual(["migrated"]);
@@ -37,11 +37,11 @@ describe("save load transaction", () => {
 
   it("applies offline rewards in core and advances the saved reward timestamp once", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       nowMs: 1_000
     });
     const firstLoad = applySaveLoadTransaction({
@@ -71,11 +71,11 @@ describe("save load transaction", () => {
 
   it("prevents repeated offline rewards when the persisted save is loaded again", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       nowMs: 1_000
     });
     const firstLoad = loadSaveTransaction({
@@ -109,6 +109,64 @@ describe("save load transaction", () => {
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
     expect(secondLoad.save.progress.resources).toEqual(
       firstLoad.save.progress.resources
+    );
+  });
+
+  it("keeps migrated offline rewards idempotent when region ids change", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+
+    const save = {
+      ...createSaveData({
+        progress: {
+          ...progress,
+          maps: {
+            bamboo_road: progress.maps.greenline_approach
+          },
+          currentStageId: "bamboo_road_2"
+        },
+        selectedOfflineFarmStageId: "bamboo_road_1",
+        nowMs: 1_000
+      }),
+      version: 10
+    };
+    const firstLoad = loadSaveTransaction({
+      data: staticData,
+      rawSave: save,
+      nowMs: 61_000
+    });
+
+    expect(firstLoad.ok).toBe(true);
+    if (!firstLoad.ok) {
+      return;
+    }
+
+    const secondLoad = loadSaveTransaction({
+      data: staticData,
+      rawSave: firstLoad.save,
+      nowMs: 61_000
+    });
+
+    expect(secondLoad.ok).toBe(true);
+    if (!secondLoad.ok) {
+      return;
+    }
+
+    expect(firstLoad.save.progress.maps.greenline_approach.combatExperience).toBeGreaterThan(
+      0
+    );
+    expect(firstLoad.save.progress.currentStageId).toBe("greenline_approach_2");
+    expect(firstLoad.save.selectedOfflineFarmStageId).toBe(
+      "greenline_approach_1"
+    );
+    expect(firstLoad.offlineRewards?.ok).toBe(true);
+    expect(firstLoad.offlineRewards?.rewards.clears).toBeGreaterThan(0);
+    expect(secondLoad.changed).toBe(false);
+    expect(secondLoad.writeReasons).toEqual([]);
+    expect(secondLoad.offlineRewards?.ok).toBe(true);
+    expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
+    expect(secondLoad.save.progress.maps.greenline_approach).toEqual(
+      firstLoad.save.progress.maps.greenline_approach
     );
   });
 
@@ -158,11 +216,11 @@ describe("save load transaction", () => {
 
   it("normalizes invalid farm target metadata without changing reward timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_10",
+      selectedOfflineFarmStageId: "greenline_approach_10",
       offlineFarmPreset: "balanced",
       nowMs: 1_000
     });
@@ -175,7 +233,7 @@ describe("save load transaction", () => {
     expect(result.ok).toBe(true);
     expect(result.changed).toBe(true);
     expect(result.writeReasons).toEqual(["normalizedFarmTarget"]);
-    expect(result.save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(result.save.updatedAtMs).toBe(1_000);
     expect(result.save.lastOfflineRewardAtMs).toBe(1_000);
     expect(result.offlineRewards?.ok).toBe(true);

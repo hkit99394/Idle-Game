@@ -49,13 +49,13 @@ describe("offline rewards", () => {
 
   it("applies rewards from a selected cleared non-boss farm stage", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 2;
-    progress.currentStageId = "bamboo_road_3";
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
+    progress.currentStageId = "greenline_approach_3";
 
     const result = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       lastSavedAtMs: 1000,
       currentTimeMs: 31_000,
       config: {
@@ -74,19 +74,19 @@ describe("offline rewards", () => {
     expect(result.rewards.clears).toBe(3);
     expect(result.progress.resources.silver).toBeCloseTo(15);
     expect(result.progress.resources.cultivation).toBeCloseTo(7.5);
-    expect(result.progress.maps.bamboo_road.combatExperience).toBeCloseTo(7.5);
-    expect(result.progress.maps.bamboo_road.highestClearedStageIndex).toBe(2);
-    expect(result.progress.currentStageId).toBe("bamboo_road_3");
+    expect(result.progress.maps.greenline_approach.combatExperience).toBeCloseTo(7.5);
+    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(2);
+    expect(result.progress.currentStageId).toBe("greenline_approach_3");
   });
 
   it("updates hero levels after offline combat experience is granted", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     const result = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       lastSavedAtMs: 0,
       currentTimeMs: 200_000,
       config: {
@@ -108,12 +108,12 @@ describe("offline rewards", () => {
 
   it("previews rewards with the same formula without mutating progress", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       previewSeconds: 30,
       config: {
         offlineCapSeconds: 100,
@@ -138,21 +138,21 @@ describe("offline rewards", () => {
     });
     expect(preview.masteryExperienceGain).toBe(7.5);
     expect(progress.resources.silver).toBe(0);
-    expect(progress.maps.bamboo_road.combatExperience).toBe(0);
+    expect(progress.maps.greenline_approach.combatExperience).toBe(0);
   });
 
   it("applies and previews herbs from Lotus offline farming", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 10;
-    progress.maps.mist_valley.highestClearedStageIndex = 10;
-    progress.maps.black_iron_fort.highestClearedStageIndex = 10;
-    progress.maps.lotus_monastery.highestClearedStageIndex = 1;
-    progress.currentStageId = "lotus_monastery_2";
+    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.maps.veil_district.highestClearedStageIndex = 10;
+    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
+    progress.maps.lotus_clinic.highestClearedStageIndex = 1;
+    progress.currentStageId = "lotus_clinic_2";
 
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "lotus_monastery_1",
+      selectedOfflineFarmStageId: "lotus_clinic_1",
       previewSeconds: 30,
       config: {
         offlineCapSeconds: 100,
@@ -164,7 +164,7 @@ describe("offline rewards", () => {
     const applied = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "lotus_monastery_1",
+      selectedOfflineFarmStageId: "lotus_clinic_1",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000,
       config: {
@@ -192,7 +192,7 @@ describe("offline rewards", () => {
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_10",
+      selectedOfflineFarmStageId: "greenline_approach_10",
       previewSeconds: 60
     });
 
@@ -221,24 +221,24 @@ describe("offline rewards", () => {
     const lockedResult = applyOfflineRewards({
       data: staticData,
       progress: lockedProgress,
-      selectedOfflineFarmStageId: "bamboo_road_2",
+      selectedOfflineFarmStageId: "greenline_approach_2",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
     const bossProgress = createInitialPlayerProgress(staticData);
-    bossProgress.maps.bamboo_road.highestClearedStageIndex = 10;
-    bossProgress.currentStageId = "bamboo_road_10";
+    bossProgress.maps.greenline_approach.highestClearedStageIndex = 10;
+    bossProgress.currentStageId = "greenline_approach_10";
     const bossResult = applyOfflineRewards({
       data: staticData,
       progress: bossProgress,
-      selectedOfflineFarmStageId: "bamboo_road_10",
+      selectedOfflineFarmStageId: "greenline_approach_10",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
     const notFarmableData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               canFarmOffline: false
@@ -247,11 +247,11 @@ describe("offline rewards", () => {
       )
     };
     const notFarmableProgress = createInitialPlayerProgress(staticData);
-    notFarmableProgress.maps.bamboo_road.highestClearedStageIndex = 1;
+    notFarmableProgress.maps.greenline_approach.highestClearedStageIndex = 1;
     const notFarmableResult = applyOfflineRewards({
       data: notFarmableData,
       progress: notFarmableProgress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });

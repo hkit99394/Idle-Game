@@ -47,7 +47,7 @@
       {
         "id": "wind_step_leg",
         "name": "Wind Step Vector",
-        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
         "effects": [
           { "type": "stat_multiplier", "stat": "speed", "value": 0.06 }
@@ -87,7 +87,7 @@
       {
         "id": "black_iron_blade",
         "name": "Black Iron Rend",
-        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
         "effects": [
           { "type": "stat_multiplier", "stat": "outerAttack", "value": 0.04 },
@@ -127,7 +127,7 @@
       {
         "id": "rain_needle_art",
         "name": "Rain Needle Ghostware",
-        "unlock": { "type": "stage_cleared", "stageId": "bamboo_road_10" },
+        "unlock": { "type": "stage_cleared", "stageId": "greenline_approach_10" },
         "hiddenInMvp": false,
         "effects": [
           { "type": "stat_multiplier", "stat": "innerAttack", "value": 0.04 },

@@ -171,7 +171,7 @@ describe("save schema validation", () => {
 
   it("rejects unsupported versions and locked current stages", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.currentStageId = "bamboo_road_5";
+    progress.currentStageId = "greenline_approach_5";
     const save = {
       ...createSaveData({
         progress,

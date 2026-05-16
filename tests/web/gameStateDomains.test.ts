@@ -75,7 +75,7 @@ describe("web game state domains", () => {
     const lockedStageState = webGameStateReducer(
       staticData,
       state,
-      createSelectStageAction("mist_valley_1")
+      createSelectStageAction("veil_district_1")
     );
     const purchaseReadyState = webGameStateReducer(
       staticData,
@@ -164,7 +164,7 @@ describe("web game state domains", () => {
       message: "Browser save storage is unavailable"
     });
     expect(result.state).toMatchObject({
-      selectedStageId: "bamboo_road_1",
+      selectedStageId: "greenline_approach_1",
       lastBattle: null
     });
   });

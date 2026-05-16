@@ -13,11 +13,11 @@ import { staticData } from "../helpers/staticData";
 describe("equipment progression", () => {
   it("adds deterministic equipment drops to inventory and stacks duplicates", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     const firstClear = applyStageClearRewards(staticData, {
       progress,
-      stageId: "bamboo_road_2"
+      stageId: "greenline_approach_2"
     });
 
     expect(firstClear.ok).toBe(true);
@@ -37,7 +37,7 @@ describe("equipment progression", () => {
 
     const secondClear = applyStageClearRewards(staticData, {
       progress: firstClear.progress,
-      stageId: "bamboo_road_2"
+      stageId: "greenline_approach_2"
     });
 
     expect(secondClear.ok).toBe(true);
@@ -61,7 +61,7 @@ describe("equipment progression", () => {
     const beforeTeam = buildPlayerTeamForStage(
       staticData,
       progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(beforeTeam.ok).toBe(true);
@@ -87,7 +87,7 @@ describe("equipment progression", () => {
     const afterTeam = buildPlayerTeamForStage(
       staticData,
       equipResult.progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(afterTeam.ok).toBe(true);
@@ -117,7 +117,7 @@ describe("equipment progression", () => {
     const beforeTeam = buildPlayerTeamForStage(
       staticData,
       progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(beforeTeam.ok).toBe(true);
@@ -142,7 +142,7 @@ describe("equipment progression", () => {
     const afterTeam = buildPlayerTeamForStage(
       staticData,
       equipResult.progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(afterTeam.ok).toBe(true);
@@ -242,12 +242,12 @@ describe("equipment progression", () => {
     const withoutAffixTeam = buildPlayerTeamForStage(
       withoutAffixData,
       equipResult.progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
     const withAffixTeam = buildPlayerTeamForStage(
       staticData,
       equipResult.progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(withoutAffixTeam.ok).toBe(true);
@@ -311,12 +311,12 @@ describe("equipment progression", () => {
     const withoutSetTeam = buildPlayerTeamForStage(
       withoutSetData,
       manualResult.progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
     const withSetTeam = buildPlayerTeamForStage(
       staticData,
       manualResult.progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(withoutSetTeam.ok).toBe(true);

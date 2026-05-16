@@ -20,22 +20,22 @@ describe("web game state idle", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "lotus_monastery_2",
+        currentStageId: "lotus_clinic_2",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 0,
             highestClearedStageIndex: 10
           },
-          mist_valley: {
+          veil_district: {
             combatExperience: 0,
             highestClearedStageIndex: 10
           },
-          black_iron_fort: {
+          black_iron_foundry: {
             combatExperience: 0,
             highestClearedStageIndex: 10
           },
-          lotus_monastery: {
+          lotus_clinic: {
             combatExperience: 0,
             highestClearedStageIndex: 3
           }
@@ -44,12 +44,12 @@ describe("web game state idle", () => {
     });
     const selectedState = webGameStateReducer(staticData, progressedState, {
       type: "select_offline_farm_stage",
-      stageId: "lotus_monastery_1"
+      stageId: "lotus_clinic_1"
     });
     const viewModel = getWebGameViewModel(staticData, selectedState);
 
     expect(
-      viewModel.stageOptions.find((stage) => stage.id === "lotus_monastery_1")
+      viewModel.stageOptions.find((stage) => stage.id === "lotus_clinic_1")
     ).toMatchObject({
       rewards: {
         herbs: 6
@@ -77,10 +77,10 @@ describe("web game state idle", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "bamboo_road_4",
+        currentStageId: "greenline_approach_4",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 0,
             highestClearedStageIndex: 3
           }
@@ -89,21 +89,21 @@ describe("web game state idle", () => {
     });
     const selectedState = webGameStateReducer(staticData, progressedState, {
       type: "select_stage",
-      stageId: "bamboo_road_3"
+      stageId: "greenline_approach_3"
     });
 
-    expect(selectedState.selectedStageId).toBe("bamboo_road_3");
-    expect(selectedState.selectedOfflineFarmStageId).toBe("bamboo_road_3");
+    expect(selectedState.selectedStageId).toBe("greenline_approach_3");
+    expect(selectedState.selectedOfflineFarmStageId).toBe("greenline_approach_3");
   });
 
   it("allows cleared non-boss farm stages and rejects boss farming", () => {
     const state = createInitialWebGameState(staticData);
     const clearedProgress = {
       ...state.progress,
-      currentStageId: "bamboo_road_10",
+      currentStageId: "greenline_approach_10",
       maps: {
         ...state.progress.maps,
-        bamboo_road: {
+        greenline_approach: {
           combatExperience: 0,
           highestClearedStageIndex: 10
         }
@@ -115,19 +115,19 @@ describe("web game state idle", () => {
     });
     const farmStageState = webGameStateReducer(staticData, progressedState, {
       type: "select_offline_farm_stage",
-      stageId: "bamboo_road_3"
+      stageId: "greenline_approach_3"
     });
     const bossFarmState = webGameStateReducer(staticData, farmStageState, {
       type: "select_offline_farm_stage",
-      stageId: "bamboo_road_10"
+      stageId: "greenline_approach_10"
     });
     const viewModel = getWebGameViewModel(staticData, bossFarmState);
     const bossOption = viewModel.stageOptions.find(
-      (stage) => stage.id === "bamboo_road_10"
+      (stage) => stage.id === "greenline_approach_10"
     );
 
-    expect(farmStageState.selectedOfflineFarmStageId).toBe("bamboo_road_3");
-    expect(bossFarmState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+    expect(farmStageState.selectedOfflineFarmStageId).toBe("greenline_approach_3");
+    expect(bossFarmState.selectedOfflineFarmStageId).toBe("greenline_approach_8");
     expect(bossOption).toMatchObject({
       isBoss: true,
       isCleared: true,
@@ -143,7 +143,7 @@ describe("web game state idle", () => {
         ...state.progress,
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 120,
             highestClearedStageIndex: 4
           }
@@ -156,7 +156,7 @@ describe("web game state idle", () => {
         ...state.progress,
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 600,
             highestClearedStageIndex: 8
           }
@@ -222,10 +222,10 @@ describe("web game state idle", () => {
     const state = createInitialWebGameState(staticData);
     const stageFiveProgress = {
       ...state.progress,
-      currentStageId: "bamboo_road_5",
+      currentStageId: "greenline_approach_5",
       maps: {
         ...state.progress.maps,
-        bamboo_road: {
+        greenline_approach: {
           combatExperience: 0,
           highestClearedStageIndex: 4
         }
@@ -239,7 +239,7 @@ describe("web game state idle", () => {
       },
       {
         type: "select_stage",
-        stageId: "bamboo_road_5"
+        stageId: "greenline_approach_5"
       }
     );
     const nextState = resolveSelectedStageBattle(staticData, stageFiveState);
@@ -282,10 +282,10 @@ describe("web game state idle", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "bamboo_road_10",
+        currentStageId: "greenline_approach_10",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 88,
             highestClearedStageIndex: 9
           }
@@ -293,7 +293,7 @@ describe("web game state idle", () => {
       }
     });
 
-    expect(nextState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+    expect(nextState.selectedOfflineFarmStageId).toBe("greenline_approach_8");
   });
 
   it("switches offline farm recommendations by preset", () => {
@@ -302,10 +302,10 @@ describe("web game state idle", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "bamboo_road_10",
+        currentStageId: "greenline_approach_10",
         maps: {
           ...state.progress.maps,
-          bamboo_road: {
+          greenline_approach: {
             combatExperience: 88,
             highestClearedStageIndex: 9
           }
@@ -322,15 +322,15 @@ describe("web game state idle", () => {
       preset: "mastery"
     });
 
-    expect(progressedState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+    expect(progressedState.selectedOfflineFarmStageId).toBe("greenline_approach_8");
     expect(silverState.offlineFarmPreset).toBe("silver");
-    expect(silverState.selectedOfflineFarmStageId).toBe("bamboo_road_9");
+    expect(silverState.selectedOfflineFarmStageId).toBe("greenline_approach_9");
     expect(silverViewModel.offlineFarmPresets.find((preset) => preset.id === "silver")).toMatchObject({
       isSelected: true,
       rewardPriority: ["Credits", "Combat Data", "Resonance"]
     });
     expect(silverViewModel.offlineFarmRecommendation).toMatchObject({
-      stageId: "bamboo_road_9",
+      stageId: "greenline_approach_9",
       presetLabel: "Silver",
       isSelected: true
     });
@@ -342,6 +342,6 @@ describe("web game state idle", () => {
       combatExperience: 2160
     });
     expect(masteryState.offlineFarmPreset).toBe("mastery");
-    expect(masteryState.selectedOfflineFarmStageId).toBe("bamboo_road_8");
+    expect(masteryState.selectedOfflineFarmStageId).toBe("greenline_approach_8");
   });
 });

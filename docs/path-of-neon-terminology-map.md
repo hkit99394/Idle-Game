@@ -4,7 +4,7 @@
 
 This map is the display-language contract for the Path of Neon retheme. It keeps mechanics recognizable while allowing player-facing copy, content names, and visual design to move away from pure martial fantasy.
 
-Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them, but not during casual UI copy replacement. In particular, save fields, static ids, test fixture keys, and API envelope fields may keep legacy names such as `cultivation`, `silver`, `sect`, `innerQi`, or `bamboo_road` until the migration plan in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) is implemented. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
+Internal identifiers remain stable until a dedicated migration explicitly changes them. The project direction is to migrate them in compatibility-backed slices, not during casual UI copy replacement. Stage 2.5 has migrated region and route id values such as `greenline_approach` and `redline_outpost`; save fields, content ids, test fixture keys, and API envelope fields may still keep legacy names such as `cultivation`, `silver`, `sect`, `innerQi`, or `iron_fist_disciple` until their owning migration stage lands. Legacy storage keys such as `path-of-jianghu.save.v1` remain compatibility aliases after the canonical product/storage key migration.
 
 Use this map in three different ways:
 
@@ -104,11 +104,11 @@ Style families and combat roles are separate. Do not use Anchor, Breacher, Strik
 
 | Current Display Name | Path of Neon Candidate | Internal Id Rule |
 | --- | --- | --- |
-| Bamboo Road | Bamboo Line / Greenline Approach | Keep `bamboo_road`. |
-| Mist Valley | Veil District / Mistline | Keep `mist_valley`. |
-| Black Iron Fort | Black Iron Foundry / Ironwall Node | Keep `black_iron_fort`. |
-| Lotus Monastery | Lotus Clinic / Lotus Sanctuary | Keep `lotus_monastery`. |
-| Demon Cult Outpost | Redline Outpost / Redline Cult | Keep `demon_cult_outpost`; reserve Null Context for doctrine/status flavor. |
+| Bamboo Road | Greenline Approach | Canonical region id is `greenline_approach`; legacy alias `bamboo_road` remains import-compatible. |
+| Mist Valley | Veil District | Canonical region id is `veil_district`; legacy alias `mist_valley` remains import-compatible. |
+| Black Iron Fort | Black Iron Foundry | Canonical region id is `black_iron_foundry`; legacy alias `black_iron_fort` remains import-compatible. |
+| Lotus Monastery | Lotus Clinic | Canonical region id is `lotus_clinic`; legacy alias `lotus_monastery` remains import-compatible. |
+| Demon Cult Outpost | Redline Outpost | Canonical region id is `redline_outpost`; legacy alias `demon_cult_outpost` remains import-compatible. Reserve Null Context for doctrine/status flavor. |
 | Black Iron Guard | Ironwall Guard | Keep enemy ids. |
 | Lotus Mending Disciple | Lotus Stabilizer | Keep hero ids. |
 
@@ -120,7 +120,7 @@ Do not retheme these in schema docs until a migration changes them:
 - `silver`, `cultivation`, `herbs`, `combatExperience`
 - `sect`, `maps`, `selectedFarmStageId`, `selectedTacticId`
 - `outerHp`, `innerQi`, `maxOuterHp`, `maxInnerQi`
-- All static JSON `id` fields and all save/static reference fields ending in `Id`, including `regionId`, `stageId`, `enemyId`, `heroId`, `skillId`, `styleId`, `equipmentId`, `equipmentSetId`, `assignmentId`, `medicineId`, `statusId`, and `tacticId`
+- Static content JSON `id` fields and all save/static reference field names ending in `Id`, including `regionId`, `stageId`, `enemyId`, `heroId`, `skillId`, `styleId`, `equipmentId`, `equipmentSetId`, `assignmentId`, `medicineId`, `statusId`, and `tacticId`. Stage 2.5 migrated region/stage values, but the field names remain technical.
 - Exported constants such as `WEB_SAVE_STORAGE_KEY`
 - Legacy browser save key `path-of-jianghu.save.v1`, which remains a read/copy compatibility key after the canonical `path-of-neon.save.v1` migration
 - Legacy PWA cache prefix `path-of-jianghu-shell-`, which remains a cleanup compatibility prefix after the canonical `path-of-neon-shell-` migration

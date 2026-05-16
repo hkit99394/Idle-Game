@@ -25,7 +25,7 @@ function getStage(stageId: string) {
 
 const statusPreviewStage: StageDefinition = {
   id: "test_status_counterplay",
-  regionId: "bamboo_road",
+  regionId: "greenline_approach",
   index: 11,
   name: "Status Counterplay Test",
   enemyTeam: {
@@ -135,7 +135,7 @@ describe("counterplay preview", () => {
     const rows = buildMedicineCounterplayViewModels({
       data: staticData,
       progress: {
-        bamboo_road: {
+        greenline_approach: {
           highestClearedStageIndex: 10
         }
       },
@@ -239,7 +239,7 @@ describe("counterplay preview", () => {
     expect(
       buildStageCounterplayPreview({
         data: staticData,
-        stage: getStage("bamboo_road_1"),
+        stage: getStage("greenline_approach_1"),
         inventory: {
           clear_heart_pill: 2
         }

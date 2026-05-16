@@ -4,20 +4,20 @@ import { staticData } from "../helpers/staticData";
 describe("Redline Outpost content", () => {
   it("connects after the Lotus boss as a seven-stage region", () => {
     const lotusBoss = staticData.stages.find(
-      (stage) => stage.id === "lotus_monastery_7"
+      (stage) => stage.id === "lotus_clinic_7"
     );
     const demonRegion = staticData.regions.find(
-      (region) => region.id === "demon_cult_outpost"
+      (region) => region.id === "redline_outpost"
     );
     const demonStages = staticData.stages.filter(
-      (stage) => stage.regionId === "demon_cult_outpost"
+      (stage) => stage.regionId === "redline_outpost"
     );
 
-    expect(lotusBoss?.nextStageId).toBe("demon_cult_outpost_1");
+    expect(lotusBoss?.nextStageId).toBe("redline_outpost_1");
     expect(demonRegion).toMatchObject({
       unlockCondition: {
         type: "stage_cleared",
-        stageId: "lotus_monastery_7"
+        stageId: "lotus_clinic_7"
       }
     });
     expect(demonRegion?.stageIds).toHaveLength(7);
@@ -28,7 +28,7 @@ describe("Redline Outpost content", () => {
       true
     );
     expect(demonStages.at(-1)).toMatchObject({
-      id: "demon_cult_outpost_7",
+      id: "redline_outpost_7",
       isBoss: true,
       canFarmOffline: false
     });
@@ -40,7 +40,7 @@ describe("Redline Outpost content", () => {
     );
     const demonEnemyIds = new Set(
       staticData.stages
-        .filter((stage) => stage.regionId === "demon_cult_outpost")
+        .filter((stage) => stage.regionId === "redline_outpost")
         .flatMap((stage) => stage.enemyTeam.combatantIds)
     );
     const demonEnemies = staticData.enemies.filter((enemy) =>

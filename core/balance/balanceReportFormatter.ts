@@ -7,7 +7,7 @@ export function formatBalanceReport(report: BalanceReport): string {
   );
 
   for (const scenario of report.scenarios) {
-    const gate = getScenarioRegion(scenario, "demon_cult_outpost")?.bossGate;
+    const gate = getScenarioRegion(scenario, "redline_outpost")?.bossGate;
 
     lines.push(
       [

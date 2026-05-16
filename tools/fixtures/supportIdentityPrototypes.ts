@@ -137,24 +137,24 @@ const prototypeDemonCultEnemies: StaticDataForSupportDecision["enemies"] = [
 ];
 
 const prototypeDemonCultRegion: StaticDataForSupportDecision["regions"][number] = {
-  id: "demon_cult_outpost",
+  id: "redline_outpost",
   name: "Prototype Redline Outpost",
   stageIds: [
-    "demon_cult_outpost_1",
-    "demon_cult_outpost_2",
-    "demon_cult_outpost_3",
-    "demon_cult_outpost_4"
+    "redline_outpost_1",
+    "redline_outpost_2",
+    "redline_outpost_3",
+    "redline_outpost_4"
   ],
   unlockCondition: {
     type: "stage_cleared",
-    stageId: "lotus_monastery_7"
+    stageId: "lotus_clinic_7"
   }
 };
 
 const prototypeDemonCultStages: StaticDataForSupportDecision["stages"] = [
   {
-    id: "demon_cult_outpost_1",
-    regionId: "demon_cult_outpost",
+    id: "redline_outpost_1",
+    regionId: "redline_outpost",
     index: 1,
     name: "Prototype Redline Gate",
     enemyTeam: {
@@ -164,11 +164,11 @@ const prototypeDemonCultStages: StaticDataForSupportDecision["stages"] = [
     isBoss: false,
     canFarmOffline: true,
     rewards: { silver: 220, cultivation: 110, combatExperience: 60 },
-    nextStageId: "demon_cult_outpost_2"
+    nextStageId: "redline_outpost_2"
   },
   {
-    id: "demon_cult_outpost_2",
-    regionId: "demon_cult_outpost",
+    id: "redline_outpost_2",
+    regionId: "redline_outpost",
     index: 2,
     name: "Prototype Blood Seal Yard",
     enemyTeam: {
@@ -178,11 +178,11 @@ const prototypeDemonCultStages: StaticDataForSupportDecision["stages"] = [
     isBoss: false,
     canFarmOffline: true,
     rewards: { silver: 260, cultivation: 130, combatExperience: 70 },
-    nextStageId: "demon_cult_outpost_3"
+    nextStageId: "redline_outpost_3"
   },
   {
-    id: "demon_cult_outpost_3",
-    regionId: "demon_cult_outpost",
+    id: "redline_outpost_3",
+    regionId: "redline_outpost",
     index: 3,
     name: "Prototype Burning Blood Hall",
     enemyTeam: {
@@ -196,11 +196,11 @@ const prototypeDemonCultStages: StaticDataForSupportDecision["stages"] = [
     isBoss: false,
     canFarmOffline: true,
     rewards: { silver: 310, cultivation: 155, combatExperience: 82 },
-    nextStageId: "demon_cult_outpost_4"
+    nextStageId: "redline_outpost_4"
   },
   {
-    id: "demon_cult_outpost_4",
-    regionId: "demon_cult_outpost",
+    id: "redline_outpost_4",
+    regionId: "redline_outpost",
     index: 4,
     name: "Prototype Redline Boss",
     enemyTeam: {
@@ -262,7 +262,7 @@ const prototypeLotusHero: HeroDefinition = {
   passiveIds: ["prototype_lotus_purity_aura"],
   unlock: {
     type: "stage_cleared",
-    stageId: "demon_cult_outpost_4"
+    stageId: "redline_outpost_4"
   }
 };
 
@@ -356,7 +356,7 @@ function withPrototypeLotusHero(
 function withPrototypeDemonCultIfMissing(
   data: StaticDataForSupportDecision
 ): StaticDataForSupportDecision {
-  if (data.regions.some((region) => region.id === "demon_cult_outpost")) {
+  if (data.regions.some((region) => region.id === "redline_outpost")) {
     return data;
   }
 

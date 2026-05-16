@@ -1,4 +1,5 @@
 import type { StaticGameData } from "../data";
+import { getRegionIdAliases } from "../compatibility";
 import { isFormationSlot } from "../combat";
 import type { MedicineInventory } from "../combat";
 import {
@@ -123,6 +124,19 @@ export function validateMapProgress(
   return true;
 }
 
+function getUnknownRegionMapProgress(
+  maps: UnknownRecord,
+  regionId: string
+): unknown {
+  for (const alias of getRegionIdAliases(regionId)) {
+    if (Object.hasOwn(maps, alias)) {
+      return maps[alias];
+    }
+  }
+
+  return undefined;
+}
+
 export function validateMaps(
   data: Pick<StaticGameData, "regions">,
   value: unknown,
@@ -132,22 +146,25 @@ export function validateMaps(
     return false;
   }
 
-  const regionById = new Map(data.regions.map((region) => [region.id, region]));
+  const regionById = new Map(
+    data.regions.flatMap((region) =>
+      getRegionIdAliases(region.id).map(
+        (regionId) => [regionId, region] as const
+      )
+    )
+  );
 
   for (const mapId of Object.keys(value)) {
-    if (!regionById.has(mapId)) {
-      errors.push(`progress.maps.${mapId} must reference an existing region`);
-    }
-  }
+    const region = regionById.get(mapId);
 
-  for (const region of data.regions) {
-    if (value[region.id] === undefined) {
+    if (!region) {
+      errors.push(`progress.maps.${mapId} must reference an existing region`);
       continue;
     }
 
     validateMapProgress(
-      value[region.id],
-      `progress.maps.${region.id}`,
+      value[mapId],
+      `progress.maps.${mapId}`,
       region.stageIds.length,
       errors
     );
@@ -202,7 +219,9 @@ export function isUnlockConditionMetForSave(
     case "stage_cleared": {
       const stage = getStageById(data, unlock.stageId);
       const maps = isRecord(progress.maps) ? progress.maps : {};
-      const mapProgress = stage ? maps[stage.regionId] : undefined;
+      const mapProgress = stage
+        ? getUnknownRegionMapProgress(maps, stage.regionId)
+        : undefined;
 
       return (
         !!stage &&

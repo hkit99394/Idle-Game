@@ -8,14 +8,14 @@ Internal id migration is a real product direction, but it must be handled as a c
 
 Migrate legacy Path of Jianghu internal names to Path of Neon internal names through a dedicated migration phase.
 
-Until that phase lands, existing ids and save fields remain valid. After the phase lands, old saves, exports, fixtures, and browser storage must still load through compatibility adapters.
+Until a category's migration phase lands, existing ids and save fields remain valid. After a phase lands, old saves, exports, fixtures, and browser storage must still load through compatibility adapters.
 
 ## Stage 2.3 Closure Snapshot
 
 Stage 2.3 completed the display-safe retheme without changing compatibility keys.
 
 - Product shell, manifest display metadata, live web copy, static display names, and visual identity now say Path of Neon.
-- Static ids still use legacy keys such as `bamboo_road`, `demon_cult_outpost`, `iron_fist_disciple`, `balanced`, and `qi_suppression`.
+- At Stage 2.3 closure, static ids still used legacy keys such as `bamboo_road`, `demon_cult_outpost`, `iron_fist_disciple`, `balanced`, and `qi_suppression`.
 - Persisted save fields still use legacy keys such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, and `selectedOfflineFarmStageId`.
 - Product/runtime keys were deferred to a post-retitle compatibility stage instead of being changed through broad string replacement.
 - Epic 87 added guard tests for these keys, so later migration stages must update those tests intentionally rather than bypassing them.
@@ -29,7 +29,17 @@ Stage 2.4 completed the product/storage runtime migration without changing stati
 - The PWA shell now uses `path-of-neon-shell-v1` and `/icons/path-of-neon.svg` while still cleaning old `path-of-jianghu-shell-*` caches and retaining `/icons/path-of-jianghu.svg` for installed-PWA compatibility.
 - Shared alias helpers exist in `core/compatibility`, and product/runtime alias data lives in `web/runtimeIdentityAliases.ts`.
 - No save schema version bump was needed because browser storage moved keys without changing save payload fields.
-- Stage 2.4 closure evidence lives in [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md). Stage 2.5 region/stage static id migration is planned in [Stage 2.5 Backlog](stage-2.5-backlog.md).
+- Stage 2.4 closure evidence lives in [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md). Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
+
+## Stage 2.5 Closure Snapshot
+
+Stage 2.5 completed the region/stage static id migration while leaving content ids and save-field names for later compatibility slices.
+
+- Canonical static data now emits Path of Neon region and route ids such as `greenline_approach`, `veil_district`, `black_iron_foundry`, `lotus_clinic`, `redline_outpost`, and their numeric `*_N` route ids.
+- `SAVE_DATA_VERSION` is now `11`; legacy `progress.maps` keys, `progress.currentStageId`, and `selectedOfflineFarmStageId` values migrate through explicit region/stage aliases.
+- Static validation rejects legacy region/stage aliases in canonical data, while save import and browser storage paths still accept old values and rewrite them to canonical ids even when the payload is already labeled as the current save version.
+- Balance authoring and tactic comparison exports now use schema version `2`, keep canonical ids as primary fields, and include temporary legacy id context for report comparison.
+- Remaining old region words outside `docs/archive` are expected in alias data, old-save fixtures/tests, legacy export columns, migration docs, and Stage 2.6 content ids such as assignment/enemy ids.
 
 ## Scope
 
@@ -37,7 +47,7 @@ Internal names include three different categories.
 
 | Category | Examples | Migration risk |
 | --- | --- | --- |
-| Static ids | `bamboo_road`, `demon_cult_outpost`, `hero_outer_training`, `inner_defense_down`, `balanced` | Breaks stage unlock refs, save refs, reports, tests, and data validation if renamed without aliasing. |
+| Static ids | `greenline_approach`, `redline_outpost`, `hero_outer_training`, `inner_defense_down`, `balanced` | Breaks stage unlock refs, save refs, reports, tests, and data validation if renamed without aliasing. Region/stage values have migrated; content ids remain later-stage work. |
 | Persisted save fields | `silver`, `cultivation`, `herbs`, `combatExperience`, `sect`, `maps`, `innerQi`, `selectedOfflineFarmStageId` | Requires a save schema version bump and fixture coverage. |
 | Product/runtime keys | `path-of-jianghu.save.v1`, `path-of-jianghu-shell-v1`, `path-of-jianghu.svg`, package/app metadata | Requires dual-read/write or cleanup behavior so existing local players and installed PWAs do not lose state. |
 
@@ -265,13 +275,13 @@ After save and static data migration, code symbols can be renamed in focused mod
 - `web/state` action and view-model field names;
 - `tools/balance` export columns.
 
-For tool exports, consider one transition release where JSON/CSV includes both new and legacy id columns:
+For tool exports, Stage 2.5 established a transition period where JSON/CSV includes both new and legacy region/stage id columns:
 
 ```text
-stageId, legacyStageId, districtId, legacyRegionId
+regionId, legacyRegionId, stageId, legacyStageId
 ```
 
-Then remove legacy columns only after downstream docs/tests stop relying on them.
+Remove legacy columns only after downstream docs/tests stop relying on them and compatibility policy allows the temporary report fields to retire.
 
 ## Save Migration Requirements
 
@@ -331,8 +341,10 @@ Expected remaining hits after migration should be limited to:
 
 - migration alias tables;
 - legacy save fixtures;
-- archived historical docs;
+- active migration docs and archived historical docs;
 - compatibility tests;
+- temporary legacy report/export columns;
+- later-stage content ids that contain old region words;
 - comments explaining legacy behavior.
 
 ## Follow-Up Epic Split
@@ -340,7 +352,7 @@ Expected remaining hits after migration should be limited to:
 Keep implementation slices narrow. A safe backlog shape:
 
 1. Product/storage key migration: package name, browser save key dual-read/copy, PWA cache prefix cleanup, icon path compatibility, and PWA tests.
-2. Region/stage alias migration: alias helpers, region/stage static ids, save `currentStageId`, `selectedOfflineFarmStageId`, `progress.maps`, simulator report ids, and fixtures.
+2. Region/stage alias migration: alias helpers, region/stage static ids, save `currentStageId`, `selectedOfflineFarmStageId`, `progress.maps`, simulator report ids, and fixtures. Completed in Stage 2.5.
 3. Content id migration: hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines in small batches with static validation and save/import coverage.
 4. Save resource/progress field migration: resources, districts, Combat Data, selected farm route field, diagnostics labels, the legacy schema term visibility decision, and export/import fixtures.
 5. Combat symbol/report migration: combat stat fields, event names, balance CSV/JSON columns, and one transition period with `legacy*` report columns where downstream consumers need them.
@@ -350,16 +362,16 @@ Cognitive Intrusion implementation is separate from these migration slices. It s
 
 ## Recommended Backlog Placement
 
-Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. The next stage should begin with region/stage static id migration, not with a project-wide replacement.
+Do not fold the full migration into the display-safe retheme. Stage 2.3 intentionally completed without changing compatibility keys. Stage 2.4 then completed the product/storage key migration and shared alias-helper foundation. Stage 2.5 completed region/stage static id migration. [Stage 2.6 Backlog](stage-2.6-backlog.md) begins content id migration as focused slices, not as a project-wide replacement.
 
-[Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation.
+[Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md) is the completed closure record for the first slice: product/storage key migration plus shared alias-map helper foundation. [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md) is the completed closure record for region/stage static id migration.
 
 Recommended sequence:
 
 1. Stage 2.3: display-safe Path of Neon pivot, completed with compatibility keys preserved.
 2. Stage 2.4: product/storage key migration and shared alias-map helpers, completed.
-3. Stage 2.5: region/stage static id migration, planned in [Stage 2.5 Backlog](stage-2.5-backlog.md).
-4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines.
+3. Stage 2.5: region/stage static id migration, completed in [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md).
+4. Stage 2.6: content id migration for hostiles, initiates, protocols, augments, countermeasures, statuses, operations, and routines, planned in [Stage 2.6 Backlog](stage-2.6-backlog.md).
 5. Stage 2.7: save resource/progress field migration.
 6. Stage 2.8: combat-symbol and report-field migration.
 7. Stage 2.9: cleanup of temporary legacy adapters when compatibility policy allows.

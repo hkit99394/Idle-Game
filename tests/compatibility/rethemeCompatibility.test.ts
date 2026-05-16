@@ -54,7 +54,7 @@ function ids(collection: readonly { id: string }[] | undefined): string[] {
 }
 
 describe("Path of Neon retheme compatibility keys", () => {
-  it("keeps static data ids stable until the dedicated id migration", () => {
+  it("uses canonical static region and stage ids while later-stage ids stay stable", () => {
     expect({
       assignments: ids(staticGameData.assignments),
       enemies: ids(staticGameData.enemies),
@@ -137,11 +137,11 @@ describe("Path of Neon retheme compatibility keys", () => {
         "purity_draught"
       ],
       regions: [
-        "bamboo_road",
-        "mist_valley",
-        "black_iron_fort",
-        "lotus_monastery",
-        "demon_cult_outpost"
+        "greenline_approach",
+        "veil_district",
+        "black_iron_foundry",
+        "lotus_clinic",
+        "redline_outpost"
       ],
       skillUpgrades: [
         "iron_fist_combo_refinement",
@@ -181,43 +181,43 @@ describe("Path of Neon retheme compatibility keys", () => {
         "burning_blood_edict"
       ],
       stages: [
-        "bamboo_road_1",
-        "bamboo_road_2",
-        "bamboo_road_3",
-        "bamboo_road_4",
-        "bamboo_road_5",
-        "bamboo_road_6",
-        "bamboo_road_7",
-        "bamboo_road_8",
-        "bamboo_road_9",
-        "bamboo_road_10",
-        "mist_valley_1",
-        "mist_valley_2",
-        "mist_valley_3",
-        "mist_valley_4",
-        "mist_valley_5",
-        "mist_valley_6",
-        "black_iron_fort_1",
-        "black_iron_fort_2",
-        "black_iron_fort_3",
-        "black_iron_fort_4",
-        "black_iron_fort_5",
-        "black_iron_fort_6",
-        "black_iron_fort_7",
-        "lotus_monastery_1",
-        "lotus_monastery_2",
-        "lotus_monastery_3",
-        "lotus_monastery_4",
-        "lotus_monastery_5",
-        "lotus_monastery_6",
-        "lotus_monastery_7",
-        "demon_cult_outpost_1",
-        "demon_cult_outpost_2",
-        "demon_cult_outpost_3",
-        "demon_cult_outpost_4",
-        "demon_cult_outpost_5",
-        "demon_cult_outpost_6",
-        "demon_cult_outpost_7"
+        "greenline_approach_1",
+        "greenline_approach_2",
+        "greenline_approach_3",
+        "greenline_approach_4",
+        "greenline_approach_5",
+        "greenline_approach_6",
+        "greenline_approach_7",
+        "greenline_approach_8",
+        "greenline_approach_9",
+        "greenline_approach_10",
+        "veil_district_1",
+        "veil_district_2",
+        "veil_district_3",
+        "veil_district_4",
+        "veil_district_5",
+        "veil_district_6",
+        "black_iron_foundry_1",
+        "black_iron_foundry_2",
+        "black_iron_foundry_3",
+        "black_iron_foundry_4",
+        "black_iron_foundry_5",
+        "black_iron_foundry_6",
+        "black_iron_foundry_7",
+        "lotus_clinic_1",
+        "lotus_clinic_2",
+        "lotus_clinic_3",
+        "lotus_clinic_4",
+        "lotus_clinic_5",
+        "lotus_clinic_6",
+        "lotus_clinic_7",
+        "redline_outpost_1",
+        "redline_outpost_2",
+        "redline_outpost_3",
+        "redline_outpost_4",
+        "redline_outpost_5",
+        "redline_outpost_6",
+        "redline_outpost_7"
       ],
       statusEffects: [
         "poison",
@@ -268,7 +268,7 @@ describe("Path of Neon retheme compatibility keys", () => {
       "cultivation",
       "herbs"
     ]);
-    expect(Object.keys(save.progress.maps.bamboo_road)).toContain(
+    expect(Object.keys(save.progress.maps.greenline_approach)).toContain(
       "combatExperience"
     );
     expect(manifest.icons.map((icon) => icon.src)).toEqual([

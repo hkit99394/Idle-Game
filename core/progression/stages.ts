@@ -1,5 +1,12 @@
 import type { StageDefinition, StaticGameData } from "../data";
-import type { PlayerProgress } from "./types";
+import {
+  areStageIdsEquivalent,
+  getLegacyStageId,
+  getRegionIdAliases,
+  getStageIdAliases,
+  normalizeStageId
+} from "../compatibility";
+import type { MapProgress, PlayerProgress } from "./types";
 
 export type RegionProgress = Record<
   string,
@@ -91,7 +98,23 @@ export function getStageById(
   data: Pick<StaticGameData, "stages">,
   stageId: string
 ): StageDefinition | null {
-  return data.stages.find((stage) => stage.id === stageId) ?? null;
+  const directStage = data.stages.find((stage) => stage.id === stageId);
+
+  if (directStage) {
+    return directStage;
+  }
+
+  const legacyStageId = getLegacyStageId(stageId);
+  const targetStageId = normalizeStageId(stageId);
+
+  return (
+    data.stages.find(
+      (stage) =>
+        stage.id === legacyStageId ||
+        stage.id === targetStageId ||
+        getStageIdAliases(stage.id).includes(stageId)
+    ) ?? null
+  );
 }
 
 export function getCurrentStage(
@@ -106,8 +129,46 @@ export function hasClearedStage(
   stage: StageDefinition
 ): boolean {
   return (
-    (progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0) >= stage.index
+    (getRegionMapProgress(progress.maps, stage.regionId)?.highestClearedStageIndex ??
+      0) >= stage.index
   );
+}
+
+function getPreferredRegionMapKey(
+  maps: RegionProgress,
+  regionId: string
+): string {
+  const aliases = getRegionIdAliases(regionId);
+
+  return aliases.find((alias) => Object.hasOwn(maps, alias)) ?? regionId;
+}
+
+export function getRegionMapProgress(
+  maps: RegionProgress,
+  regionId: string
+): RegionProgress[string] | undefined {
+  const aliases = getRegionIdAliases(regionId);
+  const targetAlias = aliases[0];
+
+  if (targetAlias && Object.hasOwn(maps, targetAlias)) {
+    return maps[targetAlias];
+  }
+
+  return aliases
+    .slice(1)
+    .map((alias) => maps[alias])
+    .find(
+      (mapProgress): mapProgress is RegionProgress[string] =>
+        mapProgress !== undefined
+    );
+}
+
+export function setRegionMapProgress(
+  progress: PlayerProgress,
+  regionId: string,
+  mapProgress: MapProgress
+): void {
+  progress.maps[getPreferredRegionMapKey(progress.maps, regionId)] = mapProgress;
 }
 
 function isPlayerProgress(
@@ -135,9 +196,19 @@ export function isStageCleared(
   }
 
   return (
-    (getProgressMaps(progress)[stage.regionId]?.highestClearedStageIndex ?? 0) >=
+    (getRegionMapProgress(getProgressMaps(progress), stage.regionId)
+      ?.highestClearedStageIndex ?? 0) >=
     stage.index
   );
+}
+
+function getRegionById(
+  data: Pick<StaticGameData, "regions">,
+  regionId: string
+): StaticGameData["regions"][number] | null {
+  const aliases = getRegionIdAliases(regionId);
+
+  return data.regions.find((candidate) => aliases.includes(candidate.id)) ?? null;
 }
 
 export function isRegionUnlocked(
@@ -145,7 +216,7 @@ export function isRegionUnlocked(
   progress: PlayerProgress | RegionProgress,
   regionId: string
 ): boolean {
-  const region = data.regions.find((candidate) => candidate.id === regionId);
+  const region = getRegionById(data, regionId);
 
   if (!region) {
     return false;
@@ -182,7 +253,10 @@ export function isStageUnlocked(
     return false;
   }
 
-  const mapProgress = getProgressMaps(progress)[stage.regionId];
+  const mapProgress = getRegionMapProgress(
+    getProgressMaps(progress),
+    stage.regionId
+  );
 
   if (!mapProgress) {
     return stage.index === 1;
@@ -197,22 +271,29 @@ export function getNextCurrentStageId(
   currentStageId: string,
   progressAfterClear: PlayerProgress
 ): string {
-  if (stage.id !== currentStageId) {
+  if (!areStageIdsEquivalent(stage.id, currentStageId)) {
     return currentStageId;
   }
 
+  const formatStageIdForCurrentProgress = (stageId: string): string =>
+    getLegacyStageId(currentStageId) !== currentStageId
+      ? normalizeStageId(stageId)
+      : stageId;
+
   if (stage.nextStageId) {
-    return stage.nextStageId;
+    return formatStageIdForCurrentProgress(stage.nextStageId);
   }
 
   const nextRegion = data.regions.find(
     (region) =>
       region.unlockCondition.type === "stage_cleared" &&
-      region.unlockCondition.stageId === stage.id &&
+      areStageIdsEquivalent(region.unlockCondition.stageId, stage.id) &&
       isRegionUnlocked(data, progressAfterClear, region.id)
   );
 
-  return nextRegion?.stageIds[0] ?? currentStageId;
+  return nextRegion?.stageIds[0]
+    ? formatStageIdForCurrentProgress(nextRegion.stageIds[0])
+    : currentStageId;
 }
 
 export type OfflineFarmStageTargetValidationResult =
@@ -378,5 +459,15 @@ export function setOfflineFarmStageTarget(
     return requestedStageId;
   }
 
-  return getRecommendedOfflineFarmStage(data, progress, preset)?.id ?? null;
+  const recommendedStageId = getRecommendedOfflineFarmStage(
+    data,
+    progress,
+    preset
+  )?.id;
+
+  return recommendedStageId
+    ? getLegacyStageId(progress.currentStageId) !== progress.currentStageId
+      ? normalizeStageId(recommendedStageId)
+      : recommendedStageId
+    : null;
 }

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { buildBalanceReport, type StaticGameData } from "../../core";
 import {
+  BALANCE_EXPORT_SCHEMA_VERSION,
   BALANCE_STAGE_EXPORT_CSV_HEADERS,
   BAMBOO_ROAD_REGION_ID,
   BLACK_IRON_FORT_REGION_ID,
   LOTUS_MONASTERY_REGION_ID,
   MIST_VALLEY_REGION_ID,
+  TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION,
   TACTIC_COMPARISON_CSV_HEADERS,
   buildBalanceAuthoringExport,
   buildGameBalanceReport,
@@ -33,7 +35,7 @@ describe("balance report", () => {
       report.bambooRoadBalance.stageResults.map((stage) => stage.stageId)
     ).toEqual(bambooRoad.stageIds);
     expect(report.bambooRoadBalance.farmRecommendation).toMatchObject({
-      stageId: "bamboo_road_8",
+      stageId: "greenline_approach_8",
       score: 157,
       scoreBreakdown: {
         combatExperience: 80,
@@ -47,13 +49,13 @@ describe("balance report", () => {
     });
     expect(report.bambooRoadBalance.masteryMilestone).toMatchObject({
       threshold: 100,
-      farmStageId: "bamboo_road_8"
+      farmStageId: "greenline_approach_8"
     });
     expect(
       report.bambooRoadBalance.bossGate.economy.trainingEconomy
     ).toMatchObject({
       ok: true,
-      farmStageId: "bamboo_road_8"
+      farmStageId: "greenline_approach_8"
     });
     expect(report.bambooRoadBalance.bossGate.trained).toMatchObject({
       ok: true,
@@ -101,14 +103,14 @@ describe("balance report", () => {
       enemyFormationSlots: ["front", "middle"]
     });
     expect(mistValleyBalance.stageResults.at(-1)).toMatchObject({
-      stageId: "mist_valley_6"
+      stageId: "veil_district_6"
     });
     expect(mistValleyBalance.farmRecommendation).toMatchObject({
-      stageId: "mist_valley_5",
+      stageId: "veil_district_5",
       reason: expect.stringContaining("combatExperience")
     });
     expect(mistValleyBalance.bossGate.baseline).toMatchObject({
-      stageId: "mist_valley_6",
+      stageId: "veil_district_6",
       ok: true,
       winner: "player"
     });
@@ -118,14 +120,14 @@ describe("balance report", () => {
     const data = {
       ...staticData,
       stages: staticData.stages.map((stage) => {
-        if (stage.id === "bamboo_road_8") {
+        if (stage.id === "greenline_approach_8") {
           return {
             ...stage,
             canFarmOffline: false
           };
         }
 
-        if (stage.id === "bamboo_road_10") {
+        if (stage.id === "greenline_approach_10") {
           return {
             ...stage,
             canFarmOffline: true,
@@ -143,7 +145,7 @@ describe("balance report", () => {
     const report = buildGameBalanceReport(data);
 
     expect(report.bambooRoadBalance.farmRecommendation).toMatchObject({
-      stageId: "bamboo_road_5"
+      stageId: "greenline_approach_5"
     });
   });
 
@@ -179,10 +181,10 @@ describe("balance report", () => {
       enemyFormationSlots: ["middle", "front"]
     });
     expect(blackIronBalance.stageResults.at(-1)).toMatchObject({
-      stageId: "black_iron_fort_7"
+      stageId: "black_iron_foundry_7"
     });
     expect(blackIronBalance.farmRecommendation).toMatchObject({
-      stageId: "black_iron_fort_6"
+      stageId: "black_iron_foundry_6"
     });
     expect(blackIronBalance.defensiveEvents).toMatchObject({
       guardAbsorbs: expect.any(Number),
@@ -207,16 +209,16 @@ describe("balance report", () => {
       })
     ).toBe(true);
     expect(blackIronBalance.bossGate.baseline).toMatchObject({
-      stageId: "black_iron_fort_7",
+      stageId: "black_iron_foundry_7",
       ok: true,
       winner: "enemy"
     });
     expect(blackIronBalance.bossGate.farmed).toMatchObject({
-      stageId: "black_iron_fort_7",
+      stageId: "black_iron_foundry_7",
       ok: true,
       winner: "player",
       stageCleared: true,
-      farmStageId: "black_iron_fort_6"
+      farmStageId: "black_iron_foundry_6"
     });
   });
 
@@ -257,10 +259,10 @@ describe("balance report", () => {
         .every((stage) => stage.ok && stage.targetMet)
     ).toBe(true);
     expect(lotusBalance.stageResults.at(-1)).toMatchObject({
-      stageId: "lotus_monastery_7"
+      stageId: "lotus_clinic_7"
     });
     expect(lotusBalance.farmRecommendation).toMatchObject({
-      stageId: "lotus_monastery_6"
+      stageId: "lotus_clinic_6"
     });
     expect(lotusBalance.recoveryEvents).toMatchObject({
       heals: expect.any(Number),
@@ -277,7 +279,7 @@ describe("balance report", () => {
     expect(lotusBalance.recoveryEvents.outerHealing).toBeGreaterThan(0);
     expect(lotusBalance.recoveryEvents.woundUptimeSeconds).toBeGreaterThanOrEqual(0);
     expect(lotusBalance.bossGate.baseline).toMatchObject({
-      stageId: "lotus_monastery_7",
+      stageId: "lotus_clinic_7",
       ok: true
     });
   });
@@ -357,11 +359,11 @@ describe("balance report", () => {
     const bamboo = getRegionReport(report, BAMBOO_ROAD_REGION_ID);
     const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
     const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
-    const demonCult = getRegionReport(report, "demon_cult_outpost");
+    const demonCult = getRegionReport(report, "redline_outpost");
 
     expect(getBudgetCheck(bamboo, "reward_curve")).toMatchObject({
       status: "pass",
-      reason: expect.stringContaining("bamboo_road_8")
+      reason: expect.stringContaining("greenline_approach_8")
     });
     expect(getBudgetCheck(bamboo, "boss_gate")).toMatchObject({
       status: "pass"
@@ -372,7 +374,7 @@ describe("balance report", () => {
     });
     expect(getBudgetCheck(blackIron, "clear_time")).toMatchObject({
       status: "fail",
-      reason: expect.stringContaining("black_iron_fort_4")
+      reason: expect.stringContaining("black_iron_foundry_4")
     });
     expect(getBudgetCheck(lotus, "healing_pressure")).toMatchObject({
       status: "pass",
@@ -389,12 +391,12 @@ describe("balance report", () => {
     const bamboo = getRegionReport(report, BAMBOO_ROAD_REGION_ID);
     const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
     const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
-    const demonCult = getRegionReport(report, "demon_cult_outpost");
+    const demonCult = getRegionReport(report, "redline_outpost");
 
     expect(blackIron.difficultyCurve.issues).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          stageId: "black_iron_fort_4",
+          stageId: "black_iron_foundry_4",
           reason: expect.stringContaining("below")
         })
       ])
@@ -402,11 +404,11 @@ describe("balance report", () => {
     expect(demonCult.difficultyCurve.issues).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          stageId: "demon_cult_outpost_1",
+          stageId: "redline_outpost_1",
           reason: expect.stringContaining("above")
         }),
         expect.objectContaining({
-          stageId: "demon_cult_outpost_4",
+          stageId: "redline_outpost_4",
           reason: expect.stringContaining("above")
         })
       ])
@@ -414,8 +416,8 @@ describe("balance report", () => {
     expect(demonCult.difficultyCurve.spikes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          stageId: "demon_cult_outpost_3",
-          previousStageId: "demon_cult_outpost_2",
+          stageId: "redline_outpost_3",
+          previousStageId: "redline_outpost_2",
           status: "fail",
           reason: expect.stringContaining("clear time")
         })
@@ -424,7 +426,7 @@ describe("balance report", () => {
     expect(lotus.difficultyCurve.spikes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          stageId: "lotus_monastery_3",
+          stageId: "lotus_clinic_3",
           status: "watch"
         })
       ])
@@ -436,7 +438,7 @@ describe("balance report", () => {
     ).toMatchObject({
       ok: true,
       result: "player_clear",
-      farmStageId: "bamboo_road_8",
+      farmStageId: "greenline_approach_8",
       farmClears: expect.any(Number),
       trainingCost: expect.any(Number),
       medicineConsumed: expect.any(Number),
@@ -450,7 +452,7 @@ describe("balance report", () => {
     ).toMatchObject({
       ok: true,
       result: "player_clear",
-      farmStageId: "black_iron_fort_6",
+      farmStageId: "black_iron_foundry_6",
       trainingCost: expect.any(Number),
       reason: expect.stringContaining("status damage")
     });
@@ -470,13 +472,13 @@ describe("balance report", () => {
     const report = buildGameBalanceReport(staticData);
     const exportReport = buildBalanceAuthoringExport(report);
     const blackIronStage = exportReport.stages.find(
-      (stage) => stage.stageId === "black_iron_fort_4"
+      (stage) => stage.stageId === "black_iron_foundry_4"
     );
     const demonCultSpike = exportReport.stages.find(
-      (stage) => stage.stageId === "demon_cult_outpost_3"
+      (stage) => stage.stageId === "redline_outpost_3"
     );
     const blackIronFarm = exportReport.stages.find(
-      (stage) => stage.stageId === "black_iron_fort_6"
+      (stage) => stage.stageId === "black_iron_foundry_6"
     );
     const blackIronBossGate = exportReport.bossGateAssumptions.find(
       (assumption) =>
@@ -485,13 +487,17 @@ describe("balance report", () => {
     );
     const demonCultStatusCheck = exportReport.budgetChecks.find(
       (check) =>
-        check.regionId === "demon_cult_outpost" &&
+        check.regionId === "redline_outpost" &&
         check.checkId === "status_pressure"
     );
     const csv = formatBalanceStageExportCsv(report);
     const csvLines = csv.split("\n");
 
-    expect(exportReport.schemaVersion).toBe(1);
+    expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
+    expect(exportReport.regions[0]).toMatchObject({
+      regionId: "greenline_approach",
+      legacyRegionId: "bamboo_road"
+    });
     expect(exportReport.regions.map((region) => region.regionId)).toEqual(
       staticData.regions.map((region) => region.id)
     );
@@ -500,6 +506,8 @@ describe("balance report", () => {
     );
     expect(blackIronStage).toMatchObject({
       regionId: BLACK_IRON_FORT_REGION_ID,
+      legacyRegionId: "black_iron_fort",
+      legacyStageId: "black_iron_fort_4",
       targetStatus: "fail",
       difficultyIssue: expect.stringContaining("below"),
       pressure: {
@@ -517,19 +525,25 @@ describe("balance report", () => {
       farmReason: expect.stringContaining("weighted score")
     });
     expect(blackIronBossGate).toMatchObject({
+      legacyRegionId: "black_iron_fort",
+      legacyStageId: "black_iron_fort_7",
       result: "player_clear",
-      farmStageId: "black_iron_fort_6",
+      farmStageId: "black_iron_foundry_6",
+      legacyFarmStageId: "black_iron_fort_6",
       farmClears: expect.any(Number),
       trainingCost: expect.any(Number)
     });
     expect(demonCultStatusCheck).toMatchObject({
+      legacyRegionId: "demon_cult_outpost",
       status: "fail",
       reason: expect.stringContaining("status damage")
     });
     expect(csvLines[0]).toBe(BALANCE_STAGE_EXPORT_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(staticData.stages.length + 1);
+    expect(csv).toContain("redline_outpost_3");
     expect(csv).toContain("demon_cult_outpost_3");
     expect(csv).toContain("difficulty_spike_status");
+    expect(csv).toContain("black_iron_foundry_6");
     expect(csv).toContain("black_iron_fort_6");
   });
 
@@ -540,28 +554,30 @@ describe("balance report", () => {
     const csvLines = csv.split("\n");
     const balancedBamboo = exportReport.rows.find(
       (row) =>
-        row.stageId === "bamboo_road_1" && row.tacticId === "balanced"
+        row.stageId === "greenline_approach_1" && row.tacticId === "balanced"
     );
     const outerBamboo = exportReport.rows.find(
       (row) =>
-        row.stageId === "bamboo_road_1" && row.tacticId === "outer_pressure"
+        row.stageId === "greenline_approach_1" && row.tacticId === "outer_pressure"
     );
     const innerDemonCult = exportReport.rows.find(
       (row) =>
-        row.stageId === "demon_cult_outpost_3" &&
+        row.stageId === "redline_outpost_3" &&
         row.tacticId === "inner_pressure"
     );
     const sustainDemonBoss = exportReport.rows.find(
       (row) =>
-        row.stageId === "demon_cult_outpost_7" && row.tacticId === "sustain"
+        row.stageId === "redline_outpost_7" && row.tacticId === "sustain"
     );
     const bossBurstDemonBoss = exportReport.rows.find(
       (row) =>
-        row.stageId === "demon_cult_outpost_7" &&
+        row.stageId === "redline_outpost_7" &&
         row.tacticId === "boss_burst"
     );
 
-    expect(exportReport.schemaVersion).toBe(1);
+    expect(exportReport.schemaVersion).toBe(
+      TACTIC_COMPARISON_EXPORT_SCHEMA_VERSION
+    );
     expect(exportReport.defaultTacticId).toBe("balanced");
     expect(exportReport.tactics.map((tactic) => tactic.tacticId)).toEqual(
       staticData.tactics.map((tactic) => tactic.id)
@@ -573,6 +589,8 @@ describe("balance report", () => {
       staticData.stages.length * staticData.tactics.length
     );
     expect(balancedBamboo).toMatchObject({
+      legacyRegionId: "bamboo_road",
+      legacyStageId: "bamboo_road_1",
       isDefaultTactic: true,
       baselineTacticId: "balanced",
       durationDeltaSeconds: 0,
@@ -594,6 +612,8 @@ describe("balance report", () => {
       }
     });
     expect(innerDemonCult).toMatchObject({
+      legacyRegionId: "demon_cult_outpost",
+      legacyStageId: "demon_cult_outpost_3",
       baselineTargetStatus: "fail",
       targetStatus: "pass",
       targetStatusChange: "improved",
@@ -618,6 +638,8 @@ describe("balance report", () => {
     expect(csvLines[0]).toBe(TACTIC_COMPARISON_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("outer_pressure");
+    expect(csv).toContain("bamboo_road_1");
+    expect(csv).toContain("demon_cult_outpost_7");
     expect(csv).toContain("improved_existing_miss");
     expect(csv).toContain("new_miss");
   });
@@ -658,10 +680,10 @@ describe("balance report", () => {
     const estimatedReport = buildBalanceReport(staticData);
     const simulatedDemonCult = getRegionReport(
       simulatedReport,
-      "demon_cult_outpost"
+      "redline_outpost"
     );
     const estimatedDemonCult = estimatedReport.regions.find(
-      (region) => region.regionId === "demon_cult_outpost"
+      (region) => region.regionId === "redline_outpost"
     );
 
     expect(estimatedDemonCult).toBeDefined();
@@ -702,17 +724,17 @@ describe("balance report", () => {
     expect(formatted).toContain("Veil District Balance Report");
     expect(formatted).toContain("Black Iron Foundry Balance Report");
     expect(formatted).toContain("Lotus Clinic Balance Report");
-    expect(formatted).toContain("lotus_monastery_7");
-    expect(formatted).toContain("black_iron_fort_7");
-    expect(formatted).toContain("mist_valley_6");
-    expect(formatted).toContain("bamboo_road_10");
+    expect(formatted).toContain("lotus_clinic_7");
+    expect(formatted).toContain("black_iron_foundry_7");
+    expect(formatted).toContain("veil_district_6");
+    expect(formatted).toContain("greenline_approach_10");
     expect(formatted).toContain("Region Farm Recommendations");
     expect(formatted).toContain("score 157");
     expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
-    expect(formatted).toContain("issues black_iron_fort_4");
-    expect(formatted).toContain("spikes fail demon_cult_outpost_3");
+    expect(formatted).toContain("issues black_iron_foundry_4");
+    expect(formatted).toContain("spikes fail redline_outpost_3");
     expect(formatted).toContain("Region Boss Gates");
     expect(formatted).toContain("Region Boss Gate Assumptions");
     expect(formatted).toContain("trained player_clear");
@@ -720,7 +742,7 @@ describe("balance report", () => {
     expect(formatted).toContain("status damage");
     expect(formatted).toContain("training");
     expect(formatted).toContain("Region Budget Gates");
-    expect(formatted).toContain("black_iron_fort_4 clear time");
+    expect(formatted).toContain("black_iron_foundry_4 clear time");
     expect(formatted).toContain("Status Pressure");
     expect(formatted).toContain("Region Defensive Events");
     expect(formatted).toContain("Region Recovery Events");

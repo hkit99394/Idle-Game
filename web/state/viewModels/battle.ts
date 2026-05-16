@@ -1,4 +1,5 @@
 import {
+  areStageIdsEquivalent,
   buildEnemyTeamForStage,
   buildPlayerTeamForStage,
   calculateCombatPower,
@@ -47,7 +48,8 @@ function getVisibleBattleResult(input: BattleFeatureViewInput) {
   const successfulLastBattle = input.lastBattle?.ok ? input.lastBattle : null;
   const showFinalCombatants =
     successfulLastBattle !== null &&
-    input.lastBattleStageId === input.selectedStageId;
+    input.lastBattleStageId !== null &&
+    areStageIdsEquivalent(input.lastBattleStageId, input.selectedStageId);
 
   return {
     finalPlayerTeam: showFinalCombatants

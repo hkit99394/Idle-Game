@@ -97,7 +97,7 @@ describe("web workflow baselines", () => {
     expect(viewModel.upgrades.length).toBeGreaterThan(0);
     expect(viewModel.skillUpgrades.length).toBeGreaterThan(0);
     expect(viewModel.masteryPanel).toMatchObject({
-      regionId: "bamboo_road",
+      regionId: "greenline_approach",
       combatExperience: 108
     });
     expect(viewModel.roster.find((hero) => hero.heroId === webWorkflowBaselineIds.heroId))

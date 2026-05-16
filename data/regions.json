@@ -1,18 +1,18 @@
 [
   {
-    "id": "bamboo_road",
+    "id": "greenline_approach",
     "name": "Greenline Approach",
     "stageIds": [
-      "bamboo_road_1",
-      "bamboo_road_2",
-      "bamboo_road_3",
-      "bamboo_road_4",
-      "bamboo_road_5",
-      "bamboo_road_6",
-      "bamboo_road_7",
-      "bamboo_road_8",
-      "bamboo_road_9",
-      "bamboo_road_10"
+      "greenline_approach_1",
+      "greenline_approach_2",
+      "greenline_approach_3",
+      "greenline_approach_4",
+      "greenline_approach_5",
+      "greenline_approach_6",
+      "greenline_approach_7",
+      "greenline_approach_8",
+      "greenline_approach_9",
+      "greenline_approach_10"
     ],
     "balanceTargets": {
       "clearTimeSeconds": {
@@ -23,7 +23,7 @@
         "requireBestFarmRecommendation": true,
         "allowedRegressions": [
           {
-            "stageId": "bamboo_road_6",
+            "stageId": "greenline_approach_6",
             "metrics": [
               "farmScore",
               "silver",
@@ -34,7 +34,7 @@
             "reason": "Normal stage after the first elite spike intentionally returns to lower tutorial rewards."
           },
           {
-            "stageId": "bamboo_road_9",
+            "stageId": "greenline_approach_9",
             "metrics": ["farmScore", "combatExperience", "mastery"],
             "reason": "Pre-boss normal stage trades lower Combat XP and mastery yield for higher silver and cultivation."
           }
@@ -52,7 +52,7 @@
       "budgetExceptions": [
         {
           "type": "boss_clear_time_target",
-          "stageId": "bamboo_road_10",
+          "stageId": "greenline_approach_10",
           "reason": "Training-gate clear timing is deferred until Epic 64 adds boss difficulty report tuning."
         }
       ]
@@ -60,15 +60,15 @@
     "unlockCondition": { "type": "always" }
   },
   {
-    "id": "mist_valley",
+    "id": "veil_district",
     "name": "Veil District",
     "stageIds": [
-      "mist_valley_1",
-      "mist_valley_2",
-      "mist_valley_3",
-      "mist_valley_4",
-      "mist_valley_5",
-      "mist_valley_6"
+      "veil_district_1",
+      "veil_district_2",
+      "veil_district_3",
+      "veil_district_4",
+      "veil_district_5",
+      "veil_district_6"
     ],
     "balanceTargets": {
       "clearTimeSeconds": {
@@ -90,20 +90,20 @@
     },
     "unlockCondition": {
       "type": "stage_cleared",
-      "stageId": "bamboo_road_10"
+      "stageId": "greenline_approach_10"
     }
   },
   {
-    "id": "black_iron_fort",
+    "id": "black_iron_foundry",
     "name": "Black Iron Foundry",
     "stageIds": [
-      "black_iron_fort_1",
-      "black_iron_fort_2",
-      "black_iron_fort_3",
-      "black_iron_fort_4",
-      "black_iron_fort_5",
-      "black_iron_fort_6",
-      "black_iron_fort_7"
+      "black_iron_foundry_1",
+      "black_iron_foundry_2",
+      "black_iron_foundry_3",
+      "black_iron_foundry_4",
+      "black_iron_foundry_5",
+      "black_iron_foundry_6",
+      "black_iron_foundry_7"
     ],
     "balanceTargets": {
       "clearTimeSeconds": {
@@ -127,27 +127,27 @@
       "budgetExceptions": [
         {
           "type": "boss_clear_time_target",
-          "stageId": "black_iron_fort_7",
+          "stageId": "black_iron_foundry_7",
           "reason": "Farmed counterplay timing remains tuning debt until Epic 64 reviews boss gate reports."
         }
       ]
     },
     "unlockCondition": {
       "type": "stage_cleared",
-      "stageId": "mist_valley_6"
+      "stageId": "veil_district_6"
     }
   },
   {
-    "id": "lotus_monastery",
+    "id": "lotus_clinic",
     "name": "Lotus Clinic",
     "stageIds": [
-      "lotus_monastery_1",
-      "lotus_monastery_2",
-      "lotus_monastery_3",
-      "lotus_monastery_4",
-      "lotus_monastery_5",
-      "lotus_monastery_6",
-      "lotus_monastery_7"
+      "lotus_clinic_1",
+      "lotus_clinic_2",
+      "lotus_clinic_3",
+      "lotus_clinic_4",
+      "lotus_clinic_5",
+      "lotus_clinic_6",
+      "lotus_clinic_7"
     ],
     "balanceTargets": {
       "clearTimeSeconds": {
@@ -172,27 +172,27 @@
       "budgetExceptions": [
         {
           "type": "boss_clear_time_target",
-          "stageId": "lotus_monastery_7",
+          "stageId": "lotus_clinic_7",
           "reason": "Farmed support timing remains tuning debt until Epic 64 reviews boss gate reports."
         }
       ]
     },
     "unlockCondition": {
       "type": "stage_cleared",
-      "stageId": "black_iron_fort_7"
+      "stageId": "black_iron_foundry_7"
     }
   },
   {
-    "id": "demon_cult_outpost",
+    "id": "redline_outpost",
     "name": "Redline Outpost",
     "stageIds": [
-      "demon_cult_outpost_1",
-      "demon_cult_outpost_2",
-      "demon_cult_outpost_3",
-      "demon_cult_outpost_4",
-      "demon_cult_outpost_5",
-      "demon_cult_outpost_6",
-      "demon_cult_outpost_7"
+      "redline_outpost_1",
+      "redline_outpost_2",
+      "redline_outpost_3",
+      "redline_outpost_4",
+      "redline_outpost_5",
+      "redline_outpost_6",
+      "redline_outpost_7"
     ],
     "balanceTargets": {
       "clearTimeSeconds": {
@@ -216,7 +216,7 @@
     },
     "unlockCondition": {
       "type": "stage_cleared",
-      "stageId": "lotus_monastery_7"
+      "stageId": "lotus_clinic_7"
     }
   }
 ]

@@ -47,7 +47,7 @@ function getStage(stageId: string): StageDefinition {
 
 const statusPressureStage: StageDefinition = {
   id: "test_status_pressure",
-  regionId: "bamboo_road",
+  regionId: "greenline_approach",
   index: 1,
   name: "Status Pressure Test",
   enemyTeam: {
@@ -166,7 +166,7 @@ describe("auto medicine cleanse", () => {
         medicines: medicineDefinitions,
         inventory: {},
         progress: {
-          bamboo_road: {
+          greenline_approach: {
             highestClearedStageIndex: 9
           }
         },
@@ -179,7 +179,7 @@ describe("auto medicine cleanse", () => {
         medicines: medicineDefinitions,
         inventory: {},
         progress: {
-          bamboo_road: {
+          greenline_approach: {
             highestClearedStageIndex: 10
           }
         },
@@ -364,7 +364,7 @@ describe("auto medicine cleanse", () => {
         inventory: {
           quiet_meridian_powder: 1
         },
-        stage: getStage("bamboo_road_1"),
+        stage: getStage("greenline_approach_1"),
         enemies: enemyDefinitions,
         skills: skillDefinitions,
         statusDefinitions

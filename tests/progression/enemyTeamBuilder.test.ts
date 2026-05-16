@@ -14,7 +14,7 @@ describe("stage enemy team builder", () => {
   });
 
   it("builds simulator enemy combatants from stage enemy ids", () => {
-    const result = buildEnemyTeamForStage(staticData, "bamboo_road_1");
+    const result = buildEnemyTeamForStage(staticData, "greenline_approach_1");
 
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -40,7 +40,7 @@ describe("stage enemy team builder", () => {
   });
 
   it("maps stage formation indexes to enemy combatant slots", () => {
-    const result = buildEnemyTeamForStage(staticData, "bamboo_road_5");
+    const result = buildEnemyTeamForStage(staticData, "greenline_approach_5");
 
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -63,7 +63,7 @@ describe("stage enemy team builder", () => {
     const multiEnemyData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               enemyTeam: {
@@ -74,7 +74,7 @@ describe("stage enemy team builder", () => {
       )
     };
 
-    const result = buildEnemyTeamForStage(multiEnemyData, "bamboo_road_1");
+    const result = buildEnemyTeamForStage(multiEnemyData, "greenline_approach_1");
 
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -101,7 +101,7 @@ describe("stage enemy team builder", () => {
     const missingEnemyData: StaticGameData = {
       ...staticData,
       stages: staticData.stages.map((stage) =>
-        stage.id === "bamboo_road_1"
+        stage.id === "greenline_approach_1"
           ? {
               ...stage,
               enemyTeam: {
@@ -112,7 +112,7 @@ describe("stage enemy team builder", () => {
       )
     };
 
-    const result = buildEnemyTeamForStage(missingEnemyData, "bamboo_road_1");
+    const result = buildEnemyTeamForStage(missingEnemyData, "greenline_approach_1");
 
     expect(result).toEqual({
       ok: false,

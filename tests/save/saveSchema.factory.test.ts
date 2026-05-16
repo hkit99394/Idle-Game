@@ -15,17 +15,17 @@ describe("save schema factory", () => {
   it("creates a versioned save with progress, farm target, and timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.resources.silver = 42;
-    progress.maps.bamboo_road.highestClearedStageIndex = 1;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmStageId: "greenline_approach_1",
       nowMs: 1000
     });
 
     expect(save.version).toBe(SAVE_DATA_VERSION);
     expect(save.progress.resources.silver).toBe(42);
-    expect(save.progress.currentStageId).toBe("bamboo_road_1");
+    expect(save.progress.currentStageId).toBe("greenline_approach_1");
     expect(save.progress.selectedTacticId).toBe("balanced");
     expect(save.autoMedicinePreferences).toEqual({
       enabled: true,
@@ -35,7 +35,7 @@ describe("save schema factory", () => {
       preBattleResistanceMode: "boss_and_elite",
       disabledMedicineIds: []
     });
-    expect(save.selectedOfflineFarmStageId).toBe("bamboo_road_1");
+    expect(save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(save.offlineFarmPreset).toBe("balanced");
     expect(save.createdAtMs).toBe(1000);
     expect(save.updatedAtMs).toBe(1000);
@@ -138,10 +138,12 @@ describe("save schema factory", () => {
     expect(result.save.offlineFarmPreset).toBe("balanced");
     expect(result.save.progress.resources.herbs).toBe(0);
     expect(result.save.progress.heroes.iron_fist_disciple.level).toBe(1);
-    expect(result.save.progress.maps.mist_valley).toMatchObject({
+    expect(result.save.progress.maps.veil_district).toMatchObject({
       combatExperience: 0,
       highestClearedStageIndex: 0
     });
+    expect(result.save.progress.currentStageId).toBe("greenline_approach_2");
+    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(result.save.progress.formation).toMatchObject({
       iron_fist_disciple: "front"
     });

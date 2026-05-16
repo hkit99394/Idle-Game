@@ -89,7 +89,7 @@ export function createStatusPressureScenarioData(
     }
   ];
   const medicine = input.medicine;
-  const stageRegionId = input.stageRegionId ?? "bamboo_road";
+  const stageRegionId = input.stageRegionId ?? "greenline_approach";
   const regions = baseData.regions.some((region) => region.id === stageRegionId)
     ? baseData.regions.map((region) =>
         region.id === stageRegionId

@@ -26,7 +26,7 @@ describe("active mastery summary", () => {
     const result = getActiveMasterySummaryForStage(
       staticData,
       progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(result.ok).toBe(true);
@@ -35,8 +35,8 @@ describe("active mastery summary", () => {
     }
 
     expect(result.summary).toMatchObject({
-      stageId: "bamboo_road_1",
-      regionId: "bamboo_road",
+      stageId: "greenline_approach_1",
+      regionId: "greenline_approach",
       combatExperience: 0,
       reachedRanks: [],
       activeBonuses: [],
@@ -50,12 +50,12 @@ describe("active mastery summary", () => {
 
   it("exposes map attack mastery for a familiar map", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.combatExperience = 100;
+    progress.maps.greenline_approach.combatExperience = 100;
 
     const result = getActiveMasterySummaryForStage(
       staticData,
       progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(result.ok).toBe(true);
@@ -74,12 +74,12 @@ describe("active mastery summary", () => {
 
   it("exposes map reward mastery for a trained map", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.combatExperience = 500;
+    progress.maps.greenline_approach.combatExperience = 500;
 
     const result = getActiveMasterySummaryForStage(
       staticData,
       progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
 
     expect(result.ok).toBe(true);
@@ -99,21 +99,21 @@ describe("active mastery summary", () => {
 
   it("maps mastered enemy-family bonuses to the current stage families", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.bamboo_road.combatExperience = 3000;
+    progress.maps.greenline_approach.combatExperience = 3000;
 
     const normalResult = getActiveMasterySummaryForStage(
       staticData,
       progress,
-      "bamboo_road_1"
+      "greenline_approach_1"
     );
     const bossResult = getActiveMasterySummaryForStage(
       staticData,
       progress,
-      "bamboo_road_10"
+      "greenline_approach_10"
     );
 
-    expect(getStageEnemyFamilies(staticData, "bamboo_road_1")).toEqual(["bandit"]);
-    expect(getStageEnemyFamilies(staticData, "bamboo_road_10")).toEqual([
+    expect(getStageEnemyFamilies(staticData, "greenline_approach_1")).toEqual(["bandit"]);
+    expect(getStageEnemyFamilies(staticData, "greenline_approach_10")).toEqual([
       "iron_fort",
       "bandit"
     ]);

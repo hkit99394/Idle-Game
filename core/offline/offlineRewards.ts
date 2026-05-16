@@ -2,8 +2,10 @@ import type { StaticGameData } from "../data";
 import {
   cloneProgress,
   addStyleMasteryExperience,
+  getRegionMapProgress,
   getMapRewardMultiplier,
   getStageById,
+  setRegionMapProgress,
   syncHeroLevelsWithCombatExperience,
   validateOfflineFarmStageTarget
 } from "../progression";
@@ -123,13 +125,17 @@ function getOfflineRewardStageMultiplier(
   progress: PlayerProgress,
   stageRegionId: string
 ): number {
-  const currentMapProgress = progress.maps[stageRegionId] ?? {
+  const currentMapProgress = getRegionMapProgress(
+    progress.maps,
+    stageRegionId
+  ) ?? {
     combatExperience: 0,
     highestClearedStageIndex: 0
   };
+  const mapCombatExperience = currentMapProgress.combatExperience ?? 0;
 
   return 1 + getMapRewardMultiplier(
-    currentMapProgress.combatExperience,
+    mapCombatExperience,
     data.mastery.thresholds
   );
 }
@@ -258,18 +264,22 @@ export function applyOfflineRewards(
     combatExperiencePerClear: stage.rewards.combatExperience
   });
   const nextProgress = cloneProgress(input.progress);
-  const nextMapProgress = nextProgress.maps[stage.regionId] ?? {
+  const nextMapProgress = getRegionMapProgress(
+    nextProgress.maps,
+    stage.regionId
+  ) ?? {
     combatExperience: 0,
     highestClearedStageIndex: 0
   };
+  const nextCombatExperience = nextMapProgress.combatExperience ?? 0;
 
   nextProgress.resources.silver += rewards.silver;
   nextProgress.resources.cultivation += rewards.cultivation;
   nextProgress.resources.herbs += rewards.herbs;
-  nextProgress.maps[stage.regionId] = {
+  setRegionMapProgress(nextProgress, stage.regionId, {
     ...nextMapProgress,
-    combatExperience: nextMapProgress.combatExperience + rewards.combatExperience
-  };
+    combatExperience: nextCombatExperience + rewards.combatExperience
+  });
   addStyleMasteryExperience(
     nextProgress,
     input.data.heroes.map((hero) => hero.style),
