@@ -73,6 +73,8 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 
 `npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review.
 
+Stage 2.7 save-field migration does not change the static content reward schema or generated balance export reward columns. Simulator and support-decision tooling should consume current runtime progress/save fields when they read progress, but authored rewards and report columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` remain static authoring metrics until a later balance/report schema migration explicitly changes them.
+
 Stage 2.1 adds opt-in tactic comparison exports without changing the default report or Stage 2.0 export shapes:
 
 - `npm run --silent simulate -- --tactics-json` returns stable rows for every configured stage and tactic.

@@ -97,6 +97,8 @@ Save version `12` adds content-id alias normalization for Stage 2.6 without rena
 
 Save version `13` adds the Stage 2.7 save-field alias foundation. Current save JSON serializes resources as `credits`, `resonance`, and `reagents`; district progress as `districts`, `combatData`, and `highestClearedRouteIndex`; route/routine fields as `currentRouteId`, `selectedOfflineFarmRouteId`, and `selectedRoutineId`; techno-sect progress as `technoSect`; and resource-named offline farm preset values as `credits`, `resonance`, and `combatData`. Legacy version `12` saves and current-version imports with legacy field names still normalize through core migration. Ambiguous imports that provide conflicting legacy and target aliases fail validation instead of silently choosing one. Runtime progression and save state now use the current Stage 2.7 names for owned resource, district, route, farm, routine, and techno-sect fields.
 
+Simulator, support-decision, and future backend tooling should use those current runtime progress/save fields whenever they read save-shaped data. Generated balance authoring reports remain separate from save JSON: static stage rewards and budget columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` are content-report metrics, not persisted save fields.
+
 ## Import And Future Versions
 
 Imported saves with unsupported future versions must fail validation. The game should not try to downgrade future saves or grant offline rewards to invalid imports.
