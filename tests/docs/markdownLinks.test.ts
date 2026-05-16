@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const docsRoot = join(repoRoot, "docs");
+const activeMarkdownEntrypoints = [join(repoRoot, "README.md")];
 
 function collectMarkdownFiles(directory: string): string[] {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -43,7 +44,11 @@ function normalizeLocalDestination(destination: string): string | null {
 
 describe("active markdown links", () => {
   it("resolves local links from active docs without rewriting archive history", () => {
-    const brokenLinks = collectMarkdownFiles(docsRoot).flatMap((filePath) => {
+    const activeMarkdownFiles = [
+      ...activeMarkdownEntrypoints,
+      ...collectMarkdownFiles(docsRoot)
+    ];
+    const brokenLinks = activeMarkdownFiles.flatMap((filePath) => {
       const source = stripFencedCode(readFileSync(filePath, "utf8"));
       const links = [...source.matchAll(/!?\[[^\]]*]\(([^)]+)\)/g)];
 

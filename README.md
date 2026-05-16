@@ -15,8 +15,6 @@ Start with the current contributor docs:
 - [Path Of Neon Terminology Map](docs/path-of-neon-terminology-map.md)
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
-- [Stage 2.7 Backlog](docs/stage-2.7-backlog.md)
-- [Stage 2.7 Save Field Preflight](docs/stage-2.7-save-field-preflight.md)
 - [Martial Idle RPG Design, Roadmap, and Formula Draft](docs/martial-idle-design.md)
 - [Archived Roadmap: Stage 1.7 To 2.2](docs/archive/roadmap-stage-1.7-to-2.2.md)
 - [Save API](docs/save-api.md)
@@ -33,6 +31,11 @@ Historical planning and archived backlogs:
 
 - [Planning Questions Before Analysis Stage](docs/archive/planning-questions.md)
 - [Analysis Stage](docs/archive/analysis-stage.md)
+- [Archived Stage 2.9 Backlog](docs/archive/stage-2.9-backlog.md)
+- [Archived Stage 2.8 Backlog](docs/archive/stage-2.8-backlog.md)
+- [Archived Stage 2.8 Combat Save And Symbol Preflight](docs/archive/stage-2.8-combat-save-symbol-preflight.md)
+- [Archived Stage 2.7 Backlog](docs/archive/stage-2.7-backlog.md)
+- [Archived Stage 2.7 Save Field Preflight](docs/archive/stage-2.7-save-field-preflight.md)
 - [Archived Stage 2.6 Backlog](docs/archive/stage-2.6-backlog.md)
 - [Archived Stage 2.6 Content Id Preflight](docs/archive/stage-2.6-content-id-preflight.md)
 - [Archived Stage 2.5 Backlog](docs/archive/stage-2.5-backlog.md)
@@ -76,5 +79,12 @@ Useful scripts:
 - `npm run dev`: start the Vite web prototype.
 - `npm test`: run formula and data validation tests.
 - `npm run typecheck`: run TypeScript checks.
+- `npm run build`: compile the production web build.
 - `npm run simulate`: print the current multi-region balance report.
 - `npm run simulate -- --json`: print the full balance report data.
+- `npm run simulate -- --export-json`: print compact authoring export JSON.
+- `npm run simulate -- --csv`: print spreadsheet-friendly stage rows.
+- `npm run simulate -- --tactics-json`: print tactic comparison export JSON.
+- `npm run simulate -- --tactics-csv`: print tactic comparison CSV.
+- `npm run support-decision`: print the current support/counterplay recommendation.
+- `npm run verify`: run the release-readiness command chain.

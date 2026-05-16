@@ -1,5 +1,6 @@
 import type { MedicineDefinition, StaticGameData } from "../../data";
-import type { PlayerProgress, RegionProgress } from "../../progression";
+import { isStageCleared, type RegionProgress } from "../../progression/stages";
+import type { PlayerProgress } from "../../progression/types";
 import type { MedicineInventory } from "../medicine";
 import type { AutoMedicineUnlockInput } from "./types";
 
@@ -49,20 +50,5 @@ function isMedicineUnlockConditionMet(
     return false;
   }
 
-  const stageId = medicine.unlock.stageId;
-  const stage = stages.find((candidate) => candidate.id === stageId);
-
-  if (stage === undefined) {
-    return false;
-  }
-
-  const districts =
-    typeof (progress as PlayerProgress).currentRouteId === "string" &&
-    typeof (progress as PlayerProgress).districts === "object"
-      ? (progress as PlayerProgress).districts
-      : (progress as RegionProgress);
-
-  return (
-    (districts[stage.regionId]?.highestClearedRouteIndex ?? 0) >= stage.index
-  );
+  return isStageCleared({ stages }, progress, medicine.unlock.stageId);
 }

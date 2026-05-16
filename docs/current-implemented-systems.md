@@ -27,7 +27,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Combatants have Body Integrity and Context Stability. Dropping Body Integrity to zero defeats a combatant; dropping Context Stability to zero triggers AI Overload.
 - AI Overload applies burst Body Integrity damage, increases damage taken, causes backlash when attacking, and later restores part of Context Stability.
 - Current combat roles are tank, breaker, striker, and support.
-- Implemented effect families include direct Outer/Inner damage, healing, regeneration, guard, protect, armor break, wound, cleanse, speed down, inner defense down, and status application.
+- Implemented effect families include direct Kinetic/Cognitive damage, healing, regeneration, guard, protect, armor break, wound, cleanse, speed down, Cognitive Defense Down, and status application.
 - Battle summaries track practical carry signals such as damage dealt, AI Overloads, protection, healing, status damage, cleanse activity, medicine use, and contribution metrics.
 - Stage 1.8 split the combat engine into named core modules:
   - `core/combat/scheduler.ts` owns deterministic action timing and speed-down-adjusted rescheduling.
@@ -63,7 +63,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 
 - Equipment supports weapon, armor, manual, and medicine slots, with rarity colors, affixes, set bonuses, and CP contribution.
 - Stages can drop equipment and medicine-related rewards.
-- Assignments let eligible heroes patrol or train while offline. Rewards can include silver, cultivation, herbs, Combat XP, style mastery XP, and equipment.
+- Assignments let eligible heroes patrol or train while offline. Rewards can include Credits, Resonance, reagents, Combat XP, style mastery XP, and equipment.
 - Offline rewards are applied through the save-load transaction path and advance reward timestamps to prevent repeated reload grants.
 
 ## Medicine And Status Counterplay
@@ -93,7 +93,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.6 static content id migration is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md), with the target matrix retained in [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md). Save version `12` normalizes save-stored content aliases, static hostile/status/initiate/protocol/style/augment/countermeasure/operation/routine ids now use their canonical Path of Neon ids, and report exports keep canonical ids primary with temporary legacy comparison columns.
 - Stage 2.7 save resource/progress field migration is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md), with the target matrix retained in [Archived Stage 2.7 Save Field Preflight](archive/stage-2.7-save-field-preflight.md). Save version `13` serializes current owned save fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `highestClearedRouteIndex`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`; legacy save fields remain import-compatible through core save aliases.
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md), covering the display-safe Path of Neon design pivot.
-- Completed backlogs through Stage 2.8 live in `docs/archive`.
+- Completed backlogs through Stage 2.9 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
@@ -104,7 +104,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.6 is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md); `docs/stage-2.6-backlog.md` should not exist as an active backlog unless Stage 2.6 is explicitly reopened.
 - Stage 2.7 is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md); `docs/stage-2.7-backlog.md` should not exist as an active backlog unless Stage 2.7 is explicitly reopened.
 - Stage 2.8 combat save/stat and report-symbol migration is closed and archived at [Archived Stage 2.8 Backlog](archive/stage-2.8-backlog.md), with the target matrix retained in [Archived Stage 2.8 Combat Save And Symbol Preflight](archive/stage-2.8-combat-save-symbol-preflight.md). Stage 2.8 confirmed current saves do not persist live combat stat/event state, so save version `13` did not change; static combat schema aliases live in `core/data/combatSchemaAliases.ts`; runtime combat stats, authored static combat schema, web battle surfaces, simulator metrics, and tactic comparison exports now expose current Body Integrity, Context Stability, Kinetic/Cognitive, AI Overload, Context Rebuild, Breach Power, and Overload Resist vocabulary with documented transition fields where compatibility needs them.
-- Stage 2.9 cleanup and Cognitive Intrusion handoff is tracked at [Stage 2.9 Backlog](stage-2.9-backlog.md). It owns decisions about retiring temporary legacy tactic comparison columns, possibly renaming engine-level damage-channel internals, and refreshing the Cognitive Intrusion prototype contract on top of the current combat vocabulary.
+- Stage 2.9 cleanup and Cognitive Intrusion handoff is closed and archived at [Archived Stage 2.9 Backlog](archive/stage-2.9-backlog.md). Slice 2.9.1 kept temporary tactic comparison legacy damage columns for one more review cycle, Slice 2.9.2 kept engine-level `outerDamage` / `innerDamage` replay/accounting payload fields stable while public/report surfaces continue to use current Kinetic/Cognitive or Body Integrity/Context Stability wording, Slice 2.9.3 kept static taxonomy ids/buckets stable while updating safe display/docs language, Slice 2.9.4 refreshed the Cognitive Intrusion contract around one new `cognitive_intrusion` status and one new `cognitiveDamageTakenMultiplier` status modifier with no save/export/event/taxonomy churn, and Slice 2.9.5 ran stale-scan/release-readiness hardening before archival. `docs/stage-2.9-backlog.md` should not exist as an active backlog unless Stage 2.9 is explicitly reopened.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules

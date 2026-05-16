@@ -18,6 +18,7 @@ import type {
   StaticGameData,
   TacticPresetDefinition
 } from "../data/types";
+import { applySkillUpgradesToSkill } from "../progression/skillUpgrades";
 import {
   calculateContextRebuild,
   calculateAiOverloadContextRebuild,
@@ -119,59 +120,6 @@ function getSkill(lookup: DefinitionLookup, skillId: string): SkillDefinition {
   }
 
   return skill;
-}
-
-function applySkillUpgradesToSkill(
-  skill: SkillDefinition,
-  skillUpgrades: SkillUpgradeDefinition[],
-  levels: Record<string, number>
-): SkillDefinition {
-  let cooldownSeconds = skill.cooldownSeconds;
-  let kineticMultiplier = skill.kineticMultiplier;
-  let cognitiveMultiplier = skill.cognitiveMultiplier;
-  const effects = [...skill.effects];
-
-  for (const upgrade of skillUpgrades) {
-    if (upgrade.skillId !== skill.id) {
-      continue;
-    }
-
-    const level = levels[upgrade.id] ?? 0;
-
-    if (level <= 0) {
-      continue;
-    }
-
-    for (const effect of upgrade.effects) {
-      switch (effect.type) {
-        case "cooldown_seconds":
-          cooldownSeconds += effect.valuePerLevel * level;
-          break;
-
-        case "kinetic_multiplier":
-          kineticMultiplier += effect.valuePerLevel * level;
-          break;
-
-        case "cognitive_multiplier":
-          cognitiveMultiplier += effect.valuePerLevel * level;
-          break;
-
-        case "add_skill_effect":
-          if (level >= effect.unlockLevel) {
-            effects.push(effect.effect);
-          }
-          break;
-      }
-    }
-  }
-
-  return {
-    ...skill,
-    cooldownSeconds: Math.max(0, cooldownSeconds),
-    kineticMultiplier: Math.max(0, kineticMultiplier),
-    cognitiveMultiplier: Math.max(0, cognitiveMultiplier),
-    effects
-  };
 }
 
 function createCombatantState(

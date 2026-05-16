@@ -139,6 +139,6 @@ npm run --silent simulate -- --tactics-json
 npm run --silent simulate -- --tactics-csv
 ```
 
-The tactic comparison export has `schemaVersion: 4`. JSON rows expose current `contributionMetrics.playerKineticDamage`, `contributionMetrics.playerCognitiveDamage`, and matching delta fields; CSV rows expose `player_kinetic_damage` and `player_cognitive_damage` columns. Temporary legacy `playerOuterDamage` / `playerInnerDamage` JSON fields and `player_outer_damage` / `player_inner_damage` CSV columns remain for one comparison period alongside the existing legacy tactic/baseline tactic id columns.
+The tactic comparison export has `schemaVersion: 4`. JSON rows expose current `contributionMetrics.playerKineticDamage`, `contributionMetrics.playerCognitiveDamage`, and matching delta fields; CSV rows expose `player_kinetic_damage` and `player_cognitive_damage` columns. Stage 2.9.1 keeps temporary legacy `playerOuterDamage` / `playerInnerDamage` JSON fields and `player_outer_damage` / `player_inner_damage` CSV columns for one more review cycle alongside the existing legacy tactic/baseline tactic id columns. A later removal must bump the tactic comparison export schema.
 
 For a complete region-readiness pass, follow [Content Authoring Checklist](content-authoring-checklist.md) after reviewing these budget sections.

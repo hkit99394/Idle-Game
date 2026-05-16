@@ -80,7 +80,7 @@ The tactic comparison exports remain opt-in and separate from the default report
 - `npm run --silent simulate -- --tactics-json` returns stable rows for every configured stage and tactic.
 - `npm run --silent simulate -- --tactics-csv` returns the same rows for spreadsheet review.
 - Tactic rows include canonical tactic ids, temporary legacy tactic/baseline tactic ids, baseline result, result changes, duration deltas, target-status changes, `budgetShift`, pressure metrics, and contribution metric deltas.
-- Stage 2.8 tactic comparison schema version `4` uses current `playerKineticDamage` / `playerCognitiveDamage` JSON fields and `player_kinetic_damage` / `player_cognitive_damage` CSV columns as the primary damage-channel contract, with temporary legacy `playerOuterDamage` / `playerInnerDamage` fields and `player_outer_damage` / `player_inner_damage` columns retained for comparison tooling.
+- Stage 2.8 tactic comparison schema version `4` uses current `playerKineticDamage` / `playerCognitiveDamage` JSON fields and `player_kinetic_damage` / `player_cognitive_damage` CSV columns as the primary damage-channel contract. Stage 2.9.1 kept temporary legacy `playerOuterDamage` / `playerInnerDamage` fields and `player_outer_damage` / `player_inner_damage` columns for one more review cycle because no current-only downstream comparison artifact is recorded yet.
 
 The active balance report is stage and region focused. It does not yet answer the longer-form pacing question of where a player should be after 5 minutes, 15 minutes, 1 hour, Day 1, Day 3, or Day 7. Use [Progression Pacing Roadmap](progression-pacing-roadmap.md) as the planning authority for that next layer until timeline simulation tooling exists.
 

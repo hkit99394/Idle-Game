@@ -65,7 +65,7 @@ Slice 93.1 locked the final Stage 2.8 directions in [Stage 2.8 Combat Save And S
 - Core combat behavior remains deterministic and numerically unchanged outside intentional naming adapters.
 - Battle event records, metrics, contributions, simulator reports, tactic comparison exports, and web battle view models use approved current terms or documented transition fields.
 - Stale legacy combat-symbol scans are classified, with remaining hits limited to compatibility adapters, fixtures/tests, archived docs, static authoring fields intentionally kept by 93.1, or Stage 2.9 cleanup.
-- Active docs point to this archived backlog and to [Stage 2.9 Backlog](../stage-2.9-backlog.md) for cleanup follow-up.
+- Active docs point to this archived backlog and to [Archived Stage 2.9 Backlog](stage-2.9-backlog.md) for cleanup follow-up.
 
 ## Epic Summary
 
@@ -287,7 +287,7 @@ Completed in code: full simulator stage metrics now include current `playerKinet
 
 Close Stage 2.8 with compatibility proof, stale-scan classification, and docs cleanup.
 
-Completed in code/docs: remaining active legacy combat-symbol hits were classified, active docs were updated to treat Stage 2.8 as complete, [Stage 2.9 Backlog](../stage-2.9-backlog.md) was prepared for cleanup and Cognitive Intrusion handoff, and release-readiness validation passed during archive closure.
+Completed in code/docs: remaining active legacy combat-symbol hits were classified, active docs were updated to treat Stage 2.8 as complete, [Archived Stage 2.9 Backlog](stage-2.9-backlog.md) was prepared for cleanup and Cognitive Intrusion handoff, and release-readiness validation passed during archive closure.
 
 Remaining active hits are intentional:
 

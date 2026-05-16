@@ -190,6 +190,19 @@ describe("auto medicine cleanse", () => {
     expect(
       isAutoMedicineUnlocked({
         medicines: medicineDefinitions,
+        inventory: {},
+        progress: {
+          bamboo_road: {
+            highestClearedRouteIndex: 10
+          }
+        },
+        stages: stageDefinitions
+      })
+    ).toBe(true);
+
+    expect(
+      isAutoMedicineUnlocked({
+        medicines: medicineDefinitions,
         inventory: {
           clear_heart_countermeasure: 1
         }

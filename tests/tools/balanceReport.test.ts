@@ -570,7 +570,7 @@ describe("balance report", () => {
     expect(csv).toContain("black_iron_fort_6");
   });
 
-  it("builds opt-in tactic comparison exports for JSON and CSV review", () => {
+  it("builds opt-in tactic comparison exports with retained legacy damage aliases", () => {
     const report = buildTacticComparisonReport(staticData);
     const exportReport = buildTacticComparisonExport(report);
     const csv = formatTacticComparisonCsv(report);
