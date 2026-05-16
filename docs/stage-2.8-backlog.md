@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1, 93.2, 93.3, 94.1, 94.2, and 94.3 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`; Slice 93.3 moved owned combat runtime stat fields to the approved Path of Neon names; Slice 94.1 moved AI Overload event and aggregate symbols to current names; Slice 94.2 moved Context Rebuild and restoration payload/report symbols to current names; Slice 94.3 migrated authored static combat schema keys to current names while keeping legacy aliases.
+Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1, 93.2, 93.3, 94.1, 94.2, 94.3, and 94.4 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`; Slice 93.3 moved owned combat runtime stat fields to the approved Path of Neon names; Slice 94.1 moved AI Overload event and aggregate symbols to current names; Slice 94.2 moved Context Rebuild and restoration payload/report symbols to current names; Slice 94.3 migrated authored static combat schema keys to current names while keeping legacy aliases; Slice 94.4 updated web/tooling/report exports with current Kinetic/Cognitive damage-channel fields and temporary legacy comparison aliases.
 
 [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) completed save resource/progress field migration and left combat stat fields, combat event names, battle metrics, and report/code symbols explicitly deferred. Stage 2.8 starts from that save version `13` baseline and should not reopen Stage 2.7 resource/progress decisions.
 
@@ -26,6 +26,7 @@ Migrate owned combat stat, combat event, battle metric, and report/code symbols 
 - Slice 94.2 renamed baseline rebuild helpers, restoration event payloads, recovery metrics/contributions, canonical recovery skill effect types/targets, and the recovery pressure budget target; legacy recovery/static payloads still normalize through `core/data/combatSchemaAliases.ts`.
 - Slice 94.3 migrated authored static JSON for combat stats, stat references, skill damage multipliers, skill recovery effects/targets, tactic modifiers/target rules, skill-upgrade multipliers, status modifier fields, and healing pressure targets. Legacy authored payloads remain accepted by `core/data/combatSchemaAliases.ts`.
 - Runtime targeting now uses `overloaded`; legacy static `inner_broken` target rules still normalize through `core/data/combatSchemaAliases.ts`.
+- Slice 94.4 bumped tactic comparison export schema version to `4`; JSON rows now expose `playerKineticDamage` / `playerCognitiveDamage`, CSV rows expose `player_kinetic_damage` / `player_cognitive_damage`, and temporary legacy `playerOuterDamage` / `playerInnerDamage` plus `player_outer_damage` / `player_inner_damage` remain for one comparison period.
 - Current combat display terms already use Body Integrity, Context Stability, AI Overload, Context Rebuild, Kinetic Art, and Cognitive Art in player-facing UI where appropriate.
 - Combat event records and metrics are stable tooling contracts. Any symbol rename must either preserve legacy compatibility, add temporary legacy report columns, or record an explicit keep/defer decision.
 - Authored static JSON now uses current combat schema keys such as `maxBodyIntegrity`, `maxContextStability`, `kineticMultiplier`, `body_integrity_restore_percent`, `contextRebuildMultiplier`, and `minBodyIntegrityRestored`; legacy aliases remain import/validation compatibility, not the canonical authoring style.
@@ -77,7 +78,7 @@ Stage 2.8 implements Epics 93 and 94 from the retheme migration plan as focused 
 | 94.1 | AI Overload Event And Metric Symbols | Complete | Renamed AI Overload event, metric, contribution, and report symbols with compatibility where needed. |
 | 94.2 | Context Rebuild And Recovery Symbols | Complete | Renamed baseline recovery/restoration symbols while keeping boost/status behavior clear. |
 | 94.3 | Static Data And Validation Continuity | Complete | Applied static stat/effect schema key migration with data validation and aliases. |
-| 94.4 | Web, Tooling, And Export Continuity | Planned | Keep web battle panels, diagnostics, simulator output, JSON/CSV exports, and support tooling coherent. |
+| 94.4 | Web, Tooling, And Export Continuity | Complete | Keep web battle panels, diagnostics, simulator output, JSON/CSV exports, and support tooling coherent. |
 | 94.5 | Hardening And Archive Readiness | Planned | Run stale scans, full validation, docs closure, and prepare Stage 2.8 for archive. |
 
 ## Slice 93.1: Combat Save And Symbol Preflight
@@ -144,7 +145,7 @@ Completed in code: `core/data/combatSchemaAliases.ts` accepts Stage 2.8 combat s
 
 Move owned transient combat/runtime stat symbols to approved Path of Neon names after alias foundations are safe.
 
-Completed in code: `BaseStats`/`DerivedStats`, `CombatantState`, damage and overload formula inputs/constants, Context Rebuild runtime fields, progression stat derivation, support/balance callers, and battle combatant view models now use the current Body Integrity, Context Stability, Kinetic/Cognitive, Breach Power, Overload Resist, and Context Rebuild symbols. Battle damage-channel payload names such as `outerDamage` and `innerDamage` remain for a later report/export slice. Static JSON authored with legacy stat fields still validates through the alias bridge and normalizes to the current runtime shape.
+Completed in code: `BaseStats`/`DerivedStats`, `CombatantState`, damage and overload formula inputs/constants, Context Rebuild runtime fields, progression stat derivation, support/balance callers, and battle combatant view models now use the current Body Integrity, Context Stability, Kinetic/Cognitive, Breach Power, Overload Resist, and Context Rebuild symbols. Battle damage-channel payload names such as `outerDamage` and `innerDamage` remain as engine-level transition fields; report/export surfaces expose current aliases after Slice 94.4. Static JSON authored with legacy stat fields still validates through the alias bridge and normalizes to the current runtime shape.
 
 ### Tasks
 
@@ -253,6 +254,8 @@ Completed in code: authored static JSON now uses current Stage 2.8 combat schema
 ## Slice 94.4: Web, Tooling, And Export Continuity
 
 Keep non-core consumers coherent after combat symbol migration.
+
+Completed in code: full simulator stage metrics now include current `playerKineticDamage`, `playerCognitiveDamage`, `enemyKineticDamage`, and `enemyCognitiveDamage` fields alongside transition legacy aggregate fields. Tactic comparison export schema version `4` adds current JSON fields and CSV columns for Kinetic/Cognitive player damage while retaining temporary legacy `playerOuterDamage` / `playerInnerDamage` JSON fields and `player_outer_damage` / `player_inner_damage` CSV columns. Web battle status-tick copy now describes status ticks as Body Integrity damage instead of Kinetic damage. [Save API](save-api.md), [Balance Budget Gates](balance-budget-gates.md), [Content Pipeline Inventory](content-pipeline-inventory.md), and [Combat Engine V2](combat-engine-v2.md) document the current report/export contract and transition fields.
 
 ### Tasks
 

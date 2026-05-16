@@ -71,15 +71,16 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review.
 
 Stage 2.7 save-field migration does not change the static content reward schema or generated balance export reward columns. Simulator and support-decision tooling should consume current runtime progress/save fields when they read progress, but authored rewards and report columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` remain static authoring metrics until a later balance/report schema migration explicitly changes them.
 
-Stage 2.1 adds opt-in tactic comparison exports without changing the default report or Stage 2.0 export shapes:
+The tactic comparison exports remain opt-in and separate from the default report and stage-row authoring export:
 
 - `npm run --silent simulate -- --tactics-json` returns stable rows for every configured stage and tactic.
 - `npm run --silent simulate -- --tactics-csv` returns the same rows for spreadsheet review.
 - Tactic rows include canonical tactic ids, temporary legacy tactic/baseline tactic ids, baseline result, result changes, duration deltas, target-status changes, `budgetShift`, pressure metrics, and contribution metric deltas.
+- Stage 2.8 tactic comparison schema version `4` uses current `playerKineticDamage` / `playerCognitiveDamage` JSON fields and `player_kinetic_damage` / `player_cognitive_damage` CSV columns as the primary damage-channel contract, with temporary legacy `playerOuterDamage` / `playerInnerDamage` fields and `player_outer_damage` / `player_inner_damage` columns retained for comparison tooling.
 
 The active balance report is stage and region focused. It does not yet answer the longer-form pacing question of where a player should be after 5 minutes, 15 minutes, 1 hour, Day 1, Day 3, or Day 7. Use [Progression Pacing Roadmap](progression-pacing-roadmap.md) as the planning authority for that next layer until timeline simulation tooling exists.
 
@@ -98,7 +99,7 @@ The current simulator output keeps these misses visible:
 
 These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
 
-## Stage 2.1 Tactic Comparison Notes
+## Tactic Comparison Notes
 
 Epic 71 did not retune content. The tactic comparison export keeps known debt visible and adds row-level shift labels:
 

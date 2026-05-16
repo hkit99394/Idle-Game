@@ -779,6 +779,18 @@ function summarizeBattle(
         result.battle.metrics.protectionDamagePreventedByEnemy
     ),
     metrics: {
+      playerKineticDamage: roundBalanceNumber(
+        result.battle.metrics.playerOuterDamage
+      ),
+      playerCognitiveDamage: roundBalanceNumber(
+        result.battle.metrics.playerInnerDamage
+      ),
+      enemyKineticDamage: roundBalanceNumber(
+        result.battle.metrics.enemyOuterDamage
+      ),
+      enemyCognitiveDamage: roundBalanceNumber(
+        result.battle.metrics.enemyInnerDamage
+      ),
       playerOuterDamage: roundBalanceNumber(
         result.battle.metrics.playerOuterDamage
       ),
@@ -1637,9 +1649,18 @@ function getTacticComparisonPressure(summary: TacticComparisonBattleSummary) {
 }
 
 function getTacticComparisonMetrics(summary: TacticComparisonBattleSummary) {
+  const playerKineticDamage = summary.ok
+    ? summary.metrics.playerOuterDamage
+    : null;
+  const playerCognitiveDamage = summary.ok
+    ? summary.metrics.playerInnerDamage
+    : null;
+
   return {
-    playerOuterDamage: summary.ok ? summary.metrics.playerOuterDamage : null,
-    playerInnerDamage: summary.ok ? summary.metrics.playerInnerDamage : null,
+    playerKineticDamage,
+    playerCognitiveDamage,
+    playerOuterDamage: playerKineticDamage,
+    playerInnerDamage: playerCognitiveDamage,
     playerEffectiveDps: summary.ok ? summary.metrics.playerEffectiveDps : null,
     enemyEffectiveDps: summary.ok ? summary.metrics.enemyEffectiveDps : null
   };
@@ -1754,6 +1775,14 @@ function buildTacticComparisonRow({
     },
     contributionMetrics: metrics,
     contributionDeltas: {
+      playerKineticDamage: getTacticComparisonNumberDelta(
+        metrics.playerKineticDamage,
+        baselineMetrics.playerKineticDamage
+      ),
+      playerCognitiveDamage: getTacticComparisonNumberDelta(
+        metrics.playerCognitiveDamage,
+        baselineMetrics.playerCognitiveDamage
+      ),
       playerOuterDamage: getTacticComparisonNumberDelta(
         metrics.playerOuterDamage,
         baselineMetrics.playerOuterDamage

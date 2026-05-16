@@ -122,7 +122,7 @@ This compact export has `schemaVersion: 3` and four top-level tables:
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
 
-Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns while the tactic comparison export includes temporary legacy tactic/baseline tactic id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
+Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
 
 For spreadsheet review, run:
 
@@ -131,5 +131,14 @@ npm run --silent simulate -- --csv
 ```
 
 The CSV is a generated stage-row export. [Balance Template CSV](balance-template.csv) remains a hand-authored reference template for planning fields and notes, not the generated review artifact.
+
+For tactic comparison review, run:
+
+```sh
+npm run --silent simulate -- --tactics-json
+npm run --silent simulate -- --tactics-csv
+```
+
+The tactic comparison export has `schemaVersion: 4`. JSON rows expose current `contributionMetrics.playerKineticDamage`, `contributionMetrics.playerCognitiveDamage`, and matching delta fields; CSV rows expose `player_kinetic_damage` and `player_cognitive_damage` columns. Temporary legacy `playerOuterDamage` / `playerInnerDamage` JSON fields and `player_outer_damage` / `player_inner_damage` CSV columns remain for one comparison period alongside the existing legacy tactic/baseline tactic id columns.
 
 For a complete region-readiness pass, follow [Content Authoring Checklist](content-authoring-checklist.md) after reviewing these budget sections.

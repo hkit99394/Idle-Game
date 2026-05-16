@@ -321,7 +321,9 @@ function buildStatusTickEventDetail(
 
   return {
     headline: `${target} suffers ${statusName}`,
-    detail: `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.kineticDamage} from ${statusName}`,
+    detail:
+      `${formatBattleNumber(event.outerDamage)} ${displayTerms.combat.bodyIntegrity} ` +
+      `damage from ${statusName}`,
     badges: [
       {
         label: statusName,

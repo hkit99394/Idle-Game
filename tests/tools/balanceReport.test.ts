@@ -632,6 +632,8 @@ describe("balance report", () => {
         statusDamage: 0
       },
       contributionDeltas: {
+        playerKineticDamage: 0,
+        playerCognitiveDamage: 0,
         playerOuterDamage: 0,
         playerInnerDamage: 0
       }
@@ -675,6 +677,10 @@ describe("balance report", () => {
       budgetShift: "new_miss"
     });
     expect(csvLines[0]).toBe(TACTIC_COMPARISON_CSV_HEADERS.join(","));
+    expect(csvLines[0]).toContain("player_kinetic_damage");
+    expect(csvLines[0]).toContain("player_cognitive_damage");
+    expect(csvLines[0]).toContain("player_outer_damage");
+    expect(csvLines[0]).toContain("player_inner_damage");
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("kinetic_crush");
     expect(csv).toContain("outer_pressure");

@@ -32,7 +32,7 @@ This guide is for new contributors working on the combat engine produced by Stag
    - `canCombatantActAt` checks living state and `nextActionAt`.
    - `chooseSkill` selects the first ready configured skill, applies skill upgrades, or falls back to `baseline_strike`.
    - `resolveAttackDamageTargets` selects the intended enemy target, applying player tactic target priorities when present, and may redirect damage to a protector.
-   - `createAttackDamagePackage` calculates outer/inner damage from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, AI Overload modifiers, and data status modifiers.
+   - `createAttackDamagePackage` calculates Kinetic/Cognitive damage-channel values from attacker stats, effective target stats, family multipliers, player tactic damage modifiers, AI Overload modifiers, and data status modifiers.
    - `applyDamagePackageMitigation` applies guard first, then protection.
    - `commitDamagePackage` mutates target Body Integrity/Context Stability and records attack damage.
    - `applyTimedSkillEffects` handles post-attack timed/status effects.
@@ -77,7 +77,7 @@ Auto-medicine interacts with status hooks through `core/combat/autoMedicine/appl
 - Body Integrity/Context Stability mutation and attack/AI Overload/backlash events belong in the commit functions in `damagePackage.ts`.
 - Aggregate and per-combatant accounting belongs in `battleRecorder.ts`.
 
-Guard currently reduces outer damage and is countered by armor break. Protection can redirect to a living ally in an earlier formation slot and reduces both outer and inner damage after guard.
+Guard currently reduces Kinetic damage and is countered by armor break. Protection can redirect to a living ally in an earlier formation slot and reduces both Kinetic and Cognitive damage after guard.
 
 Player tactic presets live in static data, are normalized for saves by `core/progression/tactics.ts`, and are resolved at battle runtime by `core/combat/tactics.ts`. Keep tactic behavior player-side for now and route new tactic effects through the existing targeting, damage package, defensive, recovery, status, or auto-medicine owners instead of mutating skill definitions.
 
@@ -103,6 +103,7 @@ Battle events are the detailed replay contract; metrics and contributions are ag
 - Initialize new aggregate fields in `createInitialMetrics` and update `finalizeMetrics` if derived fields depend on them.
 - Initialize new per-combatant fields in `createInitialContributions` and finalize survival in `finalizeContributions`.
 - Record metrics at the mutation point that owns the behavior: damage packages for damage, defensive pipeline for prevention, effect pipeline for healing/cleanse/status effects, simulator status advancement for data-status ticks.
+- Current simulator and tactic comparison report surfaces expose Kinetic/Cognitive damage-channel names. Temporary legacy `outer` / `inner` aggregate fields and CSV columns remain only for Stage 2.8 comparison compatibility.
 
 ## Boundary rules
 
