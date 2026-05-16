@@ -90,6 +90,14 @@ Rules:
 - No import/export normalization for heat.
 - No heat state in battle records or replay/accounting payloads.
 
+Slice 97.5 boundary proof keeps this posture active after the report-only implementation:
+
+- `SAVE_DATA_VERSION` remains `13`.
+- Current save serialization and cloud `rawSave` payloads do not include `districtHeat`, `districtHeatProjection`, `projectedHeat`, or `heatBand`.
+- Browser storage does not receive a heat migration or key change.
+- Live web source must not include District Heat copy or heat source tokens until a player-facing mechanic exists.
+- Compact authoring JSON/CSV exports keep heat fields out until a later schema decision.
+
 If a later milestone chooses persisted heat, it must open a dedicated save-version slice covering:
 
 - `core/save/saveTypes.ts`;

@@ -6,7 +6,7 @@ Stage 3.1 is the active post-Intrusion planning and hardening milestone. [Archiv
 
 This stage prepares **District Heat** as the preferred second Path of Neon prototype, but it should not ship live heat penalties, persisted heat, or UI promises before the contract and pacing evidence are ready. District Heat touches offline farming, assignments, rewards, region UI, save posture, and balance gates, so the first milestone should make those boundaries explicit.
 
-Slices 97.1, 97.2, 97.3, and 97.4 are complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path, defers derived or persisted live heat until later evidence justifies it, records the offline/assignment pacing baseline, classifies known balance debt before heat can modify live rewards or risk, and now exposes author-only projected heat in the simulator report.
+Slices 97.1, 97.2, 97.3, 97.4, and 97.5 are complete. [District Heat Contract](district-heat-contract.md) selects report-only projection as the first implementation path, defers derived or persisted live heat until later evidence justifies it, records the offline/assignment pacing baseline, classifies known balance debt before heat can modify live rewards or risk, exposes author-only projected heat in the simulator report, and proves that heat has not entered save, cloud-save, live UI, or compact export surfaces.
 
 ## Stage Theme
 
@@ -60,7 +60,7 @@ The milestone should turn District Heat from a theme-bible candidate into an imp
 | 97.2 | 97 | Offline And Pacing Baseline Audit | Complete |
 | 97.3 | 97 | Known Balance Debt Gate Review | Complete |
 | 97.4 | 97 | Report-Only Heat Projection Surface | Complete |
-| 97.5 | 97 | Save, UI, And Export Boundary Proof | Planned |
+| 97.5 | 97 | Save, UI, And Export Boundary Proof | Complete |
 | 97.6 | 97 | Release Hardening And Archive Readiness | Planned |
 
 ## Slice 97.1: District Heat Contract Preflight
@@ -218,6 +218,15 @@ Prove Stage 3.1 has not accidentally promised or persisted live heat.
 - Keep District Heat out of live UI source until a real player-facing system exists.
 - Decide whether report-only heat fields need export schema versioning or stay outside stable exports.
 
+### Implementation Notes
+
+- Audited `core/save/*`, [Save API](save-api.md), [Cloud Save Contract](cloud-save-contract.md), `web/displayTerms.ts`, `tests/web/displayTerms.test.ts`, and the balance export tests after the 97.4 report-only implementation.
+- Documented that Stage 3.1 does not bump `SAVE_DATA_VERSION` beyond `13`, does not add a heat migration, and does not add cloud envelope heat metadata.
+- Locked save and cloud raw-save serialization against report-only heat keys: `districtHeat`, `districtHeatProjection`, `projectedHeat`, and `heatBand`.
+- Extended the live web source guard so deferred heat source tokens stay out of `web/` until a player-facing mechanic exists.
+- Reconfirmed compact authoring exports stay stable: compact JSON keeps `schemaVersion: 3`, stage CSV headers do not gain heat columns, and tactic exports remain heat-free.
+- No runtime behavior, save data, browser storage key, cloud envelope shape, live UI, compact export schema, or balance data changed in this slice.
+
 ### Acceptance
 
 - Save, cloud-save, UI, and export postures are explicit and tested where applicable.
@@ -226,10 +235,13 @@ Prove Stage 3.1 has not accidentally promised or persisted live heat.
 
 ### Verification
 
-- `npm test -- tests/web/displayTerms.test.ts tests/docs/markdownLinks.test.ts`
-- Save/import focused tests if any save surface changes.
-- Export/report focused tests if any report surface changes.
-- `git diff --check`
+- Passed: `npm test -- tests/web/displayTerms.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: `npm test -- tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 97.6: Release Hardening And Archive Readiness
 
