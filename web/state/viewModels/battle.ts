@@ -164,12 +164,12 @@ function createCombatantView(
     combatRole: input.combatRole,
     formationSlot: finalState?.formationSlot ?? input.formationSlot,
     level: Math.max(finalState?.level ?? input.level, input.level),
-    outerHp: finalState?.outerHp ?? input.stats.maxOuterHp,
-    innerQi: finalState?.innerQi ?? input.stats.maxInnerQi,
-    maxOuterHp: finalState?.maxOuterHp ?? input.stats.maxOuterHp,
-    maxInnerQi: finalState?.maxInnerQi ?? input.stats.maxInnerQi,
-    outerAttack: stats.outerAttack,
-    innerAttack: stats.innerAttack,
+    bodyIntegrity: finalState?.bodyIntegrity ?? input.stats.maxBodyIntegrity,
+    contextStability: finalState?.contextStability ?? input.stats.maxContextStability,
+    maxBodyIntegrity: finalState?.maxBodyIntegrity ?? input.stats.maxBodyIntegrity,
+    maxContextStability: finalState?.maxContextStability ?? input.stats.maxContextStability,
+    kineticAttack: stats.kineticAttack,
+    cognitiveAttack: stats.cognitiveAttack,
     speed: stats.speed,
     combatPower: Math.round(
       calculateCombatPower(stats) + (input.combatPowerBonus ?? 0)
@@ -178,7 +178,7 @@ function createCombatantView(
     contributionRecovery: getContributionRecovery(contribution),
     contributionProtection: getContributionProtection(contribution),
     contributionRecoveryPrevented: contribution?.recoveryPrevented ?? 0,
-    isQiBroken: finalState?.isQiBroken ?? false,
+    isOverloaded: finalState?.isOverloaded ?? false,
     isDefeated: finalState?.defeatedAt != null
   };
 }

@@ -10,12 +10,12 @@ import type {
 export const LEVEL_STAT_GROWTH = 1.06;
 
 const LEVEL_SCALING_STATS = [
-  "maxOuterHp",
-  "maxInnerQi",
-  "outerAttack",
-  "innerAttack",
-  "outerDefense",
-  "innerDefense"
+  "maxBodyIntegrity",
+  "maxContextStability",
+  "kineticAttack",
+  "cognitiveAttack",
+  "kineticDefense",
+  "cognitiveDefense"
 ] as const satisfies Array<keyof BaseStats>;
 
 export const defaultCombatFormulaConstants: CombatFormulaConstants = {
@@ -25,12 +25,12 @@ export const defaultCombatFormulaConstants: CombatFormulaConstants = {
   baseQiBreakBurstPercent: 0.1,
   minQiBreakBurstPercent: 0.05,
   maxQiBreakBurstPercent: 0.25,
-  qiBrokenOuterDamageTakenMultiplier: 1.25,
-  qiBrokenInnerDamageTakenMultiplier: 0.5,
-  qiBreakBacklashPercent: 0.03,
-  qiBreakRecoveryPercent: 0.35,
-  qiBreakDurationSeconds: 6,
-  innerRecoveryDelaySeconds: 3
+  overloadedKineticDamageTakenMultiplier: 1.25,
+  overloadedCognitiveDamageTakenMultiplier: 0.5,
+  aiOverloadFeedbackPercent: 0.03,
+  aiOverloadContextRebuildPercent: 0.35,
+  aiOverloadDurationSeconds: 6,
+  contextRebuildDelaySeconds: 3
 };
 
 export function clamp(value: number, min: number, max: number): number {
@@ -53,16 +53,16 @@ export function calculateExpectedCritMultiplier(
 }
 
 export function calculateCombatPower(stats: DerivedStats): number {
-  const outerDurability = stats.maxOuterHp * (1 + stats.outerDefense / 100);
-  const innerDurability = stats.maxInnerQi * (1 + stats.innerDefense / 100) * 0.5;
+  const outerDurability = stats.maxBodyIntegrity * (1 + stats.kineticDefense / 100);
+  const innerDurability = stats.maxContextStability * (1 + stats.cognitiveDefense / 100) * 0.5;
   const expectedDamage =
-    (stats.outerAttack + stats.innerAttack * 0.8) *
+    (stats.kineticAttack + stats.cognitiveAttack * 0.8) *
     calculateExpectedCritMultiplier(stats.critChance, stats.critDamage);
   const speedMultiplier = 1 + Math.max(0, stats.speed) / 100;
   const offense = expectedDamage * speedMultiplier * 10;
   const qiControl =
-    (Math.max(0, stats.breakPower) + Math.max(0, stats.breakResist)) * 500;
-  const innerRecovery = stats.maxInnerQi * Math.max(0, stats.innerRecoveryRate) * 20;
+    (Math.max(0, stats.breachPower) + Math.max(0, stats.overloadResist)) * 500;
+  const innerRecovery = stats.maxContextStability * Math.max(0, stats.contextRebuildRate) * 20;
   const statusTenacity = clamp(stats.statusResistance, 0, 0.8) * 600;
 
   return Math.max(
@@ -104,13 +104,13 @@ export function calculateOuterDamage(
     input.critMultiplier ??
     calculateExpectedCritMultiplier(input.attacker.critChance, input.attacker.critDamage);
   const rawDamage =
-    input.attacker.outerAttack *
+    input.attacker.kineticAttack *
     input.skillMultiplier *
     styleMultiplier *
     critMultiplier;
-  const mitigation = 100 / (100 + input.target.outerDefense);
-  const brokenMultiplier = input.targetIsQiBroken
-    ? constants.qiBrokenOuterDamageTakenMultiplier
+  const mitigation = 100 / (100 + input.target.kineticDefense);
+  const brokenMultiplier = input.targetIsOverloaded
+    ? constants.overloadedKineticDamageTakenMultiplier
     : 1;
 
   return rawDamage * mitigation * brokenMultiplier;
@@ -121,10 +121,10 @@ export function calculateInnerDamage(
   constants: CombatFormulaConstants = defaultCombatFormulaConstants
 ): number {
   const styleMultiplier = input.styleMultiplier ?? 1;
-  const rawDamage = input.attacker.innerAttack * input.skillMultiplier * styleMultiplier;
-  const mitigation = 100 / (100 + input.target.innerDefense);
-  const brokenMultiplier = input.targetIsQiBroken
-    ? constants.qiBrokenInnerDamageTakenMultiplier
+  const rawDamage = input.attacker.cognitiveAttack * input.skillMultiplier * styleMultiplier;
+  const mitigation = 100 / (100 + input.target.cognitiveDefense);
+  const brokenMultiplier = input.targetIsOverloaded
+    ? constants.overloadedCognitiveDamageTakenMultiplier
     : 1;
 
   return rawDamage * mitigation * brokenMultiplier;
@@ -136,40 +136,40 @@ export function calculateQiBreakBurst(
 ): { percent: number; damage: number } {
   const percent = clamp(
     constants.baseQiBreakBurstPercent +
-      (input.attackerBreakPower ?? 0) -
-      (input.targetBreakResist ?? 0),
+      (input.attackerBreachPower ?? 0) -
+      (input.targetOverloadResist ?? 0),
     constants.minQiBreakBurstPercent,
     constants.maxQiBreakBurstPercent
   );
 
   return {
     percent,
-    damage: input.targetMaxOuterHp * percent
+    damage: input.targetMaxBodyIntegrity * percent
   };
 }
 
 export function calculateQiBreakBacklashDamage(
-  attackerMaxOuterHp: number,
+  attackerMaxBodyIntegrity: number,
   constants: CombatFormulaConstants = defaultCombatFormulaConstants
 ): number {
-  return attackerMaxOuterHp * constants.qiBreakBacklashPercent;
+  return attackerMaxBodyIntegrity * constants.aiOverloadFeedbackPercent;
 }
 
 export function calculateQiBreakRecovery(
-  maxInnerQi: number,
+  maxContextStability: number,
   constants: CombatFormulaConstants = defaultCombatFormulaConstants
 ): number {
-  return maxInnerQi * constants.qiBreakRecoveryPercent;
+  return maxContextStability * constants.aiOverloadContextRebuildPercent;
 }
 
 export function calculateInnerRecovery(
   input: InnerRecoveryInput
 ): number {
   const recovered =
-    input.currentInnerQi +
-    input.maxInnerQi * input.innerRecoveryRate * input.deltaSeconds;
+    input.currentContextStability +
+    input.maxContextStability * input.contextRebuildRate * input.deltaSeconds;
 
-  return Math.min(input.maxInnerQi, recovered);
+  return Math.min(input.maxContextStability, recovered);
 }
 
 export function deriveStats(baseStats: DerivedStats): DerivedStats {

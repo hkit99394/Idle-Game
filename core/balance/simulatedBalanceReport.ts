@@ -873,7 +873,7 @@ function buildFormationScenarioReport(data: StaticGameData) {
           formationSlot: "back",
           statsOverride: {
             ...cutter.baseStats,
-            outerAttack: cutter.baseStats.outerAttack * 8
+            kineticAttack: cutter.baseStats.kineticAttack * 8
           }
         }
       ]

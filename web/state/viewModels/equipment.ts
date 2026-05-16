@@ -35,9 +35,9 @@ function formatEquipmentEffect(
   if (
     effect.stat === "critChance" ||
     effect.stat === "critDamage" ||
-    effect.stat === "breakPower" ||
-    effect.stat === "breakResist" ||
-    effect.stat === "innerRecoveryRate"
+    effect.stat === "breachPower" ||
+    effect.stat === "overloadResist" ||
+    effect.stat === "contextRebuildRate"
   ) {
     return `${formatMasteryPercent(effect.value)} ${formatInternalStatName(
       effect.stat

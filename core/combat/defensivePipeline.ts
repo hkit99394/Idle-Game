@@ -46,8 +46,8 @@ export function getEffectiveTargetStats(
 
   return {
     ...target.stats,
-    outerDefense: target.stats.outerDefense * (1 - armorBreak),
-    innerDefense: target.stats.innerDefense * (1 - innerDefenseDown)
+    kineticDefense: target.stats.kineticDefense * (1 - armorBreak),
+    cognitiveDefense: target.stats.cognitiveDefense * (1 - innerDefenseDown)
   };
 }
 

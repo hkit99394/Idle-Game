@@ -216,8 +216,8 @@ export function markDefeated(
   time: number,
   events: BattleEvent[]
 ): void {
-  if (combatant.outerHp <= 0 && combatant.defeatedAt === null) {
-    combatant.outerHp = 0;
+  if (combatant.bodyIntegrity <= 0 && combatant.defeatedAt === null) {
+    combatant.bodyIntegrity = 0;
     combatant.defeatedAt = time;
     events.push({
       type: "defeat",

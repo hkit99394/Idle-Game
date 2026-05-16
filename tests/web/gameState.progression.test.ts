@@ -243,10 +243,10 @@ describe("web game state progression", () => {
     ]);
     expect(viewModel.playerCombatants[0]).toMatchObject({
       name: "Iron Fist Initiate",
-      outerHp: 180,
-      innerQi: 90,
-      maxOuterHp: 180,
-      maxInnerQi: 90,
+      bodyIntegrity: 180,
+      contextStability: 90,
+      maxBodyIntegrity: 180,
+      maxContextStability: 90,
       formationSlot: "front",
       combatRole: "striker",
       level: 1,
@@ -255,10 +255,10 @@ describe("web game state progression", () => {
     expect(viewModel.enemyCombatants).toHaveLength(2);
     expect(viewModel.enemyCombatants[0]).toMatchObject({
       name: "Greenline Cutter",
-      outerHp: 120,
-      innerQi: 60,
-      maxOuterHp: 120,
-      maxInnerQi: 60,
+      bodyIntegrity: 120,
+      contextStability: 60,
+      maxBodyIntegrity: 120,
+      maxContextStability: 60,
       formationSlot: "front",
       combatRole: "striker",
       level: 1,
@@ -266,8 +266,8 @@ describe("web game state progression", () => {
     });
     expect(viewModel.enemyCombatants[1]).toMatchObject({
       name: "Greenline Cutter",
-      outerHp: 120,
-      maxOuterHp: 120,
+      bodyIntegrity: 120,
+      maxBodyIntegrity: 120,
       formationSlot: "middle",
       level: 1,
       combatPower: 259
@@ -328,7 +328,7 @@ describe("web game state progression", () => {
       definitionId: "iron_fist_initiate",
       level: 3
     });
-    expect(viewModel.playerCombatants[0].maxOuterHp).toBeCloseTo(
+    expect(viewModel.playerCombatants[0].maxBodyIntegrity).toBeCloseTo(
       180 * 1.06 ** 2 * 1.06
     );
   });
@@ -466,8 +466,8 @@ describe("web game state progression", () => {
     expect(viewModel.enemyTeamLabel).toBe("Greenline Cutter x2");
     expect(viewModel.enemyCombatants[0]).toMatchObject({
       name: "Greenline Cutter",
-      outerHp: 0,
-      maxOuterHp: 120,
+      bodyIntegrity: 0,
+      maxBodyIntegrity: 120,
       isDefeated: true
     });
     expect(viewModel.battleSummary?.title).toContain("Victory at Greenline Route 1");

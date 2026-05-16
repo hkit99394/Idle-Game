@@ -105,11 +105,11 @@ function getWoundReduction(target: CombatantState, time: number): number {
 }
 
 function getMissingOuterHp(combatant: CombatantState): number {
-  return Math.max(0, combatant.maxOuterHp - combatant.outerHp);
+  return Math.max(0, combatant.maxBodyIntegrity - combatant.bodyIntegrity);
 }
 
 function getMissingInnerQi(combatant: CombatantState): number {
-  return Math.max(0, combatant.maxInnerQi - combatant.innerQi);
+  return Math.max(0, combatant.maxContextStability - combatant.contextStability);
 }
 
 function hasCleanseableStatus(
@@ -313,8 +313,8 @@ function applyRecoveryToTarget(
     reducedInnerRecovery -
     innerQiRestored;
 
-  target.outerHp += outerHealing;
-  target.innerQi += innerQiRestored;
+  target.bodyIntegrity += outerHealing;
+  target.contextStability += innerQiRestored;
 
   recordRecovery(
     metrics,
@@ -934,7 +934,7 @@ function applyHealEffect(
     context.attacker,
     target,
     effect.type === "outer_heal_percent"
-      ? target.maxOuterHp *
+      ? target.maxBodyIntegrity *
           value *
           getPlayerTacticModifierValue(
             context.tactic,
@@ -944,7 +944,7 @@ function applyHealEffect(
           )
       : 0,
     effect.type === "inner_heal_percent"
-      ? target.maxInnerQi *
+      ? target.maxContextStability *
           value *
           getPlayerTacticModifierValue(
             context.tactic,
@@ -1085,10 +1085,10 @@ export function tickRegeneration(
         source,
         combatant,
         regeneration.restores === "outer"
-          ? combatant.maxOuterHp * regeneration.value
+          ? combatant.maxBodyIntegrity * regeneration.value
           : 0,
         regeneration.restores === "inner"
-          ? combatant.maxInnerQi * regeneration.value
+          ? combatant.maxContextStability * regeneration.value
           : 0,
         statusDefinitions,
         tickTime,

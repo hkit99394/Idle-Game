@@ -147,11 +147,11 @@ describe("progress-based player team builder", () => {
     }
 
     expect(ironFist.level).toBe(2);
-    expect(ironFist.statsOverride.outerAttack).toBeCloseTo(
-      baseIronFist.baseStats.outerAttack * 1.06 * 1.2 * 1.05 * 1.01
+    expect(ironFist.statsOverride.kineticAttack).toBeCloseTo(
+      baseIronFist.baseStats.kineticAttack * 1.06 * 1.2 * 1.05 * 1.01
     );
-    expect(ironFist.statsOverride.innerAttack).toBeCloseTo(
-      baseIronFist.baseStats.innerAttack * 1.06 * 1.05 * 1.01
+    expect(ironFist.statsOverride.cognitiveAttack).toBeCloseTo(
+      baseIronFist.baseStats.cognitiveAttack * 1.06 * 1.05 * 1.01
     );
   });
 

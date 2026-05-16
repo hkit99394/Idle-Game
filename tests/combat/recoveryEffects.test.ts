@@ -10,18 +10,18 @@ import type {
 import { staticData } from "../helpers/staticData";
 
 const baseStats: BaseStats = {
-  maxOuterHp: 240,
-  maxInnerQi: 180,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 240,
+  maxContextStability: 180,
+  kineticAttack: 0,
+  cognitiveAttack: 0,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 100,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -102,14 +102,14 @@ describe("recovery and wound effects", () => {
       ],
       heroes: [
         createHero("scenario_recovery_tank", [], {
-          maxOuterHp: 240,
+          maxBodyIntegrity: 240,
           speed: 0
         }, "tank"),
         createHero("scenario_ally_healer", ["scenario_ally_heal"])
       ],
       enemies: [
         createEnemy("scenario_outer_attacker", [], {
-          outerAttack: 70,
+          kineticAttack: 70,
           speed: 300
         })
       ]
@@ -217,14 +217,14 @@ describe("recovery and wound effects", () => {
       ],
       heroes: [
         createHero("scenario_inner_tank", [], {
-          maxInnerQi: 180,
+          maxContextStability: 180,
           speed: 0
         }, "tank"),
         createHero("scenario_inner_healer", ["scenario_inner_heal"])
       ],
       enemies: [
         createEnemy("scenario_inner_attacker", ["scenario_inner_hit"], {
-          innerAttack: 70,
+          cognitiveAttack: 70,
           speed: 300
         })
       ]
@@ -257,8 +257,8 @@ describe("recovery and wound effects", () => {
       targetId: "player_scenario_inner_tank_1"
     });
     expect(heal?.innerQiRestored).toBeGreaterThan(0);
-    expect(result.finalPlayerTeam[0].innerQi).toBeLessThanOrEqual(
-      result.finalPlayerTeam[0].maxInnerQi
+    expect(result.finalPlayerTeam[0].contextStability).toBeLessThanOrEqual(
+      result.finalPlayerTeam[0].maxContextStability
     );
   });
 
@@ -288,7 +288,7 @@ describe("recovery and wound effects", () => {
       ],
       enemies: [
         createEnemy("scenario_regen_attacker", [], {
-          outerAttack: 45,
+          kineticAttack: 45,
           speed: 300
         })
       ]
@@ -354,17 +354,17 @@ describe("recovery and wound effects", () => {
       ],
       heroes: [
         createHero("scenario_plain_recovery_counter", ["scenario_plain_strike"], {
-          outerAttack: 70,
+          kineticAttack: 70,
           speed: 100
         }, "striker"),
         createHero("scenario_wound_recovery_counter", ["scenario_wounding_strike"], {
-          outerAttack: 70,
+          kineticAttack: 70,
           speed: 100
         }, "striker")
       ],
       enemies: [
         createEnemy("scenario_healing_enemy", ["scenario_enemy_heal"], {
-          maxOuterHp: 520,
+          maxBodyIntegrity: 520,
           speed: 100
         }, "support")
       ]

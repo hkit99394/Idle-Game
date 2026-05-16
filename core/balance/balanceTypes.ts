@@ -159,12 +159,12 @@ export const defaultBalanceScenarioPresets: BalanceScenarioPreset[] = [
     name: "Baseline",
     description: "Boss-ready team without special status counterplay.",
     playerStatMultipliers: {
-      maxOuterHp: 2,
-      maxInnerQi: 1.4,
-      outerAttack: 4,
-      innerAttack: 4,
-      outerDefense: 1.3,
-      innerDefense: 1.3
+      maxBodyIntegrity: 2,
+      maxContextStability: 1.4,
+      kineticAttack: 4,
+      cognitiveAttack: 4,
+      kineticDefense: 1.3,
+      cognitiveDefense: 1.3
     },
     statusResistanceBonus: 0,
     useResistanceMedicine: false,
@@ -175,12 +175,12 @@ export const defaultBalanceScenarioPresets: BalanceScenarioPreset[] = [
     name: "Resistance",
     description: "Boss-ready team with resistance training and manuals.",
     playerStatMultipliers: {
-      maxOuterHp: 2,
-      maxInnerQi: 1.4,
-      outerAttack: 4,
-      innerAttack: 4,
-      outerDefense: 1.3,
-      innerDefense: 1.3
+      maxBodyIntegrity: 2,
+      maxContextStability: 1.4,
+      kineticAttack: 4,
+      cognitiveAttack: 4,
+      kineticDefense: 1.3,
+      cognitiveDefense: 1.3
     },
     statusResistanceBonus: 0.22,
     useResistanceMedicine: false,
@@ -191,12 +191,12 @@ export const defaultBalanceScenarioPresets: BalanceScenarioPreset[] = [
     name: "Medicine",
     description: "Boss-ready team using automatic resistance and cleanse medicine.",
     playerStatMultipliers: {
-      maxOuterHp: 2,
-      maxInnerQi: 1.4,
-      outerAttack: 4,
-      innerAttack: 4,
-      outerDefense: 1.3,
-      innerDefense: 1.3
+      maxBodyIntegrity: 2,
+      maxContextStability: 1.4,
+      kineticAttack: 4,
+      cognitiveAttack: 4,
+      kineticDefense: 1.3,
+      cognitiveDefense: 1.3
     },
     statusResistanceBonus: 0,
     useResistanceMedicine: true,
@@ -207,12 +207,12 @@ export const defaultBalanceScenarioPresets: BalanceScenarioPreset[] = [
     name: "Combined",
     description: "Intended Redline route with resistance training and medicine.",
     playerStatMultipliers: {
-      maxOuterHp: 2,
-      maxInnerQi: 1.4,
-      outerAttack: 4,
-      innerAttack: 4,
-      outerDefense: 1.3,
-      innerDefense: 1.3
+      maxBodyIntegrity: 2,
+      maxContextStability: 1.4,
+      kineticAttack: 4,
+      cognitiveAttack: 4,
+      kineticDefense: 1.3,
+      cognitiveDefense: 1.3
     },
     statusResistanceBonus: 0.22,
     useResistanceMedicine: true,

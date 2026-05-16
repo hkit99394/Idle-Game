@@ -22,8 +22,8 @@ const attackerStats: Pick<BaseStats, "statusAccuracy"> = {
   statusAccuracy: 0.12
 };
 
-const targetStats: Pick<BaseStats, "maxOuterHp" | "statusResistance"> = {
-  maxOuterHp: 1200,
+const targetStats: Pick<BaseStats, "maxBodyIntegrity" | "statusResistance"> = {
+  maxBodyIntegrity: 1200,
   statusResistance: 0.2
 };
 
@@ -57,7 +57,7 @@ describe("status estimation helpers", () => {
     const expectedDamage =
       calculateStatusTickOuterDamage({
         definition,
-        targetMaxOuterHp: targetStats.maxOuterHp,
+        targetMaxBodyIntegrity: targetStats.maxBodyIntegrity,
         stacks: effect.stacks ?? 1,
         targetStatusResistance: targetStats.statusResistance
       }) *
@@ -76,7 +76,7 @@ describe("status estimation helpers", () => {
       estimateStatusTickDamage({
         definition,
         resistedDurationSeconds: application.resistedDurationSeconds,
-        targetMaxOuterHp: targetStats.maxOuterHp,
+        targetMaxBodyIntegrity: targetStats.maxBodyIntegrity,
         targetStatusResistance: targetStats.statusResistance,
         stacks: application.stacks,
         expectedApplications: application.expectedApplications

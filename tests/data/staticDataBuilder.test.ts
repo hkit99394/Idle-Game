@@ -26,33 +26,33 @@ function getFixtureCounts(data: StaticGameData) {
   ) as Record<(typeof staticGameDataPartKeys)[number], number>;
 }
 
-function toTargetBaseStats(
+function toLegacyBaseStats(
   stats: StaticGameData["heroes"][number]["baseStats"]
 ): StaticGameData["heroes"][number]["baseStats"] {
   const {
-    maxOuterHp,
-    maxInnerQi,
-    outerAttack,
-    innerAttack,
-    outerDefense,
-    innerDefense,
-    breakPower,
-    breakResist,
-    innerRecoveryRate,
+    maxBodyIntegrity,
+    maxContextStability,
+    kineticAttack,
+    cognitiveAttack,
+    kineticDefense,
+    cognitiveDefense,
+    breachPower,
+    overloadResist,
+    contextRebuildRate,
     ...rest
   } = stats;
 
   return {
     ...rest,
-    maxBodyIntegrity: maxOuterHp,
-    maxContextStability: maxInnerQi,
-    kineticAttack: outerAttack,
-    cognitiveAttack: innerAttack,
-    kineticDefense: outerDefense,
-    cognitiveDefense: innerDefense,
-    breachPower: breakPower,
-    overloadResist: breakResist,
-    contextRebuildRate: innerRecoveryRate
+    maxOuterHp: maxBodyIntegrity,
+    maxInnerQi: maxContextStability,
+    outerAttack: kineticAttack,
+    innerAttack: cognitiveAttack,
+    outerDefense: kineticDefense,
+    innerDefense: cognitiveDefense,
+    breakPower: breachPower,
+    breakResist: overloadResist,
+    innerRecoveryRate: contextRebuildRate
   } as unknown as StaticGameData["heroes"][number]["baseStats"];
 }
 
@@ -91,7 +91,7 @@ describe("static data builder", () => {
         hero.id === sourceHero.id
           ? {
               ...hero,
-              baseStats: toTargetBaseStats(hero.baseStats)
+              baseStats: toLegacyBaseStats(hero.baseStats)
             }
           : hero
       )
@@ -102,16 +102,16 @@ describe("static data builder", () => {
       unknown
     >;
 
-    expect(normalizedHero.baseStats.maxOuterHp).toBe(sourceHero.baseStats.maxOuterHp);
-    expect(normalizedHero.baseStats.maxInnerQi).toBe(
-      sourceHero.baseStats.maxInnerQi
+    expect(normalizedHero.baseStats.maxBodyIntegrity).toBe(sourceHero.baseStats.maxBodyIntegrity);
+    expect(normalizedHero.baseStats.maxContextStability).toBe(
+      sourceHero.baseStats.maxContextStability
     );
-    expect(normalizedHero.baseStats.outerAttack).toBe(
-      sourceHero.baseStats.outerAttack
+    expect(normalizedHero.baseStats.kineticAttack).toBe(
+      sourceHero.baseStats.kineticAttack
     );
-    expect(normalizedStats.maxBodyIntegrity).toBeUndefined();
-    expect(normalizedStats.maxContextStability).toBeUndefined();
-    expect(normalizedStats.kineticAttack).toBeUndefined();
+    expect(normalizedStats.maxOuterHp).toBeUndefined();
+    expect(normalizedStats.maxInnerQi).toBeUndefined();
+    expect(normalizedStats.outerAttack).toBeUndefined();
   });
 
   it("surfaces representative missing references through static data validation", () => {

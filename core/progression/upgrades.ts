@@ -160,8 +160,8 @@ export function deriveHeroStatsFromProgress(input: DerivedHeroStatsInput): BaseS
 
   const mapAttackMultiplier = input.mapAttackMultiplier ?? 0;
   if (mapAttackMultiplier > 0) {
-    stats.outerAttack *= 1 + mapAttackMultiplier;
-    stats.innerAttack *= 1 + mapAttackMultiplier;
+    stats.kineticAttack *= 1 + mapAttackMultiplier;
+    stats.cognitiveAttack *= 1 + mapAttackMultiplier;
   }
 
   return stats;

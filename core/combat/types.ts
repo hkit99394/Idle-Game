@@ -23,18 +23,18 @@ export type TargetRule =
   | "inner_broken";
 
 export type BaseStats = {
-  maxOuterHp: number;
-  maxInnerQi: number;
-  outerAttack: number;
-  innerAttack: number;
-  outerDefense: number;
-  innerDefense: number;
+  maxBodyIntegrity: number;
+  maxContextStability: number;
+  kineticAttack: number;
+  cognitiveAttack: number;
+  kineticDefense: number;
+  cognitiveDefense: number;
   speed: number;
   critChance: number;
   critDamage: number;
-  breakPower: number;
-  breakResist: number;
-  innerRecoveryRate: number;
+  breachPower: number;
+  overloadResist: number;
+  contextRebuildRate: number;
   statusAccuracy: number;
   statusResistance: number;
 };
@@ -48,33 +48,33 @@ export type CombatFormulaConstants = {
   baseQiBreakBurstPercent: number;
   minQiBreakBurstPercent: number;
   maxQiBreakBurstPercent: number;
-  qiBrokenOuterDamageTakenMultiplier: number;
-  qiBrokenInnerDamageTakenMultiplier: number;
-  qiBreakBacklashPercent: number;
-  qiBreakRecoveryPercent: number;
-  qiBreakDurationSeconds: number;
-  innerRecoveryDelaySeconds: number;
+  overloadedKineticDamageTakenMultiplier: number;
+  overloadedCognitiveDamageTakenMultiplier: number;
+  aiOverloadFeedbackPercent: number;
+  aiOverloadContextRebuildPercent: number;
+  aiOverloadDurationSeconds: number;
+  contextRebuildDelaySeconds: number;
 };
 
 export type DamageInput = {
-  attacker: Pick<DerivedStats, "outerAttack" | "innerAttack" | "critChance" | "critDamage">;
-  target: Pick<DerivedStats, "outerDefense" | "innerDefense">;
+  attacker: Pick<DerivedStats, "kineticAttack" | "cognitiveAttack" | "critChance" | "critDamage">;
+  target: Pick<DerivedStats, "kineticDefense" | "cognitiveDefense">;
   skillMultiplier: number;
   styleMultiplier?: number;
-  targetIsQiBroken?: boolean;
+  targetIsOverloaded?: boolean;
   critMultiplier?: number;
 };
 
 export type QiBreakBurstInput = {
-  targetMaxOuterHp: number;
-  attackerBreakPower?: number;
-  targetBreakResist?: number;
+  targetMaxBodyIntegrity: number;
+  attackerBreachPower?: number;
+  targetOverloadResist?: number;
 };
 
 export type InnerRecoveryInput = {
-  maxInnerQi: number;
-  currentInnerQi: number;
-  innerRecoveryRate: number;
+  maxContextStability: number;
+  currentContextStability: number;
+  contextRebuildRate: number;
   deltaSeconds: number;
 };
 
@@ -96,11 +96,11 @@ export type StatusDispelTag =
   | "debuff";
 
 export type StatusEffectModifiers = {
-  outerDamagePerSecond?: number;
+  bodyIntegrityDamagePerSecond?: number;
   healingReceivedMultiplier?: number;
-  innerRecoveryMultiplier?: number;
-  outerDamageTakenMultiplier?: number;
-  attackBacklashOuterHpPercent?: number;
+  contextRebuildMultiplier?: number;
+  kineticDamageTakenMultiplier?: number;
+  feedbackBodyIntegrityPercent?: number;
 };
 
 export type StatusEffectDefinition = {
@@ -153,7 +153,7 @@ export type StatusAdvanceInput = {
   activeStatuses: ActiveStatusEffect[];
   definitions: Record<string, StatusEffectDefinition>;
   deltaSeconds: number;
-  targetMaxOuterHp: number;
+  targetMaxBodyIntegrity: number;
   targetStatusResistance?: number;
 };
 
@@ -198,9 +198,9 @@ export type StatusApplicationChanceInput = {
 
 export type StatusCombatModifiers = {
   healingReceivedMultiplier: number;
-  innerRecoveryMultiplier: number;
-  outerDamageTakenMultiplier: number;
-  attackBacklashOuterHpPercent: number;
+  contextRebuildMultiplier: number;
+  kineticDamageTakenMultiplier: number;
+  feedbackBodyIntegrityPercent: number;
 };
 
 export type CombatantKind = "hero" | "enemy";
@@ -277,19 +277,19 @@ export type CombatantState = {
   enemyType?: EnemyDefinition["type"];
   name: string;
   team: TeamId;
-  outerHp: number;
-  innerQi: number;
-  maxOuterHp: number;
-  maxInnerQi: number;
+  bodyIntegrity: number;
+  contextStability: number;
+  maxBodyIntegrity: number;
+  maxContextStability: number;
   stats: DerivedStats;
   damageMultipliersByFamily: Record<string, number>;
   skillUpgradeLevels: Record<string, number>;
   skillIds: string[];
   nextActionAt: number;
   skillCooldowns: Record<string, number>;
-  isQiBroken: boolean;
-  qiBreakEndsAt: number | null;
-  lastInnerDamageAt: number | null;
+  isOverloaded: boolean;
+  overloadEndsAt: number | null;
+  lastCognitiveDamageAt: number | null;
   guard: TimedCombatEffect | null;
   protection: TimedCombatEffect | null;
   armorBreak: TimedCombatEffect | null;

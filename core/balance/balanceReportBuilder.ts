@@ -188,11 +188,11 @@ function buildStageBalanceReport(input: {
   );
   const enemyOuterHp = sumStats(
     enemies.map((enemy) => enemy.baseStats),
-    "maxOuterHp"
+    "maxBodyIntegrity"
   );
   const playerOuterHp = sumStats(
     input.playerTeam.map((hero) => hero.baseStats),
-    "maxOuterHp"
+    "maxBodyIntegrity"
   );
   const estimatedClearTimeSeconds = enemyOuterHp / Math.max(1, playerDps);
   const statusMetrics = estimateStatusMetrics({
@@ -235,7 +235,7 @@ function buildStageBalanceReport(input: {
     playerDps,
     enemyDps,
     qiBreakPressure: enemies.reduce(
-      (total, enemy) => total + Math.max(0, enemy.baseStats.breakPower),
+      (total, enemy) => total + Math.max(0, enemy.baseStats.breachPower),
       0
     ),
     rewards: input.stage.rewards,
@@ -355,7 +355,7 @@ function estimateStatusMetrics(input: {
         const tickDamage = estimateStatusTickDamage({
           definition: status,
           resistedDurationSeconds: application.resistedDurationSeconds,
-          targetMaxOuterHp: targetStats.maxOuterHp,
+          targetMaxBodyIntegrity: targetStats.maxBodyIntegrity,
           targetStatusResistance: targetStats.statusResistance,
           stacks: application.stacks,
           expectedApplications: application.expectedApplications
@@ -370,7 +370,7 @@ function estimateStatusMetrics(input: {
         const unresistedTickDamage = estimateStatusTickDamage({
           definition: status,
           resistedDurationSeconds: unresistedDuration,
-          targetMaxOuterHp: targetStats.maxOuterHp,
+          targetMaxBodyIntegrity: targetStats.maxBodyIntegrity,
           targetStatusResistance: 0,
           stacks: application.stacks,
           expectedApplications: application.expectedApplications
@@ -380,7 +380,7 @@ function estimateStatusMetrics(input: {
           stacks: application.stacks,
           expectedApplications: application.expectedApplications,
           resistedDurationSeconds: application.resistedDurationSeconds,
-          targetMaxOuterHp: targetStats.maxOuterHp,
+          targetMaxBodyIntegrity: targetStats.maxBodyIntegrity,
           enemyDps: input.enemyDps,
           playerAttackEventsPerSecond: input.playerAttackEventsPerSecond
         });
@@ -992,18 +992,18 @@ function averageStats(stats: BaseStats[]): BaseStats {
   const count = Math.max(1, stats.length);
 
   return {
-    maxOuterHp: sumStats(stats, "maxOuterHp") / count,
-    maxInnerQi: sumStats(stats, "maxInnerQi") / count,
-    outerAttack: sumStats(stats, "outerAttack") / count,
-    innerAttack: sumStats(stats, "innerAttack") / count,
-    outerDefense: sumStats(stats, "outerDefense") / count,
-    innerDefense: sumStats(stats, "innerDefense") / count,
+    maxBodyIntegrity: sumStats(stats, "maxBodyIntegrity") / count,
+    maxContextStability: sumStats(stats, "maxContextStability") / count,
+    kineticAttack: sumStats(stats, "kineticAttack") / count,
+    cognitiveAttack: sumStats(stats, "cognitiveAttack") / count,
+    kineticDefense: sumStats(stats, "kineticDefense") / count,
+    cognitiveDefense: sumStats(stats, "cognitiveDefense") / count,
     speed: sumStats(stats, "speed") / count,
     critChance: sumStats(stats, "critChance") / count,
     critDamage: sumStats(stats, "critDamage") / count,
-    breakPower: sumStats(stats, "breakPower") / count,
-    breakResist: sumStats(stats, "breakResist") / count,
-    innerRecoveryRate: sumStats(stats, "innerRecoveryRate") / count,
+    breachPower: sumStats(stats, "breachPower") / count,
+    overloadResist: sumStats(stats, "overloadResist") / count,
+    contextRebuildRate: sumStats(stats, "contextRebuildRate") / count,
     statusAccuracy: sumStats(stats, "statusAccuracy") / count,
     statusResistance: sumStats(stats, "statusResistance") / count
   };

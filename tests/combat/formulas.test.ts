@@ -14,35 +14,35 @@ import {
 import type { DerivedStats } from "../../core";
 
 const attacker: DerivedStats = {
-  maxOuterHp: 200,
-  maxInnerQi: 100,
-  outerAttack: 100,
-  innerAttack: 80,
-  outerDefense: 10,
-  innerDefense: 10,
+  maxBodyIntegrity: 200,
+  maxContextStability: 100,
+  kineticAttack: 100,
+  cognitiveAttack: 80,
+  kineticDefense: 10,
+  cognitiveDefense: 10,
   speed: 100,
   critChance: 0.1,
   critDamage: 1.5,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0.005,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0.005,
   statusAccuracy: 0,
   statusResistance: 0
 };
 
 const target: DerivedStats = {
-  maxOuterHp: 1000,
-  maxInnerQi: 400,
-  outerAttack: 30,
-  innerAttack: 10,
-  outerDefense: 100,
-  innerDefense: 60,
+  maxBodyIntegrity: 1000,
+  maxContextStability: 400,
+  kineticAttack: 30,
+  cognitiveAttack: 10,
+  kineticDefense: 100,
+  cognitiveDefense: 60,
   speed: 0,
   critChance: 0,
   critDamage: 1.5,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0.005,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0.005,
   statusAccuracy: 0,
   statusResistance: 0
 };
@@ -88,7 +88,7 @@ describe("combat formulas", () => {
       target,
       skillMultiplier: 1,
       critMultiplier: 1,
-      targetIsQiBroken: true
+      targetIsOverloaded: true
     });
 
     expect(brokenDamage).toBeCloseTo(normalDamage * 1.25);
@@ -104,7 +104,7 @@ describe("combat formulas", () => {
       attacker,
       target,
       skillMultiplier: 1,
-      targetIsQiBroken: true
+      targetIsOverloaded: true
     });
 
     expect(normalDamage).toBeCloseTo(50);
@@ -112,7 +112,7 @@ describe("combat formulas", () => {
   });
 
   it("calculates default Qi Break burst as 10% of max Outer HP", () => {
-    const burst = calculateQiBreakBurst({ targetMaxOuterHp: 1000 });
+    const burst = calculateQiBreakBurst({ targetMaxBodyIntegrity: 1000 });
 
     expect(burst.percent).toBeCloseTo(0.1);
     expect(burst.damage).toBeCloseTo(100);
@@ -121,15 +121,15 @@ describe("combat formulas", () => {
   it("clamps Qi Break burst modifiers", () => {
     expect(
       calculateQiBreakBurst({
-        targetMaxOuterHp: 1000,
-        attackerBreakPower: 1
+        targetMaxBodyIntegrity: 1000,
+        attackerBreachPower: 1
       }).percent
     ).toBe(defaultCombatFormulaConstants.maxQiBreakBurstPercent);
 
     expect(
       calculateQiBreakBurst({
-        targetMaxOuterHp: 1000,
-        targetBreakResist: 1
+        targetMaxBodyIntegrity: 1000,
+        targetOverloadResist: 1
       }).percent
     ).toBe(defaultCombatFormulaConstants.minQiBreakBurstPercent);
   });
@@ -142,18 +142,18 @@ describe("combat formulas", () => {
   it("recovers Inner Qi without exceeding maximum", () => {
     expect(
       calculateInnerRecovery({
-        maxInnerQi: 100,
-        currentInnerQi: 50,
-        innerRecoveryRate: 0.005,
+        maxContextStability: 100,
+        currentContextStability: 50,
+        contextRebuildRate: 0.005,
         deltaSeconds: 10
       })
     ).toBeCloseTo(55);
 
     expect(
       calculateInnerRecovery({
-        maxInnerQi: 100,
-        currentInnerQi: 99,
-        innerRecoveryRate: 0.005,
+        maxContextStability: 100,
+        currentContextStability: 99,
+        contextRebuildRate: 0.005,
         deltaSeconds: 10
       })
     ).toBe(100);

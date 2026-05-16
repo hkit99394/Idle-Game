@@ -40,7 +40,7 @@ export type AttackDamagePackage = {
   outerDamage: number;
   innerDamage: number;
   familyMultiplier: number;
-  outerDamageTakenMultiplier: number;
+  kineticDamageTakenMultiplier: number;
 };
 
 export type QiBreakDamagePackage = {
@@ -194,20 +194,20 @@ export function createAttackDamagePackage(input: {
         attacker: input.attacker.stats,
         target: effectiveTargetStats,
         skillMultiplier: input.skill.outerMultiplier,
-        targetIsQiBroken: target.isQiBroken
+        targetIsOverloaded: target.isOverloaded
       },
       input.constants
     ) *
     familyMultiplier *
     outerTacticMultiplier *
-    targetStatusModifiers.outerDamageTakenMultiplier;
+    targetStatusModifiers.kineticDamageTakenMultiplier;
   const innerDamage =
     calculateInnerDamage(
       {
         attacker: input.attacker.stats,
         target: effectiveTargetStats,
         skillMultiplier: input.skill.innerMultiplier,
-        targetIsQiBroken: target.isQiBroken
+        targetIsOverloaded: target.isOverloaded
       },
       input.constants
     ) *
@@ -223,7 +223,7 @@ export function createAttackDamagePackage(input: {
     outerDamage,
     innerDamage,
     familyMultiplier,
-    outerDamageTakenMultiplier: targetStatusModifiers.outerDamageTakenMultiplier
+    kineticDamageTakenMultiplier: targetStatusModifiers.kineticDamageTakenMultiplier
   };
 }
 
@@ -286,17 +286,17 @@ export function commitDamagePackage(input: {
 
   const target = input.targets.damageTarget;
 
-  target.outerHp = Math.max(
+  target.bodyIntegrity = Math.max(
     0,
-    target.outerHp - input.damagePackage.outerDamage
+    target.bodyIntegrity - input.damagePackage.outerDamage
   );
-  target.innerQi = Math.max(
+  target.contextStability = Math.max(
     0,
-    target.innerQi - input.damagePackage.innerDamage
+    target.contextStability - input.damagePackage.innerDamage
   );
 
   if (input.damagePackage.innerDamage > 0) {
-    target.lastInnerDamageAt = input.time;
+    target.lastCognitiveDamageAt = input.time;
   }
 
   recordDamage(
@@ -326,8 +326,8 @@ export function createQiBreakDamagePackage(input: {
   constants: CombatFormulaConstants;
   tactic?: TacticPresetDefinition | null;
 }): QiBreakDamagePackage {
-  const attackerBreakPower =
-    input.attacker.stats.breakPower *
+  const attackerBreachPower =
+    input.attacker.stats.breachPower *
     getPlayerTacticModifierValue(
       input.tactic,
       input.attacker,
@@ -336,9 +336,9 @@ export function createQiBreakDamagePackage(input: {
     );
   const burst = calculateQiBreakBurst(
     {
-      targetMaxOuterHp: input.target.maxOuterHp,
-      attackerBreakPower,
-      targetBreakResist: input.target.stats.breakResist
+      targetMaxBodyIntegrity: input.target.maxBodyIntegrity,
+      attackerBreachPower,
+      targetOverloadResist: input.target.stats.overloadResist
     },
     input.constants
   );
@@ -350,7 +350,7 @@ export function createQiBreakDamagePackage(input: {
     outerDamage: burst.damage,
     innerDamage: 0,
     burstPercent: burst.percent,
-    endsAt: input.time + input.constants.qiBreakDurationSeconds
+    endsAt: input.time + input.constants.aiOverloadDurationSeconds
   };
 }
 
@@ -371,12 +371,12 @@ export function commitQiBreakDamagePackage(input: {
     );
   }
 
-  input.target.innerQi = 0;
-  input.target.isQiBroken = true;
-  input.target.qiBreakEndsAt = input.damagePackage.endsAt;
-  input.target.outerHp = Math.max(
+  input.target.contextStability = 0;
+  input.target.isOverloaded = true;
+  input.target.overloadEndsAt = input.damagePackage.endsAt;
+  input.target.bodyIntegrity = Math.max(
     0,
-    input.target.outerHp - input.damagePackage.outerDamage
+    input.target.bodyIntegrity - input.damagePackage.outerDamage
   );
 
   recordQiBreak(
@@ -403,7 +403,7 @@ export function createQiBreakBacklashDamagePackage(input: {
 }): BacklashDamagePackage {
   return createBacklashDamagePackage({
     target: input.target,
-    outerDamage: calculateQiBreakBacklashDamage(input.target.maxOuterHp, input.constants)
+    outerDamage: calculateQiBreakBacklashDamage(input.target.maxBodyIntegrity, input.constants)
   });
 }
 
@@ -436,9 +436,9 @@ export function commitBacklashDamagePackage(input: {
     );
   }
 
-  input.target.outerHp = Math.max(
+  input.target.bodyIntegrity = Math.max(
     0,
-    input.target.outerHp - input.damagePackage.outerDamage
+    input.target.bodyIntegrity - input.damagePackage.outerDamage
   );
   recordBacklash(
     input.metrics,

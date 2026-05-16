@@ -20,18 +20,18 @@ export const autoMedicineCorruptionScenarioIds = {
 } as const;
 
 const statusScenarioStats: BaseStats = {
-  maxOuterHp: 1000,
-  maxInnerQi: 500,
-  outerAttack: 0,
-  innerAttack: 0,
-  outerDefense: 0,
-  innerDefense: 0,
+  maxBodyIntegrity: 1000,
+  maxContextStability: 500,
+  kineticAttack: 0,
+  cognitiveAttack: 0,
+  kineticDefense: 0,
+  cognitiveDefense: 0,
   speed: 0,
   critChance: 0,
   critDamage: 1,
-  breakPower: 0,
-  breakResist: 0,
-  innerRecoveryRate: 0,
+  breachPower: 0,
+  overloadResist: 0,
+  contextRebuildRate: 0,
   statusAccuracy: 0,
   statusResistance: 0
 };

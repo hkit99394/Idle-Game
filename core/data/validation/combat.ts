@@ -37,11 +37,11 @@ const statusDispelTags = new Set([
   "debuff"
 ]);
 const statusEffectKeys = new Set([
-  "outerDamagePerSecond",
+  "bodyIntegrityDamagePerSecond",
   "healingReceivedMultiplier",
-  "innerRecoveryMultiplier",
-  "outerDamageTakenMultiplier",
-  "attackBacklashOuterHpPercent"
+  "contextRebuildMultiplier",
+  "kineticDamageTakenMultiplier",
+  "feedbackBodyIntegrityPercent"
 ]);
 const medicineEffectTypes = new Set([
   "cleanse_status",

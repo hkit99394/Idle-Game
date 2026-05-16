@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1 and 93.2 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`.
+Stage 2.8 is active for Epics 93 and 94: Combat Save Stat Field Migration and Code And Report Symbol Migration. Slices 93.1, 93.2, and 93.3 are complete. [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-symbol-preflight.md) confirmed current `SaveData` does not persist live combat stat, event, overload, or recovery state, so Stage 2.8 starts without a save-version bump. Slice 93.2 added the static/combat schema alias foundation without changing `SAVE_DATA_VERSION`; Slice 93.3 moved owned combat runtime stat fields to the approved Path of Neon names.
 
 [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md) completed save resource/progress field migration and left combat stat fields, combat event names, battle metrics, and report/code symbols explicitly deferred. Stage 2.8 starts from that save version `13` baseline and should not reopen Stage 2.7 resource/progress decisions.
 
@@ -20,10 +20,11 @@ Migrate owned combat stat, combat event, battle metric, and report/code symbols 
 - Stage 2.7 completed owned save resource/progress field migration and bumped `SAVE_DATA_VERSION` to `13`.
 - Stage 2.7 explicitly deferred combat stat fields such as `outerHp`, `innerQi`, max fields, recovery fields, and AI Overload state to Stage 2.8.
 - Slice 93.1 confirmed those combat fields are currently static authoring, transient runtime, event/report, web view-model, or tooling fields rather than persisted save payload fields.
-- Slice 93.2 added `core/data/combatSchemaAliases.ts`; `buildStaticGameData` and `validateStaticGameData` now accept Stage 2.8 target combat schema names and normalize them back to the current runtime contract until Slice 93.3 renames runtime fields.
+- Slice 93.2 added `core/data/combatSchemaAliases.ts`; Slice 93.3 flipped the BaseStats and status-modifier alias direction so legacy authored stat fields normalize forward into the current runtime contract.
+- Combat runtime `BaseStats`, `DerivedStats`, `CombatantState`, formula inputs/constants, progression stat derivation, support/balance stat callers, and battle combatant view models now use fields such as `maxBodyIntegrity`, `contextStability`, `kineticAttack`, `cognitiveDefense`, `breachPower`, `overloadResist`, and `contextRebuildRate`.
 - Current combat display terms already use Body Integrity, Context Stability, AI Overload, Context Rebuild, Kinetic Art, and Cognitive Art in player-facing UI where appropriate.
 - Combat event records and metrics are stable tooling contracts. Any symbol rename must either preserve legacy compatibility, add temporary legacy report columns, or record an explicit keep/defer decision.
-- Static content still contains stat keys such as `maxOuterHp`, `maxInnerQi`, `outerAttack`, `innerAttack`, and `innerRecoveryRate`. Stage 2.8 must decide whether those static schema keys migrate now or stay deferred behind aliases.
+- Authored static JSON still contains legacy stat keys such as `maxOuterHp`, `maxInnerQi`, `outerAttack`, `innerAttack`, and `innerRecoveryRate`; `buildStaticGameData` normalizes them into current runtime fields. Slice 94.3 owns whether the authored JSON migrates or remains legacy-compatible behind aliases.
 
 ## Target Families
 
@@ -68,7 +69,7 @@ Stage 2.8 implements Epics 93 and 94 from the retheme migration plan as focused 
 | --- | --- | --- | --- |
 | 93.1 | Combat Save And Symbol Preflight | Complete | Locked target names, compatibility behavior, fixture needs, stale-scan rules, and confirmed no save-version bump is required. |
 | 93.2 | Combat Save Alias Foundation | Complete | Added static/combat schema alias normalization without a save-version bump. |
-| 93.3 | Combat Runtime Stat Fields | Planned | Move owned combat runtime/view model stat fields to approved current names without changing combat math. |
+| 93.3 | Combat Runtime Stat Fields | Complete | Moved owned combat runtime/view model stat fields to approved current names without changing combat math. |
 | 94.1 | AI Overload Event And Metric Symbols | Planned | Rename Qi Break event, metric, contribution, and report symbols with compatibility where needed. |
 | 94.2 | Context Rebuild And Recovery Symbols | Planned | Rename baseline recovery/restoration symbols while keeping boost/status behavior clear. |
 | 94.3 | Static Data And Validation Continuity | Planned | Apply or defer static stat/effect schema key migration with data validation and aliases. |
@@ -108,7 +109,7 @@ Completed in [Stage 2.8 Combat Save And Symbol Preflight](stage-2.8-combat-save-
 
 Add compatibility plumbing for any approved combat save/static schema rename without mixing in broad runtime cleanup.
 
-Completed in code: `core/data/combatSchemaAliases.ts` accepts target Stage 2.8 combat schema names for base stats, skill damage multipliers, skill effect types and targets, tactic target/modifier values, status effect modifier keys, equipment/set/style/upgrade stat references, and skill-upgrade effect types. `buildStaticGameData` normalizes target aliases to the current runtime shape, and `validateStaticGameData` reports conflicting legacy/current alias pairs. No save-version bump was needed.
+Completed in code: `core/data/combatSchemaAliases.ts` accepts Stage 2.8 combat schema aliases for base stats, skill damage multipliers, skill effect types and targets, tactic target/modifier values, status effect modifier keys, equipment/set/style/upgrade stat references, and skill-upgrade effect types. After 93.3, BaseStats and status-modifier aliases normalize legacy authored content forward into the current runtime shape; skill/tactic/effect aliases remain compatibility bridges for later 94.x schema slices. `validateStaticGameData` reports conflicting legacy/current alias pairs. No save-version bump was needed.
 
 ### Tasks
 
@@ -138,6 +139,8 @@ Completed in code: `core/data/combatSchemaAliases.ts` accepts target Stage 2.8 c
 ## Slice 93.3: Combat Runtime Stat Fields
 
 Move owned transient combat/runtime stat symbols to approved Path of Neon names after alias foundations are safe.
+
+Completed in code: `BaseStats`/`DerivedStats`, `CombatantState`, damage and overload formula inputs/constants, Context Rebuild runtime fields, progression stat derivation, support/balance callers, and battle combatant view models now use the current Body Integrity, Context Stability, Kinetic/Cognitive, Breach Power, Overload Resist, and Context Rebuild symbols. Battle event/report payload names such as `qi_break`, `innerQiRestored`, `outerDamage`, and `innerDamage` remain for the 94.x event/report slices. Static JSON authored with legacy stat fields still validates through the alias bridge and normalizes to the current runtime shape.
 
 ### Tasks
 

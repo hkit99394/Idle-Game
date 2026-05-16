@@ -28,7 +28,7 @@ import stages from "../../data/stages.json" with { type: "json" };
 import statusEffects from "../../data/statusEffects.json" with { type: "json" };
 
 const medicineDefinitions = medicines as MedicineDefinition[];
-const enemyDefinitions = enemies as EnemyDefinition[];
+const enemyDefinitions = enemies as unknown as EnemyDefinition[];
 const skillDefinitions = skills as SkillDefinition[];
 const stageDefinitions = stages as StageDefinition[];
 const statusDefinitions = createStatusDictionary(

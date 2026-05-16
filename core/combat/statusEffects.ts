@@ -35,9 +35,9 @@ export const defaultStatusResistanceFormulaConstants: StatusResistanceFormulaCon
 
 export const defaultStatusCombatModifiers: StatusCombatModifiers = {
   healingReceivedMultiplier: 1,
-  innerRecoveryMultiplier: 1,
-  outerDamageTakenMultiplier: 1,
-  attackBacklashOuterHpPercent: 0
+  contextRebuildMultiplier: 1,
+  kineticDamageTakenMultiplier: 1,
+  feedbackBodyIntegrityPercent: 0
 };
 
 export function createStatusDictionary(
@@ -96,13 +96,13 @@ export function calculateStatusDuration(
 
 export function calculateStatusTickOuterDamage(input: {
   definition: StatusEffectDefinition;
-  targetMaxOuterHp: number;
+  targetMaxBodyIntegrity: number;
   stacks: number;
   targetStatusResistance?: number;
 }): number {
   if (
     input.definition.tickIntervalSeconds === undefined ||
-    input.definition.effects.outerDamagePerSecond === undefined
+    input.definition.effects.bodyIntegrityDamagePerSecond === undefined
   ) {
     return 0;
   }
@@ -116,8 +116,8 @@ export function calculateStatusTickOuterDamage(input: {
       defaultStatusResistanceFormulaConstants.tickDamageReductionScale;
 
   return (
-    input.targetMaxOuterHp *
-    input.definition.effects.outerDamagePerSecond *
+    input.targetMaxBodyIntegrity *
+    input.definition.effects.bodyIntegrityDamagePerSecond *
     input.definition.tickIntervalSeconds *
     input.stacks *
     resistanceMultiplier
@@ -188,7 +188,7 @@ export function advanceStatusEffects(
       status,
       definition,
       input.deltaSeconds,
-      input.targetMaxOuterHp,
+      input.targetMaxBodyIntegrity,
       input.targetStatusResistance
     );
 
@@ -253,15 +253,15 @@ export function getStatusCombatModifiers(
         healingReceivedMultiplier:
           modifiers.healingReceivedMultiplier *
           getStackedMultiplier(effects.healingReceivedMultiplier, stacks),
-        innerRecoveryMultiplier:
-          modifiers.innerRecoveryMultiplier *
-          getStackedMultiplier(effects.innerRecoveryMultiplier, stacks),
-        outerDamageTakenMultiplier:
-          modifiers.outerDamageTakenMultiplier *
-          getStackedMultiplier(effects.outerDamageTakenMultiplier, stacks),
-        attackBacklashOuterHpPercent:
-          modifiers.attackBacklashOuterHpPercent +
-          (effects.attackBacklashOuterHpPercent ?? 0) * stacks
+        contextRebuildMultiplier:
+          modifiers.contextRebuildMultiplier *
+          getStackedMultiplier(effects.contextRebuildMultiplier, stacks),
+        kineticDamageTakenMultiplier:
+          modifiers.kineticDamageTakenMultiplier *
+          getStackedMultiplier(effects.kineticDamageTakenMultiplier, stacks),
+        feedbackBodyIntegrityPercent:
+          modifiers.feedbackBodyIntegrityPercent +
+          (effects.feedbackBodyIntegrityPercent ?? 0) * stacks
       };
     },
     { ...defaultStatusCombatModifiers }
@@ -566,7 +566,7 @@ function advanceSingleStatus(
   status: ActiveStatusEffect,
   definition: StatusEffectDefinition,
   deltaSeconds: number,
-  targetMaxOuterHp: number,
+  targetMaxBodyIntegrity: number,
   targetStatusResistance = 0
 ): {
   status: ActiveStatusEffect | null;
@@ -585,7 +585,7 @@ function advanceSingleStatus(
     while (nextTickInSeconds <= advanceSeconds) {
       const tickDamage = calculateStatusTickOuterDamage({
         definition,
-        targetMaxOuterHp,
+        targetMaxBodyIntegrity,
         stacks: status.stacks,
         targetStatusResistance
       });

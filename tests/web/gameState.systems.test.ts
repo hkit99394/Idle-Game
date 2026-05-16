@@ -73,8 +73,8 @@ describe("web game state systems", () => {
         upgrade.heroId === "iron_fist_initiate"
     );
 
-    expect(ironFist?.outerAttack).toBeCloseTo(19.8);
-    expect(ironFist?.maxOuterHp).toBeCloseTo(187.2);
+    expect(ironFist?.kineticAttack).toBeCloseTo(19.8);
+    expect(ironFist?.maxBodyIntegrity).toBeCloseTo(187.2);
     expect(ironFist?.combatPower).toBeGreaterThan(523);
     expect(nextUpgrade).toMatchObject({
       level: 1,

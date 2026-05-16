@@ -21,7 +21,7 @@ export function isTargetRule(value: unknown): value is TargetRule {
 }
 
 export function isLiving(combatant: CombatantState): boolean {
-  return combatant.outerHp > 0 && combatant.defeatedAt === null;
+  return combatant.bodyIntegrity > 0 && combatant.defeatedAt === null;
 }
 
 function getFormationSlotOrder(combatant: CombatantState): number {
@@ -69,8 +69,8 @@ function selectTargetFromCandidates(
 
     case "weakest_hp":
       return [...candidates].sort((first, second) => {
-        const firstHpPercent = first.combatant.outerHp / first.combatant.maxOuterHp;
-        const secondHpPercent = second.combatant.outerHp / second.combatant.maxOuterHp;
+        const firstHpPercent = first.combatant.bodyIntegrity / first.combatant.maxBodyIntegrity;
+        const secondHpPercent = second.combatant.bodyIntegrity / second.combatant.maxBodyIntegrity;
 
         return (
           firstHpPercent - secondHpPercent ||
@@ -91,7 +91,7 @@ function selectTargetFromCandidates(
 
     case "inner_broken": {
       const brokenTarget = candidates
-        .filter((candidate) => candidate.combatant.isQiBroken)
+        .filter((candidate) => candidate.combatant.isOverloaded)
         .sort(compareFormationPriority)[0]?.combatant;
 
       return brokenTarget ?? (

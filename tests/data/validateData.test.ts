@@ -5,31 +5,31 @@ import { staticData } from "../helpers/staticData";
 
 type BaseStatsRecord = StaticGameData["heroes"][number]["baseStats"];
 
-const targetStatAliases: Record<string, string> = {
-  breakPower: "breachPower",
-  breakResist: "overloadResist",
-  innerAttack: "cognitiveAttack",
-  innerDefense: "cognitiveDefense",
-  innerRecoveryRate: "contextRebuildRate",
-  maxInnerQi: "maxContextStability",
-  maxOuterHp: "maxBodyIntegrity",
-  outerAttack: "kineticAttack",
-  outerDefense: "kineticDefense"
+const legacyStatAliases: Record<string, string> = {
+  breachPower: "breakPower",
+  overloadResist: "breakResist",
+  cognitiveAttack: "innerAttack",
+  cognitiveDefense: "innerDefense",
+  contextRebuildRate: "innerRecoveryRate",
+  maxContextStability: "maxInnerQi",
+  maxBodyIntegrity: "maxOuterHp",
+  kineticAttack: "outerAttack",
+  kineticDefense: "outerDefense"
 };
 
-function toTargetBaseStats(stats: BaseStatsRecord): BaseStatsRecord {
-  const targetStats: Record<string, unknown> = { ...stats };
+function toLegacyBaseStats(stats: BaseStatsRecord): BaseStatsRecord {
+  const legacyStats: Record<string, unknown> = { ...stats };
 
-  for (const [legacyStat, targetStat] of Object.entries(targetStatAliases)) {
-    targetStats[targetStat] = targetStats[legacyStat];
-    delete targetStats[legacyStat];
+  for (const [targetStat, legacyStat] of Object.entries(legacyStatAliases)) {
+    legacyStats[legacyStat] = legacyStats[targetStat];
+    delete legacyStats[targetStat];
   }
 
-  return targetStats as unknown as BaseStatsRecord;
+  return legacyStats as unknown as BaseStatsRecord;
 }
 
-function toTargetStat(stat: string): string {
-  return targetStatAliases[stat] ?? stat;
+function toLegacyStat(stat: string): string {
+  return legacyStatAliases[stat] ?? stat;
 }
 
 describe("static game data validation", () => {
@@ -42,12 +42,12 @@ describe("static game data validation", () => {
       ...staticData,
       heroes: staticData.heroes.map((hero) =>
         hero.id === "iron_fist_initiate"
-          ? { ...hero, baseStats: toTargetBaseStats(hero.baseStats) }
+          ? { ...hero, baseStats: toLegacyBaseStats(hero.baseStats) }
           : hero
       ),
       enemies: staticData.enemies.map((enemy) =>
         enemy.id === "greenline_cutter"
-          ? { ...enemy, baseStats: toTargetBaseStats(enemy.baseStats) }
+          ? { ...enemy, baseStats: toLegacyBaseStats(enemy.baseStats) }
           : enemy
       ),
       skills: staticData.skills.map((skill) => {
@@ -94,7 +94,7 @@ describe("static game data validation", () => {
               ...equipment,
               effects: equipment.effects.map((effect) => ({
                 ...effect,
-                stat: toTargetStat(effect.stat)
+                stat: toLegacyStat(effect.stat)
               }))
             }
           : equipment
@@ -107,7 +107,7 @@ describe("static game data validation", () => {
                 ...bonus,
                 effects: bonus.effects.map((effect) => ({
                   ...effect,
-                  stat: toTargetStat(effect.stat)
+                  stat: toLegacyStat(effect.stat)
                 }))
               }))
             }
@@ -119,7 +119,7 @@ describe("static game data validation", () => {
               ...upgrade,
               effects: upgrade.effects.map((effect) => ({
                 ...effect,
-                stat: toTargetStat(effect.stat)
+                stat: toLegacyStat(effect.stat)
               }))
             }
           : upgrade
@@ -142,13 +142,13 @@ describe("static game data validation", () => {
               ...style,
               bonuses: style.bonuses.map((bonus) => ({
                 ...bonus,
-                stat: toTargetStat(bonus.stat)
+                stat: toLegacyStat(bonus.stat)
               })),
               branches: style.branches.map((branch) => ({
                 ...branch,
                 effects: branch.effects.map((effect) => ({
                   ...effect,
-                  stat: toTargetStat(effect.stat)
+                  stat: toLegacyStat(effect.stat)
                 }))
               }))
             }
@@ -159,7 +159,7 @@ describe("static game data validation", () => {
           return {
             ...status,
             effects: {
-              bodyIntegrityDamagePerSecond: status.effects.outerDamagePerSecond
+              outerDamagePerSecond: status.effects.bodyIntegrityDamagePerSecond
             }
           };
         }
@@ -168,7 +168,7 @@ describe("static game data validation", () => {
           return {
             ...status,
             effects: {
-              contextRebuildMultiplier: status.effects.innerRecoveryMultiplier
+              innerRecoveryMultiplier: status.effects.contextRebuildMultiplier
             }
           };
         }
@@ -177,7 +177,7 @@ describe("static game data validation", () => {
           return {
             ...status,
             effects: {
-              kineticDamageTakenMultiplier: status.effects.outerDamageTakenMultiplier
+              outerDamageTakenMultiplier: status.effects.kineticDamageTakenMultiplier
             }
           };
         }
@@ -186,8 +186,8 @@ describe("static game data validation", () => {
           return {
             ...status,
             effects: {
-              feedbackBodyIntegrityPercent:
-                status.effects.attackBacklashOuterHpPercent
+              attackBacklashOuterHpPercent:
+                status.effects.feedbackBodyIntegrityPercent
             }
           };
         }
@@ -208,7 +208,7 @@ describe("static game data validation", () => {
               ...hero,
               baseStats: {
                 ...hero.baseStats,
-                maxBodyIntegrity: hero.baseStats.maxOuterHp
+                maxOuterHp: hero.baseStats.maxBodyIntegrity
               }
             }
           : hero
@@ -227,7 +227,7 @@ describe("static game data validation", () => {
               ...status,
               effects: {
                 ...status.effects,
-                bodyIntegrityDamagePerSecond: status.effects.outerDamagePerSecond
+                outerDamagePerSecond: status.effects.bodyIntegrityDamagePerSecond
               }
             }
           : status
@@ -246,7 +246,7 @@ describe("static game data validation", () => {
               ...hero,
               baseStats: {
                 ...hero.baseStats,
-                maxBodyIntegrity: hero.baseStats.maxOuterHp + 1
+                maxOuterHp: hero.baseStats.maxBodyIntegrity + 1
               }
             }
           : hero
@@ -265,8 +265,8 @@ describe("static game data validation", () => {
               ...status,
               effects: {
                 ...status.effects,
-                bodyIntegrityDamagePerSecond:
-                  (status.effects.outerDamagePerSecond ?? 0) + 0.1
+                outerDamagePerSecond:
+                  (status.effects.bodyIntegrityDamagePerSecond ?? 0) + 0.1
               }
             }
           : status

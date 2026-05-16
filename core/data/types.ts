@@ -408,13 +408,13 @@ export type MartialStyleDefinition = {
 export type UpgradeEffect = {
   stat: keyof Pick<
     BaseStats,
-    | "maxOuterHp"
-    | "maxInnerQi"
-    | "outerAttack"
-    | "innerAttack"
-    | "outerDefense"
-    | "innerDefense"
-    | "innerRecoveryRate"
+    | "maxBodyIntegrity"
+    | "maxContextStability"
+    | "kineticAttack"
+    | "cognitiveAttack"
+    | "kineticDefense"
+    | "cognitiveDefense"
+    | "contextRebuildRate"
     | "statusResistance"
   >;
   mode?: "multiplier" | "flat";

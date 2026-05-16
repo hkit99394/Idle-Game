@@ -46,11 +46,11 @@ describe("Path of Neon display terms", () => {
   });
 
   it("formats internal combat stats without renaming contracts", () => {
-    expect(formatInternalStatName("outerAttack")).toBe("Kinetic Attack");
-    expect(formatInternalStatName("innerAttack")).toBe("Cognitive Attack");
-    expect(formatInternalStatName("maxOuterHp")).toBe("Max Body Integrity");
-    expect(formatInternalStatName("maxInnerQi")).toBe("Max Context Stability");
-    expect(formatInternalStatName("breakPower")).toBe("Breach Power");
+    expect(formatInternalStatName("kineticAttack")).toBe("Kinetic Attack");
+    expect(formatInternalStatName("cognitiveAttack")).toBe("Cognitive Attack");
+    expect(formatInternalStatName("maxBodyIntegrity")).toBe("Max Body Integrity");
+    expect(formatInternalStatName("maxContextStability")).toBe("Max Context Stability");
+    expect(formatInternalStatName("breachPower")).toBe("Breach Power");
   });
 
   it("formats style and tactic ids through the vocabulary layer", () => {

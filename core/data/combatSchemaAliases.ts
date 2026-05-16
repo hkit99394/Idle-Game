@@ -43,15 +43,15 @@ const STATUS_EFFECT_FIELD_ALIASES = [
 ] as const satisfies readonly FieldAlias[];
 
 const BASE_STAT_VALUE_ALIASES: Record<string, string> = {
-  breachPower: "breakPower",
-  cognitiveAttack: "innerAttack",
-  cognitiveDefense: "innerDefense",
-  contextRebuildRate: "innerRecoveryRate",
-  maxBodyIntegrity: "maxOuterHp",
-  maxContextStability: "maxInnerQi",
-  kineticAttack: "outerAttack",
-  kineticDefense: "outerDefense",
-  overloadResist: "breakResist"
+  breakPower: "breachPower",
+  breakResist: "overloadResist",
+  innerAttack: "cognitiveAttack",
+  innerDefense: "cognitiveDefense",
+  innerRecoveryRate: "contextRebuildRate",
+  maxInnerQi: "maxContextStability",
+  maxOuterHp: "maxBodyIntegrity",
+  outerAttack: "kineticAttack",
+  outerDefense: "kineticDefense"
 };
 
 const SKILL_EFFECT_TYPE_ALIASES: Record<string, string> = {
@@ -130,34 +130,39 @@ function addConflict(
   );
 }
 
+type AliasOutput = "legacy" | "target";
+
 function normalizeFieldAliases<T extends UnknownRecord>(
   value: T,
   ownerLabel: string,
   aliases: readonly FieldAlias[],
+  output: AliasOutput,
   errors?: string[]
 ): T {
   const normalized: UnknownRecord = { ...value };
 
   for (const alias of aliases) {
-    const hasLegacy = Object.hasOwn(value, alias.legacy);
-    const hasTarget = Object.hasOwn(value, alias.target);
+    const sourceField = output === "target" ? alias.legacy : alias.target;
+    const outputField = output === "target" ? alias.target : alias.legacy;
+    const hasSource = Object.hasOwn(value, sourceField);
+    const hasOutput = Object.hasOwn(value, outputField);
 
-    if (!hasTarget) {
+    if (!hasSource) {
       continue;
     }
 
     if (
-      hasLegacy &&
-      !valuesAreEquivalent(value[alias.legacy], value[alias.target])
+      hasOutput &&
+      !valuesAreEquivalent(value[outputField], value[sourceField])
     ) {
       addConflict(errors, ownerLabel, alias.legacy, alias.target);
     }
 
-    if (!hasLegacy) {
-      normalized[alias.legacy] = value[alias.target];
+    if (!hasOutput) {
+      normalized[outputField] = value[sourceField];
     }
 
-    delete normalized[alias.target];
+    delete normalized[sourceField];
   }
 
   return normalized as T;
@@ -193,7 +198,7 @@ function normalizeStringAliasArray(
 
 function normalizeBaseStats(value: unknown, ownerLabel: string, errors?: string[]): unknown {
   return isRecord(value)
-    ? normalizeFieldAliases(value, ownerLabel, BASE_STAT_FIELD_ALIASES, errors)
+    ? normalizeFieldAliases(value, ownerLabel, BASE_STAT_FIELD_ALIASES, "target", errors)
     : value;
 }
 
@@ -219,6 +224,7 @@ function normalizeSkill(skill: SkillDefinition, errors?: string[]): SkillDefinit
       skill as unknown as UnknownRecord,
       `Skill ${skill.id}`,
       SKILL_DAMAGE_FIELD_ALIASES,
+      "legacy",
       errors
     ),
     "targetRule",
@@ -297,6 +303,7 @@ function normalizeStatusEffect(
           status.effects,
           `Status ${status.id} effects`,
           STATUS_EFFECT_FIELD_ALIASES,
+          "target",
           errors
         )
       : status.effects
