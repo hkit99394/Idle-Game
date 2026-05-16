@@ -284,4 +284,4 @@ The alias helper should support category-specific indexes so duplicate-looking c
 - Full target matrix covers 116 ids and family buckets: 98 migrate decisions and 18 keep decisions.
 - `burning_blood`, `burning_blood_captain`, and `burning_blood_edict` are confirmed keep decisions.
 - No region/stage id, resource/save field name, combat stat field, browser storage key, or product runtime key is scheduled for Stage 2.6.
-- Current-version saves with legacy content ids still need normalization in Slice 91.3, matching the Stage 2.5 import-hardening behavior.
+- Current-version saves with content-id aliases now normalize through Slice 91.3. While current static data still uses legacy content ids, target aliases normalize back to the configured legacy side; after the owning static rename slices land, old save ids normalize forward to target ids through the same compatibility path.

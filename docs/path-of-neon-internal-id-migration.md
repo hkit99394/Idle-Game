@@ -36,10 +36,19 @@ Stage 2.4 completed the product/storage runtime migration without changing stati
 Stage 2.5 completed the region/stage static id migration while leaving content ids and save-field names for later compatibility slices.
 
 - Canonical static data now emits Path of Neon region and route ids such as `greenline_approach`, `veil_district`, `black_iron_foundry`, `lotus_clinic`, `redline_outpost`, and their numeric `*_N` route ids.
-- `SAVE_DATA_VERSION` is now `11`; legacy `progress.maps` keys, `progress.currentStageId`, and `selectedOfflineFarmStageId` values migrate through explicit region/stage aliases.
+- Stage 2.5 moved saves to version `11`; legacy `progress.maps` keys, `progress.currentStageId`, and `selectedOfflineFarmStageId` values migrate through explicit region/stage aliases.
 - Static validation rejects legacy region/stage aliases in canonical data, while save import and browser storage paths still accept old values and rewrite them to canonical ids even when the payload is already labeled as the current save version.
 - Balance authoring and tactic comparison exports now use schema version `2`, keep canonical ids as primary fields, and include temporary legacy id context for report comparison.
 - Remaining old region words outside `docs/archive` are expected in alias data, old-save fixtures/tests, legacy export columns, migration docs, and Stage 2.6 content ids such as assignment/enemy ids.
+
+## Stage 2.6 Active Snapshot
+
+Stage 2.6 is migrating static content ids in focused slices while preserving save compatibility.
+
+- Slice 91.1 completed the content-id target matrix and explicit keep/defer decisions.
+- Slice 91.2 added category-aware content alias data for 98 migrated ids without changing static data.
+- Slice 91.3 moved `SAVE_DATA_VERSION` to `12` and normalizes save-stored content ids through the alias map. Current-version imports with target aliases normalize to the configured static id side, and legacy version `11` saves will normalize forward once the owning static data slices rename canonical ids.
+- Static content data remains on legacy content ids until Slices 91.4 through 91.6 rename hostiles, statuses, initiates, protocols, styles, augments, countermeasures, operations, and routines.
 
 ## Scope
 

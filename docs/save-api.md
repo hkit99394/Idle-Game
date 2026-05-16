@@ -91,6 +91,8 @@ Supported legacy versions are listed in `SUPPORTED_SAVE_DATA_VERSIONS`. Tests sh
 
 When a save version is added, add or update the migration fixture path before changing import/export behavior.
 
+Save version `12` adds content-id alias normalization for Stage 2.6 without renaming save fields. The migration covers save-stored hero, style, style-branch, skill-upgrade, equipment, medicine, assignment, tactic, and auto-medicine disabled ids. Normalization is data-aware: it writes whichever alias side is configured by the active static data, so current imports can be repaired before and after the static content id rename slices land.
+
 ## Import And Future Versions
 
 Imported saves with unsupported future versions must fail validation. The game should not try to downgrade future saves or grant offline rewards to invalid imports.

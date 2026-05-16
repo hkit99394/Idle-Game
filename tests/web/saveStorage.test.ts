@@ -597,6 +597,104 @@ describe("web save storage", () => {
     );
   });
 
+  it("imports current-version saves with content aliases as configured payloads", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    const currentSaveWithContentAliases = createSaveData({
+      progress: {
+        ...progress,
+        heroes: {
+          iron_fist_initiate: {
+            level: 3,
+            upgrades: {}
+          }
+        },
+        activeHeroIds: ["iron_fist_initiate"],
+        formation: {
+          iron_fist_initiate: "front"
+        },
+        styleMastery: {
+          impact: {
+            experience: 300
+          }
+        },
+        styleBranches: {
+          impact: "iron_body_impact"
+        },
+        skillUpgrades: {
+          impact_combo_refinement: 2
+        },
+        equipment: {
+          inventory: {
+            impact_training_wraps: 1
+          },
+          equipped: {
+            iron_fist_initiate: {
+              weapon: "impact_training_wraps"
+            }
+          }
+        },
+        medicineInventory: {
+          clear_heart_countermeasure: 1
+        },
+        assignments: {
+          greenline_sweep: {
+            heroIds: ["iron_fist_initiate"]
+          }
+        },
+        selectedTacticId: "kinetic_crush"
+      },
+      autoMedicinePreferences: {
+        enabled: true,
+        battleCleanseEnabled: true,
+        postBattleCleanseEnabled: true,
+        preBattleResistanceEnabled: true,
+        preBattleResistanceMode: "boss_and_elite",
+        disabledMedicineIds: ["clear_heart_countermeasure"]
+      },
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+
+    const importResult = importSaveDataToStorage(
+      staticData,
+      storage,
+      JSON.stringify(currentSaveWithContentAliases)
+    );
+    const importedSave = loadSaveDataFromStorage(staticData, storage);
+
+    expect(currentSaveWithContentAliases.version).toBe(SAVE_DATA_VERSION);
+    expect(importResult.ok).toBe(true);
+    expect(importedSave.ok).toBe(true);
+    if (!importResult.ok || !importedSave.ok) {
+      return;
+    }
+
+    expect(importResult.save.progress.heroes.iron_fist_disciple).toEqual({
+      level: 3,
+      upgrades: {}
+    });
+    expect(importResult.save.progress.heroes.iron_fist_initiate).toBeUndefined();
+    expect(importResult.save.progress.selectedTacticId).toBe("outer_pressure");
+    expect(importResult.save.progress.equipment?.inventory).toEqual({
+      training_wraps: 1
+    });
+    expect(importResult.save.progress.assignments).toEqual({
+      bamboo_road_patrol: {
+        heroIds: ["iron_fist_disciple"]
+      }
+    });
+    expect(importResult.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
+      "clear_heart_pill"
+    ]);
+    expect(importedSave.save.progress.selectedTacticId).toBe("outer_pressure");
+    expect(importedSave.save.progress.assignments).toEqual({
+      bamboo_road_patrol: {
+        heroIds: ["iron_fist_disciple"]
+      }
+    });
+  });
+
   it("normalizes imported offline farm metadata through the core save transaction", () => {
     const storage = new MemoryStorage();
     const progress = createInitialPlayerProgress(staticData);

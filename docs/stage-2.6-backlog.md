@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slice 91.1 is complete in [Stage 2.6 Content Id Preflight](stage-2.6-content-id-preflight.md).
+Stage 2.6 is active. Stage 2.5 region/stage static id migration is complete and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md). Slices 91.1 through 91.3 are complete: the content-id preflight, alias data, and save-version migration are now in place.
 
 This backlog turns Epic 91 from [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) into an implementation-ready static content id migration. It should migrate Path of Neon content ids while preserving old saves, imports, fixtures, reports, browser storage compatibility, and simulator continuity.
 
@@ -18,7 +18,7 @@ This stage is broader than Stage 2.5 and must stay split into focused slices. It
 
 - Stage 2.5 already made region and route ids canonical and keeps explicit region/stage aliases for compatibility.
 - Stage 2.6 content id migration needs explicit alias data before changing static data.
-- A new `SAVE_DATA_VERSION` is expected because supported saves store content ids in progress maps such as heroes, skill upgrades, style mastery, style branches, equipment inventory/equipped slots, medicine inventory, assignment progress, auto-medicine disabled lists, active team ids, formation slots, and selected tactic values.
+- `SAVE_DATA_VERSION` is now `12` because supported saves store content ids in progress maps such as heroes, skill upgrades, style mastery, style branches, equipment inventory/equipped slots, medicine inventory, assignment progress, auto-medicine disabled lists, active team ids, formation slots, and selected tactic values.
 - Current save field names remain technical. `selectedTacticId` may store a migrated routine id, but the field name should not become `selectedRoutineId` until the save resource/progress field stage.
 - Static validation should reject legacy content ids in canonical static data after their owning slice lands.
 - Reports and exports may need temporary legacy content-id context only where downstream users compare old and new outputs.
@@ -89,7 +89,7 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 | --- | --- | --- | --- |
 | 91.1 | Content Id Migration Preflight | Complete | Inventory every content id/reference and finalize migrate-or-keep target table |
 | 91.2 | Content Alias Data | Complete | Add explicit aliases and shared normalization helpers without changing canonical ids |
-| 91.3 | Save Version And Content Id Migration | Planned | Bump save version and migrate old content ids in saves/imports/browser storage |
+| 91.3 | Save Version And Content Id Migration | Complete | Bump save version and migrate old content ids in saves/imports/browser storage |
 | 91.4 | Hostile And Status Static Rename | Planned | Rename enemy/family/status ids and battle/status static references |
 | 91.5 | Initiate, Protocol, And Style Static Rename | Planned | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
 | 91.6 | Augment, Countermeasure, Operation, And Routine Static Rename | Planned | Rename equipment, set, medicine, assignment, and tactic ids plus direct references |
@@ -176,6 +176,8 @@ Add explicit content alias data before behavior changes.
 
 ## Slice 91.3: Save Version And Content Id Migration
 
+Status: complete.
+
 ### Goal
 
 Migrate old content ids in persisted saves without changing unrelated save fields.
@@ -214,6 +216,14 @@ Migrate old content ids in persisted saves without changing unrelated save field
 - Browser storage import tests combining old storage-key compatibility and old content ids.
 - Offline reward idempotency tests.
 - Save diagnostics tests.
+
+### Completion Notes
+
+- Bumped `SAVE_DATA_VERSION` to `12` and retained version `11` as a supported legacy version.
+- Added data-aware content-id normalization across every save-stored Stage 2.6 content-id field: heroes, active team ids, formation keys, style mastery, style branches, skill upgrades, equipment inventory/equipped ids, medicine inventory, assignment ids and hero ids, selected tactic values, and auto-medicine disabled medicine ids.
+- Kept save field names, resources, combat stat fields, region/stage compatibility, browser storage keys, and report field names unchanged.
+- Current static data still uses legacy content ids until Slices 91.4 through 91.6. During that transition, current-version imports using target aliases normalize back to the configured id side; after static data renames land, old saves normalize forward to target ids through the same helper path.
+- Added focused save migration and browser storage import coverage for content aliases, including current-version import normalization and legacy version `11` migration against target-id static data.
 
 ---
 

@@ -1,16 +1,22 @@
-import type { StaticGameData } from "../data";
 import {
+  getContentAliasIndexByKind,
   getLegacyRegionId,
   normalizeRegionId,
   normalizeRegionMapKeys,
-  normalizeStageId
+  normalizeStageId,
+  type ContentIdAliasKind
 } from "../compatibility";
 import {
   createInitialPlayerProgress,
   DEFAULT_OFFLINE_FARM_PRESET,
   normalizeSelectedTacticId
 } from "../progression";
-import type { EquipmentProgress, HeroProgress, MapProgress, ResourceState } from "../progression";
+import type {
+  EquipmentProgress,
+  HeroProgress,
+  MapProgress,
+  ResourceState
+} from "../progression";
 import {
   MIN_SUPPORTED_SAVE_DATA_VERSION,
   SAVE_DATA_VERSION,
@@ -52,6 +58,169 @@ function migratedStageId(field: string): SaveNormalization {
     field,
     reason: "migrated legacy stage id"
   };
+}
+
+function normalizedContentId(field: string): SaveNormalization {
+  return {
+    field,
+    reason: "normalized content id alias"
+  };
+}
+
+function getConfiguredContentIds(
+  data: SaveMigrationData,
+  kind: ContentIdAliasKind
+): ReadonlySet<string> {
+  switch (kind) {
+    case "initiate":
+      return new Set(data.heroes.map((hero) => hero.id));
+
+    case "style":
+      return new Set(data.styles.map((style) => style.id));
+
+    case "style_branch":
+      return new Set(
+        data.styles.flatMap((style) => style.branches.map((branch) => branch.id))
+      );
+
+    case "skill_upgrade":
+      return new Set(data.skillUpgrades.map((upgrade) => upgrade.id));
+
+    case "augment":
+      return new Set(data.equipment.map((equipment) => equipment.id));
+
+    case "countermeasure":
+      return new Set(data.medicines.map((medicine) => medicine.id));
+
+    case "operation":
+      return new Set((data.assignments ?? []).map((assignment) => assignment.id));
+
+    case "routine":
+      return new Set(data.tactics.map((tactic) => tactic.id));
+
+    default:
+      return new Set();
+  }
+}
+
+function normalizeContentIdForConfiguredData(
+  data: SaveMigrationData,
+  kind: ContentIdAliasKind,
+  id: string
+): string {
+  const configuredIds = getConfiguredContentIds(data, kind);
+
+  if (configuredIds.has(id)) {
+    return id;
+  }
+
+  const index = getContentAliasIndexByKind(kind);
+  const legacyAlias = index.getByLegacyId(id);
+
+  if (legacyAlias && configuredIds.has(legacyAlias.targetId)) {
+    return legacyAlias.targetId;
+  }
+
+  const targetAlias = index.getByTargetId(id);
+
+  if (targetAlias && configuredIds.has(targetAlias.legacyId)) {
+    return targetAlias.legacyId;
+  }
+
+  return id;
+}
+
+function normalizeContentIdValueForMigration(
+  data: SaveMigrationData,
+  kind: ContentIdAliasKind,
+  value: unknown,
+  field: string,
+  normalizations: SaveNormalization[]
+): unknown {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const normalized = normalizeContentIdForConfiguredData(data, kind, value);
+
+  if (normalized !== value) {
+    normalizations.push(normalizedContentId(field));
+  }
+
+  return normalized;
+}
+
+function normalizeContentIdArrayForMigration(
+  data: SaveMigrationData,
+  kind: ContentIdAliasKind,
+  value: unknown,
+  field: string,
+  normalizations: SaveNormalization[]
+): unknown {
+  if (!Array.isArray(value)) {
+    return value;
+  }
+
+  const normalizedEntries = value.map((entry, index) =>
+    normalizeContentIdValueForMigration(
+      data,
+      kind,
+      entry,
+      `${field}.${index}`,
+      normalizations
+    )
+  );
+  const seenStringEntries = new Map<string, number>();
+  const dedupedEntries: unknown[] = [];
+
+  for (const [index, entry] of normalizedEntries.entries()) {
+    if (typeof entry !== "string") {
+      dedupedEntries.push(entry);
+      continue;
+    }
+
+    const existingIndex = seenStringEntries.get(entry);
+
+    if (existingIndex !== undefined && value[existingIndex] !== value[index]) {
+      continue;
+    }
+
+    seenStringEntries.set(entry, index);
+    dedupedEntries.push(entry);
+  }
+
+  return dedupedEntries;
+}
+
+function normalizeContentIdMapKeysForMigration(
+  data: SaveMigrationData,
+  kind: ContentIdAliasKind,
+  value: Record<string, unknown>,
+  field: string,
+  normalizations: SaveNormalization[]
+): Record<string, unknown> {
+  const normalizedMap: Record<string, unknown> = {};
+  const deferredAliasEntries: Array<readonly [string, string, unknown]> = [];
+
+  for (const [contentId, contentValue] of Object.entries(value)) {
+    const normalizedId = normalizeContentIdForConfiguredData(data, kind, contentId);
+
+    if (normalizedId !== contentId) {
+      normalizations.push(normalizedContentId(`${field}.${contentId}`));
+      deferredAliasEntries.push([contentId, normalizedId, contentValue]);
+      continue;
+    }
+
+    normalizedMap[contentId] = contentValue;
+  }
+
+  for (const [, normalizedId, contentValue] of deferredAliasEntries) {
+    if (!Object.hasOwn(normalizedMap, normalizedId)) {
+      normalizedMap[normalizedId] = contentValue;
+    }
+  }
+
+  return normalizedMap;
 }
 
 export function normalizeHeroProgressForMigration(
@@ -144,6 +313,7 @@ export function normalizeResourcesForMigration(
 }
 
 export function normalizeEquipmentProgressForMigration(
+  data: SaveMigrationData,
   value: unknown,
   path = "progress.equipment"
 ): NormalizationResult<EquipmentProgress | unknown> {
@@ -165,6 +335,42 @@ export function normalizeEquipmentProgressForMigration(
   }
 
   const normalizations: SaveNormalization[] = [];
+  const inventory = isRecord(value.inventory)
+    ? normalizeContentIdMapKeysForMigration(
+        data,
+        "augment",
+        value.inventory,
+        `${path}.inventory`,
+        normalizations
+      )
+    : value.inventory;
+  const equipped = isRecord(value.equipped)
+    ? normalizeContentIdMapKeysForMigration(
+        data,
+        "initiate",
+        Object.fromEntries(
+          Object.entries(value.equipped).map(([heroId, slots]) => [
+            heroId,
+            isRecord(slots)
+              ? Object.fromEntries(
+                  Object.entries(slots).map(([slot, equipmentId]) => [
+                    slot,
+                    normalizeContentIdValueForMigration(
+                      data,
+                      "augment",
+                      equipmentId,
+                      `${path}.equipped.${heroId}.${slot}`,
+                      normalizations
+                    )
+                  ])
+                )
+              : slots
+          ])
+        ),
+        `${path}.equipped`,
+        normalizations
+      )
+    : value.equipped;
 
   if (value.inventory === undefined) {
     normalizations.push(missingField(`${path}.inventory`));
@@ -177,15 +383,15 @@ export function normalizeEquipmentProgressForMigration(
   return {
     value: {
       ...value,
-      inventory: value.inventory === undefined ? {} : value.inventory,
-      equipped: value.equipped === undefined ? {} : value.equipped
+      inventory: value.inventory === undefined ? {} : inventory,
+      equipped: value.equipped === undefined ? {} : equipped
     },
     normalizations
   };
 }
 
 export function normalizeProgressForMigration(
-  data: Pick<StaticGameData, "heroes" | "regions" | "stages" | "tactics">,
+  data: SaveMigrationData,
   value: unknown,
   options: { migrateRegionStageIds?: boolean } = {}
 ): NormalizationResult<unknown> {
@@ -207,12 +413,19 @@ export function normalizeProgressForMigration(
   const defaultMaps = usesCanonicalRegionIds
     ? normalizeRegionMapKeys(defaultProgress.maps).map
     : defaultProgress.maps;
-  const existingHeroes = isRecord(value.heroes) ? value.heroes : {};
   const normalizations: SaveNormalization[] = [];
   const resources = normalizeResourcesForMigration(value.resources);
-  const equipment = normalizeEquipmentProgressForMigration(value.equipment);
+  const rawHeroes = isRecord(value.heroes) ? value.heroes : {};
+  const normalizedHeroEntries = normalizeContentIdMapKeysForMigration(
+    data,
+    "initiate",
+    rawHeroes,
+    "progress.heroes",
+    normalizations
+  );
+  const equipment = normalizeEquipmentProgressForMigration(data, value.equipment);
   const heroes = Object.fromEntries(
-    Object.entries(existingHeroes).map(([heroId, progress]) => {
+    Object.entries(normalizedHeroEntries).map(([heroId, progress]) => {
       const normalized = normalizeHeroProgressForMigration(
         progress,
         `progress.heroes.${heroId}`
@@ -254,19 +467,26 @@ export function normalizeProgressForMigration(
 
   normalizations.push(...resources.normalizations, ...equipment.normalizations);
 
+  const normalizedSelectedTacticInput = normalizeContentIdValueForMigration(
+    data,
+    "routine",
+    value.selectedTacticId,
+    "progress.selectedTacticId",
+    normalizations
+  );
   const selectedTacticId = normalizeSelectedTacticId(
     data,
-    value.selectedTacticId
+    normalizedSelectedTacticInput
   );
 
   if (value.selectedTacticId === undefined) {
     normalizations.push(missingField("progress.selectedTacticId"));
-  } else if (value.selectedTacticId !== selectedTacticId) {
+  } else if (normalizedSelectedTacticInput !== selectedTacticId) {
     normalizations.push(invalidField("progress.selectedTacticId"));
   }
 
   for (const heroId of Object.keys(defaultProgress.heroes)) {
-    if (!(heroId in existingHeroes)) {
+    if (!(heroId in normalizedHeroEntries)) {
       normalizations.push(missingField(`progress.heroes.${heroId}`));
     }
   }
@@ -320,14 +540,100 @@ export function normalizeProgressForMigration(
         ...maps
       },
       selectedTacticId,
-      activeHeroIds: value.activeHeroIds ?? defaultProgress.activeHeroIds,
-      formation: value.formation ?? defaultProgress.formation,
-      styleMastery: value.styleMastery ?? {},
-      styleBranches: value.styleBranches ?? {},
-      skillUpgrades: value.skillUpgrades ?? {},
+      activeHeroIds:
+        normalizeContentIdArrayForMigration(
+          data,
+          "initiate",
+          value.activeHeroIds,
+          "progress.activeHeroIds",
+          normalizations
+        ) ?? defaultProgress.activeHeroIds,
+      formation: isRecord(value.formation)
+        ? normalizeContentIdMapKeysForMigration(
+            data,
+            "initiate",
+            value.formation,
+            "progress.formation",
+            normalizations
+          )
+        : value.formation ?? defaultProgress.formation,
+      styleMastery: isRecord(value.styleMastery)
+        ? normalizeContentIdMapKeysForMigration(
+            data,
+            "style",
+            value.styleMastery,
+            "progress.styleMastery",
+            normalizations
+          )
+        : value.styleMastery ?? {},
+      styleBranches: isRecord(value.styleBranches)
+        ? Object.fromEntries(
+            Object.entries(
+              normalizeContentIdMapKeysForMigration(
+                data,
+                "style",
+                value.styleBranches,
+                "progress.styleBranches",
+                normalizations
+              )
+            ).map(([styleId, branchId]) => [
+              styleId,
+              normalizeContentIdValueForMigration(
+                data,
+                "style_branch",
+                branchId,
+                `progress.styleBranches.${styleId}`,
+                normalizations
+              )
+            ])
+          )
+        : value.styleBranches ?? {},
+      skillUpgrades: isRecord(value.skillUpgrades)
+        ? normalizeContentIdMapKeysForMigration(
+            data,
+            "skill_upgrade",
+            value.skillUpgrades,
+            "progress.skillUpgrades",
+            normalizations
+          )
+        : value.skillUpgrades ?? {},
       equipment: equipment.value,
-      medicineInventory: value.medicineInventory ?? {},
-      assignments: value.assignments ?? {},
+      medicineInventory: isRecord(value.medicineInventory)
+        ? normalizeContentIdMapKeysForMigration(
+            data,
+            "countermeasure",
+            value.medicineInventory,
+            "progress.medicineInventory",
+            normalizations
+          )
+        : value.medicineInventory ?? {},
+      assignments: isRecord(value.assignments)
+        ? Object.fromEntries(
+            Object.entries(
+              normalizeContentIdMapKeysForMigration(
+                data,
+                "operation",
+                value.assignments,
+                "progress.assignments",
+                normalizations
+              )
+            ).map(([assignmentId, assignment]) => [
+              assignmentId,
+              isRecord(assignment)
+                ? {
+                    ...assignment,
+                    heroIds: normalizeContentIdArrayForMigration(
+                      data,
+                      "initiate",
+                      assignment.heroIds,
+                      `progress.assignments.${assignmentId}.heroIds`,
+                      normalizations
+                    )
+                  }
+                : assignment
+            ])
+          )
+        : value.assignments ?? {},
       currentStageId
     },
     normalizations
@@ -364,6 +670,15 @@ export function migrateSaveData(
   const normalizations: SaveNormalization[] = [...progress.normalizations];
 
   normalizations.push(...autoMedicinePreferences.normalizations);
+
+  autoMedicinePreferences.value.disabledMedicineIds =
+    normalizeContentIdArrayForMigration(
+      data,
+      "countermeasure",
+      autoMedicinePreferences.value.disabledMedicineIds,
+      "autoMedicinePreferences.disabledMedicineIds",
+      normalizations
+    ) as string[];
 
   if (raw.selectedOfflineFarmStageId === undefined) {
     normalizations.push(missingField("selectedOfflineFarmStageId"));

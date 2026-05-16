@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createInitialPlayerProgress,
   createSaveData,
+  CONTENT_ID_ALIASES,
   migrateSaveData,
   MVP_PLAYER_HERO_IDS,
   parseSaveData,
@@ -271,6 +272,279 @@ describe("save schema migrations", () => {
         }
       ])
     );
+  });
+
+  it("normalizes content alias ids to the currently configured static id side", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    const save = createSaveData({
+      progress: {
+        ...progress,
+        heroes: {
+          iron_fist_initiate: {
+            level: 3,
+            upgrades: {}
+          },
+          azure_pulse_monk: {
+            level: 1,
+            upgrades: {}
+          }
+        },
+        activeHeroIds: [
+          "iron_fist_disciple",
+          "iron_fist_initiate",
+          "azure_pulse_monk"
+        ],
+        formation: {
+          iron_fist_initiate: "front",
+          azure_pulse_monk: "middle"
+        },
+        styleMastery: {
+          impact: {
+            experience: 300
+          }
+        },
+        styleBranches: {
+          impact: "iron_body_impact"
+        },
+        skillUpgrades: {
+          impact_combo_refinement: 2
+        },
+        equipment: {
+          inventory: {
+            impact_training_wraps: 1
+          },
+          equipped: {
+            iron_fist_initiate: {
+              weapon: "impact_training_wraps"
+            }
+          }
+        },
+        medicineInventory: {
+          clear_heart_countermeasure: 2
+        },
+        assignments: {
+          greenline_sweep: {
+            heroIds: ["iron_fist_disciple", "iron_fist_initiate"]
+          }
+        },
+        selectedTacticId: "kinetic_crush"
+      },
+      autoMedicinePreferences: {
+        enabled: true,
+        battleCleanseEnabled: true,
+        postBattleCleanseEnabled: true,
+        preBattleResistanceEnabled: true,
+        preBattleResistanceMode: "boss_and_elite",
+        disabledMedicineIds: ["clear_heart_pill", "clear_heart_countermeasure"]
+      },
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const result = parseSaveData(staticData, save);
+
+    expect(save.version).toBe(SAVE_DATA_VERSION);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.save.progress.heroes.iron_fist_disciple).toEqual({
+      level: 3,
+      upgrades: {}
+    });
+    expect(result.save.progress.heroes.iron_fist_initiate).toBeUndefined();
+    expect(result.save.progress.activeHeroIds).toEqual([
+      "iron_fist_disciple",
+      "azure_palm_monk"
+    ]);
+    expect(result.save.progress.formation).toMatchObject({
+      iron_fist_disciple: "front",
+      azure_palm_monk: "middle"
+    });
+    expect(result.save.progress.styleMastery).toEqual({
+      fist: {
+        experience: 300
+      }
+    });
+    expect(result.save.progress.styleBranches).toEqual({
+      fist: "iron_body_fist"
+    });
+    expect(result.save.progress.skillUpgrades).toEqual({
+      iron_fist_combo_refinement: 2
+    });
+    expect(result.save.progress.equipment).toEqual({
+      inventory: {
+        training_wraps: 1
+      },
+      equipped: {
+        iron_fist_disciple: {
+          weapon: "training_wraps"
+        }
+      }
+    });
+    expect(result.save.progress.medicineInventory).toEqual({
+      clear_heart_pill: 2
+    });
+    expect(result.save.progress.assignments).toEqual({
+      bamboo_road_patrol: {
+        heroIds: ["iron_fist_disciple"]
+      }
+    });
+    expect(result.save.progress.selectedTacticId).toBe("outer_pressure");
+    expect(result.save.autoMedicinePreferences.disabledMedicineIds).toEqual([
+      "clear_heart_pill"
+    ]);
+    expect(result.migration.migrated).toBe(false);
+    expect(result.migration.normalized).toBe(true);
+    expect(result.migration.normalizations).toEqual(
+      expect.arrayContaining([
+        {
+          field: "progress.heroes.iron_fist_initiate",
+          reason: "normalized content id alias"
+        },
+        {
+          field: "progress.activeHeroIds.1",
+          reason: "normalized content id alias"
+        },
+        {
+          field: "progress.selectedTacticId",
+          reason: "normalized content id alias"
+        },
+        {
+          field: "autoMedicinePreferences.disabledMedicineIds.1",
+          reason: "normalized content id alias"
+        }
+      ])
+    );
+
+    const secondParse = parseSaveData(staticData, result.save);
+
+    expect(secondParse.ok).toBe(true);
+    if (!secondParse.ok) {
+      return;
+    }
+    expect(secondParse.migration.normalized).toBe(false);
+    expect(secondParse.save).toEqual(result.save);
+  });
+
+  it("migrates legacy content ids to target ids when static data has moved", () => {
+    const futureData = createContentTargetStaticData();
+    const progress = createInitialPlayerProgress(staticData);
+    const rawSave = {
+      ...createSaveData({
+        progress: {
+          ...progress,
+          heroes: {
+            iron_fist_disciple: {
+              level: 3,
+              upgrades: {}
+            }
+          },
+          activeHeroIds: ["iron_fist_disciple"],
+          formation: {
+            iron_fist_disciple: "front"
+          },
+          styleMastery: {
+            fist: {
+              experience: 300
+            }
+          },
+          styleBranches: {
+            fist: "iron_body_fist"
+          },
+          skillUpgrades: {
+            iron_fist_combo_refinement: 2
+          },
+          equipment: {
+            inventory: {
+              training_wraps: 1
+            },
+            equipped: {
+              iron_fist_disciple: {
+                weapon: "training_wraps"
+              }
+            }
+          },
+          medicineInventory: {
+            clear_heart_pill: 2
+          },
+          assignments: {
+            bamboo_road_patrol: {
+              heroIds: ["iron_fist_disciple"]
+            }
+          },
+          selectedTacticId: "outer_pressure"
+        },
+        autoMedicinePreferences: {
+          enabled: true,
+          battleCleanseEnabled: true,
+          postBattleCleanseEnabled: true,
+          preBattleResistanceEnabled: true,
+          preBattleResistanceMode: "boss_and_elite",
+          disabledMedicineIds: ["clear_heart_pill"]
+        },
+        selectedOfflineFarmStageId: null,
+        nowMs: 1000
+      }),
+      version: 11
+    };
+    const migration = migrateSaveData(futureData, rawSave);
+
+    expect(migration.ok).toBe(true);
+    if (!migration.ok) {
+      return;
+    }
+
+    const migratedSave = migration.save as ReturnType<typeof createSaveData>;
+
+    expect(migratedSave.progress.heroes.iron_fist_initiate).toEqual({
+      level: 3,
+      upgrades: {}
+    });
+    expect(migratedSave.progress.heroes.iron_fist_disciple).toBeUndefined();
+    expect(migratedSave.progress.activeHeroIds).toEqual(["iron_fist_initiate"]);
+    expect(migratedSave.progress.formation).toMatchObject({
+      iron_fist_initiate: "front"
+    });
+    expect(migratedSave.progress.styleMastery).toEqual({
+      impact: {
+        experience: 300
+      }
+    });
+    expect(migratedSave.progress.styleBranches).toEqual({
+      impact: "iron_body_impact"
+    });
+    expect(migratedSave.progress.skillUpgrades).toEqual({
+      impact_combo_refinement: 2
+    });
+    expect(migratedSave.progress.equipment).toEqual({
+      inventory: {
+        impact_training_wraps: 1
+      },
+      equipped: {
+        iron_fist_initiate: {
+          weapon: "impact_training_wraps"
+        }
+      }
+    });
+    expect(migratedSave.progress.medicineInventory).toEqual({
+      clear_heart_countermeasure: 2
+    });
+    expect(migratedSave.progress.assignments).toEqual({
+      greenline_sweep: {
+        heroIds: ["iron_fist_initiate"]
+      }
+    });
+    expect(migratedSave.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(migratedSave.autoMedicinePreferences.disabledMedicineIds).toEqual([
+      "clear_heart_countermeasure"
+    ]);
+    expect(migration).toMatchObject({
+      fromVersion: 11,
+      toVersion: SAVE_DATA_VERSION,
+      migrated: true,
+      normalized: true
+    });
   });
 
   it("preserves canonical map entries when legacy and canonical keys collide", () => {
@@ -782,3 +1056,84 @@ describe("save schema migrations", () => {
     );
   });
 });
+
+function createContentTargetStaticData(): typeof staticData {
+  const targetIdFor = (kind: string, id: string): string =>
+    CONTENT_ID_ALIASES.find(
+      (alias) => alias.kind === kind && alias.legacyId === id
+    )?.targetId ?? id;
+
+  return {
+    ...staticData,
+    heroes: staticData.heroes.map((hero) => ({
+      ...hero,
+      id: targetIdFor("initiate", hero.id),
+      style: targetIdFor("style", hero.style) as typeof hero.style
+    })),
+    styles: staticData.styles.map((style) => ({
+      ...style,
+      id: targetIdFor("style", style.id) as typeof style.id,
+      branches: style.branches.map((branch) => ({
+        ...branch,
+        id: targetIdFor("style_branch", branch.id),
+        unlock:
+          branch.unlock.type === "hero_level"
+            ? {
+                ...branch.unlock,
+                heroId: targetIdFor("initiate", branch.unlock.heroId)
+              }
+            : branch.unlock.type === "style_mastery_level"
+              ? {
+                  ...branch.unlock,
+                  styleId: targetIdFor(
+                    "style",
+                    branch.unlock.styleId
+                  ) as typeof branch.unlock.styleId
+                }
+              : branch.unlock
+      }))
+    })),
+    skillUpgrades: staticData.skillUpgrades.map((upgrade) => ({
+      ...upgrade,
+      id: targetIdFor("skill_upgrade", upgrade.id),
+      skillId: targetIdFor("protocol", upgrade.skillId)
+    })),
+    equipment: staticData.equipment.map((equipment) => ({
+      ...equipment,
+      id: targetIdFor("augment", equipment.id),
+      allowedStyles: equipment.allowedStyles.map((styleId) =>
+        targetIdFor("style", styleId)
+      ) as typeof equipment.allowedStyles,
+      setId: equipment.setId
+        ? targetIdFor("augment_set", equipment.setId)
+        : undefined
+    })),
+    equipmentSets: (staticData.equipmentSets ?? []).map((set) => ({
+      ...set,
+      id: targetIdFor("augment_set", set.id)
+    })),
+    medicines: staticData.medicines.map((medicine) => ({
+      ...medicine,
+      id: targetIdFor("countermeasure", medicine.id)
+    })),
+    assignments: (staticData.assignments ?? []).map((assignment) => ({
+      ...assignment,
+      id: targetIdFor("operation", assignment.id),
+      allowedStyles: assignment.allowedStyles.map((styleId) =>
+        targetIdFor("style", styleId)
+      ) as typeof assignment.allowedStyles,
+      rewardProfile: {
+        ...assignment.rewardProfile,
+        equipmentRewardsPerHour:
+          assignment.rewardProfile.equipmentRewardsPerHour?.map((reward) => ({
+            ...reward,
+            equipmentId: targetIdFor("augment", reward.equipmentId)
+          }))
+      }
+    })),
+    tactics: staticData.tactics.map((tactic) => ({
+      ...tactic,
+      id: targetIdFor("routine", tactic.id)
+    }))
+  };
+}
