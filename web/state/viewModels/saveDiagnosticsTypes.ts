@@ -1,4 +1,5 @@
-import type { OfflineFarmPreset } from "../../../core";
+import type { OfflineFarmPreset, SaveNormalization } from "../../../core";
+import type { StartupSavePersistence, StartupSaveWriteReason } from "../types";
 
 export type SaveStatus =
   | "ready"
@@ -16,6 +17,13 @@ export type SaveDiagnosticsView = {
   legacySavePresent: boolean;
   status: SaveStatus;
   saveVersion: number | null;
+  migrationFromVersion: number | null;
+  migrationToVersion: number | null;
+  migrationMigrated: boolean;
+  migrationNormalized: boolean;
+  normalizations: SaveNormalization[];
+  startupCommitStatus: StartupSavePersistence["commitStatus"] | null;
+  startupWriteReasons: StartupSaveWriteReason[];
   saveSizeCharacters: number;
   createdAtMs: number | null;
   updatedAtMs: number | null;

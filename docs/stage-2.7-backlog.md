@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.7 is the active planning backlog for Epic 92: Save Resource And Progress Field Migration. Slices 92.1 through 92.4 are complete: the preflight decisions are locked, save version `13` owns alias serialization/normalization, runtime resource plus district progress state uses the current Path of Neon field names, and route/farm/routine/techno-sect runtime fields now use the approved current schema.
+Stage 2.7 is the active planning backlog for Epic 92: Save Resource And Progress Field Migration. Slices 92.1 through 92.5 are complete: the preflight decisions are locked, save version `13` owns alias serialization/normalization, runtime resource plus district progress state uses the current Path of Neon field names, route/farm/routine/techno-sect runtime fields now use the approved current schema, and web save tools report schema/key migration details coherently.
 
 [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) and [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md) are the completed closure records for static content id migration. Stage 2.7 begins from that canonical static-content baseline and should not reopen Stage 2.6 id decisions.
 
@@ -17,7 +17,7 @@ Migrate persisted save resource and progress field names from legacy Path of Jia
 - Stage 2.4 completed product/package/storage-key migration. Browser storage uses `path-of-neon.save.v1` with legacy key read/copy support.
 - Stage 2.5 completed region and route id value migration. Region/stage id aliases stay in compatibility helpers.
 - Stage 2.6 completed static content id migration. Save version `12` remains supported for content-id alias normalization.
-- Stage 2.7 bumped `SAVE_DATA_VERSION` to `13` in Slice 92.2. Current save JSON serializes with Stage 2.7 field names at the save boundary. Slice 92.3 moved runtime resource and district progress state onto `credits`, `resonance`, `reagents`, `districts`, `combatData`, and `highestClearedRouteIndex`. Slice 92.4 moved runtime route/farm/routine/techno-sect state onto `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`, and migrated resource-named `offlineFarmPreset` values to `credits`, `resonance`, and `combatData`.
+- Stage 2.7 bumped `SAVE_DATA_VERSION` to `13` in Slice 92.2. Current save JSON serializes with Stage 2.7 field names at the save boundary. Slice 92.3 moved runtime resource and district progress state onto `credits`, `resonance`, `reagents`, `districts`, `combatData`, and `highestClearedRouteIndex`. Slice 92.4 moved runtime route/farm/routine/techno-sect state onto `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`, and migrated resource-named `offlineFarmPreset` values to `credits`, `resonance`, and `combatData`. Slice 92.5 updated web save diagnostics, import/export, reset, and storage-key/schema-migration test coverage.
 - Current-version imports that still use legacy save field names should either normalize to current schema or fail with explicit diagnostics. Slice 92.1 must make that rule concrete before implementation.
 - Old save fixtures must keep proving every value in `SUPPORTED_SAVE_DATA_VERSIONS` migrates to the current schema.
 - Combat stat fields such as `outerHp`, `innerQi`, max fields, recovery fields, and AI Overload state are not part of Stage 2.7. They belong to the later combat save/stat migration.
@@ -72,7 +72,7 @@ Stage 2.7 implements Epic 92 from the retheme migration plan as focused slices.
 | 92.2 | Save Schema Alias Foundation | Complete | Added save-field alias helpers, bumped the save version, and proved legacy/current imports normalize safely. |
 | 92.3 | Resources And District Progress Rename | Complete | Renamed resource and district progress fields through core save/progression/offline paths. |
 | 92.4 | Route, Farm, Routine, And Techno-Sect Fields | Complete | Renamed selected/current route, routine, techno-sect, and offline farm preset value runtime/save paths. |
-| 92.5 | Web Save, Diagnostics, And Import/Export | Planned | Keep browser save tools, diagnostics, reset, export, and import coherent on the current schema. |
+| 92.5 | Web Save, Diagnostics, And Import/Export | Complete | Kept browser save tools, diagnostics, reset, export, and import coherent on the current schema. |
 | 92.6 | Tooling, Reports, And Compatibility Continuity | Planned | Update simulations, support-decision output, cloud docs, and temporary legacy report context. |
 | 92.7 | Hardening And Archive Readiness | Planned | Run stale scans, full validation, docs closure, and prepare Stage 2.7 for archive. |
 
@@ -195,6 +195,8 @@ Completed in code: `PlayerProgress` now stores `currentRouteId`, `selectedRoutin
 ## Slice 92.5: Web Save, Diagnostics, And Import/Export
 
 Make the user-facing save tools coherent after the schema rename.
+
+Completed in code: web state, reducers, command factories, save tool commands, diagnostics view models, and save-tool UI use the current Stage 2.7 schema fields. Save Diagnostics now separates canonical/legacy storage-key state, startup rewrite reasons, schema migration status, and normalized legacy field messages. Export emits current schema fields, import accepts supported legacy saves, reset writes current-schema saves, and web storage tests cover old-key plus old-schema interactions.
 
 ### Tasks
 

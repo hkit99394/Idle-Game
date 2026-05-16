@@ -2326,13 +2326,21 @@ h2 {
 }
 
 .save-errors,
+.save-normalizations,
 .save-status {
   display: grid;
   gap: 4px;
-  color: #7b2f2b;
   font-size: 0.86rem;
   font-weight: 800;
   overflow-wrap: anywhere;
+}
+
+.save-errors {
+  color: #7b2f2b;
+}
+
+.save-normalizations {
+  color: #4d4639;
 }
 
 .save-status {

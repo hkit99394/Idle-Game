@@ -10,6 +10,53 @@ import {
 import type { WebGameState } from "../types";
 import type { SaveDiagnosticsView } from "./saveDiagnosticsTypes";
 import type { LoadSaveDataFromStorageResult } from "../saveStorage";
+import type { SaveMigrationMetadata } from "../../../core";
+
+function getEmptyMigrationDiagnostics(): Pick<
+  SaveDiagnosticsView,
+  | "migrationFromVersion"
+  | "migrationToVersion"
+  | "migrationMigrated"
+  | "migrationNormalized"
+  | "normalizations"
+> {
+  return {
+    migrationFromVersion: null,
+    migrationToVersion: null,
+    migrationMigrated: false,
+    migrationNormalized: false,
+    normalizations: []
+  };
+}
+
+function getMigrationDiagnostics(
+  migration: SaveMigrationMetadata
+): Pick<
+  SaveDiagnosticsView,
+  | "migrationFromVersion"
+  | "migrationToVersion"
+  | "migrationMigrated"
+  | "migrationNormalized"
+  | "normalizations"
+> {
+  return {
+    migrationFromVersion: migration.fromVersion,
+    migrationToVersion: migration.toVersion,
+    migrationMigrated: migration.migrated,
+    migrationNormalized: migration.normalized,
+    normalizations: migration.normalizations
+  };
+}
+
+function getStartupPersistenceDiagnostics(
+  state: WebGameState
+): Pick<SaveDiagnosticsView, "startupCommitStatus" | "startupWriteReasons"> {
+  return {
+    startupCommitStatus: state.startupSavePersistence?.commitStatus ?? null,
+    startupWriteReasons:
+      state.startupSavePersistence?.attemptedWriteReasons ?? []
+  };
+}
 
 function getCurrentRegionHighestClearedRouteIndex(
   data: StaticGameData,
@@ -79,6 +126,8 @@ export function buildSaveDiagnostics(
       legacySavePresent: false,
       status: "storage_unavailable",
       saveVersion: null,
+      ...getEmptyMigrationDiagnostics(),
+      ...getStartupPersistenceDiagnostics(state),
       saveSizeCharacters: 0,
       createdAtMs: null,
       updatedAtMs: null,
@@ -111,6 +160,8 @@ export function buildSaveDiagnostics(
       legacySavePresent,
       status: "storage_error",
       saveVersion: null,
+      ...getEmptyMigrationDiagnostics(),
+      ...getStartupPersistenceDiagnostics(state),
       saveSizeCharacters: 0,
       createdAtMs: null,
       updatedAtMs: null,
@@ -136,6 +187,8 @@ export function buildSaveDiagnostics(
       legacySavePresent,
       status: loadResult.reason,
       saveVersion: null,
+      ...getEmptyMigrationDiagnostics(),
+      ...getStartupPersistenceDiagnostics(state),
       saveSizeCharacters: rawSave?.length ?? 0,
       createdAtMs: null,
       updatedAtMs: null,
@@ -163,6 +216,8 @@ export function buildSaveDiagnostics(
     legacySavePresent,
     status: errors.length > 0 ? "storage_error" : "ready",
     saveVersion: save.version,
+    ...getMigrationDiagnostics(loadResult.migration),
+    ...getStartupPersistenceDiagnostics(state),
     saveSizeCharacters: rawSave?.length ?? 0,
     createdAtMs: save.createdAtMs,
     updatedAtMs: save.updatedAtMs,

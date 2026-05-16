@@ -60,6 +60,8 @@ adding a separate `normalizedSave` reason.
   `writeReasons`.
 - Preserve migration metadata from raw-load results when returning adapter
   diagnostics.
+- Show storage-key compatibility separately from save-schema migration metadata
+  so diagnostics can distinguish old-key copies from legacy field normalization.
 - Convert storage/JSON failures into UI-friendly error reasons.
 
 It should not own migration, offline reward calculation, farm-target normalization, or timestamp rules.

@@ -75,6 +75,37 @@ function withBrowserStorage<T>(storage: WebSaveStorage, callback: () => T): T {
   }
 }
 
+function createLegacySaveFieldPayload(save: ReturnType<typeof createSaveData>) {
+  const legacySave = JSON.parse(JSON.stringify(save)) as Record<string, any>;
+  const progress = legacySave.progress as Record<string, any>;
+  const greenlineProgress = progress.districts.greenline_approach;
+
+  progress.resources = {
+    silver: progress.resources.credits,
+    cultivation: progress.resources.resonance,
+    herbs: progress.resources.reagents
+  };
+  progress.maps = {
+    bamboo_road: {
+      combatExperience: greenlineProgress.combatData,
+      highestClearedStageIndex: greenlineProgress.highestClearedRouteIndex
+    }
+  };
+  progress.currentStageId = "bamboo_road_3";
+  progress.selectedTacticId = progress.selectedRoutineId;
+  progress.sect = progress.technoSect;
+  legacySave.selectedOfflineFarmStageId = "bamboo_road_1";
+  legacySave.offlineFarmPreset = "silver";
+
+  delete progress.districts;
+  delete progress.currentRouteId;
+  delete progress.selectedRoutineId;
+  delete progress.technoSect;
+  delete legacySave.selectedOfflineFarmRouteId;
+
+  return legacySave;
+}
+
 describe("web save storage", () => {
   it("uses the Path of Neon save key as canonical while retaining the legacy key", () => {
     expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-neon.save.v1");
@@ -191,6 +222,82 @@ describe("web save storage", () => {
     expect(storage.getItem(LEGACY_WEB_SAVE_STORAGE_KEY)).toBe(
       JSON.stringify(save)
     );
+  });
+
+  it("reports legacy storage-key and legacy save-field normalization separately", () => {
+    const storage = new MemoryStorage();
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.credits = 123;
+    progress.resources.resonance = 45;
+    progress.resources.reagents = 6;
+    progress.districts.greenline_approach.combatData = 77;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 2;
+    const currentSave = createSaveData({
+      progress,
+      selectedOfflineFarmRouteId: "greenline_approach_1",
+      offlineFarmPreset: "credits",
+      nowMs: 1000
+    });
+    const legacySave = createLegacySaveFieldPayload(currentSave);
+
+    storage.setItem(LEGACY_WEB_SAVE_STORAGE_KEY, JSON.stringify(legacySave));
+
+    const preStartupDiagnostics = withBrowserStorage(storage, () =>
+      buildSaveDiagnostics(staticData, createInitialWebGameStateFromStorage(staticData, null))
+    );
+    const state = createInitialWebGameStateFromStorage(
+      staticData,
+      storage,
+      1000
+    );
+    const postStartupDiagnostics = withBrowserStorage(storage, () =>
+      buildSaveDiagnostics(staticData, state)
+    );
+    const canonicalRaw = JSON.parse(
+      storage.getItem(WEB_SAVE_STORAGE_KEY) ?? "{}"
+    ) as Record<string, any>;
+
+    expect(preStartupDiagnostics.activeStorageKey).toBe(
+      LEGACY_WEB_SAVE_STORAGE_KEY
+    );
+    expect(preStartupDiagnostics.legacySavePresent).toBe(true);
+    expect(preStartupDiagnostics.migrationMigrated).toBe(false);
+    expect(preStartupDiagnostics.migrationNormalized).toBe(true);
+    expect(preStartupDiagnostics.normalizations).toEqual(
+      expect.arrayContaining([
+        {
+          field: "progress.currentStageId",
+          reason: "migrated legacy save field to progress.currentRouteId"
+        },
+        {
+          field: "selectedOfflineFarmStageId",
+          reason: "migrated legacy save field to selectedOfflineFarmRouteId"
+        },
+        {
+          field: "offlineFarmPreset",
+          reason: "normalized legacy offline farm preset value"
+        }
+      ])
+    );
+
+    expect(state.startupSavePersistence?.commitStatus).toBe("written");
+    expect(state.startupSavePersistence?.attemptedWriteReasons).toEqual([
+      "normalizedSave",
+      "storageKeyMigrated"
+    ]);
+    expect(postStartupDiagnostics.activeStorageKey).toBe(WEB_SAVE_STORAGE_KEY);
+    expect(postStartupDiagnostics.legacySavePresent).toBe(true);
+    expect(postStartupDiagnostics.startupCommitStatus).toBe("written");
+    expect(postStartupDiagnostics.startupWriteReasons).toEqual([
+      "normalizedSave",
+      "storageKeyMigrated"
+    ]);
+    expect(postStartupDiagnostics.migrationNormalized).toBe(false);
+    expect(canonicalRaw.progress.currentRouteId).toBe("greenline_approach_3");
+    expect(canonicalRaw.progress.currentStageId).toBeUndefined();
+    expect(canonicalRaw.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
+    expect(canonicalRaw.selectedOfflineFarmStageId).toBeUndefined();
+    expect(canonicalRaw.offlineFarmPreset).toBe("credits");
   });
 
   it("prefers the canonical key when both canonical and legacy saves exist", () => {
@@ -464,13 +571,26 @@ describe("web save storage", () => {
     if (!exportResult.ok) {
       return;
     }
-    expect(JSON.parse(exportResult.json)).toMatchObject({
+    const exportedPayload = JSON.parse(exportResult.json);
+
+    expect(exportedPayload).toMatchObject({
       progress: {
         currentRouteId: "greenline_approach_3"
       },
       selectedOfflineFarmRouteId: "greenline_approach_2",
       offlineFarmPreset: "resonance"
     });
+    expect(exportedPayload).toMatchObject({
+      progress: {
+        resources: {
+          credits: 321
+        }
+      }
+    });
+    expect(exportedPayload.progress.currentStageId).toBeUndefined();
+    expect(exportedPayload.selectedOfflineFarmStageId).toBeUndefined();
+    expect(exportedPayload.progress.selectedTacticId).toBeUndefined();
+    expect(exportedPayload.progress.sect).toBeUndefined();
 
     const importResult = importSaveDataToStorage(
       staticData,
