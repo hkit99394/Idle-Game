@@ -136,7 +136,7 @@ describe("counterplay preview", () => {
       data: staticData,
       progress: {
         greenline_approach: {
-          highestClearedStageIndex: 10
+          highestClearedRouteIndex: 10
         }
       },
       inventory: {
@@ -188,7 +188,7 @@ describe("counterplay preview", () => {
 
   it("previews stage status pressure and recommended counterplay", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.sect.upgrades.lotus_purity_training = 2;
+    progress.technoSect.upgrades.lotus_purity_training = 2;
     const preview = buildStageCounterplayPreview({
       data: statusPreviewData,
       stage: statusPreviewStage,

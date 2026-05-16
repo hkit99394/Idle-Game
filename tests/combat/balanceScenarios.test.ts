@@ -10,8 +10,8 @@ import { staticData } from "../helpers/staticData";
 describe("balance-critical combat scenarios", () => {
   it("keeps the Greenline Approach boss as a real gate before training", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 9;
-    progress.currentStageId = "greenline_approach_10";
+    progress.districts.greenline_approach.highestClearedRouteIndex = 9;
+    progress.currentRouteId = "greenline_approach_10";
 
     const result = resolveStageBattle(staticData, {
       progress,
@@ -25,7 +25,7 @@ describe("balance-critical combat scenarios", () => {
     }
     expect(result.stageCleared).toBe(false);
     expect(result.battle.winner).toBe("enemy");
-    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(9);
+    expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(9);
   });
 
   it("proves frontline pressure by targeting front slot enemies first", () => {

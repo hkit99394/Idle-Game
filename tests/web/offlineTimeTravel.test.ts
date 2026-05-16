@@ -24,11 +24,11 @@ class FailFromRewardCommitStorage extends MemoryStorage {
 function isRewardedSave(value: string): boolean {
   try {
     const save = JSON.parse(value) as {
-      progress?: { resources?: { silver?: unknown } };
+      progress?: { resources?: { credits?: unknown } };
     };
 
-    return typeof save.progress?.resources?.silver === "number"
-      ? save.progress.resources.silver > 0
+    return typeof save.progress?.resources?.credits === "number"
+      ? save.progress.resources.credits > 0
       : false;
   } catch {
     return false;
@@ -41,15 +41,15 @@ describe("offline time travel save state", () => {
     const state = createInitialWebGameState(staticData);
     const travelReadyState = {
       ...state,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       progress: {
         ...state.progress,
-        currentStageId: "greenline_approach_2",
-        maps: {
-          ...state.progress.maps,
+        currentRouteId: "greenline_approach_2",
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            ...state.progress.maps.greenline_approach,
-            highestClearedStageIndex: 1
+            ...state.progress.districts.greenline_approach,
+            highestClearedRouteIndex: 1
           }
         }
       }
@@ -79,9 +79,9 @@ describe("offline time travel save state", () => {
     expect(storedSave.save.updatedAtMs).toBe(100_000);
     expect(storedSave.save.lastOfflineRewardAtMs).toBe(100_000);
     expect(storedSave.save.updatedAtMs).not.toBe(70_000);
-    expect(storedSave.save.progress.resources.silver).toBe(0);
+    expect(storedSave.save.progress.resources.credits).toBe(0);
     expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toContain(
-      '"selectedOfflineFarmStageId":"greenline_approach_1"'
+      '"selectedOfflineFarmRouteId":"greenline_approach_1"'
     );
   });
 
@@ -90,15 +90,15 @@ describe("offline time travel save state", () => {
     const state = createInitialWebGameState(staticData);
     const travelReadyState = {
       ...state,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       progress: {
         ...state.progress,
-        currentStageId: "greenline_approach_2",
-        maps: {
-          ...state.progress.maps,
+        currentRouteId: "greenline_approach_2",
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            ...state.progress.maps.greenline_approach,
-            highestClearedStageIndex: 1
+            ...state.progress.districts.greenline_approach,
+            highestClearedRouteIndex: 1
           }
         }
       }
@@ -125,6 +125,6 @@ describe("offline time travel save state", () => {
     expect(result.save.lastOfflineRewardAtMs).toBe(100_000);
     expect(result.save.updatedAtMs).not.toBe(99_000);
     expect(storedSave.save).toEqual(result.save);
-    expect(storedSave.save.progress.resources.silver).toBe(0);
+    expect(storedSave.save.progress.resources.credits).toBe(0);
   });
 });

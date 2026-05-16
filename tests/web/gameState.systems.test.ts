@@ -25,9 +25,9 @@ describe("web game state systems", () => {
     const progress = {
       ...state.progress,
       resources: {
-        silver: 20,
-        cultivation: 0,
-        herbs: 0
+        credits: 20,
+        resonance: 0,
+        reagents: 0
       }
     };
     const affordableViewModel = getWebGameViewModel(staticData, {
@@ -58,7 +58,7 @@ describe("web game state systems", () => {
     );
 
     expect(nextState.lastPurchase?.ok).toBe(true);
-    expect(nextState.progress.resources.silver).toBe(8);
+    expect(nextState.progress.resources.credits).toBe(8);
     expect(
       nextState.progress.heroes.iron_fist_initiate.upgrades.hero_outer_training
     ).toBe(1);
@@ -89,9 +89,9 @@ describe("web game state systems", () => {
     const progress = {
       ...state.progress,
       resources: {
-        silver: 0,
-        cultivation: 20,
-        herbs: 0
+        credits: 0,
+        resonance: 20,
+        reagents: 0
       }
     };
     const affordableViewModel = getWebGameViewModel(staticData, {
@@ -121,7 +121,7 @@ describe("web game state systems", () => {
     );
 
     expect(nextState.lastSkillPurchase?.ok).toBe(true);
-    expect(nextState.progress.resources.cultivation).toBe(12);
+    expect(nextState.progress.resources.resonance).toBe(12);
     expect(nextState.progress.skillUpgrades?.impact_combo_refinement).toBe(1);
   });
 
@@ -279,12 +279,12 @@ describe("web game state systems", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: "veil_district_1",
-        maps: {
-          ...state.progress.maps,
+        currentRouteId: "veil_district_1",
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            combatExperience: 300,
-            highestClearedStageIndex: 10
+            combatData: 300,
+            highestClearedRouteIndex: 10
           }
         }
       }
@@ -470,17 +470,17 @@ describe("web game state systems", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        currentStageId: stageId,
-        sect: {
+        currentRouteId: stageId,
+        technoSect: {
           upgrades: {
             lotus_purity_training: 2
           }
         },
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            ...state.progress.maps.greenline_approach,
-            highestClearedStageIndex: 10
+            ...state.progress.districts.greenline_approach,
+            highestClearedRouteIndex: 10
           }
         }
       }

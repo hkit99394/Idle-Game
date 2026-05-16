@@ -10,16 +10,63 @@ import {
 import type { WebGameState } from "../types";
 import type { SaveDiagnosticsView } from "./saveDiagnosticsTypes";
 import type { LoadSaveDataFromStorageResult } from "../saveStorage";
+import type { SaveMigrationMetadata } from "../../../core";
 
-function getCurrentRegionHighestClearedStageIndex(
+function getEmptyMigrationDiagnostics(): Pick<
+  SaveDiagnosticsView,
+  | "migrationFromVersion"
+  | "migrationToVersion"
+  | "migrationMigrated"
+  | "migrationNormalized"
+  | "normalizations"
+> {
+  return {
+    migrationFromVersion: null,
+    migrationToVersion: null,
+    migrationMigrated: false,
+    migrationNormalized: false,
+    normalizations: []
+  };
+}
+
+function getMigrationDiagnostics(
+  migration: SaveMigrationMetadata
+): Pick<
+  SaveDiagnosticsView,
+  | "migrationFromVersion"
+  | "migrationToVersion"
+  | "migrationMigrated"
+  | "migrationNormalized"
+  | "normalizations"
+> {
+  return {
+    migrationFromVersion: migration.fromVersion,
+    migrationToVersion: migration.toVersion,
+    migrationMigrated: migration.migrated,
+    migrationNormalized: migration.normalized,
+    normalizations: migration.normalizations
+  };
+}
+
+function getStartupPersistenceDiagnostics(
+  state: WebGameState
+): Pick<SaveDiagnosticsView, "startupCommitStatus" | "startupWriteReasons"> {
+  return {
+    startupCommitStatus: state.startupSavePersistence?.commitStatus ?? null,
+    startupWriteReasons:
+      state.startupSavePersistence?.attemptedWriteReasons ?? []
+  };
+}
+
+function getCurrentRegionHighestClearedRouteIndex(
   data: StaticGameData,
   progress: PlayerProgress
 ): number {
-  const currentStage = getStageById(data, progress.currentStageId);
+  const currentStage = getStageById(data, progress.currentRouteId);
 
   return currentStage
-    ? getRegionMapProgress(progress.maps, currentStage.regionId)
-        ?.highestClearedStageIndex ?? 0
+    ? getRegionMapProgress(progress.districts, currentStage.regionId)
+        ?.highestClearedRouteIndex ?? 0
     : 0;
 }
 
@@ -79,14 +126,16 @@ export function buildSaveDiagnostics(
       legacySavePresent: false,
       status: "storage_unavailable",
       saveVersion: null,
+      ...getEmptyMigrationDiagnostics(),
+      ...getStartupPersistenceDiagnostics(state),
       saveSizeCharacters: 0,
       createdAtMs: null,
       updatedAtMs: null,
       lastOfflineRewardAtMs: null,
-      currentStageId: state.progress.currentStageId,
-      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      currentRouteId: state.progress.currentRouteId,
+      selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId,
       offlineFarmPreset: state.offlineFarmPreset,
-      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+      highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
         state.progress
       ),
@@ -111,14 +160,16 @@ export function buildSaveDiagnostics(
       legacySavePresent,
       status: "storage_error",
       saveVersion: null,
+      ...getEmptyMigrationDiagnostics(),
+      ...getStartupPersistenceDiagnostics(state),
       saveSizeCharacters: 0,
       createdAtMs: null,
       updatedAtMs: null,
       lastOfflineRewardAtMs: null,
-      currentStageId: state.progress.currentStageId,
-      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      currentRouteId: state.progress.currentRouteId,
+      selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId,
       offlineFarmPreset: state.offlineFarmPreset,
-      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+      highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
         state.progress
       ),
@@ -136,14 +187,16 @@ export function buildSaveDiagnostics(
       legacySavePresent,
       status: loadResult.reason,
       saveVersion: null,
+      ...getEmptyMigrationDiagnostics(),
+      ...getStartupPersistenceDiagnostics(state),
       saveSizeCharacters: rawSave?.length ?? 0,
       createdAtMs: null,
       updatedAtMs: null,
       lastOfflineRewardAtMs: null,
-      currentStageId: state.progress.currentStageId,
-      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+      currentRouteId: state.progress.currentRouteId,
+      selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId,
       offlineFarmPreset: state.offlineFarmPreset,
-      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+      highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
         state.progress
       ),
@@ -163,14 +216,16 @@ export function buildSaveDiagnostics(
     legacySavePresent,
     status: errors.length > 0 ? "storage_error" : "ready",
     saveVersion: save.version,
+    ...getMigrationDiagnostics(loadResult.migration),
+    ...getStartupPersistenceDiagnostics(state),
     saveSizeCharacters: rawSave?.length ?? 0,
     createdAtMs: save.createdAtMs,
     updatedAtMs: save.updatedAtMs,
     lastOfflineRewardAtMs: save.lastOfflineRewardAtMs,
-    currentStageId: save.progress.currentStageId,
-    selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
+    currentRouteId: save.progress.currentRouteId,
+    selectedOfflineFarmRouteId: save.selectedOfflineFarmRouteId,
     offlineFarmPreset: save.offlineFarmPreset,
-    highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+    highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
       data,
       save.progress
     ),

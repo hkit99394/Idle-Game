@@ -27,15 +27,15 @@ function formatTargetPriority(targetRule: string): string {
 
 export function buildTacticPresetViews(
   data: Pick<StaticGameData, "tactics">,
-  progress: Pick<PlayerProgress, "selectedTacticId">
+  progress: Pick<PlayerProgress, "selectedRoutineId">
 ): TacticPresetView[] {
-  const selectedTacticId = getSelectedTacticId(data, progress);
+  const selectedRoutineId = getSelectedTacticId(data, progress);
 
   return data.tactics.map((tactic) => ({
     tacticId: tactic.id,
     name: tactic.name,
     description: tactic.description,
-    selected: tactic.id === selectedTacticId,
+    selected: tactic.id === selectedRoutineId,
     behaviorTags: tactic.behaviorFlags.map((flag) => flag.replaceAll("_", " ")),
     modifierSummary: [
       ...(tactic.targetPriorities?.length

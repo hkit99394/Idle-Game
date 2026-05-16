@@ -222,7 +222,7 @@ function getRecommendedRegionFarmStage(
       (stage) =>
         !stage.isBoss &&
         stage.canFarmOffline &&
-        (progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0) >=
+        (progress.districts[stage.regionId]?.highestClearedRouteIndex ?? 0) >=
           stage.index
     )
     .reduce<StageDefinition | null>(
@@ -267,12 +267,12 @@ function buildRegionMasteryMilestone(
   regionId: string,
   farmRecommendation: ReturnType<typeof buildRegionFarmRecommendation>
 ) {
-  const mapProgress = progressBeforeBoss.maps[regionId] ?? {
-    combatExperience: 0,
-    highestClearedStageIndex: 0
+  const mapProgress = progressBeforeBoss.districts[regionId] ?? {
+    combatData: 0,
+    highestClearedRouteIndex: 0
   };
   const nextMastery = getNextMasteryThreshold(
-    mapProgress.combatExperience,
+    mapProgress.combatData,
     data.mastery.thresholds
   );
 
@@ -283,11 +283,11 @@ function buildRegionMasteryMilestone(
   return {
     threshold: nextMastery.experience,
     rank: nextMastery.rank,
-    currentCombatExperience: mapProgress.combatExperience,
+    currentCombatExperience: mapProgress.combatData,
     farmStageId: farmRecommendation?.stageId ?? null,
     farmClearsRequired: farmRecommendation
       ? Math.ceil(
-          Math.max(0, nextMastery.experience - mapProgress.combatExperience) /
+          Math.max(0, nextMastery.experience - mapProgress.combatData) /
             farmRecommendation.rewards.combatExperience
         )
       : null
@@ -388,7 +388,7 @@ function purchaseAffordableTraining(data: StaticGameData, progress: PlayerProgre
     candidates.sort((first, second) => first.cost - second.cost);
 
     const candidate = candidates.find(
-      (entry) => entry.cost <= nextProgress.resources.silver
+      (entry) => entry.cost <= nextProgress.resources.credits
     );
 
     if (!candidate) {
@@ -793,9 +793,9 @@ function summarizeBattle(
       )
     },
     rewards: result.rewards,
-    currentStageId: result.progress.currentStageId,
-    highestClearedStageIndex:
-      result.progress.maps[stage.regionId]?.highestClearedStageIndex ?? 0,
+    currentRouteId: result.progress.currentRouteId,
+    highestClearedRouteIndex:
+      result.progress.districts[stage.regionId]?.highestClearedRouteIndex ?? 0,
     suggestedFarmStageId: result.suggestedFarmStageId
   };
 }
@@ -1437,14 +1437,14 @@ export function buildGameBalanceReport(data: StaticGameData) {
     initialProgress,
     seededRegionReports
   );
-  const bambooRoadProgressBeforeBoss = progressBeforeBoss.maps[
+  const bambooRoadProgressBeforeBoss = progressBeforeBoss.districts[
     BAMBOO_ROAD_REGION_ID
   ] ?? {
-    combatExperience: 0,
-    highestClearedStageIndex: 0
+    combatData: 0,
+    highestClearedRouteIndex: 0
   };
   const nextMastery = getNextMasteryThreshold(
-    bambooRoadProgressBeforeBoss.combatExperience,
+    bambooRoadProgressBeforeBoss.combatData,
     data.mastery.thresholds
   );
   const firstHeroUpgrade = getUpgrade(data, "hero_outer_training");
@@ -1457,7 +1457,7 @@ export function buildGameBalanceReport(data: StaticGameData) {
         Math.max(
           0,
           nextMastery.experience -
-            bambooRoadProgressBeforeBoss.combatExperience
+            bambooRoadProgressBeforeBoss.combatData
         ) / farmStage.rewards.combatExperience
       )
     : 0;

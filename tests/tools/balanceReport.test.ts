@@ -352,6 +352,19 @@ describe("balance report", () => {
     expect(
       report.regionBalances.every((region) => region.budgetChecks.length > 0)
     ).toBe(true);
+
+    for (const region of report.regionBalances) {
+      for (const stage of region.stageResults) {
+        if (!stage.ok) {
+          continue;
+        }
+
+        expect(stage.currentRouteId.length).toBeGreaterThan(0);
+        expect(stage.highestClearedRouteIndex).toBeGreaterThanOrEqual(0);
+        expect(Object.hasOwn(stage, "currentStageId")).toBe(false);
+        expect(Object.hasOwn(stage, "highestClearedStageIndex")).toBe(false);
+      }
+    }
   });
 
   it("reports configured budget gates with actionable miss reasons", () => {

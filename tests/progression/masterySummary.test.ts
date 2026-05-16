@@ -50,7 +50,7 @@ describe("active mastery summary", () => {
 
   it("exposes map attack mastery for a familiar map", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.combatExperience = 100;
+    progress.districts.greenline_approach.combatData = 100;
 
     const result = getActiveMasterySummaryForStage(
       staticData,
@@ -74,7 +74,7 @@ describe("active mastery summary", () => {
 
   it("exposes map reward mastery for a trained map", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.combatExperience = 500;
+    progress.districts.greenline_approach.combatData = 500;
 
     const result = getActiveMasterySummaryForStage(
       staticData,
@@ -99,7 +99,7 @@ describe("active mastery summary", () => {
 
   it("maps mastered enemy-family bonuses to the current stage families", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.combatExperience = 3000;
+    progress.districts.greenline_approach.combatData = 3000;
 
     const normalResult = getActiveMasterySummaryForStage(
       staticData,

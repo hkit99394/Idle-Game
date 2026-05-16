@@ -46,7 +46,7 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage access is gated by configured region/stage progress. Boss clearing is online play; offline farming uses cleared farmable stages.
 - Selecting a map/stage starts continuous fighting or farming behavior without a separate Fight or Set Farm button.
 - The player stays on the selected stage after battle instead of being forced to the latest unlocked stage.
-- Stage 2.1 tactic presets are authored in static data, validated with the content bundle, applied by core combat, saved as one global `selectedTacticId`, surfaced in the Strategy panel, and reported in recent battle summaries.
+- Stage 2.1 tactic presets are authored in static data, validated with the content bundle, applied by core combat, saved as one global `selectedRoutineId`, surfaced in the Strategy panel, and reported in recent battle summaries.
 - Heroes gain levels from accumulated Combat XP. Level requirements increase by level, and enemy definitions also carry level data.
 - CP is calculated from hero stats, level, equipment, formation, and other active bonuses, then shown as a quick strength indicator.
 - Map mastery and style mastery grant staged bonuses from repeated play and assignment rewards.
@@ -91,9 +91,9 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.4 product/storage key migration is closed and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md), including package metadata, browser save storage, PWA cache/icon identity, and shared alias-map helpers.
 - Stage 2.5 region/stage static id migration is closed and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md), including save-version fixtures, `progress.maps`, selected/current stage ids, simulator report ids, and compatibility aliases.
 - Stage 2.6 static content id migration is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md), with the target matrix retained in [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md). Save version `12` normalizes save-stored content aliases, static hostile/status/initiate/protocol/style/augment/countermeasure/operation/routine ids now use their canonical Path of Neon ids, and report exports keep canonical ids primary with temporary legacy comparison columns.
-- Stage 2.7 save resource/progress field migration is the active backlog in [Stage 2.7 Backlog](stage-2.7-backlog.md). It prepares Epic 92 for fields such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, selected/current route fields, routine selection, and techno-sect progress with a planned save-version bump.
+- Stage 2.7 save resource/progress field migration is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md), with the target matrix retained in [Archived Stage 2.7 Save Field Preflight](archive/stage-2.7-save-field-preflight.md). Save version `13` serializes current owned save fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `highestClearedRouteIndex`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`; legacy save fields remain import-compatible through core save aliases.
 - Stage 2.3 is closed and archived at [Stage 2.3 Backlog](archive/stage-2.3-backlog.md), covering the display-safe Path of Neon design pivot.
-- Completed backlogs through Stage 2.6 live in `docs/archive`.
+- Completed backlogs through Stage 2.7 live in `docs/archive`.
 - Stage 1.9 is closed and archived at [Stage 1.9 Backlog](archive/stage-1.9-backlog.md); `docs/stage-1.9-backlog.md` should not exist as an active backlog unless Stage 1.9 is explicitly reopened.
 - Stage 2.0 is closed and archived at [Stage 2.0 Backlog](archive/stage-2.0-backlog.md); `docs/stage-2.0-backlog.md` should not exist as an active backlog unless Stage 2.0 is explicitly reopened.
 - Stage 2.1 is closed and archived at [Stage 2.1 Backlog](archive/stage-2.1-backlog.md); `docs/stage-2.1-backlog.md` should not exist as an active backlog unless Stage 2.1 is explicitly reopened.
@@ -102,7 +102,8 @@ This is the quick onboarding snapshot for the current Path of Neon implementatio
 - Stage 2.4 is closed and archived at [Archived Stage 2.4 Backlog](archive/stage-2.4-backlog.md); `docs/stage-2.4-backlog.md` should not exist as an active backlog unless Stage 2.4 is explicitly reopened.
 - Stage 2.5 is closed and archived at [Archived Stage 2.5 Backlog](archive/stage-2.5-backlog.md); `docs/stage-2.5-backlog.md` should not exist as an active backlog unless Stage 2.5 is explicitly reopened.
 - Stage 2.6 is closed and archived at [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md); `docs/stage-2.6-backlog.md` should not exist as an active backlog unless Stage 2.6 is explicitly reopened.
-- Stage 2.7 is active at [Stage 2.7 Backlog](stage-2.7-backlog.md); `docs/stage-2.7-backlog.md` should remain active until Stage 2.7 closure validation archives it.
+- Stage 2.7 is closed and archived at [Archived Stage 2.7 Backlog](archive/stage-2.7-backlog.md); `docs/stage-2.7-backlog.md` should not exist as an active backlog unless Stage 2.7 is explicitly reopened.
+- Stage 2.8 is active at [Stage 2.8 Backlog](stage-2.8-backlog.md), covering combat save/stat fields and combat/report symbols. `docs/stage-2.8-backlog.md` should remain active until Stage 2.8 closure validation archives it.
 - Stage closure uses the [Release Readiness Checklist](release-readiness-checklist.md) for required commands, review, browser smoke, save compatibility, and archive steps.
 
 ## Web UI And State Modules

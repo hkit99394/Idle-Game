@@ -14,19 +14,19 @@ import { staticData } from "../helpers/staticData";
 describe("save schema factory", () => {
   it("creates a versioned save with progress, farm target, and timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.silver = 42;
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.resources.credits = 42;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       nowMs: 1000
     });
 
     expect(save.version).toBe(SAVE_DATA_VERSION);
-    expect(save.progress.resources.silver).toBe(42);
-    expect(save.progress.currentStageId).toBe("greenline_approach_1");
-    expect(save.progress.selectedTacticId).toBe("balanced_routine");
+    expect(save.progress.resources.credits).toBe(42);
+    expect(save.progress.currentRouteId).toBe("greenline_approach_1");
+    expect(save.progress.selectedRoutineId).toBe("balanced_routine");
     expect(save.autoMedicinePreferences).toEqual({
       enabled: true,
       battleCleanseEnabled: true,
@@ -35,41 +35,77 @@ describe("save schema factory", () => {
       preBattleResistanceMode: "boss_and_elite",
       disabledMedicineIds: []
     });
-    expect(save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(save.offlineFarmPreset).toBe("balanced");
     expect(save.createdAtMs).toBe(1000);
     expect(save.updatedAtMs).toBe(1000);
     expect(save.lastOfflineRewardAtMs).toBe(1000);
 
-    progress.resources.silver = 999;
+    progress.resources.credits = 999;
 
-    expect(save.progress.resources.silver).toBe(42);
+    expect(save.progress.resources.credits).toBe(42);
+  });
+
+  it("serializes current saves with Stage 2.7 field names", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.credits = 42;
+    progress.resources.resonance = 7;
+    progress.resources.reagents = 3;
+    progress.districts.greenline_approach.combatData = 11;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 2;
+    progress.currentRouteId = "greenline_approach_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmRouteId: "greenline_approach_1",
+      nowMs: 1000,
+      offlineFarmPreset: "credits"
+    });
+    const serialized = JSON.parse(JSON.stringify(save));
+
+    expect(serialized.progress.resources).toEqual({
+      credits: 42,
+      resonance: 7,
+      reagents: 3
+    });
+    expect(serialized.progress.districts.greenline_approach).toEqual({
+      combatData: 11,
+      highestClearedRouteIndex: 2
+    });
+    expect(serialized.progress.currentRouteId).toBe("greenline_approach_2");
+    expect(serialized.progress.selectedRoutineId).toBe("balanced_routine");
+    expect(serialized.progress.technoSect).toEqual({ upgrades: {} });
+    expect(serialized.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
+    expect(serialized.offlineFarmPreset).toBe("credits");
+    expect(serialized.progress.resources.silver).toBeUndefined();
+    expect(serialized.progress.maps).toBeUndefined();
+    expect(serialized.progress.currentStageId).toBeUndefined();
+    expect(serialized.selectedOfflineFarmStageId).toBeUndefined();
   });
 
   it("preserves creation and offline reward timestamps when updating a save", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 5000,
       previousSave: {
         createdAtMs: 1000,
         lastOfflineRewardAtMs: 3000,
-        offlineFarmPreset: "silver"
+        offlineFarmPreset: "credits"
       }
     });
 
     expect(save.createdAtMs).toBe(1000);
     expect(save.updatedAtMs).toBe(5000);
     expect(save.lastOfflineRewardAtMs).toBe(3000);
-    expect(save.offlineFarmPreset).toBe("silver");
+    expect(save.offlineFarmPreset).toBe("credits");
   });
 
   it("parses valid save data into a cloned save", () => {
     const progress = createInitialPlayerProgress(staticData);
     const rawSave = createSaveData({
       progress,
-      selectedOfflineFarmStageId: null,
+      selectedOfflineFarmRouteId: null,
       nowMs: 1000
     });
     const result = parseSaveData(staticData, rawSave);
@@ -79,9 +115,9 @@ describe("save schema factory", () => {
       return;
     }
 
-    rawSave.progress.resources.silver = 77;
+    rawSave.progress.resources.credits = 77;
 
-    expect(result.save.progress.resources.silver).toBe(0);
+    expect(result.save.progress.resources.credits).toBe(0);
     expect(result.save).not.toBe(rawSave);
   });
 
@@ -96,7 +132,7 @@ describe("save schema factory", () => {
         heroes: Object.fromEntries(
           staticData.heroes.map((hero) => [hero.id, { upgrades: {} }])
         ),
-        sect: {
+        technoSect: {
           upgrades: {}
         },
         maps: {
@@ -105,9 +141,9 @@ describe("save schema factory", () => {
             highestClearedStageIndex: 1
           }
         },
-        currentStageId: "bamboo_road_2"
+        currentRouteId: "bamboo_road_2"
       },
-      selectedOfflineFarmStageId: "bamboo_road_1",
+      selectedOfflineFarmRouteId: "bamboo_road_1",
       createdAtMs: 1000,
       updatedAtMs: 2000,
       lastOfflineRewardAtMs: 2000
@@ -136,19 +172,19 @@ describe("save schema factory", () => {
       disabledMedicineIds: []
     });
     expect(result.save.offlineFarmPreset).toBe("balanced");
-    expect(result.save.progress.resources.herbs).toBe(0);
+    expect(result.save.progress.resources.reagents).toBe(0);
     expect(result.save.progress.heroes.iron_fist_initiate.level).toBe(1);
-    expect(result.save.progress.maps.veil_district).toMatchObject({
-      combatExperience: 0,
-      highestClearedStageIndex: 0
+    expect(result.save.progress.districts.veil_district).toMatchObject({
+      combatData: 0,
+      highestClearedRouteIndex: 0
     });
-    expect(result.save.progress.currentStageId).toBe("greenline_approach_2");
-    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(result.save.progress.currentRouteId).toBe("greenline_approach_2");
+    expect(result.save.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
     expect(result.save.progress.formation).toMatchObject({
       iron_fist_initiate: "front"
     });
     expect(result.save.progress.activeHeroIds).toEqual([...MVP_PLAYER_HERO_IDS]);
-    expect(result.save.progress.selectedTacticId).toBe("balanced_routine");
+    expect(result.save.progress.selectedRoutineId).toBe("balanced_routine");
     expect(result.save.progress.styleMastery).toEqual({});
     expect(result.save.progress.styleBranches).toEqual({});
     expect(result.save.progress.skillUpgrades).toEqual({});

@@ -223,7 +223,7 @@ export function createStatusPressureProgress(
 ): PlayerProgress {
   const progress = createInitialPlayerProgress(data);
 
-  progress.currentStageId = input.stageId;
+  progress.currentRouteId = input.stageId;
   progress.activeHeroIds = [input.heroId];
   progress.formation = { [input.heroId]: "front" };
   progress.medicineInventory = { ...(input.medicineInventory ?? {}) };

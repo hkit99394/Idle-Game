@@ -17,7 +17,7 @@ export type LotusSupportGrowthContribution = {
 
 export function getLotusSupportGrowthContribution(
   data: Pick<StaticGameData, "upgrades">,
-  progress: Pick<PlayerProgress, "sect">
+  progress: Pick<PlayerProgress, "technoSect">
 ): LotusSupportGrowthContribution | null {
   const upgrade = data.upgrades.find(
     (candidate) => candidate.id === LOTUS_PURITY_TRAINING_UPGRADE_ID
@@ -27,7 +27,7 @@ export function getLotusSupportGrowthContribution(
     return null;
   }
 
-  const level = progress.sect.upgrades[upgrade.id] ?? 0;
+  const level = progress.technoSect.upgrades[upgrade.id] ?? 0;
   const nextResistanceBonus = upgrade.effects
     .filter(
       (effect) =>

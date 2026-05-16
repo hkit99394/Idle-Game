@@ -6,7 +6,7 @@ Stage 2.2 defines cloud save as a wrapper around the existing core save API. The
 
 No production account provider, database, or sync transport is required by this contract.
 
-Theme note: Path of Neon display names do not rename cloud-save envelope fields by default. Persisted save fields and envelope keys remain literal compatibility contracts unless a later migration changes them.
+Theme note: Path of Neon display names do not rename cloud-save envelope fields by default. Envelope keys such as `saveVersion`, `checksum`, and `rawSave` remain literal compatibility contracts. The `rawSave` payload should be current `SaveData`; Stage 2.7 current saves use fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`, while legacy raw saves are accepted only through core load/migration semantics.
 
 ## Core Entry Points
 
@@ -32,10 +32,10 @@ Cloud storage should use a wrapped envelope rather than raw save JSON alone:
 | `checksum` | Persistence adapter | Non-empty checksum/hash for the stored raw save payload. |
 | `createdAtMs` | Core save data | Must match `rawSave.createdAtMs`. |
 | `updatedAtMs` | Core save data | Must match `rawSave.updatedAtMs` and be greater than or equal to `createdAtMs`. |
-| `rawSave` | Core save data | Current `SaveData` payload to pass back through core load semantics. |
+| `rawSave` | Core save data | Current `SaveData` payload to pass back through core load semantics; legacy shapes are accepted for import/load compatibility but are not the preferred durable cloud shape. |
 | `migration` | Optional adapter metadata | Last parse/load migration metadata, useful for diagnostics. |
 
-Cloud stores should persist current-version saves. Legacy import still belongs to `parseSaveData` or `loadSaveTransaction`; future save versions must be rejected rather than downgraded.
+Cloud stores should persist current-version saves with the current Stage 2.7 save-field schema. Legacy import still belongs to `parseSaveData` or `loadSaveTransaction`; future save versions must be rejected rather than downgraded.
 
 ## Load Flow
 

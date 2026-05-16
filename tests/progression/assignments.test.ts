@@ -62,7 +62,7 @@ describe("assignment progression", () => {
     });
 
     const unlockedProgress = createInitialPlayerProgress(staticData);
-    unlockedProgress.maps.greenline_approach.highestClearedStageIndex = 10;
+    unlockedProgress.districts.greenline_approach.highestClearedRouteIndex = 10;
 
     expect(
       setAssignmentHeroes(staticData, {

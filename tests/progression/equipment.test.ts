@@ -13,7 +13,7 @@ import { staticData } from "../helpers/staticData";
 describe("equipment progression", () => {
   it("adds deterministic equipment drops to inventory and stacks duplicates", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const firstClear = applyStageClearRewards(staticData, {
       progress,

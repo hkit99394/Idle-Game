@@ -49,13 +49,13 @@ describe("offline rewards", () => {
 
   it("applies rewards from a selected cleared non-boss farm stage", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 2;
-    progress.currentStageId = "greenline_approach_3";
+    progress.districts.greenline_approach.highestClearedRouteIndex = 2;
+    progress.currentRouteId = "greenline_approach_3";
 
     const result = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       lastSavedAtMs: 1000,
       currentTimeMs: 31_000,
       config: {
@@ -72,21 +72,21 @@ describe("offline rewards", () => {
     }
 
     expect(result.rewards.clears).toBe(3);
-    expect(result.progress.resources.silver).toBeCloseTo(15);
-    expect(result.progress.resources.cultivation).toBeCloseTo(7.5);
-    expect(result.progress.maps.greenline_approach.combatExperience).toBeCloseTo(7.5);
-    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(2);
-    expect(result.progress.currentStageId).toBe("greenline_approach_3");
+    expect(result.progress.resources.credits).toBeCloseTo(15);
+    expect(result.progress.resources.resonance).toBeCloseTo(7.5);
+    expect(result.progress.districts.greenline_approach.combatData).toBeCloseTo(7.5);
+    expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(2);
+    expect(result.progress.currentRouteId).toBe("greenline_approach_3");
   });
 
   it("updates hero levels after offline combat experience is granted", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const result = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       lastSavedAtMs: 0,
       currentTimeMs: 200_000,
       config: {
@@ -108,12 +108,12 @@ describe("offline rewards", () => {
 
   it("previews rewards with the same formula without mutating progress", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       previewSeconds: 30,
       config: {
         offlineCapSeconds: 100,
@@ -137,22 +137,22 @@ describe("offline rewards", () => {
       combatExperience: 7.5
     });
     expect(preview.masteryExperienceGain).toBe(7.5);
-    expect(progress.resources.silver).toBe(0);
-    expect(progress.maps.greenline_approach.combatExperience).toBe(0);
+    expect(progress.resources.credits).toBe(0);
+    expect(progress.districts.greenline_approach.combatData).toBe(0);
   });
 
   it("applies and previews herbs from Lotus offline farming", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 10;
-    progress.maps.veil_district.highestClearedStageIndex = 10;
-    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
-    progress.maps.lotus_clinic.highestClearedStageIndex = 1;
-    progress.currentStageId = "lotus_clinic_2";
+    progress.districts.greenline_approach.highestClearedRouteIndex = 10;
+    progress.districts.veil_district.highestClearedRouteIndex = 10;
+    progress.districts.black_iron_foundry.highestClearedRouteIndex = 10;
+    progress.districts.lotus_clinic.highestClearedRouteIndex = 1;
+    progress.currentRouteId = "lotus_clinic_2";
 
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "lotus_clinic_1",
+      selectedOfflineFarmRouteId: "lotus_clinic_1",
       previewSeconds: 30,
       config: {
         offlineCapSeconds: 100,
@@ -164,7 +164,7 @@ describe("offline rewards", () => {
     const applied = applyOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "lotus_clinic_1",
+      selectedOfflineFarmRouteId: "lotus_clinic_1",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000,
       config: {
@@ -184,7 +184,7 @@ describe("offline rewards", () => {
     if (!applied.ok) {
       return;
     }
-    expect(applied.progress.resources.herbs).toBe(9);
+    expect(applied.progress.resources.reagents).toBe(9);
   });
 
   it("previews invalid farm targets safely", () => {
@@ -192,7 +192,7 @@ describe("offline rewards", () => {
     const preview = previewOfflineRewards({
       data: staticData,
       progress,
-      selectedOfflineFarmStageId: "greenline_approach_10",
+      selectedOfflineFarmRouteId: "greenline_approach_10",
       previewSeconds: 60
     });
 
@@ -214,24 +214,24 @@ describe("offline rewards", () => {
     const missingResult = applyOfflineRewards({
       data: staticData,
       progress: lockedProgress,
-      selectedOfflineFarmStageId: "missing_stage",
+      selectedOfflineFarmRouteId: "missing_stage",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
     const lockedResult = applyOfflineRewards({
       data: staticData,
       progress: lockedProgress,
-      selectedOfflineFarmStageId: "greenline_approach_2",
+      selectedOfflineFarmRouteId: "greenline_approach_2",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
     const bossProgress = createInitialPlayerProgress(staticData);
-    bossProgress.maps.greenline_approach.highestClearedStageIndex = 10;
-    bossProgress.currentStageId = "greenline_approach_10";
+    bossProgress.districts.greenline_approach.highestClearedRouteIndex = 10;
+    bossProgress.currentRouteId = "greenline_approach_10";
     const bossResult = applyOfflineRewards({
       data: staticData,
       progress: bossProgress,
-      selectedOfflineFarmStageId: "greenline_approach_10",
+      selectedOfflineFarmRouteId: "greenline_approach_10",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
@@ -247,11 +247,11 @@ describe("offline rewards", () => {
       )
     };
     const notFarmableProgress = createInitialPlayerProgress(staticData);
-    notFarmableProgress.maps.greenline_approach.highestClearedStageIndex = 1;
+    notFarmableProgress.districts.greenline_approach.highestClearedRouteIndex = 1;
     const notFarmableResult = applyOfflineRewards({
       data: notFarmableData,
       progress: notFarmableProgress,
-      selectedOfflineFarmStageId: "greenline_approach_1",
+      selectedOfflineFarmRouteId: "greenline_approach_1",
       lastSavedAtMs: 0,
       currentTimeMs: 30_000
     });
@@ -261,24 +261,24 @@ describe("offline rewards", () => {
       throw new Error("Missing farm target should be refused");
     }
     expect(missingResult.reason).toBe("invalid_farm_stage");
-    expect(missingResult.progress.resources.silver).toBe(0);
+    expect(missingResult.progress.resources.credits).toBe(0);
     expect(lockedResult.ok).toBe(false);
     if (lockedResult.ok) {
       throw new Error("Locked farm target should be refused");
     }
     expect(lockedResult.reason).toBe("invalid_farm_stage");
-    expect(lockedResult.progress.resources.silver).toBe(0);
+    expect(lockedResult.progress.resources.credits).toBe(0);
     expect(bossResult.ok).toBe(false);
     if (bossResult.ok) {
       throw new Error("Boss farm target should be refused");
     }
     expect(bossResult.reason).toBe("invalid_farm_stage");
-    expect(bossResult.progress.resources.silver).toBe(0);
+    expect(bossResult.progress.resources.credits).toBe(0);
     expect(notFarmableResult.ok).toBe(false);
     if (notFarmableResult.ok) {
       throw new Error("Non-farmable target should be refused");
     }
     expect(notFarmableResult.reason).toBe("invalid_farm_stage");
-    expect(notFarmableResult.progress.resources.silver).toBe(0);
+    expect(notFarmableResult.progress.resources.credits).toBe(0);
   });
 });

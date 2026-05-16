@@ -5,7 +5,7 @@ This guide is for new contributors working on the combat engine produced by Stag
 ## Public entry points
 
 - `simulateBattle(staticData, input)` in `core/combat/simulator.ts` is the battle runner. It builds lookups, resolves the optional player tactic, initializes combatants, runs fixed time steps, and returns winner, duration, applied tactic metadata, events, final teams, metrics, contribution rows, and auto-medicine state.
-- `resolveStageBattle(staticData, input)` in `core/progression/battleResolution.ts` is the progression adapter. It uses an explicit `input.tacticId` when provided, otherwise reads `PlayerProgress.selectedTacticId` and falls back to `balanced_routine` for missing or invalid saved values.
+- `resolveStageBattle(staticData, input)` in `core/progression/battleResolution.ts` is the progression adapter. It uses an explicit `input.tacticId` when provided, otherwise reads `PlayerProgress.selectedRoutineId` and falls back to `balanced_routine` for missing or invalid saved values.
 - `core/index.ts` exports `core/combat/index.ts`, which re-exports the combat API. Prefer importing combat behavior through the core barrel from web, tools, and tests unless a local combat module needs an internal helper.
 - `createBattleEventRecords`, `createBattleEventRecord`, `BattleEventRecord`, and `BATTLE_EVENT_TYPES` are the public battle event metadata helpers re-exported by `core/combat/index.ts`.
 - Metrics and contribution helpers also live in `battleRecorder.ts`, but they are simulator internals unless a future stage deliberately promotes them through `core/combat/index.ts`.

@@ -99,7 +99,7 @@ function createPlayerCombatantStats(
       hero.id,
       context.playerLevel
     ),
-    sectProgress: progress.sect,
+    sectProgress: progress.technoSect,
     heroUpgradeDefinitions: context.heroUpgradeDefinitions,
     sectUpgradeDefinitions: context.sectUpgradeDefinitions,
     style: hero.style,
@@ -315,10 +315,10 @@ export function resolveStageBattle(
     stageCleared: true,
     progress: {
       ...rewardsResult.progress,
-      currentStageId: getNextCurrentStageId(
+      currentRouteId: getNextCurrentStageId(
         data,
         stage,
-        input.progress.currentStageId,
+        input.progress.currentRouteId,
         rewardsResult.progress
       )
     },

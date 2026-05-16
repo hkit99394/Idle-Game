@@ -9,7 +9,7 @@ import type {
   PlayerProgress
 } from "../progression";
 
-export const SAVE_DATA_VERSION = 12 as const;
+export const SAVE_DATA_VERSION = 13 as const;
 export const MIN_SUPPORTED_SAVE_DATA_VERSION = 1 as const;
 export const SUPPORTED_SAVE_DATA_VERSIONS = [
   1,
@@ -23,6 +23,7 @@ export const SUPPORTED_SAVE_DATA_VERSIONS = [
   9,
   10,
   11,
+  12,
   SAVE_DATA_VERSION
 ] as const;
 export type SupportedSaveDataVersion =
@@ -32,7 +33,7 @@ export type SaveData = {
   version: typeof SAVE_DATA_VERSION;
   progress: PlayerProgress;
   autoMedicinePreferences: AutoMedicinePreferences;
-  selectedOfflineFarmStageId: string | null;
+  selectedOfflineFarmRouteId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
   createdAtMs: number;
   updatedAtMs: number;
@@ -41,7 +42,7 @@ export type SaveData = {
 
 export type CreateSaveDataInput = {
   progress: PlayerProgress;
-  selectedOfflineFarmStageId: string | null;
+  selectedOfflineFarmRouteId: string | null;
   offlineFarmPreset?: OfflineFarmPreset;
   nowMs: number;
   lastOfflineRewardAtMs?: number;

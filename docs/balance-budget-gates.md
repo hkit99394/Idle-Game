@@ -19,6 +19,8 @@ Budgets live in each region's required `balanceTargets` entry in `data/regions.j
 
 Unsupported budget fields fail static validation. Pressure sections are optional by content style, but any pressure section that is present must define at least one recognized budget field.
 
+The reward metric names in this guide are static authoring and balance-report fields, not persisted save-state fields. Stage 2.7 current saves use `credits`, `resonance`, `reagents`, and `combatData`, but budget gates continue to evaluate authored stage rewards and report columns as `silver`, `cultivation`, `herbs`, and `combatExperience` until a later static reward/report schema migration.
+
 ## Static Validation Contract
 
 `validateStaticGameData` now derives required budget guidance from the region's configured stages and enemies:
@@ -120,7 +122,7 @@ This compact export has `schemaVersion: 3` and four top-level tables:
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
 
-Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns while the tactic comparison export includes temporary legacy tactic/baseline tactic id columns.
+Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns while the tactic comparison export includes temporary legacy tactic/baseline tactic id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
 
 For spreadsheet review, run:
 

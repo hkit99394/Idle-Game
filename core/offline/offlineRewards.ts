@@ -50,7 +50,7 @@ export type OfflineRewardResult = {
 export type ApplyOfflineRewardsInput = {
   data: Pick<StaticGameData, "heroes" | "stages" | "mastery">;
   progress: PlayerProgress;
-  selectedOfflineFarmStageId: string | null;
+  selectedOfflineFarmRouteId: string | null;
   lastSavedAtMs: number;
   currentTimeMs: number;
   config?: OfflineRewardConfig;
@@ -59,7 +59,7 @@ export type ApplyOfflineRewardsInput = {
 export type PreviewOfflineRewardsInput = {
   data: Pick<StaticGameData, "stages" | "mastery">;
   progress: PlayerProgress;
-  selectedOfflineFarmStageId: string | null;
+  selectedOfflineFarmRouteId: string | null;
   previewSeconds: number;
   config?: OfflineRewardConfig;
 };
@@ -126,13 +126,13 @@ function getOfflineRewardStageMultiplier(
   stageRegionId: string
 ): number {
   const currentMapProgress = getRegionMapProgress(
-    progress.maps,
+    progress.districts,
     stageRegionId
   ) ?? {
-    combatExperience: 0,
-    highestClearedStageIndex: 0
+    combatData: 0,
+    highestClearedRouteIndex: 0
   };
-  const mapCombatExperience = currentMapProgress.combatExperience ?? 0;
+  const mapCombatExperience = currentMapProgress.combatData ?? 0;
 
   return 1 + getMapRewardMultiplier(
     mapCombatExperience,
@@ -143,7 +143,7 @@ function getOfflineRewardStageMultiplier(
 export function previewOfflineRewards(
   input: PreviewOfflineRewardsInput
 ): PreviewOfflineRewardsResult {
-  const selectedStageId = input.selectedOfflineFarmStageId;
+  const selectedStageId = input.selectedOfflineFarmRouteId;
 
   if (!selectedStageId) {
     return {
@@ -208,7 +208,7 @@ export function previewOfflineRewards(
 export function applyOfflineRewards(
   input: ApplyOfflineRewardsInput
 ): ApplyOfflineRewardsResult {
-  const selectedStageId = input.selectedOfflineFarmStageId;
+  const selectedStageId = input.selectedOfflineFarmRouteId;
 
   if (!selectedStageId) {
     return {
@@ -265,20 +265,20 @@ export function applyOfflineRewards(
   });
   const nextProgress = cloneProgress(input.progress);
   const nextMapProgress = getRegionMapProgress(
-    nextProgress.maps,
+    nextProgress.districts,
     stage.regionId
   ) ?? {
-    combatExperience: 0,
-    highestClearedStageIndex: 0
+    combatData: 0,
+    highestClearedRouteIndex: 0
   };
-  const nextCombatExperience = nextMapProgress.combatExperience ?? 0;
+  const nextCombatExperience = nextMapProgress.combatData ?? 0;
 
-  nextProgress.resources.silver += rewards.silver;
-  nextProgress.resources.cultivation += rewards.cultivation;
-  nextProgress.resources.herbs += rewards.herbs;
+  nextProgress.resources.credits += rewards.silver;
+  nextProgress.resources.resonance += rewards.cultivation;
+  nextProgress.resources.reagents += rewards.herbs;
   setRegionMapProgress(nextProgress, stage.regionId, {
     ...nextMapProgress,
-    combatExperience: nextCombatExperience + rewards.combatExperience
+    combatData: nextCombatExperience + rewards.combatExperience
   });
   addStyleMasteryExperience(
     nextProgress,

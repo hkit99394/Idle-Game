@@ -67,7 +67,7 @@ export function getActiveMasterySummaryForStage(
   }
 
   const combatExperience =
-    getRegionMapProgress(progress.maps, stage.regionId)?.combatExperience ?? 0;
+    getRegionMapProgress(progress.districts, stage.regionId)?.combatData ?? 0;
   const enemyFamilyDamageMultiplier = getEnemyFamilyDamageMultiplier(
     combatExperience,
     data.mastery.thresholds

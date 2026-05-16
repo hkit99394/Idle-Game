@@ -15,9 +15,9 @@ import {
 } from "../progression";
 import type {
   AssignmentProgress,
+  DistrictProgress,
   EquipmentProgress,
   HeroProgress,
-  MapProgress,
   PlayerProgress,
   ResourceState,
   SectProgress
@@ -39,9 +39,9 @@ export function validateResources(
     return false;
   }
 
-  validateNumber(value.silver, "progress.resources.silver", errors);
-  validateNumber(value.cultivation, "progress.resources.cultivation", errors);
-  validateNumber(value.herbs, "progress.resources.herbs", errors);
+  validateNumber(value.credits, "progress.resources.credits", errors);
+  validateNumber(value.resonance, "progress.resources.resonance", errors);
+  validateNumber(value.reagents, "progress.resources.reagents", errors);
 
   return true;
 }
@@ -93,29 +93,29 @@ export function validateHeroes(
 }
 
 export function validateSect(value: unknown, errors: string[]): value is SectProgress {
-  if (!validateRecord(value, "progress.sect", errors)) {
+  if (!validateRecord(value, "progress.technoSect", errors)) {
     return false;
   }
 
-  validateNumberMap(value.upgrades, "progress.sect.upgrades", errors);
+  validateNumberMap(value.upgrades, "progress.technoSect.upgrades", errors);
 
   return true;
 }
 
-export function validateMapProgress(
+export function validateDistrictProgress(
   value: unknown,
   path: string,
   maxClearedStageIndex: number,
   errors: string[]
-): value is MapProgress {
+): value is DistrictProgress {
   if (!validateRecord(value, path, errors)) {
     return false;
   }
 
-  validateNumber(value.combatExperience, `${path}.combatExperience`, errors);
+  validateNumber(value.combatData, `${path}.combatData`, errors);
   validateIntegerRange(
-    value.highestClearedStageIndex,
-    `${path}.highestClearedStageIndex`,
+    value.highestClearedRouteIndex,
+    `${path}.highestClearedRouteIndex`,
     0,
     maxClearedStageIndex,
     errors
@@ -124,25 +124,25 @@ export function validateMapProgress(
   return true;
 }
 
-function getUnknownRegionMapProgress(
-  maps: UnknownRecord,
+function getUnknownRegionDistrictProgress(
+  districts: UnknownRecord,
   regionId: string
 ): unknown {
   for (const alias of getRegionIdAliases(regionId)) {
-    if (Object.hasOwn(maps, alias)) {
-      return maps[alias];
+    if (Object.hasOwn(districts, alias)) {
+      return districts[alias];
     }
   }
 
   return undefined;
 }
 
-export function validateMaps(
+export function validateDistricts(
   data: Pick<StaticGameData, "regions">,
   value: unknown,
   errors: string[]
-): value is Record<string, MapProgress> {
-  if (!validateRecord(value, "progress.maps", errors)) {
+): value is Record<string, DistrictProgress> {
+  if (!validateRecord(value, "progress.districts", errors)) {
     return false;
   }
 
@@ -154,17 +154,17 @@ export function validateMaps(
     )
   );
 
-  for (const mapId of Object.keys(value)) {
-    const region = regionById.get(mapId);
+  for (const districtId of Object.keys(value)) {
+    const region = regionById.get(districtId);
 
     if (!region) {
-      errors.push(`progress.maps.${mapId} must reference an existing region`);
+      errors.push(`progress.districts.${districtId} must reference an existing region`);
       continue;
     }
 
-    validateMapProgress(
-      value[mapId],
-      `progress.maps.${mapId}`,
+    validateDistrictProgress(
+      value[districtId],
+      `progress.districts.${districtId}`,
       region.stageIds.length,
       errors
     );
@@ -218,16 +218,16 @@ export function isUnlockConditionMetForSave(
 
     case "stage_cleared": {
       const stage = getStageById(data, unlock.stageId);
-      const maps = isRecord(progress.maps) ? progress.maps : {};
-      const mapProgress = stage
-        ? getUnknownRegionMapProgress(maps, stage.regionId)
+      const districts = isRecord(progress.districts) ? progress.districts : {};
+      const districtProgress = stage
+        ? getUnknownRegionDistrictProgress(districts, stage.regionId)
         : undefined;
 
       return (
         !!stage &&
-        isRecord(mapProgress) &&
-        typeof mapProgress.highestClearedStageIndex === "number" &&
-        mapProgress.highestClearedStageIndex >= stage.index
+        isRecord(districtProgress) &&
+        typeof districtProgress.highestClearedRouteIndex === "number" &&
+        districtProgress.highestClearedRouteIndex >= stage.index
       );
     }
 
@@ -633,13 +633,13 @@ export function validateSelectedTacticId(
   data: Pick<StaticGameData, "tactics">,
   value: unknown,
   errors: string[]
-): value is PlayerProgress["selectedTacticId"] {
+): value is PlayerProgress["selectedRoutineId"] {
   if (value === undefined) {
     return true;
   }
 
   if (!isKnownTacticId(data, value)) {
-    errors.push("progress.selectedTacticId must reference an existing tactic");
+    errors.push("progress.selectedRoutineId must reference an existing tactic");
     return false;
   }
 
@@ -651,15 +651,15 @@ export function validateCurrentStage(
   progress: PlayerProgress,
   errors: string[]
 ): void {
-  const stage = getStageById(data, progress.currentStageId);
+  const stage = getStageById(data, progress.currentRouteId);
 
   if (!stage) {
-    errors.push("progress.currentStageId must reference an existing stage");
+    errors.push("progress.currentRouteId must reference an existing stage");
     return;
   }
 
   if (!isStageUnlocked(data, progress, stage)) {
-    errors.push("progress.currentStageId must be unlocked by saved progress");
+    errors.push("progress.currentRouteId must be unlocked by saved progress");
   }
 }
 
@@ -676,9 +676,9 @@ export function validateProgress(
 
   validateResources(value.resources, errors);
   validateHeroes(data, value.heroes, errors);
-  validateSect(value.sect, errors);
-  validateMaps(data, value.maps, errors);
-  validateSelectedTacticId(data, value.selectedTacticId, errors);
+  validateSect(value.technoSect, errors);
+  validateDistricts(data, value.districts, errors);
+  validateSelectedTacticId(data, value.selectedRoutineId, errors);
   validateActiveHeroIds(data, value as PlayerProgress, value.activeHeroIds, errors);
   validatePlayerFormation(data, value.formation, errors);
   validateStyleMastery(data, value.styleMastery, errors);
@@ -688,8 +688,8 @@ export function validateProgress(
   validateMedicineInventory(data, value.medicineInventory, errors);
   validateAssignmentProgress(data, value, value.assignments, errors);
 
-  if (typeof value.currentStageId !== "string" || value.currentStageId.length === 0) {
-    errors.push("progress.currentStageId must be a non-empty string");
+  if (typeof value.currentRouteId !== "string" || value.currentRouteId.length === 0) {
+    errors.push("progress.currentRouteId must be a non-empty string");
     return false;
   }
 

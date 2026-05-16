@@ -12,7 +12,7 @@ export function buildStageOptions(
   data: StaticGameData,
   progress: PlayerProgress,
   selectedStageId: string,
-  selectedOfflineFarmStageId: string | null
+  selectedOfflineFarmRouteId: string | null
 ): StageOptionView[] {
   const seenStageIds = new Set<string>();
   const orderedStages = data.regions.flatMap((region) =>
@@ -61,8 +61,8 @@ export function buildStageOptions(
       isUnlocked,
       isCleared,
       isSelectedStage: areStageIdsEquivalent(stage.id, selectedStageId),
-      isSelectedOfflineFarmStage: selectedOfflineFarmStageId
-        ? areStageIdsEquivalent(stage.id, selectedOfflineFarmStageId)
+      isSelectedOfflineFarmStage: selectedOfflineFarmRouteId
+        ? areStageIdsEquivalent(stage.id, selectedOfflineFarmRouteId)
         : false,
       canSelectStage: isUnlocked,
       canSelectOfflineFarm,

@@ -10,9 +10,9 @@ import type {
 } from "../data";
 
 export type ResourceState = {
-  silver: number;
-  cultivation: number;
-  herbs: number;
+  credits: number;
+  resonance: number;
+  reagents: number;
 };
 
 export type HeroProgress = {
@@ -24,9 +24,16 @@ export type SectProgress = {
   upgrades: Record<string, number>;
 };
 
-export type MapProgress = {
+export type DistrictProgress = {
+  combatData: number;
+  highestClearedRouteIndex: number;
+};
+
+export type StageRewardSummary = {
+  silver: number;
+  cultivation: number;
+  herbs: number;
   combatExperience: number;
-  highestClearedStageIndex: number;
 };
 
 export type StyleMasteryProgress = {
@@ -45,9 +52,9 @@ export type AssignmentProgress = Record<string, { heroIds: string[] }>;
 export type PlayerProgress = {
   resources: ResourceState;
   heroes: Record<string, HeroProgress>;
-  sect: SectProgress;
-  maps: Record<string, MapProgress>;
-  selectedTacticId?: string;
+  technoSect: SectProgress;
+  districts: Record<string, DistrictProgress>;
+  selectedRoutineId?: string;
   activeHeroIds?: string[];
   formation?: Record<string, FormationSlot>;
   styleMastery?: Record<string, StyleMasteryProgress>;
@@ -56,7 +63,7 @@ export type PlayerProgress = {
   equipment?: EquipmentProgress;
   medicineInventory?: MedicineInventory;
   assignments?: AssignmentProgress;
-  currentStageId: string;
+  currentRouteId: string;
 };
 
 export type PurchaseUpgradeInput = {
@@ -172,7 +179,7 @@ export type ApplyStageClearResult =
   | {
       ok: true;
       progress: PlayerProgress;
-      rewards: ResourceState & { combatExperience: number };
+      rewards: StageRewardSummary;
       masteryRanksBefore: string[];
       masteryRanksAfter: string[];
       newlyReachedMasteryRanks: string[];
@@ -237,7 +244,7 @@ export type ResolveStageBattleResult =
       stageCleared: boolean;
       progress: PlayerProgress;
       battle: BattleResult;
-      rewards: (ResourceState & { combatExperience: number }) | null;
+      rewards: StageRewardSummary | null;
       masteryRanksBefore: string[];
       masteryRanksAfter: string[];
       newlyReachedMasteryRanks: string[];

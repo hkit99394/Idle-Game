@@ -119,7 +119,7 @@ export function buildStageCounterplayPreview(input: {
   data: CounterplayData;
   stage: StageDefinition;
   inventory: MedicineInventory;
-  progress?: Pick<PlayerProgress, "sect">;
+  progress?: Pick<PlayerProgress, "technoSect">;
   preferences?: AutoMedicinePreferences;
 }): StageCounterplayPreview {
   const preferences = input.preferences ?? defaultAutoMedicinePreferences;

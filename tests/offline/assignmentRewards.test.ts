@@ -48,15 +48,15 @@ describe("offline assignment rewards", () => {
         quantity: 6
       }
     ]);
-    expect(result.progress.resources.silver).toBe(600);
-    expect(result.progress.maps.greenline_approach.combatExperience).toBe(100);
+    expect(result.progress.resources.credits).toBe(600);
+    expect(result.progress.districts.greenline_approach.combatData).toBe(100);
     expect(result.progress.equipment?.inventory.impact_training_wraps).toBe(6);
     expect(result.progress.heroes.iron_fist_initiate.level).toBeGreaterThan(1);
   });
 
   it("applies training ground style mastery to assigned hero styles", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 10;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 10;
     const assigned = setAssignmentHeroes(staticData, {
       progress,
       assignmentId: "veil_district_calibration",
@@ -80,17 +80,17 @@ describe("offline assignment rewards", () => {
       cultivation: 36,
       styleMasteryExperience: 24
     });
-    expect(result.progress.resources.cultivation).toBe(36);
+    expect(result.progress.resources.resonance).toBe(36);
     expect(result.progress.styleMastery?.pulse?.experience).toBe(24);
     expect(result.progress.styleMastery?.impact?.experience ?? 0).toBe(0);
   });
 
   it("applies Lotus medicine pavilion herbs and medicine rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 10;
-    progress.maps.veil_district.highestClearedStageIndex = 10;
-    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
-    progress.maps.lotus_clinic.highestClearedStageIndex = 3;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 10;
+    progress.districts.veil_district.highestClearedRouteIndex = 10;
+    progress.districts.black_iron_foundry.highestClearedRouteIndex = 10;
+    progress.districts.lotus_clinic.highestClearedRouteIndex = 3;
     const assigned = setAssignmentHeroes(staticData, {
       progress,
       assignmentId: "lotus_countermeasure_pavilion",
@@ -125,8 +125,8 @@ describe("offline assignment rewards", () => {
         quantity: 1
       }
     ]);
-    expect(result.progress.resources.herbs).toBe(234);
-    expect(result.progress.resources.cultivation).toBe(156);
+    expect(result.progress.resources.reagents).toBe(234);
+    expect(result.progress.resources.resonance).toBe(156);
     expect(result.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(3);
     expect(result.progress.equipment?.inventory.mending_patch).toBe(1);
   });

@@ -61,19 +61,19 @@ export function applySaveLoadTransaction(input: {
   const offlineFarmPreset = normalizeOfflineFarmPreset(
     input.save.offlineFarmPreset
   );
-  const selectedOfflineFarmStageId = setOfflineFarmStageTarget(
+  const selectedOfflineFarmRouteId = setOfflineFarmStageTarget(
     input.data,
     input.save.progress,
-    input.save.selectedOfflineFarmStageId,
+    input.save.selectedOfflineFarmRouteId,
     offlineFarmPreset
   );
   const farmTargetChanged =
-    selectedOfflineFarmStageId !== input.save.selectedOfflineFarmStageId;
+    selectedOfflineFarmRouteId !== input.save.selectedOfflineFarmRouteId;
   const presetChanged = offlineFarmPreset !== input.save.offlineFarmPreset;
   const offlineRewards = applyOfflineRewards({
     data: input.data,
     progress: input.save.progress,
-    selectedOfflineFarmStageId,
+    selectedOfflineFarmRouteId,
     lastSavedAtMs: input.save.updatedAtMs,
     currentTimeMs: rewardTimeMs
   });
@@ -121,7 +121,7 @@ export function applySaveLoadTransaction(input: {
       progress: hasAssignmentRewards
         ? offlineAssignmentRewards.progress
         : farmProgress,
-      selectedOfflineFarmStageId,
+      selectedOfflineFarmRouteId,
       offlineFarmPreset,
       nowMs: hasRewards ? rewardTimeMs : input.save.updatedAtMs,
       lastOfflineRewardAtMs: hasRewards

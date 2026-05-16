@@ -25,7 +25,7 @@ export type NormalizeRegionMapKeysResult<Value> = Readonly<{
 const REGION_REFERENCE_FIELDS = [
   "data/regions.json:id",
   "data/stages.json:regionId",
-  "core/progression/types.ts:progress.maps",
+  "core/progression/types.ts:progress.districts",
   "core/balance:regionId"
 ] as const;
 
@@ -34,8 +34,8 @@ const STAGE_REFERENCE_FIELDS = [
   "data/stages.json:id",
   "data/stages.json:nextStageId",
   "core/data/types.ts:UnlockCondition.stageId",
-  "core/progression/types.ts:currentStageId",
-  "core/save/saveTypes.ts:selectedOfflineFarmStageId",
+  "core/progression/types.ts:currentRouteId",
+  "core/save/saveTypes.ts:selectedOfflineFarmRouteId",
   "core/balance:stageId"
 ] as const;
 

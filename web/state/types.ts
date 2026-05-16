@@ -28,7 +28,7 @@ export type WebGameState = {
   progress: PlayerProgress;
   autoMedicinePreferences: AutoMedicinePreferences;
   selectedStageId: string;
-  selectedOfflineFarmStageId: string | null;
+  selectedOfflineFarmRouteId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
   offlineSummary: OfflineRewardSummary | null;
   startupSaveDiagnostics: string[];

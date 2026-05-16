@@ -44,8 +44,8 @@ export function calculateLevelFromCombatExperience(
 }
 
 export function calculateTotalCombatExperience(progress: PlayerProgress): number {
-  return Object.values(progress.maps).reduce(
-    (total, mapProgress) => total + mapProgress.combatExperience,
+  return Object.values(progress.districts).reduce(
+    (total, districtProgress) => total + districtProgress.combatData,
     0
   );
 }

@@ -357,7 +357,7 @@ type SaveableWebGameState = Pick<
   WebGameState,
   | "progress"
   | "autoMedicinePreferences"
-  | "selectedOfflineFarmStageId"
+  | "selectedOfflineFarmRouteId"
   | "offlineFarmPreset"
 > &
   Partial<Pick<WebGameState, "startupSavePersistence">>;
@@ -376,7 +376,7 @@ export function saveWebGameStateToStorage(
   const save = createSaveData({
     progress: state.progress,
     autoMedicinePreferences: state.autoMedicinePreferences,
-    selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
+    selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId,
     offlineFarmPreset: state.offlineFarmPreset,
     nowMs: preservedOfflineAnchor?.updatedAtMs ?? nowMs,
     lastOfflineRewardAtMs: preservedOfflineAnchor?.lastOfflineRewardAtMs,
@@ -642,7 +642,7 @@ export function resetSaveDataInStorage(
   const progress = createInitialPlayerProgress(data);
   const save = createSaveData({
     progress,
-    selectedOfflineFarmStageId: setOfflineFarmStageTarget(data, progress, null),
+    selectedOfflineFarmRouteId: setOfflineFarmStageTarget(data, progress, null),
     nowMs
   });
 

@@ -71,7 +71,7 @@ export function useWebGameCommands({
       autoMedicinePreferences: state.autoMedicinePreferences,
       offlineFarmPreset: state.offlineFarmPreset,
       progress: state.progress,
-      selectedOfflineFarmStageId: state.selectedOfflineFarmStageId
+      selectedOfflineFarmRouteId: state.selectedOfflineFarmRouteId
     }
   });
 

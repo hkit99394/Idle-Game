@@ -32,7 +32,7 @@ type OfflineTimeTravelState = Pick<
   WebGameState,
   | "progress"
   | "autoMedicinePreferences"
-  | "selectedOfflineFarmStageId"
+  | "selectedOfflineFarmRouteId"
   | "offlineFarmPreset"
 >;
 
@@ -157,7 +157,7 @@ export function applyOfflineTimeTravel(
   offlineSeconds = OFFLINE_TIME_TRAVEL_SECONDS,
   nowMs = Date.now()
 ): ApplyOfflineTimeTravelResult {
-  if (!state.selectedOfflineFarmStageId) {
+  if (!state.selectedOfflineFarmRouteId) {
     return {
       ok: false,
       message: "Select an offline farm stage first",

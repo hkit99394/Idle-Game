@@ -83,9 +83,9 @@ describe("web game state domains", () => {
       createReplaceProgressAction({
         ...state.progress,
         resources: {
-          silver: 20,
-          cultivation: 0,
-          herbs: 0
+          credits: 20,
+          resonance: 0,
+          reagents: 0
         }
       })
     );
@@ -141,7 +141,7 @@ describe("web game state domains", () => {
 
     expect(lockedStageState.selectedStageId).toBe(state.selectedStageId);
     expect(purchasedState.lastPurchase?.ok).toBe(true);
-    expect(purchasedState.progress.resources.silver).toBe(8);
+    expect(purchasedState.progress.resources.credits).toBe(8);
     expect(equippedState.lastEquipmentAction?.ok).toBe(true);
     expect(
       equippedState.progress.equipment?.equipped.iron_fist_initiate?.weapon
@@ -153,7 +153,7 @@ describe("web game state domains", () => {
     expect(counterplayState.autoMedicinePreferences.disabledMedicineIds).toEqual([
       "clear_heart_countermeasure"
     ]);
-    expect(tacticState.progress.selectedTacticId).toBe("long_stabilization");
+    expect(tacticState.progress.selectedRoutineId).toBe("long_stabilization");
   });
 
   it("keeps save/reset helpers behind the save command surface", () => {

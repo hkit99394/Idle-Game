@@ -6,21 +6,21 @@ import {
   getStageIdAliases,
   normalizeStageId
 } from "../compatibility";
-import type { MapProgress, PlayerProgress } from "./types";
+import type { DistrictProgress, PlayerProgress } from "./types";
 
 export type RegionProgress = Record<
   string,
   {
-    highestClearedStageIndex: number;
-    combatExperience?: number;
+    highestClearedRouteIndex: number;
+    combatData?: number;
   }
 >;
 
 export const OFFLINE_FARM_PRESETS = [
   "balanced",
-  "silver",
-  "cultivation",
-  "combatExperience",
+  "credits",
+  "resonance",
+  "combatData",
   "mastery"
 ] as const;
 
@@ -47,21 +47,21 @@ export const OFFLINE_FARM_PRESET_POLICIES = [
     rewardPriority: ["combatExperience", "silver", "cultivation"]
   },
   {
-    id: "silver",
-    label: "Silver",
-    description: "Prioritizes silver income for Outer and Inner Art training.",
+    id: "credits",
+    label: "Credits",
+    description: "Prioritizes credit income for Outer and Inner Art training.",
     rewardPriority: ["silver", "combatExperience", "cultivation"]
   },
   {
-    id: "cultivation",
-    label: "Cultivation",
-    description: "Prioritizes cultivation for skill refinement.",
+    id: "resonance",
+    label: "Resonance",
+    description: "Prioritizes resonance for skill refinement.",
     rewardPriority: ["cultivation", "combatExperience", "silver"]
   },
   {
-    id: "combatExperience",
-    label: "Combat XP",
-    description: "Prioritizes Combat XP for levels and map mastery.",
+    id: "combatData",
+    label: "Combat Data",
+    description: "Prioritizes Combat Data for levels and map mastery.",
     rewardPriority: ["combatExperience", "silver", "cultivation"]
   },
   {
@@ -121,7 +121,7 @@ export function getCurrentStage(
   data: Pick<StaticGameData, "stages">,
   progress: PlayerProgress
 ): StageDefinition | null {
-  return getStageById(data, progress.currentStageId);
+  return getStageById(data, progress.currentRouteId);
 }
 
 export function hasClearedStage(
@@ -129,59 +129,61 @@ export function hasClearedStage(
   stage: StageDefinition
 ): boolean {
   return (
-    (getRegionMapProgress(progress.maps, stage.regionId)?.highestClearedStageIndex ??
+    (getRegionMapProgress(progress.districts, stage.regionId)?.highestClearedRouteIndex ??
       0) >= stage.index
   );
 }
 
 function getPreferredRegionMapKey(
-  maps: RegionProgress,
+  districts: RegionProgress,
   regionId: string
 ): string {
   const aliases = getRegionIdAliases(regionId);
 
-  return aliases.find((alias) => Object.hasOwn(maps, alias)) ?? regionId;
+  return aliases.find((alias) => Object.hasOwn(districts, alias)) ?? regionId;
 }
 
 export function getRegionMapProgress(
-  maps: RegionProgress,
+  districts: RegionProgress,
   regionId: string
 ): RegionProgress[string] | undefined {
   const aliases = getRegionIdAliases(regionId);
   const targetAlias = aliases[0];
 
-  if (targetAlias && Object.hasOwn(maps, targetAlias)) {
-    return maps[targetAlias];
+  if (targetAlias && Object.hasOwn(districts, targetAlias)) {
+    return districts[targetAlias];
   }
 
   return aliases
     .slice(1)
-    .map((alias) => maps[alias])
+    .map((alias) => districts[alias])
     .find(
-      (mapProgress): mapProgress is RegionProgress[string] =>
-        mapProgress !== undefined
+      (districtProgress): districtProgress is RegionProgress[string] =>
+        districtProgress !== undefined
     );
 }
 
 export function setRegionMapProgress(
   progress: PlayerProgress,
   regionId: string,
-  mapProgress: MapProgress
+  districtProgress: DistrictProgress
 ): void {
-  progress.maps[getPreferredRegionMapKey(progress.maps, regionId)] = mapProgress;
+  progress.districts[
+    getPreferredRegionMapKey(progress.districts, regionId)
+  ] = districtProgress;
 }
 
 function isPlayerProgress(
   progress: PlayerProgress | RegionProgress
 ): progress is PlayerProgress {
   return (
-    typeof (progress as PlayerProgress).currentStageId === "string" &&
-    typeof (progress as PlayerProgress).maps === "object"
+    typeof (progress as PlayerProgress).currentRouteId === "string" &&
+    typeof (progress as PlayerProgress).districts === "object"
   );
 }
 
 function getProgressMaps(progress: PlayerProgress | RegionProgress): RegionProgress {
-  return isPlayerProgress(progress) ? progress.maps : progress;
+  return isPlayerProgress(progress) ? progress.districts : progress;
 }
 
 export function isStageCleared(
@@ -197,7 +199,7 @@ export function isStageCleared(
 
   return (
     (getRegionMapProgress(getProgressMaps(progress), stage.regionId)
-      ?.highestClearedStageIndex ?? 0) >=
+      ?.highestClearedRouteIndex ?? 0) >=
     stage.index
   );
 }
@@ -253,30 +255,30 @@ export function isStageUnlocked(
     return false;
   }
 
-  const mapProgress = getRegionMapProgress(
+  const districtProgress = getRegionMapProgress(
     getProgressMaps(progress),
     stage.regionId
   );
 
-  if (!mapProgress) {
+  if (!districtProgress) {
     return stage.index === 1;
   }
 
-  return stage.index <= mapProgress.highestClearedStageIndex + 1;
+  return stage.index <= districtProgress.highestClearedRouteIndex + 1;
 }
 
 export function getNextCurrentStageId(
   data: Pick<StaticGameData, "regions" | "stages">,
   stage: StageDefinition,
-  currentStageId: string,
+  currentRouteId: string,
   progressAfterClear: PlayerProgress
 ): string {
-  if (!areStageIdsEquivalent(stage.id, currentStageId)) {
-    return currentStageId;
+  if (!areStageIdsEquivalent(stage.id, currentRouteId)) {
+    return currentRouteId;
   }
 
   const formatStageIdForCurrentProgress = (stageId: string): string =>
-    getLegacyStageId(currentStageId) !== currentStageId
+    getLegacyStageId(currentRouteId) !== currentRouteId
       ? normalizeStageId(stageId)
       : stageId;
 
@@ -293,7 +295,7 @@ export function getNextCurrentStageId(
 
   return nextRegion?.stageIds[0]
     ? formatStageIdForCurrentProgress(nextRegion.stageIds[0])
-    : currentStageId;
+    : currentRouteId;
 }
 
 export type OfflineFarmStageTargetValidationResult =
@@ -466,7 +468,7 @@ export function setOfflineFarmStageTarget(
   )?.id;
 
   return recommendedStageId
-    ? getLegacyStageId(progress.currentStageId) !== progress.currentStageId
+    ? getLegacyStageId(progress.currentRouteId) !== progress.currentRouteId
       ? normalizeStageId(recommendedStageId)
       : recommendedStageId
     : null;

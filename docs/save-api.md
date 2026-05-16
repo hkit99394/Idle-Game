@@ -4,7 +4,7 @@
 
 Save loading should be owned by `core/` so web storage, tools, tests, and a future backend use the same migration, validation, normalization, offline reward, and timestamp behavior.
 
-Theme note: Path of Neon display terms do not rename save schema fields during the display-safe retheme. Persisted fields such as `silver`, `cultivation`, `herbs`, `sect`, `outerHp`, and `innerQi` remain compatibility contracts until the dedicated [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md) changes them with a save-version bump and fixture coverage. [Stage 2.7 Backlog](stage-2.7-backlog.md) is the active plan for resource/progress save fields; combat stat fields remain deferred.
+Theme note: Stage 2.7 migrated owned resource/progress save fields with compatibility adapters and fixture coverage. Current saves now emit fields such as `credits`, `resonance`, `reagents`, `districts`, `combatData`, `currentRouteId`, `selectedOfflineFarmRouteId`, `selectedRoutineId`, and `technoSect`; legacy fields such as `silver`, `cultivation`, `herbs`, `maps`, `combatExperience`, `currentStageId`, `selectedOfflineFarmStageId`, `selectedTacticId`, and `sect` remain import compatibility contracts. Combat stat fields such as `outerHp` and `innerQi` are owned by the active [Stage 2.8 Backlog](stage-2.8-backlog.md), whose first slice must confirm whether any combat stat rename requires a save-version bump.
 
 ## Preferred Core Entry Points
 
@@ -60,6 +60,8 @@ adding a separate `normalizedSave` reason.
   `writeReasons`.
 - Preserve migration metadata from raw-load results when returning adapter
   diagnostics.
+- Show storage-key compatibility separately from save-schema migration metadata
+  so diagnostics can distinguish old-key copies from legacy field normalization.
 - Convert storage/JSON failures into UI-friendly error reasons.
 
 It should not own migration, offline reward calculation, farm-target normalization, or timestamp rules.
@@ -91,7 +93,11 @@ Supported legacy versions are listed in `SUPPORTED_SAVE_DATA_VERSIONS`. Tests sh
 
 When a save version is added, add or update the migration fixture path before changing import/export behavior.
 
-Save version `12` adds content-id alias normalization for Stage 2.6 without renaming save fields. The migration covers save-stored hero, style, style-branch, skill-upgrade, equipment, medicine, assignment, tactic, and auto-medicine disabled ids. Normalization is data-aware: it writes whichever alias side is configured by the active static data, so current imports can be repaired before and after the static content id rename slices land. Stage 2.7 is expected to add the next save-version bump for resource/progress field migration.
+Save version `12` adds content-id alias normalization for Stage 2.6 without renaming save fields. The migration covers save-stored hero, style, style-branch, skill-upgrade, equipment, medicine, assignment, tactic, and auto-medicine disabled ids. Normalization is data-aware: it writes whichever alias side is configured by the active static data, so current imports can be repaired before and after the static content id rename slices land.
+
+Save version `13` adds the Stage 2.7 save-field alias foundation. Current save JSON serializes resources as `credits`, `resonance`, and `reagents`; district progress as `districts`, `combatData`, and `highestClearedRouteIndex`; route/routine fields as `currentRouteId`, `selectedOfflineFarmRouteId`, and `selectedRoutineId`; techno-sect progress as `technoSect`; and resource-named offline farm preset values as `credits`, `resonance`, and `combatData`. Legacy version `12` saves and current-version imports with legacy field names still normalize through core migration. Ambiguous imports that provide conflicting legacy and target aliases fail validation instead of silently choosing one. Runtime progression and save state now use the current Stage 2.7 names for owned resource, district, route, farm, routine, and techno-sect fields.
+
+Simulator, support-decision, and future backend tooling should use those current runtime progress/save fields whenever they read save-shaped data. Generated balance authoring reports remain separate from save JSON: static stage rewards and budget columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` are content-report metrics, not persisted save fields.
 
 ## Import And Future Versions
 

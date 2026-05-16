@@ -12,9 +12,9 @@ import {
   normalizeSelectedTacticId
 } from "../progression";
 import type {
+  DistrictProgress,
   EquipmentProgress,
   HeroProgress,
-  MapProgress,
   ResourceState
 } from "../progression";
 import {
@@ -25,6 +25,7 @@ import {
   type SaveNormalization
 } from "./saveTypes";
 import { normalizeAutoMedicinePreferencesWithChanges } from "./autoMedicinePreferences";
+import { normalizeSaveFieldAliasesForRuntime } from "./saveFieldAliases";
 import { isRecord, isSupportedSaveDataVersion } from "./validationShared";
 
 type NormalizationResult<T> = {
@@ -254,10 +255,10 @@ export function normalizeHeroProgressForMigration(
   };
 }
 
-export function normalizeMapProgressForMigration(
+export function normalizeDistrictProgressForMigration(
   value: unknown,
-  path = "progress.maps.*"
-): NormalizationResult<MapProgress | unknown> {
+  path = "progress.districts.*"
+): NormalizationResult<DistrictProgress | unknown> {
   if (!isRecord(value)) {
     return {
       value,
@@ -267,23 +268,23 @@ export function normalizeMapProgressForMigration(
 
   const normalizations: SaveNormalization[] = [];
 
-  if (value.combatExperience === undefined) {
-    normalizations.push(missingField(`${path}.combatExperience`));
+  if (value.combatData === undefined) {
+    normalizations.push(missingField(`${path}.combatData`));
   }
 
-  if (value.highestClearedStageIndex === undefined) {
-    normalizations.push(missingField(`${path}.highestClearedStageIndex`));
+  if (value.highestClearedRouteIndex === undefined) {
+    normalizations.push(missingField(`${path}.highestClearedRouteIndex`));
   }
 
   return {
     value: {
       ...value,
-      combatExperience:
-        value.combatExperience === undefined ? 0 : value.combatExperience,
-      highestClearedStageIndex:
-        value.highestClearedStageIndex === undefined
+      combatData:
+        value.combatData === undefined ? 0 : value.combatData,
+      highestClearedRouteIndex:
+        value.highestClearedRouteIndex === undefined
           ? 0
-          : value.highestClearedStageIndex
+          : value.highestClearedRouteIndex
     },
     normalizations
   };
@@ -301,12 +302,12 @@ export function normalizeResourcesForMigration(
   }
 
   const normalizations =
-    value.herbs === undefined ? [missingField(`${path}.herbs`)] : [];
+    value.reagents === undefined ? [missingField(`${path}.reagents`)] : [];
 
   return {
     value: {
       ...value,
-      herbs: value.herbs === undefined ? 0 : value.herbs
+      reagents: value.reagents === undefined ? 0 : value.reagents
     },
     normalizations
   };
@@ -403,16 +404,16 @@ export function normalizeProgressForMigration(
   }
 
   const defaultProgress = createInitialPlayerProgress(data);
-  const existingMaps = isRecord(value.maps) ? value.maps : {};
+  const existingDistricts = isRecord(value.districts) ? value.districts : {};
   const shouldMigrateRegionStageIds = options.migrateRegionStageIds === true;
   const usesCanonicalRegionIds =
     shouldMigrateRegionStageIds ||
-    Object.keys(existingMaps).some(
+    Object.keys(existingDistricts).some(
       (regionId) => getLegacyRegionId(regionId) !== regionId
     );
-  const defaultMaps = usesCanonicalRegionIds
-    ? normalizeRegionMapKeys(defaultProgress.maps).map
-    : defaultProgress.maps;
+  const defaultDistricts = usesCanonicalRegionIds
+    ? normalizeRegionMapKeys(defaultProgress.districts).map
+    : defaultProgress.districts;
   const normalizations: SaveNormalization[] = [];
   const resources = normalizeResourcesForMigration(value.resources);
   const rawHeroes = isRecord(value.heroes) ? value.heroes : {};
@@ -435,13 +436,13 @@ export function normalizeProgressForMigration(
       return [heroId, normalized.value];
     })
   );
-  const maps: Record<string, unknown> = {};
-  const deferredLegacyMaps: Array<readonly [string, unknown]> = [];
+  const districts: Record<string, unknown> = {};
+  const deferredLegacyDistricts: Array<readonly [string, unknown]> = [];
 
-  for (const [regionId, progress] of Object.entries(existingMaps)) {
-    const normalized = normalizeMapProgressForMigration(
+  for (const [regionId, progress] of Object.entries(existingDistricts)) {
+    const normalized = normalizeDistrictProgressForMigration(
       progress,
-      `progress.maps.${regionId}`
+      `progress.districts.${regionId}`
     );
     normalizations.push(...normalized.normalizations);
 
@@ -449,19 +450,19 @@ export function normalizeProgressForMigration(
       shouldMigrateRegionStageIds &&
       normalizeRegionId(regionId) !== regionId
     ) {
-      deferredLegacyMaps.push([regionId, normalized.value]);
+      deferredLegacyDistricts.push([regionId, normalized.value]);
       continue;
     }
 
-    maps[regionId] = normalized.value;
+    districts[regionId] = normalized.value;
   }
 
-  for (const [legacyRegionId, progress] of deferredLegacyMaps) {
+  for (const [legacyRegionId, progress] of deferredLegacyDistricts) {
     const targetRegionId = normalizeRegionId(legacyRegionId);
-    normalizations.push(migratedRegionId(`progress.maps.${legacyRegionId}`));
+    normalizations.push(migratedRegionId(`progress.districts.${legacyRegionId}`));
 
-    if (!Object.hasOwn(maps, targetRegionId)) {
-      maps[targetRegionId] = progress;
+    if (!Object.hasOwn(districts, targetRegionId)) {
+      districts[targetRegionId] = progress;
     }
   }
 
@@ -470,19 +471,19 @@ export function normalizeProgressForMigration(
   const normalizedSelectedTacticInput = normalizeContentIdValueForMigration(
     data,
     "routine",
-    value.selectedTacticId,
-    "progress.selectedTacticId",
+    value.selectedRoutineId,
+    "progress.selectedRoutineId",
     normalizations
   );
-  const selectedTacticId = normalizeSelectedTacticId(
+  const selectedRoutineId = normalizeSelectedTacticId(
     data,
     normalizedSelectedTacticInput
   );
 
-  if (value.selectedTacticId === undefined) {
-    normalizations.push(missingField("progress.selectedTacticId"));
-  } else if (normalizedSelectedTacticInput !== selectedTacticId) {
-    normalizations.push(invalidField("progress.selectedTacticId"));
+  if (value.selectedRoutineId === undefined) {
+    normalizations.push(missingField("progress.selectedRoutineId"));
+  } else if (normalizedSelectedTacticInput !== selectedRoutineId) {
+    normalizations.push(invalidField("progress.selectedRoutineId"));
   }
 
   for (const heroId of Object.keys(defaultProgress.heroes)) {
@@ -491,9 +492,9 @@ export function normalizeProgressForMigration(
     }
   }
 
-  for (const regionId of Object.keys(defaultMaps)) {
-    if (!(regionId in maps)) {
-      normalizations.push(missingField(`progress.maps.${regionId}`));
+  for (const regionId of Object.keys(defaultDistricts)) {
+    if (!(regionId in districts)) {
+      normalizations.push(missingField(`progress.districts.${regionId}`));
     }
   }
 
@@ -513,17 +514,17 @@ export function normalizeProgressForMigration(
     }
   }
 
-  const currentStageId =
-    shouldMigrateRegionStageIds && typeof value.currentStageId === "string"
-      ? normalizeStageId(value.currentStageId)
-      : value.currentStageId;
+  const currentRouteId =
+    shouldMigrateRegionStageIds && typeof value.currentRouteId === "string"
+      ? normalizeStageId(value.currentRouteId)
+      : value.currentRouteId;
 
   if (
     shouldMigrateRegionStageIds &&
-    typeof value.currentStageId === "string" &&
-    currentStageId !== value.currentStageId
+    typeof value.currentRouteId === "string" &&
+    currentRouteId !== value.currentRouteId
   ) {
-    normalizations.push(migratedStageId("progress.currentStageId"));
+    normalizations.push(migratedStageId("progress.currentRouteId"));
   }
 
   return {
@@ -534,12 +535,12 @@ export function normalizeProgressForMigration(
         ...defaultProgress.heroes,
         ...heroes
       },
-      sect: value.sect,
-      maps: {
-        ...defaultMaps,
-        ...maps
+      technoSect: value.technoSect,
+      districts: {
+        ...defaultDistricts,
+        ...districts
       },
-      selectedTacticId,
+      selectedRoutineId,
       activeHeroIds:
         normalizeContentIdArrayForMigration(
           data,
@@ -634,7 +635,7 @@ export function normalizeProgressForMigration(
             ])
           )
         : value.assignments ?? {},
-      currentStageId
+      currentRouteId
     },
     normalizations
   };
@@ -644,14 +645,17 @@ export function migrateSaveData(
   data: SaveMigrationData,
   raw: unknown
 ): SaveMigrationResult {
-  if (!isRecord(raw)) {
+  const rawInput =
+    isRecord(raw) && typeof raw.toJSON === "function" ? raw.toJSON() : raw;
+
+  if (!isRecord(rawInput)) {
     return {
       ok: false,
       errors: ["save must be an object"]
     };
   }
 
-  if (!isSupportedSaveDataVersion(raw.version)) {
+  if (!isSupportedSaveDataVersion(rawInput.version)) {
     return {
       ok: false,
       errors: [
@@ -660,15 +664,27 @@ export function migrateSaveData(
     };
   }
 
+  const saveFieldAliases = normalizeSaveFieldAliasesForRuntime(rawInput);
+
+  if (!saveFieldAliases.ok) {
+    return {
+      ok: false,
+      errors: saveFieldAliases.errors
+    };
+  }
+
+  const normalizedRaw = saveFieldAliases.save;
+
   const shouldNormalizeRegionStageIds = true;
-  const progress = normalizeProgressForMigration(data, raw.progress, {
+  const progress = normalizeProgressForMigration(data, normalizedRaw.progress, {
     migrateRegionStageIds: shouldNormalizeRegionStageIds
   });
   const autoMedicinePreferences = normalizeAutoMedicinePreferencesWithChanges(
-    raw.autoMedicinePreferences
+    normalizedRaw.autoMedicinePreferences
   );
   const normalizations: SaveNormalization[] = [...progress.normalizations];
 
+  normalizations.unshift(...saveFieldAliases.normalizations);
   normalizations.push(...autoMedicinePreferences.normalizations);
 
   autoMedicinePreferences.value.disabledMedicineIds =
@@ -680,49 +696,49 @@ export function migrateSaveData(
       normalizations
     ) as string[];
 
-  if (raw.selectedOfflineFarmStageId === undefined) {
-    normalizations.push(missingField("selectedOfflineFarmStageId"));
+  if (normalizedRaw.selectedOfflineFarmRouteId === undefined) {
+    normalizations.push(missingField("selectedOfflineFarmRouteId"));
   }
 
-  if (raw.offlineFarmPreset === undefined) {
+  if (normalizedRaw.offlineFarmPreset === undefined) {
     normalizations.push(missingField("offlineFarmPreset"));
   }
 
-  const selectedOfflineFarmStageId =
-    raw.selectedOfflineFarmStageId === undefined
+  const selectedOfflineFarmRouteId =
+    normalizedRaw.selectedOfflineFarmRouteId === undefined
       ? null
-      : raw.selectedOfflineFarmStageId;
+      : normalizedRaw.selectedOfflineFarmRouteId;
   const normalizedSelectedOfflineFarmStageId =
-    shouldNormalizeRegionStageIds && typeof selectedOfflineFarmStageId === "string"
-      ? normalizeStageId(selectedOfflineFarmStageId)
-      : selectedOfflineFarmStageId;
+    shouldNormalizeRegionStageIds && typeof selectedOfflineFarmRouteId === "string"
+      ? normalizeStageId(selectedOfflineFarmRouteId)
+      : selectedOfflineFarmRouteId;
 
   if (
     shouldNormalizeRegionStageIds &&
-    typeof selectedOfflineFarmStageId === "string" &&
-    normalizedSelectedOfflineFarmStageId !== selectedOfflineFarmStageId
+    typeof selectedOfflineFarmRouteId === "string" &&
+    normalizedSelectedOfflineFarmStageId !== selectedOfflineFarmRouteId
   ) {
-    normalizations.push(migratedStageId("selectedOfflineFarmStageId"));
+    normalizations.push(migratedStageId("selectedOfflineFarmRouteId"));
   }
 
   const normalizedSave = {
-    ...raw,
+    ...normalizedRaw,
     version: SAVE_DATA_VERSION,
     progress: progress.value,
     autoMedicinePreferences: autoMedicinePreferences.value,
-    selectedOfflineFarmStageId: normalizedSelectedOfflineFarmStageId,
+    selectedOfflineFarmRouteId: normalizedSelectedOfflineFarmStageId,
     offlineFarmPreset:
-      raw.offlineFarmPreset === undefined
+      normalizedRaw.offlineFarmPreset === undefined
         ? DEFAULT_OFFLINE_FARM_PRESET
-        : raw.offlineFarmPreset
+        : normalizedRaw.offlineFarmPreset
   };
 
   return {
     ok: true,
     save: normalizedSave,
-    fromVersion: raw.version,
+    fromVersion: rawInput.version,
     toVersion: SAVE_DATA_VERSION,
-    migrated: raw.version !== SAVE_DATA_VERSION,
+    migrated: rawInput.version !== SAVE_DATA_VERSION,
     normalized: normalizations.length > 0,
     normalizations
   };

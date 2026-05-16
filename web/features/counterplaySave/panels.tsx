@@ -37,6 +37,28 @@ function formatSaveStatus(status: SaveDiagnosticsView["status"]): string {
   }
 }
 
+function formatSaveMigration(diagnostics: SaveDiagnosticsView): string {
+  if (diagnostics.migrationMigrated) {
+    return `v${diagnostics.migrationFromVersion} -> v${diagnostics.migrationToVersion}`;
+  }
+
+  if (diagnostics.migrationNormalized) {
+    return "Current schema normalized";
+  }
+
+  return diagnostics.saveVersion === null ? "-" : "Current schema";
+}
+
+function formatStartupRewrite(diagnostics: SaveDiagnosticsView): string {
+  if (diagnostics.startupWriteReasons.length === 0) {
+    return "-";
+  }
+
+  const status = diagnostics.startupCommitStatus ?? "pending";
+
+  return `${status}: ${diagnostics.startupWriteReasons.join(", ")}`;
+}
+
 type CounterplaySettingsPanelProps = {
   onSetAutoMedicineEnabled: (enabled: boolean) => void;
   onSetMedicineAutoUse: (medicineId: string, enabled: boolean) => void;
@@ -221,18 +243,22 @@ export function SaveToolsPanel({
           </strong>
           <span>Version</span>
           <strong>{diagnostics.saveVersion ?? "-"}</strong>
+          <span>Schema update</span>
+          <strong>{formatSaveMigration(diagnostics)}</strong>
+          <span>Startup rewrite</span>
+          <strong>{formatStartupRewrite(diagnostics)}</strong>
           <span>Updated</span>
           <strong>{formatTimestamp(diagnostics.updatedAtMs)}</strong>
           <span>Offline checkpoint</span>
           <strong>{formatTimestamp(diagnostics.lastOfflineRewardAtMs)}</strong>
           <span>Current route id</span>
-          <strong>{diagnostics.currentStageId}</strong>
+          <strong>{diagnostics.currentRouteId}</strong>
           <span>Farm route id</span>
-          <strong>{diagnostics.selectedOfflineFarmStageId ?? "-"}</strong>
+          <strong>{diagnostics.selectedOfflineFarmRouteId ?? "-"}</strong>
           <span>Farm preset id</span>
           <strong>{diagnostics.offlineFarmPreset}</strong>
           <span>Highest route clear</span>
-          <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
+          <strong>{formatNumber(diagnostics.highestClearedRouteIndex)}</strong>
           <span>Save size</span>
           <strong>{formatNumber(diagnostics.saveSizeCharacters)} chars</strong>
           <span>Autosave</span>
@@ -242,6 +268,15 @@ export function SaveToolsPanel({
           <div className="save-errors">
             {diagnostics.errors.map((error) => (
               <span key={error}>{error}</span>
+            ))}
+          </div>
+        ) : null}
+        {diagnostics.normalizations.length > 0 ? (
+          <div className="save-normalizations">
+            {diagnostics.normalizations.map((normalization) => (
+              <span key={`${normalization.field}:${normalization.reason}`}>
+                {normalization.field}: {normalization.reason}
+              </span>
             ))}
           </div>
         ) : null}
@@ -265,7 +300,7 @@ export function SaveToolsPanel({
           type="button"
           disabled={
             !diagnostics.storageAvailable ||
-            !diagnostics.selectedOfflineFarmStageId
+            !diagnostics.selectedOfflineFarmRouteId
           }
           onClick={onTimeTravelOfflineFarm}
         >

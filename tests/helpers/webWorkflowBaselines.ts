@@ -151,17 +151,17 @@ export function createWebWorkflowBaselineState(
   const initialState = createInitialWebGameState(data);
   const baselineProgress = {
     ...initialState.progress,
-    currentStageId: webWorkflowBaselineIds.stageId,
+    currentRouteId: webWorkflowBaselineIds.stageId,
     resources: {
-      silver: 120,
-      cultivation: 80,
-      herbs: 6
+      credits: 120,
+      resonance: 80,
+      reagents: 6
     },
-    maps: {
-      ...initialState.progress.maps,
+    districts: {
+      ...initialState.progress.districts,
       greenline_approach: {
-        combatExperience: 88,
-        highestClearedStageIndex: 4
+        combatData: 88,
+        highestClearedRouteIndex: 4
       }
     },
     equipment: {

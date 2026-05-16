@@ -55,7 +55,7 @@ type SaveCommandState = Pick<
   | "autoMedicinePreferences"
   | "offlineFarmPreset"
   | "progress"
-  | "selectedOfflineFarmStageId"
+  | "selectedOfflineFarmRouteId"
 >;
 
 export function useStageIdleCommands({
