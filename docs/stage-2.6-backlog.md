@@ -88,7 +88,7 @@ Stage 2.6 implements Epic 91 from the retheme migration plan as focused slices.
 | Slice | Title | Status | Purpose |
 | --- | --- | --- | --- |
 | 91.1 | Content Id Migration Preflight | Complete | Inventory every content id/reference and finalize migrate-or-keep target table |
-| 91.2 | Content Alias Data | Planned | Add explicit aliases and shared normalization helpers without changing canonical ids |
+| 91.2 | Content Alias Data | Complete | Add explicit aliases and shared normalization helpers without changing canonical ids |
 | 91.3 | Save Version And Content Id Migration | Planned | Bump save version and migrate old content ids in saves/imports/browser storage |
 | 91.4 | Hostile And Status Static Rename | Planned | Rename enemy/family/status ids and battle/status static references |
 | 91.5 | Initiate, Protocol, And Style Static Rename | Planned | Rename hero, skill, skill-upgrade, style, and style-branch ids plus direct references |
@@ -138,6 +138,8 @@ Make the content-id compatibility surface explicit before alias or static-data e
 
 ## Slice 91.2: Content Alias Data
 
+Status: complete.
+
 ### Goal
 
 Add explicit content alias data before behavior changes.
@@ -162,6 +164,13 @@ Add explicit content alias data before behavior changes.
 - New compatibility alias tests.
 - Static coverage tests proving every migrated category has an alias or a documented keep decision.
 - `npm run typecheck`.
+
+### Completion Notes
+
+- Added `core/compatibility/contentIdAliases.ts` with 98 content aliases from the 91.1 target matrix.
+- Split alias data by kind and phase: hostile family, hostile, initiate, protocol, skill upgrade, style, style branch, augment, augment set, countermeasure, status, operation, and routine.
+- Added category-aware helpers for legacy lookup, target lookup, normalization, equivalent-id checks, alias sets, and map-key normalization with collision reporting.
+- Kept static data unchanged; `tests/compatibility/contentIdAliases.test.ts` proves aliases match the 91.1 preflight matrix and keep decisions.
 
 ---
 
