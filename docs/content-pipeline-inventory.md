@@ -6,6 +6,8 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 
 Stage 3.0 added the first post-migration mechanic as data-driven combat content: the `cognitive_intrusion` status and Azure Pulse Monk's `context_shock_refinement` upgrade hook. The addition uses existing status, skill-upgrade, simulator, and report surfaces rather than changing save or export schemas.
 
+Stage 3.1 added the first District Heat authoring proof as report-only balance projection. It appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports, save data, cloud save payloads, and live web UI remain heat-free until a later schema and player-facing mechanic decision.
+
 ## Current Authoring Contract
 
 - [data/staticGameData.ts](../data/staticGameData.ts) imports the configured JSON files and exports the canonical bundle.

@@ -195,7 +195,7 @@ Pick one prototype for the first deeper change. Do not implement all of these in
 | Countermeasure Economy | Makes medicine and Lotus support feel tech-native. | Rename/polish countermeasure UI, then add one anti-overload countermeasure. |
 | AI Raid Event | Connects Path of Neon to online boss planning. | Create endpoint/mock contract for async raid attempts without production backend. |
 
-Recommendation: start with **Cognitive Intrusion**, then follow with **District Heat**. Stage 3.0 implemented the first Cognitive Intrusion slice as the Intrusion status, proving Path of Neon can add mechanics beyond renamed copy while reusing Context Stability, AI Overload, statuses, target rules, and existing simulator visibility. [Stage 3.1 Backlog](stage-3.1-backlog.md) now prepares District Heat as the second prototype through contract, pacing, and report-only proof before any live reward or UI changes.
+Recommendation: start with **Cognitive Intrusion**, then follow with **District Heat**. Stage 3.0 implemented the first Cognitive Intrusion slice as the Intrusion status, proving Path of Neon can add mechanics beyond renamed copy while reusing Context Stability, AI Overload, statuses, target rules, and existing simulator visibility. Stage 3.1 completed District Heat contract, pacing, known-debt, report-only simulator projection, and save/UI/export boundary proof; see [Archived Stage 3.1 Backlog](archive/stage-3.1-backlog.md) and [District Heat Contract](district-heat-contract.md). [Stage 3.2 Backlog](stage-3.2-backlog.md) now owns offline parity, Redline live-heat blockers, and the next District Heat promotion decision before any live heat reward or UI change.
 
 Acceptance:
 

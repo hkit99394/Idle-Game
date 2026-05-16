@@ -6,6 +6,8 @@ Stage 2.0 tracks the current authoring surface and known tuning debt in [Content
 
 Stage 3.0 added player-side Intrusion as a data-driven status mechanic without changing the region budget contract or retuning the known Black Iron Foundry and Redline Outpost misses.
 
+Stage 3.1 added report-only District Heat projection to the simulator/default report/full debug JSON without changing region budget gates, live rewards, save state, or stable compact JSON/CSV exports.
+
 ## Configuration
 
 Budgets live in each region's required `balanceTargets` entry in `data/regions.json`.
@@ -79,7 +81,7 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
 - Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
 
-For Stage 3.1 District Heat work, these known Black Iron Foundry and Redline Outpost misses do not block report-only heat projection. They do block live heat reward, risk, offline-farming, or route-pressure changes until the affected miss is retuned or explicitly reclassified.
+After Stage 3.1 District Heat closure, these known Black Iron Foundry and Redline Outpost misses do not block report-only heat projection. They do block live heat reward, risk, offline-farming, or route-pressure changes until the affected miss is retuned or explicitly reclassified.
 
 ## Reading Report Sections
 

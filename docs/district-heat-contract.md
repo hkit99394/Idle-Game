@@ -200,6 +200,16 @@ Additional tactic comparison caution:
 - Report-only heat must preserve existing `Region Difficulty Curve`, `Region Budget Gates`, compact export `budgetChecks`, and tactic `budgetShift` visibility.
 - Any data change that tunes these misses belongs in a named pacing/balance slice before live heat changes economy pressure.
 
+## Stage 3.1 Closure Decision
+
+Stage 3.1 closes District Heat as an author-facing report-only projection. The implementation is enough for balance review because it shows affected district, route, projected clear count, projected heat, band, gain reason, and decay reason in `npm run simulate` and full debug JSON without changing live gameplay.
+
+It is not enough to start a live heat mechanic by itself. The next implementation step should be pacing cleanup or a dedicated live-heat decision slice that first resolves active/offline parity, known Redline blockers, save posture, export schema posture, and the exact player-facing UI promise.
+
+## Stage 3.2 Planning Decision
+
+[Stage 3.2 Backlog](stage-3.2-backlog.md) owns that cleanup path. It should add or specify offline parity reporting, decide whether the live offline reward formula changes, handle or reclassify Redline live-heat blockers, and then choose the next District Heat posture. Until Stage 3.2 closes those gates, District Heat remains report-only.
+
 ## Verification Requirements
 
 For contract and report-only work:
