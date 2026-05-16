@@ -277,6 +277,130 @@ describe("save schema migrations", () => {
     );
   });
 
+  it("parses serialized Stage 2.7 save fields without rewrite normalizations", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 12;
+    progress.resources.cultivation = 8;
+    progress.resources.herbs = 4;
+    progress.maps.greenline_approach.combatExperience = 30;
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
+    progress.currentStageId = "greenline_approach_3";
+    progress.selectedTacticId = "kinetic_crush";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "greenline_approach_1",
+      offlineFarmPreset: "combatExperience",
+      nowMs: 1000
+    });
+    const serialized = JSON.parse(JSON.stringify(save));
+    const result = parseSaveData(staticData, serialized);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.migration).toMatchObject({
+      migrated: false,
+      normalized: false,
+      normalizations: []
+    });
+    expect(result.save.progress.resources).toEqual({
+      silver: 12,
+      cultivation: 8,
+      herbs: 4
+    });
+    expect(result.save.progress.maps.greenline_approach).toEqual({
+      combatExperience: 30,
+      highestClearedStageIndex: 2
+    });
+    expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
+    expect(result.save.progress.selectedTacticId).toBe("kinetic_crush");
+    expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
+    expect(result.save.offlineFarmPreset).toBe("combatExperience");
+  });
+
+  it("normalizes current-version legacy save fields into the Stage 2.7 schema boundary", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 18;
+    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    const legacyCurrentSave = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: "greenline_approach_1",
+        offlineFarmPreset: "silver",
+        nowMs: 1000
+      })
+    };
+    const result = parseSaveData(staticData, legacyCurrentSave);
+
+    expect(legacyCurrentSave.version).toBe(SAVE_DATA_VERSION);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+
+    expect(result.migration.migrated).toBe(false);
+    expect(result.migration.normalized).toBe(true);
+    expect(result.migration.normalizations).toEqual(
+      expect.arrayContaining([
+        {
+          field: "progress.resources.silver",
+          reason: "migrated legacy save field to progress.resources.credits"
+        },
+        {
+          field: "progress.maps",
+          reason: "migrated legacy save field to progress.districts"
+        },
+        {
+          field: "progress.currentStageId",
+          reason: "migrated legacy save field to progress.currentRouteId"
+        },
+        {
+          field: "selectedOfflineFarmStageId",
+          reason: "migrated legacy save field to selectedOfflineFarmRouteId"
+        },
+        {
+          field: "offlineFarmPreset",
+          reason: "normalized legacy offline farm preset value"
+        }
+      ])
+    );
+    expect(result.save.progress.resources.silver).toBe(18);
+    expect(JSON.parse(JSON.stringify(result.save)).progress.resources.credits).toBe(
+      18
+    );
+  });
+
+  it("rejects conflicting legacy and Stage 2.7 save field aliases", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 12;
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: null,
+      nowMs: 1000
+    });
+    const serialized = JSON.parse(JSON.stringify(save));
+    const conflictingSave = {
+      ...serialized,
+      progress: {
+        ...serialized.progress,
+        resources: {
+          ...serialized.progress.resources,
+          silver: 99
+        }
+      }
+    };
+
+    expect(validateSaveData(staticData, conflictingSave)).toContain(
+      "conflicting save field aliases: progress.resources.credits and progress.resources.silver"
+    );
+    expect(parseSaveData(staticData, conflictingSave)).toMatchObject({
+      ok: false,
+      reason: "invalid_save"
+    });
+  });
+
   it("normalizes content alias ids to the currently configured static id side", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({

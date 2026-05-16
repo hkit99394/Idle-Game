@@ -91,7 +91,9 @@ Supported legacy versions are listed in `SUPPORTED_SAVE_DATA_VERSIONS`. Tests sh
 
 When a save version is added, add or update the migration fixture path before changing import/export behavior.
 
-Save version `12` adds content-id alias normalization for Stage 2.6 without renaming save fields. The migration covers save-stored hero, style, style-branch, skill-upgrade, equipment, medicine, assignment, tactic, and auto-medicine disabled ids. Normalization is data-aware: it writes whichever alias side is configured by the active static data, so current imports can be repaired before and after the static content id rename slices land. Stage 2.7 is expected to add the next save-version bump for resource/progress field migration.
+Save version `12` adds content-id alias normalization for Stage 2.6 without renaming save fields. The migration covers save-stored hero, style, style-branch, skill-upgrade, equipment, medicine, assignment, tactic, and auto-medicine disabled ids. Normalization is data-aware: it writes whichever alias side is configured by the active static data, so current imports can be repaired before and after the static content id rename slices land.
+
+Save version `13` adds the Stage 2.7 save-field alias foundation. Current save JSON serializes resources as `credits`, `resonance`, and `reagents`; district progress as `districts`, `combatData`, and `highestClearedRouteIndex`; route/routine fields as `currentRouteId`, `selectedOfflineFarmRouteId`, and `selectedRoutineId`; and techno-sect progress as `technoSect`. Legacy version `12` saves and current-version imports with legacy field names still normalize through core migration. Ambiguous imports that provide conflicting legacy and target aliases fail validation instead of silently choosing one. Runtime progression callers still use the existing field shape until the later Stage 2.7 caller-rename slices land.
 
 ## Import And Future Versions
 

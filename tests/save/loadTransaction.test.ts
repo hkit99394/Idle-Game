@@ -247,7 +247,8 @@ describe("save load transaction", () => {
       selectedOfflineFarmStageId: null,
       nowMs: 1_000
     });
-    const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = save;
+    const serializedSave = JSON.parse(JSON.stringify(save));
+    const { offlineFarmPreset: _offlineFarmPreset, ...rawSave } = serializedSave;
     const result = loadSaveTransaction({
       data: staticData,
       rawSave,

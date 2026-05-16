@@ -46,6 +46,42 @@ describe("save schema factory", () => {
     expect(save.progress.resources.silver).toBe(42);
   });
 
+  it("serializes current saves with Stage 2.7 field names", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.resources.silver = 42;
+    progress.resources.cultivation = 7;
+    progress.resources.herbs = 3;
+    progress.maps.greenline_approach.combatExperience = 11;
+    progress.maps.greenline_approach.highestClearedStageIndex = 2;
+    progress.currentStageId = "greenline_approach_2";
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmStageId: "greenline_approach_1",
+      nowMs: 1000,
+      offlineFarmPreset: "silver"
+    });
+    const serialized = JSON.parse(JSON.stringify(save));
+
+    expect(serialized.progress.resources).toEqual({
+      credits: 42,
+      resonance: 7,
+      reagents: 3
+    });
+    expect(serialized.progress.districts.greenline_approach).toEqual({
+      combatData: 11,
+      highestClearedRouteIndex: 2
+    });
+    expect(serialized.progress.currentRouteId).toBe("greenline_approach_2");
+    expect(serialized.progress.selectedRoutineId).toBe("balanced_routine");
+    expect(serialized.progress.technoSect).toEqual({ upgrades: {} });
+    expect(serialized.selectedOfflineFarmRouteId).toBe("greenline_approach_1");
+    expect(serialized.offlineFarmPreset).toBe("credits");
+    expect(serialized.progress.resources.silver).toBeUndefined();
+    expect(serialized.progress.maps).toBeUndefined();
+    expect(serialized.progress.currentStageId).toBeUndefined();
+    expect(serialized.selectedOfflineFarmStageId).toBeUndefined();
+  });
+
   it("preserves creation and offline reward timestamps when updating a save", () => {
     const progress = createInitialPlayerProgress(staticData);
     const save = createSaveData({

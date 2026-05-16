@@ -24,11 +24,11 @@ class FailFromRewardCommitStorage extends MemoryStorage {
 function isRewardedSave(value: string): boolean {
   try {
     const save = JSON.parse(value) as {
-      progress?: { resources?: { silver?: unknown } };
+      progress?: { resources?: { credits?: unknown } };
     };
 
-    return typeof save.progress?.resources?.silver === "number"
-      ? save.progress.resources.silver > 0
+    return typeof save.progress?.resources?.credits === "number"
+      ? save.progress.resources.credits > 0
       : false;
   } catch {
     return false;
@@ -81,7 +81,7 @@ describe("offline time travel save state", () => {
     expect(storedSave.save.updatedAtMs).not.toBe(70_000);
     expect(storedSave.save.progress.resources.silver).toBe(0);
     expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toContain(
-      '"selectedOfflineFarmStageId":"greenline_approach_1"'
+      '"selectedOfflineFarmRouteId":"greenline_approach_1"'
     );
   });
 

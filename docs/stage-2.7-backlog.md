@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 2.7 is the active planning backlog for Epic 92: Save Resource And Progress Field Migration. Slice 92.1 is complete in [Stage 2.7 Save Field Preflight](stage-2.7-save-field-preflight.md).
+Stage 2.7 is the active planning backlog for Epic 92: Save Resource And Progress Field Migration. Slice 92.1 is complete in [Stage 2.7 Save Field Preflight](stage-2.7-save-field-preflight.md), and Slice 92.2 is complete with save version `13` plus save-field alias serialization and normalization.
 
 [Archived Stage 2.6 Backlog](archive/stage-2.6-backlog.md) and [Archived Stage 2.6 Content Id Preflight](archive/stage-2.6-content-id-preflight.md) are the completed closure records for static content id migration. Stage 2.7 begins from that canonical static-content baseline and should not reopen Stage 2.6 id decisions.
 
@@ -16,8 +16,8 @@ Migrate persisted save resource and progress field names from legacy Path of Jia
 
 - Stage 2.4 completed product/package/storage-key migration. Browser storage uses `path-of-neon.save.v1` with legacy key read/copy support.
 - Stage 2.5 completed region and route id value migration. Region/stage id aliases stay in compatibility helpers.
-- Stage 2.6 completed static content id migration. `SAVE_DATA_VERSION` is currently `12`, and content-id save normalization is data-aware.
-- Stage 2.7 should bump `SAVE_DATA_VERSION` to `13` when save field names change.
+- Stage 2.6 completed static content id migration. Save version `12` remains supported for content-id alias normalization.
+- Stage 2.7 bumped `SAVE_DATA_VERSION` to `13` in Slice 92.2. Current save JSON serializes with Stage 2.7 field names at the save boundary while runtime progression fields remain available for the later 92.3/92.4 caller renames.
 - Current-version imports that still use legacy save field names should either normalize to current schema or fail with explicit diagnostics. Slice 92.1 must make that rule concrete before implementation.
 - Old save fixtures must keep proving every value in `SUPPORTED_SAVE_DATA_VERSIONS` migrates to the current schema.
 - Combat stat fields such as `outerHp`, `innerQi`, max fields, recovery fields, and AI Overload state are not part of Stage 2.7. They belong to the later combat save/stat migration.
@@ -69,7 +69,7 @@ Stage 2.7 implements Epic 92 from the retheme migration plan as focused slices.
 | Slice | Title | Status | Goal |
 | --- | --- | --- | --- |
 | 92.1 | Save Field Migration Preflight | Complete | Locked target names, compatibility behavior, test fixtures, and stale-scan rules before code changes. |
-| 92.2 | Save Schema Alias Foundation | Planned | Add save-field alias helpers, bump the save version, and prove legacy/current imports normalize safely. |
+| 92.2 | Save Schema Alias Foundation | Complete | Added save-field alias helpers, bumped the save version, and proved legacy/current imports normalize safely. |
 | 92.3 | Resources And District Progress Rename | Planned | Rename resource and district progress fields through core save/progression/offline paths. |
 | 92.4 | Route, Farm, Routine, And Techno-Sect Fields | Planned | Rename selected/current route, routine, and techno-sect save fields where 92.1 approves them. |
 | 92.5 | Web Save, Diagnostics, And Import/Export | Planned | Keep browser save tools, diagnostics, reset, export, and import coherent on the current schema. |
@@ -106,6 +106,8 @@ Completed in [Stage 2.7 Save Field Preflight](stage-2.7-save-field-preflight.md)
 ## Slice 92.2: Save Schema Alias Foundation
 
 Add the compatibility plumbing for save-field renames without mixing in every caller update.
+
+Completed in code: `core/save/saveFieldAliases.ts` owns current-schema serialization, legacy field alias normalization, offline farm preset value aliasing, and conflict detection. `SAVE_DATA_VERSION` is now `13`.
 
 ### Tasks
 

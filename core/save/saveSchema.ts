@@ -5,4 +5,5 @@ export * from "./factory";
 export * from "./loadTransaction";
 export * from "./migrations";
 export * from "./progressValidation";
+export * from "./saveFieldAliases";
 export * from "./validation";

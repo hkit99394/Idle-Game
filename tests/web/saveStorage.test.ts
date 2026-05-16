@@ -466,9 +466,10 @@ describe("web save storage", () => {
     }
     expect(JSON.parse(exportResult.json)).toMatchObject({
       progress: {
-        currentStageId: "greenline_approach_3"
+        currentRouteId: "greenline_approach_3"
       },
-      selectedOfflineFarmStageId: "greenline_approach_2"
+      selectedOfflineFarmRouteId: "greenline_approach_2",
+      offlineFarmPreset: "resonance"
     });
 
     const importResult = importSaveDataToStorage(

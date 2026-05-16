@@ -6,6 +6,7 @@ import type {
   SaveMigrationMetadata
 } from "./saveTypes";
 import { SAVE_DATA_VERSION } from "./saveTypes";
+import { serializeSaveData } from "./saveFieldAliases";
 import {
   isRecord,
   validateNumber,
@@ -22,7 +23,7 @@ export type CloudSaveEnvelope = {
   checksum: string;
   createdAtMs: number;
   updatedAtMs: number;
-  rawSave: SaveData;
+  rawSave: unknown;
   migration?: SaveMigrationMetadata;
 };
 
@@ -110,7 +111,7 @@ export function createCloudSaveEnvelope(
     checksum: input.checksum,
     createdAtMs: input.save.createdAtMs,
     updatedAtMs: input.save.updatedAtMs,
-    rawSave: input.save,
+    rawSave: serializeSaveData(input.save),
     ...(input.migration ? { migration: input.migration } : {})
   };
 }

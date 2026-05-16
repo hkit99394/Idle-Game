@@ -25,6 +25,7 @@ import {
   type SaveNormalization
 } from "./saveTypes";
 import { normalizeAutoMedicinePreferencesWithChanges } from "./autoMedicinePreferences";
+import { normalizeSaveFieldAliasesForRuntime } from "./saveFieldAliases";
 import { isRecord, isSupportedSaveDataVersion } from "./validationShared";
 
 type NormalizationResult<T> = {
@@ -644,14 +645,17 @@ export function migrateSaveData(
   data: SaveMigrationData,
   raw: unknown
 ): SaveMigrationResult {
-  if (!isRecord(raw)) {
+  const rawInput =
+    isRecord(raw) && typeof raw.toJSON === "function" ? raw.toJSON() : raw;
+
+  if (!isRecord(rawInput)) {
     return {
       ok: false,
       errors: ["save must be an object"]
     };
   }
 
-  if (!isSupportedSaveDataVersion(raw.version)) {
+  if (!isSupportedSaveDataVersion(rawInput.version)) {
     return {
       ok: false,
       errors: [
@@ -660,15 +664,27 @@ export function migrateSaveData(
     };
   }
 
+  const saveFieldAliases = normalizeSaveFieldAliasesForRuntime(rawInput);
+
+  if (!saveFieldAliases.ok) {
+    return {
+      ok: false,
+      errors: saveFieldAliases.errors
+    };
+  }
+
+  const normalizedRaw = saveFieldAliases.save;
+
   const shouldNormalizeRegionStageIds = true;
-  const progress = normalizeProgressForMigration(data, raw.progress, {
+  const progress = normalizeProgressForMigration(data, normalizedRaw.progress, {
     migrateRegionStageIds: shouldNormalizeRegionStageIds
   });
   const autoMedicinePreferences = normalizeAutoMedicinePreferencesWithChanges(
-    raw.autoMedicinePreferences
+    normalizedRaw.autoMedicinePreferences
   );
   const normalizations: SaveNormalization[] = [...progress.normalizations];
 
+  normalizations.unshift(...saveFieldAliases.normalizations);
   normalizations.push(...autoMedicinePreferences.normalizations);
 
   autoMedicinePreferences.value.disabledMedicineIds =
@@ -680,18 +696,18 @@ export function migrateSaveData(
       normalizations
     ) as string[];
 
-  if (raw.selectedOfflineFarmStageId === undefined) {
+  if (normalizedRaw.selectedOfflineFarmStageId === undefined) {
     normalizations.push(missingField("selectedOfflineFarmStageId"));
   }
 
-  if (raw.offlineFarmPreset === undefined) {
+  if (normalizedRaw.offlineFarmPreset === undefined) {
     normalizations.push(missingField("offlineFarmPreset"));
   }
 
   const selectedOfflineFarmStageId =
-    raw.selectedOfflineFarmStageId === undefined
+    normalizedRaw.selectedOfflineFarmStageId === undefined
       ? null
-      : raw.selectedOfflineFarmStageId;
+      : normalizedRaw.selectedOfflineFarmStageId;
   const normalizedSelectedOfflineFarmStageId =
     shouldNormalizeRegionStageIds && typeof selectedOfflineFarmStageId === "string"
       ? normalizeStageId(selectedOfflineFarmStageId)
@@ -706,23 +722,23 @@ export function migrateSaveData(
   }
 
   const normalizedSave = {
-    ...raw,
+    ...normalizedRaw,
     version: SAVE_DATA_VERSION,
     progress: progress.value,
     autoMedicinePreferences: autoMedicinePreferences.value,
     selectedOfflineFarmStageId: normalizedSelectedOfflineFarmStageId,
     offlineFarmPreset:
-      raw.offlineFarmPreset === undefined
+      normalizedRaw.offlineFarmPreset === undefined
         ? DEFAULT_OFFLINE_FARM_PRESET
-        : raw.offlineFarmPreset
+        : normalizedRaw.offlineFarmPreset
   };
 
   return {
     ok: true,
     save: normalizedSave,
-    fromVersion: raw.version,
+    fromVersion: rawInput.version,
     toVersion: SAVE_DATA_VERSION,
-    migrated: raw.version !== SAVE_DATA_VERSION,
+    migrated: rawInput.version !== SAVE_DATA_VERSION,
     normalized: normalizations.length > 0,
     normalizations
   };

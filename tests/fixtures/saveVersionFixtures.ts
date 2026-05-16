@@ -149,6 +149,8 @@ function getExpectedNormalizationsForRawSave(
   const normalizedHeroIds = new Set<string>();
   const normalizedMapIds = new Set<string>();
 
+  normalizations.push(...getExpectedSaveFieldAliasNormalizations(raw));
+
   for (const [heroId, heroProgress] of Object.entries(existingHeroes)) {
     const normalizedHeroId = normalizeFixtureContentId(data, "initiate", heroId);
     normalizedHeroIds.add(normalizedHeroId);
@@ -279,6 +281,110 @@ function getExpectedNormalizationsForRawSave(
       raw.selectedOfflineFarmStageId
   ) {
     normalizations.push(migratedStageId("selectedOfflineFarmStageId"));
+  }
+
+  return normalizations;
+}
+
+function getExpectedSaveFieldAliasNormalizations(
+  raw: Record<string, unknown>
+): SaveNormalization[] {
+  const normalizations: SaveNormalization[] = [];
+  const progress = isFixtureRecord(raw.progress) ? raw.progress : {};
+  const resources = isFixtureRecord(progress.resources)
+    ? progress.resources
+    : {};
+  const maps = isFixtureRecord(progress.maps) ? progress.maps : {};
+
+  if (resources.silver !== undefined) {
+    normalizations.push(
+      migratedSaveField(
+        "progress.resources.silver",
+        "progress.resources.credits"
+      )
+    );
+  }
+
+  if (resources.cultivation !== undefined) {
+    normalizations.push(
+      migratedSaveField(
+        "progress.resources.cultivation",
+        "progress.resources.resonance"
+      )
+    );
+  }
+
+  if (resources.herbs !== undefined) {
+    normalizations.push(
+      migratedSaveField(
+        "progress.resources.herbs",
+        "progress.resources.reagents"
+      )
+    );
+  }
+
+  for (const [regionId, mapProgress] of Object.entries(maps)) {
+    if (!isFixtureRecord(mapProgress)) {
+      continue;
+    }
+
+    if (mapProgress.combatExperience !== undefined) {
+      normalizations.push(
+        migratedSaveField(
+          `progress.maps.${regionId}.combatExperience`,
+          `progress.districts.${regionId}.combatData`
+        )
+      );
+    }
+
+    if (mapProgress.highestClearedStageIndex !== undefined) {
+      normalizations.push(
+        migratedSaveField(
+          `progress.maps.${regionId}.highestClearedStageIndex`,
+          `progress.districts.${regionId}.highestClearedRouteIndex`
+        )
+      );
+    }
+  }
+
+  if (progress.maps !== undefined) {
+    normalizations.push(migratedSaveField("progress.maps", "progress.districts"));
+  }
+
+  if (progress.currentStageId !== undefined) {
+    normalizations.push(
+      migratedSaveField("progress.currentStageId", "progress.currentRouteId")
+    );
+  }
+
+  if (progress.selectedTacticId !== undefined) {
+    normalizations.push(
+      migratedSaveField("progress.selectedTacticId", "progress.selectedRoutineId")
+    );
+  }
+
+  if (progress.sect !== undefined) {
+    normalizations.push(migratedSaveField("progress.sect", "progress.technoSect"));
+  }
+
+  if (raw.selectedOfflineFarmStageId !== undefined) {
+    normalizations.push(
+      migratedSaveField(
+        "selectedOfflineFarmStageId",
+        "selectedOfflineFarmRouteId"
+      )
+    );
+  }
+
+  if (
+    raw.offlineFarmPreset === "silver" ||
+    raw.offlineFarmPreset === "cultivation" ||
+    raw.offlineFarmPreset === "combatExperience"
+  ) {
+    normalizations.push({
+      field: "offlineFarmPreset",
+      reason: "normalized legacy offline farm preset value"
+    });
   }
 
   return normalizations;
@@ -666,6 +772,16 @@ function normalizedContentId(field: string): SaveNormalization {
   };
 }
 
+function migratedSaveField(
+  field: string,
+  targetField: string
+): SaveNormalization {
+  return {
+    field,
+    reason: `migrated legacy save field to ${targetField}`
+  };
+}
+
 function migratedRegionId(field: string): SaveNormalization {
   return {
     field,
@@ -716,5 +832,5 @@ function createMvpSaveFixture(version: 1 | 2): unknown {
 }
 
 function cloneAsMutable<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
+  return structuredClone(value);
 }
