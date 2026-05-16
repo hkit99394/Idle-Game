@@ -15,9 +15,9 @@ import {
 } from "../progression";
 import type {
   AssignmentProgress,
+  DistrictProgress,
   EquipmentProgress,
   HeroProgress,
-  MapProgress,
   PlayerProgress,
   ResourceState,
   SectProgress
@@ -39,9 +39,9 @@ export function validateResources(
     return false;
   }
 
-  validateNumber(value.silver, "progress.resources.silver", errors);
-  validateNumber(value.cultivation, "progress.resources.cultivation", errors);
-  validateNumber(value.herbs, "progress.resources.herbs", errors);
+  validateNumber(value.credits, "progress.resources.credits", errors);
+  validateNumber(value.resonance, "progress.resources.resonance", errors);
+  validateNumber(value.reagents, "progress.resources.reagents", errors);
 
   return true;
 }
@@ -102,20 +102,20 @@ export function validateSect(value: unknown, errors: string[]): value is SectPro
   return true;
 }
 
-export function validateMapProgress(
+export function validateDistrictProgress(
   value: unknown,
   path: string,
   maxClearedStageIndex: number,
   errors: string[]
-): value is MapProgress {
+): value is DistrictProgress {
   if (!validateRecord(value, path, errors)) {
     return false;
   }
 
-  validateNumber(value.combatExperience, `${path}.combatExperience`, errors);
+  validateNumber(value.combatData, `${path}.combatData`, errors);
   validateIntegerRange(
-    value.highestClearedStageIndex,
-    `${path}.highestClearedStageIndex`,
+    value.highestClearedRouteIndex,
+    `${path}.highestClearedRouteIndex`,
     0,
     maxClearedStageIndex,
     errors
@@ -124,25 +124,25 @@ export function validateMapProgress(
   return true;
 }
 
-function getUnknownRegionMapProgress(
-  maps: UnknownRecord,
+function getUnknownRegionDistrictProgress(
+  districts: UnknownRecord,
   regionId: string
 ): unknown {
   for (const alias of getRegionIdAliases(regionId)) {
-    if (Object.hasOwn(maps, alias)) {
-      return maps[alias];
+    if (Object.hasOwn(districts, alias)) {
+      return districts[alias];
     }
   }
 
   return undefined;
 }
 
-export function validateMaps(
+export function validateDistricts(
   data: Pick<StaticGameData, "regions">,
   value: unknown,
   errors: string[]
-): value is Record<string, MapProgress> {
-  if (!validateRecord(value, "progress.maps", errors)) {
+): value is Record<string, DistrictProgress> {
+  if (!validateRecord(value, "progress.districts", errors)) {
     return false;
   }
 
@@ -154,17 +154,17 @@ export function validateMaps(
     )
   );
 
-  for (const mapId of Object.keys(value)) {
-    const region = regionById.get(mapId);
+  for (const districtId of Object.keys(value)) {
+    const region = regionById.get(districtId);
 
     if (!region) {
-      errors.push(`progress.maps.${mapId} must reference an existing region`);
+      errors.push(`progress.districts.${districtId} must reference an existing region`);
       continue;
     }
 
-    validateMapProgress(
-      value[mapId],
-      `progress.maps.${mapId}`,
+    validateDistrictProgress(
+      value[districtId],
+      `progress.districts.${districtId}`,
       region.stageIds.length,
       errors
     );
@@ -218,16 +218,16 @@ export function isUnlockConditionMetForSave(
 
     case "stage_cleared": {
       const stage = getStageById(data, unlock.stageId);
-      const maps = isRecord(progress.maps) ? progress.maps : {};
-      const mapProgress = stage
-        ? getUnknownRegionMapProgress(maps, stage.regionId)
+      const districts = isRecord(progress.districts) ? progress.districts : {};
+      const districtProgress = stage
+        ? getUnknownRegionDistrictProgress(districts, stage.regionId)
         : undefined;
 
       return (
         !!stage &&
-        isRecord(mapProgress) &&
-        typeof mapProgress.highestClearedStageIndex === "number" &&
-        mapProgress.highestClearedStageIndex >= stage.index
+        isRecord(districtProgress) &&
+        typeof districtProgress.highestClearedRouteIndex === "number" &&
+        districtProgress.highestClearedRouteIndex >= stage.index
       );
     }
 
@@ -677,7 +677,7 @@ export function validateProgress(
   validateResources(value.resources, errors);
   validateHeroes(data, value.heroes, errors);
   validateSect(value.sect, errors);
-  validateMaps(data, value.maps, errors);
+  validateDistricts(data, value.districts, errors);
   validateSelectedTacticId(data, value.selectedTacticId, errors);
   validateActiveHeroIds(data, value as PlayerProgress, value.activeHeroIds, errors);
   validatePlayerFormation(data, value.formation, errors);

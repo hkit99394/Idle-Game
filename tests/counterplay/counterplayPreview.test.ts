@@ -136,7 +136,7 @@ describe("counterplay preview", () => {
       data: staticData,
       progress: {
         greenline_approach: {
-          highestClearedStageIndex: 10
+          highestClearedRouteIndex: 10
         }
       },
       inventory: {

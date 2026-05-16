@@ -14,8 +14,8 @@ import { staticData } from "../helpers/staticData";
 describe("save schema factory", () => {
   it("creates a versioned save with progress, farm target, and timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.silver = 42;
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.resources.credits = 42;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const save = createSaveData({
       progress,
@@ -24,7 +24,7 @@ describe("save schema factory", () => {
     });
 
     expect(save.version).toBe(SAVE_DATA_VERSION);
-    expect(save.progress.resources.silver).toBe(42);
+    expect(save.progress.resources.credits).toBe(42);
     expect(save.progress.currentStageId).toBe("greenline_approach_1");
     expect(save.progress.selectedTacticId).toBe("balanced_routine");
     expect(save.autoMedicinePreferences).toEqual({
@@ -41,18 +41,18 @@ describe("save schema factory", () => {
     expect(save.updatedAtMs).toBe(1000);
     expect(save.lastOfflineRewardAtMs).toBe(1000);
 
-    progress.resources.silver = 999;
+    progress.resources.credits = 999;
 
-    expect(save.progress.resources.silver).toBe(42);
+    expect(save.progress.resources.credits).toBe(42);
   });
 
   it("serializes current saves with Stage 2.7 field names", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.silver = 42;
-    progress.resources.cultivation = 7;
-    progress.resources.herbs = 3;
-    progress.maps.greenline_approach.combatExperience = 11;
-    progress.maps.greenline_approach.highestClearedStageIndex = 2;
+    progress.resources.credits = 42;
+    progress.resources.resonance = 7;
+    progress.resources.reagents = 3;
+    progress.districts.greenline_approach.combatData = 11;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 2;
     progress.currentStageId = "greenline_approach_2";
     const save = createSaveData({
       progress,
@@ -115,9 +115,9 @@ describe("save schema factory", () => {
       return;
     }
 
-    rawSave.progress.resources.silver = 77;
+    rawSave.progress.resources.credits = 77;
 
-    expect(result.save.progress.resources.silver).toBe(0);
+    expect(result.save.progress.resources.credits).toBe(0);
     expect(result.save).not.toBe(rawSave);
   });
 
@@ -172,11 +172,11 @@ describe("save schema factory", () => {
       disabledMedicineIds: []
     });
     expect(result.save.offlineFarmPreset).toBe("balanced");
-    expect(result.save.progress.resources.herbs).toBe(0);
+    expect(result.save.progress.resources.reagents).toBe(0);
     expect(result.save.progress.heroes.iron_fist_initiate.level).toBe(1);
-    expect(result.save.progress.maps.veil_district).toMatchObject({
-      combatExperience: 0,
-      highestClearedStageIndex: 0
+    expect(result.save.progress.districts.veil_district).toMatchObject({
+      combatData: 0,
+      highestClearedRouteIndex: 0
     });
     expect(result.save.progress.currentStageId).toBe("greenline_approach_2");
     expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");

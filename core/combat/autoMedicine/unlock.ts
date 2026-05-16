@@ -56,13 +56,13 @@ function isMedicineUnlockConditionMet(
     return false;
   }
 
-  const maps =
+  const districts =
     typeof (progress as PlayerProgress).currentStageId === "string" &&
-    typeof (progress as PlayerProgress).maps === "object"
-      ? (progress as PlayerProgress).maps
+    typeof (progress as PlayerProgress).districts === "object"
+      ? (progress as PlayerProgress).districts
       : (progress as RegionProgress);
 
   return (
-    (maps[stage.regionId]?.highestClearedStageIndex ?? 0) >= stage.index
+    (districts[stage.regionId]?.highestClearedRouteIndex ?? 0) >= stage.index
   );
 }

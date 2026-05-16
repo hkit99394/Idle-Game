@@ -44,7 +44,7 @@ function isUnlockConditionMet(
     case "stage_cleared": {
       const stage = getStageById(data, unlock.stageId);
 
-      return stage && progress.maps
+      return stage && progress.districts
         ? hasClearedStage(progress, stage)
         : false;
     }

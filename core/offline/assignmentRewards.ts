@@ -205,17 +205,17 @@ export function applyOfflineAssignmentRewards(
 
     if (assignmentCombatExperience > 0 && rewardProfile.mapRegionId) {
       const mapProgress = getRegionMapProgress(
-        nextProgress.maps,
+        nextProgress.districts,
         rewardProfile.mapRegionId
       ) ?? {
-        combatExperience: 0,
-        highestClearedStageIndex: 0
+        combatData: 0,
+        highestClearedRouteIndex: 0
       };
-      const mapCombatExperience = mapProgress.combatExperience ?? 0;
+      const mapCombatExperience = mapProgress.combatData ?? 0;
 
       setRegionMapProgress(nextProgress, rewardProfile.mapRegionId, {
         ...mapProgress,
-        combatExperience: mapCombatExperience + assignmentCombatExperience
+        combatData: mapCombatExperience + assignmentCombatExperience
       });
     }
 
@@ -232,9 +232,9 @@ export function applyOfflineAssignmentRewards(
     }
   }
 
-  nextProgress.resources.silver += silver;
-  nextProgress.resources.cultivation += cultivation;
-  nextProgress.resources.herbs += herbs;
+  nextProgress.resources.credits += silver;
+  nextProgress.resources.resonance += cultivation;
+  nextProgress.resources.reagents += herbs;
   addEquipmentRewardsToProgress(nextProgress, equipmentRewards);
   syncHeroLevelsWithCombatExperience(nextProgress);
 

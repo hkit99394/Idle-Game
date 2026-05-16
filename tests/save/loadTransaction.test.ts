@@ -37,7 +37,7 @@ describe("save load transaction", () => {
 
   it("applies offline rewards in core and advances the saved reward timestamp once", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const save = createSaveData({
       progress,
@@ -71,7 +71,7 @@ describe("save load transaction", () => {
 
   it("prevents repeated offline rewards when the persisted save is loaded again", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const save = createSaveData({
       progress,
@@ -114,20 +114,21 @@ describe("save load transaction", () => {
 
   it("keeps migrated offline rewards idempotent when region ids change", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const save = {
       ...createSaveData({
-        progress: {
-          ...progress,
-          maps: {
-            bamboo_road: progress.maps.greenline_approach
-          },
-          currentStageId: "bamboo_road_2"
-        },
+        progress,
         selectedOfflineFarmStageId: "bamboo_road_1",
         nowMs: 1_000
       }),
+      progress: {
+        ...progress,
+        districts: {
+          bamboo_road: progress.districts.greenline_approach
+        },
+        currentStageId: "bamboo_road_2"
+      },
       version: 10
     };
     const firstLoad = loadSaveTransaction({
@@ -152,7 +153,7 @@ describe("save load transaction", () => {
       return;
     }
 
-    expect(firstLoad.save.progress.maps.greenline_approach.combatExperience).toBeGreaterThan(
+    expect(firstLoad.save.progress.districts.greenline_approach.combatData).toBeGreaterThan(
       0
     );
     expect(firstLoad.save.progress.currentStageId).toBe("greenline_approach_2");
@@ -165,8 +166,8 @@ describe("save load transaction", () => {
     expect(secondLoad.writeReasons).toEqual([]);
     expect(secondLoad.offlineRewards?.ok).toBe(true);
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
-    expect(secondLoad.save.progress.maps.greenline_approach).toEqual(
-      firstLoad.save.progress.maps.greenline_approach
+    expect(secondLoad.save.progress.districts.greenline_approach).toEqual(
+      firstLoad.save.progress.districts.greenline_approach
     );
   });
 
@@ -216,7 +217,7 @@ describe("save load transaction", () => {
 
   it("normalizes invalid farm target metadata without changing reward timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
 
     const save = createSaveData({
       progress,

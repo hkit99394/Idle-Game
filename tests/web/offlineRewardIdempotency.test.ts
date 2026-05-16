@@ -19,7 +19,7 @@ describe("offline reward idempotency", () => {
     const savedAtMs = 1000;
     const firstLoadAtMs = savedAtMs + 10 * 60 * 60 * 1000;
 
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
     progress.currentStageId = "greenline_approach_2";
 
     const save = createSaveData({
@@ -52,10 +52,10 @@ describe("offline reward idempotency", () => {
     expect(firstLoad.offlineRewards?.ok).toBe(true);
     expect(firstLoad.offlineRewards?.rewards.offlineSeconds).toBe(8 * 60 * 60);
     expect(firstLoad.offlineRewards?.rewards.clears).toBe(2880);
-    expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(17280);
-    expect(firstLoad.activeSave.progress.resources.cultivation).toBeCloseTo(8640);
+    expect(firstLoad.activeSave.progress.resources.credits).toBeCloseTo(17280);
+    expect(firstLoad.activeSave.progress.resources.resonance).toBeCloseTo(8640);
     expect(
-      firstLoad.activeSave.progress.maps.greenline_approach.combatExperience
+      firstLoad.activeSave.progress.districts.greenline_approach.combatData
     ).toBeCloseTo(8640);
     expect(savedAfterFirstLoad.save.updatedAtMs).toBe(firstLoadAtMs);
     expect(savedAfterFirstLoad.save.lastOfflineRewardAtMs).toBe(firstLoadAtMs);
@@ -63,10 +63,10 @@ describe("offline reward idempotency", () => {
     expect(secondLoad.offlineRewards?.ok).toBe(true);
     expect(secondLoad.offlineRewards?.rewards.offlineSeconds).toBe(0);
     expect(secondLoad.offlineRewards?.rewards.clears).toBe(0);
-    expect(secondLoad.activeSave.progress.resources.silver).toBeCloseTo(17280);
-    expect(secondLoad.activeSave.progress.resources.cultivation).toBeCloseTo(8640);
+    expect(secondLoad.activeSave.progress.resources.credits).toBeCloseTo(17280);
+    expect(secondLoad.activeSave.progress.resources.resonance).toBeCloseTo(8640);
     expect(
-      secondLoad.activeSave.progress.maps.greenline_approach.combatExperience
+      secondLoad.activeSave.progress.districts.greenline_approach.combatData
     ).toBeCloseTo(8640);
   });
 
@@ -76,11 +76,11 @@ describe("offline reward idempotency", () => {
     const savedAtMs = 1000;
     const firstLoadAtMs = savedAtMs + 60_000;
 
-    progress.maps.greenline_approach.highestClearedStageIndex = 10;
-    progress.maps.veil_district.highestClearedStageIndex = 6;
-    progress.maps.black_iron_foundry.highestClearedStageIndex = 7;
-    progress.maps.lotus_clinic.highestClearedStageIndex = 7;
-    progress.maps.redline_outpost.highestClearedStageIndex = 6;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 10;
+    progress.districts.veil_district.highestClearedRouteIndex = 6;
+    progress.districts.black_iron_foundry.highestClearedRouteIndex = 7;
+    progress.districts.lotus_clinic.highestClearedRouteIndex = 7;
+    progress.districts.redline_outpost.highestClearedRouteIndex = 6;
     progress.currentStageId = "redline_outpost_7";
 
     const save = createSaveData({
@@ -117,10 +117,10 @@ describe("offline reward idempotency", () => {
 
     expect(firstOfflineRewards.stageId).toBe("redline_outpost_6");
     expect(firstOfflineRewards.rewards.clears).toBe(6);
-    expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(5832);
-    expect(firstLoad.activeSave.progress.resources.cultivation).toBeCloseTo(2916);
-    expect(firstLoad.activeSave.progress.resources.herbs).toBeCloseTo(180);
-    expect(firstLoad.activeSave.progress.maps.redline_outpost.combatExperience).toBeCloseTo(
+    expect(firstLoad.activeSave.progress.resources.credits).toBeCloseTo(5832);
+    expect(firstLoad.activeSave.progress.resources.resonance).toBeCloseTo(2916);
+    expect(firstLoad.activeSave.progress.resources.reagents).toBeCloseTo(180);
+    expect(firstLoad.activeSave.progress.districts.redline_outpost.combatData).toBeCloseTo(
       1101.6
     );
     expect(firstLoad.activeSave.progress.currentStageId).toBe("redline_outpost_7");
@@ -134,8 +134,8 @@ describe("offline reward idempotency", () => {
 
     expect(secondOfflineRewards.rewards.clears).toBe(0);
     expect(secondLoad.activeSave.progress.resources).toEqual(firstLoad.activeSave.progress.resources);
-    expect(secondLoad.activeSave.progress.maps.redline_outpost).toEqual(
-      firstLoad.activeSave.progress.maps.redline_outpost
+    expect(secondLoad.activeSave.progress.districts.redline_outpost).toEqual(
+      firstLoad.activeSave.progress.districts.redline_outpost
     );
   });
 
@@ -189,8 +189,8 @@ describe("offline reward idempotency", () => {
     expect(
       firstLoad.offlineAssignmentRewards?.rewards.combatExperience
     ).toBeCloseTo(19.2);
-    expect(firstLoad.activeSave.progress.resources.silver).toBeCloseTo(115.2);
-    expect(firstLoad.activeSave.progress.maps.greenline_approach.combatExperience).toBeCloseTo(
+    expect(firstLoad.activeSave.progress.resources.credits).toBeCloseTo(115.2);
+    expect(firstLoad.activeSave.progress.districts.greenline_approach.combatData).toBeCloseTo(
       19.2
     );
     expect(firstLoad.activeSave.progress.equipment?.inventory.impact_training_wraps).toBe(1);
@@ -201,7 +201,7 @@ describe("offline reward idempotency", () => {
       offlineSeconds: 0,
       assignments: []
     });
-    expect(secondLoad.activeSave.progress.resources.silver).toBeCloseTo(115.2);
+    expect(secondLoad.activeSave.progress.resources.credits).toBeCloseTo(115.2);
     expect(secondLoad.activeSave.progress.equipment?.inventory.impact_training_wraps).toBe(1);
   });
 
@@ -211,10 +211,10 @@ describe("offline reward idempotency", () => {
     const savedAtMs = 1000;
     const firstLoadAtMs = savedAtMs + 24 * 60 * 60 * 1000;
 
-    progress.maps.greenline_approach.highestClearedStageIndex = 10;
-    progress.maps.veil_district.highestClearedStageIndex = 6;
-    progress.maps.black_iron_foundry.highestClearedStageIndex = 7;
-    progress.maps.lotus_clinic.highestClearedStageIndex = 3;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 10;
+    progress.districts.veil_district.highestClearedRouteIndex = 6;
+    progress.districts.black_iron_foundry.highestClearedRouteIndex = 7;
+    progress.districts.lotus_clinic.highestClearedRouteIndex = 3;
 
     const assigned = setAssignmentHeroes(staticData, {
       progress,
@@ -253,13 +253,13 @@ describe("offline reward idempotency", () => {
     }
 
     expect(firstLoad.offlineAssignmentRewards?.rewards.herbs).toBeCloseTo(86.4);
-    expect(firstLoad.activeSave.progress.resources.herbs).toBeCloseTo(86.4);
+    expect(firstLoad.activeSave.progress.resources.reagents).toBeCloseTo(86.4);
     expect(firstLoad.activeSave.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(1);
     expect(secondLoad.offlineAssignmentRewards?.rewards).toMatchObject({
       offlineSeconds: 0,
       assignments: []
     });
-    expect(secondLoad.activeSave.progress.resources.herbs).toBeCloseTo(86.4);
+    expect(secondLoad.activeSave.progress.resources.reagents).toBeCloseTo(86.4);
     expect(secondLoad.activeSave.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(1);
   });
 });

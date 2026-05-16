@@ -42,7 +42,7 @@ export function buildCounterplaySettingsView(
     globalLabel: preferences.enabled ? "Auto On" : "Auto Off",
     medicineRows: buildMedicineCounterplayViewModels({
       data,
-      progress: state.progress.maps,
+      progress: state.progress.districts,
       inventory,
       preferences
     }).map((medicine) => ({

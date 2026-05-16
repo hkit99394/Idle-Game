@@ -11,15 +11,15 @@ import type { WebGameState } from "../types";
 import type { SaveDiagnosticsView } from "./saveDiagnosticsTypes";
 import type { LoadSaveDataFromStorageResult } from "../saveStorage";
 
-function getCurrentRegionHighestClearedStageIndex(
+function getCurrentRegionHighestClearedRouteIndex(
   data: StaticGameData,
   progress: PlayerProgress
 ): number {
   const currentStage = getStageById(data, progress.currentStageId);
 
   return currentStage
-    ? getRegionMapProgress(progress.maps, currentStage.regionId)
-        ?.highestClearedStageIndex ?? 0
+    ? getRegionMapProgress(progress.districts, currentStage.regionId)
+        ?.highestClearedRouteIndex ?? 0
     : 0;
 }
 
@@ -86,7 +86,7 @@ export function buildSaveDiagnostics(
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
       offlineFarmPreset: state.offlineFarmPreset,
-      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+      highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
         state.progress
       ),
@@ -118,7 +118,7 @@ export function buildSaveDiagnostics(
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
       offlineFarmPreset: state.offlineFarmPreset,
-      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+      highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
         state.progress
       ),
@@ -143,7 +143,7 @@ export function buildSaveDiagnostics(
       currentStageId: state.progress.currentStageId,
       selectedOfflineFarmStageId: state.selectedOfflineFarmStageId,
       offlineFarmPreset: state.offlineFarmPreset,
-      highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+      highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
         data,
         state.progress
       ),
@@ -170,7 +170,7 @@ export function buildSaveDiagnostics(
     currentStageId: save.progress.currentStageId,
     selectedOfflineFarmStageId: save.selectedOfflineFarmStageId,
     offlineFarmPreset: save.offlineFarmPreset,
-    highestClearedStageIndex: getCurrentRegionHighestClearedStageIndex(
+    highestClearedRouteIndex: getCurrentRegionHighestClearedRouteIndex(
       data,
       save.progress
     ),

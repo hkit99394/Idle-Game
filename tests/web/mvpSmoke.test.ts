@@ -93,9 +93,9 @@ function createStage13BlackIronBossReadyState(
   const advancedProgress = {
     ...state.progress,
     resources: {
-      silver: 50_000,
-      cultivation: 50_000,
-      herbs: 0
+      credits: 50_000,
+      resonance: 50_000,
+      reagents: 0
     },
     heroes: Object.fromEntries(
       Object.entries(state.progress.heroes).map(([heroId, heroProgress]) => [
@@ -120,23 +120,23 @@ function createStage13BlackIronBossReadyState(
         sect_inner_training: 20
       }
     },
-    maps: {
-      ...state.progress.maps,
+    districts: {
+      ...state.progress.districts,
       greenline_approach: {
-        combatExperience: 188,
-        highestClearedStageIndex: 10
+        combatData: 188,
+        highestClearedRouteIndex: 10
       },
       veil_district: {
-        combatExperience: 152,
-        highestClearedStageIndex: 6
+        combatData: 152,
+        highestClearedRouteIndex: 6
       },
       black_iron_foundry: {
-        combatExperience: 378,
-        highestClearedStageIndex: 6
+        combatData: 378,
+        highestClearedRouteIndex: 6
       },
       lotus_clinic: {
-        combatExperience: 0,
-        highestClearedStageIndex: 0
+        combatData: 0,
+        highestClearedRouteIndex: 0
       }
     },
     currentStageId: stage13SmokeChoices.entryBossStageId
@@ -177,8 +177,8 @@ describe("MVP smoke flow", () => {
     state = battleAndSave(storage, state, (nowMs += 1_000));
 
     expect(state.progress.currentStageId).toBe("greenline_approach_3");
-    expect(state.progress.resources.silver).toBe(24);
-    expect(state.progress.maps.greenline_approach.combatExperience).toBe(10);
+    expect(state.progress.resources.credits).toBe(24);
+    expect(state.progress.districts.greenline_approach.combatData).toBe(10);
 
     state = purchaseGameUpgrade(staticData, state, {
       upgradeId: "hero_outer_training",
@@ -187,7 +187,7 @@ describe("MVP smoke flow", () => {
     saveState(storage, state, (nowMs += 1_000));
 
     expect(state.lastPurchase?.ok).toBe(true);
-    expect(state.progress.resources.silver).toBe(12);
+    expect(state.progress.resources.credits).toBe(12);
     expect(
       state.progress.heroes.iron_fist_initiate.upgrades.hero_outer_training
     ).toBe(1);
@@ -207,7 +207,7 @@ describe("MVP smoke flow", () => {
 
     expect(state.progress.currentStageId).toBe("greenline_approach_10");
     expect(
-      state.progress.maps.greenline_approach.highestClearedStageIndex
+      state.progress.districts.greenline_approach.highestClearedRouteIndex
     ).toBe(9);
     expect(preBossViewModel.masteryPanel).toMatchObject({
       combatExperience: 88,
@@ -298,7 +298,7 @@ describe("MVP smoke flow", () => {
 
     expect(reloadedState.progress.currentStageId).toBe("greenline_approach_10");
     expect(
-      reloadedState.progress.maps.greenline_approach.highestClearedStageIndex
+      reloadedState.progress.districts.greenline_approach.highestClearedRouteIndex
     ).toBe(9);
     expectStage12SmokeChoices(reloadedState);
     expect(reloadedState.selectedOfflineFarmStageId).toBe("greenline_approach_1");
@@ -319,9 +319,9 @@ describe("MVP smoke flow", () => {
     expect(offlineState.offlineSummary?.combatExperience).toBeCloseTo(9.021);
     expect(offlineState.offlineSummary?.assignmentSilver).toBeGreaterThan(0);
 
-    const silverAfterOffline = offlineState.progress.resources.silver;
+    const silverAfterOffline = offlineState.progress.resources.credits;
     const combatExperienceAfterOffline =
-      offlineState.progress.maps.greenline_approach.combatExperience;
+      offlineState.progress.districts.greenline_approach.combatData;
     const secondReloadState = createInitialWebGameStateFromStorage(
       staticData,
       storage,
@@ -329,10 +329,10 @@ describe("MVP smoke flow", () => {
     );
 
     expect(secondReloadState.offlineSummary).toBeNull();
-    expect(secondReloadState.progress.resources.silver).toBe(
+    expect(secondReloadState.progress.resources.credits).toBe(
       silverAfterOffline
     );
-    expect(secondReloadState.progress.maps.greenline_approach.combatExperience).toBe(
+    expect(secondReloadState.progress.districts.greenline_approach.combatData).toBe(
       combatExperienceAfterOffline
     );
   });
@@ -357,7 +357,7 @@ describe("MVP smoke flow", () => {
     expect(state.progress.currentStageId).toBe("lotus_clinic_1");
     expect(state.selectedStageId).toBe("lotus_clinic_1");
     expect(
-      state.progress.maps.black_iron_foundry.highestClearedStageIndex
+      state.progress.districts.black_iron_foundry.highestClearedRouteIndex
     ).toBe(7);
 
     for (const stageId of [
@@ -378,9 +378,9 @@ describe("MVP smoke flow", () => {
 
     expect(state.progress.currentStageId).toBe("lotus_clinic_4");
     expect(
-      state.progress.maps.lotus_clinic.highestClearedStageIndex
+      state.progress.districts.lotus_clinic.highestClearedRouteIndex
     ).toBe(3);
-    expect(state.progress.resources.herbs).toBeGreaterThan(0);
+    expect(state.progress.resources.reagents).toBeGreaterThan(0);
 
     const lotusViewModel = getWebGameViewModel(staticData, state);
 
@@ -454,8 +454,8 @@ describe("MVP smoke flow", () => {
     expect(reloadedState.selectedOfflineFarmStageId).toBe(
       stage13SmokeChoices.farmStageId
     );
-    expect(reloadedState.progress.resources.herbs).toBe(
-      state.progress.resources.herbs
+    expect(reloadedState.progress.resources.reagents).toBe(
+      state.progress.resources.reagents
     );
 
     const offlineState = createInitialWebGameStateFromStorage(
@@ -469,14 +469,14 @@ describe("MVP smoke flow", () => {
     });
     expect(offlineState.offlineSummary?.herbs).toBeGreaterThan(0);
     expect(offlineState.offlineSummary?.assignmentHerbs).toBeGreaterThan(0);
-    expect(offlineState.progress.resources.herbs).toBeGreaterThan(
-      reloadedState.progress.resources.herbs
+    expect(offlineState.progress.resources.reagents).toBeGreaterThan(
+      reloadedState.progress.resources.reagents
     );
     expect(
       offlineState.progress.equipment?.inventory.lotus_dew_countermeasure
     ).toBeGreaterThanOrEqual(1);
 
-    const herbsAfterOffline = offlineState.progress.resources.herbs;
+    const herbsAfterOffline = offlineState.progress.resources.reagents;
     const lotusDewAfterOffline =
       offlineState.progress.equipment?.inventory.lotus_dew_countermeasure;
     const secondReloadState = createInitialWebGameStateFromStorage(
@@ -486,7 +486,7 @@ describe("MVP smoke flow", () => {
     );
 
     expect(secondReloadState.offlineSummary).toBeNull();
-    expect(secondReloadState.progress.resources.herbs).toBe(herbsAfterOffline);
+    expect(secondReloadState.progress.resources.reagents).toBe(herbsAfterOffline);
     expect(secondReloadState.progress.equipment?.inventory.lotus_dew_countermeasure).toBe(
       lotusDewAfterOffline
     );

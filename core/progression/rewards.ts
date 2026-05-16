@@ -40,14 +40,14 @@ export function applyStageClearRewards(
   }
 
   const nextProgress = cloneProgress(input.progress);
-  const mapProgress = getRegionMapProgress(
-    nextProgress.maps,
+  const districtProgress = getRegionMapProgress(
+    nextProgress.districts,
     stage.regionId
   ) ?? {
-    combatExperience: 0,
-    highestClearedStageIndex: 0
+    combatData: 0,
+    highestClearedRouteIndex: 0
   };
-  const mapCombatExperience = mapProgress.combatExperience ?? 0;
+  const mapCombatExperience = districtProgress.combatData ?? 0;
   const masteryRanksBefore = getReachedMasteryRanks(
     mapCombatExperience,
     data.mastery.thresholds
@@ -61,18 +61,18 @@ export function applyStageClearRewards(
   const herbs = (stage.rewards.herbs ?? 0) * rewardMultiplier;
   const combatExperience = stage.rewards.combatExperience;
 
-  nextProgress.resources.silver += silver;
-  nextProgress.resources.cultivation += cultivation;
-  nextProgress.resources.herbs += herbs;
+  nextProgress.resources.credits += silver;
+  nextProgress.resources.resonance += cultivation;
+  nextProgress.resources.reagents += herbs;
   const equipmentRewards = addEquipmentDropsToInventory(
     nextProgress,
     stage.equipmentDrops
   );
 
   const updatedMapProgress = {
-    combatExperience: mapCombatExperience + combatExperience,
-    highestClearedStageIndex: Math.max(
-      mapProgress.highestClearedStageIndex,
+    combatData: mapCombatExperience + combatExperience,
+    highestClearedRouteIndex: Math.max(
+      districtProgress.highestClearedRouteIndex,
       stage.index
     )
   };
@@ -85,7 +85,7 @@ export function applyStageClearRewards(
   syncHeroLevelsWithCombatExperience(nextProgress);
 
   const masteryRanksAfter = getReachedMasteryRanks(
-    updatedMapProgress.combatExperience,
+    updatedMapProgress.combatData,
     data.mastery.thresholds
   );
   const newlyReachedMasteryRanks = masteryRanksAfter.filter(

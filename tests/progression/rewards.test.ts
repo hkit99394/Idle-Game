@@ -24,20 +24,20 @@ describe("stage clear rewards", () => {
       herbs: 0,
       combatExperience: 5
     });
-    expect(result.progress.resources.silver).toBe(10);
-    expect(result.progress.resources.cultivation).toBe(5);
-    expect(result.progress.maps.greenline_approach.combatExperience).toBe(5);
+    expect(result.progress.resources.credits).toBe(10);
+    expect(result.progress.resources.resonance).toBe(5);
+    expect(result.progress.districts.greenline_approach.combatData).toBe(5);
     expect(result.progress.styleMastery?.impact.experience).toBe(5);
     expect(result.progress.styleMastery?.pulse.experience).toBe(5);
     expect(result.progress.styleMastery?.edge.experience).toBe(5);
     expect(result.progress.styleMastery?.brace.experience).toBe(5);
-    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(1);
+    expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(1);
     expect(result.progress.currentStageId).toBe("greenline_approach_1");
   });
 
   it("reports newly reached mastery ranks", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.combatExperience = 95;
+    progress.districts.greenline_approach.combatData = 95;
 
     const result = applyStageClearRewards(staticData, {
       progress,
@@ -57,7 +57,7 @@ describe("stage clear rewards", () => {
 
   it("applies map reward mastery bonus to silver and cultivation", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.combatExperience = 500;
+    progress.districts.greenline_approach.combatData = 500;
 
     const result = applyStageClearRewards(staticData, {
       progress,
@@ -76,9 +76,9 @@ describe("stage clear rewards", () => {
 
   it("grants Lotus herbs through stage rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 10;
-    progress.maps.veil_district.highestClearedStageIndex = 10;
-    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 10;
+    progress.districts.veil_district.highestClearedRouteIndex = 10;
+    progress.districts.black_iron_foundry.highestClearedRouteIndex = 10;
     progress.currentStageId = "lotus_clinic_1";
 
     const result = applyStageClearRewards(staticData, {
@@ -92,7 +92,7 @@ describe("stage clear rewards", () => {
     }
 
     expect(result.rewards.herbs).toBe(6);
-    expect(result.progress.resources.herbs).toBe(6);
+    expect(result.progress.resources.reagents).toBe(6);
     expect(result.equipmentRewards).toEqual([
       {
         equipmentId: "lotus_dew_countermeasure",
@@ -125,8 +125,8 @@ describe("stage clear rewards", () => {
 
     expect(result.reason).toBe("locked_stage");
     expect(result.progress).toBe(progress);
-    expect(progress.resources.silver).toBe(0);
-    expect(progress.maps.greenline_approach.combatExperience).toBe(0);
-    expect(progress.maps.greenline_approach.highestClearedStageIndex).toBe(0);
+    expect(progress.resources.credits).toBe(0);
+    expect(progress.districts.greenline_approach.combatData).toBe(0);
+    expect(progress.districts.greenline_approach.highestClearedRouteIndex).toBe(0);
   });
 });

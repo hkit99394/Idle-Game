@@ -45,11 +45,11 @@ describe("offline time travel save state", () => {
       progress: {
         ...state.progress,
         currentStageId: "greenline_approach_2",
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            ...state.progress.maps.greenline_approach,
-            highestClearedStageIndex: 1
+            ...state.progress.districts.greenline_approach,
+            highestClearedRouteIndex: 1
           }
         }
       }
@@ -79,7 +79,7 @@ describe("offline time travel save state", () => {
     expect(storedSave.save.updatedAtMs).toBe(100_000);
     expect(storedSave.save.lastOfflineRewardAtMs).toBe(100_000);
     expect(storedSave.save.updatedAtMs).not.toBe(70_000);
-    expect(storedSave.save.progress.resources.silver).toBe(0);
+    expect(storedSave.save.progress.resources.credits).toBe(0);
     expect(storage.getItem(WEB_SAVE_STORAGE_KEY)).toContain(
       '"selectedOfflineFarmRouteId":"greenline_approach_1"'
     );
@@ -94,11 +94,11 @@ describe("offline time travel save state", () => {
       progress: {
         ...state.progress,
         currentStageId: "greenline_approach_2",
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            ...state.progress.maps.greenline_approach,
-            highestClearedStageIndex: 1
+            ...state.progress.districts.greenline_approach,
+            highestClearedRouteIndex: 1
           }
         }
       }
@@ -125,6 +125,6 @@ describe("offline time travel save state", () => {
     expect(result.save.lastOfflineRewardAtMs).toBe(100_000);
     expect(result.save.updatedAtMs).not.toBe(99_000);
     expect(storedSave.save).toEqual(result.save);
-    expect(storedSave.save.progress.resources.silver).toBe(0);
+    expect(storedSave.save.progress.resources.credits).toBe(0);
   });
 });

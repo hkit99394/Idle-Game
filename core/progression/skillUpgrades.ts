@@ -48,7 +48,7 @@ export function purchaseSkillUpgrade(
 
   const cost = calculateSkillUpgradeCost(upgrade, currentLevel);
 
-  if (input.progress.resources.cultivation < cost) {
+  if (input.progress.resources.resonance < cost) {
     return {
       ok: false,
       reason: "not_enough_cultivation",
@@ -59,7 +59,7 @@ export function purchaseSkillUpgrade(
 
   const nextProgress = cloneProgress(input.progress);
 
-  nextProgress.resources.cultivation -= cost;
+  nextProgress.resources.resonance -= cost;
   nextProgress.skillUpgrades = {
     ...nextProgress.skillUpgrades,
     [upgrade.id]: currentLevel + 1

@@ -71,10 +71,10 @@ describe("progress-based player team builder", () => {
 
   it("allows the Lotus support hero after the unlock stage is cleared", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 10;
-    progress.maps.veil_district.highestClearedStageIndex = 10;
-    progress.maps.black_iron_foundry.highestClearedStageIndex = 10;
-    progress.maps.lotus_clinic.highestClearedStageIndex = 3;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 10;
+    progress.districts.veil_district.highestClearedRouteIndex = 10;
+    progress.districts.black_iron_foundry.highestClearedRouteIndex = 10;
+    progress.districts.lotus_clinic.highestClearedRouteIndex = 3;
     progress.currentStageId = "lotus_clinic_4";
 
     expect(isHeroUnlocked(staticData, progress, "lotus_stabilizer")).toBe(
@@ -124,7 +124,7 @@ describe("progress-based player team builder", () => {
     progress.heroes.iron_fist_initiate.upgrades.hero_outer_training = 2;
     progress.sect.upgrades.sect_outer_training = 1;
     progress.sect.upgrades.sect_inner_training = 1;
-    progress.maps.greenline_approach.combatExperience = 100;
+    progress.districts.greenline_approach.combatData = 100;
 
     const result = buildPlayerTeamForStage(staticData, progress, "greenline_approach_1");
 
@@ -190,7 +190,7 @@ describe("progress-based player team builder", () => {
 
   it("adds enemy-family mastery damage multipliers for the current stage enemy family", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.combatExperience = 3000;
+    progress.districts.greenline_approach.combatData = 3000;
 
     const normalResult = buildPlayerTeamForStage(staticData, progress, "greenline_approach_1");
     const bossResult = buildPlayerTeamForStage(staticData, progress, "greenline_approach_10");
@@ -213,7 +213,7 @@ describe("progress-based player team builder", () => {
   it("enemy-family mastery changes simulator damage output", () => {
     const baseProgress = createInitialPlayerProgress(staticData);
     const masteredProgress = createInitialPlayerProgress(staticData);
-    masteredProgress.maps.greenline_approach.combatExperience = 3000;
+    masteredProgress.districts.greenline_approach.combatData = 3000;
 
     const baseTeam = buildPlayerTeamForStage(staticData, baseProgress, "greenline_approach_1");
     const masteredTeam = buildPlayerTeamForStage(staticData, masteredProgress, "greenline_approach_1");
@@ -250,7 +250,7 @@ describe("progress-based player team builder", () => {
   it("map attack mastery changes simulator damage output", () => {
     const baseProgress = createInitialPlayerProgress(staticData);
     const masteredProgress = createInitialPlayerProgress(staticData);
-    masteredProgress.maps.greenline_approach.combatExperience = 100;
+    masteredProgress.districts.greenline_approach.combatData = 100;
 
     const baseTeam = buildPlayerTeamForStage(staticData, baseProgress, "greenline_approach_1");
     const masteredTeam = buildPlayerTeamForStage(staticData, masteredProgress, "greenline_approach_1");

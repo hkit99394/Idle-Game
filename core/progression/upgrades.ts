@@ -58,7 +58,7 @@ export function purchaseUpgrade(
   const currentLevel = getUpgradeLevel(input.progress, upgrade, input.heroId);
   const cost = calculateUpgradeCost(upgrade, currentLevel);
 
-  if (input.progress.resources.silver < cost) {
+  if (input.progress.resources.credits < cost) {
     return {
       ok: false,
       reason: "not_enough_silver",
@@ -68,7 +68,7 @@ export function purchaseUpgrade(
   }
 
   const nextProgress = cloneProgress(input.progress);
-  nextProgress.resources.silver -= cost;
+  nextProgress.resources.credits -= cost;
 
   if (upgrade.scope === "hero") {
     const hero = nextProgress.heroes[input.heroId as string];

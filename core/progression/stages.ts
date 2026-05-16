@@ -6,13 +6,13 @@ import {
   getStageIdAliases,
   normalizeStageId
 } from "../compatibility";
-import type { MapProgress, PlayerProgress } from "./types";
+import type { DistrictProgress, PlayerProgress } from "./types";
 
 export type RegionProgress = Record<
   string,
   {
-    highestClearedStageIndex: number;
-    combatExperience?: number;
+    highestClearedRouteIndex: number;
+    combatData?: number;
   }
 >;
 
@@ -129,46 +129,48 @@ export function hasClearedStage(
   stage: StageDefinition
 ): boolean {
   return (
-    (getRegionMapProgress(progress.maps, stage.regionId)?.highestClearedStageIndex ??
+    (getRegionMapProgress(progress.districts, stage.regionId)?.highestClearedRouteIndex ??
       0) >= stage.index
   );
 }
 
 function getPreferredRegionMapKey(
-  maps: RegionProgress,
+  districts: RegionProgress,
   regionId: string
 ): string {
   const aliases = getRegionIdAliases(regionId);
 
-  return aliases.find((alias) => Object.hasOwn(maps, alias)) ?? regionId;
+  return aliases.find((alias) => Object.hasOwn(districts, alias)) ?? regionId;
 }
 
 export function getRegionMapProgress(
-  maps: RegionProgress,
+  districts: RegionProgress,
   regionId: string
 ): RegionProgress[string] | undefined {
   const aliases = getRegionIdAliases(regionId);
   const targetAlias = aliases[0];
 
-  if (targetAlias && Object.hasOwn(maps, targetAlias)) {
-    return maps[targetAlias];
+  if (targetAlias && Object.hasOwn(districts, targetAlias)) {
+    return districts[targetAlias];
   }
 
   return aliases
     .slice(1)
-    .map((alias) => maps[alias])
+    .map((alias) => districts[alias])
     .find(
-      (mapProgress): mapProgress is RegionProgress[string] =>
-        mapProgress !== undefined
+      (districtProgress): districtProgress is RegionProgress[string] =>
+        districtProgress !== undefined
     );
 }
 
 export function setRegionMapProgress(
   progress: PlayerProgress,
   regionId: string,
-  mapProgress: MapProgress
+  districtProgress: DistrictProgress
 ): void {
-  progress.maps[getPreferredRegionMapKey(progress.maps, regionId)] = mapProgress;
+  progress.districts[
+    getPreferredRegionMapKey(progress.districts, regionId)
+  ] = districtProgress;
 }
 
 function isPlayerProgress(
@@ -176,12 +178,12 @@ function isPlayerProgress(
 ): progress is PlayerProgress {
   return (
     typeof (progress as PlayerProgress).currentStageId === "string" &&
-    typeof (progress as PlayerProgress).maps === "object"
+    typeof (progress as PlayerProgress).districts === "object"
   );
 }
 
 function getProgressMaps(progress: PlayerProgress | RegionProgress): RegionProgress {
-  return isPlayerProgress(progress) ? progress.maps : progress;
+  return isPlayerProgress(progress) ? progress.districts : progress;
 }
 
 export function isStageCleared(
@@ -197,7 +199,7 @@ export function isStageCleared(
 
   return (
     (getRegionMapProgress(getProgressMaps(progress), stage.regionId)
-      ?.highestClearedStageIndex ?? 0) >=
+      ?.highestClearedRouteIndex ?? 0) >=
     stage.index
   );
 }
@@ -253,16 +255,16 @@ export function isStageUnlocked(
     return false;
   }
 
-  const mapProgress = getRegionMapProgress(
+  const districtProgress = getRegionMapProgress(
     getProgressMaps(progress),
     stage.regionId
   );
 
-  if (!mapProgress) {
+  if (!districtProgress) {
     return stage.index === 1;
   }
 
-  return stage.index <= mapProgress.highestClearedStageIndex + 1;
+  return stage.index <= districtProgress.highestClearedRouteIndex + 1;
 }
 
 export function getNextCurrentStageId(

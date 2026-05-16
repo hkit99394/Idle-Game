@@ -167,7 +167,7 @@ describe("auto medicine cleanse", () => {
         inventory: {},
         progress: {
           greenline_approach: {
-            highestClearedStageIndex: 9
+            highestClearedRouteIndex: 9
           }
         },
         stages: stageDefinitions
@@ -180,7 +180,7 @@ describe("auto medicine cleanse", () => {
         inventory: {},
         progress: {
           greenline_approach: {
-            highestClearedStageIndex: 10
+            highestClearedRouteIndex: 10
           }
         },
         stages: stageDefinitions

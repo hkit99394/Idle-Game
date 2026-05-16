@@ -264,12 +264,12 @@ describe("Path of Neon retheme compatibility keys", () => {
     expect(WEB_SAVE_STORAGE_KEY).toBe("path-of-neon.save.v1");
     expect(LEGACY_WEB_SAVE_STORAGE_KEY).toBe("path-of-jianghu.save.v1");
     expect(Object.keys(save.progress.resources)).toEqual([
-      "silver",
-      "cultivation",
-      "herbs"
+      "credits",
+      "resonance",
+      "reagents"
     ]);
-    expect(Object.keys(save.progress.maps.greenline_approach)).toContain(
-      "combatExperience"
+    expect(Object.keys(save.progress.districts.greenline_approach)).toContain(
+      "combatData"
     );
     expect(manifest.icons.map((icon) => icon.src)).toEqual([
       "/icons/path-of-neon.svg"

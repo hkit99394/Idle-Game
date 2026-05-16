@@ -65,7 +65,7 @@ describe("save schema migrations", () => {
         "boss_and_elite"
       );
       expect(
-        result.save.progress.resources.herbs,
+        result.save.progress.resources.reagents,
         fixture.description
       ).toBeGreaterThanOrEqual(0);
       expect(result.save.progress.equipment, fixture.description).toMatchObject({
@@ -138,17 +138,17 @@ describe("save schema migrations", () => {
 
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
     expect(result.save.progress.resources).toMatchObject({
-      silver: 2400,
-      cultivation: 950,
-      herbs: 0
+      credits: 2400,
+      resonance: 950,
+      reagents: 0
     });
     expect(result.save.progress.heroes.lotus_stabilizer).toEqual({
       level: 1,
       upgrades: {}
     });
-    expect(result.save.progress.maps.lotus_clinic).toEqual({
-      combatExperience: 0,
-      highestClearedStageIndex: 0
+    expect(result.save.progress.districts.lotus_clinic).toEqual({
+      combatData: 0,
+      highestClearedRouteIndex: 0
     });
     expect(result.save.progress.activeHeroIds).toEqual([
       "iron_fist_initiate",
@@ -173,22 +173,24 @@ describe("save schema migrations", () => {
 
   it("migrates legacy region map keys and stage ids to Path of Neon ids", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach = {
-      combatExperience: 40,
-      highestClearedStageIndex: 2
-    };
+    const legacyProgress = {
+      ...progress,
+      maps: {
+        bamboo_road: {
+          combatExperience: 40,
+          highestClearedStageIndex: 2
+        }
+      },
+      currentStageId: "bamboo_road_3"
+    } as any;
+    delete legacyProgress.districts;
     const save = {
       ...createSaveData({
-        progress: {
-          ...progress,
-          maps: {
-            bamboo_road: progress.maps.greenline_approach
-          },
-          currentStageId: "bamboo_road_3"
-        },
+        progress,
         selectedOfflineFarmStageId: "bamboo_road_1",
         nowMs: 1000
       }),
+      progress: legacyProgress,
       version: 10
     };
     const result = parseSaveData(staticData, save);
@@ -199,17 +201,17 @@ describe("save schema migrations", () => {
     }
 
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
-    expect(result.save.progress.maps.greenline_approach).toEqual({
-      combatExperience: 40,
-      highestClearedStageIndex: 2
+    expect(result.save.progress.districts.greenline_approach).toEqual({
+      combatData: 40,
+      highestClearedRouteIndex: 2
     });
-    expect(result.save.progress.maps.bamboo_road).toBeUndefined();
+    expect(result.save.progress.districts.bamboo_road).toBeUndefined();
     expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
     expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_1");
     expect(result.migration.normalizations).toEqual(
       expect.arrayContaining([
         {
-          field: "progress.maps.bamboo_road",
+          field: "progress.districts.bamboo_road",
           reason: "migrated legacy region id"
         },
         {
@@ -226,21 +228,26 @@ describe("save schema migrations", () => {
 
   it("normalizes legacy region and stage ids even when a save is already current version", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach = {
-      combatExperience: 44,
-      highestClearedStageIndex: 2
-    };
-    const save = createSaveData({
-      progress: {
-        ...progress,
-        maps: {
-          bamboo_road: progress.maps.greenline_approach
-        },
-        currentStageId: "bamboo_road_3"
+    const legacyProgress = {
+      ...progress,
+      maps: {
+        bamboo_road: {
+          combatExperience: 44,
+          highestClearedStageIndex: 2
+        }
       },
+      currentStageId: "bamboo_road_3"
+    } as any;
+    delete legacyProgress.districts;
+    const save = {
+      ...createSaveData({
+        progress,
+        selectedOfflineFarmStageId: "bamboo_road_2",
+        nowMs: 1000
+      }),
+      progress: legacyProgress,
       selectedOfflineFarmStageId: "bamboo_road_2",
-      nowMs: 1000
-    });
+    };
     const result = parseSaveData(staticData, save);
 
     expect(save.version).toBe(SAVE_DATA_VERSION);
@@ -250,11 +257,11 @@ describe("save schema migrations", () => {
     }
 
     expect(result.save.version).toBe(SAVE_DATA_VERSION);
-    expect(result.save.progress.maps.greenline_approach).toEqual({
-      combatExperience: 44,
-      highestClearedStageIndex: 2
+    expect(result.save.progress.districts.greenline_approach).toEqual({
+      combatData: 44,
+      highestClearedRouteIndex: 2
     });
-    expect(result.save.progress.maps.bamboo_road).toBeUndefined();
+    expect(result.save.progress.districts.bamboo_road).toBeUndefined();
     expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
     expect(result.save.selectedOfflineFarmStageId).toBe("greenline_approach_2");
     expect(result.migration.migrated).toBe(false);
@@ -262,7 +269,7 @@ describe("save schema migrations", () => {
     expect(result.migration.normalizations).toEqual(
       expect.arrayContaining([
         {
-          field: "progress.maps.bamboo_road",
+          field: "progress.districts.bamboo_road",
           reason: "migrated legacy region id"
         },
         {
@@ -279,11 +286,11 @@ describe("save schema migrations", () => {
 
   it("parses serialized Stage 2.7 save fields without rewrite normalizations", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.silver = 12;
-    progress.resources.cultivation = 8;
-    progress.resources.herbs = 4;
-    progress.maps.greenline_approach.combatExperience = 30;
-    progress.maps.greenline_approach.highestClearedStageIndex = 2;
+    progress.resources.credits = 12;
+    progress.resources.resonance = 8;
+    progress.resources.reagents = 4;
+    progress.districts.greenline_approach.combatData = 30;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 2;
     progress.currentStageId = "greenline_approach_3";
     progress.selectedTacticId = "kinetic_crush";
     const save = createSaveData({
@@ -306,13 +313,13 @@ describe("save schema migrations", () => {
       normalizations: []
     });
     expect(result.save.progress.resources).toEqual({
-      silver: 12,
-      cultivation: 8,
-      herbs: 4
+      credits: 12,
+      resonance: 8,
+      reagents: 4
     });
-    expect(result.save.progress.maps.greenline_approach).toEqual({
-      combatExperience: 30,
-      highestClearedStageIndex: 2
+    expect(result.save.progress.districts.greenline_approach).toEqual({
+      combatData: 30,
+      highestClearedRouteIndex: 2
     });
     expect(result.save.progress.currentStageId).toBe("greenline_approach_3");
     expect(result.save.progress.selectedTacticId).toBe("kinetic_crush");
@@ -322,16 +329,42 @@ describe("save schema migrations", () => {
 
   it("normalizes current-version legacy save fields into the Stage 2.7 schema boundary", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.silver = 18;
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
-    const legacyCurrentSave = {
-      ...createSaveData({
-        progress,
-        selectedOfflineFarmStageId: "greenline_approach_1",
-        offlineFarmPreset: "silver",
-        nowMs: 1000
-      })
+    progress.resources.credits = 18;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
+    const legacyCurrentSave = JSON.parse(
+      JSON.stringify(
+        createSaveData({
+          progress,
+          selectedOfflineFarmStageId: "greenline_approach_1",
+          offlineFarmPreset: "silver",
+          nowMs: 1000
+        })
+      )
+    );
+    legacyCurrentSave.progress.resources = {
+      silver: 18,
+      cultivation: 0,
+      herbs: 0
     };
+    legacyCurrentSave.progress.maps = {
+      greenline_approach: {
+        combatExperience: 0,
+        highestClearedStageIndex: 1
+      }
+    };
+    legacyCurrentSave.progress.currentStageId =
+      legacyCurrentSave.progress.currentRouteId;
+    legacyCurrentSave.progress.selectedTacticId =
+      legacyCurrentSave.progress.selectedRoutineId;
+    legacyCurrentSave.progress.sect = legacyCurrentSave.progress.technoSect;
+    legacyCurrentSave.selectedOfflineFarmStageId =
+      legacyCurrentSave.selectedOfflineFarmRouteId;
+    legacyCurrentSave.offlineFarmPreset = "silver";
+    delete legacyCurrentSave.progress.districts;
+    delete legacyCurrentSave.progress.currentRouteId;
+    delete legacyCurrentSave.progress.selectedRoutineId;
+    delete legacyCurrentSave.progress.technoSect;
+    delete legacyCurrentSave.selectedOfflineFarmRouteId;
     const result = parseSaveData(staticData, legacyCurrentSave);
 
     expect(legacyCurrentSave.version).toBe(SAVE_DATA_VERSION);
@@ -366,7 +399,7 @@ describe("save schema migrations", () => {
         }
       ])
     );
-    expect(result.save.progress.resources.silver).toBe(18);
+    expect(result.save.progress.resources.credits).toBe(18);
     expect(JSON.parse(JSON.stringify(result.save)).progress.resources.credits).toBe(
       18
     );
@@ -374,7 +407,7 @@ describe("save schema migrations", () => {
 
   it("rejects conflicting legacy and Stage 2.7 save field aliases", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.silver = 12;
+    progress.resources.credits = 12;
     const save = createSaveData({
       progress,
       selectedOfflineFarmStageId: null,
@@ -684,7 +717,7 @@ describe("save schema migrations", () => {
       version: 10,
       progress: {
         ...progress,
-        maps: {
+        districts: {
           greenline_approach: {
             combatExperience: 80,
             highestClearedStageIndex: 3
@@ -704,11 +737,11 @@ describe("save schema migrations", () => {
       return;
     }
 
-    expect(result.save.progress.maps.greenline_approach).toEqual({
-      combatExperience: 80,
-      highestClearedStageIndex: 3
+    expect(result.save.progress.districts.greenline_approach).toEqual({
+      combatData: 80,
+      highestClearedRouteIndex: 3
     });
-    expect(result.save.progress.maps.bamboo_road).toBeUndefined();
+    expect(result.save.progress.districts.bamboo_road).toBeUndefined();
   });
 
   it("rejects unmapped old region and stage ids after migration", () => {
@@ -722,8 +755,8 @@ describe("save schema migrations", () => {
       version: 10,
       progress: {
         ...progress,
-        maps: {
-          ...progress.maps,
+        districts: {
+          ...progress.districts,
           old_missing_region: {
             combatExperience: 0,
             highestClearedStageIndex: 1
@@ -746,7 +779,7 @@ describe("save schema migrations", () => {
     };
 
     expect(validateSaveData(staticData, unknownRegionSave)).toContain(
-      "progress.maps.old_missing_region must reference an existing region"
+      "progress.districts.old_missing_region must reference an existing region"
     );
     expect(validateSaveData(staticData, unknownStageSave)).toEqual(
       expect.arrayContaining([
@@ -847,7 +880,7 @@ describe("save schema migrations", () => {
         ...save.progress,
         resources: {
           ...save.progress.resources,
-          herbs: -1
+          reagents: -1
         }
       }
     };
@@ -858,12 +891,12 @@ describe("save schema migrations", () => {
       return;
     }
     expect(result.save.progress.resources).toMatchObject({
-      silver: 10,
-      cultivation: 5,
-      herbs: 0
+      credits: 10,
+      resonance: 5,
+      reagents: 0
     });
     expect(validateSaveData(staticData, badSave)).toContain(
-      "progress.resources.herbs must be a non-negative finite number"
+      "progress.resources.reagents must be a non-negative finite number"
     );
   });
 
@@ -935,8 +968,8 @@ describe("save schema migrations", () => {
     };
     const tooLargeProgress = {
       ...save.progress,
-      maps: {
-        ...save.progress.maps,
+      districts: {
+        ...save.progress.districts,
         bamboo_road: {
           combatExperience: 0,
           highestClearedStageIndex: 10
@@ -1042,8 +1075,8 @@ describe("save schema migrations", () => {
       ...save,
       progress: {
         ...save.progress,
-        maps: {
-          bamboo_road: save.progress.maps.greenline_approach
+        districts: {
+          bamboo_road: save.progress.districts.greenline_approach
         }
       }
     };
@@ -1063,8 +1096,8 @@ describe("save schema migrations", () => {
       ...save,
       progress: {
         ...save.progress,
-        maps: {
-          ...save.progress.maps,
+        districts: {
+          ...save.progress.districts,
           missing_region: {
             combatExperience: 0,
             highestClearedStageIndex: 1
@@ -1083,9 +1116,9 @@ describe("save schema migrations", () => {
 
     expect(validateSaveData(staticData, badSave)).toEqual(
       expect.arrayContaining([
-        "progress.maps.missing_region must reference an existing region",
-        "progress.maps.greenline_approach.highestClearedStageIndex must be an integer between 0 and 10",
-        "progress.maps.lotus_clinic.highestClearedStageIndex must be an integer between 0 and 7"
+        "progress.districts.missing_region must reference an existing region",
+        "progress.districts.greenline_approach.highestClearedRouteIndex must be an integer between 0 and 10",
+        "progress.districts.lotus_clinic.highestClearedRouteIndex must be an integer between 0 and 7"
       ])
     );
   });

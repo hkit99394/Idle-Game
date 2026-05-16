@@ -86,7 +86,7 @@ export function buildUpgradeViews(
     if (upgrade.scope === "sect") {
       const level = getUpgradeLevel(progress, upgrade);
       const cost = calculateUpgradeCost(upgrade, level);
-      const missingSilver = Math.max(0, cost - progress.resources.silver);
+      const missingSilver = Math.max(0, cost - progress.resources.credits);
 
       return [
         buildUpgradeView(
@@ -103,7 +103,7 @@ export function buildUpgradeViews(
     return getUnlockedHeroDefinitions(data, progress).map((hero) => {
       const level = getUpgradeLevel(progress, upgrade, hero.id);
       const cost = calculateUpgradeCost(upgrade, level);
-      const missingSilver = Math.max(0, cost - progress.resources.silver);
+      const missingSilver = Math.max(0, cost - progress.resources.credits);
 
       return buildUpgradeView(
         upgrade,
@@ -154,7 +154,7 @@ export function buildSkillUpgradeViews(
     const cost = isMaxLevel ? 0 : calculateSkillUpgradeCost(upgrade, level);
     const missingCultivation = Math.max(
       0,
-      cost - progress.resources.cultivation
+      cost - progress.resources.resonance
     );
 
     return [

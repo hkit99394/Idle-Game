@@ -69,21 +69,24 @@ function copyAliasedField(
     normalizeTargetValue?: (value: unknown) => unknown;
     legacyPath?: string;
     targetPath?: string;
+    runtimeField?: "legacy" | "target";
   } = {}
 ): void {
   const hasLegacy = hasOwn(source, legacyField);
   const hasTarget = hasOwn(source, targetField);
+  const runtimeField =
+    options.runtimeField === "target" ? targetField : legacyField;
   const targetValue = hasTarget
     ? options.normalizeTargetValue?.(source[targetField]) ?? source[targetField]
     : undefined;
 
   if (hasTarget && !hasLegacy) {
-    target[legacyField] = targetValue;
+    target[runtimeField] = targetValue;
     return;
   }
 
   if (!hasTarget && hasLegacy) {
-    target[legacyField] = source[legacyField];
+    target[runtimeField] = source[legacyField];
     normalizations.push(
       migratedLegacySaveField(
         options.legacyPath ?? legacyField,
@@ -98,7 +101,7 @@ function copyAliasedField(
   }
 
   if (valuesAreEquivalent(source[legacyField], targetValue)) {
-    target[legacyField] = targetValue;
+    target[runtimeField] = targetValue;
     normalizations.push(
       migratedLegacySaveField(
         options.legacyPath ?? legacyField,
@@ -170,7 +173,8 @@ function normalizeResourcesForRuntime(
     "credits",
     {
       legacyPath: "progress.resources.silver",
-      targetPath: "progress.resources.credits"
+      targetPath: "progress.resources.credits",
+      runtimeField: "target"
     }
   );
   copyAliasedField(
@@ -182,7 +186,8 @@ function normalizeResourcesForRuntime(
     "resonance",
     {
       legacyPath: "progress.resources.cultivation",
-      targetPath: "progress.resources.resonance"
+      targetPath: "progress.resources.resonance",
+      runtimeField: "target"
     }
   );
   copyAliasedField(
@@ -194,13 +199,14 @@ function normalizeResourcesForRuntime(
     "reagents",
     {
       legacyPath: "progress.resources.herbs",
-      targetPath: "progress.resources.reagents"
+      targetPath: "progress.resources.reagents",
+      runtimeField: "target"
     }
   );
 
-  delete resources.credits;
-  delete resources.resonance;
-  delete resources.reagents;
+  delete resources.silver;
+  delete resources.cultivation;
+  delete resources.herbs;
 
   return resources;
 }
@@ -227,7 +233,8 @@ function normalizeDistrictProgressForRuntime(
     "combatData",
     {
       legacyPath: `${legacyPath}.combatExperience`,
-      targetPath: `${targetPath}.combatData`
+      targetPath: `${targetPath}.combatData`,
+      runtimeField: "target"
     }
   );
   copyAliasedField(
@@ -239,12 +246,13 @@ function normalizeDistrictProgressForRuntime(
     "highestClearedRouteIndex",
     {
       legacyPath: `${legacyPath}.highestClearedStageIndex`,
-      targetPath: `${targetPath}.highestClearedRouteIndex`
+      targetPath: `${targetPath}.highestClearedRouteIndex`,
+      runtimeField: "target"
     }
   );
 
-  delete progress.combatData;
-  delete progress.highestClearedRouteIndex;
+  delete progress.combatExperience;
+  delete progress.highestClearedStageIndex;
 
   return progress;
 }
@@ -358,7 +366,7 @@ function normalizeProgressForRuntime(
   );
 
   if (hasOwn(value, "maps") && hasOwn(value, "districts")) {
-    progress.maps = mergeMapAliasValues(
+    progress.districts = mergeMapAliasValues(
       value.maps,
       value.districts,
       normalizations,
@@ -366,7 +374,7 @@ function normalizeProgressForRuntime(
     );
     normalizations.push(migratedLegacySaveField("progress.maps", "progress.districts"));
   } else if (hasOwn(value, "districts")) {
-    progress.maps = normalizeDistrictMapForRuntime(
+    progress.districts = normalizeDistrictMapForRuntime(
       value.districts,
       "progress.districts",
       "progress.districts",
@@ -374,7 +382,7 @@ function normalizeProgressForRuntime(
       errors
     );
   } else if (hasOwn(value, "maps")) {
-    progress.maps = normalizeDistrictMapForRuntime(
+    progress.districts = normalizeDistrictMapForRuntime(
       value.maps,
       "progress.maps",
       "progress.districts",
@@ -421,7 +429,7 @@ function normalizeProgressForRuntime(
     }
   );
 
-  delete progress.districts;
+  delete progress.maps;
   delete progress.currentRouteId;
   delete progress.selectedRoutineId;
   delete progress.technoSect;
@@ -478,18 +486,18 @@ export function serializeSaveData(save: SaveData): UnknownRecord {
     version: save.version,
     progress: {
       resources: {
-        credits: save.progress.resources.silver,
-        resonance: save.progress.resources.cultivation,
-        reagents: save.progress.resources.herbs
+        credits: save.progress.resources.credits,
+        resonance: save.progress.resources.resonance,
+        reagents: save.progress.resources.reagents
       },
       heroes: save.progress.heroes,
       technoSect: save.progress.sect,
       districts: Object.fromEntries(
-        Object.entries(save.progress.maps).map(([districtId, progress]) => [
+        Object.entries(save.progress.districts).map(([districtId, progress]) => [
           districtId,
           {
-            combatData: progress.combatExperience,
-            highestClearedRouteIndex: progress.highestClearedStageIndex
+            combatData: progress.combatData,
+            highestClearedRouteIndex: progress.highestClearedRouteIndex
           }
         ])
       ),

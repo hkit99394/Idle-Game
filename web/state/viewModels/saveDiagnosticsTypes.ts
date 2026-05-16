@@ -23,7 +23,7 @@ export type SaveDiagnosticsView = {
   currentStageId: string;
   selectedOfflineFarmStageId: string | null;
   offlineFarmPreset: OfflineFarmPreset;
-  highestClearedStageIndex: number;
+  highestClearedRouteIndex: number;
   autosaveIntervalMs: number;
   errors: string[];
 };

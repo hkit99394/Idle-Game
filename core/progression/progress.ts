@@ -25,9 +25,9 @@ export function createInitialPlayerProgress(
 
   return {
     resources: {
-      silver: 0,
-      cultivation: 0,
-      herbs: 0
+      credits: 0,
+      resonance: 0,
+      reagents: 0
     },
     heroes: Object.fromEntries(
       data.heroes.map((hero: HeroDefinition) => [hero.id, createInitialHeroProgress()])
@@ -35,12 +35,12 @@ export function createInitialPlayerProgress(
     sect: {
       upgrades: {}
     },
-    maps: Object.fromEntries(
+    districts: Object.fromEntries(
       data.regions.map((region: RegionDefinition) => [
         region.id,
         {
-          combatExperience: 0,
-          highestClearedStageIndex: 0
+          combatData: 0,
+          highestClearedRouteIndex: 0
         }
       ])
     ),
@@ -64,7 +64,7 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
   return {
     resources: {
       ...progress.resources,
-      herbs: progress.resources.herbs ?? 0
+      reagents: progress.resources.reagents ?? 0
     },
     heroes: Object.fromEntries(
       Object.entries(progress.heroes).map(([heroId, hero]) => [
@@ -78,12 +78,12 @@ export function cloneProgress(progress: PlayerProgress): PlayerProgress {
     sect: {
       upgrades: { ...progress.sect.upgrades }
     },
-    maps: Object.fromEntries(
-      Object.entries(progress.maps).map(([mapId, map]) => [
-        mapId,
+    districts: Object.fromEntries(
+      Object.entries(progress.districts).map(([districtId, district]) => [
+        districtId,
         {
-          combatExperience: map.combatExperience,
-          highestClearedStageIndex: map.highestClearedStageIndex
+          combatData: district.combatData,
+          highestClearedRouteIndex: district.highestClearedRouteIndex
         }
       ])
     ),

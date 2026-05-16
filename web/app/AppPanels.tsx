@@ -187,7 +187,7 @@ export const appFeaturePanels: readonly AppFeaturePanelDescriptor[] = [
     render: ({ game, statusText }) => (
       <UpgradePanel
         onPurchase={game.purchaseUpgrade}
-        silver={game.viewModel.progress.resources.silver}
+        silver={game.viewModel.progress.resources.credits}
         status={statusText.purchaseStatus}
         upgrades={game.viewModel.upgrades}
       />
@@ -197,7 +197,7 @@ export const appFeaturePanels: readonly AppFeaturePanelDescriptor[] = [
     id: "skill_upgrades",
     render: ({ game, statusText }) => (
       <SkillUpgradePanel
-        cultivation={game.viewModel.progress.resources.cultivation}
+        cultivation={game.viewModel.progress.resources.resonance}
         onPurchase={game.purchaseSkillUpgrade}
         skillUpgrades={game.viewModel.skillUpgrades}
         status={statusText.skillPurchaseStatus}
@@ -296,15 +296,15 @@ export function GamePanelStack({ game, saveTools }: GamePanelStackProps) {
       <div className="resource-row">
         <span>
           {formatResourceLabel("silver")}{" "}
-          {formatNumber(viewModel.progress.resources.silver)}
+          {formatNumber(viewModel.progress.resources.credits)}
         </span>
         <span>
           {formatResourceLabel("cultivation")}{" "}
-          {formatNumber(viewModel.progress.resources.cultivation)}
+          {formatNumber(viewModel.progress.resources.resonance)}
         </span>
         <span>
           {formatResourceLabel("herbs")}{" "}
-          {formatNumber(viewModel.progress.resources.herbs)}
+          {formatNumber(viewModel.progress.resources.reagents)}
         </span>
         <span>
           {formatResourceLabel("combatExperience")}{" "}

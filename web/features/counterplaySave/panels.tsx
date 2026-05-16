@@ -232,7 +232,7 @@ export function SaveToolsPanel({
           <span>Farm preset id</span>
           <strong>{diagnostics.offlineFarmPreset}</strong>
           <span>Highest route clear</span>
-          <strong>{formatNumber(diagnostics.highestClearedStageIndex)}</strong>
+          <strong>{formatNumber(diagnostics.highestClearedRouteIndex)}</strong>
           <span>Save size</span>
           <strong>{formatNumber(diagnostics.saveSizeCharacters)} chars</strong>
           <span>Autosave</span>

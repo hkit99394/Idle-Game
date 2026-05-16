@@ -21,23 +21,23 @@ describe("web game state idle", () => {
       progress: {
         ...state.progress,
         currentStageId: "lotus_clinic_2",
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            combatExperience: 0,
-            highestClearedStageIndex: 10
+            combatData: 0,
+            highestClearedRouteIndex: 10
           },
           veil_district: {
-            combatExperience: 0,
-            highestClearedStageIndex: 10
+            combatData: 0,
+            highestClearedRouteIndex: 10
           },
           black_iron_foundry: {
-            combatExperience: 0,
-            highestClearedStageIndex: 10
+            combatData: 0,
+            highestClearedRouteIndex: 10
           },
           lotus_clinic: {
-            combatExperience: 0,
-            highestClearedStageIndex: 3
+            combatData: 0,
+            highestClearedRouteIndex: 3
           }
         }
       }
@@ -78,11 +78,11 @@ describe("web game state idle", () => {
       progress: {
         ...state.progress,
         currentStageId: "greenline_approach_4",
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            combatExperience: 0,
-            highestClearedStageIndex: 3
+            combatData: 0,
+            highestClearedRouteIndex: 3
           }
         }
       }
@@ -101,11 +101,11 @@ describe("web game state idle", () => {
     const clearedProgress = {
       ...state.progress,
       currentStageId: "greenline_approach_10",
-      maps: {
-        ...state.progress.maps,
+      districts: {
+        ...state.progress.districts,
         greenline_approach: {
-          combatExperience: 0,
-          highestClearedStageIndex: 10
+          combatData: 0,
+          highestClearedRouteIndex: 10
         }
       }
     };
@@ -141,11 +141,11 @@ describe("web game state idle", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            combatExperience: 120,
-            highestClearedStageIndex: 4
+            combatData: 120,
+            highestClearedRouteIndex: 4
           }
         }
       }
@@ -154,11 +154,11 @@ describe("web game state idle", () => {
       type: "replace_progress",
       progress: {
         ...state.progress,
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            combatExperience: 600,
-            highestClearedStageIndex: 8
+            combatData: 600,
+            highestClearedRouteIndex: 8
           }
         }
       }
@@ -223,11 +223,11 @@ describe("web game state idle", () => {
     const stageFiveProgress = {
       ...state.progress,
       currentStageId: "greenline_approach_5",
-      maps: {
-        ...state.progress.maps,
+      districts: {
+        ...state.progress.districts,
         greenline_approach: {
-          combatExperience: 0,
-          highestClearedStageIndex: 4
+          combatData: 0,
+          highestClearedRouteIndex: 4
         }
       }
     };
@@ -283,11 +283,11 @@ describe("web game state idle", () => {
       progress: {
         ...state.progress,
         currentStageId: "greenline_approach_10",
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            combatExperience: 88,
-            highestClearedStageIndex: 9
+            combatData: 88,
+            highestClearedRouteIndex: 9
           }
         }
       }
@@ -303,11 +303,11 @@ describe("web game state idle", () => {
       progress: {
         ...state.progress,
         currentStageId: "greenline_approach_10",
-        maps: {
-          ...state.progress.maps,
+        districts: {
+          ...state.progress.districts,
           greenline_approach: {
-            combatExperience: 88,
-            highestClearedStageIndex: 9
+            combatData: 88,
+            highestClearedRouteIndex: 9
           }
         }
       }

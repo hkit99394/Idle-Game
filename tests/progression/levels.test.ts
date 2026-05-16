@@ -35,7 +35,7 @@ describe("combat experience levels", () => {
 
   it("derives player level from accumulated map combat experience", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.combatExperience = 120;
+    progress.districts.greenline_approach.combatData = 120;
 
     expect(calculateTotalCombatExperience(progress)).toBe(120);
     expect(calculatePlayerLevel(progress)).toBe(2);

@@ -25,7 +25,7 @@ export type NormalizeRegionMapKeysResult<Value> = Readonly<{
 const REGION_REFERENCE_FIELDS = [
   "data/regions.json:id",
   "data/stages.json:regionId",
-  "core/progression/types.ts:progress.maps",
+  "core/progression/types.ts:progress.districts",
   "core/balance:regionId"
 ] as const;
 

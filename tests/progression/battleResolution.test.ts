@@ -40,15 +40,15 @@ describe("stage battle resolution", () => {
       herbs: 0,
       combatExperience: 5
     });
-    expect(result.progress.resources.silver).toBe(10);
-    expect(result.progress.resources.cultivation).toBe(5);
-    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(1);
+    expect(result.progress.resources.credits).toBe(10);
+    expect(result.progress.resources.resonance).toBe(5);
+    expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(1);
     expect(result.progress.currentStageId).toBe("greenline_approach_2");
   });
 
   it("preserves battle, reward, mastery, and equipment adapter fields on stage clear", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
     progress.currentStageId = "greenline_approach_2";
 
     const result = resolveStageBattle(staticData, {
@@ -110,13 +110,13 @@ describe("stage battle resolution", () => {
 
     expect(result.reason).toBe("locked_stage");
     expect(result.progress).toBe(progress);
-    expect(progress.resources.silver).toBe(0);
-    expect(progress.maps.greenline_approach.highestClearedStageIndex).toBe(0);
+    expect(progress.resources.credits).toBe(0);
+    expect(progress.districts.greenline_approach.highestClearedRouteIndex).toBe(0);
   });
 
   it("does not move current stage backward when replaying an older cleared stage", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 3;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 3;
     progress.currentStageId = "greenline_approach_4";
 
     const result = resolveStageBattle(staticData, {
@@ -132,13 +132,13 @@ describe("stage battle resolution", () => {
 
     expect(result.battle.winner).toBe("player");
     expect(result.stageCleared).toBe(true);
-    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(3);
+    expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(3);
     expect(result.progress.currentStageId).toBe("greenline_approach_4");
   });
 
   it("does not grant rewards or unlock next stage on defeat", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 9;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 9;
     progress.currentStageId = "greenline_approach_10";
 
     const result = resolveStageBattle(staticData, {
@@ -157,8 +157,8 @@ describe("stage battle resolution", () => {
     expect(result.rewards).toBeNull();
     expect(result.suggestedFarmStageId).toBe("greenline_approach_8");
     expect(result.progress).toBe(progress);
-    expect(result.progress.resources.silver).toBe(0);
-    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(9);
+    expect(result.progress.resources.credits).toBe(0);
+    expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(9);
     expect(result.progress.currentStageId).toBe("greenline_approach_10");
   });
 
@@ -194,8 +194,8 @@ describe("stage battle resolution", () => {
     expect(result.rewards).toBeNull();
     expect(result.suggestedFarmStageId).toBeNull();
     expect(result.progress).toBe(progress);
-    expect(result.progress.resources.silver).toBe(0);
-    expect(result.progress.maps.greenline_approach.highestClearedStageIndex).toBe(0);
+    expect(result.progress.resources.credits).toBe(0);
+    expect(result.progress.districts.greenline_approach.highestClearedRouteIndex).toBe(0);
     expect(result.progress.currentStageId).toBe("greenline_approach_1");
   });
 

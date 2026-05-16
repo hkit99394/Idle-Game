@@ -11,10 +11,10 @@ import { staticData } from "../helpers/staticData";
 describe("stage progression", () => {
   it("unlocks Redline Outpost only after the Lotus boss is cleared", () => {
     const beforeBoss: RegionProgress = {
-      lotus_clinic: { highestClearedStageIndex: 6 }
+      lotus_clinic: { highestClearedRouteIndex: 6 }
     };
     const afterBoss: RegionProgress = {
-      lotus_clinic: { highestClearedStageIndex: 7 }
+      lotus_clinic: { highestClearedRouteIndex: 7 }
     };
 
     expect(
@@ -33,12 +33,12 @@ describe("stage progression", () => {
 
   it("gates later Redline stages by highest cleared stage index", () => {
     const entryProgress: RegionProgress = {
-      lotus_clinic: { highestClearedStageIndex: 7 },
-      redline_outpost: { highestClearedStageIndex: 0 }
+      lotus_clinic: { highestClearedRouteIndex: 7 },
+      redline_outpost: { highestClearedRouteIndex: 0 }
     };
     const stageOneClearedProgress: RegionProgress = {
-      lotus_clinic: { highestClearedStageIndex: 7 },
-      redline_outpost: { highestClearedStageIndex: 1 }
+      lotus_clinic: { highestClearedRouteIndex: 7 },
+      redline_outpost: { highestClearedRouteIndex: 1 }
     };
 
     expect(
@@ -51,8 +51,8 @@ describe("stage progression", () => {
 
   it("allows offline farming only for cleared non-boss farm stages", () => {
     const progress: RegionProgress = {
-      lotus_clinic: { highestClearedStageIndex: 7 },
-      redline_outpost: { highestClearedStageIndex: 6 }
+      lotus_clinic: { highestClearedRouteIndex: 7 },
+      redline_outpost: { highestClearedRouteIndex: 6 }
     };
 
     expect(isStageCleared(staticData, progress, "redline_outpost_6")).toBe(

@@ -30,7 +30,7 @@ describe("upgrades", () => {
 
   it("purchases hero and sect upgrades with silver", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.silver = 200;
+    progress.resources.credits = 200;
 
     const heroPurchase = purchaseUpgrade(staticData.upgrades, {
       progress,
@@ -44,7 +44,7 @@ describe("upgrades", () => {
     }
 
     expect(heroPurchase.cost).toBe(12);
-    expect(heroPurchase.progress.resources.silver).toBe(188);
+    expect(heroPurchase.progress.resources.credits).toBe(188);
     expect(
       heroPurchase.progress.heroes.iron_fist_initiate.upgrades.hero_outer_training
     ).toBe(1);
@@ -60,7 +60,7 @@ describe("upgrades", () => {
     }
 
     expect(sectPurchase.cost).toBe(48);
-    expect(sectPurchase.progress.resources.silver).toBe(140);
+    expect(sectPurchase.progress.resources.credits).toBe(140);
     expect(sectPurchase.progress.sect.upgrades.sect_inner_training).toBe(1);
   });
 
@@ -101,8 +101,8 @@ describe("upgrades", () => {
 
   it("does not let mastery experience or cultivation pay silver upgrade costs", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.cultivation = 999;
-    progress.maps.greenline_approach.combatExperience = 3000;
+    progress.resources.resonance = 999;
+    progress.districts.greenline_approach.combatData = 3000;
 
     const result = purchaseUpgrade(staticData.upgrades, {
       progress,
@@ -283,7 +283,7 @@ describe("upgrades", () => {
 
   it("purchases skill upgrades with cultivation", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.resources.cultivation = 20;
+    progress.resources.resonance = 20;
     const upgrade = staticData.skillUpgrades.find(
       (candidate) => candidate.id === "impact_combo_refinement"
     );
@@ -306,7 +306,7 @@ describe("upgrades", () => {
     }
 
     expect(result.cost).toBe(8);
-    expect(result.progress.resources.cultivation).toBe(12);
+    expect(result.progress.resources.resonance).toBe(12);
     expect(result.progress.skillUpgrades?.impact_combo_refinement).toBe(1);
   });
 

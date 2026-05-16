@@ -14,7 +14,7 @@ import { staticData } from "../helpers/staticData";
 describe("cloud save contract", () => {
   it("wraps current saves and routes cloud loads through the core load transaction", () => {
     const progress = createInitialPlayerProgress(staticData);
-    progress.maps.greenline_approach.highestClearedStageIndex = 1;
+    progress.districts.greenline_approach.highestClearedRouteIndex = 1;
     const save = createSaveData({
       progress,
       selectedOfflineFarmStageId: "greenline_approach_1",
