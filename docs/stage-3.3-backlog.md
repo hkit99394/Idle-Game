@@ -64,7 +64,7 @@ Stage 3.3 should answer whether offline farming can move away from the fixed 10s
 | Slice | Epic | Title | Status |
 | --- | --- | --- | --- |
 | 99.1 | 99 | Parity And Debt Baseline | Complete |
-| 99.2 | 99 | Offline Formula Decision | Planned |
+| 99.2 | 99 | Offline Formula Decision | Complete |
 | 99.3 | 99 | Offline Formula Implementation Or Guard Rails | Planned |
 | 99.4 | 99 | Black Iron Visible Debt Cleanup | Planned |
 | 99.5 | 99 | District Heat Re-Promotion And Warning Contract Decision | Planned |
@@ -133,6 +133,39 @@ Choose the smallest safe offline reward formula path.
 - Stage 3.3 has a written offline formula decision.
 - The decision names owner files and tests before implementation.
 - District Heat remains blocked from live reward/risk changes if parity remains unresolved.
+
+### Implementation Notes
+
+- Decision: implement a target-derived stage estimate in Slice 99.3. For the selected offline farm route, derive the clear estimate from the route's region `balanceTargets.clearTimeSeconds` band and the route's normal/elite classification, using the midpoint of the target band and the existing `minimumClearTimeSeconds` floor.
+- Keep simulated clear-time evidence in reports, not in live save-load reward application. The simulator proves the parity direction, but the live offline path should not run balance-report simulation or depend on precomputed report output during save load.
+- Defer stage-authored per-route estimates. They would add stage schema, validation, authoring-export, and data maintenance surface before the target-derived path has been tried.
+- Keep fixed 10s only as a fallback for missing target evidence, not as the intended farm-route estimate after Slice 99.3.
+- Offline preview must use the same helper as live offline reward application so the UI preview and save-load transaction cannot drift.
+- No save-version bump, cloud-envelope change, browser storage migration, compact export schema bump, tactic export schema bump, or live heat field is approved by this decision.
+- District Heat remains `report_only` until Slice 99.3 proves parity moved in the intended direction and Slice 99.4 resolves or reclassifies `black_iron_foundry_4`.
+
+| Option | Current recommended-farm ratio evidence | Decision |
+| --- | --- | --- |
+| Keep fixed 10s estimate | `1.51x`, `0.97x`, `2.70x`, `2.45x`, `1.92x`; four `inversion` rows remain. | Reject as the Stage 3.3 target path because it leaves the blocker unchanged. |
+| Simulated clear time | Approximately `0.60x` active for every current recommended farm because it uses the same clear duration as active play with `60%` offline efficiency. | Keep as report evidence only; do not make live save load depend on simulator output. |
+| Target-band midpoint | `0.50x`, `0.56x`, `0.60x`, `0.43x`, `0.65x` for the current recommended farms. | Approve for Slice 99.3 implementation because it uses existing authored target bands and resolves current inversions without new data schema. |
+| Stage-authored estimate | Can match the simulated path if every farm route gets a maintained estimate. | Defer until target-derived estimates prove insufficient. |
+
+### Owner Files For 99.3
+
+- `core/offline/offlineRewards.ts`: derive the selected farm route estimate and feed it into `calculateOfflineRewards` for apply and preview.
+- `core/balance/targets.ts`: reuse or expose target-band selection logic for normal/elite farm routes if needed.
+- `web/state/viewModels/offline.ts`: keep preview wired through `previewOfflineRewards`; update only if input data typing changes.
+- `core/save/loadTransaction.ts`: verify save-load application still passes full static data needed by the target-derived helper.
+- `tests/offline/offlineRewards.test.ts`: update the default formula guard from fixed 10s to target-derived estimates and prove preview/apply consistency.
+- `tests/save/loadTransaction.test.ts` and `tests/web/offlineTimeTravel.test.ts`: cover save-load and browser offline reward behavior if the default reward totals change.
+- `tests/tools/balanceReport.test.ts`: update parity expectations after 99.3 changes the report's live formula assumptions.
+
+### Verification
+
+- Passed: candidate comparison over full debug JSON plus compact export targets.
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 99.3: Offline Formula Implementation Or Guard Rails
 
