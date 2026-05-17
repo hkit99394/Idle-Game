@@ -246,10 +246,10 @@ Apply the smallest approved Redline tuning changes from Slice 98.4.
 
 ### Implementation Notes
 
-- Reclassified Redline clear-time targets in [data/regions.json](../data/regions.json): normal stages now use `18-25s`, and elite stages now use `19-40s` so late-region status openers and tactic variance are judged against Redline pacing rather than tutorial pacing.
-- Narrowed the `redline_outpost_4` formation in [data/stages.json](../data/stages.json) to `burning_blood_captain` plus `marrow_lock_supplicant`, removing the extra Miasma body that created the severe `66.6s` spike.
-- Reduced only Redline hostile durability/defense in [data/enemies.json](../data/enemies.json): `marrow_lock_supplicant` and `burning_blood_captain` now land their affected routes inside target without changing earlier regions.
-- Lowered `corruption` tick pressure in [data/statusEffects.json](../data/statusEffects.json) from `0.006` to `0.0054` Body Integrity damage per second.
+- Reclassified Redline clear-time targets in [data/regions.json](../../data/regions.json): normal stages now use `18-25s`, and elite stages now use `19-40s` so late-region status openers and tactic variance are judged against Redline pacing rather than tutorial pacing.
+- Narrowed the `redline_outpost_4` formation in [data/stages.json](../../data/stages.json) to `burning_blood_captain` plus `marrow_lock_supplicant`, removing the extra Miasma body that created the severe `66.6s` spike.
+- Reduced only Redline hostile durability/defense in [data/enemies.json](../../data/enemies.json): `marrow_lock_supplicant` and `burning_blood_captain` now land their affected routes inside target without changing earlier regions.
+- Lowered `corruption` tick pressure in [data/statusEffects.json](../../data/statusEffects.json) from `0.006` to `0.0054` Body Integrity damage per second.
 - Current Redline default simulator outcomes: `redline_outpost_1` `23.4s` inside `18-25s`; `redline_outpost_2` `22s`, `redline_outpost_3` `40s`, `redline_outpost_4` `22s`, `redline_outpost_5` `40s`, and `redline_outpost_6` `32s` inside `19-40s`; Redline status pressure passes at `785.81` damage and `89` applications; boss baseline remains `player_clear` in `95.4s` with `339.35` status damage.
 - Tactic comparison has no new misses for `balanced_routine`, `kinetic_crush`, `guard_the_stabilizer`, or `long_stabilization`. `context_break` and `gatekeeper_burst` still turn `redline_outpost_7` into `enemy_hold`, preserving the caution for future tactic or heat work.
 
@@ -288,7 +288,7 @@ Decide what District Heat is allowed to do after parity and Redline evidence.
 ### Implementation Notes
 
 - Chose `report_only` as the Stage 3.2 District Heat promotion posture. Redline is no longer the blocker after Slice 98.5, but four recommended farm routes are still offline/active inversions and `black_iron_foundry_4` remains visible tuning debt.
-- Added `districtHeatPromotionDecision` to the default balance report/full debug JSON through [core/balance/districtHeatPromotion.ts](../core/balance/districtHeatPromotion.ts). It records promotion gates, the selected posture, the next action, and explicit save/cloud/web/export/reward boundaries.
+- Added `districtHeatPromotionDecision` to the default balance report/full debug JSON through [core/balance/districtHeatPromotion.ts](../../core/balance/districtHeatPromotion.ts). It records promotion gates, the selected posture, the next action, and explicit save/cloud/web/export/reward boundaries.
 - Kept compact authoring JSON, stage CSV, tactic JSON, and tactic CSV heat-free. The report-only decision does not add live heat UI, save data, cloud envelope fields, reward modifiers, route-risk modifiers, or offline reward formula changes.
 - Next action: Stage 3.3 should resolve offline parity and visible Black Iron debt first, or open a separate non-punitive warning contract before any player-facing heat UI or live reward behavior.
 

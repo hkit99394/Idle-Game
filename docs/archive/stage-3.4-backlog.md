@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.4 is active after [Archived Stage 3.3 Backlog](archive/stage-3.3-backlog.md). Stage 3.3 resolved the current offline parity and visible Black Iron debt blockers, reran the District Heat promotion decision, and kept the current runtime report-only. Stage 3.4 turns that handoff into a bounded non-punitive warning contract before any player-facing heat reward, route-risk pressure, persisted heat state, compact export field, tactic export field, save/cloud field, or live web UI behavior ships. Slice 100.1 completed the preflight evidence pass, Slice 100.2 selected neutral copy scope plus future route-card placement, and Slice 100.3 selected no-persistence/no-export warning boundaries; none of those slices made gameplay, save, export, cloud, or web UI changes.
+Stage 3.4 is complete and archived after [Archived Stage 3.3 Backlog](stage-3.3-backlog.md). Stage 3.3 resolved the current offline parity and visible Black Iron debt blockers, reran the District Heat promotion decision, and kept the current runtime report-only. Stage 3.4 turns that handoff into a bounded non-punitive warning contract before any player-facing heat reward, route-risk pressure, persisted heat state, compact export field, tactic export field, save/cloud field, or live web UI behavior ships. Slice 100.1 completed the preflight evidence pass, Slice 100.2 selected neutral copy scope plus future route-card placement, Slice 100.3 selected no-persistence/no-export warning boundaries, Slice 100.4 selected stronger report-only guard rails, and Slice 100.5 completed release hardening; none of those slices made gameplay, save, export, cloud, or web UI changes.
 
 This stage owns **Epic 100: District Heat Warning Contract**. It should write the exact player-facing promise and boundary tests for a future warning, then choose the next safe implementation step.
 
@@ -26,10 +26,10 @@ Stage 3.4 should decide what a warning is allowed to say, where it may appear la
 
 ## Source Contracts And Carry-Forward Decisions
 
-- [District Heat Contract](district-heat-contract.md) remains the District Heat authority.
-- [Progression Pacing Roadmap](progression-pacing-roadmap.md) remains the pacing formula authority.
-- [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), configured `balanceTargets`, and `npm run simulate` remain the known-debt authority.
-- [Save API](save-api.md), [Cloud Save Contract](cloud-save-contract.md), [Web UI Architecture](web-ui-architecture.md), and `tests/web/displayTerms.test.ts` remain boundary guards for save/cloud/web exposure.
+- [District Heat Contract](../district-heat-contract.md) remains the District Heat authority.
+- [Progression Pacing Roadmap](../progression-pacing-roadmap.md) remains the pacing formula authority.
+- [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), configured `balanceTargets`, and `npm run simulate` remain the known-debt authority.
+- [Save API](../save-api.md), [Cloud Save Contract](../cloud-save-contract.md), [Web UI Architecture](../web-ui-architecture.md), and `tests/web/displayTerms.test.ts` remain boundary guards for save/cloud/web exposure.
 - Stage 3.3 keep decisions still apply until this stage explicitly changes them: no heat save field, no heat cloud envelope field, no compact export heat fields, no tactic export heat fields, no heat reward modifier, no route-risk modifier, and no live heat UI/copy.
 
 ## Scope
@@ -64,8 +64,8 @@ Stage 3.4 should decide what a warning is allowed to say, where it may appear la
 | 100.1 | 100 | Warning Contract Preflight | Complete |
 | 100.2 | 100 | Copy Scope And UI Placement Decision | Complete |
 | 100.3 | 100 | Save Export And Report Boundary Decision | Complete |
-| 100.4 | 100 | Warning Prototype Decision Or Guard Rails | Planned |
-| 100.5 | 100 | Release Hardening And Archive Readiness | Planned |
+| 100.4 | 100 | Warning Prototype Decision Or Guard Rails | Complete |
+| 100.5 | 100 | Release Hardening And Archive Readiness | Complete |
 
 ## Slice 100.1: Warning Contract Preflight
 
@@ -73,7 +73,7 @@ Confirm the current boundaries before drafting player-facing warning language.
 
 ### Tasks
 
-- Review [Archived Stage 3.3 Backlog](archive/stage-3.3-backlog.md), [District Heat Contract](district-heat-contract.md), [Progression Pacing Roadmap](progression-pacing-roadmap.md), [Content Pipeline Inventory](content-pipeline-inventory.md), [Save API](save-api.md), [Cloud Save Contract](cloud-save-contract.md), and [Web UI Architecture](web-ui-architecture.md).
+- Review [Archived Stage 3.3 Backlog](stage-3.3-backlog.md), [District Heat Contract](../district-heat-contract.md), [Progression Pacing Roadmap](../progression-pacing-roadmap.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Save API](../save-api.md), [Cloud Save Contract](../cloud-save-contract.md), and [Web UI Architecture](../web-ui-architecture.md).
 - Run `npm run simulate` and confirm report-only `districtHeatProjection` plus `districtHeatPromotionDecision` still exist only in the default report and full debug JSON.
 - Confirm compact JSON/CSV exports, tactic exports, save data, cloud envelopes, browser storage, and live web source remain heat-free.
 - Re-run the stale live-web term guard for District Heat copy and record any intentional author-facing exceptions.
@@ -213,11 +213,20 @@ Choose whether Stage 3.4 hands off a tiny warning prototype or strengthens no-li
 - Any prototype path is non-persistent, non-punitive, and covered by focused tests.
 - Any guard-rail path keeps District Heat author-facing only until the next explicit implementation slice.
 
+### Implementation Notes
+
+- Decision: choose the stronger report-only guard-rail path. Stage 3.4 does not hand off a runtime warning prototype.
+- District Heat remains author-facing only in `npm run simulate` and full debug JSON until a later implementation slice amends this contract.
+- Expanded `tests/web/displayTerms.test.ts` so live `web/` source must not contain the approved future copy tokens `district attention`, `District attention`, or `Attention rising`.
+- The same guard also blocks likely implementation identifiers before the contract is reopened: `districtAttention`, `district-attention`, `districtAttentionWarning`, and `attentionWarning`.
+- A later tiny route-card prototype is still allowed only after a dedicated slice updates this contract, names owner files, amends the web-source guard with an explicit allowlist, and adds focused tests for non-persistence and unchanged rewards/enemy pressure/offline gains.
+- The chosen guard-rail path continues excluding rewards, route risk, enemy pressure, save state, cloud state, stable exports, warning acknowledgements, and full-debug warning fields.
+
 ### Verification
 
-- Planned: focused web or docs tests based on the chosen posture.
-- Planned: `npm test -- tests/web/displayTerms.test.ts tests/docs/markdownLinks.test.ts`
-- Planned: `git diff --check`
+- Passed: `npm test -- tests/web/displayTerms.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: live web source scan through `tests/web/displayTerms.test.ts` for existing heat terms and the new future warning copy/id tokens.
+- Passed: `git diff --check`
 
 ## Slice 100.5: Release Hardening And Archive Readiness
 
@@ -236,14 +245,24 @@ Close the contract stage only after docs, tests, and boundaries agree.
 - Active docs clearly say whether the next work is warning implementation, stronger report-only heat tooling, or another prerequisite.
 - No stale active backlog link points to a completed stage after archive.
 
+### Implementation Notes
+
+- Updated active docs with the final Stage 3.4 decision: stronger report-only guard rails won, so no player-facing warning copy, save field, cloud field, compact export field, tactic export field, route-risk modifier, reward modifier, or live web UI changed in this stage.
+- Refreshed the author-facing `districtHeatPromotionDecision` summary and `nextAction` so simulator output no longer says Stage 3.4 still needs preparation. The next step is now a dedicated route-card warning prototype slice, if player-facing copy is desired.
+- Reconfirmed the guard-rail handoff: a future route-card warning prototype must update [District Heat Contract](../district-heat-contract.md), name owner files, amend `tests/web/displayTerms.test.ts` with an explicit allowlist, and prove rewards, route risk, saves, cloud payloads, compact exports, tactic exports, and offline gains remain unchanged.
+- Archived this backlog to `docs/archive/stage-3.4-backlog.md` after updating active docs to point at the archived milestone.
+- Browser smoke was skipped because Stage 3.4 made no visible web UI changes.
+
 ### Verification
 
-- Planned: `npm run typecheck`
-- Planned: `npm test`
-- Planned: `npm run build`
-- Planned: `npm run simulate`
-- Planned: `npm run --silent simulate -- --export-json`
-- Planned: `npm run --silent simulate -- --csv`
-- Planned: `npm run --silent simulate -- --tactics-json`
-- Planned: `npm run --silent simulate -- --tactics-csv`
-- Planned: `git diff --check`
+- Passed: `npm run typecheck`
+- Passed: `npm test`
+- Passed: `npm run build`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed after report wording refresh: `npm test -- tests/tools/balanceReport.test.ts tests/web/displayTerms.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
+- Skipped: browser smoke, because Stage 3.4 stayed docs/report-only and changed no visible web UI.

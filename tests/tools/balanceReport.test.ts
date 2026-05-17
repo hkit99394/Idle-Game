@@ -610,7 +610,7 @@ describe("balance report", () => {
       posture: "report_only",
       summary: expect.stringContaining("promotion gates now pass"),
       nextAction: expect.stringContaining(
-        "Stage 3.4 non-punitive warning contract"
+        "route-card warning prototype slice"
       ),
       boundaries: {
         save: "no_persistence",
@@ -1077,7 +1077,7 @@ describe("balance report", () => {
     expect(formatted).toContain("District Heat Promotion Decision");
     expect(formatted).toContain("posture: report_only");
     expect(formatted).toContain("promotion gates now pass");
-    expect(formatted).toContain("Stage 3.4 non-punitive warning contract");
+    expect(formatted).toContain("route-card warning prototype slice");
     expect(formatted).toContain("offline_parity pass");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
