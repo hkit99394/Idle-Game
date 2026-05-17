@@ -399,8 +399,8 @@ describe("balance report", () => {
       reason: expect.stringContaining("heals")
     });
     expect(getBudgetCheck(demonCult, "status_pressure")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("status damage")
+      status: "pass",
+      reason: expect.stringContaining("within status budget")
     });
   });
 
@@ -419,24 +419,19 @@ describe("balance report", () => {
         })
       ])
     );
-    expect(demonCult.difficultyCurve.issues).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          stageId: "redline_outpost_1",
-          reason: expect.stringContaining("above")
-        }),
-        expect.objectContaining({
-          stageId: "redline_outpost_4",
-          reason: expect.stringContaining("above")
-        })
-      ])
-    );
+    expect(demonCult.difficultyCurve.issues).toEqual([]);
     expect(demonCult.difficultyCurve.spikes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           stageId: "redline_outpost_3",
           previousStageId: "redline_outpost_2",
-          status: "fail",
+          status: "watch",
+          reason: expect.stringContaining("clear time")
+        }),
+        expect.objectContaining({
+          stageId: "redline_outpost_5",
+          previousStageId: "redline_outpost_4",
+          status: "watch",
           reason: expect.stringContaining("clear time")
         })
       ])
@@ -535,8 +530,8 @@ describe("balance report", () => {
       }
     });
     expect(demonCultSpike).toMatchObject({
-      targetStatus: "fail",
-      difficultySpikeStatus: "fail",
+      targetStatus: "pass",
+      difficultySpikeStatus: "watch",
       difficultySpikeReason: expect.stringContaining("clear time"),
       statusIds: expect.arrayContaining(["corruption", "trauma"]),
       legacyStatusIds: expect.arrayContaining(["poison", "wound"])
@@ -557,8 +552,8 @@ describe("balance report", () => {
     });
     expect(demonCultStatusCheck).toMatchObject({
       legacyRegionId: "demon_cult_outpost",
-      status: "fail",
-      reason: expect.stringContaining("status damage")
+      status: "pass",
+      reason: expect.stringContaining("within status budget")
     });
     expect(csvLines[0]).toBe(BALANCE_STAGE_EXPORT_CSV_HEADERS.join(","));
     expect(csvLines).toHaveLength(staticData.stages.length + 1);
@@ -612,9 +607,46 @@ describe("balance report", () => {
     expect(demonCult.districtHeatProjection).toMatchObject({
       affectedRouteId: "redline_outpost_6",
       heatBand: "lockdown",
-      projectedHeat: 90
+      projectedHeat: 100
     });
+    expect(report.districtHeatPromotionDecision).toMatchObject({
+      posture: "report_only",
+      boundaries: {
+        save: "no_persistence",
+        cloud: "no_heat_fields",
+        webUi: "no_player_facing_heat",
+        compactExport: "no_heat_fields",
+        tacticExport: "no_heat_fields",
+        liveRewards: "unchanged"
+      }
+    });
+    expect(report.districtHeatPromotionDecision.gates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "offline_parity",
+          status: "blocker",
+          affectedStageIds: expect.arrayContaining([
+            "greenline_approach_8",
+            "black_iron_foundry_6",
+            "lotus_clinic_6",
+            "redline_outpost_6"
+          ])
+        }),
+        expect.objectContaining({
+          id: "redline_budget",
+          status: "pass"
+        }),
+        expect.objectContaining({
+          id: "known_debt",
+          status: "watch",
+          affectedStageIds: ["black_iron_foundry_4"]
+        })
+      ])
+    );
     expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
+    expect(Object.hasOwn(exportReport, "districtHeatPromotionDecision")).toBe(
+      false
+    );
     expect(Object.hasOwn(exportReport.regions[0], "districtHeatProjection")).toBe(
       false
     );
@@ -625,6 +657,76 @@ describe("balance report", () => {
       false
     );
     expect(csv.split("\n")[0]).not.toContain("heat");
+  });
+
+  it("adds report-only offline parity without changing compact exports", () => {
+    const report = buildGameBalanceReport(staticData);
+    const bamboo = getRegionReport(report, BAMBOO_ROAD_REGION_ID);
+    const mist = getRegionReport(report, MIST_VALLEY_REGION_ID);
+    const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
+    const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
+    const demonCult = getRegionReport(report, "redline_outpost");
+    const exportReport = buildBalanceAuthoringExport(report);
+    const csv = formatBalanceStageExportCsv(report);
+
+    expect(bamboo.offlineParity).toMatchObject({
+      stageId: "greenline_approach_8",
+      activeClearTimeSeconds: 25.2,
+      offlineEstimatedClearTimeSeconds: 10,
+      offlineMinimumClearTimeSeconds: 5,
+      offlineEffectiveClearTimeSeconds: 10,
+      offlineEfficiency: 0.6,
+      activeClearsPerHour: 142.86,
+      offlineClearsPerHour: 216,
+      offlineToActiveRatio: 1.51,
+      status: "offline_faster",
+      classification: "inversion",
+      activeRewardsPerHour: {
+        farmScore: 22428.57,
+        silver: 6285.71,
+        cultivation: 3142.86,
+        combatExperience: 2857.14
+      },
+      offlineRewardsPerHour: {
+        farmScore: 33912,
+        silver: 9504,
+        cultivation: 4752,
+        combatExperience: 4320
+      }
+    });
+    expect(mist.offlineParity).toMatchObject({
+      stageId: "veil_district_5",
+      offlineToActiveRatio: 0.97,
+      status: "near_parity",
+      classification: "watch"
+    });
+    expect(blackIron.offlineParity).toMatchObject({
+      stageId: "black_iron_foundry_6",
+      offlineToActiveRatio: 2.7,
+      status: "offline_faster",
+      classification: "inversion"
+    });
+    expect(lotus.offlineParity).toMatchObject({
+      stageId: "lotus_clinic_6",
+      offlineToActiveRatio: 2.45,
+      status: "offline_faster",
+      classification: "inversion"
+    });
+    expect(demonCult.offlineParity).toMatchObject({
+      stageId: "redline_outpost_6",
+      offlineToActiveRatio: 1.92,
+      status: "offline_faster",
+      classification: "inversion"
+    });
+    expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
+    expect(Object.hasOwn(exportReport.regions[0], "offlineParity")).toBe(false);
+    expect(Object.hasOwn(exportReport.stages[0], "offlineParity")).toBe(false);
+    expect(
+      BALANCE_STAGE_EXPORT_CSV_HEADERS.some((header) =>
+        header.toLowerCase().includes("offline")
+      )
+    ).toBe(false);
+    expect(csv.split("\n")[0]).not.toContain("offline");
   });
 
   it("projects District Heat gain, repetition, decay, and bands deterministically", () => {
@@ -743,10 +845,10 @@ describe("balance report", () => {
       legacyRegionId: "demon_cult_outpost",
       legacyStageId: "demon_cult_outpost_3",
       legacyTacticId: "inner_pressure",
-      baselineTargetStatus: "fail",
+      baselineTargetStatus: "pass",
       targetStatus: "pass",
-      targetStatusChange: "improved",
-      budgetShift: "improved_existing_miss",
+      targetStatusChange: "same",
+      budgetShift: "unchanged",
       pressureDeltas: {
         statusDamage: expect.any(Number)
       }
@@ -772,6 +874,10 @@ describe("balance report", () => {
     expect(csvLines[0]).toContain("player_inner_damage");
     expect(csvLines[0]).not.toContain("intrusion");
     expect(csvLines[0]).not.toContain("cognitive_damage_taken");
+    expect(csvLines[0]).not.toContain("heat");
+    expect(Object.hasOwn(exportReport, "districtHeatPromotionDecision")).toBe(
+      false
+    );
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("kinetic_crush");
     expect(csv).toContain("outer_pressure");
@@ -781,6 +887,93 @@ describe("balance report", () => {
     expect(csv).toContain("demon_cult_outpost_7");
     expect(csv).toContain("improved_existing_miss");
     expect(csv).toContain("new_miss");
+  });
+
+  it("keeps Redline post-tune tactic safety visible in tactic rows", () => {
+    const report = buildTacticComparisonReport(staticData);
+    const exportReport = buildTacticComparisonExport(report);
+    const redlineRows = exportReport.rows.filter(
+      (row) => row.regionId === "redline_outpost"
+    );
+    const getRow = (stageId: string, tacticId: string) => {
+      const row = redlineRows.find(
+        (candidate) =>
+          candidate.stageId === stageId && candidate.tacticId === tacticId
+      );
+
+      if (!row) {
+        throw new Error(`Missing ${stageId} ${tacticId} tactic row`);
+      }
+
+      return row;
+    };
+    const totalStatusDamage = (tacticId: string) =>
+      Number(
+        redlineRows
+          .filter((row) => row.tacticId === tacticId)
+          .reduce((total, row) => total + row.pressure.statusDamage, 0)
+          .toFixed(2)
+      );
+
+    expect(getRow("redline_outpost_1", "long_stabilization")).toMatchObject({
+      durationSeconds: 19.8,
+      targetStatus: "pass",
+      budgetShift: "unchanged",
+      pressureDeltas: {
+        statusDamage: -67.47
+      }
+    });
+    expect(getRow("redline_outpost_2", "kinetic_crush")).toMatchObject({
+      durationSeconds: 19.8,
+      targetStatus: "pass",
+      budgetShift: "unchanged"
+    });
+    expect(getRow("redline_outpost_3", "balanced_routine")).toMatchObject({
+      durationSeconds: 40,
+      targetStatus: "pass",
+      budgetShift: "unchanged"
+    });
+    expect(getRow("redline_outpost_3", "context_break")).toMatchObject({
+      durationSeconds: 36,
+      targetStatus: "pass",
+      targetStatusChange: "same",
+      budgetShift: "unchanged"
+    });
+    expect(getRow("redline_outpost_3", "gatekeeper_burst")).toMatchObject({
+      durationSeconds: 36,
+      targetStatus: "pass",
+      budgetShift: "unchanged"
+    });
+    expect(getRow("redline_outpost_4", "balanced_routine")).toMatchObject({
+      durationSeconds: 22,
+      targetStatus: "pass",
+      budgetShift: "unchanged"
+    });
+    expect(getRow("redline_outpost_5", "balanced_routine")).toMatchObject({
+      durationSeconds: 40,
+      targetStatus: "pass",
+      budgetShift: "unchanged"
+    });
+    expect(getRow("redline_outpost_7", "context_break")).toMatchObject({
+      baselineResult: "player_clear",
+      result: "enemy_hold",
+      budgetShift: "new_miss"
+    });
+    expect(getRow("redline_outpost_7", "gatekeeper_burst")).toMatchObject({
+      baselineResult: "player_clear",
+      result: "enemy_hold",
+      budgetShift: "new_miss"
+    });
+    expect(totalStatusDamage("balanced_routine")).toBe(785.81);
+    expect(totalStatusDamage("long_stabilization")).toBe(583.77);
+    expect(
+      redlineRows.filter(
+        (row) =>
+          (row.tacticId === "long_stabilization" ||
+            row.tacticId === "kinetic_crush") &&
+          row.budgetShift === "new_miss"
+      )
+    ).toHaveLength(0);
   });
 
   it("drives budget gates from the real simulated report adapter", () => {
@@ -850,8 +1043,8 @@ describe("balance report", () => {
       expect.arrayContaining(simulatedStatusIds)
     );
     expect(getBudgetCheck(simulatedDemonCult, "status_pressure")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("status damage")
+      status: "pass",
+      reason: expect.stringContaining("within status budget")
     });
   });
 
@@ -870,13 +1063,20 @@ describe("balance report", () => {
     expect(formatted).toContain("Region Farm Recommendations");
     expect(formatted).toContain("score 157");
     expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
+    expect(formatted).toContain("Offline Parity Report");
+    expect(formatted).toContain("offline 1.51x active");
+    expect(formatted).toContain("estimate 10s @ 60%");
+    expect(formatted).toContain("inversion; offline_faster");
     expect(formatted).toContain("District Heat Projection");
     expect(formatted).toContain("offline_farm_repetition");
     expect(formatted).toContain("no_decay_active_window");
+    expect(formatted).toContain("District Heat Promotion Decision");
+    expect(formatted).toContain("posture: report_only");
+    expect(formatted).toContain("offline_parity blocker");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
     expect(formatted).toContain("issues black_iron_foundry_4");
-    expect(formatted).toContain("spikes fail redline_outpost_3");
+    expect(formatted).toContain("spikes watch redline_outpost_3");
     expect(formatted).toContain("Region Boss Gates");
     expect(formatted).toContain("Region Boss Gate Assumptions");
     expect(formatted).toContain("trained player_clear");
@@ -885,7 +1085,7 @@ describe("balance report", () => {
     expect(formatted).toContain("training");
     expect(formatted).toContain("Region Budget Gates");
     expect(formatted).toContain("black_iron_foundry_4 clear time");
-    expect(formatted).toContain("Status Pressure");
+    expect(formatted).toContain("Redline Outpost: pass (4 checks)");
     expect(formatted).toContain("Region Defensive Events");
     expect(formatted).toContain("Region Recovery Events");
     expect(formatted).toContain("defense");

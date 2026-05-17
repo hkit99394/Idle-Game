@@ -14,6 +14,7 @@ import { staticData } from "../helpers/staticData";
 const reportOnlyDistrictHeatSaveKeys = [
   "districtHeat",
   "districtHeatProjection",
+  "districtHeatPromotionDecision",
   "projectedHeat",
   "heatBand"
 ] as const;

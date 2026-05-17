@@ -196,8 +196,8 @@
     ],
     "balanceTargets": {
       "clearTimeSeconds": {
-        "normal": { "min": 5, "max": 15 },
-        "elite": { "min": 20, "max": 40 }
+        "normal": { "min": 18, "max": 25 },
+        "elite": { "min": 19, "max": 40 }
       },
       "rewardCurve": {
         "requireBestFarmRecommendation": true

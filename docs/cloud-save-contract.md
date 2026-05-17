@@ -37,7 +37,7 @@ Cloud storage should use a wrapped envelope rather than raw save JSON alone:
 
 Cloud stores should persist current-version saves with the current Stage 2.7 save-field schema. Legacy import still belongs to `parseSaveData` or `loadSaveTransaction`; future save versions must be rejected rather than downgraded.
 
-Stage 3.1 District Heat is report-only. Cloud envelopes must not add heat metadata, and `rawSave` must not persist `districtHeat`, `districtHeatProjection`, `projectedHeat`, `heatBand`, or derived live heat state. A future persisted District Heat mechanic requires a dedicated save-version and cloud-contract slice before cloud stores accept heat fields.
+Stage 3.2 keeps District Heat report-only. Cloud envelopes must not add heat metadata, and `rawSave` must not persist `districtHeat`, `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, `heatBand`, or derived live heat state. A future persisted District Heat mechanic requires a dedicated save-version and cloud-contract slice before cloud stores accept heat fields.
 
 ## Load Flow
 

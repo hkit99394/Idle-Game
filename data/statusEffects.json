@@ -9,7 +9,7 @@
     "dispelTags": ["poison", "debuff"],
     "tickIntervalSeconds": 2,
     "effects": {
-      "bodyIntegrityDamagePerSecond": 0.006
+      "bodyIntegrityDamagePerSecond": 0.0054
     }
   },
   {

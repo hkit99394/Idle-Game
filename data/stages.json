@@ -499,8 +499,8 @@
     "index": 4,
     "name": "Burning Blood Hall",
     "enemyTeam": {
-      "combatantIds": ["burning_blood_captain", "marrow_lock_supplicant", "miasma_pulse_apprentice"],
-      "formation": { "front": [0], "middle": [1], "back": [2] }
+      "combatantIds": ["burning_blood_captain", "marrow_lock_supplicant"],
+      "formation": { "front": [0], "middle": [1], "back": [] }
     },
     "isBoss": false,
     "canFarmOffline": true,

@@ -16,7 +16,8 @@ import {
   simulateBattle,
   type BattleEvent
 } from "../combat";
-import type { StaticGameData, StageDefinition } from "../data";
+import type { StageRewards, StaticGameData, StageDefinition } from "../data";
+import { DEFAULT_OFFLINE_REWARD_CONFIG } from "../offline";
 import {
   assessStageClearTimeTarget,
   getStageClearTimeTargetRange,
@@ -35,6 +36,7 @@ import {
   DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
   projectDistrictHeat
 } from "./districtHeatProjection";
+import { buildDistrictHeatPromotionDecision } from "./districtHeatPromotion";
 import type { PlayerProgress, ResolveStageBattleResult } from "../progression";
 
 export const BAMBOO_ROAD_REGION_ID = "greenline_approach";
@@ -69,6 +71,20 @@ type BattleSummaryWithBudgetExtras = BattleSummary & {
   trainingCost?: number;
 };
 type RegionBudgetCheck = BalanceTargetCheck;
+type OfflineParityRewardRate = {
+  silver: number;
+  cultivation: number;
+  herbs: number;
+  combatExperience: number;
+  farmScore: number;
+};
+type OfflineParityStatus =
+  | "offline_faster"
+  | "near_parity"
+  | "active_faster"
+  | "no_farm_target"
+  | "missing_clear_time";
+type OfflineParityClassification = "acceptable" | "watch" | "inversion";
 
 const DIFFICULTY_SPIKE_MIN_DELTA_SECONDS = 10;
 const DIFFICULTY_SPIKE_MIN_RATIO = 1.35;
@@ -292,6 +308,167 @@ function buildRegionDistrictHeatProjection(
     elapsedSeconds: DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
     clearTimeSeconds
   });
+}
+
+function buildOfflineParityRewardRate(
+  rewards: Pick<
+    StageRewards,
+    "silver" | "cultivation" | "herbs" | "combatExperience"
+  >,
+  farmScore: number,
+  clearsPerHour: number
+): OfflineParityRewardRate {
+  return {
+    silver: roundBalanceNumber(rewards.silver * clearsPerHour),
+    cultivation: roundBalanceNumber(rewards.cultivation * clearsPerHour),
+    herbs: roundBalanceNumber((rewards.herbs ?? 0) * clearsPerHour),
+    combatExperience: roundBalanceNumber(
+      rewards.combatExperience * clearsPerHour
+    ),
+    farmScore: roundBalanceNumber(farmScore * clearsPerHour)
+  };
+}
+
+function getOfflineParityStatus(ratio: number): OfflineParityStatus {
+  if (ratio > 1.05) {
+    return "offline_faster";
+  }
+
+  if (ratio < 0.95) {
+    return "active_faster";
+  }
+
+  return "near_parity";
+}
+
+function getOfflineParityClassification(
+  status: OfflineParityStatus
+): OfflineParityClassification {
+  if (status === "offline_faster") {
+    return "inversion";
+  }
+
+  if (status === "active_faster") {
+    return "acceptable";
+  }
+
+  return "watch";
+}
+
+function describeOfflineParity(
+  status: OfflineParityStatus,
+  ratio: number,
+  offlineEffectiveClearTimeSeconds: number,
+  offlineEfficiency: number
+): string {
+  const configText =
+    `${formatNumber(offlineEffectiveClearTimeSeconds)}s estimate at ` +
+    `${formatNumber(offlineEfficiency * 100)}% efficiency`;
+
+  if (status === "offline_faster") {
+    return `offline reward rate is ${formatNumber(ratio)}x active using ${configText}`;
+  }
+
+  if (status === "active_faster") {
+    return `active reward rate is higher; offline is ${formatNumber(ratio)}x active using ${configText}`;
+  }
+
+  return `offline reward rate is near active (${formatNumber(ratio)}x) using ${configText}`;
+}
+
+function buildRegionOfflineParity(
+  farmRecommendation: ReturnType<typeof buildRegionFarmRecommendation>,
+  stageResults: BattleSummary[]
+) {
+  const config = DEFAULT_OFFLINE_REWARD_CONFIG;
+  const offlineEffectiveClearTimeSeconds = Math.max(
+    config.estimatedClearTimeSeconds,
+    config.minimumClearTimeSeconds
+  );
+  const baseConfig = {
+    offlineEstimatedClearTimeSeconds: config.estimatedClearTimeSeconds,
+    offlineMinimumClearTimeSeconds: config.minimumClearTimeSeconds,
+    offlineEffectiveClearTimeSeconds,
+    offlineEfficiency: config.offlineEfficiency
+  };
+
+  if (farmRecommendation === null) {
+    return {
+      stageId: null,
+      activeClearTimeSeconds: null,
+      activeClearsPerHour: null,
+      offlineClearsPerHour: null,
+      activeRewardsPerHour: null,
+      offlineRewardsPerHour: null,
+      offlineToActiveRatio: null,
+      status: "no_farm_target" as const,
+      classification: "watch" as const,
+      reason: "no cleared recommended farm route is available",
+      ...baseConfig
+    };
+  }
+
+  const farmStage = stageResults.find(
+    (stage) => stage.stageId === farmRecommendation.stageId
+  );
+  const activeClearTimeSeconds =
+    farmStage?.ok && farmStage.result === "player_clear"
+      ? farmStage.durationSeconds
+      : null;
+  const offlineClearsPerHour =
+    (3600 / offlineEffectiveClearTimeSeconds) * config.offlineEfficiency;
+  const offlineRewardsPerHour = buildOfflineParityRewardRate(
+    farmRecommendation.rewards,
+    farmRecommendation.score,
+    offlineClearsPerHour
+  );
+
+  if (activeClearTimeSeconds === null) {
+    return {
+      stageId: farmRecommendation.stageId,
+      activeClearTimeSeconds: null,
+      activeClearsPerHour: null,
+      offlineClearsPerHour: roundBalanceNumber(offlineClearsPerHour),
+      activeRewardsPerHour: null,
+      offlineRewardsPerHour,
+      offlineToActiveRatio: null,
+      status: "missing_clear_time" as const,
+      classification: "watch" as const,
+      reason: "recommended farm route did not produce a simulated active clear",
+      ...baseConfig
+    };
+  }
+
+  const activeClearsPerHour = 3600 / activeClearTimeSeconds;
+  const activeRewardsPerHour = buildOfflineParityRewardRate(
+    farmRecommendation.rewards,
+    farmRecommendation.score,
+    activeClearsPerHour
+  );
+  const offlineToActiveRatio = roundBalanceNumber(
+    offlineClearsPerHour / activeClearsPerHour
+  );
+  const status = getOfflineParityStatus(offlineToActiveRatio);
+  const classification = getOfflineParityClassification(status);
+
+  return {
+    stageId: farmRecommendation.stageId,
+    activeClearTimeSeconds,
+    activeClearsPerHour: roundBalanceNumber(activeClearsPerHour),
+    offlineClearsPerHour: roundBalanceNumber(offlineClearsPerHour),
+    activeRewardsPerHour,
+    offlineRewardsPerHour,
+    offlineToActiveRatio,
+    status,
+    classification,
+    reason: describeOfflineParity(
+      status,
+      offlineToActiveRatio,
+      offlineEffectiveClearTimeSeconds,
+      config.offlineEfficiency
+    ),
+    ...baseConfig
+  };
 }
 
 function buildRegionMasteryMilestone(
@@ -1329,6 +1506,7 @@ function buildRegionStageProgressionReport(
       farmRecommendation,
       stageResults
     ),
+    offlineParity: buildRegionOfflineParity(farmRecommendation, stageResults),
     masteryMilestone: buildRegionMasteryMilestone(
       data,
       progressBeforeBoss,
@@ -1487,6 +1665,8 @@ export function buildGameBalanceReport(data: StaticGameData) {
     initialProgress,
     seededRegionReports
   );
+  const districtHeatPromotionDecision =
+    buildDistrictHeatPromotionDecision(regionBalances);
   const bambooRoadProgressBeforeBoss = progressBeforeBoss.districts[
     BAMBOO_ROAD_REGION_ID
   ] ?? {
@@ -1514,6 +1694,7 @@ export function buildGameBalanceReport(data: StaticGameData) {
 
   return {
     regionBalances,
+    districtHeatPromotionDecision,
     bambooRoadBalance: {
       stageResults,
       bossGate: {

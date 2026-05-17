@@ -89,9 +89,11 @@ That is acceptable for the current prototype. It means long-form pacing must com
 - implemented Path of Neon mechanics such as Cognitive Intrusion;
 - report-only or deferred Path of Neon systems such as District Heat, augment loadouts, countermeasure economy, and AI raid events.
 
-One important tuning risk: offline farming currently uses a fixed `estimatedClearTimeSeconds` of `10`, not the actual or target clear time of the selected stage. A stage that actively takes 25 seconds can become too efficient offline after the 60% offline modifier. Before serious economy tuning, offline rewards should use stage-specific simulated or target clear time and should be checked against active rewards per hour.
+One important tuning risk: offline farming currently uses a fixed `estimatedClearTimeSeconds` of `10`, not the actual or target clear time of the selected stage. A stage that actively takes 25 seconds can become too efficient offline after the 60% offline modifier. Stage 3.2 Slice 98.3 deliberately keeps the live formula fixed while reporting `inversion`, `watch`, or `acceptable` parity classifications. Slice 98.6 keeps District Heat report-only because those inversions remain open. Before serious economy tuning, offline rewards should move to stage-specific simulated or target clear time only after parity is resolved or intentionally re-contracted.
 
-Stage 3.1 closed District Heat as an author-facing projection only: `npm run simulate` and full debug JSON can show projected heat by district/route, but the stable compact JSON/CSV exports, live rewards, save state, and web UI remain heat-free. [Stage 3.2 Backlog](stage-3.2-backlog.md) owns the next pacing step before live heat: offline parity reporting, offline formula decision, Redline live-heat blocker triage/tuning, and the District Heat promotion decision recorded in [District Heat Contract](district-heat-contract.md).
+Stage 3.2 Slice 98.5 applied that region-aware Redline treatment: `redline_outpost_1` now uses an `18-25s` normal target, Redline elites use a `19-40s` band, default Redline status pressure is below cap, and the Redline boss remains a baseline clear inside its `80-140s` gate. Slice 98.6 confirms default Redline blocker cleanup is not the live-heat blocker anymore.
+
+Stage 3.1 closed District Heat as an author-facing projection only. Stage 3.2 is archived at [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md), and Slice 98.6 keeps that posture: `npm run simulate` and full debug JSON can show projected heat plus the `report_only` promotion decision, but the stable compact JSON/CSV exports, tactic exports, live rewards, save state, cloud payloads, and web UI remain heat-free. The next pacing step should be parity cleanup or a separate non-punitive warning contract, not a live heat reward/risk change.
 
 ## Milestone Pacing Targets
 
@@ -167,7 +169,7 @@ The existing balance report is a strong base. Add these reports before large eco
 | --- | --- |
 | Progression Timeline Report | Simulate active and idle sessions and report expected stage, resources, upgrades, mastery, equipment, and boss outcomes at 5m, 15m, 1h, Day 1, Day 3, and Day 7. |
 | Economy Affordability Report | Show clears-to-upgrade, cultivation-to-skill-upgrade, and boss-prep training cost by region. |
-| Offline Parity Report | Compare active rewards per hour using actual simulated clear time against offline rewards per hour. Flag offline-active inversions. |
+| Offline Parity Report | Available in Stage 3.2 simulator/default report/full debug JSON. Compare active rewards per hour using actual simulated clear time against offline rewards per hour and classify rows as `acceptable`, `watch`, or `inversion`. |
 | Power Contribution Report | Break down effective team power from levels, upgrades, sect upgrades, skill upgrades, equipment, mastery, style mastery, tactics, medicine, and future Path of Neon systems. |
 | CP Calibration Report | Compare displayed team CP to clear result, survival margin, and clear time so CP remains directionally useful. |
 | Backsolve Authoring Tool | Suggest enemy HP, defense, attack, rewards, or upgrade costs from target clear time and target farm clears. |

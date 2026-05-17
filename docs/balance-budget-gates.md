@@ -8,6 +8,12 @@ Stage 3.0 added player-side Intrusion as a data-driven status mechanic without c
 
 Stage 3.1 added report-only District Heat projection to the simulator/default report/full debug JSON without changing region budget gates, live rewards, save state, or stable compact JSON/CSV exports.
 
+Stage 3.2 Slice 98.2 added report-only Offline Parity rows to the simulator/default report/full debug JSON without changing the live offline reward formula, region budget gates, save state, or stable compact JSON/CSV exports.
+
+Stage 3.2 Slice 98.3 classified Offline Parity rows and deferred live offline formula changes. The default live formula still uses the fixed 10s estimate while parity inversions remain open; Slice 98.5 later resolved the default Redline live-heat blockers.
+
+Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 applied the approved Redline target reclassification plus data/status tuning; Redline now passes default clear-time, status-pressure, reward-curve, and boss-gate budget checks. Slice 98.6 chose the `report_only` District Heat promotion posture while offline parity inversions and visible Black Iron debt remain open. Slice 98.7 archived Stage 3.2 with these gates unchanged.
+
 ## Configuration
 
 Budgets live in each region's required `balanceTargets` entry in `data/regions.json`.
@@ -79,9 +85,9 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 - Veil District should pass timing and status-pressure budgets while clearing its gatekeeper baseline.
 - Black Iron Foundry should exercise defense mechanics and require farmed/trained counterplay for the gatekeeper. The current report intentionally calls out `black_iron_foundry_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
-- Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
+- Redline Outpost should show status-heavy corruption pressure while staying inside its current gates. Slice 98.5 reclassified Redline normal timing to `18-25s`, Redline elite timing to `19-40s`, tuned Marrow Lock and Burning Blood pressure, trimmed `redline_outpost_4`, and reduced Corruption tick damage so default Redline status pressure is `785.81`, below the `1000` cap.
 
-After Stage 3.1 District Heat closure, these known Black Iron Foundry and Redline Outpost misses do not block report-only heat projection. They do block live heat reward, risk, offline-farming, or route-pressure changes until the affected miss is retuned or explicitly reclassified.
+After Stage 3.1 District Heat closure, known Black Iron Foundry and Redline Outpost misses did not block report-only heat projection. After Slice 98.5, Redline no longer blocks the heat promotion decision. Slice 98.6 keeps District Heat report-only because offline parity inversions and Black Iron Foundry debt must not be masked by live heat reward, risk, offline-farming, or route-pressure changes.
 
 ## Reading Report Sections
 
@@ -95,6 +101,8 @@ The `Region Boss Gate Assumptions` section expands each evaluated boss scenario:
 - `medicine`, `status damage`, `farms`, and `training` show the counterplay assumptions behind the result.
 
 Use the assumptions section when a boss gate passes technically but feels suspicious: a clear with high training cost, high status damage, or unexpected medicine use is still a tuning signal.
+
+The `Offline Parity Report` section compares each recommended farm route's simulated active reward rate against the current offline reward formula. Rows are classified as `acceptable`, `watch`, or `inversion`. `inversion` rows are evidence for a later formula decision; they are not live gameplay modifiers and do not by themselves change any budget gate result.
 
 ## Release Use
 
@@ -113,7 +121,7 @@ npm run --silent simulate -- --json
 ```
 
 Each region includes `budgetChecks` with `id`, `label`, `status`, and `reason`.
-Each region also includes `difficultyCurve` and `bossGateAssumptions` for authoring tools that need stage-level issue lines or boss-gate tuning inputs.
+Each region also includes `offlineParity`, `difficultyCurve`, and `bossGateAssumptions` for authoring tools that need parity evidence, stage-level issue lines, or boss-gate tuning inputs.
 
 For stable authoring JSON, run:
 
@@ -128,7 +136,7 @@ This compact export has `schemaVersion: 3` and four top-level tables:
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
 
-Stage 3.1 report-only District Heat projection is visible in the default report and full debug JSON, not in this compact export. Adding heat fields to compact JSON or CSV requires a later explicit schema decision.
+Stage 3.2 report-only Offline Parity, District Heat projection, and District Heat promotion decision are visible in the default report and full debug JSON, not in this compact export. Adding parity or heat fields to compact JSON or CSV requires a later explicit schema decision.
 
 Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
 

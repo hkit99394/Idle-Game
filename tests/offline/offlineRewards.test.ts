@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_OFFLINE_REWARD_CONFIG,
   applyOfflineRewards,
   calculateOfflineRewards,
   createInitialPlayerProgress,
@@ -8,6 +9,37 @@ import {
 import { staticData } from "../helpers/staticData";
 
 describe("offline rewards", () => {
+  it("keeps the default live formula on the fixed estimate while parity is deferred", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.districts.greenline_approach.highestClearedRouteIndex = 8;
+
+    const result = applyOfflineRewards({
+      data: staticData,
+      progress,
+      selectedOfflineFarmRouteId: "greenline_approach_8",
+      lastSavedAtMs: 0,
+      currentTimeMs: 60 * 60 * 1000
+    });
+
+    expect(DEFAULT_OFFLINE_REWARD_CONFIG).toMatchObject({
+      estimatedClearTimeSeconds: 10,
+      minimumClearTimeSeconds: 5,
+      offlineEfficiency: 0.6
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.rewards).toMatchObject({
+      offlineSeconds: 3600,
+      clears: 360,
+      silver: 9504,
+      cultivation: 4752,
+      herbs: 0,
+      combatExperience: 4320
+    });
+  });
+
   it("calculates capped offline rewards with efficiency", () => {
     const result = calculateOfflineRewards({
       lastSavedAtMs: 0,

@@ -136,7 +136,7 @@ Default posture:
 - Full debug JSON includes region-level `districtHeatProjection` for authoring review.
 - Stable compact JSON/CSV exports do not gain heat columns in Stage 3.1 and keep the existing compact export schema version.
 - Tactic comparison exports should not gain heat fields in Stage 3.1.
-- Existing Black Iron Foundry and Redline Outpost budget debt must remain visible by stable ids in the same report run.
+- Existing Black Iron Foundry budget debt and any future Redline regression must remain visible by stable ids in the same report run.
 
 ## Balance And Pacing Dependencies
 
@@ -163,15 +163,15 @@ Owner files:
 
 Current active/offline parity risk:
 
-| Recommended farm | Active clear | Offline/active reward-rate ratio with default config | Decision |
-| --- | ---: | ---: | --- |
-| `greenline_approach_8` | `25.2s` | `1.51x` | Report as parity risk. |
-| `veil_district_5` | `16.2s` | `0.97x` | Near parity. |
-| `black_iron_foundry_6` | `45s` | `2.70x` | Report as parity risk. |
-| `lotus_clinic_6` | `40.8s` | `2.45x` | Report as parity risk. |
-| `redline_outpost_6` | `36s` | `2.16x` | Report as parity risk. |
+| Recommended farm | Active clear | Offline/active reward-rate ratio with default config | Classification | Decision |
+| --- | ---: | ---: | --- | --- |
+| `greenline_approach_8` | `25.2s` | `1.51x` | `inversion` | Report as parity risk. |
+| `veil_district_5` | `16.2s` | `0.97x` | `watch` | Near parity. |
+| `black_iron_foundry_6` | `45s` | `2.70x` | `inversion` | Report as parity risk. |
+| `lotus_clinic_6` | `40.8s` | `2.45x` | `inversion` | Report as parity risk. |
+| `redline_outpost_6` | `32s` | `1.92x` | `inversion` | Report as parity risk. |
 
-Stage 3.1 should **report** the parity risk before replacing the offline formula. Replacing the fixed 10s estimate with stage-specific simulated or target clear time remains deferred until a dedicated pacing/report slice proves the desired active-vs-offline behavior.
+Stage 3.2 Slice 98.2 now reports this parity risk in `npm run simulate` and full debug JSON as `offlineParity`. Slice 98.3 classifies those rows and makes the offline formula decision: defer live formula changes, keep the fixed 10s estimate, and use report-only guard rails until Redline blockers and District Heat promotion posture are resolved. Slice 98.4 triaged those Redline blockers, and Slice 98.5 resolved the default Redline clear-time and status-pressure gates before any heat promotion decision.
 
 Assignment heat participation is report-only and should be conservative:
 
@@ -183,16 +183,16 @@ Assignment heat participation is report-only and should be conservative:
 
 Slice 97.3 reviewed the current simulator, compact JSON export, stage CSV export, tactic JSON export, and tactic CSV export against [Content Pipeline Inventory](content-pipeline-inventory.md) and [Balance Budget Gates](balance-budget-gates.md).
 
-Report-only District Heat projection may proceed with the existing misses visible by stable ids. Live District Heat reward, risk, offline-farming, or route-pressure changes must not proceed until the affected miss is tuned or explicitly reclassified by a later slice.
+Report-only District Heat projection may proceed with the existing misses visible by stable ids. Live District Heat reward, risk, offline-farming, or route-pressure changes must not proceed over a blocking miss until the affected miss is tuned or explicitly reclassified by a later slice.
 
-| Miss | Stage 3.1 disposition | Heat gate |
+| Miss | Current Stage 3.2 disposition | Heat gate |
 | --- | --- | --- |
 | `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt. This is a too-fast elite route, not a report-only heat blocker. | Report-only heat may proceed; live heat must not silently use reward/risk pressure to mask this debt. |
-| `redline_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt and live-heat blocker. | Report-only heat may proceed; live heat reward or risk changes are blocked until the normal-stage pacing miss is retuned or reclassified. |
-| `redline_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Small pre-heat tuning candidate and live-heat blocker. Tactic comparison rows show `context_break` and `gatekeeper_burst` can improve this existing miss. | Report-only heat may proceed; live heat is blocked until a tuning slice chooses whether to apply counterplay/tactic changes. |
-| `redline_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Pre-heat tuning candidate and live-heat blocker because it is the largest Redline clear-time miss. | Report-only heat may proceed; live heat is blocked until severe Redline spike pressure is resolved or explicitly accepted. |
-| `redline_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt and live-heat blocker. | Report-only heat may proceed; live heat reward or risk changes are blocked until the miss is retuned or reclassified. |
-| Redline status damage is `1077.06`, above the configured `1000` cap. | Pre-heat tuning candidate and live-heat blocker. Tactic comparison rows show `long_stabilization` reduces Redline boss status pressure without turning the boss into a new miss. | Report-only heat may proceed; any live heat pressure amplification is blocked until status counterplay or cap posture is reviewed. |
+| `redline_outpost_1` clears in `23.4s` against the configured `18-25s` normal target. | Resolved by Slice 98.5 target reclassification for late-region status-opener timing. | This Redline row no longer blocks the Slice 98.6 heat promotion decision. |
+| `redline_outpost_3` clears in `40s` against the configured `19-40s` elite target. | Resolved by Slice 98.5 Marrow Lock enemy tuning. | This Redline row no longer blocks the Slice 98.6 heat promotion decision. |
+| `redline_outpost_4` clears in `22s` against the configured `19-40s` elite target. | Resolved by Slice 98.5 Burning Blood Hall formation trim plus Redline enemy tuning. | This Redline row no longer blocks the Slice 98.6 heat promotion decision. |
+| `redline_outpost_5` clears in `40s` against the configured `19-40s` elite target. | Resolved by shared Slice 98.5 Burning Blood tuning. | This Redline row no longer blocks the Slice 98.6 heat promotion decision. |
+| Redline status damage is `785.81`, below the configured `1000` cap. | Resolved by Slice 98.5 Corruption tick tuning with no medicine consumed. | Default Redline status pressure no longer blocks the Slice 98.6 heat promotion decision. |
 
 Additional tactic comparison caution:
 
@@ -204,11 +204,18 @@ Additional tactic comparison caution:
 
 Stage 3.1 closes District Heat as an author-facing report-only projection. The implementation is enough for balance review because it shows affected district, route, projected clear count, projected heat, band, gain reason, and decay reason in `npm run simulate` and full debug JSON without changing live gameplay.
 
-It is not enough to start a live heat mechanic by itself. The next implementation step should be pacing cleanup or a dedicated live-heat decision slice that first resolves active/offline parity, known Redline blockers, save posture, export schema posture, and the exact player-facing UI promise.
+It is not enough to start a live heat mechanic by itself. The next implementation step should be a dedicated live-heat decision slice that accounts for active/offline parity, the resolved default Redline gates, save posture, export schema posture, and the exact player-facing UI promise.
 
-## Stage 3.2 Planning Decision
+## Stage 3.2 Promotion Decision
 
-[Stage 3.2 Backlog](stage-3.2-backlog.md) owns that cleanup path. It should add or specify offline parity reporting, decide whether the live offline reward formula changes, handle or reclassify Redline live-heat blockers, and then choose the next District Heat posture. Until Stage 3.2 closes those gates, District Heat remains report-only.
+[Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md) records that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. Slice 98.3 deferred live offline formula changes because four recommended farm routes remain classified as `inversion`. Slice 98.4 triaged the Redline live-heat blockers, and Slice 98.5 resolved the default Redline clear-time and status-pressure gates while preserving the `redline_outpost_7` tactic caution.
+
+Slice 98.6 chose **keep District Heat report-only** as the promotion posture for Stage 3.2. The default report and full debug JSON now include a report-only `districtHeatPromotionDecision` with gate status and boundaries, but there is still no live heat UI, save field, cloud envelope field, compact export field, tactic export field, reward modifier, route-risk modifier, or offline reward formula change.
+
+The decision is reversible, but a later slice must do one of these before live heat ships:
+
+- resolve offline parity inversions and visible Black Iron debt before any heat reward/risk/offline pressure changes;
+- or write a separate non-punitive warning contract with explicit save/UI/export boundaries before any player-facing heat copy appears.
 
 ## Verification Requirements
 

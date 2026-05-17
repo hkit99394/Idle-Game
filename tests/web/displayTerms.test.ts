@@ -16,6 +16,7 @@ const futureOnlyMechanicSourceTokens = [
   "District Heat",
   "districtHeat",
   "districtHeatProjection",
+  "districtHeatPromotionDecision",
   "projectedHeat",
   "heatBand",
   "Trace",
