@@ -19,7 +19,7 @@ The current runtime still has no live District Heat UI, save field, cloud field,
 
 ### Stage 3.5: District Attention Route-Card Prototype
 
-Build the smallest player-facing warning surface for District Heat without changing gameplay.
+[Stage 3.5 Backlog](stage-3.5-backlog.md) is active for the smallest player-facing warning surface for District Heat without changing gameplay.
 
 Goal:
 

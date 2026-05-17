@@ -263,6 +263,20 @@ Slice 100.4 selects the stronger report-only guard-rail path:
 
 Slice 100.5 refreshes the author-facing promotion decision so the report no longer says Stage 3.4 still needs preparation. The current next action is a later route-card warning prototype slice, if player-facing copy is desired; that slice must amend the web-source guard first and keep rewards, route risk, saves, cloud payloads, and stable exports unchanged.
 
+## Stage 3.5 Route-Card Prototype Backlog
+
+[Stage 3.5 Backlog](stage-3.5-backlog.md) is active for a tiny District Attention route-card prototype. It may reopen this contract only enough to allow approved warning copy in the named route-card owner files, and it must keep the current report-only District Heat posture for rewards, route risk, enemy pressure, saves, cloud payloads, compact exports, tactic exports, and full-debug report fields.
+
+Slice 101.1 approves the Stage 3.5 route-card warning surface:
+
+- Allowed live surface: one compact note inside the existing route card in `web/features/mapIdle/panels.tsx`.
+- Allowed display condition: show the warning only when a route card is the selected offline farm target and remains farmable, using existing `isSelectedOfflineFarmStage` and `canSelectOfflineFarm` view state. If no route is selected for offline farming, no warning appears.
+- Optional view-model owner files: `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts`, only if Slice 101.2 chooses structured warning data instead of deriving the condition directly in the route-card component.
+- Allowed player-facing copy in the route-card owner file: `Attention rising`, `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`, and `Informational only.`
+- Allowed implementation identifier only if structured view-model data is added: `attentionWarning` in `web/state/viewModels/map.ts`, `web/state/viewModels/mapTypes.ts`, and `web/features/mapIdle/panels.tsx`.
+- Still forbidden in live web source: `District Heat`, `districtHeat`, `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, `heatBand`, `districtAttention`, `district-attention`, `districtAttentionWarning`, heat band labels, heat scores, timers, acknowledgement state, reward/risk modifiers, and copy implying rewards, enemy pressure, route risk, boss difficulty, assignments, or offline returns changed.
+- `tests/web/displayTerms.test.ts` should be amended with a narrow allowlist for only the approved owner files and terms; it should continue failing any report-only heat field name or unapproved attention identifier in live web source.
+
 ## Verification Requirements
 
 For contract and report-only work:
