@@ -14,10 +14,10 @@ The Stage 3.2 plan is based on the current simulator and active docs:
 
 - Stage 3.1 report-only District Heat is visible in `npm run simulate` and full debug JSON, while compact JSON/CSV exports, saves, cloud saves, and live web UI remain heat-free.
 - The current simulator still reports `black_iron_foundry_4` as below its elite clear-time target.
-- The current simulator still reports Redline live-heat blockers: `redline_outpost_1`, `redline_outpost_3`, `redline_outpost_4`, `redline_outpost_5`, and Redline status damage above the configured cap.
+- Slice 98.5 resolved the Redline live-heat blockers in the default simulator: Redline clear-time, status-pressure, reward-curve, and boss-gate checks now pass.
 - The current report-only heat projection reaches `lockdown` for Greenline Approach, Veil District, and Redline Outpost during a one-hour recommended offline-farm window, so heat is sensitive to offline clear-count assumptions.
 - The Stage 3.1 offline audit found offline farming can outperform active rewards on four of five recommended farm routes because current offline rewards use a fixed `estimatedClearTimeSeconds: 10`.
-- Tactic comparison evidence is useful but not a blanket fix: `context_break` and `gatekeeper_burst` can improve `redline_outpost_3`, but can also create `redline_outpost_7` enemy holds; `long_stabilization` is the safer status-pressure review candidate.
+- Tactic comparison evidence is useful but not a blanket fix: after Slice 98.5, `context_break` and `gatekeeper_burst` still create `redline_outpost_7` enemy holds; `long_stabilization` remains the safer status-pressure benchmark.
 
 ## Stage Theme
 
@@ -67,7 +67,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 | 98.2 | 98 | Offline Parity Report Surface | Complete |
 | 98.3 | 98 | Offline Formula Decision And Guard Rails | Complete |
 | 98.4 | 98 | Redline Live-Heat Blocker Triage | Complete |
-| 98.5 | 98 | Targeted Redline And Status Pressure Tuning | Planned |
+| 98.5 | 98 | Targeted Redline And Status Pressure Tuning | Complete |
 | 98.6 | 98 | District Heat Promotion Decision | Planned |
 | 98.7 | 98 | Release Hardening And Archive Readiness | Planned |
 
@@ -134,7 +134,7 @@ Make the active/offline reward-rate mismatch visible in tooling before changing 
 - Added an `Offline Parity Report` section to the default simulator output after `Region Farm Recommendations`.
 - Left the live offline reward formula unchanged. The parity report reads the current default config: `estimatedClearTimeSeconds: 10`, `minimumClearTimeSeconds: 5`, and `offlineEfficiency: 0.6`.
 - Kept stable compact authoring JSON, stage CSV, tactic JSON, and tactic CSV exports unchanged. Parity remains default-report/full-debug evidence until a later explicit schema decision.
-- Current ratios: `greenline_approach_8` is `1.51x` offline/active and flagged `offline_faster`; `veil_district_5` is `0.97x` and flagged `near_parity`; `black_iron_foundry_6` is `2.70x`, `lotus_clinic_6` is `2.45x`, and `redline_outpost_6` is `2.16x`, all flagged `offline_faster`.
+- Current ratios after Slice 98.5 tuning: `greenline_approach_8` is `1.51x` offline/active and flagged `offline_faster`; `veil_district_5` is `0.97x` and flagged `near_parity`; `black_iron_foundry_6` is `2.70x`, `lotus_clinic_6` is `2.45x`, and `redline_outpost_6` is `1.92x`, all flagged `offline_faster` except Veil.
 
 ### Verification
 
@@ -243,16 +243,26 @@ Apply the smallest approved Redline tuning changes from Slice 98.4.
 - Tactic comparison does not create unreviewed new misses.
 - Existing known-debt docs match simulator output.
 
+### Implementation Notes
+
+- Reclassified Redline clear-time targets in [data/regions.json](../data/regions.json): normal stages now use `18-25s`, and elite stages now use `19-40s` so late-region status openers and tactic variance are judged against Redline pacing rather than tutorial pacing.
+- Narrowed the `redline_outpost_4` formation in [data/stages.json](../data/stages.json) to `burning_blood_captain` plus `marrow_lock_supplicant`, removing the extra Miasma body that created the severe `66.6s` spike.
+- Reduced only Redline hostile durability/defense in [data/enemies.json](../data/enemies.json): `marrow_lock_supplicant` and `burning_blood_captain` now land their affected routes inside target without changing earlier regions.
+- Lowered `corruption` tick pressure in [data/statusEffects.json](../data/statusEffects.json) from `0.006` to `0.0054` Body Integrity damage per second.
+- Current Redline default simulator outcomes: `redline_outpost_1` `23.4s` inside `18-25s`; `redline_outpost_2` `22s`, `redline_outpost_3` `40s`, `redline_outpost_4` `22s`, `redline_outpost_5` `40s`, and `redline_outpost_6` `32s` inside `19-40s`; Redline status pressure passes at `785.81` damage and `89` applications; boss baseline remains `player_clear` in `95.4s` with `339.35` status damage.
+- Tactic comparison has no new misses for `balanced_routine`, `kinetic_crush`, `guard_the_stabilizer`, or `long_stabilization`. `context_break` and `gatekeeper_burst` still turn `redline_outpost_7` into `enemy_hold`, preserving the caution for future tactic or heat work.
+
 ### Verification
 
-- `npm test -- tests/data/validateData.test.ts`
-- `npm test -- tests/tools/balanceReport.test.ts`
-- `npm run simulate`
-- `npm run --silent simulate -- --export-json`
-- `npm run --silent simulate -- --csv`
-- `npm run --silent simulate -- --tactics-json`
-- `npm run --silent simulate -- --tactics-csv`
-- `git diff --check`
+- Passed: `npm test -- tests/data/validateData.test.ts`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: `git diff --check`
 
 ## Slice 98.6: District Heat Promotion Decision
 

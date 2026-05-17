@@ -8,7 +8,7 @@ Stage 3.0 added the first post-migration mechanic as data-driven combat content:
 
 Stage 3.1 added the first District Heat authoring proof as report-only balance projection. It appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports, save data, cloud save payloads, and live web UI remain heat-free until a later schema and player-facing mechanic decision.
 
-Stage 3.2 Slice 98.2 added report-only Offline Parity evidence for recommended farm routes. Slice 98.3 classified those rows as `inversion`, `watch`, or `acceptable` and deferred live offline formula changes. Slice 98.4 triaged Redline live-heat blockers and assigned each Redline miss to a target reclassification, narrow data tune, or status-pressure tune for Slice 98.5. The evidence appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports and live offline rewards remain unchanged until a later explicit formula or schema decision.
+Stage 3.2 Slice 98.2 added report-only Offline Parity evidence for recommended farm routes. Slice 98.3 classified those rows as `inversion`, `watch`, or `acceptable` and deferred live offline formula changes. Slice 98.4 triaged Redline live-heat blockers, and Slice 98.5 applied the approved Redline target, enemy, stage, and status-pressure tuning. The evidence appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports and live offline rewards remain unchanged until a later explicit formula or schema decision.
 
 ## Current Authoring Contract
 
@@ -79,7 +79,7 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `offlineParity` and `districtHeatProjection`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.2 keeps Offline Parity and District Heat out of compact JSON/CSV exports until a later schema decision. Slice 98.3 also keeps the live offline reward formula on the fixed 10s estimate while parity inversions and Redline blockers remain open.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `offlineParity` and `districtHeatProjection`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.2 keeps Offline Parity and District Heat out of compact JSON/CSV exports until a later schema decision. Slice 98.3 also keeps the live offline reward formula on the fixed 10s estimate while parity inversions remain open; Slice 98.5 resolved the default Redline blockers.
 
 Stage 2.7 save-field migration does not change the static content reward schema or generated balance export reward columns. Simulator and support-decision tooling should consume current runtime progress/save fields when they read progress, but authored rewards and report columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` remain static authoring metrics until a later balance/report schema migration explicitly changes them.
 
@@ -94,31 +94,36 @@ The active balance report is stage and region focused. It does not yet answer th
 
 ## Known Budget Debt
 
-The current simulator output keeps these misses visible:
+The current simulator output keeps this miss visible:
 
 | Region | Current miss | Current disposition |
 | --- | --- | --- |
 | Black Iron Foundry | `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `redline_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Slice 98.4 selected target reclassification for Slice 98.5: treat this post-Lotus route as a late-region status opener, likely `18-25s`, rather than tutorial-speed normal pacing. |
-| Redline Outpost | `redline_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Slice 98.4 selected a narrow Slice 98.5 data tune. `context_break` and `gatekeeper_burst` can pass this row, but they are not blanket fixes. |
-| Redline Outpost | `redline_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Slice 98.4 selected this as the primary Redline data-tuning target for Slice 98.5 because `kinetic_crush` still clears in `55.8s`. |
-| Redline Outpost | `redline_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Slice 98.4 selected a secondary light tune or verification after shared Redline enemy changes because `kinetic_crush` still clears in `41.4s`. |
-| Redline Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Slice 98.4 selected a default status-pressure or counterplay tune for Slice 98.5, using `long_stabilization` as the safe benchmark because it lowers Redline total status damage to `779.25` with no `new_miss`. |
 
-These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
+This is not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that this miss was deliberately carried forward as deferred tuning debt.
 
 Stage 3.0 did not retune these budgets. Its simulator review confirmed the same Black Iron Foundry and Redline Outpost misses remain visible while Intrusion's focused regression proves the new mechanic changes AI Overload timing.
 
-Stage 3.1 Slice 97.3 classifies these misses as acceptable for report-only District Heat projection, provided they remain visible by stable ids in the same simulator/export run. They remain blockers for live District Heat reward, risk, offline-farming, or route-pressure changes until a later tuning slice retunes or explicitly reclassifies the affected debt.
+Stage 3.1 Slice 97.3 classified the Black Iron and Redline misses as acceptable for report-only District Heat projection, provided they remained visible by stable ids in the same simulator/export run. Slice 98.5 resolved the Redline blockers; Black Iron remains visible and should not be masked by live District Heat reward, risk, offline-farming, or route-pressure changes.
+
+Stage 3.2 Slice 98.5 resolved the Redline live-heat blocker set:
+
+| Region | Current result | Current disposition |
+| --- | --- | --- |
+| Redline Outpost | `redline_outpost_1` clears in `23.4s` against the reclassified `18-25s` normal target. | Resolved as a late-region status opener, not tutorial-speed normal pacing. |
+| Redline Outpost | `redline_outpost_3` clears in `40s` against the `19-40s` elite target. | Resolved through Marrow Lock enemy tuning. |
+| Redline Outpost | `redline_outpost_4` clears in `22s` against the `19-40s` elite target. | Resolved through the approved Burning Blood Hall formation trim plus Redline enemy tuning. |
+| Redline Outpost | `redline_outpost_5` clears in `40s` against the `19-40s` elite target. | Resolved through shared Burning Blood tuning. |
+| Redline Outpost | Status damage is `785.81`, below the configured `1000` cap. | Resolved through the Corruption tick tune; no medicine is consumed. |
 
 ## Tactic Comparison Notes
 
 Epic 71 did not retune content. The tactic comparison export keeps known debt visible and adds row-level shift labels:
 
-- `redline_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `context_break` or `gatekeeper_burst`, marked as `budgetShift: improved_existing_miss`.
+- After Slice 98.5, `redline_outpost_3` baseline is `targetStatus: pass`; `context_break` and `gatekeeper_burst` also pass it, but they are no longer needed to fix the default route.
 - `redline_outpost_7` is untargeted by clear-time budgets, but `context_break` and `gatekeeper_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
-- `long_stabilization` preserves the Redline boss clear while reducing Redline total status damage from `1077.06` to `779.25` with no `new_miss`, making it the safest benchmark for status-pressure tuning.
-- `kinetic_crush` lowers Redline total status damage to `999.91`, but it creates a `new_miss` on `redline_outpost_2`, so it is not a blanket status fix.
+- `long_stabilization` preserves the Redline boss clear while reducing Redline total status damage from `785.81` to `583.77` with no `new_miss`, making it the safest benchmark for future status-pressure review.
+- `kinetic_crush` no longer creates Redline tactic-comparison misses after the `19s` elite lower-bound reclassification, but it also no longer reduces Redline total status damage, so it is not a status-pressure fix.
 
 ## Stage 2.0 Closure Notes
 
@@ -128,4 +133,4 @@ Epic 71 did not retune content. The tactic comparison export keeps known debt vi
 - Epic 64 added difficulty-trend, spike, and boss-gate assumption reporting before any retune.
 - Epic 65 added compact JSON and generated CSV review exports while keeping `docs/balance-template.csv` as a hand-authored reference template.
 - Epic 66 folded the final [Content Authoring Checklist](content-authoring-checklist.md) back into contributor docs and archived the Stage 2.0 backlog.
-- The remaining manual gap is tuning judgment: current Black Iron Foundry and Redline misses stay visible in reports until a later balance pass retunes or explicitly reclassifies them.
+- The remaining manual gap is tuning judgment: current Black Iron Foundry debt stays visible in reports until a later balance pass retunes or explicitly reclassifies it, and future Redline regressions should be treated the same way.
