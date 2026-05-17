@@ -8,6 +8,8 @@ Stage 3.0 added player-side Intrusion as a data-driven status mechanic without c
 
 Stage 3.1 added report-only District Heat projection to the simulator/default report/full debug JSON without changing region budget gates, live rewards, save state, or stable compact JSON/CSV exports.
 
+Stage 3.2 Slice 98.2 added report-only Offline Parity rows to the simulator/default report/full debug JSON without changing the live offline reward formula, region budget gates, save state, or stable compact JSON/CSV exports.
+
 ## Configuration
 
 Budgets live in each region's required `balanceTargets` entry in `data/regions.json`.
@@ -96,6 +98,8 @@ The `Region Boss Gate Assumptions` section expands each evaluated boss scenario:
 
 Use the assumptions section when a boss gate passes technically but feels suspicious: a clear with high training cost, high status damage, or unexpected medicine use is still a tuning signal.
 
+The `Offline Parity Report` section compares each recommended farm route's simulated active reward rate against the current offline reward formula. `offline_faster` rows are evidence for a later formula decision; they are not live gameplay modifiers and do not by themselves change any budget gate result.
+
 ## Release Use
 
 Run:
@@ -113,7 +117,7 @@ npm run --silent simulate -- --json
 ```
 
 Each region includes `budgetChecks` with `id`, `label`, `status`, and `reason`.
-Each region also includes `difficultyCurve` and `bossGateAssumptions` for authoring tools that need stage-level issue lines or boss-gate tuning inputs.
+Each region also includes `offlineParity`, `difficultyCurve`, and `bossGateAssumptions` for authoring tools that need parity evidence, stage-level issue lines, or boss-gate tuning inputs.
 
 For stable authoring JSON, run:
 
@@ -128,7 +132,7 @@ This compact export has `schemaVersion: 3` and four top-level tables:
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
 
-Stage 3.1 report-only District Heat projection is visible in the default report and full debug JSON, not in this compact export. Adding heat fields to compact JSON or CSV requires a later explicit schema decision.
+Stage 3.2 report-only Offline Parity and Stage 3.1 report-only District Heat projection are visible in the default report and full debug JSON, not in this compact export. Adding parity or heat fields to compact JSON or CSV requires a later explicit schema decision.
 
 Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
 

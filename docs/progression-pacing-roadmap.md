@@ -167,7 +167,7 @@ The existing balance report is a strong base. Add these reports before large eco
 | --- | --- |
 | Progression Timeline Report | Simulate active and idle sessions and report expected stage, resources, upgrades, mastery, equipment, and boss outcomes at 5m, 15m, 1h, Day 1, Day 3, and Day 7. |
 | Economy Affordability Report | Show clears-to-upgrade, cultivation-to-skill-upgrade, and boss-prep training cost by region. |
-| Offline Parity Report | Compare active rewards per hour using actual simulated clear time against offline rewards per hour. Flag offline-active inversions. |
+| Offline Parity Report | Available in Stage 3.2 simulator/default report/full debug JSON. Compare active rewards per hour using actual simulated clear time against offline rewards per hour and flag offline-active inversions. |
 | Power Contribution Report | Break down effective team power from levels, upgrades, sect upgrades, skill upgrades, equipment, mastery, style mastery, tactics, medicine, and future Path of Neon systems. |
 | CP Calibration Report | Compare displayed team CP to clear result, survival margin, and clear time so CP remains directionally useful. |
 | Backsolve Authoring Tool | Suggest enemy HP, defense, attack, rewards, or upgrade costs from target clear time and target farm clears. |

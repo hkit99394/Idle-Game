@@ -8,6 +8,8 @@ Stage 3.0 added the first post-migration mechanic as data-driven combat content:
 
 Stage 3.1 added the first District Heat authoring proof as report-only balance projection. It appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports, save data, cloud save payloads, and live web UI remain heat-free until a later schema and player-facing mechanic decision.
 
+Stage 3.2 Slice 98.2 added report-only Offline Parity evidence for recommended farm routes. It appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports and live offline rewards remain unchanged until a later explicit formula or schema decision.
+
 ## Current Authoring Contract
 
 - [data/staticGameData.ts](../data/staticGameData.ts) imports the configured JSON files and exports the canonical bundle.
@@ -58,6 +60,7 @@ Stage 3.1 added the first District Heat authoring proof as report-only balance p
 
 - stage results, clear times, formations, rewards, and target bands;
 - region farm recommendations;
+- report-only Offline Parity rows with active/offline reward-rate ratios for recommended farm routes;
 - report-only District Heat projection by district and recommended farm route;
 - mastery milestones;
 - difficulty-curve summaries with trend counts, target misses, and spike reasons;
@@ -76,7 +79,7 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `districtHeatProjection`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.1 keeps District Heat out of compact JSON/CSV exports until a later schema decision.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `offlineParity` and `districtHeatProjection`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.2 keeps Offline Parity and District Heat out of compact JSON/CSV exports until a later schema decision.
 
 Stage 2.7 save-field migration does not change the static content reward schema or generated balance export reward columns. Simulator and support-decision tooling should consume current runtime progress/save fields when they read progress, but authored rewards and report columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` remain static authoring metrics until a later balance/report schema migration explicitly changes them.
 

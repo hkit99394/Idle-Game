@@ -627,6 +627,71 @@ describe("balance report", () => {
     expect(csv.split("\n")[0]).not.toContain("heat");
   });
 
+  it("adds report-only offline parity without changing compact exports", () => {
+    const report = buildGameBalanceReport(staticData);
+    const bamboo = getRegionReport(report, BAMBOO_ROAD_REGION_ID);
+    const mist = getRegionReport(report, MIST_VALLEY_REGION_ID);
+    const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
+    const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
+    const demonCult = getRegionReport(report, "redline_outpost");
+    const exportReport = buildBalanceAuthoringExport(report);
+    const csv = formatBalanceStageExportCsv(report);
+
+    expect(bamboo.offlineParity).toMatchObject({
+      stageId: "greenline_approach_8",
+      activeClearTimeSeconds: 25.2,
+      offlineEstimatedClearTimeSeconds: 10,
+      offlineMinimumClearTimeSeconds: 5,
+      offlineEffectiveClearTimeSeconds: 10,
+      offlineEfficiency: 0.6,
+      activeClearsPerHour: 142.86,
+      offlineClearsPerHour: 216,
+      offlineToActiveRatio: 1.51,
+      status: "offline_faster",
+      activeRewardsPerHour: {
+        farmScore: 22428.57,
+        silver: 6285.71,
+        cultivation: 3142.86,
+        combatExperience: 2857.14
+      },
+      offlineRewardsPerHour: {
+        farmScore: 33912,
+        silver: 9504,
+        cultivation: 4752,
+        combatExperience: 4320
+      }
+    });
+    expect(mist.offlineParity).toMatchObject({
+      stageId: "veil_district_5",
+      offlineToActiveRatio: 0.97,
+      status: "near_parity"
+    });
+    expect(blackIron.offlineParity).toMatchObject({
+      stageId: "black_iron_foundry_6",
+      offlineToActiveRatio: 2.7,
+      status: "offline_faster"
+    });
+    expect(lotus.offlineParity).toMatchObject({
+      stageId: "lotus_clinic_6",
+      offlineToActiveRatio: 2.45,
+      status: "offline_faster"
+    });
+    expect(demonCult.offlineParity).toMatchObject({
+      stageId: "redline_outpost_6",
+      offlineToActiveRatio: 2.16,
+      status: "offline_faster"
+    });
+    expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
+    expect(Object.hasOwn(exportReport.regions[0], "offlineParity")).toBe(false);
+    expect(Object.hasOwn(exportReport.stages[0], "offlineParity")).toBe(false);
+    expect(
+      BALANCE_STAGE_EXPORT_CSV_HEADERS.some((header) =>
+        header.toLowerCase().includes("offline")
+      )
+    ).toBe(false);
+    expect(csv.split("\n")[0]).not.toContain("offline");
+  });
+
   it("projects District Heat gain, repetition, decay, and bands deterministically", () => {
     expect(
       projectDistrictHeat({
@@ -870,6 +935,9 @@ describe("balance report", () => {
     expect(formatted).toContain("Region Farm Recommendations");
     expect(formatted).toContain("score 157");
     expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
+    expect(formatted).toContain("Offline Parity Report");
+    expect(formatted).toContain("offline 1.51x active");
+    expect(formatted).toContain("estimate 10s @ 60%");
     expect(formatted).toContain("District Heat Projection");
     expect(formatted).toContain("offline_farm_repetition");
     expect(formatted).toContain("no_decay_active_window");

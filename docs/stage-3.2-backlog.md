@@ -64,7 +64,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 | Slice | Epic | Title | Status |
 | --- | --- | --- | --- |
 | 98.1 | 98 | Pacing Baseline And Scope Lock | Complete |
-| 98.2 | 98 | Offline Parity Report Surface | Planned |
+| 98.2 | 98 | Offline Parity Report Surface | Complete |
 | 98.3 | 98 | Offline Formula Decision And Guard Rails | Planned |
 | 98.4 | 98 | Redline Live-Heat Blocker Triage | Planned |
 | 98.5 | 98 | Targeted Redline And Status Pressure Tuning | Planned |
@@ -128,13 +128,23 @@ Make the active/offline reward-rate mismatch visible in tooling before changing 
 - The report distinguishes author-facing parity evidence from live gameplay behavior.
 - Export schema posture is explicit and tested.
 
+### Implementation Notes
+
+- Added report-only `offlineParity` rows to each region balance in the full debug report data. The rows compare recommended farm route active clear time, active clears per hour, offline clears per hour, active reward rates, offline reward rates, and offline/active ratio.
+- Added an `Offline Parity Report` section to the default simulator output after `Region Farm Recommendations`.
+- Left the live offline reward formula unchanged. The parity report reads the current default config: `estimatedClearTimeSeconds: 10`, `minimumClearTimeSeconds: 5`, and `offlineEfficiency: 0.6`.
+- Kept stable compact authoring JSON, stage CSV, tactic JSON, and tactic CSV exports unchanged. Parity remains default-report/full-debug evidence until a later explicit schema decision.
+- Current ratios: `greenline_approach_8` is `1.51x` offline/active and flagged `offline_faster`; `veil_district_5` is `0.97x` and flagged `near_parity`; `black_iron_foundry_6` is `2.70x`, `lotus_clinic_6` is `2.45x`, and `redline_outpost_6` is `2.16x`, all flagged `offline_faster`.
+
 ### Verification
 
-- `npm test -- tests/tools/balanceReport.test.ts`
-- `npm run simulate`
-- `npm run --silent simulate -- --export-json`
-- `npm run --silent simulate -- --csv`
-- `git diff --check`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: compact/tactic export parity-field scans for `offlineParity`, `offlineToActive`, `activeRewardsPerHour`, and `offlineRewardsPerHour`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 98.3: Offline Formula Decision And Guard Rails
 

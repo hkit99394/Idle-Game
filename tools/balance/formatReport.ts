@@ -96,6 +96,50 @@ function formatRegionFarmLine(region: RegionSummary): string {
   return `- ${region.regionName}: ${region.farmRecommendation.stageId} (${rewards}${score}${reason})`;
 }
 
+function formatRewardRate(rate: {
+  silver: number;
+  cultivation: number;
+  herbs: number;
+  combatExperience: number;
+  farmScore: number;
+}): string {
+  return (
+    `${formatNumber(rate.farmScore)} score/h ` +
+    `(${formatNumber(rate.silver)} silver/h, ` +
+    `${formatNumber(rate.cultivation)} cult/h, ` +
+    `${formatNumber(rate.herbs)} herbs/h, ` +
+    `${formatNumber(rate.combatExperience)} xp/h)`
+  );
+}
+
+function formatRegionOfflineParityLine(region: RegionSummary): string {
+  const parity = region.offlineParity;
+
+  if (parity.stageId === null) {
+    return `- ${region.regionName}: ${parity.reason}`;
+  }
+
+  if (
+    parity.activeClearTimeSeconds === null ||
+    parity.activeRewardsPerHour === null ||
+    parity.offlineRewardsPerHour === null ||
+    parity.offlineToActiveRatio === null
+  ) {
+    return `- ${region.regionName}: ${parity.stageId} (${parity.reason})`;
+  }
+
+  return (
+    `- ${region.regionName}: ${parity.stageId} offline ` +
+    `${formatNumber(parity.offlineToActiveRatio)}x active ` +
+    `(active clear ${formatNumber(parity.activeClearTimeSeconds)}s; ` +
+    `active ${formatRewardRate(parity.activeRewardsPerHour)}; ` +
+    `offline ${formatRewardRate(parity.offlineRewardsPerHour)}; ` +
+    `estimate ${formatNumber(parity.offlineEffectiveClearTimeSeconds)}s @ ` +
+    `${formatNumber(parity.offlineEfficiency * 100)}%; ` +
+    `${parity.status})`
+  );
+}
+
 function formatRegionDistrictHeatLine(region: RegionSummary): string {
   const projection = region.districtHeatProjection;
   const route = projection.affectedRouteId ?? "no route";
@@ -297,6 +341,9 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     "",
     "Region Farm Recommendations",
     ...report.regionBalances.map(formatRegionFarmLine),
+    "",
+    "Offline Parity Report",
+    ...report.regionBalances.map(formatRegionOfflineParityLine),
     "",
     "District Heat Projection",
     ...report.regionBalances.map(formatRegionDistrictHeatLine),
