@@ -63,7 +63,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 
 | Slice | Epic | Title | Status |
 | --- | --- | --- | --- |
-| 98.1 | 98 | Pacing Baseline And Scope Lock | Planned |
+| 98.1 | 98 | Pacing Baseline And Scope Lock | Complete |
 | 98.2 | 98 | Offline Parity Report Surface | Planned |
 | 98.3 | 98 | Offline Formula Decision And Guard Rails | Planned |
 | 98.4 | 98 | Redline Live-Heat Blocker Triage | Planned |
@@ -88,15 +88,27 @@ Confirm the current evidence before adding reports or tuning data.
 - The stage confirms it is still pacing/report/tuning work, not a live heat implementation.
 - No runtime or data changes are mixed into this preflight slice unless they are documentation-only corrections.
 
+### Implementation Notes
+
+- Ran the default simulator, compact JSON export, stage CSV export, tactic JSON export, and tactic CSV export before touching runtime or data.
+- The same known debt remains visible by stable ids: `black_iron_foundry_4` below its elite target; `redline_outpost_1`, `redline_outpost_3`, `redline_outpost_4`, and `redline_outpost_5` above their clear-time targets; and Redline status damage at `1077.06`, above the configured `1000` cap.
+- District Heat remains report-only: the default simulator still prints `District Heat Projection`, while compact JSON, stage CSV, tactic JSON, and tactic CSV stay heat-free.
+- Stage 3.1 assumptions are unchanged. No live heat, save heat, cloud heat, compact export heat, tactic export heat, or web heat copy was found after closure.
+- Save/cloud/web boundary tests still pass, confirming Stage 3.2 starts from the intended contract posture.
+- No runtime behavior, static data, save schema, export schema, web UI, or balance target changed in this slice.
+
 ### Verification
 
-- `npm run simulate`
-- `npm run --silent simulate -- --export-json`
-- `npm run --silent simulate -- --csv`
-- `npm run --silent simulate -- --tactics-json`
-- `npm run --silent simulate -- --tactics-csv`
-- `npm test -- tests/docs/markdownLinks.test.ts`
-- `git diff --check`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: compact/tactic export heat-field scans for `districtHeat`, `districtHeatProjection`, `projectedHeat`, and `heatBand`
+- Passed: live web/save heat-token scans
+- Passed: `npm test -- tests/web/displayTerms.test.ts tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 98.2: Offline Parity Report Surface
 
