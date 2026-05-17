@@ -65,7 +65,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 | --- | --- | --- | --- |
 | 98.1 | 98 | Pacing Baseline And Scope Lock | Complete |
 | 98.2 | 98 | Offline Parity Report Surface | Complete |
-| 98.3 | 98 | Offline Formula Decision And Guard Rails | Planned |
+| 98.3 | 98 | Offline Formula Decision And Guard Rails | Complete |
 | 98.4 | 98 | Redline Live-Heat Blocker Triage | Planned |
 | 98.5 | 98 | Targeted Redline And Status Pressure Tuning | Planned |
 | 98.6 | 98 | District Heat Promotion Decision | Planned |
@@ -164,12 +164,21 @@ Decide whether to change live offline rewards or defer with better reporting.
 - Any live formula change has focused tests and does not require a save-version bump.
 - District Heat remains blocked from live reward/risk changes if parity is still unresolved.
 
+### Implementation Notes
+
+- Decision: defer live offline reward formula changes in Stage 3.2 Slice 98.3. The live path keeps the fixed default estimate of `estimatedClearTimeSeconds: 10`, `minimumClearTimeSeconds: 5`, and `offlineEfficiency: 0.6`.
+- Reason: four of five recommended farm routes are still offline/active inversions under the current default config, and Redline live-heat blockers are still unresolved. Changing live rewards before Redline triage and the District Heat promotion decision would mix economy tuning with heat readiness.
+- Added explicit report-only classifications to `offlineParity`: `inversion`, `watch`, or `acceptable`. Current rows classify `greenline_approach_8`, `black_iron_foundry_6`, `lotus_clinic_6`, and `redline_outpost_6` as `inversion`; `veil_district_5` is `watch`.
+- Added an offline reward guard-rail test proving the default live formula still uses the fixed 10s estimate for `greenline_approach_8`.
+- Assignment rewards remain outside live heat behavior. Stage 3.2 still treats District Heat as report-only until Redline blockers and promotion posture are resolved.
+
 ### Verification
 
-- `npm test -- tests/offline/offlineRewards.test.ts`
-- `npm test -- tests/tools/balanceReport.test.ts`
-- `npm run simulate`
-- `git diff --check`
+- Passed: `npm test -- tests/offline/offlineRewards.test.ts`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm run simulate`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 98.4: Redline Live-Heat Blocker Triage
 

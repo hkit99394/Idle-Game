@@ -648,6 +648,7 @@ describe("balance report", () => {
       offlineClearsPerHour: 216,
       offlineToActiveRatio: 1.51,
       status: "offline_faster",
+      classification: "inversion",
       activeRewardsPerHour: {
         farmScore: 22428.57,
         silver: 6285.71,
@@ -664,22 +665,26 @@ describe("balance report", () => {
     expect(mist.offlineParity).toMatchObject({
       stageId: "veil_district_5",
       offlineToActiveRatio: 0.97,
-      status: "near_parity"
+      status: "near_parity",
+      classification: "watch"
     });
     expect(blackIron.offlineParity).toMatchObject({
       stageId: "black_iron_foundry_6",
       offlineToActiveRatio: 2.7,
-      status: "offline_faster"
+      status: "offline_faster",
+      classification: "inversion"
     });
     expect(lotus.offlineParity).toMatchObject({
       stageId: "lotus_clinic_6",
       offlineToActiveRatio: 2.45,
-      status: "offline_faster"
+      status: "offline_faster",
+      classification: "inversion"
     });
     expect(demonCult.offlineParity).toMatchObject({
       stageId: "redline_outpost_6",
       offlineToActiveRatio: 2.16,
-      status: "offline_faster"
+      status: "offline_faster",
+      classification: "inversion"
     });
     expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
     expect(Object.hasOwn(exportReport.regions[0], "offlineParity")).toBe(false);
@@ -938,6 +943,7 @@ describe("balance report", () => {
     expect(formatted).toContain("Offline Parity Report");
     expect(formatted).toContain("offline 1.51x active");
     expect(formatted).toContain("estimate 10s @ 60%");
+    expect(formatted).toContain("inversion; offline_faster");
     expect(formatted).toContain("District Heat Projection");
     expect(formatted).toContain("offline_farm_repetition");
     expect(formatted).toContain("no_decay_active_window");

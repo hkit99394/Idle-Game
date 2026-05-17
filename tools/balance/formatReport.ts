@@ -136,7 +136,7 @@ function formatRegionOfflineParityLine(region: RegionSummary): string {
     `offline ${formatRewardRate(parity.offlineRewardsPerHour)}; ` +
     `estimate ${formatNumber(parity.offlineEffectiveClearTimeSeconds)}s @ ` +
     `${formatNumber(parity.offlineEfficiency * 100)}%; ` +
-    `${parity.status})`
+    `${parity.classification}; ${parity.status})`
   );
 }
 

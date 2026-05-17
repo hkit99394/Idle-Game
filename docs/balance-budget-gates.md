@@ -10,6 +10,8 @@ Stage 3.1 added report-only District Heat projection to the simulator/default re
 
 Stage 3.2 Slice 98.2 added report-only Offline Parity rows to the simulator/default report/full debug JSON without changing the live offline reward formula, region budget gates, save state, or stable compact JSON/CSV exports.
 
+Stage 3.2 Slice 98.3 classified Offline Parity rows and deferred live offline formula changes. The default live formula still uses the fixed 10s estimate while parity inversions and Redline live-heat blockers remain open.
+
 ## Configuration
 
 Budgets live in each region's required `balanceTargets` entry in `data/regions.json`.
@@ -98,7 +100,7 @@ The `Region Boss Gate Assumptions` section expands each evaluated boss scenario:
 
 Use the assumptions section when a boss gate passes technically but feels suspicious: a clear with high training cost, high status damage, or unexpected medicine use is still a tuning signal.
 
-The `Offline Parity Report` section compares each recommended farm route's simulated active reward rate against the current offline reward formula. `offline_faster` rows are evidence for a later formula decision; they are not live gameplay modifiers and do not by themselves change any budget gate result.
+The `Offline Parity Report` section compares each recommended farm route's simulated active reward rate against the current offline reward formula. Rows are classified as `acceptable`, `watch`, or `inversion`. `inversion` rows are evidence for a later formula decision; they are not live gameplay modifiers and do not by themselves change any budget gate result.
 
 ## Release Use
 

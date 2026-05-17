@@ -83,6 +83,7 @@ type OfflineParityStatus =
   | "active_faster"
   | "no_farm_target"
   | "missing_clear_time";
+type OfflineParityClassification = "acceptable" | "watch" | "inversion";
 
 const DIFFICULTY_SPIKE_MIN_DELTA_SECONDS = 10;
 const DIFFICULTY_SPIKE_MIN_RATIO = 1.35;
@@ -339,6 +340,20 @@ function getOfflineParityStatus(ratio: number): OfflineParityStatus {
   return "near_parity";
 }
 
+function getOfflineParityClassification(
+  status: OfflineParityStatus
+): OfflineParityClassification {
+  if (status === "offline_faster") {
+    return "inversion";
+  }
+
+  if (status === "active_faster") {
+    return "acceptable";
+  }
+
+  return "watch";
+}
+
 function describeOfflineParity(
   status: OfflineParityStatus,
   ratio: number,
@@ -386,6 +401,7 @@ function buildRegionOfflineParity(
       offlineRewardsPerHour: null,
       offlineToActiveRatio: null,
       status: "no_farm_target" as const,
+      classification: "watch" as const,
       reason: "no cleared recommended farm route is available",
       ...baseConfig
     };
@@ -416,6 +432,7 @@ function buildRegionOfflineParity(
       offlineRewardsPerHour,
       offlineToActiveRatio: null,
       status: "missing_clear_time" as const,
+      classification: "watch" as const,
       reason: "recommended farm route did not produce a simulated active clear",
       ...baseConfig
     };
@@ -431,6 +448,7 @@ function buildRegionOfflineParity(
     offlineClearsPerHour / activeClearsPerHour
   );
   const status = getOfflineParityStatus(offlineToActiveRatio);
+  const classification = getOfflineParityClassification(status);
 
   return {
     stageId: farmRecommendation.stageId,
@@ -441,6 +459,7 @@ function buildRegionOfflineParity(
     offlineRewardsPerHour,
     offlineToActiveRatio,
     status,
+    classification,
     reason: describeOfflineParity(
       status,
       offlineToActiveRatio,

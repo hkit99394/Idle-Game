@@ -163,15 +163,15 @@ Owner files:
 
 Current active/offline parity risk:
 
-| Recommended farm | Active clear | Offline/active reward-rate ratio with default config | Decision |
-| --- | ---: | ---: | --- |
-| `greenline_approach_8` | `25.2s` | `1.51x` | Report as parity risk. |
-| `veil_district_5` | `16.2s` | `0.97x` | Near parity. |
-| `black_iron_foundry_6` | `45s` | `2.70x` | Report as parity risk. |
-| `lotus_clinic_6` | `40.8s` | `2.45x` | Report as parity risk. |
-| `redline_outpost_6` | `36s` | `2.16x` | Report as parity risk. |
+| Recommended farm | Active clear | Offline/active reward-rate ratio with default config | Classification | Decision |
+| --- | ---: | ---: | --- | --- |
+| `greenline_approach_8` | `25.2s` | `1.51x` | `inversion` | Report as parity risk. |
+| `veil_district_5` | `16.2s` | `0.97x` | `watch` | Near parity. |
+| `black_iron_foundry_6` | `45s` | `2.70x` | `inversion` | Report as parity risk. |
+| `lotus_clinic_6` | `40.8s` | `2.45x` | `inversion` | Report as parity risk. |
+| `redline_outpost_6` | `36s` | `2.16x` | `inversion` | Report as parity risk. |
 
-Stage 3.2 Slice 98.2 now reports this parity risk in `npm run simulate` and full debug JSON as `offlineParity`. The live formula still uses the fixed 10s estimate; replacing it with stage-specific simulated or target clear time remains deferred to the Stage 3.2 offline formula decision.
+Stage 3.2 Slice 98.2 now reports this parity risk in `npm run simulate` and full debug JSON as `offlineParity`. Slice 98.3 classifies those rows and makes the offline formula decision: defer live formula changes, keep the fixed 10s estimate, and use report-only guard rails until Redline blockers and District Heat promotion posture are resolved.
 
 Assignment heat participation is report-only and should be conservative:
 
@@ -208,7 +208,7 @@ It is not enough to start a live heat mechanic by itself. The next implementatio
 
 ## Stage 3.2 Planning Decision
 
-[Stage 3.2 Backlog](stage-3.2-backlog.md) owns that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. The remaining Stage 3.2 work should decide whether the live offline reward formula changes, handle or reclassify Redline live-heat blockers, and then choose the next District Heat posture. Until Stage 3.2 closes those gates, District Heat remains report-only.
+[Stage 3.2 Backlog](stage-3.2-backlog.md) owns that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. Slice 98.3 deferred live offline formula changes because four recommended farm routes remain classified as `inversion`. The remaining Stage 3.2 work should handle or reclassify Redline live-heat blockers and then choose the next District Heat posture. Until Stage 3.2 closes those gates, District Heat remains report-only.
 
 ## Verification Requirements
 
