@@ -52,7 +52,7 @@ These systems are the recommended deeper design targets. They should be introduc
 | Faction Reputation | Makes districts and sects feel socially alive. | Region progress, boss clears, unlocks. | Add reputation or contact tracks only after current save/cloud contracts are ready. |
 | AI Raid Events | Makes online boss direction native to the new theme. | Epic 77 online boss decision, deterministic combat, cloud-save envelope. | Build async server-authoritative event bosses as hostile AI raids, not generic boss fights. |
 
-Prototype order: **Cognitive Intrusion** first, then **District Heat**. Stage 3.0 implemented the first Intrusion slice, giving the combat system a Path of Neon identity through Context Stability, AI Overload, and hostile system pressure. Stage 3.3 closed the route/offline economy cleanup needed before a player-facing heat step; the preferred next District Heat milestone is a non-punitive warning contract before any live reward or route-risk change.
+Prototype order: **Cognitive Intrusion** first, then **District Heat**. Stage 3.0 implemented the first Intrusion slice, giving the combat system a Path of Neon identity through Context Stability, AI Overload, and hostile system pressure. Stage 3.3 closed the route/offline economy cleanup needed before a player-facing heat step; [Stage 3.4 Backlog](stage-3.4-backlog.md) is active for the non-punitive warning contract before any live reward or route-risk change.
 
 ## Content Transformation Strategy
 

@@ -15,6 +15,7 @@ Start with the current contributor docs:
 - [Path Of Neon Terminology Map](docs/path-of-neon-terminology-map.md)
 - [Path Of Neon Retheme Migration Plan](docs/retheme-migration-plan.md)
 - [Path Of Neon Internal Id Migration](docs/path-of-neon-internal-id-migration.md)
+- [Stage 3.4 Backlog: District Heat Warning Contract](docs/stage-3.4-backlog.md)
 - [Archived Stage 3.3 Backlog: Offline Parity And Visible Debt Cleanup](docs/archive/stage-3.3-backlog.md)
 - [Archived Stage 3.2 Backlog: Pacing Parity And Heat Readiness](docs/archive/stage-3.2-backlog.md)
 - [Archived Stage 3.1 Backlog: District Heat Contract And Pacing Hardening](docs/archive/stage-3.1-backlog.md)

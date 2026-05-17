@@ -223,7 +223,13 @@ The decision is reversible, but a later slice must do one of these before live h
 
 Slice 99.5 reruns the promotion decision after offline parity and visible Black Iron debt both pass. The current runtime posture remains **report-only**: District Heat still has no live UI, save field, cloud envelope field, compact export field, tactic export field, heat reward modifier, or route-risk modifier.
 
-All current promotion gates pass, so the next milestone should prepare a **non-punitive warning contract** before any player-facing heat copy appears. That contract must define copy scope, UI placement, save posture, export posture, and verification. Passing gates do not authorize live heat rewards or route-risk pressure by themselves.
+All current promotion gates pass, so Stage 3.4 prepares a **non-punitive warning contract** before any player-facing heat copy appears. That contract must define copy scope, UI placement, save posture, export posture, and verification. Passing gates do not authorize live heat rewards or route-risk pressure by themselves.
+
+## Stage 3.4 Warning Contract Backlog
+
+[Stage 3.4 Backlog](stage-3.4-backlog.md) is active for the non-punitive warning contract. It owns Epic 100: warning preflight, copy scope, UI placement, save/export/report boundaries, prototype-or-guard-rail decision, and release hardening.
+
+The expected default posture remains no durable heat state and no stable export fields. Stage 3.4 may approve a later tiny warning prototype only if it is explicitly non-persistent, non-punitive, named by surface, and covered by focused tests. It must not add rewards, route-risk pressure, enemy-pressure modifiers, save fields, cloud fields, compact export fields, tactic export fields, or broad economy tuning.
 
 ## Verification Requirements
 
