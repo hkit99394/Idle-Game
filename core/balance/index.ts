@@ -51,6 +51,14 @@ export {
   type DistrictHeatProjection,
   type DistrictHeatProjectionInput
 } from "./districtHeatProjection";
+export {
+  buildDistrictHeatPromotionDecision,
+  type DistrictHeatPromotionDecision,
+  type DistrictHeatPromotionGate,
+  type DistrictHeatPromotionGateId,
+  type DistrictHeatPromotionGateStatus,
+  type DistrictHeatPromotionPosture
+} from "./districtHeatPromotion";
 export { calculateSkillSupportCombatPower } from "./supportCombatPower";
 export {
   assessStageClearTimeTarget,

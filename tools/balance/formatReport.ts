@@ -158,6 +158,31 @@ function formatRegionDistrictHeatLine(region: RegionSummary): string {
   );
 }
 
+function formatDistrictHeatPromotionDecisionLine(
+  report: GameBalanceReport
+): string[] {
+  const decision = report.districtHeatPromotionDecision;
+  const boundaryText = [
+    `save ${decision.boundaries.save}`,
+    `cloud ${decision.boundaries.cloud}`,
+    `web ${decision.boundaries.webUi}`,
+    `compact ${decision.boundaries.compactExport}`,
+    `tactic ${decision.boundaries.tacticExport}`,
+    `rewards ${decision.boundaries.liveRewards}`
+  ].join("; ");
+  const gateText = decision.gates
+    .map((gate) => `${gate.id} ${gate.status}`)
+    .join("; ");
+
+  return [
+    `- posture: ${decision.posture}`,
+    `- summary: ${decision.summary}`,
+    `- next: ${decision.nextAction}`,
+    `- boundaries: ${boundaryText}`,
+    `- gates: ${gateText}`
+  ];
+}
+
 function formatRegionMasteryLine(region: RegionSummary): string {
   const milestone = region.masteryMilestone;
 
@@ -347,6 +372,9 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     "",
     "District Heat Projection",
     ...report.regionBalances.map(formatRegionDistrictHeatLine),
+    "",
+    "District Heat Promotion Decision",
+    ...formatDistrictHeatPromotionDecisionLine(report),
     "",
     "Region Mastery Milestones",
     ...report.regionBalances.map(formatRegionMasteryLine),

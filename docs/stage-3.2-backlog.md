@@ -12,12 +12,13 @@ Do not start Stage 3.2 by adding live District Heat. The safest next move is pac
 
 The Stage 3.2 plan is based on the current simulator and active docs:
 
-- Stage 3.1 report-only District Heat is visible in `npm run simulate` and full debug JSON, while compact JSON/CSV exports, saves, cloud saves, and live web UI remain heat-free.
+- Stage 3.1 report-only District Heat is visible in `npm run simulate` and full debug JSON, and Slice 98.6 now adds a report-only promotion decision. Compact JSON/CSV exports, saves, cloud saves, tactic exports, live rewards, and live web UI remain heat-free.
 - The current simulator still reports `black_iron_foundry_4` as below its elite clear-time target.
 - Slice 98.5 resolved the Redline live-heat blockers in the default simulator: Redline clear-time, status-pressure, reward-curve, and boss-gate checks now pass.
 - The current report-only heat projection reaches `lockdown` for Greenline Approach, Veil District, and Redline Outpost during a one-hour recommended offline-farm window, so heat is sensitive to offline clear-count assumptions.
 - The Stage 3.1 offline audit found offline farming can outperform active rewards on four of five recommended farm routes because current offline rewards use a fixed `estimatedClearTimeSeconds: 10`.
 - Tactic comparison evidence is useful but not a blanket fix: after Slice 98.5, `context_break` and `gatekeeper_burst` still create `redline_outpost_7` enemy holds; `long_stabilization` remains the safer status-pressure benchmark.
+- Slice 98.6 chose `report_only` as the promotion posture. Stage 3.3 should resolve offline parity and visible Black Iron debt first, or open a separate non-punitive warning contract before any live heat UI or reward behavior.
 
 ## Stage Theme
 
@@ -68,7 +69,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 | 98.3 | 98 | Offline Formula Decision And Guard Rails | Complete |
 | 98.4 | 98 | Redline Live-Heat Blocker Triage | Complete |
 | 98.5 | 98 | Targeted Redline And Status Pressure Tuning | Complete |
-| 98.6 | 98 | District Heat Promotion Decision | Planned |
+| 98.6 | 98 | District Heat Promotion Decision | Complete |
 | 98.7 | 98 | Release Hardening And Archive Readiness | Planned |
 
 ## Slice 98.1: Pacing Baseline And Scope Lock
@@ -284,13 +285,26 @@ Decide what District Heat is allowed to do after parity and Redline evidence.
 - Save, cloud, web UI, compact export, and tactic export postures are documented.
 - Deferred mechanic terms remain out of live UI unless this slice explicitly opens a player-facing UI task.
 
+### Implementation Notes
+
+- Chose `report_only` as the Stage 3.2 District Heat promotion posture. Redline is no longer the blocker after Slice 98.5, but four recommended farm routes are still offline/active inversions and `black_iron_foundry_4` remains visible tuning debt.
+- Added `districtHeatPromotionDecision` to the default balance report/full debug JSON through [core/balance/districtHeatPromotion.ts](../core/balance/districtHeatPromotion.ts). It records promotion gates, the selected posture, the next action, and explicit save/cloud/web/export/reward boundaries.
+- Kept compact authoring JSON, stage CSV, tactic JSON, and tactic CSV heat-free. The report-only decision does not add live heat UI, save data, cloud envelope fields, reward modifiers, route-risk modifiers, or offline reward formula changes.
+- Next action: Stage 3.3 should resolve offline parity and visible Black Iron debt first, or open a separate non-punitive warning contract before any player-facing heat UI or live reward behavior.
+
 ### Verification
 
-- `npm test -- tests/web/displayTerms.test.ts`
-- `npm test -- tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts`
-- `npm test -- tests/tools/balanceReport.test.ts`
-- `npm test -- tests/docs/markdownLinks.test.ts`
-- `git diff --check`
+- Passed: `npm test -- tests/web/displayTerms.test.ts`
+- Passed: `npm test -- tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 98.7: Release Hardening And Archive Readiness
 

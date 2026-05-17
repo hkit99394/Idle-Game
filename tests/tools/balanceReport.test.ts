@@ -609,7 +609,44 @@ describe("balance report", () => {
       heatBand: "lockdown",
       projectedHeat: 100
     });
+    expect(report.districtHeatPromotionDecision).toMatchObject({
+      posture: "report_only",
+      boundaries: {
+        save: "no_persistence",
+        cloud: "no_heat_fields",
+        webUi: "no_player_facing_heat",
+        compactExport: "no_heat_fields",
+        tacticExport: "no_heat_fields",
+        liveRewards: "unchanged"
+      }
+    });
+    expect(report.districtHeatPromotionDecision.gates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "offline_parity",
+          status: "blocker",
+          affectedStageIds: expect.arrayContaining([
+            "greenline_approach_8",
+            "black_iron_foundry_6",
+            "lotus_clinic_6",
+            "redline_outpost_6"
+          ])
+        }),
+        expect.objectContaining({
+          id: "redline_budget",
+          status: "pass"
+        }),
+        expect.objectContaining({
+          id: "known_debt",
+          status: "watch",
+          affectedStageIds: ["black_iron_foundry_4"]
+        })
+      ])
+    );
     expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
+    expect(Object.hasOwn(exportReport, "districtHeatPromotionDecision")).toBe(
+      false
+    );
     expect(Object.hasOwn(exportReport.regions[0], "districtHeatProjection")).toBe(
       false
     );
@@ -837,6 +874,10 @@ describe("balance report", () => {
     expect(csvLines[0]).toContain("player_inner_damage");
     expect(csvLines[0]).not.toContain("intrusion");
     expect(csvLines[0]).not.toContain("cognitive_damage_taken");
+    expect(csvLines[0]).not.toContain("heat");
+    expect(Object.hasOwn(exportReport, "districtHeatPromotionDecision")).toBe(
+      false
+    );
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("kinetic_crush");
     expect(csv).toContain("outer_pressure");
@@ -1029,6 +1070,9 @@ describe("balance report", () => {
     expect(formatted).toContain("District Heat Projection");
     expect(formatted).toContain("offline_farm_repetition");
     expect(formatted).toContain("no_decay_active_window");
+    expect(formatted).toContain("District Heat Promotion Decision");
+    expect(formatted).toContain("posture: report_only");
+    expect(formatted).toContain("offline_parity blocker");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
     expect(formatted).toContain("issues black_iron_foundry_4");

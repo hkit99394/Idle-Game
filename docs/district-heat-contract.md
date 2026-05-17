@@ -206,9 +206,16 @@ Stage 3.1 closes District Heat as an author-facing report-only projection. The i
 
 It is not enough to start a live heat mechanic by itself. The next implementation step should be a dedicated live-heat decision slice that accounts for active/offline parity, the resolved default Redline gates, save posture, export schema posture, and the exact player-facing UI promise.
 
-## Stage 3.2 Planning Decision
+## Stage 3.2 Promotion Decision
 
-[Stage 3.2 Backlog](stage-3.2-backlog.md) owns that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. Slice 98.3 deferred live offline formula changes because four recommended farm routes remain classified as `inversion`. Slice 98.4 triaged the Redline live-heat blockers, and Slice 98.5 resolved the default Redline clear-time and status-pressure gates while preserving the `redline_outpost_7` tactic caution. Until Slice 98.6 chooses the next posture, District Heat remains report-only.
+[Stage 3.2 Backlog](stage-3.2-backlog.md) owns that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. Slice 98.3 deferred live offline formula changes because four recommended farm routes remain classified as `inversion`. Slice 98.4 triaged the Redline live-heat blockers, and Slice 98.5 resolved the default Redline clear-time and status-pressure gates while preserving the `redline_outpost_7` tactic caution.
+
+Slice 98.6 chose **keep District Heat report-only** as the promotion posture for Stage 3.2. The default report and full debug JSON now include a report-only `districtHeatPromotionDecision` with gate status and boundaries, but there is still no live heat UI, save field, cloud envelope field, compact export field, tactic export field, reward modifier, route-risk modifier, or offline reward formula change.
+
+The decision is reversible, but a later slice must do one of these before live heat ships:
+
+- resolve offline parity inversions and visible Black Iron debt before any heat reward/risk/offline pressure changes;
+- or write a separate non-punitive warning contract with explicit save/UI/export boundaries before any player-facing heat copy appears.
 
 ## Verification Requirements
 

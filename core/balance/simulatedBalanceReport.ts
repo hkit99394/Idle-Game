@@ -36,6 +36,7 @@ import {
   DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
   projectDistrictHeat
 } from "./districtHeatProjection";
+import { buildDistrictHeatPromotionDecision } from "./districtHeatPromotion";
 import type { PlayerProgress, ResolveStageBattleResult } from "../progression";
 
 export const BAMBOO_ROAD_REGION_ID = "greenline_approach";
@@ -1664,6 +1665,8 @@ export function buildGameBalanceReport(data: StaticGameData) {
     initialProgress,
     seededRegionReports
   );
+  const districtHeatPromotionDecision =
+    buildDistrictHeatPromotionDecision(regionBalances);
   const bambooRoadProgressBeforeBoss = progressBeforeBoss.districts[
     BAMBOO_ROAD_REGION_ID
   ] ?? {
@@ -1691,6 +1694,7 @@ export function buildGameBalanceReport(data: StaticGameData) {
 
   return {
     regionBalances,
+    districtHeatPromotionDecision,
     bambooRoadBalance: {
       stageResults,
       bossGate: {

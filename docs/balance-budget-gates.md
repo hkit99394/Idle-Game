@@ -12,7 +12,7 @@ Stage 3.2 Slice 98.2 added report-only Offline Parity rows to the simulator/defa
 
 Stage 3.2 Slice 98.3 classified Offline Parity rows and deferred live offline formula changes. The default live formula still uses the fixed 10s estimate while parity inversions remain open; Slice 98.5 later resolved the default Redline live-heat blockers.
 
-Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 applied the approved Redline target reclassification plus data/status tuning; Redline now passes default clear-time, status-pressure, reward-curve, and boss-gate budget checks.
+Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 applied the approved Redline target reclassification plus data/status tuning; Redline now passes default clear-time, status-pressure, reward-curve, and boss-gate budget checks. Slice 98.6 chose the `report_only` District Heat promotion posture while offline parity inversions and visible Black Iron debt remain open.
 
 ## Configuration
 
@@ -87,7 +87,7 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
 - Redline Outpost should show status-heavy corruption pressure while staying inside its current gates. Slice 98.5 reclassified Redline normal timing to `18-25s`, Redline elite timing to `19-40s`, tuned Marrow Lock and Burning Blood pressure, trimmed `redline_outpost_4`, and reduced Corruption tick damage so default Redline status pressure is `785.81`, below the `1000` cap.
 
-After Stage 3.1 District Heat closure, known Black Iron Foundry and Redline Outpost misses did not block report-only heat projection. After Slice 98.5, Redline no longer blocks the Slice 98.6 heat promotion decision, but Black Iron Foundry debt must still not be masked by live heat reward, risk, offline-farming, or route-pressure changes.
+After Stage 3.1 District Heat closure, known Black Iron Foundry and Redline Outpost misses did not block report-only heat projection. After Slice 98.5, Redline no longer blocks the heat promotion decision. Slice 98.6 keeps District Heat report-only because offline parity inversions and Black Iron Foundry debt must not be masked by live heat reward, risk, offline-farming, or route-pressure changes.
 
 ## Reading Report Sections
 
