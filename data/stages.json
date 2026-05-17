@@ -280,8 +280,8 @@
     "index": 4,
     "name": "Saber Drill Hall",
     "enemyTeam": {
-      "combatantIds": ["ironwall_saber", "shieldwall_guard"],
-      "formation": { "front": [1], "middle": [0], "back": [] }
+      "combatantIds": ["ironwall_saber", "shieldwall_guard", "ironwall_sentry"],
+      "formation": { "front": [1], "middle": [0], "back": [2] }
     },
     "isBoss": false,
     "canFarmOffline": true,

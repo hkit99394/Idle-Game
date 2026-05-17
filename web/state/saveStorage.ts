@@ -37,7 +37,8 @@ type SaveSchemaData = Pick<
   | "tactics"
 >;
 
-type OfflineSaveData = SaveSchemaData & Pick<StaticGameData, "mastery">;
+type OfflineSaveData = SaveSchemaData &
+  Pick<StaticGameData, "enemies" | "mastery">;
 
 export type LoadSaveDataFromStorageResult =
   | {

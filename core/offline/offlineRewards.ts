@@ -1,4 +1,5 @@
-import type { StaticGameData } from "../data";
+import type { EnemyDefinition, StageDefinition, StaticGameData } from "../data";
+import { getStageClearTimeTargetRange } from "../balance/targets";
 import {
   cloneProgress,
   addStyleMasteryExperience,
@@ -48,7 +49,10 @@ export type OfflineRewardResult = {
 };
 
 export type ApplyOfflineRewardsInput = {
-  data: Pick<StaticGameData, "heroes" | "stages" | "mastery">;
+  data: Pick<
+    StaticGameData,
+    "heroes" | "stages" | "mastery" | "regions" | "enemies"
+  >;
   progress: PlayerProgress;
   selectedOfflineFarmRouteId: string | null;
   lastSavedAtMs: number;
@@ -57,7 +61,7 @@ export type ApplyOfflineRewardsInput = {
 };
 
 export type PreviewOfflineRewardsInput = {
-  data: Pick<StaticGameData, "stages" | "mastery">;
+  data: Pick<StaticGameData, "stages" | "mastery" | "regions" | "enemies">;
   progress: PlayerProgress;
   selectedOfflineFarmRouteId: string | null;
   previewSeconds: number;
@@ -140,6 +144,49 @@ function getOfflineRewardStageMultiplier(
   );
 }
 
+function getOfflineFarmStageEnemies(
+  data: Pick<StaticGameData, "enemies">,
+  stage: Pick<StageDefinition, "enemyTeam">
+): EnemyDefinition[] | null {
+  const enemies = stage.enemyTeam.combatantIds.map((enemyId) =>
+    data.enemies.find((enemy) => enemy.id === enemyId)
+  );
+
+  return enemies.every((enemy): enemy is EnemyDefinition => enemy !== undefined)
+    ? enemies
+    : null;
+}
+
+export function getOfflineFarmEstimatedClearTimeSeconds(
+  data: Pick<StaticGameData, "regions" | "enemies">,
+  stage: Pick<StageDefinition, "regionId" | "isBoss" | "enemyTeam">,
+  config: Pick<
+    OfflineRewardConfig,
+    "estimatedClearTimeSeconds"
+  > = DEFAULT_OFFLINE_REWARD_CONFIG
+): number {
+  const enemies = getOfflineFarmStageEnemies(data, stage);
+
+  if (!enemies) {
+    return config.estimatedClearTimeSeconds;
+  }
+
+  const region = data.regions.find(
+    (candidate) => candidate.id === stage.regionId
+  );
+  const target = getStageClearTimeTargetRange({
+    region,
+    stage,
+    enemies
+  });
+
+  if (!target) {
+    return config.estimatedClearTimeSeconds;
+  }
+
+  return (target.min + target.max) / 2;
+}
+
 export function previewOfflineRewards(
   input: PreviewOfflineRewardsInput
 ): PreviewOfflineRewardsResult {
@@ -178,6 +225,11 @@ export function previewOfflineRewards(
   }
 
   const config = input.config ?? DEFAULT_OFFLINE_REWARD_CONFIG;
+  const estimatedClearTimeSeconds = getOfflineFarmEstimatedClearTimeSeconds(
+    input.data,
+    stage,
+    config
+  );
   const rewardMultiplier = getOfflineRewardStageMultiplier(
     input.data,
     input.progress,
@@ -187,7 +239,7 @@ export function previewOfflineRewards(
     lastSavedAtMs: 0,
     currentTimeMs: Math.max(0, input.previewSeconds) * 1000,
     offlineCapSeconds: config.offlineCapSeconds,
-    estimatedClearTimeSeconds: config.estimatedClearTimeSeconds,
+    estimatedClearTimeSeconds,
     minimumClearTimeSeconds: config.minimumClearTimeSeconds,
     offlineEfficiency: config.offlineEfficiency,
     silverPerClear: stage.rewards.silver * rewardMultiplier,
@@ -246,6 +298,11 @@ export function applyOfflineRewards(
   }
 
   const config = input.config ?? DEFAULT_OFFLINE_REWARD_CONFIG;
+  const estimatedClearTimeSeconds = getOfflineFarmEstimatedClearTimeSeconds(
+    input.data,
+    stage,
+    config
+  );
   const rewardMultiplier = getOfflineRewardStageMultiplier(
     input.data,
     input.progress,
@@ -255,7 +312,7 @@ export function applyOfflineRewards(
     lastSavedAtMs: input.lastSavedAtMs,
     currentTimeMs: input.currentTimeMs,
     offlineCapSeconds: config.offlineCapSeconds,
-    estimatedClearTimeSeconds: config.estimatedClearTimeSeconds,
+    estimatedClearTimeSeconds,
     minimumClearTimeSeconds: config.minimumClearTimeSeconds,
     offlineEfficiency: config.offlineEfficiency,
     silverPerClear: stage.rewards.silver * rewardMultiplier,

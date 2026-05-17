@@ -58,7 +58,7 @@ describe("web game state idle", () => {
     expect(viewModel.offlineRewardPreview).toMatchObject({
       ok: true,
       stageName: "Lotus Clinic Gate",
-      herbs: 1296
+      herbs: 331.2
     });
     expect(viewModel.offlineFarmRecommendation.herbsPerClear).toBeGreaterThan(0);
     expect(
@@ -337,9 +337,9 @@ describe("web game state idle", () => {
     expect(silverViewModel.offlineRewardPreview).toMatchObject({
       ok: true,
       stageName: "Greenline Route 9",
-      silver: 11232,
-      cultivation: 5616,
-      combatExperience: 2160
+      silver: 3744,
+      cultivation: 1872,
+      combatExperience: 720
     });
     expect(masteryState.offlineFarmPreset).toBe("mastery");
     expect(masteryState.selectedOfflineFarmRouteId).toBe("greenline_approach_8");

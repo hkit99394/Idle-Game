@@ -391,8 +391,8 @@ describe("balance report", () => {
       reason: expect.stringContaining("damage prevented")
     });
     expect(getBudgetCheck(blackIron, "clear_time")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("black_iron_foundry_4")
+      status: "pass",
+      reason: expect.stringContaining("6 configured stages")
     });
     expect(getBudgetCheck(lotus, "healing_pressure")).toMatchObject({
       status: "pass",
@@ -411,14 +411,7 @@ describe("balance report", () => {
     const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
     const demonCult = getRegionReport(report, "redline_outpost");
 
-    expect(blackIron.difficultyCurve.issues).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          stageId: "black_iron_foundry_4",
-          reason: expect.stringContaining("below")
-        })
-      ])
-    );
+    expect(blackIron.difficultyCurve.issues).toEqual([]);
     expect(demonCult.difficultyCurve.issues).toEqual([]);
     expect(demonCult.difficultyCurve.spikes).toEqual(
       expect.arrayContaining([
@@ -521,10 +514,14 @@ describe("balance report", () => {
       regionId: BLACK_IRON_FORT_REGION_ID,
       legacyRegionId: "black_iron_fort",
       legacyStageId: "black_iron_fort_4",
-      enemyIds: ["ironwall_saber", "shieldwall_guard"],
-      legacyEnemyIds: ["black_iron_saber", "shieldwall_guard"],
-      targetStatus: "fail",
-      difficultyIssue: expect.stringContaining("below"),
+      enemyIds: ["ironwall_saber", "shieldwall_guard", "ironwall_sentry"],
+      legacyEnemyIds: [
+        "black_iron_saber",
+        "shieldwall_guard",
+        "iron_fort_sentry"
+      ],
+      targetStatus: "pass",
+      difficultyIssue: null,
       pressure: {
         armorBreaks: expect.any(Number)
       }
@@ -611,6 +608,10 @@ describe("balance report", () => {
     });
     expect(report.districtHeatPromotionDecision).toMatchObject({
       posture: "report_only",
+      summary: expect.stringContaining("promotion gates now pass"),
+      nextAction: expect.stringContaining(
+        "Stage 3.4 non-punitive warning contract"
+      ),
       boundaries: {
         save: "no_persistence",
         cloud: "no_heat_fields",
@@ -623,14 +624,14 @@ describe("balance report", () => {
     expect(report.districtHeatPromotionDecision.gates).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
+          id: "report_projection",
+          status: "pass",
+          affectedStageIds: []
+        }),
+        expect.objectContaining({
           id: "offline_parity",
-          status: "blocker",
-          affectedStageIds: expect.arrayContaining([
-            "greenline_approach_8",
-            "black_iron_foundry_6",
-            "lotus_clinic_6",
-            "redline_outpost_6"
-          ])
+          status: "pass",
+          affectedStageIds: []
         }),
         expect.objectContaining({
           id: "redline_budget",
@@ -638,8 +639,8 @@ describe("balance report", () => {
         }),
         expect.objectContaining({
           id: "known_debt",
-          status: "watch",
-          affectedStageIds: ["black_iron_foundry_4"]
+          status: "pass",
+          affectedStageIds: []
         })
       ])
     );
@@ -672,15 +673,15 @@ describe("balance report", () => {
     expect(bamboo.offlineParity).toMatchObject({
       stageId: "greenline_approach_8",
       activeClearTimeSeconds: 25.2,
-      offlineEstimatedClearTimeSeconds: 10,
+      offlineEstimatedClearTimeSeconds: 30,
       offlineMinimumClearTimeSeconds: 5,
-      offlineEffectiveClearTimeSeconds: 10,
+      offlineEffectiveClearTimeSeconds: 30,
       offlineEfficiency: 0.6,
       activeClearsPerHour: 142.86,
-      offlineClearsPerHour: 216,
-      offlineToActiveRatio: 1.51,
-      status: "offline_faster",
-      classification: "inversion",
+      offlineClearsPerHour: 72,
+      offlineToActiveRatio: 0.5,
+      status: "active_faster",
+      classification: "acceptable",
       activeRewardsPerHour: {
         farmScore: 22428.57,
         silver: 6285.71,
@@ -688,35 +689,39 @@ describe("balance report", () => {
         combatExperience: 2857.14
       },
       offlineRewardsPerHour: {
-        farmScore: 33912,
-        silver: 9504,
-        cultivation: 4752,
-        combatExperience: 4320
+        farmScore: 11304,
+        silver: 3168,
+        cultivation: 1584,
+        combatExperience: 1440
       }
     });
     expect(mist.offlineParity).toMatchObject({
       stageId: "veil_district_5",
-      offlineToActiveRatio: 0.97,
-      status: "near_parity",
-      classification: "watch"
+      offlineEstimatedClearTimeSeconds: 17.5,
+      offlineToActiveRatio: 0.56,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(blackIron.offlineParity).toMatchObject({
       stageId: "black_iron_foundry_6",
-      offlineToActiveRatio: 2.7,
-      status: "offline_faster",
-      classification: "inversion"
+      offlineEstimatedClearTimeSeconds: 45,
+      offlineToActiveRatio: 0.6,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(lotus.offlineParity).toMatchObject({
       stageId: "lotus_clinic_6",
-      offlineToActiveRatio: 2.45,
-      status: "offline_faster",
-      classification: "inversion"
+      offlineEstimatedClearTimeSeconds: 57.5,
+      offlineToActiveRatio: 0.43,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(demonCult.offlineParity).toMatchObject({
       stageId: "redline_outpost_6",
-      offlineToActiveRatio: 1.92,
-      status: "offline_faster",
-      classification: "inversion"
+      offlineEstimatedClearTimeSeconds: 29.5,
+      offlineToActiveRatio: 0.65,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
     expect(Object.hasOwn(exportReport.regions[0], "offlineParity")).toBe(false);
@@ -885,7 +890,6 @@ describe("balance report", () => {
     expect(csv).toContain("legacy_baseline_tactic_id");
     expect(csv).toContain("bamboo_road_1");
     expect(csv).toContain("demon_cult_outpost_7");
-    expect(csv).toContain("improved_existing_miss");
     expect(csv).toContain("new_miss");
   });
 
@@ -1064,18 +1068,19 @@ describe("balance report", () => {
     expect(formatted).toContain("score 157");
     expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
     expect(formatted).toContain("Offline Parity Report");
-    expect(formatted).toContain("offline 1.51x active");
-    expect(formatted).toContain("estimate 10s @ 60%");
-    expect(formatted).toContain("inversion; offline_faster");
+    expect(formatted).toContain("offline 0.5x active");
+    expect(formatted).toContain("estimate 30s @ 60%");
+    expect(formatted).toContain("acceptable; active_faster");
     expect(formatted).toContain("District Heat Projection");
     expect(formatted).toContain("offline_farm_repetition");
     expect(formatted).toContain("no_decay_active_window");
     expect(formatted).toContain("District Heat Promotion Decision");
     expect(formatted).toContain("posture: report_only");
-    expect(formatted).toContain("offline_parity blocker");
+    expect(formatted).toContain("promotion gates now pass");
+    expect(formatted).toContain("Stage 3.4 non-punitive warning contract");
+    expect(formatted).toContain("offline_parity pass");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
-    expect(formatted).toContain("issues black_iron_foundry_4");
     expect(formatted).toContain("spikes watch redline_outpost_3");
     expect(formatted).toContain("Region Boss Gates");
     expect(formatted).toContain("Region Boss Gate Assumptions");
@@ -1084,7 +1089,7 @@ describe("balance report", () => {
     expect(formatted).toContain("status damage");
     expect(formatted).toContain("training");
     expect(formatted).toContain("Region Budget Gates");
-    expect(formatted).toContain("black_iron_foundry_4 clear time");
+    expect(formatted).toContain("Black Iron Foundry: pass (4 checks)");
     expect(formatted).toContain("Redline Outpost: pass (4 checks)");
     expect(formatted).toContain("Region Defensive Events");
     expect(formatted).toContain("Region Recovery Events");

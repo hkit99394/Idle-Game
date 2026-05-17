@@ -10,9 +10,9 @@ Stage 3.1 added report-only District Heat projection to the simulator/default re
 
 Stage 3.2 Slice 98.2 added report-only Offline Parity rows to the simulator/default report/full debug JSON without changing the live offline reward formula, region budget gates, save state, or stable compact JSON/CSV exports.
 
-Stage 3.2 Slice 98.3 classified Offline Parity rows and deferred live offline formula changes. The default live formula still uses the fixed 10s estimate while parity inversions remain open; Slice 98.5 later resolved the default Redline live-heat blockers.
+Stage 3.2 Slice 98.3 classified Offline Parity rows and deferred live offline formula changes. Stage 3.3 Slice 99.3 now implements the target-derived offline formula chosen in Slice 99.2, using the selected route's clear-time target midpoint while keeping the old 10s estimate only as missing-target fallback. Slice 98.5 resolved the default Redline live-heat blockers.
 
-Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 applied the approved Redline target reclassification plus data/status tuning; Redline now passes default clear-time, status-pressure, reward-curve, and boss-gate budget checks. Slice 98.6 chose the `report_only` District Heat promotion posture while offline parity inversions and visible Black Iron debt remain open. Slice 98.7 archived Stage 3.2 with these gates unchanged.
+Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 applied the approved Redline target reclassification plus data/status tuning; Redline now passes default clear-time, status-pressure, reward-curve, and boss-gate budget checks. Slice 98.6 chose the `report_only` District Heat promotion posture while offline parity inversions and visible Black Iron debt remained open. Slice 99.3 resolves current offline parity inversions, Slice 99.4 resolves the remaining Black Iron visible debt, and Slice 99.5 keeps current heat runtime report-only while choosing a non-punitive warning contract as the next milestone.
 
 ## Configuration
 
@@ -83,11 +83,11 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 
 - Greenline Approach should pass tutorial timing, recommend the best farm route, and keep the gatekeeper blocked until trained.
 - Veil District should pass timing and status-pressure budgets while clearing its gatekeeper baseline.
-- Black Iron Foundry should exercise defense mechanics and require farmed/trained counterplay for the gatekeeper. The current report intentionally calls out `black_iron_foundry_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
+- Black Iron Foundry should exercise defense mechanics and require farmed/trained counterplay for the gatekeeper. Slice 99.4 tuned `black_iron_foundry_4` with a stage-local sentry so all configured Black Iron stage clear-time targets now pass; the boss clear-time target remains deferred tuning debt.
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
 - Redline Outpost should show status-heavy corruption pressure while staying inside its current gates. Slice 98.5 reclassified Redline normal timing to `18-25s`, Redline elite timing to `19-40s`, tuned Marrow Lock and Burning Blood pressure, trimmed `redline_outpost_4`, and reduced Corruption tick damage so default Redline status pressure is `785.81`, below the `1000` cap.
 
-After Stage 3.1 District Heat closure, known Black Iron Foundry and Redline Outpost misses did not block report-only heat projection. After Slice 98.5, Redline no longer blocks the heat promotion decision. Slice 98.6 keeps District Heat report-only because offline parity inversions and Black Iron Foundry debt must not be masked by live heat reward, risk, offline-farming, or route-pressure changes.
+After Stage 3.1 District Heat closure, known Black Iron Foundry and Redline Outpost misses did not block report-only heat projection. After Slice 98.5, Redline no longer blocks the heat promotion decision. After Slice 99.3, current offline parity rows are `acceptable`; after Slice 99.4, the Black Iron known-debt gate also passes. Slice 99.5 reruns the promotion decision: all current gates pass, current heat runtime stays report-only, and the next milestone should prepare a non-punitive warning contract before live heat reward or route-risk behavior.
 
 ## Reading Report Sections
 
@@ -102,7 +102,7 @@ The `Region Boss Gate Assumptions` section expands each evaluated boss scenario:
 
 Use the assumptions section when a boss gate passes technically but feels suspicious: a clear with high training cost, high status damage, or unexpected medicine use is still a tuning signal.
 
-The `Offline Parity Report` section compares each recommended farm route's simulated active reward rate against the current offline reward formula. Rows are classified as `acceptable`, `watch`, or `inversion`. `inversion` rows are evidence for a later formula decision; they are not live gameplay modifiers and do not by themselves change any budget gate result.
+The `Offline Parity Report` section compares each recommended farm route's simulated active reward rate against the current offline reward formula. After Slice 99.3, that formula derives the selected route estimate from the route's target clear-time midpoint and leaves fixed 10s as missing-target fallback only. Rows are classified as `acceptable`, `watch`, or `inversion`; any future `inversion` is a live formula regression signal, not a District Heat gameplay modifier by itself.
 
 ## Release Use
 

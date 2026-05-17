@@ -8,7 +8,7 @@ Stage 3.0 added the first post-migration mechanic as data-driven combat content:
 
 Stage 3.1 added the first District Heat authoring proof as report-only balance projection. It appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports, save data, cloud save payloads, and live web UI remain heat-free until a later schema and player-facing mechanic decision.
 
-Stage 3.2 Slice 98.2 added report-only Offline Parity evidence for recommended farm routes. Slice 98.3 classified those rows as `inversion`, `watch`, or `acceptable` and deferred live offline formula changes. Slice 98.4 triaged Redline live-heat blockers, Slice 98.5 applied the approved Redline target, enemy, stage, and status-pressure tuning, Slice 98.6 chose the `report_only` District Heat promotion posture, and Slice 98.7 archived the milestone. The evidence appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports, tactic exports, live offline rewards, saves, cloud envelopes, and live web UI remain unchanged until a later explicit formula, schema, or player-facing mechanic decision.
+Stage 3.2 Slice 98.2 added report-only Offline Parity evidence for recommended farm routes. Slice 98.3 classified those rows as `inversion`, `watch`, or `acceptable` and deferred live offline formula changes. Slice 98.4 triaged Redline live-heat blockers, Slice 98.5 applied the approved Redline target, enemy, stage, and status-pressure tuning, Slice 98.6 chose the `report_only` District Heat promotion posture, and Slice 98.7 archived the milestone. Stage 3.3 Slice 99.3 now implements the target-derived offline reward estimate chosen in Slice 99.2, moving current recommended farms to `acceptable` while keeping parity evidence report-only and stable compact/tactic exports unchanged. Slice 99.5 keeps current heat runtime report-only and hands the next milestone to a non-punitive warning contract.
 
 ## Current Authoring Contract
 
@@ -80,7 +80,7 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `offlineParity`, region-level `districtHeatProjection`, and report-only `districtHeatPromotionDecision`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.2 keeps Offline Parity and District Heat out of compact JSON/CSV exports until a later schema decision. Slice 98.3 also keeps the live offline reward formula on the fixed 10s estimate while parity inversions remain open; Slice 98.5 resolved the default Redline blockers; Slice 98.6 keeps District Heat report-only.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `offlineParity`, region-level `districtHeatProjection`, and report-only `districtHeatPromotionDecision`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.3 Slice 99.3 keeps Offline Parity and District Heat out of compact JSON/CSV exports, while the live offline reward formula now uses the selected route's target-band midpoint. Slice 98.5 resolved the default Redline blockers; Slice 99.4 resolved the remaining Black Iron visible debt; Slice 99.5 keeps current District Heat runtime report-only and chooses a non-punitive warning contract as the next milestone.
 
 Stage 2.7 save-field migration does not change the static content reward schema or generated balance export reward columns. Simulator and support-decision tooling should consume current runtime progress/save fields when they read progress, but authored rewards and report columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` remain static authoring metrics until a later balance/report schema migration explicitly changes them.
 
@@ -95,17 +95,17 @@ The active balance report is stage and region focused. It does not yet answer th
 
 ## Known Budget Debt
 
-The current simulator output keeps this miss visible:
+The current simulator output has no active known budget miss carried as visible debt:
 
-| Region | Current miss | Current disposition |
+| Region | Current result | Current disposition |
 | --- | --- | --- |
-| Black Iron Foundry | `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
+| Black Iron Foundry | `black_iron_foundry_4` clears in `45s`, inside the configured `25-65s` elite target. | Resolved by Slice 99.4 with a stage-local `ironwall_sentry` backline tune; no current miss. |
 
-This is not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that this miss was deliberately carried forward as deferred tuning debt.
+This section is still the active authority for any future known debt, alongside [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that the old Black Iron miss was deliberately carried forward until Slice 99.4 resolved it.
 
 Stage 3.0 did not retune these budgets. Its simulator review confirmed the same Black Iron Foundry and Redline Outpost misses remain visible while Intrusion's focused regression proves the new mechanic changes AI Overload timing.
 
-Stage 3.1 Slice 97.3 classified the Black Iron and Redline misses as acceptable for report-only District Heat projection, provided they remained visible by stable ids in the same simulator/export run. Slice 98.5 resolved the Redline blockers; Slice 98.6 keeps District Heat report-only because offline parity inversions and Black Iron debt should not be masked by live District Heat reward, risk, offline-farming, or route-pressure changes.
+Stage 3.1 Slice 97.3 classified the Black Iron and Redline misses as acceptable for report-only District Heat projection, provided they remained visible by stable ids in the same simulator/export run. Slice 98.5 resolved the Redline blockers, Slice 99.3 resolved current offline parity inversions with a target-derived formula, and Slice 99.4 resolved the remaining Black Iron debt. Slice 99.5 reruns the promotion gates and keeps the current runtime report-only while handing off a non-punitive warning contract as the next milestone.
 
 Stage 3.2 Slice 98.5 resolved the Redline live-heat blocker set:
 
