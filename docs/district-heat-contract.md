@@ -171,7 +171,7 @@ Current active/offline parity evidence after Stage 3.3 Slice 99.3:
 | `lotus_clinic_6` | `40.8s` | `57.5s` | `0.43x` | `acceptable` | Keep report guard. |
 | `redline_outpost_6` | `32s` | `29.5s` | `0.65x` | `acceptable` | Keep report guard. |
 
-Stage 3.2 Slice 98.2 added the `offlineParity` report surface. Slice 98.3 deferred live formula changes while Redline blockers and District Heat promotion posture were unresolved. Slice 98.5 resolved the default Redline clear-time and status-pressure gates. Stage 3.3 Slice 99.3 implements the target-derived offline reward estimate and moves current recommended farms out of `inversion`; `offlineParity` remains report-only evidence and stays out of compact JSON/CSV exports.
+Stage 3.2 Slice 98.2 added the `offlineParity` report surface. Slice 98.3 deferred live formula changes while Redline blockers and District Heat promotion posture were unresolved. Slice 98.5 resolved the default Redline clear-time and status-pressure gates. Stage 3.3 Slice 99.3 implements the target-derived offline reward estimate and moves current recommended farms out of `inversion`; Slice 99.4 resolves the remaining Black Iron visible debt. `offlineParity` remains report-only evidence and stays out of compact JSON/CSV exports.
 
 Assignment heat participation is report-only and should be conservative:
 
@@ -185,9 +185,9 @@ Slice 97.3 reviewed the current simulator, compact JSON export, stage CSV export
 
 Report-only District Heat projection may proceed with the existing misses visible by stable ids. Live District Heat reward, risk, offline-farming, or route-pressure changes must not proceed over a blocking miss until the affected miss is tuned or explicitly reclassified by a later slice.
 
-| Miss | Current Stage 3.2 disposition | Heat gate |
+| Miss | Current disposition | Heat gate |
 | --- | --- | --- |
-| `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt. This is a too-fast elite route, not a report-only heat blocker. | Report-only heat may proceed; live heat must not silently use reward/risk pressure to mask this debt. |
+| `black_iron_foundry_4` clears in `45s`, inside the configured `25-65s` elite target. | Resolved by Slice 99.4 with a stage-local `ironwall_sentry` backline tune. | No longer a known-debt heat blocker; live heat still requires the Slice 99.5 promotion decision. |
 | `redline_outpost_1` clears in `23.4s` against the configured `18-25s` normal target. | Resolved by Slice 98.5 target reclassification for late-region status-opener timing. | This Redline row no longer blocks the Slice 98.6 heat promotion decision. |
 | `redline_outpost_3` clears in `40s` against the configured `19-40s` elite target. | Resolved by Slice 98.5 Marrow Lock enemy tuning. | This Redline row no longer blocks the Slice 98.6 heat promotion decision. |
 | `redline_outpost_4` clears in `22s` against the configured `19-40s` elite target. | Resolved by Slice 98.5 Burning Blood Hall formation trim plus Redline enemy tuning. | This Redline row no longer blocks the Slice 98.6 heat promotion decision. |
@@ -210,14 +210,14 @@ It is not enough to start a live heat mechanic by itself. The next implementatio
 
 [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md) records that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. Slice 98.3 deferred live offline formula changes because four recommended farm routes remained classified as `inversion`. Slice 98.4 triaged the Redline live-heat blockers, and Slice 98.5 resolved the default Redline clear-time and status-pressure gates while preserving the `redline_outpost_7` tactic caution.
 
-Slice 98.6 chose **keep District Heat report-only** as the promotion posture for Stage 3.2. The default report and full debug JSON now include a report-only `districtHeatPromotionDecision` with gate status and boundaries. Slice 99.3 changes the live offline reward formula to a target-derived estimate, but there is still no live heat UI, save field, cloud envelope field, compact export field, tactic export field, heat reward modifier, or route-risk modifier.
+Slice 98.6 chose **keep District Heat report-only** as the promotion posture for Stage 3.2. The default report and full debug JSON now include a report-only `districtHeatPromotionDecision` with gate status and boundaries. Slice 99.3 changes the live offline reward formula to a target-derived estimate, and Slice 99.4 resolves the remaining Black Iron known-debt row, but there is still no live heat UI, save field, cloud envelope field, compact export field, tactic export field, heat reward modifier, or route-risk modifier.
 
 The decision is reversible, but a later slice must do one of these before live heat ships:
 
-- keep offline parity resolved and resolve visible Black Iron debt before any heat reward/risk/offline pressure changes;
+- keep offline parity and Black Iron known debt resolved before any heat reward/risk/offline pressure changes;
 - or write a separate non-punitive warning contract with explicit save/UI/export boundaries before any player-facing heat copy appears.
 
-[Stage 3.3 Backlog](stage-3.3-backlog.md) owns that next cleanup path. Slice 99.3 implements the target-derived offline reward estimate using existing route clear-time target bands instead of adding stage-authored estimates or making live save load depend on simulator output. District Heat should recheck promotion only after `black_iron_foundry_4` has current evidence and the promotion gates are rerun.
+[Stage 3.3 Backlog](stage-3.3-backlog.md) owns that next cleanup path. Slice 99.3 implements the target-derived offline reward estimate using existing route clear-time target bands instead of adding stage-authored estimates or making live save load depend on simulator output. Slice 99.4 gives `black_iron_foundry_4` current passing evidence; District Heat should recheck promotion in Slice 99.5 before any live heat surface changes.
 
 ## Verification Requirements
 

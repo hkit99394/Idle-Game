@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.3 is the active next milestone after [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md). Slice 99.3 has moved offline reward parity out of `inversion`; District Heat remains report-only because `black_iron_foundry_4` is still visible balance debt and the promotion decision has not been rechecked.
+Stage 3.3 is the active next milestone after [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md). Slice 99.3 moved offline reward parity out of `inversion`, and Slice 99.4 resolved the remaining `black_iron_foundry_4` visible balance debt with a stage-local formation tune. District Heat remains report-only until the Slice 99.5 promotion decision is rechecked.
 
 This stage owns **Epic 99: Offline Parity And Visible Debt Cleanup**. It should resolve or explicitly re-contract the remaining blockers before any player-facing District Heat UI, reward pressure, route-risk modifier, or offline-farming heat behavior.
 
@@ -17,13 +17,13 @@ The Stage 3.3 plan starts from the current Stage 3.2 closure evidence:
 - Current recommended farm routes are all offline/active `acceptable`: `greenline_approach_8`, `veil_district_5`, `black_iron_foundry_6`, `lotus_clinic_6`, and `redline_outpost_6`.
 - The report-only `offlineParity` section now guards those target-derived ratios so the inversion risk cannot silently return.
 - Redline default clear-time, status-pressure, reward-curve, and boss-gate budget checks pass after Slice 98.5, but tactic comparison caution remains for `redline_outpost_7`.
-- `black_iron_foundry_4` remains below its elite clear-time target and must not be masked by live District Heat pressure.
+- `black_iron_foundry_4` now has a current Stage 3.3 disposition: a stage-local backline sentry tune moves it inside its elite clear-time target without broad Black Iron power creep.
 
 ## Stage Theme
 
 Clean up the last economy and tuning blockers that make live District Heat risky.
 
-Stage 3.3 moved offline farming away from the fixed 10s estimate without changing save shape, compact exports, tactic exports, cloud envelopes, or live heat UI. It still needs to either tune `black_iron_foundry_4` or explicitly reclassify it with a current reason before the next heat promotion decision.
+Stage 3.3 moved offline farming away from the fixed 10s estimate without changing save shape, compact exports, tactic exports, cloud envelopes, or live heat UI. It has also tuned `black_iron_foundry_4`; the remaining stage decision is whether Slice 99.5 keeps District Heat report-only, writes a warning contract, or opens a tiny live heat slice.
 
 ## Source Contracts And Carry-Forward Decisions
 
@@ -66,7 +66,7 @@ Stage 3.3 moved offline farming away from the fixed 10s estimate without changin
 | 99.1 | 99 | Parity And Debt Baseline | Complete |
 | 99.2 | 99 | Offline Formula Decision | Complete |
 | 99.3 | 99 | Offline Formula Implementation Or Guard Rails | Complete |
-| 99.4 | 99 | Black Iron Visible Debt Cleanup | Planned |
+| 99.4 | 99 | Black Iron Visible Debt Cleanup | Complete |
 | 99.5 | 99 | District Heat Re-Promotion And Warning Contract Decision | Planned |
 | 99.6 | 99 | Release Hardening And Archive Readiness | Planned |
 
@@ -100,8 +100,8 @@ Confirm the current evidence before changing formulas or tuning data.
 | `lotus_clinic_6` | `2.45x` | `inversion` | `offline_faster` |
 | `redline_outpost_6` | `1.92x` | `inversion` | `offline_faster` |
 
-- Confirmed the only current default budget miss remains `black_iron_foundry_4`: clear time `23.4s`, below the configured `25-65s` elite target.
-- Confirmed `districtHeatPromotionDecision` remains `report_only`. Promotion gates are unchanged: `report_projection` pass, `offline_parity` blocker, `redline_budget` pass, `known_debt` watch, and `save_ui_export_boundaries` pass.
+- Recorded the Slice 99.1 baseline debt for `black_iron_foundry_4`: clear time `23.4s` against the configured `25-65s` elite target.
+- Confirmed `districtHeatPromotionDecision` remained `report_only` at the baseline. Promotion gates were unchanged then: `report_projection` pass, `offline_parity` blocker, `redline_budget` pass, known-debt review pending, and `save_ui_export_boundaries` pass.
 - Confirmed stable compact authoring export remains schema version `3` and contains no `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, or `heatBand` keys.
 - Confirmed tactic comparison export remains schema version `4` and contains no heat keys. The Redline boss caution remains visible: `context_break` and `gatekeeper_burst` still turn `redline_outpost_7` from baseline `player_clear` into `enemy_hold` with `budgetShift: new_miss`.
 - Slice 99.1 made no data or runtime changes. Stage 3.3 remains formula/report/tuning work, not a live heat implementation.
@@ -201,7 +201,7 @@ Implement the approved formula path, or strengthen guard rails if the formula st
 | `lotus_clinic_6` | `57.5s` | `0.43x` | `acceptable` | `active_faster` |
 | `redline_outpost_6` | `29.5s` | `0.65x` | `acceptable` | `active_faster` |
 
-- `districtHeatPromotionDecision.gates.offline_parity` now passes. District Heat remains `report_only` because `known_debt` still watches `black_iron_foundry_4` until Slice 99.4 resolves or reclassifies it, and Slice 99.5 has not re-promoted heat.
+- `districtHeatPromotionDecision.gates.offline_parity` now passes. At the Slice 99.3 handoff, District Heat remained `report_only` because the known-debt review still waited on `black_iron_foundry_4`; Slice 99.4 later resolved that row, and Slice 99.5 still needs to rerun promotion.
 
 ### Verification
 
@@ -230,6 +230,24 @@ Tune or reclassify `black_iron_foundry_4` before live heat can add pressure.
 - `black_iron_foundry_4` has a current Stage 3.3 disposition.
 - Any data tune keeps Black Iron progression and boss-gate evidence readable.
 - District Heat promotion can no longer use this miss as vague blocker text.
+
+### Implementation Notes
+
+- Chose a stage-local tune instead of a global `ironwall_saber` durability increase. The global probe could make `black_iron_foundry_4` slower, but it also risked locking `black_iron_foundry_6` and downstream progression.
+- Added `ironwall_sentry` to the `black_iron_foundry_4` backline. This preserves the Black Iron defense identity through guard and armor-break pressure without changing enemy-wide stats.
+- `black_iron_foundry_4` now clears in `45s`, inside the configured `25-65s` elite target.
+- `black_iron_foundry_6` remains the Black Iron recommended farm, still clears in `45s`, and keeps offline parity at `0.60x` active with the target-derived `45s` estimate.
+- Black Iron `clear_time`, `reward_curve`, `defense_pressure`, and `boss_gate` budget checks now pass. `districtHeatPromotionDecision.gates.known_debt` now passes with no affected stage ids.
+- District Heat still remains `report_only`; Slice 99.5 must rerun the promotion decision rather than treating this tune as automatic live-heat approval.
+
+### Verification
+
+- Passed: `npm run --silent simulate -- --json`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `npm test`
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 99.5: District Heat Re-Promotion And Warning Contract Decision
 

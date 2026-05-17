@@ -391,8 +391,8 @@ describe("balance report", () => {
       reason: expect.stringContaining("damage prevented")
     });
     expect(getBudgetCheck(blackIron, "clear_time")).toMatchObject({
-      status: "fail",
-      reason: expect.stringContaining("black_iron_foundry_4")
+      status: "pass",
+      reason: expect.stringContaining("6 configured stages")
     });
     expect(getBudgetCheck(lotus, "healing_pressure")).toMatchObject({
       status: "pass",
@@ -411,14 +411,7 @@ describe("balance report", () => {
     const lotus = getRegionReport(report, LOTUS_MONASTERY_REGION_ID);
     const demonCult = getRegionReport(report, "redline_outpost");
 
-    expect(blackIron.difficultyCurve.issues).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          stageId: "black_iron_foundry_4",
-          reason: expect.stringContaining("below")
-        })
-      ])
-    );
+    expect(blackIron.difficultyCurve.issues).toEqual([]);
     expect(demonCult.difficultyCurve.issues).toEqual([]);
     expect(demonCult.difficultyCurve.spikes).toEqual(
       expect.arrayContaining([
@@ -521,10 +514,14 @@ describe("balance report", () => {
       regionId: BLACK_IRON_FORT_REGION_ID,
       legacyRegionId: "black_iron_fort",
       legacyStageId: "black_iron_fort_4",
-      enemyIds: ["ironwall_saber", "shieldwall_guard"],
-      legacyEnemyIds: ["black_iron_saber", "shieldwall_guard"],
-      targetStatus: "fail",
-      difficultyIssue: expect.stringContaining("below"),
+      enemyIds: ["ironwall_saber", "shieldwall_guard", "ironwall_sentry"],
+      legacyEnemyIds: [
+        "black_iron_saber",
+        "shieldwall_guard",
+        "iron_fort_sentry"
+      ],
+      targetStatus: "pass",
+      difficultyIssue: null,
       pressure: {
         armorBreaks: expect.any(Number)
       }
@@ -633,8 +630,8 @@ describe("balance report", () => {
         }),
         expect.objectContaining({
           id: "known_debt",
-          status: "watch",
-          affectedStageIds: ["black_iron_foundry_4"]
+          status: "pass",
+          affectedStageIds: []
         })
       ])
     );
@@ -884,7 +881,6 @@ describe("balance report", () => {
     expect(csv).toContain("legacy_baseline_tactic_id");
     expect(csv).toContain("bamboo_road_1");
     expect(csv).toContain("demon_cult_outpost_7");
-    expect(csv).toContain("improved_existing_miss");
     expect(csv).toContain("new_miss");
   });
 
@@ -1074,7 +1070,6 @@ describe("balance report", () => {
     expect(formatted).toContain("offline_parity pass");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
-    expect(formatted).toContain("issues black_iron_foundry_4");
     expect(formatted).toContain("spikes watch redline_outpost_3");
     expect(formatted).toContain("Region Boss Gates");
     expect(formatted).toContain("Region Boss Gate Assumptions");
@@ -1083,7 +1078,7 @@ describe("balance report", () => {
     expect(formatted).toContain("status damage");
     expect(formatted).toContain("training");
     expect(formatted).toContain("Region Budget Gates");
-    expect(formatted).toContain("black_iron_foundry_4 clear time");
+    expect(formatted).toContain("Black Iron Foundry: pass (4 checks)");
     expect(formatted).toContain("Redline Outpost: pass (4 checks)");
     expect(formatted).toContain("Region Defensive Events");
     expect(formatted).toContain("Region Recovery Events");
