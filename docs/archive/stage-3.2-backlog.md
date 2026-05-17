@@ -2,15 +2,15 @@
 
 ## Current Status
 
-Stage 3.2 is the active next milestone after [Archived Stage 3.1 Backlog](archive/stage-3.1-backlog.md). Stage 3.1 completed the District Heat contract and report-only projection, but it deliberately left live heat blocked until offline parity and Redline pacing debt are addressed.
+Stage 3.2 is closed after [Archived Stage 3.1 Backlog](stage-3.1-backlog.md). Stage 3.1 completed the District Heat contract and report-only projection, but it deliberately left live heat blocked until offline parity and Redline pacing debt were addressed.
 
-This stage owns **Epic 98: Pacing Parity And Heat Readiness**. It should convert the Stage 3.1 blockers into measured report surfaces, decide whether the offline formula should change, handle or reclassify the Redline live-heat blockers, and then make a narrow promotion decision for District Heat.
+This stage owned **Epic 98: Pacing Parity And Heat Readiness**. It converted the Stage 3.1 blockers into measured report surfaces, decided to keep the live offline formula unchanged, resolved the default Redline live-heat blockers, and made a narrow report-only promotion decision for District Heat.
 
-Do not start Stage 3.2 by adding live District Heat. The safest next move is pacing evidence first, then a decision.
+Stage 3.2 deliberately did not add live District Heat. It closed by collecting pacing evidence first, then making a report-only promotion decision.
 
 ## Review Findings
 
-The Stage 3.2 plan is based on the current simulator and active docs:
+The Stage 3.2 closure is based on the current simulator and active docs:
 
 - Stage 3.1 report-only District Heat is visible in `npm run simulate` and full debug JSON, and Slice 98.6 now adds a report-only promotion decision. Compact JSON/CSV exports, saves, cloud saves, tactic exports, live rewards, and live web UI remain heat-free.
 - The current simulator still reports `black_iron_foundry_4` as below its elite clear-time target.
@@ -28,10 +28,10 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 
 ## Source Contracts And Carry-Forward Decisions
 
-- [District Heat Contract](district-heat-contract.md) remains the District Heat authority.
-- [Progression Pacing Roadmap](progression-pacing-roadmap.md) remains the pacing model authority.
-- [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), configured `balanceTargets`, and `npm run simulate` remain the known-debt authority.
-- [Cloud Save Contract](cloud-save-contract.md), [Save API](save-api.md), and `tests/web/displayTerms.test.ts` remain boundary guards for save/cloud/web exposure.
+- [District Heat Contract](../district-heat-contract.md) remains the District Heat authority.
+- [Progression Pacing Roadmap](../progression-pacing-roadmap.md) remains the pacing model authority.
+- [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), configured `balanceTargets`, and `npm run simulate` remain the known-debt authority.
+- [Cloud Save Contract](../cloud-save-contract.md), [Save API](../save-api.md), and `tests/web/displayTerms.test.ts` remain boundary guards for save/cloud/web exposure.
 - Stage 3.1 keep decisions still apply: no heat save field, no heat cloud envelope field, no live heat UI/copy, and no compact export heat fields without an explicit schema decision.
 
 ## Scope
@@ -57,7 +57,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 - Stage 3.2 records a clear offline formula decision: keep fixed estimate, add stage-specific estimates, or defer live change with report-only guard rails.
 - Redline live-heat blockers are tuned, reclassified, or explicitly carried forward with reasons.
 - District Heat promotion posture is updated: remain report-only, prepare a non-punitive warning, or prepare a tiny live slice with save/UI/export boundaries.
-- Active docs point to Stage 3.2 as the current planning milestone while Stage 3.1 remains archived.
+- Active docs point to the archived Stage 3.2 closure and Stage 3.3 handoff while Stage 3.1 remains archived.
 - Verification commands and skipped browser smoke, if any, are recorded before archive.
 
 ## Epic Summary
@@ -70,7 +70,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 | 98.4 | 98 | Redline Live-Heat Blocker Triage | Complete |
 | 98.5 | 98 | Targeted Redline And Status Pressure Tuning | Complete |
 | 98.6 | 98 | District Heat Promotion Decision | Complete |
-| 98.7 | 98 | Release Hardening And Archive Readiness | Planned |
+| 98.7 | 98 | Release Hardening And Archive Readiness | Complete |
 
 ## Slice 98.1: Pacing Baseline And Scope Lock
 
@@ -79,7 +79,7 @@ Confirm the current evidence before adding reports or tuning data.
 ### Tasks
 
 - Run `npm run simulate`, `npm run --silent simulate -- --export-json`, `npm run --silent simulate -- --csv`, `npm run --silent simulate -- --tactics-json`, and `npm run --silent simulate -- --tactics-csv`.
-- Compare current misses against [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and [District Heat Contract](district-heat-contract.md).
+- Compare current misses against [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), and [District Heat Contract](../district-heat-contract.md).
 - Record whether any Stage 3.1 assumption changed before Stage 3.2 implementation begins.
 - Confirm no live heat, save heat, cloud heat, compact export heat, or web heat copy sneaked in after Stage 3.1 closure.
 
@@ -156,7 +156,7 @@ Decide whether to change live offline rewards or defer with better reporting.
 - Use the parity report from Slice 98.2 to classify each recommended farm route as acceptable, watch, or inversion.
 - Decide between fixed 10s estimate, stage-specific authored estimates, simulated/target-derived estimates, or no live change yet.
 - If a live formula change is approved, update `core/offline/offlineRewards.ts` and focused offline tests without changing save shape.
-- If no live change is approved, update [District Heat Contract](district-heat-contract.md) and [Progression Pacing Roadmap](progression-pacing-roadmap.md) with the deferral and report guard rails.
+- If no live change is approved, update [District Heat Contract](../district-heat-contract.md) and [Progression Pacing Roadmap](../progression-pacing-roadmap.md) with the deferral and report guard rails.
 - Keep assignment rewards out of live heat behavior unless a separate slice approves them.
 
 ### Acceptance
@@ -235,7 +235,7 @@ Apply the smallest approved Redline tuning changes from Slice 98.4.
 - Preserve `redline_outpost_7` boss safety so `context_break` and `gatekeeper_burst` do not become unreviewed default fixes.
 - Keep Black Iron Foundry debt visible unless Slice 98.4 explicitly chooses to tune or reclassify it.
 - Avoid broad power creep that erases earlier regions, boss gates, or tactic comparison safety.
-- Update [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and [District Heat Contract](district-heat-contract.md) with new dispositions.
+- Update [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), and [District Heat Contract](../district-heat-contract.md) with new dispositions.
 - Add or update focused tests only where report schema, validation, or data rules change.
 
 ### Acceptance
@@ -271,7 +271,7 @@ Decide what District Heat is allowed to do after parity and Redline evidence.
 
 ### Tasks
 
-- Review Slice 98.2 through 98.5 evidence against [District Heat Contract](district-heat-contract.md) promotion gates.
+- Review Slice 98.2 through 98.5 evidence against [District Heat Contract](../district-heat-contract.md) promotion gates.
 - Choose one next posture:
   - keep District Heat report-only;
   - prepare a non-punitive player-facing warning;
@@ -314,7 +314,7 @@ Close Stage 3.2 with full validation, docs cleanup, and a clear Stage 3.3 handof
 
 - Run the verification baseline and capture any skipped command with a reason.
 - Run stale-term scans for active docs/UI and confirm future-only mechanics remain absent from live web source.
-- Update [Current Implemented Systems](current-implemented-systems.md), [Progression Pacing Roadmap](progression-pacing-roadmap.md), [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and [District Heat Contract](district-heat-contract.md) with final Stage 3.2 decisions.
+- Update [Current Implemented Systems](../current-implemented-systems.md), [Progression Pacing Roadmap](../progression-pacing-roadmap.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), and [District Heat Contract](../district-heat-contract.md) with final Stage 3.2 decisions.
 - Add Stage 3.2 closure notes to this backlog.
 - Move this backlog to `docs/archive/stage-3.2-backlog.md` only after the milestone is complete.
 
@@ -325,16 +325,24 @@ Close Stage 3.2 with full validation, docs cleanup, and a clear Stage 3.3 handof
 - No active `docs/stage-3.2-backlog.md` remains after archive closure.
 - The next implementation step is clear: live heat, more pacing cleanup, or another report-only stage.
 
+### Implementation Notes
+
+- Closed Stage 3.2 with District Heat still `report_only`: the default report/full debug JSON expose `districtHeatProjection` and `districtHeatPromotionDecision`, while compact JSON/CSV exports, tactic exports, saves, cloud envelopes, live rewards, and live web UI stay heat-free.
+- Kept the live offline reward formula on the fixed `10s` estimate from Slice 98.3. Four recommended farm routes remain classified as offline/active `inversion`, so Stage 3.3 should start with parity cleanup before any live heat reward or risk pressure.
+- Preserved visible balance debt: Redline default gates pass after Slice 98.5, while `black_iron_foundry_4` remains the current known budget miss and must not be hidden behind heat pressure.
+- Browser smoke is skipped for this slice because 98.7 changes reports, docs, and archive posture only; no visible UI or web-state behavior changed.
+- Archived this backlog to `docs/archive/stage-3.2-backlog.md` after verification and docs cleanup.
+
 ### Verification
 
-- `npm run verify`
-- `npm run --silent simulate -- --export-json`
-- `npm run --silent simulate -- --csv`
-- `npm run --silent simulate -- --tactics-json`
-- `npm run --silent simulate -- --tactics-csv`
-- Stale-term scan over live web source for deferred mechanics.
-- `npm test -- tests/docs/markdownLinks.test.ts`
-- `git diff --check`
+- Passed: `npm run verify`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: stale-term scan over live web source for deferred mechanics.
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Verification Baseline
 
@@ -362,6 +370,6 @@ Browser smoke is required only after visible UI or web-state changes. Until then
 
 ## Closure Notes
 
-- Stage 3.2 is not complete until Slices 98.1 through 98.7 are all complete.
+- Stage 3.2 is complete: Slices 98.1 through 98.7 are all complete.
 - Archive target after completion: `docs/archive/stage-3.2-backlog.md`.
-- The preferred next implementation path should be chosen by parity and Redline evidence, not by District Heat theme pressure alone.
+- The preferred next implementation path is Stage 3.3 parity cleanup or a separate non-punitive warning contract, not live heat reward/risk pressure.

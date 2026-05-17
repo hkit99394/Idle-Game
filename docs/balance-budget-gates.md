@@ -12,7 +12,7 @@ Stage 3.2 Slice 98.2 added report-only Offline Parity rows to the simulator/defa
 
 Stage 3.2 Slice 98.3 classified Offline Parity rows and deferred live offline formula changes. The default live formula still uses the fixed 10s estimate while parity inversions remain open; Slice 98.5 later resolved the default Redline live-heat blockers.
 
-Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 applied the approved Redline target reclassification plus data/status tuning; Redline now passes default clear-time, status-pressure, reward-curve, and boss-gate budget checks. Slice 98.6 chose the `report_only` District Heat promotion posture while offline parity inversions and visible Black Iron debt remain open.
+Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 applied the approved Redline target reclassification plus data/status tuning; Redline now passes default clear-time, status-pressure, reward-curve, and boss-gate budget checks. Slice 98.6 chose the `report_only` District Heat promotion posture while offline parity inversions and visible Black Iron debt remain open. Slice 98.7 archived Stage 3.2 with these gates unchanged.
 
 ## Configuration
 
@@ -136,7 +136,7 @@ This compact export has `schemaVersion: 3` and four top-level tables:
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
 
-Stage 3.2 report-only Offline Parity and Stage 3.1 report-only District Heat projection are visible in the default report and full debug JSON, not in this compact export. Adding parity or heat fields to compact JSON or CSV requires a later explicit schema decision.
+Stage 3.2 report-only Offline Parity, District Heat projection, and District Heat promotion decision are visible in the default report and full debug JSON, not in this compact export. Adding parity or heat fields to compact JSON or CSV requires a later explicit schema decision.
 
 Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
 

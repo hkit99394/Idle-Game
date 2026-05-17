@@ -208,7 +208,7 @@ It is not enough to start a live heat mechanic by itself. The next implementatio
 
 ## Stage 3.2 Promotion Decision
 
-[Stage 3.2 Backlog](stage-3.2-backlog.md) owns that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. Slice 98.3 deferred live offline formula changes because four recommended farm routes remain classified as `inversion`. Slice 98.4 triaged the Redline live-heat blockers, and Slice 98.5 resolved the default Redline clear-time and status-pressure gates while preserving the `redline_outpost_7` tactic caution.
+[Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md) records that cleanup path. Slice 98.2 added report-only offline parity rows to the default report and full debug JSON while keeping compact JSON/CSV exports and live offline rewards unchanged. Slice 98.3 deferred live offline formula changes because four recommended farm routes remain classified as `inversion`. Slice 98.4 triaged the Redline live-heat blockers, and Slice 98.5 resolved the default Redline clear-time and status-pressure gates while preserving the `redline_outpost_7` tactic caution.
 
 Slice 98.6 chose **keep District Heat report-only** as the promotion posture for Stage 3.2. The default report and full debug JSON now include a report-only `districtHeatPromotionDecision` with gate status and boundaries, but there is still no live heat UI, save field, cloud envelope field, compact export field, tactic export field, reward modifier, route-risk modifier, or offline reward formula change.
 
