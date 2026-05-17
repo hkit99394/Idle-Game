@@ -231,6 +231,28 @@ All current promotion gates pass, so Stage 3.4 prepares a **non-punitive warning
 
 The expected default posture remains no durable heat state and no stable export fields. Stage 3.4 may approve a later tiny warning prototype only if it is explicitly non-persistent, non-punitive, named by surface, and covered by focused tests. It must not add rewards, route-risk pressure, enemy-pressure modifiers, save fields, cloud fields, compact export fields, tactic export fields, or broad economy tuning.
 
+Slice 100.2 selects the warning copy and placement posture:
+
+- Use neutral player-facing `district attention` language, not the report/internal `District Heat` label.
+- Approved future route-card label: `Attention rising`.
+- Approved future body copy: `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`
+- Approved future supporting copy: `Informational only.`
+- Keep live source free of `District Heat`, `districtHeat`, `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, and `heatBand` until a later implementation slice explicitly amends the guard.
+- If implemented later, place the warning only as a compact route-card note in `web/features/mapIdle/panels.tsx`, backed by `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts` only if view data is needed.
+- Do not place the warning in a global meter, top-bar badge, modal, onboarding panel, district header, offline summary total, offline reward preview modifier, or save diagnostics field.
+- Do not use severity colors, bars, numbers, timers, band labels, or any copy that implies current rewards, enemy pressure, boss difficulty, assignments, route risk, or offline returns have changed.
+
+Slice 100.3 selects the save, export, and report posture:
+
+- The warning has no durable state. A later warning prototype may be derived in memory for display, but it must not persist player, route, district, projected, or acknowledged warning state.
+- Saves keep `SAVE_DATA_VERSION` at `13` by default and add no District Heat or district-attention fields, migrations, browser storage keys, import/export save normalization, or save diagnostics output.
+- Cloud envelopes and `rawSave` payloads add no heat, warning, district-attention, conflict-resolution, or adapter metadata.
+- Compact authoring JSON stays schema version `3` and must not include heat, attention, warning copy, warning booleans, or warning placement fields.
+- Tactic comparison JSON stays schema version `4` and must not include heat, attention, route-risk, reward-pressure, or warning fields.
+- Stage CSV and tactic CSV stay heat-free and warning-free.
+- Full debug JSON keeps the existing report-only `districtHeatProjection` and `districtHeatPromotionDecision` fields unchanged. Stage 3.4 does not add `districtAttentionWarning`, warning copy strings, placement metadata, acknowledgement state, or display booleans.
+- Any durable state, cloud conflict behavior, stable export field, warning acknowledgement, or changed debug JSON contract requires a later dedicated slice with focused tests.
+
 ## Verification Requirements
 
 For contract and report-only work:

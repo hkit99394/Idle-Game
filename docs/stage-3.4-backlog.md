@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.4 is active after [Archived Stage 3.3 Backlog](archive/stage-3.3-backlog.md). Stage 3.3 resolved the current offline parity and visible Black Iron debt blockers, reran the District Heat promotion decision, and kept the current runtime report-only. Stage 3.4 turns that handoff into a bounded non-punitive warning contract before any player-facing heat reward, route-risk pressure, persisted heat state, compact export field, tactic export field, save/cloud field, or live web UI behavior ships. Slice 100.1 completed the preflight evidence pass and made no gameplay, save, export, cloud, or web UI changes.
+Stage 3.4 is active after [Archived Stage 3.3 Backlog](archive/stage-3.3-backlog.md). Stage 3.3 resolved the current offline parity and visible Black Iron debt blockers, reran the District Heat promotion decision, and kept the current runtime report-only. Stage 3.4 turns that handoff into a bounded non-punitive warning contract before any player-facing heat reward, route-risk pressure, persisted heat state, compact export field, tactic export field, save/cloud field, or live web UI behavior ships. Slice 100.1 completed the preflight evidence pass, Slice 100.2 selected neutral copy scope plus future route-card placement, and Slice 100.3 selected no-persistence/no-export warning boundaries; none of those slices made gameplay, save, export, cloud, or web UI changes.
 
 This stage owns **Epic 100: District Heat Warning Contract**. It should write the exact player-facing promise and boundary tests for a future warning, then choose the next safe implementation step.
 
@@ -62,8 +62,8 @@ Stage 3.4 should decide what a warning is allowed to say, where it may appear la
 | Slice | Epic | Title | Status |
 | --- | --- | --- | --- |
 | 100.1 | 100 | Warning Contract Preflight | Complete |
-| 100.2 | 100 | Copy Scope And UI Placement Decision | Planned |
-| 100.3 | 100 | Save Export And Report Boundary Decision | Planned |
+| 100.2 | 100 | Copy Scope And UI Placement Decision | Complete |
+| 100.3 | 100 | Save Export And Report Boundary Decision | Complete |
 | 100.4 | 100 | Warning Prototype Decision Or Guard Rails | Planned |
 | 100.5 | 100 | Release Hardening And Archive Readiness | Planned |
 
@@ -135,10 +135,25 @@ Decide what the warning is allowed to say and where it may appear later.
 - The contract names the allowed UI placement or explicitly keeps warning copy out of live UI.
 - The decision keeps warning copy non-punitive and reversible.
 
+### Implementation Notes
+
+- Decision: Slice 100.2 is contract-only. It does not add warning copy to live web source, does not amend `tests/web/displayTerms.test.ts`, and does not relax the existing future-only mechanic term guard.
+- Approved future warning concept: use neutral **district attention** language rather than the report/internal **District Heat** label in player-facing copy.
+- Approved future compact label: `Attention rising`.
+- Approved future body copy: `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`
+- Approved future supporting copy: `Informational only.`
+- Allowed vocabulary for a later warning prototype: `district attention`, `attention rising`, `repeated runs`, `route activity`, `informational only`, and explicit unchanged-outcome text.
+- Forbidden player-facing vocabulary without a later contract amendment: `District Heat`, `heat`, `projectedHeat`, `heatBand`, `cool`, `watched`, `hot`, `lockdown`, `risk`, `danger`, `penalty`, `bonus`, `multiplier`, `cooldown`, `decay`, `threat level`, or any copy that implies current rewards, enemy pressure, boss difficulty, assignments, or offline returns change.
+- Future UI placement category: a compact route-card note in the district route list, scoped to `web/features/mapIdle/panels.tsx`. If the warning later needs view data, the owner path is `web/state/viewModels/map.ts` plus `web/state/viewModels/mapTypes.ts`.
+- Placement rules: show the note only on a route card that is currently selected, farmable, or recommended for offline farming; do not add a global meter, top-bar badge, modal, onboarding panel, district header, offline summary total, offline reward preview modifier, or save diagnostics field.
+- The route-card warning must not use severity colors, bars, numbers, timers, or band labels that make the warning feel like an active mechanic. Use the existing compact route-card information density and keep it visually secondary.
+- Future implementation tests should keep `tests/web/displayTerms.test.ts` banning the current future-only tokens. If a later slice wants to expose `District Heat` or report field names in live source, that slice must amend the test with an explicit allowlist and update this contract first.
+
 ### Verification
 
-- Planned: `npm test -- tests/web/displayTerms.test.ts tests/docs/markdownLinks.test.ts`
-- Planned: `git diff --check`
+- Passed: `npm test -- tests/web/displayTerms.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: live web source scan for `District Heat`, `districtHeat`, `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, and `heatBand`
+- Passed: `git diff --check`
 
 ## Slice 100.3: Save Export And Report Boundary Decision
 
@@ -158,12 +173,25 @@ Decide how warning state relates to saves, exports, and author-facing report dat
 - Compact JSON/CSV and tactic export schema posture is explicit.
 - Any future save-version, cloud-contract, or export-schema work is named as a separate follow-up, not slipped into warning copy.
 
+### Implementation Notes
+
+- Decision: the Stage 3.4 warning has no durable state. A later warning prototype may be derived in memory for display, but it must not persist player, route, district, projected, or acknowledged warning state.
+- Save posture: no `SaveData` field, no `SAVE_DATA_VERSION` bump beyond `13`, no migration, no browser storage key, no import/export save JSON normalization, and no save diagnostics field for the warning.
+- Cloud posture: no cloud envelope field, no `rawSave` field, no conflict-resolution metadata, and no cloud adapter behavior for District Heat or district attention. A future persisted mechanic needs a dedicated save-version and cloud-contract slice before cloud stores accept heat or warning state.
+- Compact authoring export posture: keep schema version `3`; do not add `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, `heatBand`, `districtAttention`, warning copy, warning booleans, or warning placement fields.
+- Tactic comparison export posture: keep schema version `4`; do not add heat, warning, attention, route-risk, reward-pressure, or district-attention fields.
+- CSV posture: stage CSV and tactic CSV stay heat-free and warning-free.
+- Full debug JSON posture: keep the existing report-only `districtHeatProjection` and `districtHeatPromotionDecision` fields unchanged. Slice 100.3 does not add warning-oriented fields such as `districtAttentionWarning`, copy strings, placement metadata, acknowledgement state, or display booleans.
+- Report relationship: author-facing heat bands may continue to explain simulator evidence, but player-facing warning copy must not use those band names or expose report field names.
+- Any future need for durable state, stable export fields, cloud conflict behavior, warning acknowledgement, or a changed debug JSON contract is a separate follow-up slice with focused tests.
+
 ### Verification
 
-- Planned: `npm test -- tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts tests/docs/markdownLinks.test.ts`
-- Planned: `npm run --silent simulate -- --export-json`
-- Planned: `npm run --silent simulate -- --tactics-json`
-- Planned: `git diff --check`
+- Passed: `npm test -- tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: compact export heat/warning-key probe over `npm run --silent simulate -- --export-json`
+- Passed: tactic export heat/warning-key probe over `npm run --silent simulate -- --tactics-json`
+- Passed: CSV heat/warning-column probe over `npm run --silent simulate -- --csv` and `npm run --silent simulate -- --tactics-csv`
+- Passed: `git diff --check`
 
 ## Slice 100.4: Warning Prototype Decision Or Guard Rails
 
