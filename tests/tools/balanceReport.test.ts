@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildBalanceReport, type StaticGameData } from "../../core";
+import {
+  DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
+  buildBalanceReport,
+  projectDistrictHeat,
+  type StaticGameData
+} from "../../core";
 import {
   BALANCE_EXPORT_SCHEMA_VERSION,
   BALANCE_STAGE_EXPORT_CSV_HEADERS,
@@ -570,6 +575,90 @@ describe("balance report", () => {
     expect(csv).toContain("black_iron_fort_6");
   });
 
+  it("adds report-only District Heat projections without changing compact exports", () => {
+    const report = buildGameBalanceReport(staticData);
+    const bamboo = getRegionReport(report, BAMBOO_ROAD_REGION_ID);
+    const blackIron = getRegionReport(report, BLACK_IRON_FORT_REGION_ID);
+    const demonCult = getRegionReport(report, "redline_outpost");
+    const bambooFarmStage = bamboo.stageResults.find(
+      (stage) => stage.stageId === "greenline_approach_8"
+    );
+    const exportReport = buildBalanceAuthoringExport(report);
+    const csv = formatBalanceStageExportCsv(report);
+
+    expect(bambooFarmStage?.ok).toBe(true);
+    if (!bambooFarmStage?.ok) {
+      return;
+    }
+
+    expect(bamboo.districtHeatProjection).toMatchObject({
+      affectedDistrictId: BAMBOO_ROAD_REGION_ID,
+      affectedRouteId: "greenline_approach_8",
+      activityType: "offline_farm",
+      activityCount: Math.floor(
+        DISTRICT_HEAT_REPORT_WINDOW_SECONDS / bambooFarmStage.durationSeconds
+      ),
+      elapsedSeconds: DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
+      heatBand: "lockdown",
+      projectedHeat: 100,
+      gainReason: "offline_farm_repetition",
+      decayReason: "no_decay_active_window"
+    });
+    expect(blackIron.districtHeatProjection).toMatchObject({
+      affectedRouteId: "black_iron_foundry_6",
+      heatBand: "hot",
+      projectedHeat: 71.25
+    });
+    expect(demonCult.districtHeatProjection).toMatchObject({
+      affectedRouteId: "redline_outpost_6",
+      heatBand: "lockdown",
+      projectedHeat: 90
+    });
+    expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
+    expect(Object.hasOwn(exportReport.regions[0], "districtHeatProjection")).toBe(
+      false
+    );
+    expect(Object.hasOwn(exportReport.stages[0], "districtHeatProjection")).toBe(
+      false
+    );
+    expect(BALANCE_STAGE_EXPORT_CSV_HEADERS.some((header) => header.includes("heat"))).toBe(
+      false
+    );
+    expect(csv.split("\n")[0]).not.toContain("heat");
+  });
+
+  it("projects District Heat gain, repetition, decay, and bands deterministically", () => {
+    expect(
+      projectDistrictHeat({
+        affectedDistrictId: "test_district",
+        affectedRouteId: "test_route",
+        activityType: "offline_farm",
+        activityCount: 40,
+        elapsedSeconds: 1800,
+        clearTimeSeconds: 45
+      })
+    ).toMatchObject({
+      projectedHeat: 33.75,
+      heatBand: "watched",
+      gainReason: "offline_farm_repetition",
+      decayReason: "no_decay_active_window"
+    });
+    expect(
+      projectDistrictHeat({
+        affectedDistrictId: "test_district",
+        activityType: "boss_attempt",
+        activityCount: 10,
+        elapsedSeconds: 3600,
+        inactiveSeconds: 3600
+      })
+    ).toMatchObject({
+      projectedHeat: 20,
+      heatBand: "watched",
+      gainReason: "boss_attempt",
+      decayReason: "inactive_decay"
+    });
+  });
+
   it("builds opt-in tactic comparison exports with retained legacy damage aliases", () => {
     const report = buildTacticComparisonReport(staticData);
     const exportReport = buildTacticComparisonExport(report);
@@ -781,6 +870,9 @@ describe("balance report", () => {
     expect(formatted).toContain("Region Farm Recommendations");
     expect(formatted).toContain("score 157");
     expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
+    expect(formatted).toContain("District Heat Projection");
+    expect(formatted).toContain("offline_farm_repetition");
+    expect(formatted).toContain("no_decay_active_window");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
     expect(formatted).toContain("issues black_iron_foundry_4");

@@ -96,6 +96,24 @@ function formatRegionFarmLine(region: RegionSummary): string {
   return `- ${region.regionName}: ${region.farmRecommendation.stageId} (${rewards}${score}${reason})`;
 }
 
+function formatRegionDistrictHeatLine(region: RegionSummary): string {
+  const projection = region.districtHeatProjection;
+  const route = projection.affectedRouteId ?? "no route";
+  const clearTime =
+    projection.clearTimeSeconds === null
+      ? "clear n/a"
+      : `clear ${formatNumber(projection.clearTimeSeconds)}s`;
+  const windowMinutes = formatNumber(projection.elapsedSeconds / 60);
+
+  return (
+    `- ${region.regionName}: ${projection.heatBand} ` +
+    `${formatNumber(projection.projectedHeat)}/100 from ` +
+    `${projection.activityCount} ${projection.activityType} clears on ` +
+    `${route} over ${windowMinutes}m (${clearTime}; ` +
+    `${projection.gainReason}; ${projection.decayReason})`
+  );
+}
+
 function formatRegionMasteryLine(region: RegionSummary): string {
   const milestone = region.masteryMilestone;
 
@@ -279,6 +297,9 @@ export function formatBalanceReport(report: GameBalanceReport): string {
     "",
     "Region Farm Recommendations",
     ...report.regionBalances.map(formatRegionFarmLine),
+    "",
+    "District Heat Projection",
+    ...report.regionBalances.map(formatRegionDistrictHeatLine),
     "",
     "Region Mastery Milestones",
     ...report.regionBalances.map(formatRegionMasteryLine),

@@ -41,6 +41,16 @@ export {
   type RegionPressureStageSummary,
   type StageBudgetMetrics
 } from "./regionBudgetGates";
+export {
+  DISTRICT_HEAT_MAX,
+  DISTRICT_HEAT_REPORT_WINDOW_SECONDS,
+  DISTRICT_HEAT_REPETITION_THRESHOLD,
+  projectDistrictHeat,
+  type DistrictHeatActivityType,
+  type DistrictHeatBand,
+  type DistrictHeatProjection,
+  type DistrictHeatProjectionInput
+} from "./districtHeatProjection";
 export { calculateSkillSupportCombatPower } from "./supportCombatPower";
 export {
   assessStageClearTimeTarget,

@@ -6,6 +6,8 @@ Stage 2.0 tracks the current authoring surface and known tuning debt in [Content
 
 Stage 3.0 added player-side Intrusion as a data-driven status mechanic without changing the region budget contract or retuning the known Black Iron Foundry and Redline Outpost misses.
 
+Stage 3.1 added report-only District Heat projection to the simulator/default report/full debug JSON without changing region budget gates, live rewards, save state, or stable compact JSON/CSV exports.
+
 ## Configuration
 
 Budgets live in each region's required `balanceTargets` entry in `data/regions.json`.
@@ -79,6 +81,8 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
 - Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
 
+After Stage 3.1 District Heat closure, these known Black Iron Foundry and Redline Outpost misses do not block report-only heat projection. They do block live heat reward, risk, offline-farming, or route-pressure changes until the affected miss is retuned or explicitly reclassified.
+
 ## Reading Report Sections
 
 `npm run simulate` includes a `Region Difficulty Curve` section before the boss-gate summaries. Each region line reports the clear trend, hold/unresolved counts, target issues, and detected spikes. `issues` are target failures that should be fixed or explicitly tracked. `spikes` are large clear-time jumps between targeted player clears; `fail` spikes also miss their configured target, while `watch` spikes are useful tuning handles that still fit the target band.
@@ -123,6 +127,8 @@ This compact export has `schemaVersion: 3` and four top-level tables:
 - `stages` for stage timing, rewards, farm recommendation markers, difficulty issues, difficulty spikes, and pressure fields.
 - `budgetChecks` for one row per configured region budget check.
 - `bossGateAssumptions` for baseline, trained, and farmed boss-gate rows.
+
+Stage 3.1 report-only District Heat projection is visible in the default report and full debug JSON, not in this compact export. Adding heat fields to compact JSON or CSV requires a later explicit schema decision.
 
 Stage 2.6 schema version 3 keeps canonical ids as primary fields and adds temporary legacy id context for report comparison. Region/stage rows retain legacy region/stage ids from Stage 2.5, and stage rows now include temporary legacy enemy/status id columns. Stage 2.7 did not add temporary legacy save-field columns because the generated balance exports are static content reports, not persisted-save exports.
 

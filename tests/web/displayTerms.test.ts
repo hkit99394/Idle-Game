@@ -12,8 +12,12 @@ import {
 } from "../../web/displayTerms";
 
 const webRootUrl = new URL("../../web/", import.meta.url);
-const futureOnlyMechanicTerms = [
+const futureOnlyMechanicSourceTokens = [
   "District Heat",
+  "districtHeat",
+  "districtHeatProjection",
+  "projectedHeat",
+  "heatBand",
   "Trace",
   "Firewall",
   "Calibration Debt",
@@ -87,7 +91,7 @@ describe("Path of Neon display terms", () => {
       source: readFileSync(fileUrl, "utf8")
     }));
 
-    for (const term of futureOnlyMechanicTerms) {
+    for (const term of futureOnlyMechanicSourceTokens) {
       const matches = sourceByFile
         .filter(({ source }) => source.includes(term))
         .map(({ file }) => file);

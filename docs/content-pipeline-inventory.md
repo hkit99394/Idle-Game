@@ -6,6 +6,8 @@ Known misses below are recorded as tuning debt so future tuning passes can handl
 
 Stage 3.0 added the first post-migration mechanic as data-driven combat content: the `cognitive_intrusion` status and Azure Pulse Monk's `context_shock_refinement` upgrade hook. The addition uses existing status, skill-upgrade, simulator, and report surfaces rather than changing save or export schemas.
 
+Stage 3.1 added the first District Heat authoring proof as report-only balance projection. It appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports, save data, cloud save payloads, and live web UI remain heat-free until a later schema and player-facing mechanic decision.
+
 ## Current Authoring Contract
 
 - [data/staticGameData.ts](../data/staticGameData.ts) imports the configured JSON files and exports the canonical bundle.
@@ -56,6 +58,7 @@ Stage 3.0 added the first post-migration mechanic as data-driven combat content:
 
 - stage results, clear times, formations, rewards, and target bands;
 - region farm recommendations;
+- report-only District Heat projection by district and recommended farm route;
 - mastery milestones;
 - difficulty-curve summaries with trend counts, target misses, and spike reasons;
 - boss gates for baseline, trained, or farmed states;
@@ -73,7 +76,7 @@ The region target schema currently lives in `balanceTargets` inside [data/region
 - `bossGate`.
 - `budgetExceptions`.
 
-`npm run simulate -- --json` returns the full debug report data in machine-readable form. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review.
+`npm run simulate -- --json` returns the full debug report data in machine-readable form, including the region-level report-only `districtHeatProjection`. For review tooling, `npm run --silent simulate -- --export-json` returns a stable compact authoring export with `schemaVersion`, `regions`, `stages`, `budgetChecks`, and `bossGateAssumptions`. `npm run --silent simulate -- --csv` returns spreadsheet-friendly stage rows with the fields authors compare most often. Stage 2.6 authoring export schema version `3` keeps canonical content ids primary and adds temporary legacy enemy/status id context for before-and-after review. Stage 3.1 keeps District Heat out of compact JSON/CSV exports until a later schema decision.
 
 Stage 2.7 save-field migration does not change the static content reward schema or generated balance export reward columns. Simulator and support-decision tooling should consume current runtime progress/save fields when they read progress, but authored rewards and report columns such as `reward_silver`, `reward_cultivation`, `reward_herbs`, and `reward_combat_experience` remain static authoring metrics until a later balance/report schema migration explicitly changes them.
 
@@ -102,6 +105,8 @@ The current simulator output keeps these misses visible:
 These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
 
 Stage 3.0 did not retune these budgets. Its simulator review confirmed the same Black Iron Foundry and Redline Outpost misses remain visible while Intrusion's focused regression proves the new mechanic changes AI Overload timing.
+
+Stage 3.1 Slice 97.3 classifies these misses as acceptable for report-only District Heat projection, provided they remain visible by stable ids in the same simulator/export run. They remain blockers for live District Heat reward, risk, offline-farming, or route-pressure changes until a later tuning slice retunes or explicitly reclassifies the affected debt.
 
 ## Tactic Comparison Notes
 

@@ -11,6 +11,13 @@ import {
 import { stage12SaveFixture } from "../fixtures/stage12Save";
 import { staticData } from "../helpers/staticData";
 
+const reportOnlyDistrictHeatSaveKeys = [
+  "districtHeat",
+  "districtHeatProjection",
+  "projectedHeat",
+  "heatBand"
+] as const;
+
 describe("save schema factory", () => {
   it("creates a versioned save with progress, farm target, and timestamps", () => {
     const progress = createInitialPlayerProgress(staticData);
@@ -80,6 +87,25 @@ describe("save schema factory", () => {
     expect(serialized.progress.maps).toBeUndefined();
     expect(serialized.progress.currentStageId).toBeUndefined();
     expect(serialized.selectedOfflineFarmStageId).toBeUndefined();
+  });
+
+  it("keeps report-only District Heat out of current save serialization", () => {
+    const progress = createInitialPlayerProgress(staticData);
+    progress.districts.greenline_approach.highestClearedRouteIndex = 8;
+    const save = createSaveData({
+      progress,
+      selectedOfflineFarmRouteId: "greenline_approach_8",
+      nowMs: 1000
+    });
+    const serialized = JSON.parse(JSON.stringify(save));
+    const serializedText = JSON.stringify(serialized);
+
+    expect(save.version).toBe(SAVE_DATA_VERSION);
+    for (const key of reportOnlyDistrictHeatSaveKeys) {
+      expect(Object.hasOwn(save, key)).toBe(false);
+      expect(Object.hasOwn(serialized, key)).toBe(false);
+      expect(serializedText).not.toContain(key);
+    }
   });
 
   it("preserves creation and offline reward timestamps when updating a save", () => {

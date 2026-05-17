@@ -11,6 +11,13 @@ import {
 } from "../../core";
 import { staticData } from "../helpers/staticData";
 
+const reportOnlyDistrictHeatSaveKeys = [
+  "districtHeat",
+  "districtHeatProjection",
+  "projectedHeat",
+  "heatBand"
+] as const;
+
 describe("cloud save contract", () => {
   it("wraps current saves and routes cloud loads through the core load transaction", () => {
     const progress = createInitialPlayerProgress(staticData);
@@ -44,6 +51,13 @@ describe("cloud save contract", () => {
         updatedAtMs: 1_000
       }
     });
+    const rawSave = envelope.rawSave as Record<string, unknown>;
+    const rawSaveText = JSON.stringify(rawSave);
+
+    for (const key of reportOnlyDistrictHeatSaveKeys) {
+      expect(Object.hasOwn(rawSave, key)).toBe(false);
+      expect(rawSaveText).not.toContain(key);
+    }
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;
