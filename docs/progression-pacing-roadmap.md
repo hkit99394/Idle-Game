@@ -93,7 +93,7 @@ One important tuning risk: offline farming currently uses a fixed `estimatedClea
 
 Stage 3.2 Slice 98.5 applied that region-aware Redline treatment: `redline_outpost_1` now uses an `18-25s` normal target, Redline elites use a `19-40s` band, default Redline status pressure is below cap, and the Redline boss remains a baseline clear inside its `80-140s` gate. Slice 98.6 confirms default Redline blocker cleanup is not the live-heat blocker anymore.
 
-Stage 3.1 closed District Heat as an author-facing projection only. Stage 3.2 is archived at [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md), and Slice 98.6 keeps that posture: `npm run simulate` and full debug JSON can show projected heat plus the `report_only` promotion decision, but the stable compact JSON/CSV exports, tactic exports, live rewards, save state, cloud payloads, and web UI remain heat-free. The next pacing step should be parity cleanup or a separate non-punitive warning contract, not a live heat reward/risk change.
+Stage 3.1 closed District Heat as an author-facing projection only. Stage 3.2 is archived at [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md), and Slice 98.6 keeps that posture: `npm run simulate` and full debug JSON can show projected heat plus the `report_only` promotion decision, but the stable compact JSON/CSV exports, tactic exports, live rewards, save state, cloud payloads, and web UI remain heat-free. Stage 3.3 is active at [Stage 3.3 Backlog](stage-3.3-backlog.md) to resolve offline parity and visible Black Iron debt before any live heat reward/risk change.
 
 ## Milestone Pacing Targets
 

@@ -217,6 +217,8 @@ The decision is reversible, but a later slice must do one of these before live h
 - resolve offline parity inversions and visible Black Iron debt before any heat reward/risk/offline pressure changes;
 - or write a separate non-punitive warning contract with explicit save/UI/export boundaries before any player-facing heat copy appears.
 
+[Stage 3.3 Backlog](stage-3.3-backlog.md) owns that next cleanup path. It should recheck the promotion decision only after offline parity and `black_iron_foundry_4` have current evidence.
+
 ## Verification Requirements
 
 For contract and report-only work:
