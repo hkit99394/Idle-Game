@@ -1,45 +1,47 @@
 # Path Of Neon Roadmap
 
-This document is the short, middle, and long-term milestone map for Path of Neon after Stage 3.4 release hardening. It summarizes direction across the active docs; detailed contracts and verification requirements still live in the linked source documents.
+This document is the short, middle, and long-term milestone map for Path of Neon after Stage 3.5 release hardening. It summarizes direction across the active docs; detailed contracts and verification requirements still live in the linked source documents.
 
 Use this as the first planning reference when deciding what stage to prepare next. Use [Current Implemented Systems](current-implemented-systems.md) for current state, [District Heat Contract](district-heat-contract.md) for District Heat rules, [Progression Pacing Roadmap](progression-pacing-roadmap.md) for timeline and balance pacing, and [Path Of Neon Retheme Migration Plan](retheme-migration-plan.md) for broader product direction.
 
 ## Current Position
 
-Path of Neon has completed the display-safe retheme, the first neon-native mechanic prototype, and the District Heat contract path:
+Path of Neon has completed the display-safe retheme, the first neon-native mechanic prototype, and the District Heat warning-only route-card prototype:
 
 - Stage 3.0 shipped the first Cognitive Intrusion slice as the implemented `cognitive_intrusion` status.
 - Stage 3.1 added District Heat as report-only simulator evidence.
 - Stage 3.2 and Stage 3.3 resolved the current pacing, offline parity, Redline, and Black Iron blockers needed before a player-facing heat step.
 - Stage 3.4 completed the non-punitive District Heat warning contract, selected stronger report-only guard rails instead of live UI, and is archived at [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md).
+- Stage 3.5 shipped the smallest District Attention route-card warning surface and is archived at [Archived Stage 3.5 Backlog](archive/stage-3.5-backlog.md).
 
-The current runtime still has no live District Heat UI, save field, cloud field, compact export field, tactic export field, reward modifier, route-risk modifier, or enemy-pressure modifier.
+The current runtime has one warning-only District Attention route-card note for the selected offline farm target while it remains farmable. It still has no District Heat save field, cloud field, compact export field, tactic export field, reward modifier, route-risk modifier, enemy-pressure modifier, global heat meter, acknowledgement state, timer, or number.
 
 ## Short Term
 
-### Stage 3.5: District Attention Route-Card Prototype
+### Stage 3.6: District Heat Live Decision
 
-[Stage 3.5 Backlog](stage-3.5-backlog.md) is active for the smallest player-facing warning surface for District Heat without changing gameplay.
+After the route-card warning is visible and tested, decide whether District Heat remains warning-only or becomes a real mechanic.
 
 Goal:
 
-- Show neutral `district attention` copy on a route card only, using the Stage 3.4 contract language.
-- Keep the warning informational, reversible, and non-punitive.
+- Keep the shipped route-card warning informational unless a dedicated slice explicitly approves more.
+- Choose one posture for District Heat before any reward, risk, pressure, save, cloud, or export behavior changes.
 
-Allowed surface:
+Current shipped warning-only surface:
 
 - Primary owner: `web/features/mapIdle/panels.tsx`.
-- View-model owners only if needed: `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts`.
-- Approved future label: `Attention rising`.
-- Approved future body: `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`
-- Approved future support text: `Informational only.`
+- View-model owners: `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts`.
+- Display condition: selected offline farm route card while it remains farmable.
+- Shipped label: `Attention rising`.
+- Shipped body: `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`
+- Shipped support text: `Informational only.`
 
 Required guard rails:
 
-- Amend [District Heat Contract](district-heat-contract.md) before adding live copy.
-- Amend `tests/web/displayTerms.test.ts` with an explicit allowlist for the named owner files.
-- Prove rewards, enemy pressure, offline gains, saves, cloud payloads, compact exports, tactic exports, and route risk remain unchanged.
-- Do not add a global meter, top-bar badge, modal, onboarding panel, district header, offline summary total, warning acknowledgement, save diagnostic, severity band, timer, number, or heat meter.
+- Keep [District Heat Contract](district-heat-contract.md) as the authority before changing warning scope.
+- Keep `tests/web/displayTerms.test.ts` allowlisted only for the named owner files.
+- Continue proving rewards, enemy pressure, offline gains, saves, cloud payloads, compact exports, tactic exports, and route risk remain unchanged unless the next stage deliberately changes them.
+- Do not add a global meter, top-bar badge, modal, onboarding panel, district header, offline summary total, warning acknowledgement, save diagnostic, severity band, timer, number, heat meter, or durable heat field inside Stage 3.6 without a dedicated slice.
 
 Suggested verification:
 
@@ -52,13 +54,7 @@ npm run simulate
 git diff --check
 ```
 
-Browser smoke is required for Stage 3.5 because it changes visible route-card UI.
-
-## Middle Term
-
-### Stage 3.6: District Heat Live Decision
-
-After the route-card warning is visible and tested, decide whether District Heat remains informational or becomes a real mechanic.
+Browser smoke is required if Stage 3.6 changes the visible route-card warning or adds any new player-facing District Heat surface.
 
 Decision options:
 
@@ -72,9 +68,11 @@ Decision options:
 
 Recommended posture:
 
-- Prefer **warning-only** until the warning is proven readable and useful.
-- Do not add reward modifiers, enemy-pressure modifiers, route-risk modifiers, or persisted heat in the same stage as the route-card prototype.
+- Prefer **warning-only** unless player feedback or simulator evidence justifies a bounded next step.
+- Do not add reward modifiers, enemy-pressure modifiers, route-risk modifiers, or persisted heat without a dedicated save/export/UI contract.
 - Any live effect must open a separate slice with focused simulator evidence, save posture, export posture, UI tests, browser smoke, and rollback language.
+
+## Middle Term
 
 ### Stage 4.0: Next Neon System Selection
 

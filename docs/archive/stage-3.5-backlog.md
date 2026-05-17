@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.5 is active after [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md). Stage 3.4 completed the District Heat warning contract, selected neutral `district attention` copy, chose future route-card placement, kept the warning non-persistent and export-free, and strengthened the live-web source guard so warning copy cannot appear until a named implementation slice amends the contract. Slice 101.1 completed the contract reopen and allowlist preflight. Slice 101.2 added non-persistent route-card warning data to the map view model. Slice 101.3 rendered the compact warning in the route-card UI. Slice 101.4 hardened boundary tests and re-proved compact/tactic exports remain warning-free.
+Stage 3.5 is complete and archived after [Archived Stage 3.4 Backlog](stage-3.4-backlog.md). Stage 3.4 completed the District Heat warning contract, selected neutral `district attention` copy, chose future route-card placement, kept the warning non-persistent and export-free, and strengthened the live-web source guard so warning copy cannot appear until a named implementation slice amends the contract. Slice 101.1 completed the contract reopen and allowlist preflight. Slice 101.2 added non-persistent route-card warning data to the map view model. Slice 101.3 rendered the compact warning in the route-card UI. Slice 101.4 hardened boundary tests and re-proved compact/tactic exports remain warning-free. Slice 101.5 captured desktop and narrow-mobile browser smoke with no warning spillover into unrelated surfaces. Slice 101.6 completed release hardening, updated active docs, and archived the backlog.
 
 This stage owns **Epic 101: District Attention Route-Card Prototype**. It should build the smallest player-facing warning surface for District Heat without changing rewards, route risk, enemy pressure, offline gains, save data, cloud payloads, compact exports, tactic exports, or full-debug report shape.
 
@@ -24,20 +24,20 @@ The Stage 3.5 plan starts from the Stage 3.4 closure evidence:
 
 Make District Heat visible only as a small, non-punitive route-card warning.
 
-Stage 3.5 should answer whether a player-facing attention note can exist without implying a new mechanic. The warning should be quiet, scoped, reversible, and derived in memory from existing route-card state. It must not become a global meter, a timer, a severity system, a save field, an export schema, or a reward/risk rule.
+Stage 3.5 answered whether a player-facing attention note can exist without implying a new mechanic. The warning is quiet, scoped, reversible, and derived in memory from existing route-card state. It did not become a global meter, a timer, a severity system, a save field, an export schema, or a reward/risk rule.
 
 ## Source Contracts And Carry-Forward Decisions
 
-- [District Heat Contract](district-heat-contract.md) remains the District Heat authority.
-- [Path Of Neon Roadmap](path-of-neon-roadmap.md) names Stage 3.5 as the short-term route-card prototype.
-- [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md) records the warning copy, UI placement, no-persistence posture, no-export posture, and guard-rail decision.
-- [Web UI Architecture](web-ui-architecture.md) remains the feature/view-model ownership authority.
-- [Save API](save-api.md) and [Cloud Save Contract](cloud-save-contract.md) remain the persistence boundary authorities.
-- [Progression Pacing Roadmap](progression-pacing-roadmap.md), [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and `npm run simulate` remain the balance/report authorities.
+- [District Heat Contract](../district-heat-contract.md) remains the District Heat authority.
+- [Path Of Neon Roadmap](../path-of-neon-roadmap.md) names Stage 3.6 as the next District Heat live-decision handoff after the Stage 3.5 route-card prototype.
+- [Archived Stage 3.4 Backlog](stage-3.4-backlog.md) records the warning copy, UI placement, no-persistence posture, no-export posture, and guard-rail decision.
+- [Web UI Architecture](../web-ui-architecture.md) remains the feature/view-model ownership authority.
+- [Save API](../save-api.md) and [Cloud Save Contract](../cloud-save-contract.md) remain the persistence boundary authorities.
+- [Progression Pacing Roadmap](../progression-pacing-roadmap.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), and `npm run simulate` remain the balance/report authorities.
 
 ## Scope
 
-- Reopen [District Heat Contract](district-heat-contract.md) only enough to approve the Stage 3.5 route-card allowlist and display condition.
+- Reopen [District Heat Contract](../district-heat-contract.md) only enough to approve the Stage 3.5 route-card allowlist and display condition.
 - Amend `tests/web/displayTerms.test.ts` with an explicit allowlist for the named owner files instead of removing the future-term guard.
 - Add a non-persistent route-card warning data shape only if the UI needs structured view-model data.
 - Render the warning only in `web/features/mapIdle/panels.tsx`.
@@ -61,7 +61,7 @@ Stage 3.5 should answer whether a player-facing attention note can exist without
 - The route-card warning is non-persistent, non-punitive, compact, and visibly secondary.
 - Tests prove save/cloud/export/reward/risk/offline boundaries did not move.
 - Browser smoke is recorded for desktop and narrow mobile route-card views.
-- Active docs point to Stage 3.5 as the current short-term work.
+- Active docs point to Stage 3.6 as the current District Heat live-decision handoff.
 
 ## Epic Summary
 
@@ -71,8 +71,8 @@ Stage 3.5 should answer whether a player-facing attention note can exist without
 | 101.2 | 101 | Non-Persistent Warning View Model | Complete |
 | 101.3 | 101 | Route-Card Warning UI | Complete |
 | 101.4 | 101 | Boundary Tests And Export Proof | Complete |
-| 101.5 | 101 | Browser Smoke And UX Polish | Planned |
-| 101.6 | 101 | Release Hardening And Archive Readiness | Planned |
+| 101.5 | 101 | Browser Smoke And UX Polish | Complete |
+| 101.6 | 101 | Release Hardening And Archive Readiness | Complete |
 
 ## Slice 101.1: Contract Reopen And Allowlist Preflight
 
@@ -80,8 +80,8 @@ Approve the exact live warning surface before adding player-facing copy.
 
 ### Tasks
 
-- Review [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md), [District Heat Contract](district-heat-contract.md), [Path Of Neon Roadmap](path-of-neon-roadmap.md), [Web UI Architecture](web-ui-architecture.md), [Save API](save-api.md), [Cloud Save Contract](cloud-save-contract.md), and `tests/web/displayTerms.test.ts`.
-- Update [District Heat Contract](district-heat-contract.md) with the Stage 3.5 route-card warning allowlist.
+- Review [Archived Stage 3.4 Backlog](stage-3.4-backlog.md), [District Heat Contract](../district-heat-contract.md), [Path Of Neon Roadmap](../path-of-neon-roadmap.md), [Web UI Architecture](../web-ui-architecture.md), [Save API](../save-api.md), [Cloud Save Contract](../cloud-save-contract.md), and `tests/web/displayTerms.test.ts`.
+- Update [District Heat Contract](../district-heat-contract.md) with the Stage 3.5 route-card warning allowlist.
 - Decide the exact display condition for the prototype. Default to selected or offline-farm route-card state already available in the map/idle view model.
 - Name owner files for any allowed live warning terms.
 - Keep report-only field names such as `District Heat`, `districtHeatProjection`, `projectedHeat`, and `heatBand` blocked from live web source.
@@ -95,7 +95,7 @@ Approve the exact live warning surface before adding player-facing copy.
 ### Implementation Notes
 
 - Reviewed the Stage 3.4 archive, District Heat contract, Path Of Neon roadmap, web UI ownership docs, save/cloud contracts, and current `tests/web/displayTerms.test.ts` guard.
-- Reopened [District Heat Contract](district-heat-contract.md) only for the Stage 3.5 route-card warning surface.
+- Reopened [District Heat Contract](../district-heat-contract.md) only for the Stage 3.5 route-card warning surface.
 - Approved owner files: `web/features/mapIdle/panels.tsx` for the rendered note, plus `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts` only if Slice 101.2 chooses structured view-model data.
 - Chose the display condition: show the warning only on the selected offline farm route card while it remains farmable, using existing `isSelectedOfflineFarmStage` and `canSelectOfflineFarm` view state. No persisted route history, heat accumulation, acknowledgement state, or player-configurable warning setting is needed.
 - Approved route-card copy remains `Attention rising`, `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`, and `Informational only.`
@@ -231,13 +231,24 @@ Verify the visible warning behaves well in the running app.
 - The warning is compact, readable, and visually secondary.
 - No unrelated UI surfaces gain warning copy.
 
+### Implementation Notes
+
+- Ran the local Vite app on `http://127.0.0.1:5173/` and drove the real post-victory farm-target route-card state in headless Chrome.
+- Captured route-card evidence for desktop and narrow mobile at `/private/tmp/path-neon-1015-desktop-route-card.png` and `/private/tmp/path-neon-1015-mobile-route-card.png`.
+- Confirmed exactly one `.stage-attention-note` appears in both viewports, on `Greenline Route 1` with the `Farm target` status.
+- Confirmed the warning copy has no width or height overflow in desktop or narrow mobile card views.
+- Confirmed the warning text is absent from `.stage-header`, `.resource-row`, `.offline-farm-panel`, `.offline-summary`, `.battle-summary`, `.status-pressure-list`, `.save-tools`, `.save-diagnostics-panel`, `.save-status`, and `.upgrade-status`.
+- No CSS polish was needed; the existing route-card surface stayed compact, readable, and secondary.
+- Slice 101.5 did not change gameplay, save/cloud/export boundaries, route risk, enemy pressure, offline rewards, or simulator output.
+
 ### Verification
 
-- Planned: `npm run dev`
-- Planned: browser smoke for desktop route-card view.
-- Planned: browser smoke for narrow mobile route-card view.
-- Planned: `npm run build`
-- Planned: `git diff --check`
+- Passed: `npm run dev -- --port 5173`
+- Passed: browser smoke for desktop route-card view.
+- Passed: browser smoke for narrow mobile route-card view.
+- Passed: unrelated-surface warning text scan.
+- Passed: `npm run build`
+- Passed: `git diff --check`
 
 ## Slice 101.6: Release Hardening And Archive Readiness
 
@@ -256,15 +267,24 @@ Close Stage 3.5 only after docs, tests, reports, and browser smoke agree.
 - Active docs clearly say whether the route-card warning shipped, stayed prototype-only, or was deferred.
 - The next work is a Stage 3.6 District Heat live decision, not reward/risk/persistence behavior slipped into Stage 3.5.
 
+### Implementation Notes
+
+- Updated active roadmap, current-system, contract, save, cloud, and web UI docs to state that Stage 3.5 shipped a warning-only route-card note.
+- Kept the Stage 3.6 handoff explicit: decide whether District Heat stays warning-only or advances through a dedicated live-heat contract.
+- Re-ran the release-readiness command set for the visible warning and compact/tactic export boundaries.
+- Re-ran desktop and narrow-mobile browser smoke against the route-card warning.
+- Archived this backlog after all Epic 101 slices were complete.
+- Slice 101.6 did not change gameplay, UI behavior, save/cloud/export schemas, reward math, route risk, enemy pressure, offline rewards, or simulator output.
+
 ### Verification
 
-- Planned: `npm run typecheck`
-- Planned: `npm test`
-- Planned: `npm run build`
-- Planned: `npm run simulate`
-- Planned: `npm run --silent simulate -- --export-json`
-- Planned: `npm run --silent simulate -- --csv`
-- Planned: `npm run --silent simulate -- --tactics-json`
-- Planned: `npm run --silent simulate -- --tactics-csv`
-- Planned: browser smoke for desktop and narrow mobile route-card views.
-- Planned: `git diff --check`
+- Passed: `npm run typecheck`
+- Passed: `npm test`
+- Passed: `npm run build`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: browser smoke for desktop and narrow mobile route-card views.
+- Passed: `git diff --check`
