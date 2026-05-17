@@ -204,7 +204,7 @@ Additional tactic comparison caution:
 
 Stage 3.1 closes District Heat as an author-facing report-only projection. The implementation is enough for balance review because it shows affected district, route, projected clear count, projected heat, band, gain reason, and decay reason in `npm run simulate` and full debug JSON without changing live gameplay.
 
-It is not enough to start a live heat mechanic by itself. The next implementation step should be a dedicated live-heat decision slice that accounts for active/offline parity, the resolved default Redline gates, save posture, export schema posture, and the exact player-facing UI promise.
+It is not enough to start a live heat mechanic by itself. At Stage 3.1 closure, the expected next step was a dedicated live-heat decision slice that accounted for active/offline parity, resolved default Redline gates, save posture, export schema posture, and the exact player-facing UI promise. Stage 3.4 supersedes that ordering: the current roadmap is a Stage 3.5 warning-only route-card prototype first, followed by a Stage 3.6 live-heat decision only after the warning is readable and verified.
 
 ## Stage 3.2 Promotion Decision
 
@@ -223,7 +223,45 @@ The decision is reversible, but a later slice must do one of these before live h
 
 Slice 99.5 reruns the promotion decision after offline parity and visible Black Iron debt both pass. The current runtime posture remains **report-only**: District Heat still has no live UI, save field, cloud envelope field, compact export field, tactic export field, heat reward modifier, or route-risk modifier.
 
-All current promotion gates pass, so the next milestone should prepare a **non-punitive warning contract** before any player-facing heat copy appears. That contract must define copy scope, UI placement, save posture, export posture, and verification. Passing gates do not authorize live heat rewards or route-risk pressure by themselves.
+All current promotion gates pass, so Stage 3.4 completed a **non-punitive warning contract** before any player-facing heat copy appears. That contract defines copy scope, UI placement, save posture, export posture, and verification. Passing gates do not authorize live heat rewards or route-risk pressure by themselves.
+
+## Stage 3.4 Warning Contract Decision
+
+[Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md) completed Epic 100: warning preflight, copy scope, UI placement, save/export/report boundaries, prototype-or-guard-rail decision, and release hardening.
+
+The expected default posture remains no durable heat state and no stable export fields. Stage 3.4 may approve a later tiny warning prototype only if it is explicitly non-persistent, non-punitive, named by surface, and covered by focused tests. It must not add rewards, route-risk pressure, enemy-pressure modifiers, save fields, cloud fields, compact export fields, tactic export fields, or broad economy tuning.
+
+Slice 100.2 selects the warning copy and placement posture:
+
+- Use neutral player-facing `district attention` language, not the report/internal `District Heat` label.
+- Approved future route-card label: `Attention rising`.
+- Approved future body copy: `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`
+- Approved future supporting copy: `Informational only.`
+- Keep live source free of `District Heat`, `districtHeat`, `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, and `heatBand` until a later implementation slice explicitly amends the guard.
+- If implemented later, place the warning only as a compact route-card note in `web/features/mapIdle/panels.tsx`, backed by `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts` only if view data is needed.
+- Do not place the warning in a global meter, top-bar badge, modal, onboarding panel, district header, offline summary total, offline reward preview modifier, or save diagnostics field.
+- Do not use severity colors, bars, numbers, timers, band labels, or any copy that implies current rewards, enemy pressure, boss difficulty, assignments, route risk, or offline returns have changed.
+
+Slice 100.3 selects the save, export, and report posture:
+
+- The warning has no durable state. A later warning prototype may be derived in memory for display, but it must not persist player, route, district, projected, or acknowledged warning state.
+- Saves keep `SAVE_DATA_VERSION` at `13` by default and add no District Heat or district-attention fields, migrations, browser storage keys, import/export save normalization, or save diagnostics output.
+- Cloud envelopes and `rawSave` payloads add no heat, warning, district-attention, conflict-resolution, or adapter metadata.
+- Compact authoring JSON stays schema version `3` and must not include heat, attention, warning copy, warning booleans, or warning placement fields.
+- Tactic comparison JSON stays schema version `4` and must not include heat, attention, route-risk, reward-pressure, or warning fields.
+- Stage CSV and tactic CSV stay heat-free and warning-free.
+- Full debug JSON keeps the existing report-only `districtHeatProjection` and `districtHeatPromotionDecision` fields unchanged. Stage 3.4 does not add `districtAttentionWarning`, warning copy strings, placement metadata, acknowledgement state, or display booleans.
+- Any durable state, cloud conflict behavior, stable export field, warning acknowledgement, or changed debug JSON contract requires a later dedicated slice with focused tests.
+
+Slice 100.4 selects the stronger report-only guard-rail path:
+
+- Stage 3.4 does not hand off a runtime warning prototype.
+- District Heat remains author-facing only in `npm run simulate` and full debug JSON until a later implementation slice amends this contract.
+- `tests/web/displayTerms.test.ts` now blocks the approved future warning copy tokens `district attention`, `District attention`, and `Attention rising` from live `web/` source.
+- The same guard blocks likely implementation identifiers before the contract is reopened: `districtAttention`, `district-attention`, `districtAttentionWarning`, and `attentionWarning`.
+- A later tiny route-card prototype must update this contract, name owner files, amend the source guard with an explicit allowlist, and add focused tests proving rewards, enemy pressure, offline gains, saves, cloud payloads, stable exports, and route risk remain unchanged.
+
+Slice 100.5 refreshes the author-facing promotion decision so the report no longer says Stage 3.4 still needs preparation. The current next action is a later route-card warning prototype slice, if player-facing copy is desired; that slice must amend the web-source guard first and keep rewards, route risk, saves, cloud payloads, and stable exports unchanged.
 
 ## Verification Requirements
 

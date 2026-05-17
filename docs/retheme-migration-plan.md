@@ -6,6 +6,8 @@ Move the project from Path of Jianghu to **Path of Neon** without breaking exist
 
 The first retheme pass should be display-safe, but the product plan must be deeper than a rename. Internal identifiers are compatibility contracts until a specific migration says otherwise; player-facing design should move toward cyber-native systems such as cognitive intrusion, augmentation loadouts, district heat, network operations, protocol decks, countermeasure economy, and AI raid events.
 
+For the current short, middle, and long-term milestone map, use [Path Of Neon Roadmap](path-of-neon-roadmap.md). This migration plan remains the compatibility and retheme history authority.
+
 Internal ids should migrate to Path of Neon names, but only through the dedicated compatibility plan in [Path Of Neon Internal Id Migration](path-of-neon-internal-id-migration.md). As each migration slice lands, canonical data may move while legacy ids and persisted fields remain valid through explicit compatibility adapters.
 
 ## Non-Goals
@@ -195,7 +197,7 @@ Pick one prototype for the first deeper change. Do not implement all of these in
 | Countermeasure Economy | Makes medicine and Lotus support feel tech-native. | Rename/polish countermeasure UI, then add one anti-overload countermeasure. |
 | AI Raid Event | Connects Path of Neon to online boss planning. | Create endpoint/mock contract for async raid attempts without production backend. |
 
-Recommendation: start with **Cognitive Intrusion**, then follow with **District Heat**. Stage 3.0 implemented the first Cognitive Intrusion slice as the Intrusion status, proving Path of Neon can add mechanics beyond renamed copy while reusing Context Stability, AI Overload, statuses, target rules, and existing simulator visibility. Stage 3.1 completed District Heat contract, pacing, known-debt, report-only simulator projection, and save/UI/export boundary proof; see [Archived Stage 3.1 Backlog](archive/stage-3.1-backlog.md) and [District Heat Contract](district-heat-contract.md). [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md) records offline parity reporting, default Redline gate cleanup, and the Slice 98.6 decision to keep District Heat report-only until parity cleanup or a separate non-punitive warning contract is ready. Stage 3.3 Slice 99.5 keeps current heat runtime report-only after parity and Black Iron cleanup, and chooses that warning contract as the next milestone.
+Recommendation: start with **Cognitive Intrusion**, then follow with **District Heat**. Stage 3.0 implemented the first Cognitive Intrusion slice as the Intrusion status, proving Path of Neon can add mechanics beyond renamed copy while reusing Context Stability, AI Overload, statuses, target rules, and existing simulator visibility. Stage 3.1 completed District Heat contract, pacing, known-debt, report-only simulator projection, and save/UI/export boundary proof; see [Archived Stage 3.1 Backlog](archive/stage-3.1-backlog.md) and [District Heat Contract](district-heat-contract.md). [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md) records offline parity reporting, default Redline gate cleanup, and the Slice 98.6 decision to keep District Heat report-only until parity cleanup or a separate non-punitive warning contract is ready. Stage 3.3 Slice 99.5 keeps current heat runtime report-only after parity and Black Iron cleanup; [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md) completes that warning contract milestone with stronger report-only guard rails instead of live UI.
 
 Acceptance:
 

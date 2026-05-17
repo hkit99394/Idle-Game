@@ -1,6 +1,6 @@
 # Progression Pacing Roadmap
 
-This document records the recommended planning model for how Path of Neon should relate stages, hero/team power, upgrade economy, offline farming, and milestone timing. It is a design and tooling roadmap, not an implemented balance change.
+This document records the recommended planning model for how Path of Neon should relate stages, hero/team power, upgrade economy, offline farming, and milestone timing. It is a design and tooling roadmap, not an implemented balance change. For the short, middle, and long-term product milestone map, use [Path Of Neon Roadmap](path-of-neon-roadmap.md).
 
 The current implementation already has strong balance tooling: region `balanceTargets`, static validation, `npm run simulate`, compact JSON/CSV exports, boss-gate assumptions, farm recommendations, and tactic comparison exports. The missing layer is a target player timeline that says when a player should reach each major stage band.
 
@@ -93,7 +93,7 @@ One important tuning risk was offline farming's old fixed `estimatedClearTimeSec
 
 Stage 3.2 Slice 98.5 applied that region-aware Redline treatment: `redline_outpost_1` now uses an `18-25s` normal target, Redline elites use a `19-40s` band, default Redline status pressure is below cap, and the Redline boss remains a baseline clear inside its `80-140s` gate. Slice 98.6 confirms default Redline blocker cleanup is not the live-heat blocker anymore.
 
-Stage 3.1 closed District Heat as an author-facing projection only. Stage 3.2 is archived at [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md), and Slice 98.6 keeps that posture: `npm run simulate` and full debug JSON can show projected heat plus the `report_only` promotion decision, but the stable compact JSON/CSV exports, tactic exports, save state, cloud payloads, and web UI remain heat-free. Stage 3.3 is archived at [Archived Stage 3.3 Backlog](archive/stage-3.3-backlog.md); Slice 99.5 keeps current heat runtime report-only after parity and Black Iron debt cleanup, and chooses a non-punitive warning contract as the next pacing step before any live heat reward/risk change.
+Stage 3.1 closed District Heat as an author-facing projection only. Stage 3.2 is archived at [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md), and Slice 98.6 keeps that posture: `npm run simulate` and full debug JSON can show projected heat plus the `report_only` promotion decision, but the stable compact JSON/CSV exports, tactic exports, save state, cloud payloads, and web UI remain heat-free. Stage 3.3 is archived at [Archived Stage 3.3 Backlog](archive/stage-3.3-backlog.md); Slice 99.5 keeps current heat runtime report-only after parity and Black Iron debt cleanup. [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md) completes the non-punitive warning contract with stronger report-only guard rails: no live heat reward/risk change, no persistence, no stable export fields, and no player-facing warning copy until a later route-card prototype slice explicitly reopens the guard.
 
 ## Milestone Pacing Targets
 
@@ -222,5 +222,5 @@ The existing balance report is a strong base. Add these reports before large eco
 - [The Math of Idle Games, Part I](https://www.kongregate.com/en/pages/the-math-of-idle-games-part-i): useful for the relationship between exponential costs, production, multipliers, and generator relevance.
 - [How to design idle games](https://machinations.io/articles/idle-games-and-how-to-design-them): useful for framing active play, idle rewards, meta loops, and meaningful choices.
 - [What are game simulations and why should you care?](https://machinations.io/articles/what-are-game-simulations-and-why-should-you-care): useful support for making simulations part of the balance process before long-form playtesting.
-- [GameAnalytics progression events](http://docs.gameanalytics.com/events-metrics-and-filtering/event-types/progression-events/): useful for future analytics events around region, stage, boss, and timing funnels.
+- [GameAnalytics progression events](https://docs.gameanalytics.com/events-metrics-and-filtering/event-types/progression-events/): useful for future analytics events around region, stage, boss, and timing funnels.
 - [GameAnalytics retention guide](https://www.gameanalytics.com/blog/how-to-think-about-retention-in-games): useful for treating Day 1, Day 3, Day 7, and longer retention as context-sensitive product signals rather than fixed universal targets.

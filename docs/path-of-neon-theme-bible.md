@@ -6,6 +6,8 @@
 
 The retheme should not become generic cyberpunk. The stronger identity is that old hidden-world social order survived into a neon megacity: factions still behave like sects, initiates still train styles, crews still duel over routes and territory, but the visible language is districts, cognitive pressure, augmentation, protocol manuals, black-market clinics, and hostile AI networks.
 
+For the current short, middle, and long-term milestone order, use [Path Of Neon Roadmap](path-of-neon-roadmap.md). This theme bible remains the product identity authority.
+
 ## Brand Pillars
 
 - **Cyber-sect underworld, not plain sci-fi**: preserve the honor, rivalry, mastery, sect, and hidden-world structure while changing the surface to neon districts and techno-rituals.
@@ -45,14 +47,14 @@ These systems are the recommended deeper design targets. They should be introduc
 | --- | --- | --- | --- |
 | Cognitive Intrusion | Makes Cognitive Art feel like hostile AI/context pressure rather than renamed Qi damage. | Cognitive damage, Context Stability, AI Overload, statuses, target rules. | Stage 3.0 implemented the first Intrusion status; later work can extend hostile application, firewall-style counterplay, or enemies that punish careless Cognitive builds. |
 | Augment Loadouts | Gives equipment a tech identity and creates build choices beyond stat bumps. | Equipment slots, affixes, set bonuses, CP, style branches. | Split gear fantasy into implants, plating, weapons, protocol manuals, and countermeasure kits. |
-| District Heat | Makes idle farming and route choice feel like underworld operations. | Regions, stages, offline farms, assignments, boss gates. | Add heat/attention as a district pressure track that changes rewards, risk, or enemy pressure. |
+| District Heat | Makes idle farming and route choice feel like underworld operations. | Regions, stages, offline farms, assignments, boss gates. | Add heat/attention as a district pressure track that may eventually change rewards, risk, or enemy pressure only after warning and live-decision contracts. |
 | Network Operations | Turns assignments into more than passive patrol/training. | Assignments, offline rewards, hero eligibility, mastery XP. | Add operation types such as Sweep, Scrape, Jam, Calibrate, and Clinic Shift with different outputs. |
 | Protocol Decks | Makes tactics and skill upgrades feel like configured combat routines. | Tactic presets, skill upgrades, selected tactic save field. | Add protocol families or loadout restrictions after the UI copy layer is stable. |
 | Countermeasure Economy | Gives medicine a cyber identity and clearer strategic tradeoffs. | Medicines, auto-medicine policy, status counterplay, herbs. | Rename to countermeasures/stims first, then add targeted anti-overload tools. |
 | Faction Reputation | Makes districts and sects feel socially alive. | Region progress, boss clears, unlocks. | Add reputation or contact tracks only after current save/cloud contracts are ready. |
 | AI Raid Events | Makes online boss direction native to the new theme. | Epic 77 online boss decision, deterministic combat, cloud-save envelope. | Build async server-authoritative event bosses as hostile AI raids, not generic boss fights. |
 
-Prototype order: **Cognitive Intrusion** first, then **District Heat**. Stage 3.0 implemented the first Intrusion slice, giving the combat system a Path of Neon identity through Context Stability, AI Overload, and hostile system pressure. Stage 3.3 closed the route/offline economy cleanup needed before a player-facing heat step; the preferred next District Heat milestone is a non-punitive warning contract before any live reward or route-risk change.
+Prototype order: **Cognitive Intrusion** first, then **District Heat**. Stage 3.0 implemented the first Intrusion slice, giving the combat system a Path of Neon identity through Context Stability, AI Overload, and hostile system pressure. Stage 3.3 closed the route/offline economy cleanup needed before a player-facing heat step; [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md) completes the non-punitive warning contract and keeps District Heat report-only until a later route-card prototype slice explicitly amends the guard.
 
 ## Content Transformation Strategy
 
