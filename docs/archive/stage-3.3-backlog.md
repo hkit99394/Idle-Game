@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.3 is the active next milestone after [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md). Slice 99.3 moved offline reward parity out of `inversion`, Slice 99.4 resolved the remaining `black_iron_foundry_4` visible balance debt with a stage-local formation tune, and Slice 99.5 reran the District Heat promotion decision. District Heat remains report-only in the current runtime; the next milestone should prepare a non-punitive warning contract before any live heat reward or route-risk behavior.
+Stage 3.3 is closed and archived after [Archived Stage 3.2 Backlog](stage-3.2-backlog.md). Slice 99.3 moved offline reward parity out of `inversion`, Slice 99.4 resolved the remaining `black_iron_foundry_4` visible balance debt with a stage-local formation tune, Slice 99.5 reran the District Heat promotion decision, and Slice 99.6 completed release hardening. District Heat remains report-only in the current runtime; the next milestone should prepare a non-punitive warning contract before any live heat reward or route-risk behavior.
 
 This stage owns **Epic 99: Offline Parity And Visible Debt Cleanup**. It should resolve or explicitly re-contract the remaining blockers before any player-facing District Heat UI, reward pressure, route-risk modifier, or offline-farming heat behavior.
 
@@ -27,10 +27,10 @@ Stage 3.3 moved offline farming away from the fixed 10s estimate without changin
 
 ## Source Contracts And Carry-Forward Decisions
 
-- [District Heat Contract](district-heat-contract.md) remains the District Heat authority.
-- [Progression Pacing Roadmap](progression-pacing-roadmap.md) remains the pacing formula authority.
-- [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), configured `balanceTargets`, and `npm run simulate` remain the known-debt authority.
-- [Save API](save-api.md), [Cloud Save Contract](cloud-save-contract.md), and `tests/web/displayTerms.test.ts` remain boundary guards for save/cloud/web exposure.
+- [District Heat Contract](../district-heat-contract.md) remains the District Heat authority.
+- [Progression Pacing Roadmap](../progression-pacing-roadmap.md) remains the pacing formula authority.
+- [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), configured `balanceTargets`, and `npm run simulate` remain the known-debt authority.
+- [Save API](../save-api.md), [Cloud Save Contract](../cloud-save-contract.md), and `tests/web/displayTerms.test.ts` remain boundary guards for save/cloud/web exposure.
 - Stage 3.2 keep decisions still apply until this stage explicitly changes them: no heat save field, no heat cloud envelope field, no live heat UI/copy, no compact export heat fields, no tactic export heat fields, and no heat reward modifier.
 
 ## Scope
@@ -68,7 +68,7 @@ Stage 3.3 moved offline farming away from the fixed 10s estimate without changin
 | 99.3 | 99 | Offline Formula Implementation Or Guard Rails | Complete |
 | 99.4 | 99 | Black Iron Visible Debt Cleanup | Complete |
 | 99.5 | 99 | District Heat Re-Promotion And Warning Contract Decision | Complete |
-| 99.6 | 99 | Release Hardening And Archive Readiness | Planned |
+| 99.6 | 99 | Release Hardening And Archive Readiness | Complete |
 
 ## Slice 99.1: Parity And Debt Baseline
 
@@ -77,7 +77,7 @@ Confirm the current evidence before changing formulas or tuning data.
 ### Tasks
 
 - Run `npm run simulate`, `npm run --silent simulate -- --export-json`, `npm run --silent simulate -- --csv`, `npm run --silent simulate -- --tactics-json`, and `npm run --silent simulate -- --tactics-csv`.
-- Compare current misses against [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), [District Heat Contract](district-heat-contract.md), and [Progression Pacing Roadmap](progression-pacing-roadmap.md).
+- Compare current misses against [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), [District Heat Contract](../district-heat-contract.md), and [Progression Pacing Roadmap](../progression-pacing-roadmap.md).
 - Record the current offline parity rows and verify the known Stage 3.2 classifications still hold.
 - Confirm no live heat, save heat, cloud heat, compact export heat, tactic export heat, or web heat copy appeared after Stage 3.2 closure.
 
@@ -223,7 +223,7 @@ Tune or reclassify `black_iron_foundry_4` before live heat can add pressure.
 - Decide whether the route should be data-tuned, target-reclassified, or carried forward as intentional fast elite pacing.
 - If tuning is approved, update the smallest useful data surface, likely `data/enemies.json`, `data/stages.json`, or `data/regions.json`.
 - Preserve Black Iron boss-gate clarity and avoid broad power creep that erases earlier route pacing.
-- Update [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and [District Heat Contract](district-heat-contract.md) with the new disposition.
+- Update [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), and [District Heat Contract](../district-heat-contract.md) with the new disposition.
 
 ### Acceptance
 
@@ -255,7 +255,7 @@ Re-run the promotion gates after parity and visible debt cleanup.
 
 ### Tasks
 
-- Review Slice 99.1 through 99.4 evidence against [District Heat Contract](district-heat-contract.md).
+- Review Slice 99.1 through 99.4 evidence against [District Heat Contract](../district-heat-contract.md).
 - Re-run or update `districtHeatPromotionDecision` expectations if parity or known-debt gates changed.
 - Choose one next posture:
   - keep District Heat report-only;
@@ -297,7 +297,7 @@ Close Stage 3.3 with full validation, docs cleanup, and a clear Stage 3.4 handof
 
 - Run the verification baseline and capture any skipped command with a reason.
 - Run stale-term scans for active docs/UI and confirm future-only mechanics remain absent from live web source unless explicitly shipped.
-- Update [Current Implemented Systems](current-implemented-systems.md), [Progression Pacing Roadmap](progression-pacing-roadmap.md), [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and [District Heat Contract](district-heat-contract.md) with final Stage 3.3 decisions.
+- Update [Current Implemented Systems](../current-implemented-systems.md), [Progression Pacing Roadmap](../progression-pacing-roadmap.md), [Content Pipeline Inventory](../content-pipeline-inventory.md), [Balance Budget Gates](../balance-budget-gates.md), and [District Heat Contract](../district-heat-contract.md) with final Stage 3.3 decisions.
 - Add Stage 3.3 closure notes to this backlog.
 - Move this backlog to `docs/archive/stage-3.3-backlog.md` only after the milestone is complete.
 
@@ -307,6 +307,29 @@ Close Stage 3.3 with full validation, docs cleanup, and a clear Stage 3.4 handof
 - Active docs point to the current District Heat posture and next implementation step.
 - No active `docs/stage-3.3-backlog.md` remains after archive closure.
 - The next implementation step is clear: remain report-only, open a warning contract, or start a tiny live heat slice.
+
+### Implementation Notes
+
+- Closed Stage 3.3 with Offline Parity and District Heat remaining out of compact JSON/CSV exports, tactic exports, save data, cloud payloads, live rewards, and live web UI.
+- Confirmed the final promotion posture: current District Heat runtime stays `report_only`; Stage 3.4 should prepare a non-punitive warning contract before any player-facing heat copy appears.
+- Confirmed stale-term scans: deferred heat/Trace/Firewall/Calibration Debt/AI Raid terms remain absent from live `web/` source. The only heat tokens in runtime code are simulator/report-only balance surfaces.
+- Browser smoke skipped: Stage 3.3 did not change visible UI or web-state behavior.
+- Archived this backlog to `docs/archive/stage-3.3-backlog.md` after updating active docs to point at the archived milestone.
+
+### Verification
+
+- Passed: `npm run typecheck`
+- Passed: `npm test`
+- Passed: `npm run build`
+- Passed: `npm run simulate`
+- Passed: `npm run support-decision`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: stale-term scan over `web/`
+- Passed: `git diff --check`
 
 ## Verification Baseline
 
@@ -334,6 +357,6 @@ Browser smoke is required only after visible UI or web-state changes. Until then
 
 ## Closure Notes
 
-- Stage 3.3 is not complete until Slices 99.1 through 99.6 are all complete.
-- Archive target after completion: `docs/archive/stage-3.3-backlog.md`.
-- The preferred next implementation path should be chosen by parity and visible debt evidence, not by District Heat theme pressure alone.
+- Stage 3.3 is complete: Slices 99.1 through 99.6 are closed.
+- Archived at `docs/archive/stage-3.3-backlog.md`.
+- The preferred next implementation path is a Stage 3.4 non-punitive District Heat warning contract, chosen by parity and visible debt evidence rather than theme pressure alone.
