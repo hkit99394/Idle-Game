@@ -66,7 +66,7 @@ Stage 3.2 should answer whether the current offline economy and Redline tuning a
 | 98.1 | 98 | Pacing Baseline And Scope Lock | Complete |
 | 98.2 | 98 | Offline Parity Report Surface | Complete |
 | 98.3 | 98 | Offline Formula Decision And Guard Rails | Complete |
-| 98.4 | 98 | Redline Live-Heat Blocker Triage | Planned |
+| 98.4 | 98 | Redline Live-Heat Blocker Triage | Complete |
 | 98.5 | 98 | Targeted Redline And Status Pressure Tuning | Planned |
 | 98.6 | 98 | District Heat Promotion Decision | Planned |
 | 98.7 | 98 | Release Hardening And Archive Readiness | Planned |
@@ -197,12 +197,28 @@ Choose the smallest Redline tuning path before any heat pressure is allowed.
 - Any target reclassification is justified by pacing guidelines, not by hiding failures.
 - The triage preserves `redline_outpost_7` caution from Stage 3.1.
 
+### Implementation Notes
+
+- Ran the default simulator and tactic comparison exports before changing docs. No balance data, tactic data, save schema, export schema, or live heat behavior changed in this slice.
+- Added a focused balance-report test that locks the Redline tactic comparison evidence used by this triage until Slice 98.5 intentionally updates it.
+
+| Blocker | Current evidence | Slice 98.5 action | Owner files |
+| --- | --- | --- | --- |
+| `redline_outpost_1` normal target miss | Baseline clears in `23.4s` against `5-15s`; `long_stabilization` improves to `19.8s` but still misses. | Reclassify Redline normal timing to a late-region status opener, likely `18-25s`, instead of forcing this post-Lotus gate into tutorial-speed timing. | `data/regions.json`, `tests/tools/balanceReport.test.ts` |
+| `redline_outpost_3` elite target miss | Baseline clears in `45s`; `context_break` clears in `38s` and `gatekeeper_burst` in `39.6s`, both `improved_existing_miss`. | Apply a narrow data tune so the baseline route lands inside `20-40s`; do not treat `context_break` or `gatekeeper_burst` as blanket Redline fixes. | `data/enemies.json`, `data/stages.json`, `tests/tools/balanceReport.test.ts` |
+| `redline_outpost_4` severe elite target miss | Baseline clears in `66.6s`; the best reviewed tactic row, `kinetic_crush`, still clears in `55.8s`. | Make this the primary Redline data-tuning target in 98.5 and reduce the severe spike before live heat can add pressure. | `data/enemies.json`, `data/stages.json`, `tests/tools/balanceReport.test.ts` |
+| `redline_outpost_5` elite target miss | Baseline clears in `48s`; `kinetic_crush` improves to `41.4s` but still misses. | Apply a secondary light tune or verify it is fixed by shared Redline enemy changes from the stage 4 tune. | `data/enemies.json`, `data/stages.json`, `tests/tools/balanceReport.test.ts` |
+| Redline status-damage cap | Baseline Redline total status damage is `1077.06`, above the `1000` cap. `long_stabilization` lowers total status damage to `779.25` with no `new_miss`. | Tune default status pressure or counterplay below cap while using `long_stabilization` as the safe benchmark. Do not make it a blanket default tactic in this slice. | `data/enemies.json`, `data/statusEffects.json`, `data/medicines.json`, `data/tactics.json`, `tests/tools/balanceReport.test.ts` |
+| `redline_outpost_7` tactic caution | `context_break` and `gatekeeper_burst` both change the baseline boss `player_clear` into `enemy_hold`, marked `new_miss`. | Preserve this as a hard safety guard for Slice 98.5; any tactic or data tune must keep the boss from regressing. | `data/enemies.json`, `data/tactics.json`, `tests/tools/balanceReport.test.ts` |
+
 ### Verification
 
-- `npm run simulate`
-- `npm run --silent simulate -- --tactics-json`
-- `npm run --silent simulate -- --tactics-csv`
-- `git diff --check`
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 98.5: Targeted Redline And Status Pressure Tuning
 
@@ -211,6 +227,11 @@ Apply the smallest approved Redline tuning changes from Slice 98.4.
 ### Tasks
 
 - Make narrow data or tactic changes for the approved Redline blockers.
+- Reclassify `redline_outpost_1` normal timing to the approved late-region status-opener band before judging it as a remaining miss.
+- Tune `redline_outpost_3` and `redline_outpost_4` through narrow enemy or stage changes; treat `redline_outpost_4` as the primary severe spike.
+- Lightly tune or verify `redline_outpost_5` after shared Redline enemy changes.
+- Bring default Redline status pressure below the configured cap while using `long_stabilization` as a safety benchmark, not a blanket default tactic.
+- Preserve `redline_outpost_7` boss safety so `context_break` and `gatekeeper_burst` do not become unreviewed default fixes.
 - Keep Black Iron Foundry debt visible unless Slice 98.4 explicitly chooses to tune or reclassify it.
 - Avoid broad power creep that erases earlier regions, boss gates, or tactic comparison safety.
 - Update [Content Pipeline Inventory](content-pipeline-inventory.md), [Balance Budget Gates](balance-budget-gates.md), and [District Heat Contract](district-heat-contract.md) with new dispositions.

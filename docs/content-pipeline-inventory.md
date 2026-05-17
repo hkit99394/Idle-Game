@@ -8,7 +8,7 @@ Stage 3.0 added the first post-migration mechanic as data-driven combat content:
 
 Stage 3.1 added the first District Heat authoring proof as report-only balance projection. It appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports, save data, cloud save payloads, and live web UI remain heat-free until a later schema and player-facing mechanic decision.
 
-Stage 3.2 Slice 98.2 added report-only Offline Parity evidence for recommended farm routes. Slice 98.3 classified those rows as `inversion`, `watch`, or `acceptable` and deferred live offline formula changes. The evidence appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports and live offline rewards remain unchanged until a later explicit formula or schema decision.
+Stage 3.2 Slice 98.2 added report-only Offline Parity evidence for recommended farm routes. Slice 98.3 classified those rows as `inversion`, `watch`, or `acceptable` and deferred live offline formula changes. Slice 98.4 triaged Redline live-heat blockers and assigned each Redline miss to a target reclassification, narrow data tune, or status-pressure tune for Slice 98.5. The evidence appears in `npm run simulate` and full debug JSON, while stable compact JSON/CSV exports and live offline rewards remain unchanged until a later explicit formula or schema decision.
 
 ## Current Authoring Contract
 
@@ -99,11 +99,11 @@ The current simulator output keeps these misses visible:
 | Region | Current miss | Current disposition |
 | --- | --- | --- |
 | Black Iron Foundry | `black_iron_foundry_4` clears in `23.4s`, below the configured `25-65s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `redline_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `redline_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `redline_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | `redline_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Deferred tuning debt; visible in `Region Difficulty Curve` and `Region Budget Gates`. |
-| Redline Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Deferred tuning debt; visible in `Region Budget Gates` and boss-gate assumption status-damage fields. |
+| Redline Outpost | `redline_outpost_1` clears in `23.4s`, above the configured `5-15s` normal target. | Slice 98.4 selected target reclassification for Slice 98.5: treat this post-Lotus route as a late-region status opener, likely `18-25s`, rather than tutorial-speed normal pacing. |
+| Redline Outpost | `redline_outpost_3` clears in `45s`, above the configured `20-40s` elite target. | Slice 98.4 selected a narrow Slice 98.5 data tune. `context_break` and `gatekeeper_burst` can pass this row, but they are not blanket fixes. |
+| Redline Outpost | `redline_outpost_4` clears in `66.6s`, above the configured `20-40s` elite target. | Slice 98.4 selected this as the primary Redline data-tuning target for Slice 98.5 because `kinetic_crush` still clears in `55.8s`. |
+| Redline Outpost | `redline_outpost_5` clears in `48s`, above the configured `20-40s` elite target. | Slice 98.4 selected a secondary light tune or verification after shared Redline enemy changes because `kinetic_crush` still clears in `41.4s`. |
+| Redline Outpost | Status damage is `1077.06`, above the configured `1000` cap. | Slice 98.4 selected a default status-pressure or counterplay tune for Slice 98.5, using `long_stabilization` as the safe benchmark because it lowers Redline total status damage to `779.25` with no `new_miss`. |
 
 These are not accepted silent noise. The active authority is this inventory, [balance-budget-gates.md](balance-budget-gates.md), the configured `balanceTargets`, and the current simulator `Region Difficulty Curve` and `Region Budget Gates` output. The archived [Stage 2.0 Backlog](archive/stage-2.0-backlog.md) and [Stage 2.1 Backlog](archive/stage-2.1-backlog.md) are historical closure evidence that these misses were deliberately carried forward as deferred tuning debt.
 
@@ -117,7 +117,8 @@ Epic 71 did not retune content. The tactic comparison export keeps known debt vi
 
 - `redline_outpost_3` can move from `baselineTargetStatus: fail` to `targetStatus: pass` under `context_break` or `gatekeeper_burst`, marked as `budgetShift: improved_existing_miss`.
 - `redline_outpost_7` is untargeted by clear-time budgets, but `context_break` and `gatekeeper_burst` currently change the baseline `player_clear` into `enemy_hold`, marked as `budgetShift: new_miss`.
-- `long_stabilization` preserves the Redline boss clear while reducing status damage in tactic comparison rows, making it the safest first review candidate for status-pressure tuning.
+- `long_stabilization` preserves the Redline boss clear while reducing Redline total status damage from `1077.06` to `779.25` with no `new_miss`, making it the safest benchmark for status-pressure tuning.
+- `kinetic_crush` lowers Redline total status damage to `999.91`, but it creates a `new_miss` on `redline_outpost_2`, so it is not a blanket status fix.
 
 ## Stage 2.0 Closure Notes
 

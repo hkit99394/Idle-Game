@@ -12,6 +12,8 @@ Stage 3.2 Slice 98.2 added report-only Offline Parity rows to the simulator/defa
 
 Stage 3.2 Slice 98.3 classified Offline Parity rows and deferred live offline formula changes. The default live formula still uses the fixed 10s estimate while parity inversions and Redline live-heat blockers remain open.
 
+Stage 3.2 Slice 98.4 triaged the Redline live-heat blockers without changing balance data. Slice 98.5 owns the actual target reclassification and data/status tuning before any live District Heat pressure can ship.
+
 ## Configuration
 
 Budgets live in each region's required `balanceTargets` entry in `data/regions.json`.
@@ -83,7 +85,7 @@ The simulator counts status pressure from enemy-applied `status_apply` events an
 - Veil District should pass timing and status-pressure budgets while clearing its gatekeeper baseline.
 - Black Iron Foundry should exercise defense mechanics and require farmed/trained counterplay for the gatekeeper. The current report intentionally calls out `black_iron_foundry_4` as below its elite clear-time band, and the boss clear-time target remains deferred tuning debt.
 - Lotus Clinic should exercise healing and purge mechanics and then clear through farmed support growth. The boss clear-time target remains deferred tuning debt.
-- Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles.
+- Redline Outpost should show status-heavy corruption pressure. Current tuning intentionally reports clear-time misses on several stages and a status-damage budget miss so the next balance pass has precise handles. Slice 98.4 assigned those handles: reclassify `redline_outpost_1`, tune `redline_outpost_3` and `redline_outpost_4`, lightly tune or verify `redline_outpost_5`, and reduce default status pressure below the `1000` cap while preserving `redline_outpost_7` boss safety.
 
 After Stage 3.1 District Heat closure, these known Black Iron Foundry and Redline Outpost misses do not block report-only heat projection. They do block live heat reward, risk, offline-farming, or route-pressure changes until the affected miss is retuned or explicitly reclassified.
 

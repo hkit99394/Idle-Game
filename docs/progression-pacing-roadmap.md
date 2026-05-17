@@ -91,6 +91,8 @@ That is acceptable for the current prototype. It means long-form pacing must com
 
 One important tuning risk: offline farming currently uses a fixed `estimatedClearTimeSeconds` of `10`, not the actual or target clear time of the selected stage. A stage that actively takes 25 seconds can become too efficient offline after the 60% offline modifier. Stage 3.2 Slice 98.3 deliberately keeps the live formula fixed while reporting `inversion`, `watch`, or `acceptable` parity classifications. Before serious economy tuning, offline rewards should move to stage-specific simulated or target clear time only after the remaining Redline and heat-promotion decisions are resolved.
 
+Stage 3.2 Slice 98.4 also confirms that Redline normal timing needs region-aware treatment before live heat. `redline_outpost_1` behaves like a late-region status opener rather than an early tutorial route, so Slice 98.5 should reclassify that target before tuning the remaining elite/status blockers.
+
 Stage 3.1 closed District Heat as an author-facing projection only: `npm run simulate` and full debug JSON can show projected heat by district/route, but the stable compact JSON/CSV exports, live rewards, save state, and web UI remain heat-free. [Stage 3.2 Backlog](stage-3.2-backlog.md) owns the next pacing step before live heat: offline parity reporting, offline formula decision, Redline live-heat blocker triage/tuning, and the District Heat promotion decision recorded in [District Heat Contract](district-heat-contract.md).
 
 ## Milestone Pacing Targets

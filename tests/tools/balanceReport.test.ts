@@ -853,6 +853,82 @@ describe("balance report", () => {
     expect(csv).toContain("new_miss");
   });
 
+  it("keeps Redline live-heat blocker triage visible in tactic rows", () => {
+    const report = buildTacticComparisonReport(staticData);
+    const exportReport = buildTacticComparisonExport(report);
+    const redlineRows = exportReport.rows.filter(
+      (row) => row.regionId === "redline_outpost"
+    );
+    const getRow = (stageId: string, tacticId: string) => {
+      const row = redlineRows.find(
+        (candidate) =>
+          candidate.stageId === stageId && candidate.tacticId === tacticId
+      );
+
+      if (!row) {
+        throw new Error(`Missing ${stageId} ${tacticId} tactic row`);
+      }
+
+      return row;
+    };
+    const totalStatusDamage = (tacticId: string) =>
+      Number(
+        redlineRows
+          .filter((row) => row.tacticId === tacticId)
+          .reduce((total, row) => total + row.pressure.statusDamage, 0)
+          .toFixed(2)
+      );
+
+    expect(getRow("redline_outpost_1", "long_stabilization")).toMatchObject({
+      durationSeconds: 19.8,
+      targetStatus: "fail",
+      budgetShift: "preserved_existing_miss",
+      pressureDeltas: {
+        statusDamage: -74.96
+      }
+    });
+    expect(getRow("redline_outpost_3", "context_break")).toMatchObject({
+      durationSeconds: 38,
+      targetStatus: "pass",
+      targetStatusChange: "improved",
+      budgetShift: "improved_existing_miss"
+    });
+    expect(getRow("redline_outpost_3", "gatekeeper_burst")).toMatchObject({
+      durationSeconds: 39.6,
+      targetStatus: "pass",
+      budgetShift: "improved_existing_miss"
+    });
+    expect(getRow("redline_outpost_4", "kinetic_crush")).toMatchObject({
+      durationSeconds: 55.8,
+      targetStatus: "fail",
+      budgetShift: "preserved_existing_miss"
+    });
+    expect(getRow("redline_outpost_5", "kinetic_crush")).toMatchObject({
+      durationSeconds: 41.4,
+      targetStatus: "fail",
+      budgetShift: "preserved_existing_miss"
+    });
+    expect(getRow("redline_outpost_7", "context_break")).toMatchObject({
+      baselineResult: "player_clear",
+      result: "enemy_hold",
+      budgetShift: "new_miss"
+    });
+    expect(getRow("redline_outpost_7", "gatekeeper_burst")).toMatchObject({
+      baselineResult: "player_clear",
+      result: "enemy_hold",
+      budgetShift: "new_miss"
+    });
+    expect(totalStatusDamage("balanced_routine")).toBe(1077.06);
+    expect(totalStatusDamage("long_stabilization")).toBe(779.25);
+    expect(
+      redlineRows.filter(
+        (row) =>
+          row.tacticId === "long_stabilization" &&
+          row.budgetShift === "new_miss"
+      )
+    ).toHaveLength(0);
+  });
+
   it("drives budget gates from the real simulated report adapter", () => {
     const gatedData: StaticGameData = {
       ...staticData,
