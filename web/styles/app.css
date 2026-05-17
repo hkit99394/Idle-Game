@@ -652,6 +652,43 @@ textarea {
   font-size: 0.82rem;
 }
 
+.stage-attention-note {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #d8c07d;
+  border-radius: 6px;
+  background: #fff9e7;
+  color: #4d4639;
+}
+
+.stage-attention-note strong,
+.stage-attention-note p,
+.stage-attention-note span {
+  overflow-wrap: anywhere;
+}
+
+.stage-attention-note strong {
+  color: #5f4714;
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.stage-attention-note p {
+  margin: 0;
+  color: #4d4639;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.stage-attention-note span {
+  color: #6b5a34;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
 .stage-card-actions {
   display: flex;
   flex-wrap: wrap;

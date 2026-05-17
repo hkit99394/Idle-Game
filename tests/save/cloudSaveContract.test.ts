@@ -9,15 +9,8 @@ import {
   SAVE_DATA_VERSION,
   validateCloudSaveEnvelope
 } from "../../core";
+import { findDistrictAttentionBoundaryTokens } from "../helpers/districtAttentionBoundary";
 import { staticData } from "../helpers/staticData";
-
-const reportOnlyDistrictHeatSaveKeys = [
-  "districtHeat",
-  "districtHeatProjection",
-  "districtHeatPromotionDecision",
-  "projectedHeat",
-  "heatBand"
-] as const;
 
 describe("cloud save contract", () => {
   it("wraps current saves and routes cloud loads through the core load transaction", () => {
@@ -55,10 +48,9 @@ describe("cloud save contract", () => {
     const rawSave = envelope.rawSave as Record<string, unknown>;
     const rawSaveText = JSON.stringify(rawSave);
 
-    for (const key of reportOnlyDistrictHeatSaveKeys) {
-      expect(Object.hasOwn(rawSave, key)).toBe(false);
-      expect(rawSaveText).not.toContain(key);
-    }
+    expect(findDistrictAttentionBoundaryTokens(envelope)).toEqual([]);
+    expect(findDistrictAttentionBoundaryTokens(rawSave)).toEqual([]);
+    expect(findDistrictAttentionBoundaryTokens(rawSaveText)).toEqual([]);
     expect(result.ok).toBe(true);
     if (!result.ok) {
       return;

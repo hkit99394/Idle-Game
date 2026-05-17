@@ -221,6 +221,8 @@ describe("responsive panel smoke contracts", () => {
     expectDeclaration(cssSource, ".stage-header h1", "color", "#f4fff9");
     expect(cssSource).toContain("color: #e9fff8;");
     expectDeclaration(cssSource, ".stage-card", "color", "var(--neon-ink)");
+    expectDeclaration(cssSource, ".stage-attention-note", "background", "#fff9e7");
+    expectDeclaration(cssSource, ".stage-attention-note", "border-radius", "6px");
     expectDeclaration(
       cssSource,
       ".status-pressure-list .status-backlash",
@@ -243,6 +245,9 @@ describe("responsive panel smoke contracts", () => {
     expect(appPanelSource).toContain('className="battle-grid"');
     expect(featurePanelSources.battle).toContain("event-row");
     expect(featurePanelSources.mapIdle).toContain('className="stage-list"');
+    expect(featurePanelSources.mapIdle).toContain(
+      'className="stage-attention-note"'
+    );
     expect(featurePanelSources.mapIdle).toContain('className="offline-farm-grid"');
     expect(featurePanelSources.rosterFormation).toContain(
       'className="roster-grid"'

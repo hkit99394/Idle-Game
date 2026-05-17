@@ -73,6 +73,24 @@ describe("web workflow baselines", () => {
     expect(viewModel.offlineFarmRecommendation.stageId).toBe(
       webWorkflowBaselineIds.stageId
     );
+    expect(
+      viewModel.stageOptions.find(
+        (stage) => stage.id === webWorkflowBaselineIds.offlineSummaryStageId
+      )
+    ).toMatchObject({
+      isSelectedOfflineFarmStage: true,
+      canSelectOfflineFarm: true,
+      attentionWarning: {
+        label: "Attention rising",
+        body: "Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.",
+        supportText: "Informational only."
+      }
+    });
+    expect(
+      viewModel.stageOptions.find(
+        (stage) => stage.id === webWorkflowBaselineIds.stageId
+      )?.attentionWarning
+    ).toBeNull();
     expect(viewModel.offlineRewardPreview).toMatchObject({
       ok: true,
       stageName: "Greenline Route 3"

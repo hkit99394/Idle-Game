@@ -263,6 +263,27 @@ Slice 100.4 selects the stronger report-only guard-rail path:
 
 Slice 100.5 refreshes the author-facing promotion decision so the report no longer says Stage 3.4 still needs preparation. The current next action is a later route-card warning prototype slice, if player-facing copy is desired; that slice must amend the web-source guard first and keep rewards, route risk, saves, cloud payloads, and stable exports unchanged.
 
+## Stage 3.5 Route-Card Prototype Backlog
+
+[Archived Stage 3.5 Backlog](archive/stage-3.5-backlog.md) completed the tiny District Attention route-card prototype. It reopened this contract only enough to allow approved warning copy in the named route-card owner files, and it kept the report-only District Heat posture for rewards, route risk, enemy pressure, saves, cloud payloads, compact exports, tactic exports, and full-debug report fields.
+
+Stage 3.5 shipped this warning-only route-card surface:
+
+- Allowed live surface: one compact note inside the existing route card in `web/features/mapIdle/panels.tsx`.
+- Allowed display condition: show the warning only when a route card is the selected offline farm target and remains farmable, using existing `isSelectedOfflineFarmStage` and `canSelectOfflineFarm` view state. If no route is selected for offline farming, no warning appears.
+- View-model owner files: `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts`.
+- Allowed player-facing copy in the route-card owner file: `Attention rising`, `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`, and `Informational only.`
+- Allowed implementation identifier: `attentionWarning` in `web/state/viewModels/map.ts`, `web/state/viewModels/mapTypes.ts`, and `web/features/mapIdle/panels.tsx`.
+- Still forbidden in live web source: `District Heat`, `districtHeat`, `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, `heatBand`, `districtAttention`, `district-attention`, `districtAttentionWarning`, heat band labels, heat scores, timers, acknowledgement state, reward/risk modifiers, and copy implying rewards, enemy pressure, route risk, boss difficulty, assignments, or offline returns changed.
+- `tests/web/displayTerms.test.ts` has a narrow allowlist for only the approved owner files and terms; it continues failing any report-only heat field name or unapproved attention identifier in live web source.
+- `tests/helpers/districtAttentionBoundary.ts` keeps save, cloud, compact export, and tactic export checks aligned around report-only heat fields and warning-copy terms.
+
+## Stage 3.6 Live Decision Handoff
+
+Stage 3.6 should decide whether the shipped route-card note remains warning-only or District Heat advances to a bounded live mechanic. The default posture remains warning-only: no reward modifiers, route-risk modifiers, enemy-pressure modifiers, save fields, cloud fields, compact export fields, tactic export fields, acknowledgement state, timers, heat meters, or global UI.
+
+Any live effect must update this contract first, name the exact player-facing surface and rollback language, and add focused tests for simulator evidence, rewards, route risk, enemy pressure, offline rewards, saves, cloud payloads, stable exports, and browser smoke.
+
 ## Verification Requirements
 
 For contract and report-only work:
@@ -302,4 +323,4 @@ Report-only District Heat can advance to a live implementation only when all of 
 - UI posture is explicit and tested.
 - Existing simulator debt remains visible or is intentionally retuned before heat changes rewards.
 
-Until those gates pass and a follow-up player-facing contract is written, District Heat is an authoring/report concept, not a live player-facing system.
+Until those gates pass and a follow-up player-facing contract is written, District Heat remains report-only plus the Stage 3.5 warning-only route-card note, not a gameplay-affecting player-facing system.

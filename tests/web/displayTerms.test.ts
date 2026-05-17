@@ -10,27 +10,32 @@ import {
   formatStyleFamilyName,
   formatTacticModifierLabel
 } from "../../web/displayTerms";
+import { districtAttentionBoundaryTokens } from "../helpers/districtAttentionBoundary";
 
 const webRootUrl = new URL("../../web/", import.meta.url);
 const futureOnlyMechanicSourceTokens = [
-  "District Heat",
-  "districtHeat",
-  "districtHeatProjection",
-  "districtHeatPromotionDecision",
-  "projectedHeat",
-  "heatBand",
-  "district attention",
-  "District attention",
-  "districtAttention",
-  "district-attention",
-  "districtAttentionWarning",
-  "attentionWarning",
-  "Attention rising",
+  ...districtAttentionBoundaryTokens,
   "Trace",
   "Firewall",
   "Calibration Debt",
   "AI Raid"
 ] as const;
+
+const futureOnlyMechanicTokenAllowlist: Partial<
+  Record<(typeof futureOnlyMechanicSourceTokens)[number], string[]>
+> = {
+  "district attention": ["/web/state/viewModels/map.ts"],
+  attentionWarning: [
+    "/web/features/mapIdle/panels.tsx",
+    "/web/state/viewModels/map.ts",
+    "/web/state/viewModels/mapTypes.ts"
+  ],
+  "Attention rising": ["/web/state/viewModels/map.ts"],
+  "Repeated runs are drawing district attention": [
+    "/web/state/viewModels/map.ts"
+  ],
+  "Informational only.": ["/web/state/viewModels/map.ts"]
+};
 
 function collectWebSourceFiles(directoryUrl: URL): URL[] {
   return readdirSync(directoryUrl, { withFileTypes: true }).flatMap((entry) => {
@@ -100,9 +105,14 @@ describe("Path of Neon display terms", () => {
     }));
 
     for (const term of futureOnlyMechanicSourceTokens) {
+      const allowedPathSuffixes = futureOnlyMechanicTokenAllowlist[term] ?? [];
       const matches = sourceByFile
         .filter(({ source }) => source.includes(term))
-        .map(({ file }) => file);
+        .map(({ file }) => file)
+        .filter(
+          (file) =>
+            !allowedPathSuffixes.some((pathSuffix) => file.endsWith(pathSuffix))
+        );
 
       expect(matches, `${term} should stay out of live UI source`).toEqual([]);
     }

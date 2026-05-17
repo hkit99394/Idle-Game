@@ -9,15 +9,8 @@ import {
   validateSaveData
 } from "../../core";
 import { stage12SaveFixture } from "../fixtures/stage12Save";
+import { findDistrictAttentionBoundaryTokens } from "../helpers/districtAttentionBoundary";
 import { staticData } from "../helpers/staticData";
-
-const reportOnlyDistrictHeatSaveKeys = [
-  "districtHeat",
-  "districtHeatProjection",
-  "districtHeatPromotionDecision",
-  "projectedHeat",
-  "heatBand"
-] as const;
 
 describe("save schema factory", () => {
   it("creates a versioned save with progress, farm target, and timestamps", () => {
@@ -102,11 +95,9 @@ describe("save schema factory", () => {
     const serializedText = JSON.stringify(serialized);
 
     expect(save.version).toBe(SAVE_DATA_VERSION);
-    for (const key of reportOnlyDistrictHeatSaveKeys) {
-      expect(Object.hasOwn(save, key)).toBe(false);
-      expect(Object.hasOwn(serialized, key)).toBe(false);
-      expect(serializedText).not.toContain(key);
-    }
+    expect(findDistrictAttentionBoundaryTokens(save)).toEqual([]);
+    expect(findDistrictAttentionBoundaryTokens(serialized)).toEqual([]);
+    expect(findDistrictAttentionBoundaryTokens(serializedText)).toEqual([]);
   });
 
   it("preserves creation and offline reward timestamps when updating a save", () => {
