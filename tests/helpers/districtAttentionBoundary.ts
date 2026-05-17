@@ -5,6 +5,8 @@ export const districtAttentionBoundaryTokens = [
   "districtHeatPromotionDecision",
   "projectedHeat",
   "heatBand",
+  "warning_only",
+  "warning_only_route_card",
   "district attention",
   "District attention",
   "districtAttention",

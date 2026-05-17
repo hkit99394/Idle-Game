@@ -221,7 +221,7 @@ The decision is reversible, but a later slice must do one of these before live h
 
 ## Stage 3.3 Promotion Recheck
 
-Slice 99.5 reruns the promotion decision after offline parity and visible Black Iron debt both pass. The current runtime posture remains **report-only**: District Heat still has no live UI, save field, cloud envelope field, compact export field, tactic export field, heat reward modifier, or route-risk modifier.
+Slice 99.5 reran the promotion decision after offline parity and visible Black Iron debt both passed. At that point the runtime posture remained **report-only**: District Heat had no live UI, save field, cloud envelope field, compact export field, tactic export field, heat reward modifier, or route-risk modifier.
 
 All current promotion gates pass, so Stage 3.4 completed a **non-punitive warning contract** before any player-facing heat copy appears. That contract defines copy scope, UI placement, save posture, export posture, and verification. Passing gates do not authorize live heat rewards or route-risk pressure by themselves.
 
@@ -256,12 +256,12 @@ Slice 100.3 selects the save, export, and report posture:
 Slice 100.4 selects the stronger report-only guard-rail path:
 
 - Stage 3.4 does not hand off a runtime warning prototype.
-- District Heat remains author-facing only in `npm run simulate` and full debug JSON until a later implementation slice amends this contract.
-- `tests/web/displayTerms.test.ts` now blocks the approved future warning copy tokens `district attention`, `District attention`, and `Attention rising` from live `web/` source.
-- The same guard blocks likely implementation identifiers before the contract is reopened: `districtAttention`, `district-attention`, `districtAttentionWarning`, and `attentionWarning`.
-- A later tiny route-card prototype must update this contract, name owner files, amend the source guard with an explicit allowlist, and add focused tests proving rewards, enemy pressure, offline gains, saves, cloud payloads, stable exports, and route risk remain unchanged.
+- District Heat remained author-facing only in `npm run simulate` and full debug JSON until Stage 3.5 amended this contract for the warning-only route-card note.
+- Stage 3.5 replaced the broad future-copy block with a narrow owner-file allowlist in `tests/web/displayTerms.test.ts`.
+- The guard still blocks likely unapproved implementation identifiers: `districtAttention`, `district-attention`, and `districtAttentionWarning`.
+- The completed route-card prototype named owner files, amended the source guard with an explicit allowlist, and added focused tests proving rewards, enemy pressure, offline gains, saves, cloud payloads, stable exports, and route risk remain unchanged.
 
-Slice 100.5 refreshes the author-facing promotion decision so the report no longer says Stage 3.4 still needs preparation. The current next action is a later route-card warning prototype slice, if player-facing copy is desired; that slice must amend the web-source guard first and keep rewards, route risk, saves, cloud payloads, and stable exports unchanged.
+Slice 100.5 refreshed the author-facing promotion decision so the report no longer said Stage 3.4 still needed preparation. Stage 3.5 has since completed the route-card warning prototype, and Stage 3.6 updates the promotion decision to keep District Heat warning-only unless a later dedicated live-effect contract is opened.
 
 ## Stage 3.5 Route-Card Prototype Backlog
 
@@ -276,11 +276,13 @@ Stage 3.5 shipped this warning-only route-card surface:
 - Allowed implementation identifier: `attentionWarning` in `web/state/viewModels/map.ts`, `web/state/viewModels/mapTypes.ts`, and `web/features/mapIdle/panels.tsx`.
 - Still forbidden in live web source: `District Heat`, `districtHeat`, `districtHeatProjection`, `districtHeatPromotionDecision`, `projectedHeat`, `heatBand`, `districtAttention`, `district-attention`, `districtAttentionWarning`, heat band labels, heat scores, timers, acknowledgement state, reward/risk modifiers, and copy implying rewards, enemy pressure, route risk, boss difficulty, assignments, or offline returns changed.
 - `tests/web/displayTerms.test.ts` has a narrow allowlist for only the approved owner files and terms; it continues failing any report-only heat field name or unapproved attention identifier in live web source.
-- `tests/helpers/districtAttentionBoundary.ts` keeps save, cloud, compact export, and tactic export checks aligned around report-only heat fields and warning-copy terms.
+- `tests/helpers/districtAttentionBoundary.ts` keeps save, cloud, compact export, and tactic export checks aligned around report-only heat fields, warning-copy terms, and Stage 3.6 warning-only posture strings.
 
-## Stage 3.6 Live Decision Handoff
+## Stage 3.6 Warning-Only Decision
 
-Stage 3.6 should decide whether the shipped route-card note remains warning-only or District Heat advances to a bounded live mechanic. The default posture remains warning-only: no reward modifiers, route-risk modifiers, enemy-pressure modifiers, save fields, cloud fields, compact export fields, tactic export fields, acknowledgement state, timers, heat meters, or global UI.
+[Archived Stage 3.6 Backlog](archive/stage-3.6-backlog.md) chose **warning-only for Stage 3.6 closure**. The shipped route-card note remains informational and non-punitive. District Heat does not advance to live rewards, route risk, enemy pressure, save fields, cloud fields, compact export fields, tactic export fields, acknowledgement state, timers, heat meters, or global UI in this stage.
+
+The author-facing promotion decision may now report `warning_only` when gates pass, with `warning_only_route_card` as the web boundary. This is a report wording update, not a gameplay or stable-export schema change.
 
 Any live effect must update this contract first, name the exact player-facing surface and rollback language, and add focused tests for simulator evidence, rewards, route risk, enemy pressure, offline rewards, saves, cloud payloads, stable exports, and browser smoke.
 
@@ -314,7 +316,7 @@ For any live or persisted implementation, add the relevant focused suites before
 
 ## Promotion Gates
 
-Report-only District Heat can advance to a live implementation only when all of these are true:
+District Heat can advance from warning-only to a live implementation only when all of these are true:
 
 - The report projection exists or is fully specified.
 - Offline active/parity risk is classified.
@@ -323,4 +325,4 @@ Report-only District Heat can advance to a live implementation only when all of 
 - UI posture is explicit and tested.
 - Existing simulator debt remains visible or is intentionally retuned before heat changes rewards.
 
-Until those gates pass and a follow-up player-facing contract is written, District Heat remains report-only plus the Stage 3.5 warning-only route-card note, not a gameplay-affecting player-facing system.
+Even with current gates passing, District Heat remains report-only projection evidence plus the Stage 3.5 warning-only route-card note until a follow-up player-facing contract is written. It is not a gameplay-affecting player-facing system in Stage 3.6.

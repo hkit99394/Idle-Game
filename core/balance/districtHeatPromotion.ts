@@ -1,4 +1,4 @@
-export type DistrictHeatPromotionPosture = "report_only";
+export type DistrictHeatPromotionPosture = "report_only" | "warning_only";
 
 export type DistrictHeatPromotionGateStatus = "pass" | "watch" | "blocker";
 
@@ -26,7 +26,7 @@ export type DistrictHeatPromotionDecision = {
   boundaries: {
     save: "no_persistence";
     cloud: "no_heat_fields";
-    webUi: "no_player_facing_heat";
+    webUi: "warning_only_route_card";
     compactExport: "no_heat_fields";
     tacticExport: "no_heat_fields";
     liveRewards: "unchanged";
@@ -93,6 +93,8 @@ export function buildDistrictHeatPromotionDecision(
       check.reason.match(/\b[a-z0-9]+(?:_[a-z0-9]+)+_\d+\b/)?.[0]
     )
     .filter((stageId): stageId is string => stageId !== undefined);
+  const hasPromotionBlocker =
+    parityInversions.length > 0 || visibleDebt.length > 0;
   const gates = [
     buildGate(
       {
@@ -151,27 +153,27 @@ export function buildDistrictHeatPromotionDecision(
       label: "Save, UI, and export boundaries",
       status: "pass",
       reason:
-        "The selected posture keeps heat out of saves, cloud envelopes, live web UI, compact exports, tactic exports, and live rewards."
+        "The selected posture keeps heat out of saves, cloud envelopes, compact exports, tactic exports, and live rewards while preserving the warning-only route-card note."
     })
   ];
 
   return {
-    posture: "report_only",
+    posture: hasPromotionBlocker ? "report_only" : "warning_only",
     summary:
       parityInversions.length > 0
         ? "Keep District Heat report-only because offline reward parity still has inversion risk even though Redline default gates now pass."
         : visibleDebt.length > 0
           ? "Keep District Heat report-only because visible balance debt still needs a current disposition before live heat changes rewards or risk."
-          : "Keep District Heat report-only after Stage 3.4; the promotion gates now pass, and the warning contract now requires stronger guard rails before player-facing heat copy ships.",
+          : "Keep District Heat warning-only for Stage 3.6: the route-card note has shipped, promotion gates pass, and no current evidence justifies reward, route-risk, enemy-pressure, save, cloud, or export behavior.",
     nextAction:
       parityInversions.length > 0 || visibleDebt.length > 0
         ? "Resolve offline parity and visible balance debt first, or open a separate non-punitive warning contract before any live heat UI or reward behavior."
-        : "Open a dedicated route-card warning prototype slice if player-facing copy is desired; amend the web-source guard with an explicit allowlist, and keep rewards, route risk, saves, cloud payloads, and stable exports unchanged.",
+        : "Finish Stage 3.6 release hardening and archive readiness, then prepare Stage 4.0 Next Neon System Selection; keep any live District Heat effect behind a later dedicated save/export/UI contract.",
     gates,
     boundaries: {
       save: "no_persistence",
       cloud: "no_heat_fields",
-      webUi: "no_player_facing_heat",
+      webUi: "warning_only_route_card",
       compactExport: "no_heat_fields",
       tacticExport: "no_heat_fields",
       liveRewards: "unchanged"

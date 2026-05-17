@@ -608,15 +608,15 @@ describe("balance report", () => {
       projectedHeat: 100
     });
     expect(report.districtHeatPromotionDecision).toMatchObject({
-      posture: "report_only",
-      summary: expect.stringContaining("promotion gates now pass"),
+      posture: "warning_only",
+      summary: expect.stringContaining("warning-only for Stage 3.6"),
       nextAction: expect.stringContaining(
-        "route-card warning prototype slice"
+        "Stage 4.0 Next Neon System Selection"
       ),
       boundaries: {
         save: "no_persistence",
         cloud: "no_heat_fields",
-        webUi: "no_player_facing_heat",
+        webUi: "warning_only_route_card",
         compactExport: "no_heat_fields",
         tacticExport: "no_heat_fields",
         liveRewards: "unchanged"
@@ -1080,9 +1080,10 @@ describe("balance report", () => {
     expect(formatted).toContain("offline_farm_repetition");
     expect(formatted).toContain("no_decay_active_window");
     expect(formatted).toContain("District Heat Promotion Decision");
-    expect(formatted).toContain("posture: report_only");
-    expect(formatted).toContain("promotion gates now pass");
-    expect(formatted).toContain("route-card warning prototype slice");
+    expect(formatted).toContain("posture: warning_only");
+    expect(formatted).toContain("warning-only for Stage 3.6");
+    expect(formatted).toContain("Stage 4.0 Next Neon System Selection");
+    expect(formatted).toContain("web warning_only_route_card");
     expect(formatted).toContain("offline_parity pass");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
