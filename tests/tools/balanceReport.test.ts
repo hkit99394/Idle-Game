@@ -608,6 +608,10 @@ describe("balance report", () => {
     });
     expect(report.districtHeatPromotionDecision).toMatchObject({
       posture: "report_only",
+      summary: expect.stringContaining("promotion gates now pass"),
+      nextAction: expect.stringContaining(
+        "Stage 3.4 non-punitive warning contract"
+      ),
       boundaries: {
         save: "no_persistence",
         cloud: "no_heat_fields",
@@ -619,6 +623,11 @@ describe("balance report", () => {
     });
     expect(report.districtHeatPromotionDecision.gates).toEqual(
       expect.arrayContaining([
+        expect.objectContaining({
+          id: "report_projection",
+          status: "pass",
+          affectedStageIds: []
+        }),
         expect.objectContaining({
           id: "offline_parity",
           status: "pass",
@@ -1067,6 +1076,8 @@ describe("balance report", () => {
     expect(formatted).toContain("no_decay_active_window");
     expect(formatted).toContain("District Heat Promotion Decision");
     expect(formatted).toContain("posture: report_only");
+    expect(formatted).toContain("promotion gates now pass");
+    expect(formatted).toContain("Stage 3.4 non-punitive warning contract");
     expect(formatted).toContain("offline_parity pass");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");

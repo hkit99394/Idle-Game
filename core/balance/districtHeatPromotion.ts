@@ -159,10 +159,14 @@ export function buildDistrictHeatPromotionDecision(
     posture: "report_only",
     summary:
       parityInversions.length > 0
-        ? "Keep District Heat report-only for Stage 3.2 because offline reward parity still has inversion risk even though Redline default gates now pass."
-        : "Keep District Heat report-only for Stage 3.2 until the next player-facing slice writes a dedicated save, UI, export, and reward contract.",
+        ? "Keep District Heat report-only because offline reward parity still has inversion risk even though Redline default gates now pass."
+        : visibleDebt.length > 0
+          ? "Keep District Heat report-only because visible balance debt still needs a current disposition before live heat changes rewards or risk."
+          : "Keep District Heat report-only for Stage 3.3; the promotion gates now pass, so the next milestone can prepare a non-punitive warning contract before live heat changes rewards or risk.",
     nextAction:
-      "Use Stage 3.3 to resolve offline parity and visible balance debt first, or open a separate non-punitive warning contract before any live heat UI or reward behavior.",
+      parityInversions.length > 0 || visibleDebt.length > 0
+        ? "Resolve offline parity and visible balance debt first, or open a separate non-punitive warning contract before any live heat UI or reward behavior."
+        : "Prepare a Stage 3.4 non-punitive warning contract with explicit copy, UI placement, save posture, export posture, and verification before adding player-facing heat copy; keep rewards and route risk unchanged.",
     gates,
     boundaries: {
       save: "no_persistence",

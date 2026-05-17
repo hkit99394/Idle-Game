@@ -217,7 +217,13 @@ The decision is reversible, but a later slice must do one of these before live h
 - keep offline parity and Black Iron known debt resolved before any heat reward/risk/offline pressure changes;
 - or write a separate non-punitive warning contract with explicit save/UI/export boundaries before any player-facing heat copy appears.
 
-[Stage 3.3 Backlog](stage-3.3-backlog.md) owns that next cleanup path. Slice 99.3 implements the target-derived offline reward estimate using existing route clear-time target bands instead of adding stage-authored estimates or making live save load depend on simulator output. Slice 99.4 gives `black_iron_foundry_4` current passing evidence; District Heat should recheck promotion in Slice 99.5 before any live heat surface changes.
+[Stage 3.3 Backlog](stage-3.3-backlog.md) owns that next cleanup path. Slice 99.3 implements the target-derived offline reward estimate using existing route clear-time target bands instead of adding stage-authored estimates or making live save load depend on simulator output. Slice 99.4 gives `black_iron_foundry_4` current passing evidence.
+
+## Stage 3.3 Promotion Recheck
+
+Slice 99.5 reruns the promotion decision after offline parity and visible Black Iron debt both pass. The current runtime posture remains **report-only**: District Heat still has no live UI, save field, cloud envelope field, compact export field, tactic export field, heat reward modifier, or route-risk modifier.
+
+All current promotion gates pass, so the next milestone should prepare a **non-punitive warning contract** before any player-facing heat copy appears. That contract must define copy scope, UI placement, save posture, export posture, and verification. Passing gates do not authorize live heat rewards or route-risk pressure by themselves.
 
 ## Verification Requirements
 
@@ -258,4 +264,4 @@ Report-only District Heat can advance to a live implementation only when all of 
 - UI posture is explicit and tested.
 - Existing simulator debt remains visible or is intentionally retuned before heat changes rewards.
 
-Until those gates pass, District Heat is an authoring/report concept, not a live player-facing system.
+Until those gates pass and a follow-up player-facing contract is written, District Heat is an authoring/report concept, not a live player-facing system.

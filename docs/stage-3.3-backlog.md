@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.3 is the active next milestone after [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md). Slice 99.3 moved offline reward parity out of `inversion`, and Slice 99.4 resolved the remaining `black_iron_foundry_4` visible balance debt with a stage-local formation tune. District Heat remains report-only until the Slice 99.5 promotion decision is rechecked.
+Stage 3.3 is the active next milestone after [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md). Slice 99.3 moved offline reward parity out of `inversion`, Slice 99.4 resolved the remaining `black_iron_foundry_4` visible balance debt with a stage-local formation tune, and Slice 99.5 reran the District Heat promotion decision. District Heat remains report-only in the current runtime; the next milestone should prepare a non-punitive warning contract before any live heat reward or route-risk behavior.
 
 This stage owns **Epic 99: Offline Parity And Visible Debt Cleanup**. It should resolve or explicitly re-contract the remaining blockers before any player-facing District Heat UI, reward pressure, route-risk modifier, or offline-farming heat behavior.
 
@@ -23,7 +23,7 @@ The Stage 3.3 plan starts from the current Stage 3.2 closure evidence:
 
 Clean up the last economy and tuning blockers that make live District Heat risky.
 
-Stage 3.3 moved offline farming away from the fixed 10s estimate without changing save shape, compact exports, tactic exports, cloud envelopes, or live heat UI. It has also tuned `black_iron_foundry_4`; the remaining stage decision is whether Slice 99.5 keeps District Heat report-only, writes a warning contract, or opens a tiny live heat slice.
+Stage 3.3 moved offline farming away from the fixed 10s estimate without changing save shape, compact exports, tactic exports, cloud envelopes, or live heat UI. It has also tuned `black_iron_foundry_4` and rechecked heat promotion. The remaining work is release hardening and archive readiness.
 
 ## Source Contracts And Carry-Forward Decisions
 
@@ -40,7 +40,7 @@ Stage 3.3 moved offline farming away from the fixed 10s estimate without changin
 - Preserve the completed offline reward path and offline preview semantics without changing save shape.
 - Tune or explicitly reclassify `black_iron_foundry_4` so visible balance debt is no longer vague handoff text.
 - Re-run the District Heat promotion decision after parity and Black Iron cleanup.
-- Decide whether Stage 3.4 should remain report-only, open a non-punitive warning contract, or start a tiny player-facing heat slice.
+- Record Stage 3.4 as the non-punitive warning-contract handoff before any player-facing heat reward or route-risk behavior.
 
 ## Non-Goals
 
@@ -67,7 +67,7 @@ Stage 3.3 moved offline farming away from the fixed 10s estimate without changin
 | 99.2 | 99 | Offline Formula Decision | Complete |
 | 99.3 | 99 | Offline Formula Implementation Or Guard Rails | Complete |
 | 99.4 | 99 | Black Iron Visible Debt Cleanup | Complete |
-| 99.5 | 99 | District Heat Re-Promotion And Warning Contract Decision | Planned |
+| 99.5 | 99 | District Heat Re-Promotion And Warning Contract Decision | Complete |
 | 99.6 | 99 | Release Hardening And Archive Readiness | Planned |
 
 ## Slice 99.1: Parity And Debt Baseline
@@ -201,7 +201,7 @@ Implement the approved formula path, or strengthen guard rails if the formula st
 | `lotus_clinic_6` | `57.5s` | `0.43x` | `acceptable` | `active_faster` |
 | `redline_outpost_6` | `29.5s` | `0.65x` | `acceptable` | `active_faster` |
 
-- `districtHeatPromotionDecision.gates.offline_parity` now passes. At the Slice 99.3 handoff, District Heat remained `report_only` because the known-debt review still waited on `black_iron_foundry_4`; Slice 99.4 later resolved that row, and Slice 99.5 still needs to rerun promotion.
+- `districtHeatPromotionDecision.gates.offline_parity` now passes. At the Slice 99.3 handoff, District Heat remained `report_only` because the known-debt review still waited on `black_iron_foundry_4`; Slice 99.4 later resolved that row, and Slice 99.5 later reran promotion.
 
 ### Verification
 
@@ -238,7 +238,7 @@ Tune or reclassify `black_iron_foundry_4` before live heat can add pressure.
 - `black_iron_foundry_4` now clears in `45s`, inside the configured `25-65s` elite target.
 - `black_iron_foundry_6` remains the Black Iron recommended farm, still clears in `45s`, and keeps offline parity at `0.60x` active with the target-derived `45s` estimate.
 - Black Iron `clear_time`, `reward_curve`, `defense_pressure`, and `boss_gate` budget checks now pass. `districtHeatPromotionDecision.gates.known_debt` now passes with no affected stage ids.
-- District Heat still remains `report_only`; Slice 99.5 must rerun the promotion decision rather than treating this tune as automatic live-heat approval.
+- District Heat still remains `report_only`; at the Slice 99.4 handoff, the next step was to rerun promotion rather than treating this tune as automatic live-heat approval.
 
 ### Verification
 
@@ -269,6 +269,25 @@ Re-run the promotion gates after parity and visible debt cleanup.
 - Stage 3.3 has a clear next heat posture.
 - The decision is reflected in active docs and report expectations.
 - Deferred mechanic terms remain out of live UI unless this slice explicitly opens a player-facing UI task.
+
+### Implementation Notes
+
+- Reran the promotion decision after Slice 99.3 parity cleanup and Slice 99.4 Black Iron debt cleanup.
+- Kept the current runtime posture as `report_only`: no live heat UI, save field, cloud field, compact export field, tactic export field, reward modifier, or route-risk modifier is added in Stage 3.3.
+- Updated `districtHeatPromotionDecision.summary` to state that promotion gates now pass.
+- Chose the next milestone posture: Stage 3.4 should prepare a non-punitive warning contract with explicit copy scope, UI placement, save posture, export posture, and verification before any player-facing heat copy appears.
+- Kept live heat rewards and route-risk modifiers unchanged. Passing gates means "ready to write the warning contract," not "ship heat pressure immediately."
+
+### Verification
+
+- Passed: `npm run simulate`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm test -- tests/docs/markdownLinks.test.ts`
+- Passed: `npm test`
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 99.6: Release Hardening And Archive Readiness
 
