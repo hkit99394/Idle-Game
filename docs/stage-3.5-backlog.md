@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.5 is active after [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md). Stage 3.4 completed the District Heat warning contract, selected neutral `district attention` copy, chose future route-card placement, kept the warning non-persistent and export-free, and strengthened the live-web source guard so warning copy cannot appear until a named implementation slice amends the contract. Slice 101.1 completed the contract reopen and allowlist preflight. Slice 101.2 added non-persistent route-card warning data to the map view model. Slice 101.3 rendered the compact warning in the route-card UI.
+Stage 3.5 is active after [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md). Stage 3.4 completed the District Heat warning contract, selected neutral `district attention` copy, chose future route-card placement, kept the warning non-persistent and export-free, and strengthened the live-web source guard so warning copy cannot appear until a named implementation slice amends the contract. Slice 101.1 completed the contract reopen and allowlist preflight. Slice 101.2 added non-persistent route-card warning data to the map view model. Slice 101.3 rendered the compact warning in the route-card UI. Slice 101.4 hardened boundary tests and re-proved compact/tactic exports remain warning-free.
 
 This stage owns **Epic 101: District Attention Route-Card Prototype**. It should build the smallest player-facing warning surface for District Heat without changing rewards, route risk, enemy pressure, offline gains, save data, cloud payloads, compact exports, tactic exports, or full-debug report shape.
 
@@ -70,7 +70,7 @@ Stage 3.5 should answer whether a player-facing attention note can exist without
 | 101.1 | 101 | Contract Reopen And Allowlist Preflight | Complete |
 | 101.2 | 101 | Non-Persistent Warning View Model | Complete |
 | 101.3 | 101 | Route-Card Warning UI | Complete |
-| 101.4 | 101 | Boundary Tests And Export Proof | Planned |
+| 101.4 | 101 | Boundary Tests And Export Proof | Complete |
 | 101.5 | 101 | Browser Smoke And UX Polish | Planned |
 | 101.6 | 101 | Release Hardening And Archive Readiness | Planned |
 
@@ -193,14 +193,25 @@ Prove the warning did not become a live heat mechanic or durable schema.
 - Save/cloud/export/report boundaries remain explicit and verified.
 - Rewards, route risk, enemy pressure, offline gains, and simulator balance outputs are unchanged except for any expected doc/test wording.
 
+### Implementation Notes
+
+- Added `tests/helpers/districtAttentionBoundary.ts` as the shared durable-boundary token list for report-only heat fields and Stage 3.5 warning copy.
+- Extended `tests/web/displayTerms.test.ts` to use the shared token list, with an explicit owner-file allowlist for `district attention`, `Attention rising`, the approved body prefix, `Informational only.`, and the `attentionWarning` view-model identifier.
+- Strengthened `tests/save/saveSchema.factory.test.ts` and `tests/save/cloudSaveContract.test.ts` so current saves, serialized saves, cloud envelopes, and raw cloud save payloads reject both report-only heat fields and route-card warning terms.
+- Strengthened `tests/tools/balanceReport.test.ts` so compact balance JSON/CSV exports and tactic JSON/CSV exports reject the same durable-boundary tokens while the full report keeps `districtHeatProjection` and `districtHeatPromotionDecision` author-facing.
+- Ran the four simulator export modes and checked the generated compact/tactic export files for District Heat, district-attention, and warning-copy tokens with no matches.
+- Slice 101.4 did not change gameplay, view-model derivation, UI layout, save schema, cloud schema, reward math, route risk, enemy pressure, offline rewards, or simulator report shape.
+
 ### Verification
 
-- Planned: `npm test -- tests/web/displayTerms.test.ts tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts tests/offline/offlineRewards.test.ts tests/tools/balanceReport.test.ts tests/docs/markdownLinks.test.ts`
-- Planned: `npm run --silent simulate -- --export-json`
-- Planned: `npm run --silent simulate -- --csv`
-- Planned: `npm run --silent simulate -- --tactics-json`
-- Planned: `npm run --silent simulate -- --tactics-csv`
-- Planned: `git diff --check`
+- Passed: `npm test -- tests/web/displayTerms.test.ts tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts tests/offline/offlineRewards.test.ts tests/tools/balanceReport.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: `npm run --silent simulate -- --export-json`
+- Passed: `npm run --silent simulate -- --csv`
+- Passed: `npm run --silent simulate -- --tactics-json`
+- Passed: `npm run --silent simulate -- --tactics-csv`
+- Passed: compact/tactic export token scan for District Heat, district-attention, and warning-copy terms.
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 101.5: Browser Smoke And UX Polish
 

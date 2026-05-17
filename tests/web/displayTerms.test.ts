@@ -10,22 +10,11 @@ import {
   formatStyleFamilyName,
   formatTacticModifierLabel
 } from "../../web/displayTerms";
+import { districtAttentionBoundaryTokens } from "../helpers/districtAttentionBoundary";
 
 const webRootUrl = new URL("../../web/", import.meta.url);
 const futureOnlyMechanicSourceTokens = [
-  "District Heat",
-  "districtHeat",
-  "districtHeatProjection",
-  "districtHeatPromotionDecision",
-  "projectedHeat",
-  "heatBand",
-  "district attention",
-  "District attention",
-  "districtAttention",
-  "district-attention",
-  "districtAttentionWarning",
-  "attentionWarning",
-  "Attention rising",
+  ...districtAttentionBoundaryTokens,
   "Trace",
   "Firewall",
   "Calibration Debt",
@@ -41,7 +30,11 @@ const futureOnlyMechanicTokenAllowlist: Partial<
     "/web/state/viewModels/map.ts",
     "/web/state/viewModels/mapTypes.ts"
   ],
-  "Attention rising": ["/web/state/viewModels/map.ts"]
+  "Attention rising": ["/web/state/viewModels/map.ts"],
+  "Repeated runs are drawing district attention": [
+    "/web/state/viewModels/map.ts"
+  ],
+  "Informational only.": ["/web/state/viewModels/map.ts"]
 };
 
 function collectWebSourceFiles(directoryUrl: URL): URL[] {

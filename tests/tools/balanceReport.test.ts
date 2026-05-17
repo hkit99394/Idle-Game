@@ -22,6 +22,7 @@ import {
   formatBalanceReport,
   formatTacticComparisonCsv
 } from "../../tools/balanceReport";
+import { findDistrictAttentionBoundaryTokens } from "../helpers/districtAttentionBoundary";
 import { staticData } from "../helpers/staticData";
 
 describe("balance report", () => {
@@ -654,6 +655,8 @@ describe("balance report", () => {
     expect(Object.hasOwn(exportReport.stages[0], "districtHeatProjection")).toBe(
       false
     );
+    expect(findDistrictAttentionBoundaryTokens(exportReport)).toEqual([]);
+    expect(findDistrictAttentionBoundaryTokens(csv)).toEqual([]);
     expect(BALANCE_STAGE_EXPORT_CSV_HEADERS.some((header) => header.includes("heat"))).toBe(
       false
     );
@@ -883,6 +886,8 @@ describe("balance report", () => {
     expect(Object.hasOwn(exportReport, "districtHeatPromotionDecision")).toBe(
       false
     );
+    expect(findDistrictAttentionBoundaryTokens(exportReport)).toEqual([]);
+    expect(findDistrictAttentionBoundaryTokens(csv)).toEqual([]);
     expect(csvLines).toHaveLength(exportReport.rows.length + 1);
     expect(csv).toContain("kinetic_crush");
     expect(csv).toContain("outer_pressure");
