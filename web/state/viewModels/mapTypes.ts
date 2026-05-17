@@ -1,3 +1,9 @@
+export type RouteAttentionWarningView = {
+  label: string;
+  body: string;
+  supportText: string;
+};
+
 export type StageOptionView = {
   id: string;
   regionId: string;
@@ -11,6 +17,7 @@ export type StageOptionView = {
   isSelectedOfflineFarmStage: boolean;
   canSelectStage: boolean;
   canSelectOfflineFarm: boolean;
+  attentionWarning: RouteAttentionWarningView | null;
   rewards: {
     silver: number;
     cultivation: number;

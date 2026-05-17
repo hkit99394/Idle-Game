@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.5 is active after [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md). Stage 3.4 completed the District Heat warning contract, selected neutral `district attention` copy, chose future route-card placement, kept the warning non-persistent and export-free, and strengthened the live-web source guard so warning copy cannot appear until a named implementation slice amends the contract. Slice 101.1 completed the contract reopen and allowlist preflight.
+Stage 3.5 is active after [Archived Stage 3.4 Backlog](archive/stage-3.4-backlog.md). Stage 3.4 completed the District Heat warning contract, selected neutral `district attention` copy, chose future route-card placement, kept the warning non-persistent and export-free, and strengthened the live-web source guard so warning copy cannot appear until a named implementation slice amends the contract. Slice 101.1 completed the contract reopen and allowlist preflight. Slice 101.2 added non-persistent route-card warning data to the map view model. Slice 101.3 rendered the compact warning in the route-card UI.
 
 This stage owns **Epic 101: District Attention Route-Card Prototype**. It should build the smallest player-facing warning surface for District Heat without changing rewards, route risk, enemy pressure, offline gains, save data, cloud payloads, compact exports, tactic exports, or full-debug report shape.
 
@@ -68,8 +68,8 @@ Stage 3.5 should answer whether a player-facing attention note can exist without
 | Slice | Epic | Title | Status |
 | --- | --- | --- | --- |
 | 101.1 | 101 | Contract Reopen And Allowlist Preflight | Complete |
-| 101.2 | 101 | Non-Persistent Warning View Model | Planned |
-| 101.3 | 101 | Route-Card Warning UI | Planned |
+| 101.2 | 101 | Non-Persistent Warning View Model | Complete |
+| 101.3 | 101 | Route-Card Warning UI | Complete |
 | 101.4 | 101 | Boundary Tests And Export Proof | Planned |
 | 101.5 | 101 | Browser Smoke And UX Polish | Planned |
 | 101.6 | 101 | Release Hardening And Archive Readiness | Planned |
@@ -124,11 +124,20 @@ Add the smallest in-memory route-card warning shape needed by the UI.
 - No core save, cloud, export, simulator, reward, route-risk, enemy-pressure, or offline reward code changes are needed.
 - Existing route-card state remains readable and testable.
 
+### Implementation Notes
+
+- Added `RouteAttentionWarningView` to `web/state/viewModels/mapTypes.ts` and an `attentionWarning` field on each `StageOptionView`.
+- Added the approved warning copy in `web/state/viewModels/map.ts`: `Attention rising`, `Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.`, and `Informational only.`
+- Derived the warning only when `isSelectedOfflineFarmStage` and `canSelectOfflineFarm` are both true, so the data appears only for the selected offline farm route card while it remains farmable.
+- Amended `tests/web/displayTerms.test.ts` with a narrow allowlist for the approved copy and `attentionWarning` identifier in `web/state/viewModels/map.ts` and `web/state/viewModels/mapTypes.ts`. The guard still blocks `District Heat`, report-only heat field names, `districtAttention`, `district-attention`, and `districtAttentionWarning` in live web source.
+- Extended `tests/web/webWorkflowBaselines.test.ts` to assert the selected offline farm route receives the warning and the current selected route does not.
+- Slice 101.2 did not render the warning in the UI and did not change core save, cloud, browser storage, simulator output, stable exports, rewards, route risk, enemy pressure, or offline reward logic.
+
 ### Verification
 
-- Planned: focused map/view-model test if an existing suite covers the owner files.
-- Planned: `npm test -- tests/web/displayTerms.test.ts tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts`
-- Planned: `git diff --check`
+- Passed: `npm run typecheck`
+- Passed: `npm test -- tests/web/webWorkflowBaselines.test.ts tests/web/displayTerms.test.ts tests/save/saveSchema.factory.test.ts tests/save/cloudSaveContract.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: `git diff --check`
 
 ## Slice 101.3: Route-Card Warning UI
 
@@ -148,13 +157,23 @@ Render the approved warning in the route list without changing gameplay.
 - The UI reads as informational and does not look like an active penalty/reward mechanic.
 - No unrelated map/idle layout refactor is mixed into the slice.
 
+### Implementation Notes
+
+- Rendered `stage.attentionWarning` inside `web/features/mapIdle/panels.tsx` as a compact `stage-attention-note` block below route rewards and above the farmability status chip.
+- Kept the route-card copy sourced from the 101.2 view model instead of duplicating strings in the component.
+- Styled the note in `web/styles/app.css` with restrained warm panel colors, 6px radius, no severity band, no heat meter, no number, no timer, and wrapping text for narrow cards.
+- Extended `tests/web/displayTerms.test.ts` so the `attentionWarning` identifier is allowed in the route-card owner file while approved copy remains owned by the view model and report-only heat terms remain blocked.
+- Extended `tests/web/responsivePanelSmoke.test.ts` to protect the route-card warning selector and static styling contract.
+- Slice 101.3 did not change core save, cloud, browser storage, simulator output, stable exports, rewards, route risk, enemy pressure, or offline reward logic.
+
 ### Verification
 
-- Planned: `npm run typecheck`
-- Planned: `npm test -- tests/web/displayTerms.test.ts tests/web/responsivePanelSmoke.test.ts`
-- Planned: `npm run build`
-- Planned: browser smoke for desktop and narrow mobile route-card views.
-- Planned: `git diff --check`
+- Passed: `npm run typecheck`
+- Passed: `npm test -- tests/web/displayTerms.test.ts tests/web/responsivePanelSmoke.test.ts tests/web/webWorkflowBaselines.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: `npm run build`
+- Passed: browser smoke for desktop route-card view.
+- Passed: browser smoke for narrow mobile route-card view.
+- Passed: `git diff --check`
 
 ## Slice 101.4: Boundary Tests And Export Proof
 

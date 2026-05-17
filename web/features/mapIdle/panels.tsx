@@ -259,6 +259,16 @@ export function StageSelectorPanel({
                   {formatResourceLabel("combatExperience")}
                 </span>
               </div>
+              {stage.attentionWarning ? (
+                <div
+                  className="stage-attention-note"
+                  aria-label={stage.attentionWarning.label}
+                >
+                  <strong>{stage.attentionWarning.label}</strong>
+                  <p>{stage.attentionWarning.body}</p>
+                  <span>{stage.attentionWarning.supportText}</span>
+                </div>
+              ) : null}
               <div className="stage-card-actions">
                 <span>
                   {stage.isSelectedOfflineFarmStage

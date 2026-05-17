@@ -6,7 +6,13 @@ import {
   isStageUnlocked
 } from "../../../core";
 import type { PlayerProgress, StaticGameData } from "../../../core";
-import type { StageOptionView } from "./mapTypes";
+import type { RouteAttentionWarningView, StageOptionView } from "./mapTypes";
+
+const ROUTE_CARD_ATTENTION_WARNING: RouteAttentionWarningView = {
+  label: "Attention rising",
+  body: "Repeated runs are drawing district attention. Rewards, enemy pressure, and offline gains are unchanged.",
+  supportText: "Informational only."
+};
 
 export function buildStageOptions(
   data: StaticGameData,
@@ -50,6 +56,9 @@ export function buildStageOptions(
       progress,
       stage.id
     );
+    const isSelectedOfflineFarmStage = selectedOfflineFarmRouteId
+      ? areStageIdsEquivalent(stage.id, selectedOfflineFarmRouteId)
+      : false;
 
     return {
       id: stage.id,
@@ -61,11 +70,13 @@ export function buildStageOptions(
       isUnlocked,
       isCleared,
       isSelectedStage: areStageIdsEquivalent(stage.id, selectedStageId),
-      isSelectedOfflineFarmStage: selectedOfflineFarmRouteId
-        ? areStageIdsEquivalent(stage.id, selectedOfflineFarmRouteId)
-        : false,
+      isSelectedOfflineFarmStage,
       canSelectStage: isUnlocked,
       canSelectOfflineFarm,
+      attentionWarning:
+        isSelectedOfflineFarmStage && canSelectOfflineFarm
+          ? ROUTE_CARD_ATTENTION_WARNING
+          : null,
       rewards: stage.rewards
     };
   });

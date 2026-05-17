@@ -32,6 +32,18 @@ const futureOnlyMechanicSourceTokens = [
   "AI Raid"
 ] as const;
 
+const futureOnlyMechanicTokenAllowlist: Partial<
+  Record<(typeof futureOnlyMechanicSourceTokens)[number], string[]>
+> = {
+  "district attention": ["/web/state/viewModels/map.ts"],
+  attentionWarning: [
+    "/web/features/mapIdle/panels.tsx",
+    "/web/state/viewModels/map.ts",
+    "/web/state/viewModels/mapTypes.ts"
+  ],
+  "Attention rising": ["/web/state/viewModels/map.ts"]
+};
+
 function collectWebSourceFiles(directoryUrl: URL): URL[] {
   return readdirSync(directoryUrl, { withFileTypes: true }).flatMap((entry) => {
     const entryUrl = new URL(
@@ -100,9 +112,14 @@ describe("Path of Neon display terms", () => {
     }));
 
     for (const term of futureOnlyMechanicSourceTokens) {
+      const allowedPathSuffixes = futureOnlyMechanicTokenAllowlist[term] ?? [];
       const matches = sourceByFile
         .filter(({ source }) => source.includes(term))
-        .map(({ file }) => file);
+        .map(({ file }) => file)
+        .filter(
+          (file) =>
+            !allowedPathSuffixes.some((pathSuffix) => file.endsWith(pathSuffix))
+        );
 
       expect(matches, `${term} should stay out of live UI source`).toEqual([]);
     }
