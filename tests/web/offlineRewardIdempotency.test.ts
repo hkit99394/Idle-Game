@@ -116,12 +116,12 @@ describe("offline reward idempotency", () => {
     }
 
     expect(firstOfflineRewards.stageId).toBe("redline_outpost_6");
-    expect(firstOfflineRewards.rewards.clears).toBe(6);
-    expect(firstLoad.activeSave.progress.resources.credits).toBeCloseTo(5832);
-    expect(firstLoad.activeSave.progress.resources.resonance).toBeCloseTo(2916);
-    expect(firstLoad.activeSave.progress.resources.reagents).toBeCloseTo(180);
+    expect(firstOfflineRewards.rewards.clears).toBe(2);
+    expect(firstLoad.activeSave.progress.resources.credits).toBeCloseTo(1944);
+    expect(firstLoad.activeSave.progress.resources.resonance).toBeCloseTo(972);
+    expect(firstLoad.activeSave.progress.resources.reagents).toBeCloseTo(60);
     expect(firstLoad.activeSave.progress.districts.redline_outpost.combatData).toBeCloseTo(
-      1101.6
+      367.2
     );
     expect(firstLoad.activeSave.progress.currentRouteId).toBe("redline_outpost_7");
 

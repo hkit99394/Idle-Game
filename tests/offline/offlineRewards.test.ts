@@ -4,12 +4,14 @@ import {
   applyOfflineRewards,
   calculateOfflineRewards,
   createInitialPlayerProgress,
+  getOfflineFarmEstimatedClearTimeSeconds,
+  getStageById,
   previewOfflineRewards
 } from "../../core";
 import { staticData } from "../helpers/staticData";
 
 describe("offline rewards", () => {
-  it("keeps the default live formula on the fixed estimate while parity is deferred", () => {
+  it("uses the default target-derived farm estimate for live rewards", () => {
     const progress = createInitialPlayerProgress(staticData);
     progress.districts.greenline_approach.highestClearedRouteIndex = 8;
 
@@ -32,12 +34,34 @@ describe("offline rewards", () => {
     }
     expect(result.rewards).toMatchObject({
       offlineSeconds: 3600,
-      clears: 360,
-      silver: 9504,
-      cultivation: 4752,
+      clears: 120,
+      silver: 3168,
+      cultivation: 1584,
       herbs: 0,
-      combatExperience: 4320
+      combatExperience: 1440
     });
+  });
+
+  it("derives farm estimates from current recommended route target bands", () => {
+    const estimates = [
+      ["greenline_approach_8", 30],
+      ["veil_district_5", 17.5],
+      ["black_iron_foundry_6", 45],
+      ["lotus_clinic_6", 57.5],
+      ["redline_outpost_6", 29.5]
+    ] as const;
+
+    for (const [stageId, expectedEstimate] of estimates) {
+      const stage = getStageById(staticData, stageId);
+
+      expect(stage).toBeDefined();
+      if (!stage) {
+        continue;
+      }
+      expect(getOfflineFarmEstimatedClearTimeSeconds(staticData, stage)).toBe(
+        expectedEstimate
+      );
+    }
   });
 
   it("calculates capped offline rewards with efficiency", () => {
@@ -185,9 +209,9 @@ describe("offline rewards", () => {
       data: staticData,
       progress,
       selectedOfflineFarmRouteId: "lotus_clinic_1",
-      previewSeconds: 30,
+      previewSeconds: 120,
       config: {
-        offlineCapSeconds: 100,
+        offlineCapSeconds: 120,
         estimatedClearTimeSeconds: 10,
         minimumClearTimeSeconds: 5,
         offlineEfficiency: 0.5
@@ -198,9 +222,9 @@ describe("offline rewards", () => {
       progress,
       selectedOfflineFarmRouteId: "lotus_clinic_1",
       lastSavedAtMs: 0,
-      currentTimeMs: 30_000,
+      currentTimeMs: 120_000,
       config: {
-        offlineCapSeconds: 100,
+        offlineCapSeconds: 120,
         estimatedClearTimeSeconds: 10,
         minimumClearTimeSeconds: 5,
         offlineEfficiency: 0.5

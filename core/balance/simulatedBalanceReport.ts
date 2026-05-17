@@ -17,7 +17,10 @@ import {
   type BattleEvent
 } from "../combat";
 import type { StageRewards, StaticGameData, StageDefinition } from "../data";
-import { DEFAULT_OFFLINE_REWARD_CONFIG } from "../offline";
+import {
+  DEFAULT_OFFLINE_REWARD_CONFIG,
+  getOfflineFarmEstimatedClearTimeSeconds
+} from "../offline";
 import {
   assessStageClearTimeTarget,
   getStageClearTimeTargetRange,
@@ -377,16 +380,23 @@ function describeOfflineParity(
 }
 
 function buildRegionOfflineParity(
+  data: StaticGameData,
   farmRecommendation: ReturnType<typeof buildRegionFarmRecommendation>,
   stageResults: BattleSummary[]
 ) {
   const config = DEFAULT_OFFLINE_REWARD_CONFIG;
+  const farmStageDefinition = farmRecommendation
+    ? data.stages.find((stage) => stage.id === farmRecommendation.stageId)
+    : null;
+  const offlineEstimatedClearTimeSeconds = farmStageDefinition
+    ? getOfflineFarmEstimatedClearTimeSeconds(data, farmStageDefinition, config)
+    : config.estimatedClearTimeSeconds;
   const offlineEffectiveClearTimeSeconds = Math.max(
-    config.estimatedClearTimeSeconds,
+    offlineEstimatedClearTimeSeconds,
     config.minimumClearTimeSeconds
   );
   const baseConfig = {
-    offlineEstimatedClearTimeSeconds: config.estimatedClearTimeSeconds,
+    offlineEstimatedClearTimeSeconds,
     offlineMinimumClearTimeSeconds: config.minimumClearTimeSeconds,
     offlineEffectiveClearTimeSeconds,
     offlineEfficiency: config.offlineEfficiency
@@ -1506,7 +1516,11 @@ function buildRegionStageProgressionReport(
       farmRecommendation,
       stageResults
     ),
-    offlineParity: buildRegionOfflineParity(farmRecommendation, stageResults),
+    offlineParity: buildRegionOfflineParity(
+      data,
+      farmRecommendation,
+      stageResults
+    ),
     masteryMilestone: buildRegionMasteryMilestone(
       data,
       progressBeforeBoss,

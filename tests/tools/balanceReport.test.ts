@@ -624,13 +624,8 @@ describe("balance report", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: "offline_parity",
-          status: "blocker",
-          affectedStageIds: expect.arrayContaining([
-            "greenline_approach_8",
-            "black_iron_foundry_6",
-            "lotus_clinic_6",
-            "redline_outpost_6"
-          ])
+          status: "pass",
+          affectedStageIds: []
         }),
         expect.objectContaining({
           id: "redline_budget",
@@ -672,15 +667,15 @@ describe("balance report", () => {
     expect(bamboo.offlineParity).toMatchObject({
       stageId: "greenline_approach_8",
       activeClearTimeSeconds: 25.2,
-      offlineEstimatedClearTimeSeconds: 10,
+      offlineEstimatedClearTimeSeconds: 30,
       offlineMinimumClearTimeSeconds: 5,
-      offlineEffectiveClearTimeSeconds: 10,
+      offlineEffectiveClearTimeSeconds: 30,
       offlineEfficiency: 0.6,
       activeClearsPerHour: 142.86,
-      offlineClearsPerHour: 216,
-      offlineToActiveRatio: 1.51,
-      status: "offline_faster",
-      classification: "inversion",
+      offlineClearsPerHour: 72,
+      offlineToActiveRatio: 0.5,
+      status: "active_faster",
+      classification: "acceptable",
       activeRewardsPerHour: {
         farmScore: 22428.57,
         silver: 6285.71,
@@ -688,35 +683,39 @@ describe("balance report", () => {
         combatExperience: 2857.14
       },
       offlineRewardsPerHour: {
-        farmScore: 33912,
-        silver: 9504,
-        cultivation: 4752,
-        combatExperience: 4320
+        farmScore: 11304,
+        silver: 3168,
+        cultivation: 1584,
+        combatExperience: 1440
       }
     });
     expect(mist.offlineParity).toMatchObject({
       stageId: "veil_district_5",
-      offlineToActiveRatio: 0.97,
-      status: "near_parity",
-      classification: "watch"
+      offlineEstimatedClearTimeSeconds: 17.5,
+      offlineToActiveRatio: 0.56,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(blackIron.offlineParity).toMatchObject({
       stageId: "black_iron_foundry_6",
-      offlineToActiveRatio: 2.7,
-      status: "offline_faster",
-      classification: "inversion"
+      offlineEstimatedClearTimeSeconds: 45,
+      offlineToActiveRatio: 0.6,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(lotus.offlineParity).toMatchObject({
       stageId: "lotus_clinic_6",
-      offlineToActiveRatio: 2.45,
-      status: "offline_faster",
-      classification: "inversion"
+      offlineEstimatedClearTimeSeconds: 57.5,
+      offlineToActiveRatio: 0.43,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(demonCult.offlineParity).toMatchObject({
       stageId: "redline_outpost_6",
-      offlineToActiveRatio: 1.92,
-      status: "offline_faster",
-      classification: "inversion"
+      offlineEstimatedClearTimeSeconds: 29.5,
+      offlineToActiveRatio: 0.65,
+      status: "active_faster",
+      classification: "acceptable"
     });
     expect(exportReport.schemaVersion).toBe(BALANCE_EXPORT_SCHEMA_VERSION);
     expect(Object.hasOwn(exportReport.regions[0], "offlineParity")).toBe(false);
@@ -1064,15 +1063,15 @@ describe("balance report", () => {
     expect(formatted).toContain("score 157");
     expect(formatted).toContain("best cleared farm by combatExperience > silver > cultivation priority");
     expect(formatted).toContain("Offline Parity Report");
-    expect(formatted).toContain("offline 1.51x active");
-    expect(formatted).toContain("estimate 10s @ 60%");
-    expect(formatted).toContain("inversion; offline_faster");
+    expect(formatted).toContain("offline 0.5x active");
+    expect(formatted).toContain("estimate 30s @ 60%");
+    expect(formatted).toContain("acceptable; active_faster");
     expect(formatted).toContain("District Heat Projection");
     expect(formatted).toContain("offline_farm_repetition");
     expect(formatted).toContain("no_decay_active_window");
     expect(formatted).toContain("District Heat Promotion Decision");
     expect(formatted).toContain("posture: report_only");
-    expect(formatted).toContain("offline_parity blocker");
+    expect(formatted).toContain("offline_parity pass");
     expect(formatted).toContain("Region Mastery Milestones");
     expect(formatted).toContain("Region Difficulty Curve");
     expect(formatted).toContain("issues black_iron_foundry_4");

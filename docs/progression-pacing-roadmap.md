@@ -89,11 +89,11 @@ That is acceptable for the current prototype. It means long-form pacing must com
 - implemented Path of Neon mechanics such as Cognitive Intrusion;
 - report-only or deferred Path of Neon systems such as District Heat, augment loadouts, countermeasure economy, and AI raid events.
 
-One important tuning risk: offline farming currently uses a fixed `estimatedClearTimeSeconds` of `10`, not the actual or target clear time of the selected stage. A stage that actively takes 25 seconds can become too efficient offline after the 60% offline modifier. Stage 3.2 Slice 98.3 deliberately keeps the live formula fixed while reporting `inversion`, `watch`, or `acceptable` parity classifications. Slice 98.6 keeps District Heat report-only because those inversions remain open. Stage 3.3 Slice 99.2 chooses a target-derived estimate for the next implementation slice: use the selected route's normal/elite clear-time target midpoint with the existing minimum-clear floor, keep preview and apply on the same helper, and avoid save/export schema changes.
+One important tuning risk was offline farming's old fixed `estimatedClearTimeSeconds` of `10`, which could make a 25s active route too efficient offline after the 60% offline modifier. Stage 3.2 Slice 98.3 deliberately kept the live formula fixed while reporting `inversion`, `watch`, or `acceptable` parity classifications. Stage 3.3 Slice 99.3 now implements the target-derived formula chosen in Slice 99.2: use the selected route's normal/elite clear-time target midpoint with the existing minimum-clear floor, keep preview and apply on the same helper, and avoid save/export schema changes. Current recommended farm parity rows are all `acceptable`.
 
 Stage 3.2 Slice 98.5 applied that region-aware Redline treatment: `redline_outpost_1` now uses an `18-25s` normal target, Redline elites use a `19-40s` band, default Redline status pressure is below cap, and the Redline boss remains a baseline clear inside its `80-140s` gate. Slice 98.6 confirms default Redline blocker cleanup is not the live-heat blocker anymore.
 
-Stage 3.1 closed District Heat as an author-facing projection only. Stage 3.2 is archived at [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md), and Slice 98.6 keeps that posture: `npm run simulate` and full debug JSON can show projected heat plus the `report_only` promotion decision, but the stable compact JSON/CSV exports, tactic exports, live rewards, save state, cloud payloads, and web UI remain heat-free. Stage 3.3 is active at [Stage 3.3 Backlog](stage-3.3-backlog.md) to implement the target-derived offline estimate, resolve visible Black Iron debt, and then recheck heat promotion before any live heat reward/risk change.
+Stage 3.1 closed District Heat as an author-facing projection only. Stage 3.2 is archived at [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md), and Slice 98.6 keeps that posture: `npm run simulate` and full debug JSON can show projected heat plus the `report_only` promotion decision, but the stable compact JSON/CSV exports, tactic exports, save state, cloud payloads, and web UI remain heat-free. Stage 3.3 is active at [Stage 3.3 Backlog](stage-3.3-backlog.md) to resolve visible Black Iron debt and then recheck heat promotion before any live heat reward/risk change.
 
 ## Milestone Pacing Targets
 
@@ -178,7 +178,7 @@ The existing balance report is a strong base. Add these reports before large eco
 ## Risks To Watch
 
 - Runaway compounding: small buffs can erase a region when many multipliers stack.
-- Offline inflation: fixed clear-time assumptions can make offline rewards stronger than intended.
+- Offline inflation: target-derived clear-time assumptions must stay aligned with route pacing so offline rewards do not creep above active play.
 - Hard walls without guidance: a boss hold must imply productive player actions.
 - Repeated stale farming: "farm one stage 20 times" can work once in onboarding, but repeated loops need equipment, mastery, assignments, or build decisions.
 - CP lying: CP should not claim a fight is safe when status, healing, formation, or AI Overload mechanics decide the outcome.
@@ -196,8 +196,8 @@ The existing balance report is a strong base. Add these reports before large eco
    - Output expected stage, resources, levels, upgrades, mastery, equipment, and boss outcomes.
 
 3. Offline Reward Recalibration
-   - Replace fixed offline clear time with stage-specific simulated or target clear time.
-   - Add active-vs-offline parity checks.
+   - Keep the target-derived offline estimate covered by active-vs-offline parity checks.
+   - Revisit stage-authored or simulated estimates only if target-band midpoint evidence proves too coarse.
 
 4. Economy Affordability Gates
    - Add report rows or tests for clears-to-upgrade, cultivation-to-skill-upgrade, and boss-prep training cost.

@@ -2,7 +2,7 @@
 
 ## Current Status
 
-Stage 3.3 is the active next milestone after [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md). Stage 3.2 kept District Heat report-only because offline reward parity still has inversion risk and `black_iron_foundry_4` remains visible balance debt.
+Stage 3.3 is the active next milestone after [Archived Stage 3.2 Backlog](archive/stage-3.2-backlog.md). Slice 99.3 has moved offline reward parity out of `inversion`; District Heat remains report-only because `black_iron_foundry_4` is still visible balance debt and the promotion decision has not been rechecked.
 
 This stage owns **Epic 99: Offline Parity And Visible Debt Cleanup**. It should resolve or explicitly re-contract the remaining blockers before any player-facing District Heat UI, reward pressure, route-risk modifier, or offline-farming heat behavior.
 
@@ -13,9 +13,9 @@ Do not start Stage 3.3 by adding live heat rewards. The useful next move is to m
 The Stage 3.3 plan starts from the current Stage 3.2 closure evidence:
 
 - District Heat remains `report_only`: `npm run simulate` and full debug JSON expose `districtHeatProjection` and `districtHeatPromotionDecision`, while compact JSON/CSV exports, tactic exports, saves, cloud envelopes, live rewards, and live web UI stay heat-free.
-- The live offline reward formula still uses the fixed `estimatedClearTimeSeconds: 10`, `minimumClearTimeSeconds: 5`, and `offlineEfficiency: 0.6` defaults.
-- Four recommended farm routes remain offline/active `inversion`: `greenline_approach_8`, `black_iron_foundry_6`, `lotus_clinic_6`, and `redline_outpost_6`.
-- `veil_district_5` remains near parity as `watch`, which is useful as a regression check when formula candidates change.
+- The live offline reward formula now derives the selected farm route estimate from the route's region clear-time target midpoint, with `estimatedClearTimeSeconds: 10` kept only as the missing-target fallback.
+- Current recommended farm routes are all offline/active `acceptable`: `greenline_approach_8`, `veil_district_5`, `black_iron_foundry_6`, `lotus_clinic_6`, and `redline_outpost_6`.
+- The report-only `offlineParity` section now guards those target-derived ratios so the inversion risk cannot silently return.
 - Redline default clear-time, status-pressure, reward-curve, and boss-gate budget checks pass after Slice 98.5, but tactic comparison caution remains for `redline_outpost_7`.
 - `black_iron_foundry_4` remains below its elite clear-time target and must not be masked by live District Heat pressure.
 
@@ -23,7 +23,7 @@ The Stage 3.3 plan starts from the current Stage 3.2 closure evidence:
 
 Clean up the last economy and tuning blockers that make live District Heat risky.
 
-Stage 3.3 should answer whether offline farming can move away from the fixed 10s estimate without destabilizing saves, previews, reports, or progression pacing. It should also either tune `black_iron_foundry_4` or explicitly reclassify it with a current reason before the next heat promotion decision.
+Stage 3.3 moved offline farming away from the fixed 10s estimate without changing save shape, compact exports, tactic exports, cloud envelopes, or live heat UI. It still needs to either tune `black_iron_foundry_4` or explicitly reclassify it with a current reason before the next heat promotion decision.
 
 ## Source Contracts And Carry-Forward Decisions
 
@@ -36,8 +36,8 @@ Stage 3.3 should answer whether offline farming can move away from the fixed 10s
 ## Scope
 
 - Re-baseline current offline parity, budget debt, tactic comparisons, and export boundaries after Stage 3.2 archival.
-- Decide whether the live offline reward formula should use stage-specific simulated or target clear-time estimates, keep the fixed 10s estimate, or add an intermediate guard rail.
-- If approved, update the offline reward path and offline preview semantics without changing save shape.
+- Keep the target-derived offline reward formula aligned across live apply, preview, and report-only parity evidence.
+- Preserve the completed offline reward path and offline preview semantics without changing save shape.
 - Tune or explicitly reclassify `black_iron_foundry_4` so visible balance debt is no longer vague handoff text.
 - Re-run the District Heat promotion decision after parity and Black Iron cleanup.
 - Decide whether Stage 3.4 should remain report-only, open a non-punitive warning contract, or start a tiny player-facing heat slice.
@@ -52,7 +52,7 @@ Stage 3.3 should answer whether offline farming can move away from the fixed 10s
 
 ## Exit Criteria
 
-- Offline parity inversions are resolved, reduced to documented `watch` risk, or explicitly deferred with a current formula decision and tests.
+- Offline parity inversions stay resolved or are explicitly carried forward with current target-derived formula evidence.
 - `black_iron_foundry_4` is tuned, target-reclassified, or carried forward with a named release rationale that active docs also record.
 - District Heat promotion posture is rechecked after Stage 3.3 evidence.
 - Save, cloud, compact export, tactic export, and live web UI boundaries remain explicit.
@@ -65,7 +65,7 @@ Stage 3.3 should answer whether offline farming can move away from the fixed 10s
 | --- | --- | --- | --- |
 | 99.1 | 99 | Parity And Debt Baseline | Complete |
 | 99.2 | 99 | Offline Formula Decision | Complete |
-| 99.3 | 99 | Offline Formula Implementation Or Guard Rails | Planned |
+| 99.3 | 99 | Offline Formula Implementation Or Guard Rails | Complete |
 | 99.4 | 99 | Black Iron Visible Debt Cleanup | Planned |
 | 99.5 | 99 | District Heat Re-Promotion And Warning Contract Decision | Planned |
 | 99.6 | 99 | Release Hardening And Archive Readiness | Planned |
@@ -184,6 +184,34 @@ Implement the approved formula path, or strengthen guard rails if the formula st
 - Offline formula behavior matches the Slice 99.2 decision.
 - Current parity rows are either no longer inverted or are explicitly carried forward with updated evidence.
 - Save/cloud/export/web heat boundaries still pass.
+
+### Implementation Notes
+
+- Added `getOfflineFarmEstimatedClearTimeSeconds` in `core/offline/offlineRewards.ts`. It derives the selected route estimate from `balanceTargets.clearTimeSeconds` using the stage's normal/elite target band midpoint, and falls back to `DEFAULT_OFFLINE_REWARD_CONFIG.estimatedClearTimeSeconds` only when target evidence is missing.
+- Routed both `previewOfflineRewards` and `applyOfflineRewards` through that helper, so web preview and save-load reward application share the same estimate source.
+- Updated `core/balance/simulatedBalanceReport.ts` to use the same helper for report-only `offlineParity`, keeping report evidence aligned with the live formula instead of the old fixed 10s assumption.
+- Updated save-load static-data types to include enemy definitions needed by the target-band classifier. This is a TypeScript contract change only: no save-version bump, persisted field, browser storage migration, cloud-envelope field, compact export schema change, tactic export schema change, or live heat field was added.
+- Current parity evidence after the target-derived formula:
+
+| Recommended farm | Target-derived estimate | Offline/active ratio | Classification | Status |
+| --- | ---: | ---: | --- | --- |
+| `greenline_approach_8` | `30s` | `0.50x` | `acceptable` | `active_faster` |
+| `veil_district_5` | `17.5s` | `0.56x` | `acceptable` | `active_faster` |
+| `black_iron_foundry_6` | `45s` | `0.60x` | `acceptable` | `active_faster` |
+| `lotus_clinic_6` | `57.5s` | `0.43x` | `acceptable` | `active_faster` |
+| `redline_outpost_6` | `29.5s` | `0.65x` | `acceptable` | `active_faster` |
+
+- `districtHeatPromotionDecision.gates.offline_parity` now passes. District Heat remains `report_only` because `known_debt` still watches `black_iron_foundry_4` until Slice 99.4 resolves or reclassifies it, and Slice 99.5 has not re-promoted heat.
+
+### Verification
+
+- Passed: `npm test -- tests/offline/offlineRewards.test.ts`
+- Passed: `npm test -- tests/tools/balanceReport.test.ts`
+- Passed: `npm test -- tests/save/loadTransaction.test.ts`
+- Passed: `npm test -- tests/offline/offlineRewards.test.ts tests/tools/balanceReport.test.ts tests/save/loadTransaction.test.ts tests/web/offlineTimeTravel.test.ts tests/docs/markdownLinks.test.ts`
+- Passed: `npm test`
+- Passed: `npm run typecheck`
+- Passed: `git diff --check`
 
 ## Slice 99.4: Black Iron Visible Debt Cleanup
 

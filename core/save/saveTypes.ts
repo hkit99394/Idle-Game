@@ -145,4 +145,4 @@ export type SaveValidationData = Pick<
   | "tactics"
 >;
 export type SaveLoadTransactionData = SaveValidationData &
-  Pick<StaticGameData, "mastery">;
+  Pick<StaticGameData, "enemies" | "mastery">;
